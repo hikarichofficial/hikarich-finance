@@ -90,3 +90,90 @@ begin
   return v_id;
 end
 $$;
+
+-- ---------------------------------------------------------------- P2: acting as browser roles
+-- Runs as a signed-in user exactly like PostgREST does: verified claims in request.jwt.claims + role switch.
+-- p_auth_age is how long ago the user last authenticated (feeds the `amr` claim used for step-up).
+create or replace function test_helpers.login(
+  p_user uuid, p_aal text default 'aal2', p_auth_age interval default interval '1 minute')
+returns void
+language plpgsql as $$
+begin
+  perform set_config('request.jwt.claims', jsonb_build_object(
+      'sub', p_user, 'role', 'authenticated', 'aal', p_aal,
+      'amr', jsonb_build_array(jsonb_build_object(
+        'method', case when p_aal = 'aal2' then 'totp' else 'password' end,
+        'timestamp', extract(epoch from now() - p_auth_age)::bigint)))::text, true);
+  set local role authenticated;
+end
+$$;
+
+create or replace function test_helpers.as_anon() returns void
+language plpgsql as $$
+begin
+  perform set_config('request.jwt.claims', '{"role":"anon"}', true);
+  set local role anon;
+end
+$$;
+
+create or replace function test_helpers.logout() returns void
+language plpgsql as $$
+begin
+  reset role;
+  perform set_config('request.jwt.claims', '', true);
+end
+$$;
+
+-- Number of rows a query returns under the CURRENT role (RLS applies).
+create or replace function test_helpers.rows(p_sql text) returns bigint
+language plpgsql as $$
+declare
+  n bigint;
+begin
+  execute 'select count(*) from (' || p_sql || ') q' into n;
+  return n;
+end
+$$;
+
+-- Number of rows an INSERT/UPDATE/DELETE affects under the CURRENT role (RLS applies).
+create or replace function test_helpers.affected(p_sql text) returns bigint
+language plpgsql as $$
+declare
+  n bigint;
+begin
+  execute p_sql;
+  get diagnostics n = row_count;
+  return n;
+end
+$$;
+
+-- Creates an auth user + profile (superuser context).
+create or replace function test_helpers.mk_user(p_id uuid, p_name text) returns void
+language plpgsql as $$
+begin
+  insert into auth.users (id, email) values (p_id, p_name || '@example.invalid');
+  insert into public.profiles (id, display_name) values (p_id, p_name);
+end
+$$;
+
+create or replace function test_helpers.mk_member(p_entity uuid, p_user uuid, p_role_key text) returns uuid
+language sql as $$
+  insert into public.entity_memberships (entity_id, user_id, role_id)
+  select p_entity, p_user, r.id from public.roles r where r.role_key = p_role_key
+  returning id
+$$;
+
+-- Message of the error a statement raises ('' when it succeeds).
+create or replace function test_helpers.sqlerrm_of(p_sql text) returns text
+language plpgsql as $$
+begin
+  execute p_sql;
+  return '';
+exception when others then
+  return sqlerrm;
+end
+$$;
+
+-- Helpers are callable while acting as a browser role (declared last so it covers every function above).
+grant usage on schema test_helpers to anon, authenticated;
+grant execute on all functions in schema test_helpers to anon, authenticated;
