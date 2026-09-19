@@ -8,7 +8,7 @@ Status values: Not Started / In Progress / Implemented / Verified.
 
 | Phase | Name                              | Prerequisite | Gate (summary)                                                    | Status      |
 | ----- | --------------------------------- | ------------ | ----------------------------------------------------------------- | ----------- |
-| P0    | Project Bootstrap                 | —            | G0: typecheck/build/lint/tests pass; env contract; CI operational | In Progress |
+| P0    | Project Bootstrap                 | —            | G0: typecheck/build/lint/tests pass; env contract; CI operational | Verified    |
 | P1    | Database Foundation               | P0           | Clean database rebuilds fully from migrations                     | Not Started |
 | P2    | Auth / Entity / RLS               | P1           | Step 15 (P2) / Step 16                                            | Not Started |
 | P3    | Accounting Core                   | P2           | Step 15 (P3) / Step 16                                            | Not Started |
@@ -29,12 +29,12 @@ Status values: Not Started / In Progress / Implemented / Verified.
 
 | Item                 | Done when                                              | Status                                                             |
 | -------------------- | ------------------------------------------------------ | ------------------------------------------------------------------ |
-| GitHub repository    | Private repo, `main`, baseline rules/checks            | Repo exists. Code push and `main` ruleset pending (GitHub access)  |
+| GitHub repository    | Private repo, `main`, baseline rules/checks            | Verified. Repo is public (OWNER decision); `main` ruleset active   |
 | Next.js / TypeScript | App boots locally with the agreed structure            | Implemented                                                        |
 | Supabase local/dev   | Config initialized; environment separation established | Implemented (config, migrations dir, dev/prod projects, env guard) |
-| Vercel               | Project linked to GitHub; Preview deploy works         | Not Started (needs pushed code)                                    |
+| Vercel               | Project linked to GitHub; Preview deploy works         | Verified. Project linked; Production and Preview deploys work      |
 | Environment contract | Typed validation; no secrets committed                 | Implemented and tested                                             |
-| CI baseline          | Typecheck, lint, tests/build pipeline operational      | Workflow written and checks pass locally; first GitHub run pending |
+| CI baseline          | Typecheck, lint, tests/build pipeline operational      | Verified. Both required checks pass on pull requests               |
 
 ## P1 preview (do not start before the P0 gate)
 
