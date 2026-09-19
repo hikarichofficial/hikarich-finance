@@ -10,7 +10,7 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | ----- | --------------------------------- | ------------ | ----------------------------------------------------------------- | ----------- |
 | P0    | Project Bootstrap                 | —            | G0: typecheck/build/lint/tests pass; env contract; CI operational | Verified    |
 | P1    | Database Foundation               | P0           | Clean database rebuilds fully from migrations                     | Verified    |
-| P2    | Auth / Entity / RLS               | P1           | Step 15 (P2) / Step 16                                            | Not Started |
+| P2    | Auth / Entity / RLS               | P1           | G2: crafted cross-Entity reads/writes fail (automated)            | Verified    |
 | P3    | Accounting Core                   | P2           | Step 15 (P3) / Step 16                                            | Not Started |
 | P4    | Money & Reconciliation            | P3           | Step 15 (P4) / Step 16                                            | Not Started |
 | P5    | Sales / AR                        | P4           | Step 15 (P5) / Step 16                                            | Not Started |
@@ -50,3 +50,18 @@ Status values: Not Started / In Progress / Implemented / Verified.
 
 Hosted databases (dev and production) are not changed in P1: migrations are applied to them in a
 controlled step when the application first needs the schema (P2 for dev; production at release).
+
+## P2 checklist (Step 15 §6)
+
+| Item                              | Done when                                                               | Status      |
+| --------------------------------- | ----------------------------------------------------------------------- | ----------- |
+| Supabase Auth and app session     | Login, MFA enrol/challenge, step-up, logout; proxy + server gate        | Implemented |
+| Entity membership and context     | `my_access()`, Entity switch, PT and Personal never merged              | Verified    |
+| Step 06 RLS and permission model  | Catalog, role templates, overrides, policies, column privileges         | Verified    |
+| Server authorization helpers      | `requireAccess`, `requirePermission`, `requireStepUp`, typed errors     | Implemented |
+| Tests: isolation, staff, disabled | `supabase/tests/80_rls_authorization.sql`, `src/domain/authz` unit      | Verified    |
+| Gate G2                           | Crafted requests fail across Entities; suite fails when RLS is weakened | Verified    |
+
+Live Supabase Auth (real password + authenticator) is exercised by the OWNER on the dev project
+after the first bootstrap; the database tests emulate the verified JWT claims exactly as PostgREST
+provides them.

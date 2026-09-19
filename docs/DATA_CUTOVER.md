@@ -20,3 +20,11 @@ data exists yet and none may be loaded before the gates below pass.
 4. Reconcile: trial balance equality, sub-ledger to control account, counts and totals recorded
    as evidence.
 5. OWNER sign-off, then production go-live.
+
+## First OWNER (P2, decision 33)
+
+Access to production starts with one OWNER. Sequence at release: the OWNER creates their own user
+in Supabase Auth (they type the password), a database administrator runs
+`select app_private.bootstrap_owner('<auth user id>', '<display name>')` once, and the OWNER then
+signs in and enrols an authenticator (mandatory for OWNER). Further users are added through
+`assign_membership`; no credentials pass through code, chat or Git.
