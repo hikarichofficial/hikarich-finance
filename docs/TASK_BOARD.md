@@ -9,7 +9,7 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | Phase | Name                              | Prerequisite | Gate (summary)                                                    | Status      |
 | ----- | --------------------------------- | ------------ | ----------------------------------------------------------------- | ----------- |
 | P0    | Project Bootstrap                 | —            | G0: typecheck/build/lint/tests pass; env contract; CI operational | Verified    |
-| P1    | Database Foundation               | P0           | Clean database rebuilds fully from migrations                     | Not Started |
+| P1    | Database Foundation               | P0           | Clean database rebuilds fully from migrations                     | Verified    |
 | P2    | Auth / Entity / RLS               | P1           | Step 15 (P2) / Step 16                                            | Not Started |
 | P3    | Accounting Core                   | P2           | Step 15 (P3) / Step 16                                            | Not Started |
 | P4    | Money & Reconciliation            | P3           | Step 15 (P4) / Step 16                                            | Not Started |
@@ -36,8 +36,17 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | Environment contract | Typed validation; no secrets committed                 | Implemented and tested                                             |
 | CI baseline          | Typecheck, lint, tests/build pipeline operational      | Verified. Both required checks pass on pull requests               |
 
-## P1 preview (do not start before the P0 gate)
+## P1 checklist (Step 15 §5)
 
-Implement Step 02 foundations through migrations; stable Entity ownership/reference conventions;
-constraints, indexes and audit metadata; seed/reference data for non-production only; database
-tests for hard invariants. Gate: a clean database is created entirely from version-controlled migrations.
+| Item                                   | Done when                                                                | Status      |
+| -------------------------------------- | ------------------------------------------------------------------------ | ----------- |
+| Entity ownership/reference conventions | Every Entity table has `entity_id`, composite FKs, immutable `entity_id` | Verified    |
+| Master records                         | Entities, identity, roles, currencies, contacts, catalog, categories     | Implemented |
+| Financial identifiers                  | Concurrency-safe Entity-aware numbering; ledger and journal identities   | Verified    |
+| Constraints, indexes, audit metadata   | Audit columns, append-only audit trail, idempotency, outbox              | Verified    |
+| Seed data (non-production only)        | `supabase/seed.sql`: synthetic Entities/COA/periods only                 | Implemented |
+| DB tests for hard invariants           | Balanced/immutable journals, period rules, Entity isolation, numbering   | Verified    |
+| Gate                                   | Clean database rebuilt twice from migrations only; identical schema      | Verified    |
+
+Hosted databases (dev and production) are not changed in P1: migrations are applied to them in a
+controlled step when the application first needs the schema (P2 for dev; production at release).
