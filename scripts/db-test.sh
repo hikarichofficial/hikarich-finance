@@ -81,6 +81,32 @@ for f in "${migrations[@]}"; do
   prev="$ts"
 done
 
+# Concurrency check (Step 08 §17, Step 13 §9): parallel sessions must receive distinct, gap-free numbers.
+concurrency_test() {
+  echo "  testing  concurrent document-number allocation (4 sessions x 25)"
+  local workers=4 per_worker=25 pids=() w rc=0
+  for ((w = 1; w <= workers; w++)); do
+    (
+      for ((i = 1; i <= per_worker; i++)); do
+        echo "select app_private.allocate_document_number((select id from public.entities where code = 'demo_pt'), 'invoice', date '2026-09-01');"
+      done | "${PSQL[@]}" -o /dev/null "$TEST_URL"
+    ) &
+    pids+=($!)
+  done
+  for pid in "${pids[@]}"; do wait "$pid" || rc=1; done
+  if [[ $rc -ne 0 ]]; then
+    echo "FAIL: a concurrent allocation session failed." >&2
+    exit 1
+  fi
+  local result
+  result="$("${PSQL[@]}" -tA "$TEST_URL" -c "select count(*) || '/' || count(distinct full_number) || '/' || min(sequence_value) || '/' || max(sequence_value) from public.issued_document_numbers where scope = 'invoice'")"
+  local expected="$((workers * per_worker))/$((workers * per_worker))/1/$((workers * per_worker))"
+  if [[ "$result" != "$expected" ]]; then
+    echo "FAIL: concurrent numbering produced $result, expected $expected (count/distinct/min/max)." >&2
+    exit 1
+  fi
+}
+
 rebuild() {
   "${PSQL[@]}" "$ADMIN_URL" -c "drop database if exists ${TEST_DB} with (force)"
   "${PSQL[@]}" "$ADMIN_URL" -c "create database ${TEST_DB}"
@@ -94,10 +120,11 @@ rebuild() {
     echo "  testing  $(basename "$t")"
     "${PSQL[@]}" "$TEST_URL" -f "$t"
   done
+  concurrency_test
 }
 
 fingerprint() {
-  pg_dump --schema-only --no-owner --no-privileges "$TEST_URL" | grep -v -E '^(--|SET |SELECT pg_catalog.set_config|\\restrict|\\unrestrict)' | sha256sum | cut -d' ' -f1
+  pg_dump --schema-only --no-owner --no-privileges --exclude-schema=test_helpers "$TEST_URL" | grep -v -E '^(--|SET |SELECT pg_catalog.set_config|\\restrict|\\unrestrict)' | sha256sum | cut -d' ' -f1
 }
 
 echo "Rebuild #1"
