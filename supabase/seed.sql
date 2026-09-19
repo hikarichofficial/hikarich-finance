@@ -1,0 +1,3 @@
+-- Non-production seed/reference data ONLY (Step 14 §5).
+-- Never put real customer/financial data here. Never run against production.
+-- Intentionally empty in P0; reference data starts with P1 (Step 15 §5).
