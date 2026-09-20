@@ -8,7 +8,7 @@ export const membershipSchema = z.object({
   membership_id: z.uuid(),
   entity_id: z.uuid(),
   entity_code: z.string().min(1),
-  entity_type: z.enum(["pt", "personal"]),
+  entity_type: z.enum(["company", "personal", "other"]),
   entity_name: z.string(),
   role_key: z.string().min(1),
   mfa_required: z.boolean(),
