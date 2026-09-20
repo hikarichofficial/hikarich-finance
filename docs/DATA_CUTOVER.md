@@ -49,3 +49,11 @@ The mechanism exists and is tested; it is used only at release, by the OWNER, pe
    the money layer equals the ledger from the first day. Foreign-currency accounts state the
    original amount and rate on the line. The first bank reconciliation of each account starts from
    the statement's opening balance; a difference to the system is accepted only with a written reason.
+7. Customer invoices still open at the cutover (P5): P5 has no loader for them. Two ways exist and
+   only one may be used per Entity: (a) issue them as normal invoices dated at their original
+   issue date (the numbers then come from the Entity's own invoice family; the customer receives
+   the original document elsewhere), which posts revenue and must therefore be excluded from the
+   opening balance; or (b) post the receivable in the opening balance and keep the invoices
+   outside the system until P11 defines the import. Doing both would count the receivable twice:
+   the receivables control (decision 74) shows the opening balance separately as `other_ledger`
+   so a double count is visible, not silent.
