@@ -21,13 +21,13 @@ locally, or uses `ADMIN_DATABASE_URL` (a non-production server). It refuses any 
 
 ## Suites
 
-| Suite          | Location            | Status (P1)                                                                                                                       |
-| -------------- | ------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
-| Unit / domain  | `tests/unit`        | Environment contract and production-isolation guard                                                                               |
-| Migration / DB | `supabase/tests`    | Clean rebuild x2; structure, Entity isolation, journal, period, numbering, audit and master-data invariants; concurrent numbering |
-| Integration    | `tests/integration` | Empty until P3+                                                                                                                   |
-| RLS / security | `tests/rls`         | Empty until P2                                                                                                                    |
-| End-to-end     | `tests/e2e`         | Empty until UI phases                                                                                                             |
+| Suite          | Location                                  | Status (P1)                                                                                                                       |
+| -------------- | ----------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| Unit / domain  | `tests/unit`, `src/**/*.test.ts`          | Environment contract and production-isolation guard; authorization helpers, step-up window, redirect safety                       |
+| Migration / DB | `supabase/tests`                          | Clean rebuild x2; structure, Entity isolation, journal, period, numbering, audit and master-data invariants; concurrent numbering |
+| Integration    | `tests/integration`                       | Empty until P3+                                                                                                                   |
+| RLS / security | `supabase/tests/80_rls_authorization.sql` | Anonymous, PT-only, staff, viewer, payroll, disabled-user, crafted-write, step-up, admin-guard and last-OWNER cases (P2)          |
+| End-to-end     | `tests/e2e`                               | Empty until UI phases                                                                                                             |
 
 Every fixed financial-integrity bug gets a permanent regression test (Step 13 (testing strategy)).
 
@@ -39,3 +39,34 @@ runs inside a transaction that is rolled back, and asserts failures with an exac
 catalog, so every future table must keep the Entity/audit/append-only conventions. After the
 files, `scripts/db-test.sh` runs four parallel sessions allocating document numbers and requires
 distinct, gap-free values.
+
+## RLS tests (P2)
+
+`80_rls_authorization.sql` acts as `anon` / `authenticated` with `request.jwt.claims` set the way
+PostgREST sets them, so it exercises the same privilege and policy path as a crafted HTTP request.
+It covers: anonymous access to every table and function; every Entity-scoped table for users
+without Personal access; guessed IDs; forged `entity_id`, system columns and cross-Entity
+references; the staff/admin/viewer/payroll/accountant matrix; deny overrides; disabled users and
+memberships (effective on the next statement); MFA and step-up; membership administration guards;
+sensitive-field reveal. The suite was checked against deliberately weakened policies (membership
+check always true, deny override ignored) and fails on both.
+
+## Accounting core tests (P3)
+
+`90_p3_posting.sql` covers, in order: money primitives (rounding vectors, conversion, 400 random
+allocations that must sum exactly); line validation; the system posting service (numbering, retry,
+different content refused, immutability at every level); 250 random balanced scenarios with
+unique gapless journal numbers; the public journal RPCs as browser roles (permission matrix,
+idempotent replay, protected-account override, reversal, cross-Entity refusal, trial balance);
+period controls (review, blockers, closed-period blocks, OWNER reopen with step-up and audited
+reason); and the opening-balance workflow. `db-test.sh` then runs four rounds of six sessions
+posting the same ten events at once into months without a period row, and fails on any error in
+any session, on a missing or duplicated journal, or on a hole in the year's journal numbers. The suite was checked
+against deliberately broken code (posting key no longer identifying the event, the opening
+account-class filter removed, the reopen step-up removed, the period-creation lock removed, the
+numbering trigger removed) and fails on each. An independent review of the migrations found 6
+medium and 8 low issues; all but the documented deferrals were fixed and each has a regression
+check (DECISIONS 47-50).
+
+Application unit tests (`src/domain/money`, `src/domain/accounting`) use the same rounding and
+allocation vectors as the database tests, so both engines are held to identical behaviour.

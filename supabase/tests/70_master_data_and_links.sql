@@ -133,8 +133,10 @@ begin
   perform test_helpers.expect_error(
     format('insert into public.profiles (id, display_name) values (%L,%L)', gen_random_uuid(), 'x'), '23503', 'profile needs an auth user');
   insert into public.profiles (id, display_name) values (v_user, 'Synthetic User');
-  perform test_helpers.expect_error(
-    format('update public.profiles set is_active = false where id = %L', v_user), '23514', 'disabled profile needs timestamp');
+  update public.profiles set is_active = false where id = v_user;
+  perform test_helpers.assert((select disabled_at is not null from public.profiles where id = v_user), 'disabling a profile stamps disabled_at');
+  update public.profiles set is_active = true where id = v_user;
+  perform test_helpers.assert((select disabled_at is null from public.profiles where id = v_user), 're-enabling clears disabled_at');
   insert into public.roles (role_key, name) values ('test_role', 'Test role') returning id into v_role;
   insert into public.entity_memberships (entity_id, user_id, role_id) values (pt, v_user, v_role) returning id into v_m;
   perform test_helpers.expect_error(
