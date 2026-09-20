@@ -11,7 +11,7 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | P0    | Project Bootstrap                 | —            | G0: typecheck/build/lint/tests pass; env contract; CI operational | Verified    |
 | P1    | Database Foundation               | P0           | Clean database rebuilds fully from migrations                     | Verified    |
 | P2    | Auth / Entity / RLS               | P1           | G2: crafted cross-Entity reads/writes fail (automated)            | Verified    |
-| P3    | Accounting Core                   | P2           | Step 15 (P3) / Step 16                                            | Not Started |
+| P3    | Accounting Core                   | P2           | Trial postings balance; retries never double-post; immutable      | Verified    |
 | P4    | Money & Reconciliation            | P3           | Step 15 (P4) / Step 16                                            | Not Started |
 | P5    | Sales / AR                        | P4           | Step 15 (P5) / Step 16                                            | Not Started |
 | P6    | Purchases / AP                    | P5           | Step 15 (P6) / Step 16                                            | Not Started |
@@ -65,3 +65,18 @@ controlled step when the application first needs the schema (P2 for dev; product
 Live Supabase Auth (real password + authenticator) is exercised by the OWNER on the dev project
 after the first bootstrap; the database tests emulate the verified JWT claims exactly as PostgREST
 provides them.
+
+## P3 checklist (Step 15 §7)
+
+| Item                                     | Done when                                                                     | Status   |
+| ---------------------------------------- | ----------------------------------------------------------------------------- | -------- |
+| COA and protected/control accounts       | Templates, stable keys, override rule enforced for manual journals (P1 + P3)  | Verified |
+| Journal / posting engine                 | One path, source linkage, posting key, numbering, reversal, adjusting journal | Verified |
+| Idempotency and retry safety             | Replay, mismatch refusal, four-session concurrency test                       | Verified |
+| Accounting periods open / close / reopen | Review, blockers, OWNER reopen with step-up and reason, all audited           | Verified |
+| Opening-balance workflow                 | Balance-sheet only, clearing to zero or documented, completion ends window    | Verified |
+| Decimal-safe money, currency, rounding   | Database primitives and application `Decimal` with shared test vectors        | Verified |
+| Gate                                     | 250 random scenarios balance; duplicates cannot double-post; posted immutable | Verified |
+
+Open items carried forward: approval workflow for manual journals, year-end closing entries and
+sub-ledger reconciliation of opening balances (DECISIONS 41, 44, 45).

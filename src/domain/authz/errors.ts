@@ -10,6 +10,7 @@ export const AUTHZ_ERROR_CODES = [
   "STEP_UP_REQUIRED",
   "INVALID",
   "LAST_OWNER",
+  "CONFLICT",
 ] as const;
 
 export type AuthzErrorCode = (typeof AUTHZ_ERROR_CODES)[number];
@@ -47,5 +48,7 @@ export function authzErrorMessage(code: AuthzErrorCode): string {
       return "Permintaan tidak valid.";
     case "LAST_OWNER":
       return "Tindakan ditolak: setidaknya satu OWNER aktif harus tetap ada.";
+    case "CONFLICT":
+      return "Data sudah berubah atau tidak dapat diproses dalam keadaan saat ini. Muat ulang lalu coba lagi.";
   }
 }

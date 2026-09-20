@@ -86,6 +86,7 @@ describe("authorization errors", () => {
     expect(parseAuthzCode("FORBIDDEN: no permission")).toBe("FORBIDDEN");
     expect(parseAuthzCode("STEP_UP_REQUIRED")).toBe("STEP_UP_REQUIRED");
     expect(parseAuthzCode("LAST_OWNER: cannot remove")).toBe("LAST_OWNER");
+    expect(parseAuthzCode("CONFLICT: journal is already posted")).toBe("CONFLICT");
     expect(parseAuthzCode("relation does not exist")).toBeNull();
     expect(parseAuthzCode("FORBIDDENISH")).toBeNull();
     expect(parseAuthzCode(null)).toBeNull();

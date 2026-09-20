@@ -174,6 +174,26 @@ exception when others then
 end
 $$;
 
+-- Runs a statement and requires it to fail with a message starting with p_prefix (the application-level
+-- error prefixes UNAUTHENTICATED / FORBIDDEN / STEP_UP_REQUIRED / INVALID / CONFLICT, Step 06 §12).
+create or replace function test_helpers.expect_msg(p_sql text, p_prefix text, p_label text) returns void
+language plpgsql as $$
+declare
+  v_msg text;
+begin
+  begin
+    execute p_sql;
+  exception when others then
+    get stacked diagnostics v_msg = message_text;
+    if left(v_msg, length(p_prefix)) <> p_prefix then
+      raise exception 'TEST FAIL [%]: expected message starting with "%" but got "%"', p_label, p_prefix, v_msg;
+    end if;
+    return;
+  end;
+  raise exception 'TEST FAIL [%]: statement unexpectedly succeeded', p_label;
+end
+$$;
+
 -- Helpers are callable while acting as a browser role (declared last so it covers every function above).
 grant usage on schema test_helpers to anon, authenticated;
 grant execute on all functions in schema test_helpers to anon, authenticated;
