@@ -194,6 +194,49 @@ begin
 end
 $$;
 
+-- ---------------------------------------------------------------- P5: sales layer helpers (also used by the concurrency rounds)
+create function test_helpers.today(p_entity uuid) returns date
+language sql stable security definer set search_path = pg_catalog, public as $f$ select app_private.entity_today(p_entity) $f$;
+
+-- The reconciliation invariants of the sales layer, checked after every major step: money movements equal the
+-- ledger, the AR and advance sub-ledgers equal the ledger, no invoice is over-allocated or over-refunded, and a
+-- payment's split adds up.
+create function test_helpers.controls(p_entity uuid, p_label text) returns void
+language plpgsql security definer set search_path = pg_catalog, public as $f$
+declare
+  c record;
+begin
+  if exists (select 1 from app_private.money_control_rows(p_entity) r where r.ledger_balance <> r.movement_base_balance) then
+    raise exception 'TEST FAIL [%]: money movements differ from the ledger', p_label;
+  end if;
+  select * into c from app_private.ar_control(p_entity);
+  if c.sub_ledger <> c.ledger_sales then
+    raise exception 'TEST FAIL [%]: AR sub-ledger % differs from ledger %', p_label, c.sub_ledger, c.ledger_sales;
+  end if;
+  if c.advance_sub_ledger <> c.advance_ledger_sales then
+    raise exception 'TEST FAIL [%]: advance sub-ledger % differs from ledger %', p_label, c.advance_sub_ledger, c.advance_ledger_sales;
+  end if;
+  if exists (select 1 from app_private.invoice_positions(p_entity) x where x.outstanding < 0 or x.base_outstanding < 0
+             or x.settled > x.total) then
+    raise exception 'TEST FAIL [%]: an invoice is over-allocated', p_label;
+  end if;
+  if exists (select 1 from public.payments p where p.entity_id = p_entity and p.allocated_amount + p.advance_amount <> p.amount) then
+    raise exception 'TEST FAIL [%]: a payment split does not add up', p_label;
+  end if;
+  if exists (select 1 from public.payments p where p.entity_id = p_entity and p.status = 'confirmed'
+             and (select coalesce(sum(a.amount), 0) from public.payment_allocations a
+                  where a.payment_id = p.id and a.kind = 'payment' and a.status = 'active') <> p.allocated_amount) then
+    raise exception 'TEST FAIL [%]: payment allocations differ from the payment', p_label;
+  end if;
+  if exists (select 1 from public.payments p where p.entity_id = p_entity and p.status = 'confirmed'
+             and (select rem_amount from app_private.payment_advance_state(p.id)) < 0) then
+    raise exception 'TEST FAIL [%]: an advance went negative', p_label;
+  end if;
+end
+$f$;
+grant execute on function test_helpers.controls(uuid, text) to public;
+
+
 -- Helpers are callable while acting as a browser role (declared last so it covers every function above).
 grant usage on schema test_helpers to anon, authenticated;
 grant execute on all functions in schema test_helpers to anon, authenticated;
