@@ -3,7 +3,7 @@ import { createServerClient } from "@supabase/ssr";
 import { getSupabasePublicConfig } from "./config";
 
 /** Paths reachable without a session. Everything else needs one (optimistic check only). */
-export const PUBLIC_PATHS = ["/login"] as const;
+export const PUBLIC_PATHS = ["/login", "/i"] as const;
 
 export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
@@ -50,5 +50,10 @@ export async function updateSession(request: NextRequest): Promise<NextResponse>
   }
 
   response.headers.set("Cache-Control", "private, no-store");
+  if (pathname === "/i" || pathname.startsWith("/i/")) {
+    // The customer page carries a secret token in its address: keep it out of referrers, caches and search.
+    response.headers.set("Referrer-Policy", "no-referrer");
+    response.headers.set("X-Robots-Tag", "noindex, nofollow, noarchive");
+  }
   return response;
 }
