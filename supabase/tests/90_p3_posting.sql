@@ -10,6 +10,7 @@ declare
   pt uuid := test_helpers.entity('demo_pt');
   pe uuid := test_helpers.entity('demo_personal');
   v_open uuid;
+  v_per uuid;
 begin
   perform test_helpers.mk_user('b0000000-0000-0000-0000-000000000001', 'owner');
   perform app_private.bootstrap_owner('b0000000-0000-0000-0000-000000000001', 'owner');
@@ -27,6 +28,16 @@ begin
   perform app_private.provision_default_coa(v_open);
   perform test_helpers.mk_member(v_open, 'b0000000-0000-0000-0000-000000000001', 'owner');
   perform test_helpers.mk_member(v_open, 'b0000000-0000-0000-0000-000000000006', 'accountant');
+
+  -- A clean company Entity for the period controls: the posting-engine scenarios above book raw journals on the
+  -- demo bank account, which (correctly) leaves the demo Entity's money layer out of step with its ledger and
+  -- would block its Close since P4.
+  insert into public.entities (entity_type, code, legal_name)
+  values ('company', 'p3_period', 'P3 PERIOD (synthetic)') returning id into v_per;
+  perform app_private.provision_default_coa(v_per);
+  perform test_helpers.mk_member(v_per, 'b0000000-0000-0000-0000-000000000001', 'owner');
+  perform test_helpers.mk_member(v_per, 'b0000000-0000-0000-0000-000000000004', 'viewer_auditor');
+  perform test_helpers.mk_member(v_per, 'b0000000-0000-0000-0000-000000000006', 'accountant');
 end
 $$;
 
@@ -552,7 +563,7 @@ $$;
 -- ================================================================ 6. period controls
 do $$
 declare
-  pt uuid := test_helpers.entity('demo_pt');
+  pt uuid := test_helpers.entity('p3_period');
   v_owner uuid := 'b0000000-0000-0000-0000-000000000001';
   v_acct uuid := 'b0000000-0000-0000-0000-000000000006';
   v_viewer uuid := 'b0000000-0000-0000-0000-000000000004';
