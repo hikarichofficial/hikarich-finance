@@ -80,7 +80,18 @@ declare
                                          'create_journal_draft', 'discard_journal_draft', 'post_journal',
                                          'reverse_journal', 'trial_balance', 'period_close_checks',
                                          'begin_period_close', 'cancel_period_close', 'close_period',
-                                         'reopen_period', 'post_opening_balances', 'complete_opening_balances'];
+                                         'reopen_period', 'post_opening_balances', 'complete_opening_balances',
+                                         -- P4 money, transfers and reconciliation
+                                         'money_control', 'account_activity', 'create_financial_account',
+                                         'update_financial_account', 'set_financial_account_active',
+                                         'record_balance_adjustment', 'create_transfer', 'confirm_transfer',
+                                         'cancel_transfer', 'reverse_transfer', 'create_reconciliation_session',
+                                         'discard_reconciliation_session', 'add_statement_lines',
+                                         'match_statement_line', 'unmatch_statement_line', 'exclude_statement_line',
+                                         'include_statement_line', 'complete_reconciliation',
+                                         'reopen_reconciliation', 'reconciliation_workspace',
+                                         'reconciliation_candidates', 'unreconciled_movements',
+                                         'reconciliation_status'];
 begin
   select string_agg(format('anon can execute public.%s', p.proname), ', ')
     into offenders

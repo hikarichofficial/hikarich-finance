@@ -41,5 +41,11 @@ The mechanism exists and is tested; it is used only at release, by the OWNER, pe
 3. `complete_opening_balances(entity, note)` succeeds only when 8900 is zero, or when a written
    migration adjustment note documents the residual. It ends the opening window for that Entity.
 4. The period that contains the cutover date cannot be closed before step 3.
-5. Sub-ledger detail behind control accounts (open invoices and bills, bank balances, loans,
-   assets) is loaded by the P4-P8 modules and reconciled to the control account (decision 44).
+5. Sub-ledger detail behind control accounts (open invoices and bills, loans, assets) is loaded
+   by the P5-P8 modules and reconciled to the control account (decision 44).
+6. Cash, bank and e-wallet balances (P4, decisions 51-53): create every financial account first
+   (`create_financial_account`, without postings on its ledger account), then post the opening
+   balance line on that account's ledger account. The same command creates the opening movement, so
+   the money layer equals the ledger from the first day. Foreign-currency accounts state the
+   original amount and rate on the line. The first bank reconciliation of each account starts from
+   the statement's opening balance; a difference to the system is accepted only with a written reason.
