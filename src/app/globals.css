@@ -189,3 +189,208 @@ body {
 .logout {
   margin-top: 16px;
 }
+
+/* P5 customer documents: invoice and receipt (print-clean; final design comes with P13). */
+.doc-page {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.doc-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.doc-actions a {
+  color: var(--text-secondary);
+}
+
+.print-button {
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--foreground);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.doc {
+  padding: 32px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(25, 23, 20, 0.06);
+  line-height: 1.5;
+}
+
+.doc p {
+  margin: 0;
+}
+
+.doc h2 {
+  margin: 0 0 6px;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.doc-head,
+.doc-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.doc-head {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--line);
+}
+
+.doc-meta {
+  margin: 24px 0;
+}
+
+.doc-brand {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.doc-title {
+  text-align: right;
+}
+
+.doc-kind {
+  letter-spacing: 0.14em;
+  color: var(--text-secondary);
+}
+
+.doc-number {
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+}
+
+.doc-status {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.doc-status-ok {
+  color: #1f6b3a;
+  border-color: #1f6b3a;
+}
+
+.doc-status-warn {
+  color: #9b2c2c;
+  border-color: #9b2c2c;
+}
+
+.doc dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 4px 24px;
+  margin: 0;
+}
+
+.doc dd {
+  margin: 0;
+  text-align: right;
+}
+
+.doc-lines {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.doc-lines th,
+.doc-lines td {
+  padding: 10px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+  vertical-align: top;
+}
+
+.doc-lines th {
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.doc .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.doc-totals {
+  width: min(100%, 360px);
+  margin: 20px 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
+
+.doc-totals .grand {
+  padding-top: 8px;
+  border-top: 1px solid var(--line);
+  font-weight: 600;
+}
+
+.doc-block {
+  margin-top: 24px;
+}
+
+.doc-block ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.account-number {
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+}
+
+.doc-claim {
+  margin-top: 24px;
+}
+
+.doc-claim .form {
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .doc-page {
+    padding: 0;
+    width: 100%;
+  }
+
+  .doc {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+}
