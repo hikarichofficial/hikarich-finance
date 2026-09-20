@@ -75,7 +75,12 @@ do $$
 declare
   offenders text;
   rpc_allowlist constant text[] := array['my_access', 'assign_membership', 'set_membership_status',
-                                         'set_user_active', 'set_permission_override', 'reveal_sensitive'];
+                                         'set_user_active', 'set_permission_override', 'reveal_sensitive',
+                                         -- P3 accounting core
+                                         'create_journal_draft', 'discard_journal_draft', 'post_journal',
+                                         'reverse_journal', 'trial_balance', 'period_close_checks',
+                                         'begin_period_close', 'cancel_period_close', 'close_period',
+                                         'reopen_period', 'post_opening_balances', 'complete_opening_balances'];
 begin
   select string_agg(format('anon can execute public.%s', p.proname), ', ')
     into offenders
