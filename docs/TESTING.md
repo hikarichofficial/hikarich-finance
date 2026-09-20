@@ -94,3 +94,31 @@ the accepted-difference rule, the journal coverage check of the movement guard, 
 lock that prevents a deadlock between adjustments and transfers) and fails on each. An independent
 review found 1 high, 7 medium and 2 low issues; all were fixed or documented as accepted
 (DECISIONS 63) with a regression check.
+
+## Sales and receivables tests (P5)
+
+`92_p5_sales.sql` covers, in order: customers, products and accounts (duplicate-aware
+customers, canonical phone numbers, sensitive fields); draft invoices with server-side
+arithmetic and validation; issuing (numbering, snapshots, journal, public link); payments
+(partial, exact, several invoices, foreign currency with exchange differences, overpayment kept
+as a customer advance); "Saya Sudah Bayar" claims and the anonymous token surface (limits,
+control characters, unknown and revoked tokens, no table readable by `anon`); the approval
+rule with maker-checker and reversals of payments and credit applications; cancel, void,
+correct and link regeneration; refunds from an allocation and from the advance, in a foreign
+currency; positions, aging and the receivables control over time; period closing and closed
+periods; authorization, Entity isolation and privileges; the receivables control catching a
+broken book; the hardening cases found by the independent review (base-currency thresholds,
+due-date bound, exact small percentage discount, link token permission, public receipt scope,
+refund and void date bounds, correcting an invoice whose product was retired); and exact
+proration on near-ties against rational-arithmetic references. Every case ends with the
+sales/money/ledger controls.
+
+`db-test.sh` adds `sales_concurrency_test`: six sessions race to pay one invoice, retry one
+request, confirm and reject one claim, reverse and refund one payment, void and pay one invoice,
+refund one payment repeatedly, and confirm a claim while its invoice is voided (which must not
+deadlock). Every item takes effect exactly once and the layers still agree at the end. The suite
+was checked against deliberately broken code (16 mutants in the first pass: 14 killed, 2
+equivalent; plus the review fixes: base-currency threshold, percentage discount, due-date bound,
+refund date bound, receipt scope, exact proration, retired-product correction, link permission,
+void date bound and the claim/invoice lock order, each killed). The independent review's findings
+were fixed or documented as accepted (DECISIONS 76) with a regression check.
