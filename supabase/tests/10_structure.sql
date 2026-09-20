@@ -63,7 +63,10 @@ begin
                     'numbering_sequences', 'categories', 'contacts', 'contact_bank_accounts', 'products',
                     'ledger_accounts', 'accounting_periods', 'journal_entries', 'financial_accounts',
                     'payment_channels', 'category_account_mappings', 'transfers', 'reconciliation_sessions',
-                    'statement_lines', 'reconciliation_matches']) as t(name)
+                    'statement_lines', 'reconciliation_matches',
+                    -- P5 sales
+                    'invoices', 'invoice_lines', 'invoice_public_links', 'payments', 'payment_allocations',
+                    'payment_submissions', 'refunds', 'refund_items']) as t(name)
   where not exists (select 1 from pg_trigger tg join pg_proc p on p.oid = tg.tgfoid
                     where tg.tgrelid = ('public.' || t.name)::regclass and not tg.tgisinternal
                       and p.proname = 'tg_audit');
@@ -76,6 +79,18 @@ begin
          where tg.tgrelid = ('public.' || t.name)::regclass and not tg.tgisinternal
            and p.proname in ('tg_forbid_update', 'tg_forbid_delete')) < 2;
   perform test_helpers.assert(v_bad is null, 'append-only guards missing on: ' || coalesce(v_bad, ''));
+
+  -- Sales documents are never deleted or truncated (drafts' lines are replaced by the draft commands only).
+  select string_agg(t.name, ', ') into v_bad
+  from unnest(array['invoices', 'invoice_public_links', 'payments', 'payment_allocations', 'payment_submissions',
+                    'refunds', 'refund_items', 'invoice_lines']) as t(name)
+  where not exists (select 1 from pg_trigger tg join pg_proc p on p.oid = tg.tgfoid
+                    where tg.tgrelid = ('public.' || t.name)::regclass and not tg.tgisinternal
+                      and p.proname = 'tg_forbid_truncate')
+     or (t.name <> 'invoice_lines' and not exists (select 1 from pg_trigger tg join pg_proc p on p.oid = tg.tgfoid
+                    where tg.tgrelid = ('public.' || t.name)::regclass and not tg.tgisinternal
+                      and p.proname = 'tg_forbid_delete'));
+  perform test_helpers.assert(v_bad is null, 'delete/truncate guards missing on: ' || coalesce(v_bad, ''));
 
   -- Internal schema is invisible to browser roles.
   perform test_helpers.assert(not has_schema_privilege('anon', 'app_private', 'USAGE'), 'anon has no app_private usage');

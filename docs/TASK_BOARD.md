@@ -13,7 +13,7 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | P2    | Auth / Entity / RLS               | P1           | G2: crafted cross-Entity reads/writes fail (automated)             | Verified    |
 | P3    | Accounting Core                   | P2           | Trial postings balance; retries never double-post; immutable       | Verified    |
 | P4    | Money & Reconciliation            | P3           | Transfers create no P&L; money equals ledger; recon never rewrites | Verified    |
-| P5    | Sales / AR                        | P4           | Step 15 (P5) / Step 16                                             | Not Started |
+| P5    | Sales / AR                        | P4           | Invoices post once; payments/refunds never exceed; AR = ledger     | Implemented |
 | P6    | Purchases / AP                    | P5           | Step 15 (P6) / Step 16                                             | Not Started |
 | P7    | Tax                               | P6           | Step 15 (P7) / Step 16; re-verify tax baseline on the web          | Not Started |
 | P8    | Assets / Loans / Equity           | P7           | Step 15 (P8) / Step 16                                             | Not Started |
@@ -96,3 +96,20 @@ sub-ledger reconciliation of opening balances (DECISIONS 41, 44, 45).
 
 Open items: money screens and statement file import (DECISIONS 62); the OWNER's choice of account
 kinds that may never go negative (DECISIONS 55).
+
+## P5 checklist (Step 15 §9)
+
+| Item                       | Done when                                                                            | Status      |
+| -------------------------- | ------------------------------------------------------------------------------------ | ----------- |
+| Customers                  | Duplicate-aware, sensitive tax identifier, Entity-scoped                             | Implemented |
+| Invoices                   | Server arithmetic, gapless numbering, frozen snapshots, posting, cancel/void/correct | Implemented |
+| Payments and claims        | One writer, allocation, advance, FX per part, claim workflow, maker-checker          | Implemented |
+| Reversals and credit       | Payment, credit application and refund reversals; exact restoration                  | Implemented |
+| Refunds                    | Limits under lock, contra revenue / advance, receipts                                | Implemented |
+| Customer page and receipts | Token surface (anon: three functions), throttles, invoice and receipt pages          | Implemented |
+| AR control, aging, Close   | Sub-ledger = ledger; blockers and warnings; aging buckets                            | Implemented |
+| Application contracts      | `src/schemas/sales.ts`, `src/services/sales`, `src/domain/sales`                     | Implemented |
+| Gate                       | Random-free scenarios balance; races on pay, reverse, refund, void stay exact        | Implemented |
+
+Status becomes Verified when the P5 pull request has passed CI and the OWNER has merged it. Open items:
+staff screens, step-up on void/reversal/refund, `PUBLIC_CLAIM_SALT` in Production (DECISIONS 70, 75-76).

@@ -29,6 +29,12 @@ export const serverEnvSchema = z.object({
    * operation exists yet (Step 13 (credentials/privileged operations)). Must never be NEXT_PUBLIC_.
    */
   SUPABASE_SERVICE_ROLE_KEY: z.string().trim().min(20).optional(),
+  /**
+   * Secret salt for the hash of a public requester (customer invoice page, "Saya Sudah Bayar"). The database
+   * only ever stores the hash and uses it for abuse limits. Optional so builds and Preview work without it
+   * (a fixed fallback salt is used then); set a long random value in Production (DECISIONS 70).
+   */
+  PUBLIC_CLAIM_SALT: z.string().trim().min(16).optional(),
 });
 
 export const envSchema = publicEnvSchema.extend(serverEnvSchema.shape);

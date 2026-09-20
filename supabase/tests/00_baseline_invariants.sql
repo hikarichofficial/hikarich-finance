@@ -91,16 +91,44 @@ declare
                                          'include_statement_line', 'complete_reconciliation',
                                          'reopen_reconciliation', 'reconciliation_workspace',
                                          'reconciliation_candidates', 'unreconciled_movements',
-                                         'reconciliation_status'];
+                                         'reconciliation_status',
+                                         -- P5 sales, receivables and refunds
+                                         'find_contact_duplicates', 'create_contact', 'create_invoice_draft',
+                                         'update_invoice_draft', 'issue_invoice', 'invoice_public_link',
+                                         'record_payment', 'create_payment_claim', 'confirm_payment_submission',
+                                         'reject_payment_submission', 'mark_submission_duplicate',
+                                         'apply_payment_credit', 'reverse_credit_application', 'reverse_payment',
+                                         'cancel_invoice', 'void_invoice', 'correct_invoice',
+                                         'update_invoice_due_date', 'list_invoice_positions', 'ar_control_report',
+                                         'create_refund', 'confirm_refund', 'reject_refund', 'cancel_refund',
+                                         'reverse_refund', 'payment_refund_options', 'list_payments', 'ar_aging',
+                                         'regenerate_invoice_link', 'revoke_invoice_link',
+                                         'set_invoice_link_expiry', 'invoice_document', 'payment_receipt_document',
+                                         'refund_receipt_document',
+                                         -- the three token-scoped functions (also open to `anon`, see below)
+                                         'public_invoice_view', 'public_submit_payment_claim',
+                                         'public_receipt_view'];
+  -- The ONLY functions the anonymous role may execute: each is scoped by an unguessable invoice token (Step 07 §4,
+  -- Step 11 §8) and reveals nothing else.
+  anon_allowlist constant text[] := array['public_invoice_view', 'public_submit_payment_claim', 'public_receipt_view'];
 begin
   select string_agg(format('anon can execute public.%s', p.proname), ', ')
     into offenders
   from pg_proc p
   join pg_namespace n on n.oid = p.pronamespace and n.nspname = 'public'
   where p.prokind = 'f' and has_function_privilege('anon', p.oid, 'EXECUTE')
+    and p.proname <> all (anon_allowlist)
     and p.oid not in (select d.objid from pg_depend d where d.deptype = 'e');
   if offenders is not null then
     raise exception 'INVARIANT FAILED: %', offenders;
+  end if;
+
+  select string_agg(a.name, ', ') into offenders
+  from unnest(anon_allowlist) as a(name)
+  where (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace and n.nspname = 'public'
+         where p.proname = a.name and has_function_privilege('anon', p.oid, 'EXECUTE')) <> 1;
+  if offenders is not null then
+    raise exception 'INVARIANT FAILED: the anon token functions are not each executable exactly once: %', offenders;
   end if;
 
   select string_agg(format('authenticated can execute public.%s', p.proname), ', ')
