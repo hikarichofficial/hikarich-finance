@@ -3,6 +3,7 @@ import {
   assertCan,
   assertRecentStepUp,
   can,
+  entityLabel,
   findMembership,
   membershipsNeedingMfa,
   resolveActiveEntity,
@@ -28,7 +29,7 @@ function snapshot(overrides: Record<string, unknown> = {}) {
         membership_id: "44444444-4444-4444-8444-444444444444",
         entity_id: PT,
         entity_code: "demo_pt",
-        entity_type: "pt",
+        entity_type: "company",
         entity_name: "Demo PT",
         role_key: "owner",
         mfa_required: true,
@@ -133,6 +134,14 @@ describe("access helpers", () => {
     expect(resolveActiveEntity(access, "unknown")?.entity_id).toBe(PT);
     access.memberships[0]!.mfa_satisfied = false;
     expect(resolveActiveEntity(access, "demo_pt")?.entity_id).toBe(PERSONAL);
+  });
+});
+
+describe("entityLabel", () => {
+  it("labels company, personal and other Entities", () => {
+    expect(entityLabel({ entity_type: "company", entity_name: "X" })).toBe("PT");
+    expect(entityLabel({ entity_type: "personal", entity_name: "X" })).toBe("Personal");
+    expect(entityLabel({ entity_type: "other", entity_name: "Foundation" })).toBe("Foundation");
   });
 });
 

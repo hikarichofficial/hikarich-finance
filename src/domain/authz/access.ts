@@ -55,3 +55,10 @@ export function safeNextPath(candidate: unknown, fallback = "/"): string {
   const parsed = safeNextPathSchema.safeParse(candidate);
   return parsed.success ? parsed.data : fallback;
 }
+
+/** Short label for the Entity switch: PT and Personal are always shown as distinct ledgers. */
+export function entityLabel(membership: Pick<Membership, "entity_type" | "entity_name">): string {
+  if (membership.entity_type === "company") return "PT";
+  if (membership.entity_type === "personal") return "Personal";
+  return membership.entity_name;
+}
