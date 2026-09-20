@@ -50,3 +50,23 @@ references; the staff/admin/viewer/payroll/accountant matrix; deny overrides; di
 memberships (effective on the next statement); MFA and step-up; membership administration guards;
 sensitive-field reveal. The suite was checked against deliberately weakened policies (membership
 check always true, deny override ignored) and fails on both.
+
+## Accounting core tests (P3)
+
+`90_p3_posting.sql` covers, in order: money primitives (rounding vectors, conversion, 400 random
+allocations that must sum exactly); line validation; the system posting service (numbering, retry,
+different content refused, immutability at every level); 250 random balanced scenarios with
+unique gapless journal numbers; the public journal RPCs as browser roles (permission matrix,
+idempotent replay, protected-account override, reversal, cross-Entity refusal, trial balance);
+period controls (review, blockers, closed-period blocks, OWNER reopen with step-up and audited
+reason); and the opening-balance workflow. `db-test.sh` then runs four rounds of six sessions
+posting the same ten events at once into months without a period row, and fails on any error in
+any session, on a missing or duplicated journal, or on a hole in the year's journal numbers. The suite was checked
+against deliberately broken code (posting key no longer identifying the event, the opening
+account-class filter removed, the reopen step-up removed, the period-creation lock removed, the
+numbering trigger removed) and fails on each. An independent review of the migrations found 6
+medium and 8 low issues; all but the documented deferrals were fixed and each has a regression
+check (DECISIONS 47-50).
+
+Application unit tests (`src/domain/money`, `src/domain/accounting`) use the same rounding and
+allocation vectors as the database tests, so both engines are held to identical behaviour.
