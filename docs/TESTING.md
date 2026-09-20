@@ -70,3 +70,27 @@ check (DECISIONS 47-50).
 
 Application unit tests (`src/domain/money`, `src/domain/accounting`) use the same rounding and
 allocation vectors as the database tests, so both engines are held to identical behaviour.
+
+## Money and reconciliation tests (P4)
+
+`91_p4_money.sql` covers, in order: financial accounts (creation, mapping, permissions, audit
+without the account number); opening balances that create cash movements; balance adjustments;
+transfers (draft, approval rule and maker-checker, fee, FX, negative-balance setting, closed
+period, reversal); the movement guard and the money/ledger control (a raw posting on a bank
+account without its movement blocks Close); statement reconciliation (staging and idempotent
+re-upload, matching rules, many-to-one, manual matches, exclusion, unmatch, completion evidence,
+reopen, accepted differences, discard, status report, visibility); a seeded random run of 90
+transfers and reversals that must keep money equal to the ledger, the books balanced, profit and
+loss moved only by fees and FX differences, and transfer numbers gapless; and one regression block
+for each defect found by the independent review (DECISIONS 51-63).
+
+`db-test.sh` adds `money_concurrency_test`: six sessions confirm the same eight drafts, then
+reverse the same eight transfers, then race two statement lines for one movement, then mix
+balance adjustments with transfers on one account, then race a match against a reversal of the
+same movement. Every item must take effect exactly once; a losing session may fail only with the
+ordinary CONFLICT / INVALID message. The suite was checked against deliberately broken code (FX
+line direction, exact-sum matching, the date-tolerance rule, the matched-movement reversal lock,
+the accepted-difference rule, the journal coverage check of the movement guard, and the account
+lock that prevents a deadlock between adjustments and transfers) and fails on each. An independent
+review found 1 high, 7 medium and 2 low issues; all were fixed or documented as accepted
+(DECISIONS 63) with a regression check.

@@ -6,24 +6,24 @@ dependency gate. Detailed scope and gates: Step 15 (phase) and Step 16 (acceptan
 
 Status values: Not Started / In Progress / Implemented / Verified.
 
-| Phase | Name                              | Prerequisite | Gate (summary)                                                    | Status      |
-| ----- | --------------------------------- | ------------ | ----------------------------------------------------------------- | ----------- |
-| P0    | Project Bootstrap                 | —            | G0: typecheck/build/lint/tests pass; env contract; CI operational | Verified    |
-| P1    | Database Foundation               | P0           | Clean database rebuilds fully from migrations                     | Verified    |
-| P2    | Auth / Entity / RLS               | P1           | G2: crafted cross-Entity reads/writes fail (automated)            | Verified    |
-| P3    | Accounting Core                   | P2           | Trial postings balance; retries never double-post; immutable      | Verified    |
-| P4    | Money & Reconciliation            | P3           | Step 15 (P4) / Step 16                                            | Not Started |
-| P5    | Sales / AR                        | P4           | Step 15 (P5) / Step 16                                            | Not Started |
-| P6    | Purchases / AP                    | P5           | Step 15 (P6) / Step 16                                            | Not Started |
-| P7    | Tax                               | P6           | Step 15 (P7) / Step 16; re-verify tax baseline on the web         | Not Started |
-| P8    | Assets / Loans / Equity           | P7           | Step 15 (P8) / Step 16                                            | Not Started |
-| P9    | Payroll                           | P8           | Step 15 (P9) / Step 16                                            | Not Started |
-| P10   | Planning / Recurring              | P9           | Step 15 (P10) / Step 16                                           | Not Started |
-| P11   | Documents / Imports / Search      | P10          | Step 15 (P11) / Step 16                                           | Not Started |
-| P12   | Reports                           | P11          | Statement equations and reconciliations pass                      | Not Started |
-| P13   | Dashboard / UX Completion         | P12          | KPI equals its source report                                      | Not Started |
-| P14   | Security / Performance / Recovery | P13          | Step 15 / Step 16 incl. backup export and restore drill           | Not Started |
-| P15   | Production Launch                 | P14          | Step 15 / Step 16; taxpayer facts and OWNER sign-off              | Not Started |
+| Phase | Name                              | Prerequisite | Gate (summary)                                                     | Status      |
+| ----- | --------------------------------- | ------------ | ------------------------------------------------------------------ | ----------- |
+| P0    | Project Bootstrap                 | —            | G0: typecheck/build/lint/tests pass; env contract; CI operational  | Verified    |
+| P1    | Database Foundation               | P0           | Clean database rebuilds fully from migrations                      | Verified    |
+| P2    | Auth / Entity / RLS               | P1           | G2: crafted cross-Entity reads/writes fail (automated)             | Verified    |
+| P3    | Accounting Core                   | P2           | Trial postings balance; retries never double-post; immutable       | Verified    |
+| P4    | Money & Reconciliation            | P3           | Transfers create no P&L; money equals ledger; recon never rewrites | Verified    |
+| P5    | Sales / AR                        | P4           | Step 15 (P5) / Step 16                                             | Not Started |
+| P6    | Purchases / AP                    | P5           | Step 15 (P6) / Step 16                                             | Not Started |
+| P7    | Tax                               | P6           | Step 15 (P7) / Step 16; re-verify tax baseline on the web          | Not Started |
+| P8    | Assets / Loans / Equity           | P7           | Step 15 (P8) / Step 16                                             | Not Started |
+| P9    | Payroll                           | P8           | Step 15 (P9) / Step 16                                             | Not Started |
+| P10   | Planning / Recurring              | P9           | Step 15 (P10) / Step 16                                            | Not Started |
+| P11   | Documents / Imports / Search      | P10          | Step 15 (P11) / Step 16                                            | Not Started |
+| P12   | Reports                           | P11          | Statement equations and reconciliations pass                       | Not Started |
+| P13   | Dashboard / UX Completion         | P12          | KPI equals its source report                                       | Not Started |
+| P14   | Security / Performance / Recovery | P13          | Step 15 / Step 16 incl. backup export and restore drill            | Not Started |
+| P15   | Production Launch                 | P14          | Step 15 / Step 16; taxpayer facts and OWNER sign-off               | Not Started |
 
 ## P0 checklist (Step 15 §4)
 
@@ -80,3 +80,19 @@ provides them.
 
 Open items carried forward: approval workflow for manual journals, year-end closing entries and
 sub-ledger reconciliation of opening balances (DECISIONS 41, 44, 45).
+
+## P4 checklist (Step 15 §8)
+
+| Item                                 | Done when                                                                         | Status   |
+| ------------------------------------ | --------------------------------------------------------------------------------- | -------- |
+| Financial accounts                   | Cash, bank, e-wallet, foreign currency; mapped to protected control accounts      | Verified |
+| Money movements and derived balances | Append-only, journal-backed, equal to the ledger (`money_control`)                | Verified |
+| Balance adjustments                  | Explicit counter account and reason, audited, never silent                        | Verified |
+| Internal transfers                   | Fee, FX difference, approval rule, numbering, reversal; no revenue or expense     | Verified |
+| Bank reconciliation                  | Sessions, statement lines, match / unmatch / exclude, complete / reopen, evidence | Verified |
+| Period-close checks                  | Money/ledger mismatch blocks Close; reconciliation warnings                       | Verified |
+| Application contracts                | `src/schemas/money.ts`, `src/services/money`, `src/domain/money/transfer.ts`      | Verified |
+| Gate                                 | Random transfers and reversals keep money = ledger; concurrent races stay exact   | Verified |
+
+Open items: money screens and statement file import (DECISIONS 62); the OWNER's choice of account
+kinds that may never go negative (DECISIONS 55).
