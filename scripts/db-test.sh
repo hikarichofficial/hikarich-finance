@@ -333,6 +333,176 @@ SQL
   fi
 }
 
+
+# Sales layer under real concurrency (Step 15 P5 gate, Step 13 §9): the same invoice, claim, payment and refund are
+# attacked by several sessions at once. Money is never over-allocated, a retried request never books twice, and the
+# racing commands (confirm vs reject, reverse vs refund, void vs pay) end in exactly one outcome. Every statement runs in
+# its own transaction, as a browser request would.
+SC_OWNER="d1000000-0000-0000-0000-000000000001"
+sc_today() { echo "test_helpers.today('$SC_ENT')"; }
+sc_pay() { # sc_pay <key> <invoice> <amount> [extra columns]
+  echo "select public.record_payment('$SC_ENT', '$1', '$SC_CUST', '$SC_BANK', $(sc_today) - 1, $3, jsonb_build_array(jsonb_build_object('invoice_id', '$2', 'amount', $3)));"
+}
+sc_gen_pay() { local w="$1" i; for i in 1 2 3 4; do mc_as "$SC_OWNER" "$(sc_pay "sc-pay-${w}-${i}" "$SC_I1" 300000)"; done; }
+sc_gen_samekey() { local w="$1" i; for i in 1 2 3 4 5; do mc_as "$SC_OWNER" "$(sc_pay "sc-same-key" "$SC_I5" 100000)"; done; }
+sc_gen_claim() {
+  local w="$1"
+  if (( w % 2 )); then
+    mc_as "$SC_OWNER" "select public.confirm_payment_submission('$SC_CLAIM', 'sc-conf-${w}', '$SC_BANK');"
+  else
+    mc_as "$SC_OWNER" "select public.reject_payment_submission('$SC_CLAIM', 'Concurrent rejection');"
+  fi
+}
+sc_gen_revrefund() {
+  local w="$1"
+  if (( w % 2 )); then
+    mc_as "$SC_OWNER" "select public.reverse_payment('$SC_PX', 'sc-rev-${w}', $(sc_today), 'Concurrent reversal test');"
+  else
+    mc_as "$SC_OWNER" "select public.create_refund('$SC_PX', 'sc-refund-${w}', '$SC_BANK', $(sc_today), jsonb_build_array(jsonb_build_object('allocation_id', '$SC_AX', 'amount', 400000)), null, 'Concurrent refund', null, null, true);"
+  fi
+}
+sc_gen_voidpay() {
+  local w="$1"
+  if (( w % 2 )); then
+    mc_as "$SC_OWNER" "select public.void_invoice('$SC_I4', 'sc-void-${w}', 'Concurrent void test');"
+  else
+    mc_as "$SC_OWNER" "$(sc_pay "sc-vpay-${w}" "$SC_I4" 300000)"
+  fi
+}
+sc_gen_claimvoid() {
+  local w="$1"
+  if (( w % 2 )); then
+    mc_as "$SC_OWNER" "select public.confirm_payment_submission('$SC_CLAIM2', 'sc-cv-conf-${w}', '$SC_BANK');"
+  else
+    mc_as "$SC_OWNER" "select public.void_invoice('$SC_I7', 'sc-cv-void-${w}', 'Concurrent void vs claim');"
+  fi
+}
+sc_gen_refunds() {
+  local w="$1" i
+  for i in 1 2 3 4; do
+    mc_as "$SC_OWNER" "select public.create_refund('$SC_PY', 'sc-rr-${w}-${i}', '$SC_BANK', $(sc_today), jsonb_build_array(jsonb_build_object('allocation_id', '$SC_AY', 'amount', 250000)), null, 'Concurrent refund', null, null, true);"
+  done
+}
+
+sales_concurrency_test() {
+  echo "  testing  concurrent payments, claims, reversals, voids and refunds (6 sessions racing on the same documents)"
+  "${PSQL[@]}" -o /dev/null "$TEST_URL" <<SQL
+insert into public.entities (entity_type, code, legal_name) values ('company', 'conc_sales', 'Sales concurrency (synthetic)');
+select app_private.provision_default_coa((select id from public.entities where code = 'conc_sales'));
+select test_helpers.mk_user('$SC_OWNER', 'sc_owner');
+select test_helpers.mk_member((select id from public.entities where code = 'conc_sales'), '$SC_OWNER', 'owner');
+begin;
+select test_helpers.login('$SC_OWNER');
+select public.create_financial_account((select id from public.entities where code = 'conc_sales'), 'sc-bank-1', 'bank', 'SC Bank', 'IDR');
+select public.create_contact((select id from public.entities where code = 'conc_sales'), 'sc-cust-1', 'customer', 'SC Customer');
+commit;
+SQL
+  SC_ENT="$(mc_q "select id from public.entities where code = 'conc_sales'")"
+  SC_BANK="$(mc_q "select id from public.financial_accounts where entity_id = '$SC_ENT'")"
+  SC_CUST="$(mc_q "select id from public.contacts where entity_id = '$SC_ENT'")"
+  local n
+  for n in 1 2 3 4 5 6 7; do
+    "${PSQL[@]}" -o /dev/null "$TEST_URL" <<SQL
+begin;
+select test_helpers.login('$SC_OWNER');
+select public.issue_invoice(public.create_invoice_draft('$SC_ENT', 'sc-inv-$n', '$SC_CUST', test_helpers.today('$SC_ENT') - 3, test_helpers.today('$SC_ENT') + 30,
+  jsonb_build_array(jsonb_build_object('description', 'Invoice $n', 'unit_price', case $n when 1 then 1000000 when 2 then 500000 when 3 then 400000 when 4 then 300000 when 5 then 1000000 when 6 then 600000 else 100000 end))), 'sc-iss-$n');
+commit;
+SQL
+  done
+  local q="select i.id from public.invoices i join public.invoice_lines l on l.invoice_id = i.id where i.entity_id = '$SC_ENT' and l.description ="
+  SC_I1="$(mc_q "$q 'Invoice 1'")"; SC_I2="$(mc_q "$q 'Invoice 2'")"; SC_I3="$(mc_q "$q 'Invoice 3'")"
+  SC_I4="$(mc_q "$q 'Invoice 4'")"; SC_I5="$(mc_q "$q 'Invoice 5'")"; SC_I6="$(mc_q "$q 'Invoice 6'")"
+  "${PSQL[@]}" -o /dev/null "$TEST_URL" <<SQL
+begin;
+select test_helpers.login('$SC_OWNER');
+select public.create_payment_claim('$SC_I2', 'sc-claim', 500000, test_helpers.today('$SC_ENT') - 1, 'Payer', 'CONC-CLAIM');
+$(sc_pay "sc-payx-1" "$SC_I3" 400000)
+$(sc_pay "sc-payy-1" "$SC_I6" 600000)
+commit;
+SQL
+  SC_CLAIM="$(mc_q "select id from public.payment_submissions where entity_id = '$SC_ENT'")"
+  SC_PX="$(mc_q "select p.id from public.payment_allocations a join public.payments p on p.id = a.payment_id where a.invoice_id = '$SC_I3'")"
+  SC_AX="$(mc_q "select id from public.payment_allocations where invoice_id = '$SC_I3'")"
+  SC_PY="$(mc_q "select p.id from public.payment_allocations a join public.payments p on p.id = a.payment_id where a.invoice_id = '$SC_I6'")"
+  SC_AY="$(mc_q "select id from public.payment_allocations where invoice_id = '$SC_I6'")"
+
+  # 1. four attempts per session to pay 300,000 of a 1,000,000 invoice: exactly three succeed, never a fourth
+  money_workers pay 6 sc_gen_pay 'INVALID|CONFLICT'
+  local result
+  result="$(mc_q "select count(*) || '/' || sum(amount) from public.payment_allocations where invoice_id = '$SC_I1' and status = 'active'")"
+  if [[ "$result" != "3/900000.0000" ]]; then
+    echo "FAIL: concurrent payments produced $result, expected 3/900000.0000 (allocations/amount)." >&2
+    exit 1
+  fi
+
+  # 2. one retried request, sent by six sessions five times each: one payment, one movement
+  money_workers samekey 6 sc_gen_samekey 'INVALID|CONFLICT'
+  result="$(mc_q "select (select count(*) from public.payment_allocations where invoice_id = '$SC_I5') || '/' || (select count(*) from public.money_movements m join public.payment_allocations a on a.payment_id = m.source_id where a.invoice_id = '$SC_I5' and m.source_type = 'payment')")"
+  if [[ "$result" != "1/1" ]]; then
+    echo "FAIL: a retried payment request booked $result (allocations/movements), expected 1/1." >&2
+    exit 1
+  fi
+
+  # 3. confirm and reject the same claim at once: one outcome, consistent with the payment
+  money_workers claim 6 sc_gen_claim
+  result="$(mc_q "select (s.status = 'confirmed') = (select count(*) = 1 from public.payments p where p.submission_id = s.id) and s.status in ('confirmed', 'rejected') from public.payment_submissions s where s.id = '$SC_CLAIM'")"
+  if [[ "$result" != "t" ]]; then
+    echo "FAIL: a claim confirmed and rejected at once ended inconsistent." >&2
+    exit 1
+  fi
+
+  # 4. reverse a payment and refund it at once: exactly one wins, never both
+  money_workers revrefund 6 sc_gen_revrefund 'CONFLICT|INVALID'
+  result="$(mc_q "select (p.status = 'reversed' and not exists (select 1 from public.refunds r where r.payment_id = p.id and r.status = 'confirmed'))
+                       or (p.status = 'confirmed' and (select count(*) from public.refunds r where r.payment_id = p.id and r.status = 'confirmed') = 1) from public.payments p where p.id = '$SC_PX'")"
+  if [[ "$result" != "t" ]]; then
+    echo "FAIL: reversing and refunding one payment at once produced an impossible state." >&2
+    exit 1
+  fi
+
+  # 5. void an invoice and pay it at once: either voided with nothing allocated, or paid and not voided
+  money_workers voidpay 6 sc_gen_voidpay 'CONFLICT|INVALID'
+  result="$(mc_q "select (i.status = 'void' and not exists (select 1 from public.payment_allocations a where a.invoice_id = i.id and a.status = 'active'))
+                       or (i.status = 'issued' and (select count(*) from public.payment_allocations a where a.invoice_id = i.id and a.status = 'active') = 1) from public.invoices i where i.id = '$SC_I4'")"
+  if [[ "$result" != "t" ]]; then
+    echo "FAIL: voiding and paying one invoice at once produced an impossible state." >&2
+    exit 1
+  fi
+
+  # 6. sixteen attempts to refund 250,000 of a 600,000 payment: exactly two succeed
+  money_workers refunds 6 sc_gen_refunds 'INVALID|CONFLICT'
+  result="$(mc_q "select count(*) || '/' || sum(amount) from public.refunds where payment_id = '$SC_PY' and status = 'confirmed'")"
+  if [[ "$result" != "2/500000.0000" ]]; then
+    echo "FAIL: concurrent refunds produced $result, expected 2/500000.0000 (refunds/amount)." >&2
+    exit 1
+  fi
+
+  # 7. confirm a claim and void its invoice at once: the two paths lock the invoice first, so neither deadlocks
+  SC_I7="$(mc_q "$q 'Invoice 7'")"
+  "${PSQL[@]}" -o /dev/null "$TEST_URL" <<SQL
+begin;
+select test_helpers.login('$SC_OWNER');
+select public.create_payment_claim('$SC_I7', 'sc-claim-2', 100000, test_helpers.today('$SC_ENT') - 1, 'Payer', 'CONC-CLAIM-2');
+commit;
+SQL
+  SC_CLAIM2="$(mc_q "select id from public.payment_submissions where invoice_id = '$SC_I7'")"
+  money_workers claimvoid 6 sc_gen_claimvoid 'CONFLICT|INVALID'
+  result="$(mc_q "select (i.status = 'void' and not exists (select 1 from public.payment_allocations a where a.invoice_id = i.id and a.status = 'active'))
+                       or (i.status = 'issued' and (select count(*) from public.payment_allocations a where a.invoice_id = i.id and a.status = 'active') = 1
+                           and (select status from public.payment_submissions where id = '$SC_CLAIM2') = 'confirmed') from public.invoices i where i.id = '$SC_I7'")"
+  if [[ "$result" != "t" ]]; then
+    echo "FAIL: confirming a claim and voiding its invoice at once produced an impossible state ($result)." >&2
+    exit 1
+  fi
+
+  # 8. after all of it the sales layer, the money layer and the ledger still agree
+  if ! "${PSQL[@]}" -o /dev/null "$TEST_URL" -c "select test_helpers.controls('$SC_ENT', 'after concurrent sales operations')"; then
+    echo "FAIL: after concurrent sales operations the layers disagree." >&2
+    exit 1
+  fi
+}
+
 rebuild() {
   "${PSQL[@]}" "$ADMIN_URL" -c "drop database if exists ${TEST_DB} with (force)"
   "${PSQL[@]}" "$ADMIN_URL" -c "create database ${TEST_DB}"
@@ -349,6 +519,7 @@ rebuild() {
   concurrency_test
   posting_concurrency_test
   money_concurrency_test
+  sales_concurrency_test
 }
 
 fingerprint() {
