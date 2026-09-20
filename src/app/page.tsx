@@ -1,4 +1,5 @@
 import Image from "next/image";
+import { entityLabel } from "@/domain/authz/access";
 import { logoutAction } from "@/features/auth/actions";
 import { requireAccess } from "@/services/identity/access";
 
@@ -36,7 +37,7 @@ export default async function Home({
                 href={`/?entity=${encodeURIComponent(m.entity_code)}`}
                 aria-current={m.entity_id === membership.entity_id ? "page" : undefined}
               >
-                {m.entity_type === "pt" ? "PT" : "Personal"}
+                {entityLabel(m)}
               </a>
             ))}
           </nav>
