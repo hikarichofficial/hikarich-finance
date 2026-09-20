@@ -62,7 +62,8 @@ begin
                     'entity_memberships', 'membership_permission_overrides', 'approval_rules', 'trusted_devices',
                     'numbering_sequences', 'categories', 'contacts', 'contact_bank_accounts', 'products',
                     'ledger_accounts', 'accounting_periods', 'journal_entries', 'financial_accounts',
-                    'payment_channels', 'category_account_mappings']) as t(name)
+                    'payment_channels', 'category_account_mappings', 'transfers', 'reconciliation_sessions',
+                    'statement_lines', 'reconciliation_matches']) as t(name)
   where not exists (select 1 from pg_trigger tg join pg_proc p on p.oid = tg.tgfoid
                     where tg.tgrelid = ('public.' || t.name)::regclass and not tg.tgisinternal
                       and p.proname = 'tg_audit');
@@ -70,7 +71,7 @@ begin
 
   -- Append-only tables refuse UPDATE, DELETE and TRUNCATE.
   select string_agg(t.name, ', ') into v_bad
-  from unnest(array['audit_events', 'security_events', 'exchange_rates', 'posting_batches']) as t(name)
+  from unnest(array['audit_events', 'security_events', 'exchange_rates', 'posting_batches', 'money_movements']) as t(name)
   where (select count(*) from pg_trigger tg join pg_proc p on p.oid = tg.tgfoid
          where tg.tgrelid = ('public.' || t.name)::regclass and not tg.tgisinternal
            and p.proname in ('tg_forbid_update', 'tg_forbid_delete')) < 2;
