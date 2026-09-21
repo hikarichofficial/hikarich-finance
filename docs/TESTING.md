@@ -122,3 +122,28 @@ equivalent; plus the review fixes: base-currency threshold, percentage discount,
 refund date bound, receipt scope, exact proration, retired-product correction, link permission,
 void date bound and the claim/invoice lock order, each killed). The independent review's findings
 were fixed or documented as accepted (DECISIONS 76) with a regression check.
+
+## Purchases and payables tests (P6)
+
+`93_p6_purchases.sql` covers, in order: vendors, categories and accounts; draft bills with
+server-side arithmetic and validation (three line treatments, foreign currency, limits);
+submit, recall, reject and approve (numbering, vendor snapshot, journal); payments in the base
+currency (partial, exact, several bills at once); foreign-currency bills and payments with
+exchange gains and losses; reversing a payment, including the sub-ledger against the ledger on
+every day; due-date change, cancel, void and correct; duplicate detection on vendor references;
+direct expenses (duplicates, dates, cancel, reverse, correct); evidence documents and links;
+period closing and closed periods; maker-checker thresholds in the base currency; the review
+hardening cases (a payment cannot be dated before a reversal on the same bill, the person who
+edited or submitted a document is a preparer too, direct writes cannot break allocations or void
+a bill with money on it, explicit input limits, a payee snapshot that survives a contact rename);
+and the Personal Entity, isolation between Entities and privileges. Every case ends with the
+purchase/money/ledger controls.
+
+`db-test.sh` adds `purchases_concurrency_test`: six sessions race to pay one bill, retry one
+request, approve two bills with the same vendor invoice number, void and pay one bill, reverse a
+payment and void its bill, confirm and cancel one expense, confirm two expenses with the same
+receipt, and pay and reverse on one account at once (which must not deadlock). Every item takes
+effect exactly once and the layers still agree at the end. The suite was checked against
+deliberately broken code (the first pass and the review fixes, dozens of mutants in total: every
+one killed except a few behaviour-neutral redundant defences). The independent review's findings
+were fixed or documented as accepted (DECISIONS 85-87) with a regression check.
