@@ -74,3 +74,19 @@ The mechanism exists and is tested; it is used only at release, by the OWNER, pe
    individual whose year predates the engine start is a review case for the final tax (decision 97).
    The taxpayer's NPWP, PKP status and regime are entered as facts with an evidence note, never copied
    from documents into Git (decision 90).
+10. Fixed assets at the cutover (P8): load each asset with `asset_load_opening` (cost, accumulated depreciation to the
+    cut-over date, in-service date, method and life); nothing is posted by the loader. The cost and the accumulated
+    depreciation of the same assets are posted by the opening balance batch on the fixed-asset and Accumulated
+    Depreciation accounts, and the asset control (`asset_control_report`) must show no difference before the first period
+    is closed (decision 115). Depreciation continues from the month after the cut-over. Assets bought after the cut-over
+    come from bills and expenses with treatment `asset`.
+11. Loans at the cutover (P8): load each loan with `loan_load_opening` (outstanding principal, terms and the schedule
+    still to run; the original principal may be given); nothing is posted by the loader. The outstanding principal is posted
+    by the opening balance batch on the loan account the loan uses (short-term, long-term, Personal loan, or Other
+    Receivable for a loan given), and the financing control must show no difference. Interest and fees already paid before
+    the cut-over are not entered (decision 108).
+12. Other receivables and payables at the cutover (P8): record each open item as an obligation with the `offset` method
+    against an account chosen by the accountant, dated at the cut-over, and do NOT include Other Receivable, Other Payable
+    or Dividend Payable in the opening balance batch (the same rule of one way per Entity as items 7 and 8); a control
+    difference shows a double count. Declared but unpaid dividends are entered as a dividend event confirmed on its date
+    and paid in parts as usual. The tax treatment of anything paid before the cut-over is not entered (decision 106).

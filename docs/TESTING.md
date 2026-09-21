@@ -167,3 +167,24 @@ other Entity, anonymous, no direct writes, frozen history). Every scenario ends 
 
 The tax layer was checked against deliberately broken code (mutation checks over the determination, integration, payments,
 filings and final-tax code: dozens of mutants; every one killed except two behaviour-neutral redundant defences, DECISIONS 100).
+
+## Assets, loans and equity tests (P8)
+
+`96_p8_assets.sql` covers the register from approved purchase lines (draft assets, splitting, the link status of the
+line, release on void), activation and the depreciation plan (straight-line, declining balance, undepreciated, residual,
+fiscal class), the month-end posting run and its reversal, re-planning, disposal (sale for cash, sale on credit,
+scrapping, reversal, the gain or loss), opening assets, the register and reports, and authorization. `97_p8_obligations.sql`
+covers other receivables and payables: recognition by cash and by offset, part settlement with interest and fee, write-off,
+reversal, void, the related-entity tag and Personal Entities. `98_p8_loans.sql` covers the schedule arithmetic (annuity,
+flat, interest-only, manual, month-end due dates), drafts, activation for both directions, allocation of payments (arrears
+first, prepayment, interest and fee), closing and reopening, write-off, restructuring with preserved history, cancellation,
+the asset link, opening loans with the opening balance batch, Personal loans and authorization. `99_p8_equity.sql` covers
+contributions, capital returns (guarded by the equity balance), dividends in parts and beyond the profit available,
+Personal investment and distribution events, `equity.approve`, step-up and the summary. `99_p8_period_controls.sql` covers
+the period-close checks (unposted depreciation, the asset and financing controls with rolled-back probes, pending asset
+lines, unpaid installments, tax reviews), the financing control report, the tax-review queue and command, and the shape
+check of the fiscal depreciation groups. Every scenario ends with the money and sub-ledger controls.
+
+The TypeScript layer checks that the schedule and depreciation previews (`src/domain/financing`, `src/domain/assets`)
+give the same figures as the database functions, and that the schemas accept what the database returns (they were
+checked against real payloads of every report and detail function) and refuse malformed input.
