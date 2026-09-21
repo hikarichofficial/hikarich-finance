@@ -115,6 +115,17 @@ declare
                                          'reject_expense', 'confirm_expense', 'cancel_expense', 'reverse_expense',
                                          'correct_expense', 'register_document', 'link_document', 'unlink_document',
                                          'list_document_links', 'list_missing_evidence',
+                                         -- P7 tax facts, rules, determination, payments, filings and the calendar
+                                         'tax_rule_draft_save', 'tax_rule_publish', 'tax_rule_discard',
+                                         'tax_rule_in_force', 'tax_record_entity_profile', 'tax_profile_identifier',
+                                         'tax_record_contact_facts', 'tax_record_aggregation_fact',
+                                         'tax_engine_activate', 'tax_preview_document', 'tax_override_set',
+                                         'tax_override_withdraw', 'tax_confirm_line', 'tax_review_queue',
+                                         'tax_record_payment', 'tax_reverse_payment', 'tax_record_filing',
+                                         'tax_link_evidence', 'tax_list_evidence', 'tax_reconcile_period',
+                                         'tax_period_position', 'tax_list_payments', 'tax_control_report',
+                                         'tax_ledger_report', 'tax_final_preview', 'tax_final_compute',
+                                         'tax_calendar', 'tax_overview',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];

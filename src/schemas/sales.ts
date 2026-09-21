@@ -6,6 +6,7 @@ import {
   moneyTextSchema,
   signedDecimalTextSchema,
 } from "@/schemas/accounting";
+import { vatTreatmentSchema } from "@/schemas/tax";
 
 /**
  * Input and output contracts of the sales RPCs (P5): customers, invoices, payments, refunds, public links and
@@ -75,6 +76,11 @@ export const invoiceLineInputSchema = z.object({
     .regex(/^\d{1,16}(\.\d{1,4})?$/)
     .optional(),
   category_id: z.uuid().optional(),
+  /**
+   * The VAT treatment the drafter asserts for the line (P7). Left out, the engine asks for a tax review before
+   * the invoice can be issued; the database never guesses it.
+   */
+  vat_treatment: vatTreatmentSchema.optional(),
 });
 export type InvoiceLineInput = z.infer<typeof invoiceLineInputSchema>;
 

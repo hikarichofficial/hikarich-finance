@@ -156,7 +156,7 @@ export function InvoiceDocumentView({
         ) : null}
         {showTax ? (
           <>
-            <dt>Pajak</dt>
+            <dt>PPN</dt>
             <dd>{formatMoney(doc.tax_total, doc.currency)}</dd>
           </>
         ) : null}

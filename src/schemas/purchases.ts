@@ -6,6 +6,7 @@ import {
   moneyTextSchema,
   signedDecimalTextSchema,
 } from "@/schemas/accounting";
+import { whtObjectSchema } from "@/schemas/tax";
 
 /**
  * Input and output contracts of the purchase RPCs (P6): bills, vendor payments, direct expenses, evidence
@@ -33,6 +34,14 @@ export const purchaseLineInputSchema = z.object({
   treatment: purchaseTreatmentSchema.optional(),
   category_id: z.uuid().optional(),
   account_id: z.uuid().optional(),
+  /** The VAT the vendor charged on the line (P7): a fact from the tax invoice; the engine decides what it means. */
+  tax_amount: moneyTextSchema.optional(),
+  /** The tax invoice number that supports the input VAT (needed for it to be creditable). */
+  vat_invoice_ref: z.string().trim().max(100).optional(),
+  /** The drafter's assertion that the input VAT is not creditable and stays a cost. */
+  vat_not_creditable: z.boolean().optional(),
+  /** What the payment is for, when income tax is withheld from it (PPh 23). */
+  wht_object: whtObjectSchema.optional(),
 });
 export type PurchaseLineInput = z.infer<typeof purchaseLineInputSchema>;
 
