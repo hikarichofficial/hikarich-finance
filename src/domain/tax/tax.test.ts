@@ -98,11 +98,17 @@ describe("tax vocabulary", () => {
   });
 
   it("has a label for every code the database can return", () => {
-    expect(Object.keys(TAX_TYPE_LABELS).sort()).toEqual(["final_umkm", "vat", "wht_pph23"]);
+    expect(Object.keys(TAX_TYPE_LABELS).sort()).toEqual([
+      "final_umkm",
+      "vat",
+      "wht_pph21",
+      "wht_pph23",
+    ]);
     expect(Object.keys(TAX_KIND_LABELS).sort()).toEqual([
       "final_umkm",
       "vat_input",
       "vat_output",
+      "wht_pph21",
       "wht_pph23",
     ]);
     expect(Object.keys(CALENDAR_STEP_LABELS).sort()).toEqual([

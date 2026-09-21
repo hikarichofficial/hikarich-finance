@@ -20,8 +20,14 @@ export const taxPeriodSchema = isoDateSchema.refine((v) => v.endsWith("-01"), {
   message: "Masa pajak adalah tanggal 1 pada bulan yang bersangkutan",
 });
 
-export const taxTypeSchema = z.enum(["vat", "wht_pph23", "final_umkm"]);
-export const taxKindSchema = z.enum(["vat_output", "vat_input", "wht_pph23", "final_umkm"]);
+export const taxTypeSchema = z.enum(["vat", "wht_pph23", "wht_pph21", "final_umkm"]);
+export const taxKindSchema = z.enum([
+  "vat_output",
+  "vat_input",
+  "wht_pph23",
+  "wht_pph21",
+  "final_umkm",
+]);
 export const taxSourceTypeSchema = z.enum(["invoice", "bill", "expense"]);
 
 // ---- classification vocabulary (the catalog lives in the database)

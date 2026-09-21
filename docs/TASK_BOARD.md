@@ -16,8 +16,8 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | P5    | Sales / AR                        | P4           | Invoices post once; payments/refunds never exceed; AR = ledger     | Verified    |
 | P6    | Purchases / AP                    | P5           | Bills post once; payments never exceed; AP = ledger; races exact   | Verified    |
 | P7    | Tax                               | P6           | Step 15 (P7) / Step 16; re-verify tax baseline on the web          | Verified    |
-| P8    | Assets / Loans / Equity           | P7           | Step 15 (P8) / Step 16                                             | Implemented |
-| P9    | Payroll                           | P8           | Step 15 (P9) / Step 16                                             | Not Started |
+| P8    | Assets / Loans / Equity           | P7           | Step 15 (P8) / Step 16                                             | Verified    |
+| P9    | Payroll                           | P8           | Step 15 (P9) / Step 16                                             | Implemented |
 | P10   | Planning / Recurring              | P9           | Step 15 (P10) / Step 16                                            | Not Started |
 | P11   | Documents / Imports / Search      | P10          | Step 15 (P11) / Step 16                                            | Not Started |
 | P12   | Reports                           | P11          | Statement equations and reconciliations pass                       | Not Started |
@@ -169,6 +169,27 @@ Verified: the P7 pull request (#12) passed CI and the OWNER merged it.
 | Application contracts      | `src/schemas/{assets,financing}.ts`, `src/services/{assets,financing}`, `src/domain/{assets,financing}`    | Implemented |
 | Gate                       | Scenarios balance; controls equal the ledger; full suite and clean rebuild reproducible                    | Implemented |
 
-Status becomes Verified when the P8 pull request has passed CI and the OWNER has merged it. Open items: the fiscal
-depreciation groups and the tax treatment of interest, forgiven debt, dividends and capital returns must be verified by
-the OWNER's tax adviser before P15; screens and the depreciation run schedule are not in P8 (DECISIONS 101-118).
+Verified: the P8 pull request (#13) passed CI and the OWNER merged it. Open items: the fiscal depreciation groups and
+the tax treatment of interest, forgiven debt, dividends and capital returns must be verified by the OWNER's tax adviser
+before P15; screens and the depreciation run schedule are not in P8 (DECISIONS 101-118).
+
+## P9 checklist (Step 15 §13, Step 16 §18)
+
+| Item                    | Done when                                                                                                 | Status      |
+| ----------------------- | --------------------------------------------------------------------------------------------------------- | ----------- |
+| Employees               | Master, employment terms, compensation, tax facts, BPJS enrolment: effective-dated, append-only, redacted | Implemented |
+| Permission boundary     | Closed tables; per-RPC capability (`payroll.*`); tax fields empty without `payroll.tax_view`              | Implemented |
+| Rule data               | PPh 21 TER and annual, BPJS Kes/JHT/JP/JKK/JKM as effective-dated versions; lines record the version used | Implemented |
+| Calculation             | TER months, annual last tax month, gross-up, BPJS caps, review flags, fingerprint, stale detection        | Implemented |
+| Run workflow            | Create, calculate, adjust, submit, approve, post, close; return, discard, reopen, correct                 | Implemented |
+| Posting and payslips    | Journal, PPh 21 determination and payslips in one transaction; payslips immutable, voided on correction   | Implemented |
+| Payments                | Net pay per employee and BPJS in one amount; capacity; step-up; maker-checker; reversal                   | Implemented |
+| PPh 21 in the tax layer | Tax type `wht_pph21`; payment, filing and reconciliation through P7                                       | Implemented |
+| Reports and controls    | Summary, liabilities, employee tax ledger, annual reconciliation, payroll control, period-close checks    | Implemented |
+| Opening data            | `employee_set_tax_opening` (DATA_CUTOVER 13)                                                              | Implemented |
+| Application contracts   | `src/schemas/payroll.ts`, `src/services/payroll`, `src/domain/payroll`                                    | Implemented |
+| Gate                    | Hand-calculated scenarios; controls equal the ledger; full suite and clean rebuild reproducible           | Implemented |
+
+Status becomes Verified when the P9 pull request has passed CI and the OWNER has merged it. Open items: the payroll tax
+baseline must be verified by the OWNER's tax adviser before P15; screens, payslip documents, THR/severance and the
+e-bupot export are not in P9 (DECISIONS 119-133).

@@ -90,3 +90,13 @@ The mechanism exists and is tested; it is used only at release, by the OWNER, pe
     or Dividend Payable in the opening balance batch (the same rule of one way per Entity as items 7 and 8); a control
     difference shows a double count. Declared but unpaid dividends are entered as a dividend event confirmed on its date
     and paid in parts as usual. The tax treatment of anything paid before the cut-over is not entered (decision 106).
+
+13. Payroll at the cutover (P9): create each employee with the join date of the real employment, then record the
+    compensation, tax facts (tax-number status, PTKP status, who bears the tax) and BPJS enrolment from the date they
+    apply. For a tax year that was payrolled before the cut-over, record per employee with `employee_set_tax_opening` the
+    taxable gross, the pension contributions and the PPh 21 withheld from January through the last month paid (up to
+    November); without it the annual computation of the last tax month flags `ytd_incomplete` and the run cannot be
+    submitted. Payroll unpaid at the cut-over is in the opening balance batch on Payroll Liabilities and BPJS Liabilities
+    and shows as "other" in the payroll control until it is paid; do not also create a run for that month (decision 130).
+    The first run is for the first month after the cut-over. Real payroll figures and tax numbers are entered only in
+    the application, never in files in Git.

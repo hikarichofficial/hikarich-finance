@@ -8,13 +8,14 @@ import { Decimal } from "@/domain/money/decimal";
  */
 
 // ---- vocabulary
-export type TaxType = "vat" | "wht_pph23" | "final_umkm";
-export type TaxKind = "vat_output" | "vat_input" | "wht_pph23" | "final_umkm";
+export type TaxType = "vat" | "wht_pph23" | "wht_pph21" | "final_umkm";
+export type TaxKind = "vat_output" | "vat_input" | "wht_pph23" | "wht_pph21" | "final_umkm";
 export type TaxDirection = "payable" | "asset";
 
 export const TAX_TYPE_LABELS: Readonly<Record<TaxType, string>> = {
   vat: "PPN",
   wht_pph23: "PPh 23 (dipotong)",
+  wht_pph21: "PPh 21 (karyawan)",
   final_umkm: "PPh Final UMKM",
 };
 
@@ -22,6 +23,7 @@ export const TAX_KIND_LABELS: Readonly<Record<TaxKind, string>> = {
   vat_output: "PPN keluaran",
   vat_input: "PPN masukan",
   wht_pph23: "PPh 23 dipotong",
+  wht_pph21: "PPh 21 karyawan",
   final_umkm: "PPh Final UMKM",
 };
 
