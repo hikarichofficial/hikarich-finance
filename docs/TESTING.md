@@ -188,3 +188,26 @@ check of the fiscal depreciation groups. Every scenario ends with the money and 
 The TypeScript layer checks that the schedule and depreciation previews (`src/domain/financing`, `src/domain/assets`)
 give the same figures as the database functions, and that the schemas accept what the database returns (they were
 checked against real payloads of every report and detail function) and refuse malformed input.
+
+## Payroll tests (P9)
+
+`99_p9_1_employees.sql` covers the employee master (creation, numbering, the join date and its lock once a payroll has
+counted the employee, ending employment), the effective-dated employment, compensation, tax-fact and BPJS records
+(append-only, no overwriting, conflicts on the same date), the masked tax number, the redacted audit rows and the
+permission boundary (each capability alone, strangers, the other Entity, a Personal Entity). `99_p9_2_engine.sql`
+covers the calculation with figures worked out by hand from the rules (a TER month with full BPJS and a non-taxable
+allowance, a category B employee with a wage-base cap, a gross-up, an employee without a tax number, the last tax
+month with the annual computation and PTKP proration, opening tax figures, review flags for missing facts and rules,
+the stale fingerprint, adjustments). `99_p9_3_posting.sql` covers approval (maker-checker, the OWNER exemption, stale
+inputs), posting once, the journal and the PPh 21 determination, payslips, partial and full payments of net pay and BPJS
+with their limits and step-up, PPh 21 paid through the tax payment, reversal of payments, closing and reopening, and
+corrections (payments first, the latest month first, revision numbers, voided payslips, the tax reversal).
+`99_p9_4_controls.sql` covers the run list and summary, the liability report at two dates, the employee tax ledger, the
+annual reconciliation, the payroll control against the General Ledger (including its "other" column), the payroll checks
+of the period close, and the permission gating of every report. All data is synthetic. Every scenario ends with the money,
+tax and payroll controls.
+
+The TypeScript layer checks that the schemas accept the real payloads of every read function (captured from the database)
+and refuse malformed input (a tax number only with its status, BPJS as one amount, net pay per employee, distinct
+components), and that the domain helpers (TER category, flags, next actions, payslip arithmetic) behave as the database
+does.
