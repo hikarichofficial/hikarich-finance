@@ -57,3 +57,11 @@ The mechanism exists and is tested; it is used only at release, by the OWNER, pe
    outside the system until P11 defines the import. Doing both would count the receivable twice:
    the receivables control (decision 74) shows the opening balance separately as `other_ledger`
    so a double count is visible, not silent.
+8. Vendor bills and expenses still open at the cutover (P6): P6 has no loader for them either, and
+   the same two ways exist with the same rule of one way per Entity: (a) approve them as normal
+   bills dated at their original bill date, which posts the expense and must therefore be excluded
+   from the opening balance; or (b) post the payable in the opening balance and keep the bills
+   outside the system until P11 defines the import. The payables control (decision 80) shows the
+   opening balance separately as `other_ledger`, so a double count is visible, not silent. Payments
+   made before the cutover are not entered. Original invoices and receipts stay with the OWNER;
+   evidence is registered by hash only (decision 83).

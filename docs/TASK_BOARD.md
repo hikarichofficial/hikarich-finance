@@ -14,7 +14,7 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | P3    | Accounting Core                   | P2           | Trial postings balance; retries never double-post; immutable       | Verified    |
 | P4    | Money & Reconciliation            | P3           | Transfers create no P&L; money equals ledger; recon never rewrites | Verified    |
 | P5    | Sales / AR                        | P4           | Invoices post once; payments/refunds never exceed; AR = ledger     | Implemented |
-| P6    | Purchases / AP                    | P5           | Step 15 (P6) / Step 16                                             | Not Started |
+| P6    | Purchases / AP                    | P5           | Bills post once; payments never exceed; AP = ledger; races exact   | Implemented |
 | P7    | Tax                               | P6           | Step 15 (P7) / Step 16; re-verify tax baseline on the web          | Not Started |
 | P8    | Assets / Loans / Equity           | P7           | Step 15 (P8) / Step 16                                             | Not Started |
 | P9    | Payroll                           | P8           | Step 15 (P9) / Step 16                                             | Not Started |
@@ -113,3 +113,19 @@ kinds that may never go negative (DECISIONS 55).
 
 Status becomes Verified when the P5 pull request has passed CI and the OWNER has merged it. Open items:
 staff screens, step-up on void/reversal/refund, `PUBLIC_CLAIM_SALT` in Production (DECISIONS 70, 75-76).
+
+## P6 checklist (Step 15 §10)
+
+| Item                     | Done when                                                                          | Status      |
+| ------------------------ | ---------------------------------------------------------------------------------- | ----------- |
+| Vendors and bills        | Duplicate-aware, server arithmetic, draft/submit/approve, frozen snapshot, posting | Implemented |
+| Vendor payments          | One writer, allocation, FX per part, date rules, maker-checker, derived status     | Implemented |
+| Cancel, void, correct    | Cancel without effect, void by linked reversal, correction as replacement draft    | Implemented |
+| Direct expenses          | Confirm with money movement, payee snapshot, reverse, correct                      | Implemented |
+| Duplicates and evidence  | Exact duplicates need a reason; documents by hash, links, missing-evidence list    | Implemented |
+| AP control, aging, Close | Sub-ledger = ledger as of every date; blockers and warnings; aging buckets         | Implemented |
+| Application contracts    | `src/schemas/purchases.ts`, `src/services/purchases`, `src/domain/purchases`       | Implemented |
+| Gate                     | Scenarios balance; races on pay, reverse, void, approve, confirm stay exact        | Implemented |
+
+Status becomes Verified when the P6 pull request has passed CI and the OWNER has merged it. Open items:
+staff screens, step-up on void/reversal, OWNER choices in DECISIONS 87.

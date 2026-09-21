@@ -105,6 +105,16 @@ declare
                                          'regenerate_invoice_link', 'revoke_invoice_link',
                                          'set_invoice_link_expiry', 'invoice_document', 'payment_receipt_document',
                                          'refund_receipt_document',
+                                         -- P6 purchases, payables and direct expenses
+                                         'create_bill_draft', 'update_bill_draft', 'submit_bill', 'recall_bill',
+                                         'reject_bill', 'approve_bill', 'cancel_bill', 'void_bill', 'correct_bill',
+                                         'update_bill_due_date', 'record_vendor_payment', 'reverse_vendor_payment',
+                                         'list_bill_positions', 'ap_control_report', 'list_vendor_payments',
+                                         'ap_aging', 'find_purchase_duplicates', 'create_expense_draft',
+                                         'update_expense_draft', 'submit_expense', 'recall_expense',
+                                         'reject_expense', 'confirm_expense', 'cancel_expense', 'reverse_expense',
+                                         'correct_expense', 'register_document', 'link_document', 'unlink_document',
+                                         'list_document_links', 'list_missing_evidence',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];
