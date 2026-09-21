@@ -73,8 +73,11 @@ declare
   v_params jsonb := '{"rate":"0.10","dpp_numerator":10,"dpp_denominator":10,"rounding":{"mode":"half_up","scale":0}}';
 begin
   -- The verified baseline is present, published and readable by tax viewers only.
-  perform test_helpers.assert((select count(*) from public.tax_rule_versions where status = 'published') = 8,
-    '1.0 eight baseline rules are published (seven tax rules and the fiscal depreciation groups)');
+  -- P7 published eight (seven tax rules and the fiscal depreciation groups); P9 adds the payroll rules (PPh 21 TER and
+  -- annual, BPJS Kes / JHT / JP in two versions / JKK / JKM, the PPh 21 deadline): nine more versions.
+  perform test_helpers.assert((select count(*) from public.tax_rule_versions where status = 'published' and code not like 'BPJS%' and code not like 'PPH21%' and code <> 'DEADLINE_PPH21') = 8
+    and (select count(*) from public.tax_rule_versions where status = 'published') = 17,
+    '1.0 the P7 baseline (eight) and the P9 payroll rules (nine) are published');
   perform test_helpers.assert((select params ->> 'rate' from test_helpers.rule_at('PPN_STANDARD', date '2026-09-01')) = '0.12',
     '1.1 PPN 12% applies in September 2026');
   perform test_helpers.assert((select (params ->> 'dpp_numerator') || '/' || (params ->> 'dpp_denominator')
