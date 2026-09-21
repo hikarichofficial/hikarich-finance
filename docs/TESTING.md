@@ -147,3 +147,23 @@ effect exactly once and the layers still agree at the end. The suite was checked
 deliberately broken code (the first pass and the review fixes, dozens of mutants in total: every
 one killed except a few behaviour-neutral redundant defences). The independent review's findings
 were fixed or documented as accepted (DECISIONS 85-87) with a regression check.
+
+## Tax tests (P7)
+
+`94_p7_tax.sql` covers the rule master (drafts, step-up, publishing, effective dates, repeals, immutability), the taxpayer
+and counterparty facts, aggregation facts and the engine switch. `95_p7_determination.sql` covers, in order: fixtures;
+the evaluators with their effective-date boundaries and NEEDS_REVIEW cases (output VAT, input VAT, PPh 23, a payee
+without NPWP, an individual payee, a non-resident payee); invoices with VAT (totals, receivable, revenue at the price, a zero
+determination before PKP status, a document that needs review is not issued, a line confirmed by a tax reviewer, a
+discount booked through the contra-revenue account with VAT on the price after the discount); bills and expenses (creditable
+input VAT to Tax Asset, withholding to Tax Payable, the payable net of withholding, payment capacity); OWNER overrides
+(who may, step-up, limits, replay, withdrawal) and confirmation; void, correction and reversal of recognised documents with
+the tax ledger reversed; tax payments (part, exact, over the outstanding, offset against input VAT, offset beyond the input
+VAT available, penalty, reversal, dates, base-currency account); filings and amendments; evidence; reconciliation (stale,
+differences with notes, unpaid, overpaid, nothing to reconcile); the tax control against the General Ledger; PPh Final UMKM
+(review cases, the exempt band, the annual ceiling, recomputation posting only the difference, an excluded taxpayer);
+the calendar and overview; the period-close checks; exact decimal text in the lists; and authorization (roles, strangers, the
+other Entity, anonymous, no direct writes, frozen history). Every scenario ends with the tax and money controls.
+
+The tax layer was checked against deliberately broken code (mutation checks over the determination, integration, payments,
+filings and final-tax code: dozens of mutants; every one killed except two behaviour-neutral redundant defences, DECISIONS 100).

@@ -65,3 +65,12 @@ The mechanism exists and is tested; it is used only at release, by the OWNER, pe
    opening balance separately as `other_ledger`, so a double count is visible, not silent. Payments
    made before the cutover are not entered. Original invoices and receipts stay with the OWNER;
    evidence is registered by hash only (decision 83).
+9. Tax at the cutover (P7): documents dated before the Entity's tax-engine start date carry no tax and
+   are never re-evaluated, so the engine start date is the cutover line: set it to the first day from
+   which tax should be recognised by the system. Opening balances of Tax Payable and Tax Asset are
+   posted as opening balances and appear in the tax control as `ledger_other`, never as a difference;
+   tax already paid or filed for earlier periods is not entered. Turnover earned outside this system in
+   the tax year counts toward the annual ceiling only when recorded as an aggregation fact, and an
+   individual whose year predates the engine start is a review case for the final tax (decision 97).
+   The taxpayer's NPWP, PKP status and regime are entered as facts with an evidence note, never copied
+   from documents into Git (decision 90).
