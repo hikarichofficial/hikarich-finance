@@ -421,7 +421,7 @@ begin
     and (select count(*) from public.journal_lines where journal_id = b.journal_id) = 4,
     'Dr expense (category mapping), Dr other fixed assets (default), Dr prepaid (default), Cr Accounts Payable');
   perform test_helpers.assert((select array_agg(base_amount::numeric order by line_no) from public.bill_lines where bill_id = v_a) = array[75000, 12000000, 2400000]::numeric[]
-    and (select array_agg(asset_link_status order by line_no) from public.bill_lines where bill_id = v_a) = array['none', 'pending', 'none']
+    and (select array_agg(asset_link_status order by line_no) from public.bill_lines where bill_id = v_a) = array['none', 'linked', 'none']
     and (select bool_and(posted_account_id is not null) from public.bill_lines where bill_id = v_a), 'lines carry their posted account, base amount and the asset hand-off');
   perform test_helpers.assert((select entry_date from public.journal_entries where id = b.journal_id) = b.bill_date
     and (select source_type from public.journal_entries where id = b.journal_id) = 'bill', 'the journal is dated on the bill date and sourced from the bill');
@@ -1314,7 +1314,7 @@ begin
   perform test_helpers.assert(test_helpers.jd(x.journal_id, 'OTHER_OPERATING_EXPENSE') = 15000 and test_helpers.jd(x.journal_id, 'FIXED_ASSET_EQUIPMENT') = 900000
     and (select coalesce(sum(credit), 0) from public.journal_lines where journal_id = x.journal_id and ledger_account_id = v_cash_la) = 915000
     and (select count(*) from public.journal_lines where journal_id = x.journal_id) = 3, 'an unmapped category uses the Entity default; the asset goes to equipment; one credit of 915,000');
-  perform test_helpers.assert((select array_agg(asset_link_status order by line_no) from public.expense_lines where expense_id = v_e6) = array['none', 'pending'], 'the asset line waits for the asset register (P8)');
+  perform test_helpers.assert((select array_agg(asset_link_status order by line_no) from public.expense_lines where expense_id = v_e6) = array['none', 'linked'], 'the asset line is linked to a draft in the asset register (P8)');
   perform test_helpers.controls6(pt, 'after the multi-line expense');
 
   -- ---- cancelling

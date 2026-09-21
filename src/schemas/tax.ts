@@ -118,7 +118,9 @@ export const ruleFamilySchema = z.enum([
   "pph21",
   "corporate_income",
   "personal_income",
-  "calendar",
+  "deadline",
+  "fiscal_depreciation",
+  "other",
 ]);
 
 export const saveRuleDraftInputSchema = z.object({

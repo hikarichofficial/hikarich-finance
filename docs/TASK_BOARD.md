@@ -15,8 +15,8 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | P4    | Money & Reconciliation            | P3           | Transfers create no P&L; money equals ledger; recon never rewrites | Verified    |
 | P5    | Sales / AR                        | P4           | Invoices post once; payments/refunds never exceed; AR = ledger     | Verified    |
 | P6    | Purchases / AP                    | P5           | Bills post once; payments never exceed; AP = ledger; races exact   | Verified    |
-| P7    | Tax                               | P6           | Step 15 (P7) / Step 16; re-verify tax baseline on the web          | Implemented |
-| P8    | Assets / Loans / Equity           | P7           | Step 15 (P8) / Step 16                                             | Not Started |
+| P7    | Tax                               | P6           | Step 15 (P7) / Step 16; re-verify tax baseline on the web          | Verified    |
+| P8    | Assets / Loans / Equity           | P7           | Step 15 (P8) / Step 16                                             | Implemented |
 | P9    | Payroll                           | P8           | Step 15 (P9) / Step 16                                             | Not Started |
 | P10   | Planning / Recurring              | P9           | Step 15 (P10) / Step 16                                            | Not Started |
 | P11   | Documents / Imports / Search      | P10          | Step 15 (P11) / Step 16                                            | Not Started |
@@ -150,3 +150,25 @@ void/reversal, OWNER choices in DECISIONS 87.
 Status becomes Verified when the P7 pull request has passed CI and the OWNER has merged it. Open items: the
 tax baseline (rates, formulas, deadlines, facts) must be re-verified by the OWNER's tax adviser before P15;
 customer-withheld PPh 23 credit, VAT refund, holiday calendar and staff screens are not in P7 (DECISIONS 88-100).
+
+Verified: the P7 pull request (#12) passed CI and the OWNER merged it.
+
+## P8 checklist (Step 15 §12, Step 16 §16-17)
+
+| Item                       | Done when                                                                                                  | Status      |
+| -------------------------- | ---------------------------------------------------------------------------------------------------------- | ----------- |
+| Asset register             | Draft assets from approved purchase lines; activation, plan, split, transfer, condition, cancel            | Implemented |
+| Depreciation               | Straight-line and declining balance, month by month after month-end; reversal; re-plan; fiscal memo        | Implemented |
+| Disposal                   | Sale, scrap, loss, damage, donation; gain/loss; receivable for a sale on credit; reversal                  | Implemented |
+| Other receivables/payables | Recognition (cash or offset), part settlement with interest and fee, write-off, reversal, void             | Implemented |
+| Loans received and given   | Versioned schedules (annuity, flat, interest-only, manual); allocation; write-off; restructure; asset link | Implemented |
+| Equity                     | Contributions, capital returns, dividends in parts, Personal investment and distribution events            | Implemented |
+| Opening data               | `asset_load_opening`, `loan_load_opening`; obligations by offset (DATA_CUTOVER 10-12)                      | Implemented |
+| Controls and Close         | Asset, loan, other AR/AP and dividend controls = ledger; depreciation due; tax-review warnings             | Implemented |
+| Tax review of financing    | Queue and `financing_tax_review` (`tax.confirm_facts`); nothing guessed                                    | Implemented |
+| Application contracts      | `src/schemas/{assets,financing}.ts`, `src/services/{assets,financing}`, `src/domain/{assets,financing}`    | Implemented |
+| Gate                       | Scenarios balance; controls equal the ledger; full suite and clean rebuild reproducible                    | Implemented |
+
+Status becomes Verified when the P8 pull request has passed CI and the OWNER has merged it. Open items: the fiscal
+depreciation groups and the tax treatment of interest, forgiven debt, dividends and capital returns must be verified by
+the OWNER's tax adviser before P15; screens and the depreciation run schedule are not in P8 (DECISIONS 101-118).
