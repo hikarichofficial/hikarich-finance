@@ -503,6 +503,223 @@ SQL
   fi
 }
 
+
+# Purchases layer under real concurrency (Step 15 P6 gate, Step 13 §9): the same bill, payment and expense are attacked
+# by several sessions at once. A bill is never over-paid, a retried payment never books twice, two approvals of the same
+# vendor invoice never both go through, and the racing commands (void vs pay, reverse vs void, confirm vs cancel) end in
+# exactly one outcome. Every statement runs in its own transaction, as a browser request would.
+PC_OWNER="d2000000-0000-0000-0000-000000000001"
+pc_today() { echo "test_helpers.today('$PC_ENT')"; }
+pc_pay() { # pc_pay <key> <bill> <amount>
+  echo "select public.record_vendor_payment('$PC_ENT', '$1', '$PC_VEND', '$PC_BANK', $(pc_today), $3, jsonb_build_array(jsonb_build_object('bill_id', '$2', 'amount', $3)));"
+}
+pc_gen_pay() { local w="$1" i; for i in 1 2 3 4; do mc_as "$PC_OWNER" "$(pc_pay "conc-pc-pay-${w}-${i}" "$PC_B1" 300000)"; done; }
+pc_gen_samekey() { local w="$1" i; for i in 1 2 3 4 5; do mc_as "$PC_OWNER" "$(pc_pay "conc-pc-same-key" "$PC_B2" 100000)"; done; }
+pc_gen_dup() {
+  # Half of the sessions start with the first bill, half with the second, so the two approvals really overlap.
+  local w="$1"
+  if (( w % 2 )); then
+    mc_as "$PC_OWNER" "select public.approve_bill('$PC_B3A', 'conc-pc-da-${w}');"
+    mc_as "$PC_OWNER" "select public.approve_bill('$PC_B3B', 'conc-pc-db-${w}');"
+  else
+    mc_as "$PC_OWNER" "select public.approve_bill('$PC_B3B', 'conc-pc-db-${w}');"
+    mc_as "$PC_OWNER" "select public.approve_bill('$PC_B3A', 'conc-pc-da-${w}');"
+  fi
+}
+pc_gen_voidpay() {
+  local w="$1"
+  if (( w % 2 )); then
+    mc_as "$PC_OWNER" "select public.void_bill('$PC_B4', 'conc-pc-void-${w}', 'Concurrent void test');"
+  else
+    mc_as "$PC_OWNER" "$(pc_pay "conc-pc-vpay-${w}" "$PC_B4" 300000)"
+  fi
+}
+pc_gen_revvoid() {
+  local w="$1"
+  if (( w % 2 )); then
+    mc_as "$PC_OWNER" "select public.reverse_vendor_payment('$PC_P5', 'conc-pc-rev-${w}', $(pc_today), 'Concurrent reversal test');"
+  else
+    mc_as "$PC_OWNER" "select public.void_bill('$PC_B5', 'conc-pc-void5-${w}', 'Concurrent void after payment');"
+  fi
+}
+pc_gen_expense() {
+  local w="$1"
+  if (( w % 2 )); then
+    mc_as "$PC_OWNER" "select public.confirm_expense('$PC_X1', 'conc-pc-xc-${w}');"
+  else
+    mc_as "$PC_OWNER" "select public.cancel_expense('$PC_X1', 'conc-pc-xx-${w}', 'Concurrent cancellation test');"
+  fi
+}
+pc_gen_account() {
+  # Odd sessions reverse payments made from the bank account while even sessions make new payments from the same
+  # account: the two commands take the same locks (bills, payment, account, counters) in the same order.
+  local w="$1" i k
+  if (( w % 2 )); then
+    for k in 0 1 2 3; do
+      mc_as "$PC_OWNER" "select public.reverse_vendor_payment('${PC_RPS[$(( (w - 1) / 2 * 4 + k ))]}', 'conc-pc-acct-r-${w}-${k}', $(pc_today), 'Concurrent reversal on one account');"
+    done
+  else
+    for i in 1 2 3 4; do mc_as "$PC_OWNER" "$(pc_pay "conc-pc-acct-p-${w}-${i}" "$PC_B6" 100000)"; done
+  fi
+}
+pc_gen_expdup() {
+  local w="$1"
+  if (( w % 2 )); then
+    mc_as "$PC_OWNER" "select public.confirm_expense('$PC_X2A', 'conc-pc-xda-${w}');"
+    mc_as "$PC_OWNER" "select public.confirm_expense('$PC_X2B', 'conc-pc-xdb-${w}');"
+  else
+    mc_as "$PC_OWNER" "select public.confirm_expense('$PC_X2B', 'conc-pc-xdb-${w}');"
+    mc_as "$PC_OWNER" "select public.confirm_expense('$PC_X2A', 'conc-pc-xda-${w}');"
+  fi
+}
+
+purchases_concurrency_test() {
+  echo "  testing  concurrent bills, payments, voids, reversals and expenses (6 sessions racing on the same documents)"
+  "${PSQL[@]}" -o /dev/null "$TEST_URL" <<SQL
+insert into public.entities (entity_type, code, legal_name) values ('company', 'conc_purch', 'Purchases concurrency (synthetic)');
+select app_private.provision_default_coa((select id from public.entities where code = 'conc_purch'));
+select test_helpers.mk_user('$PC_OWNER', 'pc_owner');
+select test_helpers.mk_member((select id from public.entities where code = 'conc_purch'), '$PC_OWNER', 'owner');
+begin;
+select test_helpers.login('$PC_OWNER');
+select public.create_financial_account((select id from public.entities where code = 'conc_purch'), 'conc-pc-bank-1', 'bank', 'PC Bank', 'IDR');
+select public.create_contact((select id from public.entities where code = 'conc_purch'), 'conc-pc-vend-1', 'vendor', 'PC Vendor');
+commit;
+SQL
+  PC_ENT="$(mc_q "select id from public.entities where code = 'conc_purch'")"
+  PC_BANK="$(mc_q "select id from public.financial_accounts where entity_id = '$PC_ENT'")"
+  PC_VEND="$(mc_q "select id from public.contacts where entity_id = '$PC_ENT'")"
+  local n amt
+  for n in 1 2 4 5 6 $(seq 10 21); do
+    case $n in 1) amt=1000000 ;; 2) amt=1000000 ;; 4) amt=300000 ;; 5) amt=400000 ;; 6) amt=5000000 ;; *) amt=100000 ;; esac
+    "${PSQL[@]}" -o /dev/null "$TEST_URL" <<SQL
+begin;
+select test_helpers.login('$PC_OWNER');
+select public.approve_bill(public.submit_bill(public.create_bill_draft('$PC_ENT', 'conc-pc-b-$n', '$PC_VEND', test_helpers.today('$PC_ENT') - 3, test_helpers.today('$PC_ENT') + 30,
+  jsonb_build_array(jsonb_build_object('description', 'Bill $n', 'unit_price', $amt)), 'REF-$n'), 'conc-pc-s-$n'), 'conc-pc-a-$n');
+commit;
+SQL
+  done
+  # a pair of drafts carrying the same vendor invoice number, and two expenses with the same receipt
+  "${PSQL[@]}" -o /dev/null "$TEST_URL" <<SQL
+begin;
+select test_helpers.login('$PC_OWNER');
+select public.submit_bill(public.create_bill_draft('$PC_ENT', 'conc-pc-b-3a', '$PC_VEND', test_helpers.today('$PC_ENT') - 3, test_helpers.today('$PC_ENT') + 30,
+  jsonb_build_array(jsonb_build_object('description', 'Bill 3a', 'unit_price', 200000)), 'DUP-1'), 'conc-pc-s-3a');
+select public.submit_bill(public.create_bill_draft('$PC_ENT', 'conc-pc-b-3b', '$PC_VEND', test_helpers.today('$PC_ENT') - 3, test_helpers.today('$PC_ENT') + 30,
+  jsonb_build_array(jsonb_build_object('description', 'Bill 3b', 'unit_price', 200000)), 'dup-1 '), 'conc-pc-s-3b');
+select public.submit_expense(public.create_expense_draft('$PC_ENT', 'conc-pc-x-1', '$PC_BANK', test_helpers.today('$PC_ENT'),
+  '[{"description":"Expense X1","unit_price":50000}]', null, 'Toko Konkurensi', 'CONC-X1'), 'conc-pc-xs-1');
+select public.submit_expense(public.create_expense_draft('$PC_ENT', 'conc-pc-x-2a', '$PC_BANK', test_helpers.today('$PC_ENT'),
+  '[{"description":"Expense X2a","unit_price":70000}]', null, 'Toko Ganda', 'CONC-DUP'), 'conc-pc-xs-2a');
+select public.submit_expense(public.create_expense_draft('$PC_ENT', 'conc-pc-x-2b', '$PC_BANK', test_helpers.today('$PC_ENT'),
+  '[{"description":"Expense X2b","unit_price":70000}]', null, 'toko ganda', 'conc-dup'), 'conc-pc-xs-2b');
+commit;
+SQL
+  local q="select b.id from public.bills b join public.bill_lines l on l.bill_id = b.id where b.entity_id = '$PC_ENT' and l.description ="
+  PC_B1="$(mc_q "$q 'Bill 1'")"; PC_B2="$(mc_q "$q 'Bill 2'")"; PC_B4="$(mc_q "$q 'Bill 4'")"; PC_B5="$(mc_q "$q 'Bill 5'")"
+  PC_B6="$(mc_q "$q 'Bill 6'")"
+  PC_B3A="$(mc_q "$q 'Bill 3a'")"; PC_B3B="$(mc_q "$q 'Bill 3b'")"
+  local qx="select x.id from public.expenses x join public.expense_lines l on l.expense_id = x.id where x.entity_id = '$PC_ENT' and l.description ="
+  PC_X1="$(mc_q "$qx 'Expense X1'")"; PC_X2A="$(mc_q "$qx 'Expense X2a'")"; PC_X2B="$(mc_q "$qx 'Expense X2b'")"
+  "${PSQL[@]}" -o /dev/null "$TEST_URL" <<SQL
+begin;
+select test_helpers.login('$PC_OWNER');
+$(pc_pay "conc-pc-pay5" "$PC_B5" 400000)
+commit;
+SQL
+  PC_P5="$(mc_q "select payment_id from public.vendor_payment_allocations where bill_id = '$PC_B5'")"
+  # twelve small bills, each paid once, for the account race below
+  PC_RPS=()
+  local rb
+  for n in $(seq 10 21); do
+    rb="$(mc_q "$q 'Bill $n'")"
+    "${PSQL[@]}" -o /dev/null "$TEST_URL" <<SQL
+begin;
+select test_helpers.login('$PC_OWNER');
+$(pc_pay "conc-pc-rp-$n" "$rb" 100000)
+commit;
+SQL
+    PC_RPS+=("$(mc_q "select payment_id from public.vendor_payment_allocations where bill_id = '$rb'")")
+  done
+
+  # 1. four attempts per session to pay 300,000 of a 1,000,000 bill: exactly three succeed, never a fourth
+  money_workers pay 6 pc_gen_pay 'INVALID|CONFLICT'
+  local result
+  result="$(mc_q "select count(*) || '/' || sum(amount) from public.vendor_payment_allocations where bill_id = '$PC_B1' and status = 'active'")"
+  if [[ "$result" != "3/900000.0000" ]]; then
+    echo "FAIL: concurrent vendor payments produced $result, expected 3/900000.0000 (allocations/amount)." >&2
+    exit 1
+  fi
+
+  # 2. one retried request, sent by six sessions five times each: one payment, one movement
+  money_workers samekey 6 pc_gen_samekey 'INVALID|CONFLICT'
+  result="$(mc_q "select (select count(*) from public.vendor_payment_allocations where bill_id = '$PC_B2') || '/' || (select count(*) from public.money_movements m join public.vendor_payment_allocations a on a.payment_id = m.source_id where a.bill_id = '$PC_B2' and m.source_type = 'vendor_payment')")"
+  if [[ "$result" != "1/1" ]]; then
+    echo "FAIL: a retried vendor payment request booked $result (allocations/movements), expected 1/1." >&2
+    exit 1
+  fi
+
+  # 3. two approvals of the same vendor invoice number at once: exactly one goes through
+  money_workers duplicate 6 pc_gen_dup 'CONFLICT|INVALID'
+  result="$(mc_q "select (select count(*) from public.bills where id in ('$PC_B3A', '$PC_B3B') and status = 'approved') || '/' || (select count(*) from public.bills where id in ('$PC_B3A', '$PC_B3B') and status = 'submitted') || '/' || (select count(*) from public.journal_entries where source_type = 'bill' and source_id in ('$PC_B3A', '$PC_B3B'))")"
+  if [[ "$result" != "1/1/1" ]]; then
+    echo "FAIL: concurrent approval of a duplicate bill produced $result, expected 1/1/1 (approved/still submitted/journals)." >&2
+    exit 1
+  fi
+
+  # 4. void a bill and pay it at once: either voided with nothing allocated, or paid and not voided
+  money_workers voidpay 6 pc_gen_voidpay 'CONFLICT|INVALID'
+  result="$(mc_q "select (b.status = 'void' and not exists (select 1 from public.vendor_payment_allocations a where a.bill_id = b.id and a.status = 'active'))
+                       or (b.status = 'approved' and (select count(*) from public.vendor_payment_allocations a where a.bill_id = b.id and a.status = 'active') = 1) from public.bills b where b.id = '$PC_B4'")"
+  if [[ "$result" != "t" ]]; then
+    echo "FAIL: voiding and paying one bill at once produced an impossible state." >&2
+    exit 1
+  fi
+
+  # 5. reverse the payment of a bill and void the bill at once: never a void bill with a live payment
+  money_workers reversevoid 6 pc_gen_revvoid 'CONFLICT|INVALID'
+  result="$(mc_q "select p.status = 'reversed' and (b.status = 'approved' or (b.status = 'void' and not exists (select 1 from public.vendor_payment_allocations a where a.bill_id = b.id and a.status = 'active')))
+                       from public.vendor_payments p, public.bills b where p.id = '$PC_P5' and b.id = '$PC_B5'")"
+  if [[ "$result" != "t" ]]; then
+    echo "FAIL: reversing a payment and voiding its bill at once produced an impossible state." >&2
+    exit 1
+  fi
+
+  # 6. confirm and cancel the same expense at once: one outcome, consistent with the ledger
+  money_workers expense 6 pc_gen_expense 'CONFLICT|INVALID'
+  result="$(mc_q "select (x.status = 'confirmed' and (select count(*) from public.journal_entries j where j.source_type = 'expense' and j.source_id = x.id) = 1
+                          and (select count(*) from public.money_movements m where m.source_type = 'expense' and m.source_id = x.id) = 1)
+                       or (x.status = 'cancelled' and not exists (select 1 from public.journal_entries j where j.source_id = x.id)) from public.expenses x where x.id = '$PC_X1'")"
+  if [[ "$result" != "t" ]]; then
+    echo "FAIL: confirming and cancelling one expense at once produced an impossible state ($result)." >&2
+    exit 1
+  fi
+
+  # 7. two expenses with the same receipt confirmed at once: exactly one goes through
+  money_workers expensedup 6 pc_gen_expdup 'CONFLICT|INVALID'
+  result="$(mc_q "select count(*) from public.expenses where id in ('$PC_X2A', '$PC_X2B') and status = 'confirmed'")"
+  if [[ "$result" != "1" ]]; then
+    echo "FAIL: concurrent confirmation of a duplicate expense confirmed $result, expected exactly 1." >&2
+    exit 1
+  fi
+
+  # 7b. payments and reversals on the same account at once: no deadlock, every command completes
+  money_workers account 6 pc_gen_account 'CONFLICT|INVALID'
+  result="$(mc_q "select (select count(*) from public.vendor_payment_allocations where bill_id = '$PC_B6' and status = 'active') || '/' || (select count(*) from public.vendor_payments where id in ($(printf "'%s'," "${PC_RPS[@]}" | sed 's/,$//')) and status = 'reversed')")"
+  if [[ "$result" != "12/12" ]]; then
+    echo "FAIL: payments racing reversals on one account produced $result, expected 12/12 (new payments/reversed payments)." >&2
+    exit 1
+  fi
+
+  # 8. after all of it the purchase sub-ledger, the money layer and the ledger still agree, and the books balance
+  result="$(mc_q "select (select c.sub_ledger = c.ledger_purchases from app_private.ap_control('$PC_ENT') c) || '/' || (select count(*) from app_private.money_control_rows('$PC_ENT', null) where ledger_balance <> movement_base_balance) || '/' || (select coalesce(sum(l.debit) - sum(l.credit), 0) from public.journal_lines l where l.entity_id = '$PC_ENT')")"
+  if [[ "$result" != "true/0/0.0000" && "$result" != "t/0/0.0000" && "$result" != "true/0/0" && "$result" != "t/0/0" ]]; then
+    echo "FAIL: after concurrent purchase operations the layers disagree ($result)." >&2
+    exit 1
+  fi
+}
+
 rebuild() {
   "${PSQL[@]}" "$ADMIN_URL" -c "drop database if exists ${TEST_DB} with (force)"
   "${PSQL[@]}" "$ADMIN_URL" -c "create database ${TEST_DB}"
@@ -520,6 +737,7 @@ rebuild() {
   posting_concurrency_test
   money_concurrency_test
   sales_concurrency_test
+  purchases_concurrency_test
 }
 
 fingerprint() {
