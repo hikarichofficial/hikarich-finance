@@ -1,5 +1,10 @@
 import { z } from "zod";
-import { idempotencyKeySchema, isoDateSchema, moneyTextSchema, signedDecimalTextSchema } from "@/schemas/accounting";
+import {
+  idempotencyKeySchema,
+  isoDateSchema,
+  moneyTextSchema,
+  signedDecimalTextSchema,
+} from "@/schemas/accounting";
 
 /**
  * Input and output contracts of the planning RPCs (P10, Step 01 #22/#23/#26, Step 15 Phase 10): recurring
@@ -72,7 +77,11 @@ const recurringExpenseTemplateSchema = z
   })
   .superRefine((v, ctx) => {
     if (!v.payee_id && !v.payee_name) {
-      ctx.addIssue({ code: "custom", path: ["payee_name"], message: "Isi vendor atau nama penerima" });
+      ctx.addIssue({
+        code: "custom",
+        path: ["payee_name"],
+        message: "Isi vendor atau nama penerima",
+      });
     }
   });
 

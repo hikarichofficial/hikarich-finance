@@ -196,17 +196,17 @@ e-bupot export are not in P9 (DECISIONS 119-133).
 
 ## P10 checklist (Step 15 Phase 10, Step 01 #22/#23/#26)
 
-| Item                    | Done when                                                                                                 | Status      |
-| ----------------------- | --------------------------------------------------------------------------------------------------------- | ----------- |
-| Permission boundary     | `planning.*` catalog and role grants                                                                       | Implemented |
-| Recurring rules         | Templates (invoice/bill/expense), pause/resume/end, editing never mutates generated history                | Implemented |
-| Recurring generation    | Idempotent occurrence identity, at most one due occurrence per rule per call, failed-generation retry, outbox events | Implemented |
-| Budgets                 | Entity -> Category -> Subcategory grid; Budget/Actual/Committed/Remaining/%Used/Variance (computed, never stored) | Implemented |
-| Revenue targets         | Annual/monthly targets with editable monthly breakdown; target vs actual vs open AR                        | Implemented |
-| Forecast                | Deferred to an OWNER decision (no locked spec defines a methodology); not guessed (DECISIONS 139)           | Not Started |
-| Application contracts   | `src/schemas/planning.ts`, `src/services/planning`, `src/domain/planning`                                   | Implemented |
-| Tests                   | pgTAP suite covering recurring idempotency/retry and the budget/target reports                              | Implemented |
-| Gate                    | Editing recurring rules never mutates historical generated transactions; full suite and clean rebuild reproducible | Implemented |
+| Item                  | Done when                                                                                                            | Status      |
+| --------------------- | -------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Permission boundary   | `planning.*` catalog and role grants                                                                                 | Implemented |
+| Recurring rules       | Templates (invoice/bill/expense), pause/resume/end, editing never mutates generated history                          | Implemented |
+| Recurring generation  | Idempotent occurrence identity, at most one due occurrence per rule per call, failed-generation retry, outbox events | Implemented |
+| Budgets               | Entity -> Category -> Subcategory grid; Budget/Actual/Committed/Remaining/%Used/Variance (computed, never stored)    | Implemented |
+| Revenue targets       | Annual/monthly targets with editable monthly breakdown; target vs actual vs open AR                                  | Implemented |
+| Forecast              | Deferred to an OWNER decision (no locked spec defines a methodology); not guessed (DECISIONS 139)                    | Not Started |
+| Application contracts | `src/schemas/planning.ts`, `src/services/planning`, `src/domain/planning`                                            | Implemented |
+| Tests                 | pgTAP suite covering recurring idempotency/retry and the budget/target reports                                       | Implemented |
+| Gate                  | Editing recurring rules never mutates historical generated transactions; full suite and clean rebuild reproducible   | Implemented |
 
 Status: branch `p10-planning-recurring` pushed to `origin` (durable even if the working session
 restarts); migrations, application layer and the pgTAP suite (`supabase/tests/99_p10_planning.sql`)

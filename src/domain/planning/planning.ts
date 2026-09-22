@@ -30,7 +30,9 @@ export const RECURRING_FREQUENCY_LABELS: Readonly<Record<RecurringFrequency, str
   custom_days: "Interval hari kustom",
 };
 
-export const RECURRING_OCCURRENCE_STATUS_LABELS: Readonly<Record<RecurringOccurrenceStatus, string>> = {
+export const RECURRING_OCCURRENCE_STATUS_LABELS: Readonly<
+  Record<RecurringOccurrenceStatus, string>
+> = {
   generated: "Berhasil dibuat",
   failed: "Gagal",
 };
@@ -83,7 +85,7 @@ export function previewNextOccurrenceDate(
     return addDays(y, m, d, intervalCount);
   }
   // monthly
-  const totalMonths = (y * 12 + (m - 1)) + intervalCount;
+  const totalMonths = y * 12 + (m - 1) + intervalCount;
   const targetYear = Math.floor(totalMonths / 12);
   const targetMonth = (totalMonths % 12) + 1;
   const lastDay = daysInMonth(targetYear, targetMonth);

@@ -47,7 +47,11 @@ import {
  * its own. Labels live in `@/domain/planning`.
  */
 
-async function callRpc<T>(name: string, args: Record<string, unknown>, schema: ZodType<T>): Promise<T> {
+async function callRpc<T>(
+  name: string,
+  args: Record<string, unknown>,
+  schema: ZodType<T>,
+): Promise<T> {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.rpc(name, args);
   if (error) {
@@ -112,7 +116,9 @@ export async function resumeRecurringRule(
   await callRpc("resume_recurring_rule", { p_rule: v.rule_id }, nothing);
 }
 
-export async function endRecurringRule(input: z.input<typeof endRecurringRuleInputSchema>): Promise<void> {
+export async function endRecurringRule(
+  input: z.input<typeof endRecurringRuleInputSchema>,
+): Promise<void> {
   const v = endRecurringRuleInputSchema.parse(input);
   await callRpc("end_recurring_rule", { p_rule: v.rule_id, p_reason: v.reason }, nothing);
 }
@@ -153,7 +159,9 @@ export async function runDueRecurringOccurrences(
 }
 
 // ================================================================ budgets
-export async function createBudget(input: z.input<typeof createBudgetInputSchema>): Promise<string> {
+export async function createBudget(
+  input: z.input<typeof createBudgetInputSchema>,
+): Promise<string> {
   const v = createBudgetInputSchema.parse(input);
   return callRpc(
     "create_budget",
@@ -171,7 +179,9 @@ export async function createBudget(input: z.input<typeof createBudgetInputSchema
   );
 }
 
-export async function setBudgetLines(input: z.input<typeof setBudgetLinesInputSchema>): Promise<number> {
+export async function setBudgetLines(
+  input: z.input<typeof setBudgetLinesInputSchema>,
+): Promise<number> {
   const v = setBudgetLinesInputSchema.parse(input);
   return callRpc(
     "set_budget_lines",
@@ -180,7 +190,9 @@ export async function setBudgetLines(input: z.input<typeof setBudgetLinesInputSc
   );
 }
 
-export async function activateBudget(input: z.input<typeof activateBudgetInputSchema>): Promise<void> {
+export async function activateBudget(
+  input: z.input<typeof activateBudgetInputSchema>,
+): Promise<void> {
   const v = activateBudgetInputSchema.parse(input);
   await callRpc("activate_budget", { p_budget: v.budget_id }, nothing);
 }
@@ -190,9 +202,15 @@ export async function closeBudget(input: z.input<typeof closeBudgetInputSchema>)
   await callRpc("close_budget", { p_budget: v.budget_id }, nothing);
 }
 
-export async function listBudgets(input: z.input<typeof listBudgetsInputSchema>): Promise<BudgetRow[]> {
+export async function listBudgets(
+  input: z.input<typeof listBudgetsInputSchema>,
+): Promise<BudgetRow[]> {
   const v = listBudgetsInputSchema.parse(input);
-  return callRpc("list_budgets", { p_entity: v.entity_id, p_status: v.status ?? null }, budgetListSchema);
+  return callRpc(
+    "list_budgets",
+    { p_entity: v.entity_id, p_status: v.status ?? null },
+    budgetListSchema,
+  );
 }
 
 export async function getBudgetLines(budgetId: string) {
