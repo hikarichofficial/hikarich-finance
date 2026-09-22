@@ -204,12 +204,14 @@ e-bupot export are not in P9 (DECISIONS 119-133).
 | Budgets                 | Entity -> Category -> Subcategory grid; Budget/Actual/Committed/Remaining/%Used/Variance (computed, never stored) | Implemented |
 | Revenue targets         | Annual/monthly targets with editable monthly breakdown; target vs actual vs open AR                        | Implemented |
 | Forecast                | Deferred to an OWNER decision (no locked spec defines a methodology); not guessed (DECISIONS 139)           | Not Started |
-| Application contracts   | `src/schemas/planning.ts`, `src/services/planning`, `src/domain/planning`                                   | Not Started |
-| Tests                   | pgTAP suite covering recurring idempotency/retry and the budget/target reports                              | Not Started |
-| Gate                    | Editing recurring rules never mutates historical generated transactions; full suite and clean rebuild reproducible | Not Started |
+| Application contracts   | `src/schemas/planning.ts`, `src/services/planning`, `src/domain/planning`                                   | Implemented |
+| Tests                   | pgTAP suite covering recurring idempotency/retry and the budget/target reports                              | Implemented |
+| Gate                    | Editing recurring rules never mutates historical generated transactions; full suite and clean rebuild reproducible | Implemented |
 
 Status: branch `p10-planning-recurring` pushed to `origin` (durable even if the working session
-restarts); migrations done and pushed, application layer/tests/PR still pending. Open items: the
+restarts); migrations, application layer and the pgTAP suite (`supabase/tests/99_p10_planning.sql`)
+are all done and pushed; `scripts/db-test.sh` (double clean rebuild, all migrations, all test files,
+all concurrency suites) passes with zero errors. PR to `main` pending. Open items: the
 Forecast methodology and the "Committed" reading for budgets need OWNER confirmation
 (DECISIONS 138-139); recurring rule/budget/revenue target screens are a later slice
 (DECISIONS 134-139), like every other phase's screens.
