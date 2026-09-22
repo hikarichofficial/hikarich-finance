@@ -18,7 +18,7 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | P7    | Tax                               | P6           | Step 15 (P7) / Step 16; re-verify tax baseline on the web          | Verified    |
 | P8    | Assets / Loans / Equity           | P7           | Step 15 (P8) / Step 16                                             | Verified    |
 | P9    | Payroll                           | P8           | Step 15 (P9) / Step 16                                             | Verified    |
-| P10   | Planning / Recurring              | P9           | Step 15 (P10) / Step 16                                            | Not Started |
+| P10   | Planning / Recurring              | P9           | Step 15 (P10) / Step 16                                            | In Progress |
 | P11   | Documents / Imports / Search      | P10          | Step 15 (P11) / Step 16                                            | Not Started |
 | P12   | Reports                           | P11          | Statement equations and reconciliations pass                       | Not Started |
 | P13   | Dashboard / UX Completion         | P12          | KPI equals its source report                                       | Not Started |
@@ -193,3 +193,23 @@ before P15; screens and the depreciation run schedule are not in P8 (DECISIONS 1
 Verified: the P9 pull request (#14) passed CI and the OWNER merged it. Open items: the payroll tax
 baseline must be verified by the OWNER's tax adviser before P15; screens, payslip documents, THR/severance and the
 e-bupot export are not in P9 (DECISIONS 119-133).
+
+## P10 checklist (Step 15 Phase 10, Step 01 #22/#23/#26)
+
+| Item                    | Done when                                                                                                 | Status      |
+| ----------------------- | --------------------------------------------------------------------------------------------------------- | ----------- |
+| Permission boundary     | `planning.*` catalog and role grants                                                                       | Implemented |
+| Recurring rules         | Templates (invoice/bill/expense), pause/resume/end, editing never mutates generated history                | Implemented |
+| Recurring generation    | Idempotent occurrence identity, at most one due occurrence per rule per call, failed-generation retry, outbox events | Implemented |
+| Budgets                 | Entity -> Category -> Subcategory grid; Budget/Actual/Committed/Remaining/%Used/Variance (computed, never stored) | Implemented |
+| Revenue targets         | Annual/monthly targets with editable monthly breakdown; target vs actual vs open AR                        | Implemented |
+| Forecast                | Deferred to an OWNER decision (no locked spec defines a methodology); not guessed (DECISIONS 139)           | Not Started |
+| Application contracts   | `src/schemas/planning.ts`, `src/services/planning`, `src/domain/planning`                                   | Not Started |
+| Tests                   | pgTAP suite covering recurring idempotency/retry and the budget/target reports                              | Not Started |
+| Gate                    | Editing recurring rules never mutates historical generated transactions; full suite and clean rebuild reproducible | Not Started |
+
+Status: branch `p10-planning-recurring` pushed to `origin` (durable even if the working session
+restarts); migrations done and pushed, application layer/tests/PR still pending. Open items: the
+Forecast methodology and the "Committed" reading for budgets need OWNER confirmation
+(DECISIONS 138-139); recurring rule/budget/revenue target screens are a later slice
+(DECISIONS 134-139), like every other phase's screens.
