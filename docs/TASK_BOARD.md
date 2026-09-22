@@ -19,7 +19,7 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | P8    | Assets / Loans / Equity           | P7           | Step 15 (P8) / Step 16                                             | Verified    |
 | P9    | Payroll                           | P8           | Step 15 (P9) / Step 16                                             | Verified    |
 | P10   | Planning / Recurring              | P9           | Step 15 (P10) / Step 16                                            | In Progress |
-| P11   | Documents / Imports / Search      | P10          | Step 15 (P11) / Step 16                                            | Not Started |
+| P11   | Documents / Imports / Search      | P10          | Step 15 (P11) / Step 16                                            | In Progress |
 | P12   | Reports                           | P11          | Statement equations and reconciliations pass                       | Not Started |
 | P13   | Dashboard / UX Completion         | P12          | KPI equals its source report                                       | Not Started |
 | P14   | Security / Performance / Recovery | P13          | Step 15 / Step 16 incl. backup export and restore drill            | Not Started |
@@ -215,3 +215,22 @@ all concurrency suites) passes with zero errors. PR to `main` pending. Open item
 Forecast methodology and the "Committed" reading for budgets need OWNER confirmation
 (DECISIONS 138-139); recurring rule/budget/revenue target screens are a later slice
 (DECISIONS 134-139), like every other phase's screens.
+
+## P11 checklist (Step 15 Phase 11, Step 01 #34/#35/#43/#44)
+
+| Item                  | Done when                                                                                                             | Status      |
+| ---------------------- | ---------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Documents generalized | Data-driven target-kind catalog; nine target types linkable; storage-path/versioning plumbing                        | In Progress |
+| Import engine core    | Batch/row staging, validation, preview, commit and lineage; rollback where safely reversible                         | Not Started |
+| Import domains        | `contacts`, `legacy_open_receivables`, `legacy_open_payables` (DATA_CUTOVER items 7-8)                                | Not Started |
+| Global search          | Permission-safe index kept current from the outbox; payroll/tax excluded                                             | Not Started |
+| Application contracts  | `src/schemas/documents.ts`/`imports.ts`/`search.ts`, matching `src/services`/`src/domain`                            | Not Started |
+| Tests                  | pgTAP suite covering the guard/permission catalog, import staging/commit/rollback and search permission filtering    | Not Started |
+| Gate                   | Search cannot leak inaccessible Entity/payroll/tax records; import cannot bypass normal validation/posting rules      | Not Started |
+
+Status: branch `p11-documents-imports-search` started (Step 17 §29: repository/spec state is durable
+truth, not this chat). Open items: Command Menu and the Documents Center/Import Wizard screens are a
+later slice (P13, DECISIONS 140); the file-upload/signed-download route needs Supabase Storage
+configured outside this repo's migrations (DECISIONS 142); OWNER to confirm the `legacy_open_items`
+rollback rule and the `system.import`/`system.rollback_import` grant to `finance_admin` (DECISIONS
+144, 146) before real opening-balance data is imported at the P15 cutover.
