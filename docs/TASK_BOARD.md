@@ -17,7 +17,7 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | P6    | Purchases / AP                    | P5           | Bills post once; payments never exceed; AP = ledger; races exact   | Verified    |
 | P7    | Tax                               | P6           | Step 15 (P7) / Step 16; re-verify tax baseline on the web          | Verified    |
 | P8    | Assets / Loans / Equity           | P7           | Step 15 (P8) / Step 16                                             | Verified    |
-| P9    | Payroll                           | P8           | Step 15 (P9) / Step 16                                             | Implemented |
+| P9    | Payroll                           | P8           | Step 15 (P9) / Step 16                                             | Verified    |
 | P10   | Planning / Recurring              | P9           | Step 15 (P10) / Step 16                                            | Not Started |
 | P11   | Documents / Imports / Search      | P10          | Step 15 (P11) / Step 16                                            | Not Started |
 | P12   | Reports                           | P11          | Statement equations and reconciliations pass                       | Not Started |
@@ -190,6 +190,6 @@ before P15; screens and the depreciation run schedule are not in P8 (DECISIONS 1
 | Application contracts   | `src/schemas/payroll.ts`, `src/services/payroll`, `src/domain/payroll`                                    | Implemented |
 | Gate                    | Hand-calculated scenarios; controls equal the ledger; full suite and clean rebuild reproducible           | Implemented |
 
-Status becomes Verified when the P9 pull request has passed CI and the OWNER has merged it. Open items: the payroll tax
+Verified: the P9 pull request (#14) passed CI and the OWNER merged it. Open items: the payroll tax
 baseline must be verified by the OWNER's tax adviser before P15; screens, payslip documents, THR/severance and the
 e-bupot export are not in P9 (DECISIONS 119-133).
