@@ -168,6 +168,9 @@ declare
                                          'create_revenue_target', 'set_revenue_target_lines', 'activate_revenue_target',
                                          'close_revenue_target', 'list_revenue_targets', 'get_revenue_target_lines',
                                          'get_revenue_target_report',
+                                         -- P11 documents: generalized target-kind catalog, versioning, upload/download
+                                         'replace_document_link', 'finalize_document_upload',
+                                         'get_document_download_grant', 'list_documents',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];
