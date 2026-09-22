@@ -116,6 +116,15 @@ begin
 end
 $$;
 
+-- No signed-in user at all: the scheduled/background path (Step 13 §14), e.g. run_due_recurring_occurrences.
+create or replace function test_helpers.as_service_role() returns void
+language plpgsql as $$
+begin
+  perform set_config('request.jwt.claims', '{"role":"service_role"}', true);
+  set local role service_role;
+end
+$$;
+
 create or replace function test_helpers.logout() returns void
 language plpgsql as $$
 begin
@@ -237,6 +246,7 @@ $f$;
 grant execute on function test_helpers.controls(uuid, text) to public;
 
 
--- Helpers are callable while acting as a browser role (declared last so it covers every function above).
-grant usage on schema test_helpers to anon, authenticated;
-grant execute on all functions in schema test_helpers to anon, authenticated;
+-- Helpers are callable while acting as a browser role, or as the scheduled/background service_role caller
+-- (P10, test_helpers.as_service_role) -- declared last so it covers every function above.
+grant usage on schema test_helpers to anon, authenticated, service_role;
+grant execute on all functions in schema test_helpers to anon, authenticated, service_role;

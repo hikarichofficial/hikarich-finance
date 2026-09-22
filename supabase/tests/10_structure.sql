@@ -21,7 +21,7 @@ begin
     and not exists (select 1 from pg_trigger t join pg_proc p on p.oid = t.tgfoid
                     where t.tgrelid = c.oid and not t.tgisinternal
                       and p.proname in ('tg_lock_entity', 'tg_forbid_update', 'tg_journal_lines_guard',
-                                        'tg_issued_numbers_guard'));
+                                        'tg_issued_numbers_guard', 'tg_recurring_occurrences_guard'));
   perform test_helpers.assert(v_bad is null, 'entity_id immutability trigger missing on: ' || coalesce(v_bad, ''));
 
   -- Every Entity-scoped table with a mandatory entity_id exposes UNIQUE (entity_id, id) so other

@@ -159,6 +159,15 @@ declare
                                          'payroll_payslip_get', 'payroll_employee_tax_ledger', 'payroll_annual_reconciliation',
                                          'payroll_summary_report', 'payroll_liability_report', 'payroll_control_report',
                                          'financing_control_report', 'financing_tax_reviews', 'financing_tax_review',
+                                         -- P10 planning: recurring rules/occurrences, budgets and revenue targets
+                                         'create_recurring_rule', 'update_recurring_rule', 'pause_recurring_rule',
+                                         'resume_recurring_rule', 'end_recurring_rule', 'list_recurring_rules',
+                                         'list_recurring_occurrences', 'run_due_recurring_occurrences',
+                                         'create_budget', 'set_budget_lines', 'activate_budget', 'close_budget',
+                                         'list_budgets', 'get_budget_lines', 'get_budget_report',
+                                         'create_revenue_target', 'set_revenue_target_lines', 'activate_revenue_target',
+                                         'close_revenue_target', 'list_revenue_targets', 'get_revenue_target_lines',
+                                         'get_revenue_target_report',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];
