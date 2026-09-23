@@ -317,14 +317,14 @@ continues on P13 rather than waiting idle).
 
 ## P13 checklist (Step 15 Phase 13, Step 09, Step 10, Step 11)
 
-| Part                        | Scope                                                                                                    | Status      |
-| ---------------------------- | --------------------------------------------------------------------------------------------------------- | ----------- |
-| Part 1: Foundation & shell   | Design tokens (Step 10 §2, §4-§6), application shell -- sidebar, top bar, Entity switcher, Global Search, Command Menu, responsive shell (Step 09 §2-§8) | Not Started |
-| Part 2: Dashboard            | Overview screen reading only already-built report RPCs, no independent frontend financial truth (Step 09 §8, Step 10 §10-§13) | Not Started |
-| Part 3: Module screens       | Standard list/detail patterns (Step 09 §9-§10) applied to Sales, Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning (Step 09 §11-§18) | Not Started |
-| Part 4: Reports & Documents  | Statement viewers, Custom Report Builder UI, Consolidated Analysis (DECISIONS 148); Documents Center (Step 09 §20); Command Menu quick-create registry (DECISIONS 140) | Not Started |
-| Part 5: Documents & polish   | Invoice/Receipt customer-document templates (Step 11); responsive/mobile, accessibility, motion polish across every part (Step 09 §23, §25-§27; Step 10 §21-§25) | Not Started |
-| Gate                         | Dashboard KPI drill-down reconciles to report/source values; mobile essential workflows pass (Step 15 P13)  | Not Started |
+| Part                        | Scope                                                                                                                                                                  | Status      |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
+| Part 1: Foundation & shell  | Design tokens (Step 10 §2, §4-§6), application shell -- sidebar, top bar, Entity switcher, Global Search, Command Menu, responsive shell (Step 09 §2-§8)               | Not Started |
+| Part 2: Dashboard           | Overview screen reading only already-built report RPCs, no independent frontend financial truth (Step 09 §8, Step 10 §10-§13)                                          | Not Started |
+| Part 3: Module screens      | Standard list/detail patterns (Step 09 §9-§10) applied to Sales, Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning (Step 09 §11-§18)           | Not Started |
+| Part 4: Reports & Documents | Statement viewers, Custom Report Builder UI, Consolidated Analysis (DECISIONS 148); Documents Center (Step 09 §20); Command Menu quick-create registry (DECISIONS 140) | Not Started |
+| Part 5: Documents & polish  | Invoice/Receipt customer-document templates (Step 11); responsive/mobile, accessibility, motion polish across every part (Step 09 §23, §25-§27; Step 10 §21-§25)       | Not Started |
+| Gate                        | Dashboard KPI drill-down reconciles to report/source values; mobile essential workflows pass (Step 15 P13)                                                             | Not Started |
 
 Status: unblocked this session -- the OWNER supplied every remaining Step spec document (Steps
 02-17), including the three P13 depends on (Step 09 UI Sitemap + Screen Architecture, Step 10
