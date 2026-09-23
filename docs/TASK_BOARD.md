@@ -319,7 +319,7 @@ continues on P13 rather than waiting idle).
 
 | Part                        | Scope                                                                                                                                                                  | Status      |
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
-| Part 1: Foundation & shell  | Design tokens (Step 10 §2, §4-§6), application shell -- sidebar, top bar, Entity switcher, Global Search, Command Menu, responsive shell (Step 09 §2-§8)               | Not Started |
+| Part 1: Foundation & shell  | Design tokens (Step 10 §2, §4-§6), application shell -- sidebar, top bar, Entity switcher, Global Search, Command Menu, responsive shell (Step 09 §2-§8)               | Implemented |
 | Part 2: Dashboard           | Overview screen reading only already-built report RPCs, no independent frontend financial truth (Step 09 §8, Step 10 §10-§13)                                          | Not Started |
 | Part 3: Module screens      | Standard list/detail patterns (Step 09 §9-§10) applied to Sales, Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning (Step 09 §11-§18)           | Not Started |
 | Part 4: Reports & Documents | Statement viewers, Custom Report Builder UI, Consolidated Analysis (DECISIONS 148); Documents Center (Step 09 §20); Command Menu quick-create registry (DECISIONS 140) | Not Started |
@@ -337,3 +337,14 @@ same `pnpm check`/`pnpm build`/`pnpm db:test` and docs-trail rigor as every P0-P
 (DECISIONS 155). This row stays "In Progress" once Part 1 starts, and only reaches "Verified" once
 every part has shipped and the Step 15 gate is demonstrated end-to-end -- not per-part, to avoid
 implying Step 16 acceptance before the whole phase is done.
+
+Part 1 (Foundation & shell) is implemented (DECISIONS 156): the full Step 10 token set (light/dark,
+reduced-motion), `AppShell`/`Sidebar`/`TopBar`/`EntitySwitcher`/`CommandMenu` under
+`src/features/shell/`, the permission-filtered sitemap in `src/domain/shell/navigation.ts` (single
+source for both the Sidebar and the Command Menu's navigation results), the `(app)` route group
+applying the shell to every authenticated screen, and a catch-all placeholder route so all ~50
+sitemap destinations are already linkable even before their own screens exist. `pnpm check` and
+`pnpm build` pass; `pnpm db:test` does not apply to this part (no migration or RPC touched -- pure
+frontend). Not yet done in Part 1: wiring the Command Menu to search/quick-create beyond navigation
+(deferred to Part 4 by design, DECISIONS 155) and the OWNER's review of the tuned token colors
+(Open items, DECISIONS #243 equivalent).
