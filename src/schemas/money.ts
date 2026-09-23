@@ -92,6 +92,66 @@ export const reverseTransferInputSchema = z.object({
   reason: z.string().trim().min(5).max(500),
 });
 
+/** Direct-table-read projection of `public.transfers` (P13 Part 3c) for the Transfers List/Detail screens --
+ * covered by the pre-existing `transfers_select` RLS policy (`money.view`, P4), same reasoning as decisions
+ * 161/167's extension of this pattern: a pure read with no business rule left to apply once RLS has filtered
+ * it, so a wrapping RPC would add a round trip without adding a rule. No RPC reads a transfer today (only
+ * `create_transfer`/`confirm_transfer`/`cancel_transfer`/`reverse_transfer` write one). */
+export const transferRowSchema = z.object({
+  id: z.uuid(),
+  entity_id: z.uuid(),
+  transfer_number: z.string().nullable(),
+  status: z.enum(["draft", "confirmed", "reversed", "cancelled"]),
+  transfer_date: isoDateSchema,
+  from_account_id: z.uuid(),
+  to_account_id: z.uuid(),
+  amount_out: moneyTextSchema,
+  amount_in: moneyTextSchema,
+  fee_amount: moneyTextSchema,
+  rate_out: exchangeRateTextSchema.nullable(),
+  rate_in: exchangeRateTextSchema.nullable(),
+  base_out: moneyTextSchema,
+  base_in: moneyTextSchema,
+  base_fee: moneyTextSchema,
+  fx_difference: signedDecimalTextSchema,
+  description: z.string().nullable(),
+  reference: z.string().nullable(),
+  journal_id: z.uuid().nullable(),
+  reversal_journal_id: z.uuid().nullable(),
+  confirmed_at: z.string().nullable(),
+  cancelled_at: z.string().nullable(),
+  reversed_at: z.string().nullable(),
+  reverse_reason: z.string().nullable(),
+  created_at: z.string(),
+});
+export type TransferRow = z.infer<typeof transferRowSchema>;
+
+/** Direct-table-read projection of `public.money_movements` (P13 Part 3c) for the Cash/Bank Activity screen
+ * (Step 09 §13's Entity-wide feed, distinct from `account_activity`'s single-account ledger, which already
+ * has its own running balance and needs no direct read). Covered by the pre-existing `money_movements_select`
+ * RLS policy (`money.view`, P4), same reasoning as decisions 161/167/170's extensions of this pattern. */
+export const moneyMovementRowSchema = z.object({
+  id: z.uuid(),
+  financial_account_id: z.uuid(),
+  currency: z.string(),
+  direction: z.enum(["in", "out"]),
+  amount: moneyTextSchema,
+  base_amount: moneyTextSchema,
+  movement_date: isoDateSchema,
+  source_type: z.string(),
+  source_id: z.uuid(),
+  component: z.enum(["principal", "fee", "opening", "adjustment"]),
+  journal_id: z.uuid(),
+  reverses_movement_id: z.uuid().nullable(),
+  description: z.string().nullable(),
+});
+export type MoneyMovementRow = z.infer<typeof moneyMovementRowSchema>;
+
+export const journalNumberRowSchema = z.object({
+  id: z.uuid(),
+  journal_number: z.string().nullable(),
+});
+
 // ---- reconciliation
 export const createReconciliationInputSchema = z
   .object({
