@@ -159,3 +159,82 @@ export type PeriodCheck = z.infer<typeof periodCheckSchema>;
 export const uuidResultSchema = z.uuid();
 /** Signed exact decimal text (a clearing residual may be negative). */
 export const signedDecimalTextSchema = z.string().regex(/^-?\d+(\.\d+)?$/);
+
+// ---- direct-table-read projections (P13 Part 3d, decisions 161/167/170/171's pattern extended to
+// public.journal_entries/journal_lines/ledger_accounts/accounting_periods -- no RPC lists or reads any of
+// these; only the write RPCs above exist. All four are covered by their own pre-existing RLS policies gated
+// on `accounting.view` (20260920100200_p2_rls_policies.sql).
+
+export const journalEntryRowSchema = z.object({
+  id: z.uuid(),
+  entity_id: z.uuid(),
+  journal_number: z.string().nullable(),
+  entry_date: isoDateSchema,
+  period_id: z.uuid(),
+  status: z.enum(["draft", "posted"]),
+  entry_type: z.enum(["system", "manual", "adjusting", "reversal", "opening", "closing"]),
+  description: z.string(),
+  source_type: z.string().nullable(),
+  source_id: z.uuid().nullable(),
+  posting_key: z.string().nullable(),
+  reverses_journal_id: z.uuid().nullable(),
+  control_override_reason: z.string().nullable(),
+  posted_at: z.string().nullable(),
+  created_at: z.string(),
+  version: z.number().int(),
+});
+export const journalEntryRowsSchema = z.array(journalEntryRowSchema);
+export type JournalEntryRow = z.infer<typeof journalEntryRowSchema>;
+
+export const journalLineRowSchema = z.object({
+  id: z.uuid(),
+  journal_id: z.uuid(),
+  line_no: z.number().int(),
+  ledger_account_id: z.uuid(),
+  debit: moneyTextSchema,
+  credit: moneyTextSchema,
+  description: z.string().nullable(),
+  original_currency: z.string().nullable(),
+  original_amount: moneyTextSchema.nullable(),
+  exchange_rate: exchangeRateTextSchema.nullable(),
+});
+export const journalLineRowsSchema = z.array(journalLineRowSchema);
+export type JournalLineRow = z.infer<typeof journalLineRowSchema>;
+
+export const ledgerAccountRowSchema = z.object({
+  id: z.uuid(),
+  entity_id: z.uuid(),
+  code: z.string(),
+  name: z.string(),
+  account_class: z.string(),
+  normal_balance: z.enum(["debit", "credit"]),
+  system_key: z.string().nullable(),
+  parent_id: z.uuid().nullable(),
+  is_group: z.boolean(),
+  is_control: z.boolean(),
+  allows_manual_posting: z.boolean(),
+  status: z.enum(["active", "inactive"]),
+});
+export const ledgerAccountRowsSchema = z.array(ledgerAccountRowSchema);
+export type LedgerAccountRow = z.infer<typeof ledgerAccountRowSchema>;
+
+export const accountingPeriodRowSchema = z.object({
+  id: z.uuid(),
+  entity_id: z.uuid(),
+  fiscal_year: z.number().int(),
+  period_start: isoDateSchema,
+  period_end: isoDateSchema,
+  status: periodStatusSchema,
+  closed_at: z.string().nullable(),
+  reopened_at: z.string().nullable(),
+  reopen_reason: z.string().nullable(),
+});
+export const accountingPeriodRowsSchema = z.array(accountingPeriodRowSchema);
+export type AccountingPeriodRow = z.infer<typeof accountingPeriodRowSchema>;
+
+/** A journal's own `reverses_journal_id` points backward (the reversal knows what it reverses); reading it
+ * forward -- "was this journal itself reversed, and by which one" -- needs its own small lookup. */
+export const reversingJournalRowSchema = z.object({
+  id: z.uuid(),
+  journal_number: z.string().nullable(),
+});
