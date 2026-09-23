@@ -168,6 +168,15 @@ declare
                                          'create_revenue_target', 'set_revenue_target_lines', 'activate_revenue_target',
                                          'close_revenue_target', 'list_revenue_targets', 'get_revenue_target_lines',
                                          'get_revenue_target_report',
+                                         -- P11 documents: generalized target-kind catalog, versioning, upload/download
+                                         'replace_document_link', 'finalize_document_upload',
+                                         'get_document_download_grant', 'list_documents',
+                                         -- P11 imports: staging engine and legacy AR/AP open items
+                                         'stage_import_batch', 'validate_import_batch', 'commit_import_batch',
+                                         'rollback_import_batch', 'list_import_batches', 'get_import_batch_rows',
+                                         'list_legacy_open_items', 'settle_legacy_open_item',
+                                         -- P11 search: also granted to service_role for the scheduled background path
+                                         'refresh_search_index_batch', 'rebuild_search_index', 'search',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];
