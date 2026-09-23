@@ -223,31 +223,46 @@ target screens are a later slice (DECISIONS 134-139), like every other phase's s
 | Documents generalized | Data-driven target-kind catalog; eleven target types linkable; storage-path/versioning plumbing                   | Implemented |
 | Import engine core    | Batch/row staging, validation, preview, commit and lineage; rollback where safely reversible                      | Implemented |
 | Import domains        | `contacts`, `legacy_open_receivables`, `legacy_open_payables` (DATA_CUTOVER items 7-8)                            | Implemented |
-| Global search         | Permission-safe index kept current from the outbox; payroll/tax excluded                                          | Not Started |
-| Application contracts | `src/schemas/documents.ts`/`imports.ts`/`search.ts`, matching `src/services`/`src/domain`                         | Not Started |
-| Tests                 | pgTAP suite covering the guard/permission catalog, import staging/commit/rollback and search permission filtering | In Progress |
-| Gate                  | Search cannot leak inaccessible Entity/payroll/tax records; import cannot bypass normal validation/posting rules  | Not Started |
+| Global search         | Permission-safe index kept current from the outbox; payroll/tax excluded                                          | Implemented |
+| Application contracts | `src/schemas/documents.ts`/`imports.ts`/`search.ts`, matching `src/services`/`src/domain`                         | Implemented |
+| Tests                 | pgTAP suite covering the guard/permission catalog, import staging/commit/rollback and search permission filtering | Implemented |
+| Gate                  | Search cannot leak inaccessible Entity/payroll/tax records; import cannot bypass normal validation/posting rules  | Implemented |
 
 Status: branch `p11-documents-imports-search` in progress (Step 17 §29: repository/spec state is
-durable truth, not this chat). Documents generalization and the import engine are both done.
-Documents: migrations `20260930100000_p11_permissions.sql` (system.import/system.rollback_import/
-documents.export grants to finance_admin) and `20260930100100_p11_documents.sql`
-(`app_private.document_target_kinds` catalog covering bill/expense/invoice/fixed_asset/loan/
-other_obligation/equity_event/contact/journal_entry as generic-linker kinds plus tax_filing/
-tax_payment as dedicated-linker kinds so P7's existing tax-evidence linker keeps working unchanged;
-versioning via `supersedes_document_id`; `finalize_document_upload`/`get_document_download_grant`/
-`list_documents`/`replace_document_link`). Imports: `20260930100200_p11_imports.sql`
-(`import_batches`/`import_rows` staging -> validate -> commit -> rollback with row-level errors and
-target_type/target_record_id as the batch lineage; `contacts` domain delegates to `create_contact`
-so contacts keep one creation path; `legacy_open_receivables`/`legacy_open_payables` land in the new
-non-posting `legacy_open_items` table per DATA_CUTOVER items 7-8; within- and cross-batch fingerprint
-duplicate detection; rollback archives an imported contact only when it has zero references
-elsewhere in the Entity, otherwise retains and reports it; `import_batch` added as a linkable
-document-evidence kind). Both pass the full local pgTAP suite
-(`supabase/tests/99_p11_1_documents.sql`, `99_p11_2_imports.sql`; all 28 test files green on a clean
-rebuild). Next: the search index (decision 145), not started yet. Open items: Command Menu and the
-Documents Center/Import Wizard screens are a later slice (P13, DECISIONS 140); the file-upload/
-signed-download route needs Supabase Storage configured outside this repo's migrations (DECISIONS
-142); OWNER to confirm the `legacy_open_items` rollback rule and the `system.import`/
-`system.rollback_import` grant to `finance_admin` (DECISIONS 144, 146) before real opening-balance
-data is imported at the P15 cutover.
+durable truth, not this chat). Documents generalization, the import engine and the search index are
+all done. Documents: migrations `20260930100000_p11_permissions.sql` (system.import/
+system.rollback_import/documents.export grants to finance_admin) and
+`20260930100100_p11_documents.sql` (`app_private.document_target_kinds` catalog covering
+bill/expense/invoice/fixed_asset/loan/other_obligation/equity_event/contact/journal_entry as
+generic-linker kinds plus tax_filing/tax_payment as dedicated-linker kinds so P7's existing
+tax-evidence linker keeps working unchanged; versioning via `supersedes_document_id`;
+`finalize_document_upload`/`get_document_download_grant`/`list_documents`/`replace_document_link`).
+Imports: `20260930100200_p11_imports.sql` (`import_batches`/`import_rows` staging -> validate ->
+commit -> rollback with row-level errors and target_type/target_record_id as the batch lineage;
+`contacts` domain delegates to `create_contact` so contacts keep one creation path;
+`legacy_open_receivables`/`legacy_open_payables` land in the new non-posting `legacy_open_items`
+table per DATA_CUTOVER items 7-8; within- and cross-batch fingerprint duplicate detection; rollback
+archives an imported contact only when it has zero references elsewhere in the Entity, otherwise
+retains and reports it; `import_batch` added as a linkable document-evidence kind). Search:
+`20260930100300_p11_search.sql` (decision 145: `search_index` covers the nine `generic_linker=true`
+kinds minus `import_batch`; a generic AFTER INSERT OR UPDATE trigger on each of the nine source
+tables queues a `SearchReindexRequested` outbox event so freshness never depends on a command
+function remembering to emit one; `refresh_search_index_batch` claims and re-derives pending events;
+`search()` filters by `app_authz.has_permission(entity, row.permission_key)` BEFORE ranking, so an
+inaccessible record is excluded from the result set itself, not merely hidden in the UI, Step 06
+§11; `rebuild_search_index` is the full derived recovery path, Step 08 §22; payroll and tax are
+never indexed, decisions 131/145). All three pass the full local pgTAP suite
+(`supabase/tests/99_p11_1_documents.sql`, `99_p11_2_imports.sql`, `99_p11_3_search.sql`; all 29 test
+files green on a clean rebuild). The application-layer contracts (`src/schemas/documents.ts`/
+`imports.ts`/`search.ts` with matching `src/services`/`src/domain` modules, plus unit tests for the
+label/schema completeness in `src/domain/documents/documents.test.ts`,
+`src/domain/imports/imports.test.ts`, `src/domain/search/search.test.ts`) are typechecked, linted
+and covered by the local unit suite (`pnpm check` green). The full `scripts/db-test.sh` (double
+clean rebuild from migrations only, all 29 test files, all five concurrency suites including the
+new document-number allocation check) passed with zero errors and identical schema fingerprints
+across both rebuilds. The PR against `main` is open next. Open items: Command Menu and the Documents Center/Import Wizard
+screens are a later slice (P13, DECISIONS 140); the file-upload/signed-download route needs Supabase
+Storage configured outside this repo's migrations (DECISIONS 142); OWNER to confirm the
+`legacy_open_items` rollback rule and the `system.import`/`system.rollback_import` grant to
+`finance_admin` (DECISIONS 144, 146) before real opening-balance data is imported at the P15
+cutover.

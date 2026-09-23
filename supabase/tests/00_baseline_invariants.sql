@@ -175,6 +175,8 @@ declare
                                          'stage_import_batch', 'validate_import_batch', 'commit_import_batch',
                                          'rollback_import_batch', 'list_import_batches', 'get_import_batch_rows',
                                          'list_legacy_open_items', 'settle_legacy_open_item',
+                                         -- P11 search: also granted to service_role for the scheduled background path
+                                         'refresh_search_index_batch', 'rebuild_search_index', 'search',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];
