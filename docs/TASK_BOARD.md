@@ -21,7 +21,7 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | P10   | Planning / Recurring              | P9           | Step 15 (P10) / Step 16                                            | Verified    |
 | P11   | Documents / Imports / Search      | P10          | Step 15 (P11) / Step 16                                            | Verified    |
 | P12   | Reports                           | P11          | Statement equations and reconciliations pass                       | In Progress |
-| P13   | Dashboard / UX Completion         | P12          | KPI equals its source report                                       | Not Started |
+| P13   | Dashboard / UX Completion         | P12          | KPI equals its source report                                       | In Progress |
 | P14   | Security / Performance / Recovery | P13          | Step 15 / Step 16 incl. backup export and restore drill            | Not Started |
 | P15   | Production Launch                 | P14          | Step 15 / Step 16; taxpayer facts and OWNER sign-off               | Not Started |
 
@@ -305,3 +305,35 @@ unit suite (`pnpm check` and `pnpm build` both green). Open items: Reports scree
 viewers, the Custom Report Builder UI, Consolidated Analysis dashboard) are a later slice (P13),
 like every other phase's screens; the Forecast projection methodology remains an open OWNER decision
 from P10 (DECISIONS 139) and is out of scope for P12's reports.
+
+PR #18 (`p12-reports` -> `main`): the CI job "Migration clean-rebuild and invariants" initially
+failed -- a sync gap left the corrected `00_baseline_invariants.sql` (with the 9 new P12 RPCs added
+to `rpc_allowlist`) out of commit `404a3a7`, even though the fix had already passed a full local
+`scripts/db-test.sh` run before being committed (DECISIONS 153). Found via the CI log, fixed in a
+follow-up commit that touches only that one file, and pushed; every other P12 file was re-verified
+byte-identical between the build/test environment and the device. Awaiting CI green and the OWNER's
+merge (same pattern as every prior PR: opened in a browser tab for the OWNER to click, work
+continues on P13 rather than waiting idle).
+
+## P13 checklist (Step 15 Phase 13, Step 09, Step 10, Step 11)
+
+| Part                        | Scope                                                                                                    | Status      |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------- | ----------- |
+| Part 1: Foundation & shell   | Design tokens (Step 10 §2, §4-§6), application shell -- sidebar, top bar, Entity switcher, Global Search, Command Menu, responsive shell (Step 09 §2-§8) | Not Started |
+| Part 2: Dashboard            | Overview screen reading only already-built report RPCs, no independent frontend financial truth (Step 09 §8, Step 10 §10-§13) | Not Started |
+| Part 3: Module screens       | Standard list/detail patterns (Step 09 §9-§10) applied to Sales, Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning (Step 09 §11-§18) | Not Started |
+| Part 4: Reports & Documents  | Statement viewers, Custom Report Builder UI, Consolidated Analysis (DECISIONS 148); Documents Center (Step 09 §20); Command Menu quick-create registry (DECISIONS 140) | Not Started |
+| Part 5: Documents & polish   | Invoice/Receipt customer-document templates (Step 11); responsive/mobile, accessibility, motion polish across every part (Step 09 §23, §25-§27; Step 10 §21-§25) | Not Started |
+| Gate                         | Dashboard KPI drill-down reconciles to report/source values; mobile essential workflows pass (Step 15 P13)  | Not Started |
+
+Status: unblocked this session -- the OWNER supplied every remaining Step spec document (Steps
+02-17), including the three P13 depends on (Step 09 UI Sitemap + Screen Architecture, Step 10
+Dashboard + Design System, Step 11 Invoice/Receipt Visual Specification), which were previously
+absent from this environment. All three were read in full before any P13 code was written
+(DECISIONS 154). Before this phase, the repository had no screens beyond the auth flow
+(`/login`, `/auth/mfa`, `/auth/step-up`) and the public invoice token page (`/i/[token]`); every
+other module is backend-only. Given that size, P13 ships as five parts, each its own PR with the
+same `pnpm check`/`pnpm build`/`pnpm db:test` and docs-trail rigor as every P0-P12 slice
+(DECISIONS 155). This row stays "In Progress" once Part 1 starts, and only reaches "Verified" once
+every part has shipped and the Step 15 gate is demonstrated end-to-end -- not per-part, to avoid
+implying Step 16 acceptance before the whole phase is done.
