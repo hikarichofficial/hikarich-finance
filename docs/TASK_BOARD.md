@@ -19,8 +19,8 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | P8    | Assets / Loans / Equity           | P7           | Step 15 (P8) / Step 16                                             | Verified    |
 | P9    | Payroll                           | P8           | Step 15 (P9) / Step 16                                             | Verified    |
 | P10   | Planning / Recurring              | P9           | Step 15 (P10) / Step 16                                            | Verified    |
-| P11   | Documents / Imports / Search      | P10          | Step 15 (P11) / Step 16                                            | In Progress |
-| P12   | Reports                           | P11          | Statement equations and reconciliations pass                       | Not Started |
+| P11   | Documents / Imports / Search      | P10          | Step 15 (P11) / Step 16                                            | Verified    |
+| P12   | Reports                           | P11          | Statement equations and reconciliations pass                       | In Progress |
 | P13   | Dashboard / UX Completion         | P12          | KPI equals its source report                                       | Not Started |
 | P14   | Security / Performance / Recovery | P13          | Step 15 / Step 16 incl. backup export and restore drill            | Not Started |
 | P15   | Production Launch                 | P14          | Step 15 / Step 16; taxpayer facts and OWNER sign-off               | Not Started |
@@ -228,9 +228,9 @@ target screens are a later slice (DECISIONS 134-139), like every other phase's s
 | Tests                 | pgTAP suite covering the guard/permission catalog, import staging/commit/rollback and search permission filtering | Implemented |
 | Gate                  | Search cannot leak inaccessible Entity/payroll/tax records; import cannot bypass normal validation/posting rules  | Implemented |
 
-Status: branch `p11-documents-imports-search` in progress (Step 17 §29: repository/spec state is
-durable truth, not this chat). Documents generalization, the import engine and the search index are
-all done. Documents: migrations `20260930100000_p11_permissions.sql` (system.import/
+Status: branch `p11-documents-imports-search` merged to `main` via PR #17. Documents
+generalization, the import engine and the search index are all done and merged. Documents:
+migrations `20260930100000_p11_permissions.sql` (system.import/
 system.rollback_import/documents.export grants to finance_admin) and
 `20260930100100_p11_documents.sql` (`app_private.document_target_kinds` catalog covering
 bill/expense/invoice/fixed_asset/loan/other_obligation/equity_event/contact/journal_entry as
@@ -260,9 +260,48 @@ label/schema completeness in `src/domain/documents/documents.test.ts`,
 and covered by the local unit suite (`pnpm check` green). The full `scripts/db-test.sh` (double
 clean rebuild from migrations only, all 29 test files, all five concurrency suites including the
 new document-number allocation check) passed with zero errors and identical schema fingerprints
-across both rebuilds. The PR against `main` is open next. Open items: Command Menu and the Documents Center/Import Wizard
-screens are a later slice (P13, DECISIONS 140); the file-upload/signed-download route needs Supabase
-Storage configured outside this repo's migrations (DECISIONS 142); OWNER to confirm the
-`legacy_open_items` rollback rule and the `system.import`/`system.rollback_import` grant to
-`finance_admin` (DECISIONS 144, 146) before real opening-balance data is imported at the P15
-cutover.
+across both rebuilds. `main`'s tip after the merge is the P11 merge commit. Open items: Command
+Menu and the Documents Center/Import Wizard screens are a later slice (P13, DECISIONS 140); the
+file-upload/signed-download route needs Supabase Storage configured outside this repo's migrations
+(DECISIONS 142); OWNER to confirm the `legacy_open_items` rollback rule and the
+`system.import`/`system.rollback_import` grant to `finance_admin` (DECISIONS 144, 146) before real
+opening-balance data is imported at the P15 cutover.
+
+## P12 checklist (Step 15 Phase 12, Step 12 §3-§5, §15, §17, §19, §31)
+
+| Item                  | Done when                                                                                                         | Status      |
+| --------------------- | ----------------------------------------------------------------------------------------------------------------- | ----------- |
+| Canonical statements  | Profit & Loss, Balance Sheet, Statement of Changes in Equity, Cash Flow Statement, General Ledger drill-down      | Implemented |
+| Year-end closing      | Idempotent close, P&L nets to zero into retained earnings, reversal with step-up, re-close after reversal         | Implemented |
+| Custom Report Builder | Three curated datasets (invoices/customer, bills/vendor, expenses/payee), fixed branch -- never dynamic SQL       | Implemented |
+| Consolidated Analysis | Cross-Entity cash position, `reports.cross_entity` gated, fails closed on any one unauthorized Entity             | Implemented |
+| Application contracts | `src/schemas/reports.ts`, `src/services/reports`, `src/domain/reports`                                            | Implemented |
+| Tests                 | pgTAP suite covering closing/reversal/re-close, all three statements, both curated-dataset and consolidated gates | Implemented |
+| Gate                  | Statement equations and reconciliations pass; reports never invent a second financial truth (Step 12 Table 1)     | Implemented |
+
+Status: branch `p12-reports` built from the post-P11 `main`. Year-end closing
+(`20260930200000_p12_year_end_closing.sql`: `close_fiscal_year`/`reverse_fiscal_year_closing`,
+`fiscal_year_closures`; fixed during this phase's own real-database testing to exclude a closing
+journal's own housekeeping period from the "every period of the fiscal year must be closed" gate,
+so a partial (non-December-ending) fiscal year can be re-closed after a reversal without the prior
+closing permanently blocking it -- DECISIONS 148). Canonical statements
+(`20260930200100_p12_financial_statements.sql`: `profit_and_loss`, `balance_sheet` with
+`CURRENT_YEAR_EARNINGS` always computed live from posted P&L movement rather than a stored balance,
+`statement_of_changes_in_equity`, `cash_flow_statement` direct-method from `money_movements`,
+`general_ledger` drill-down with a running balance) reuse `trial_balance`'s raw debit/credit
+convention (Step 13 §25); the natural-direction sign is applied once, in `src/domain/reports`, never
+duplicated per statement (DECISIONS 149-150). Custom Report Builder and Consolidated Analysis
+(`20260930200200_p12_consolidated_and_custom_reports.sql`: `run_custom_report` over three
+PL/pgSQL-branched curated datasets plus the `report_datasets` discovery catalog,
+`consolidated_cash_position` failing closed per-Entity on `reports.cross_entity`) match Step 12
+§19's "never arbitrary SQL" constraint and §15's cross-Entity safety test (DECISIONS 151-152). All
+three pgTAP files (`99_p12_1_closing.sql`, `99_p12_2_statements.sql`, `99_p12_3_reports.sql`) pass
+the full local suite; the full `scripts/db-test.sh` (double clean rebuild from migrations only, all
+32 test files, all five concurrency suites) passed with zero errors and identical schema
+fingerprints across both rebuilds. The application-layer contracts (`src/schemas/reports.ts`,
+`src/services/reports/reports.ts`, `src/domain/reports/reports.ts` with unit tests in
+`src/domain/reports/reports.test.ts`) are typechecked, linted, formatted and covered by the local
+unit suite (`pnpm check` and `pnpm build` both green). Open items: Reports screens (statement
+viewers, the Custom Report Builder UI, Consolidated Analysis dashboard) are a later slice (P13),
+like every other phase's screens; the Forecast projection methodology remains an open OWNER decision
+from P10 (DECISIONS 139) and is out of scope for P12's reports.
