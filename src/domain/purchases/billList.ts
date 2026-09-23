@@ -1,7 +1,4 @@
-import {
-  BILL_STATUS_LABELS,
-  SETTLEMENT_LABELS,
-} from "@/domain/purchases/settlement";
+import { BILL_STATUS_LABELS, SETTLEMENT_LABELS } from "@/domain/purchases/settlement";
 
 /**
  * Pure helpers for the Bills List and Bill Detail screens (P13 Part 3b, Step 09 §9-§10, §12). Nothing here
@@ -12,8 +9,7 @@ import {
  * merged list rather than by a server-side filter parameter that does not exist for this merged shape.
  */
 
-export type BillListTone =
-  "neutral" | "progress" | "attention" | "success" | "critical";
+export type BillListTone = "neutral" | "progress" | "attention" | "success" | "critical";
 
 export interface BillListStatus {
   text: string;
@@ -38,17 +34,13 @@ export interface BillListRow {
 
 /** The list/detail status badge (Step 09 §12: vendor, due date, outstanding, approval and payment state). */
 export function billListStatus(row: BillListRow): BillListStatus {
-  if (row.status === "draft")
-    return { text: BILL_STATUS_LABELS.draft, tone: "neutral" };
-  if (row.status === "submitted")
-    return { text: BILL_STATUS_LABELS.submitted, tone: "attention" };
+  if (row.status === "draft") return { text: BILL_STATUS_LABELS.draft, tone: "neutral" };
+  if (row.status === "submitted") return { text: BILL_STATUS_LABELS.submitted, tone: "attention" };
   if (row.status === "cancelled" || row.status === "void") {
     return { text: BILL_STATUS_LABELS[row.status], tone: "neutral" };
   }
-  if (row.settlement_status === "paid")
-    return { text: SETTLEMENT_LABELS.paid, tone: "success" };
-  if (row.is_overdue)
-    return { text: `Jatuh tempo ${row.days_overdue} hari`, tone: "critical" };
+  if (row.settlement_status === "paid") return { text: SETTLEMENT_LABELS.paid, tone: "success" };
+  if (row.is_overdue) return { text: `Jatuh tempo ${row.days_overdue} hari`, tone: "critical" };
   if (row.settlement_status === "partial") {
     return { text: SETTLEMENT_LABELS.partial, tone: "progress" };
   }
@@ -58,8 +50,7 @@ export function billListStatus(row: BillListRow): BillListStatus {
   };
 }
 
-export type BillListFilter =
-  "pending_approval" | "open" | "overdue" | "paid" | "closed";
+export type BillListFilter = "pending_approval" | "open" | "overdue" | "paid" | "closed";
 
 export interface BillFilterOption {
   value: BillListFilter | null;
@@ -76,10 +67,7 @@ export const BILL_FILTER_OPTIONS: readonly BillFilterOption[] = [
   { value: "closed", label: "Dibatalkan" },
 ];
 
-export function matchesBillFilter(
-  row: BillListRow,
-  filter: BillListFilter | null,
-): boolean {
+export function matchesBillFilter(row: BillListRow, filter: BillListFilter | null): boolean {
   switch (filter) {
     case null:
       return true;
@@ -96,9 +84,7 @@ export function matchesBillFilter(
   }
 }
 
-export function parseBillFilter(
-  value: string | undefined,
-): BillListFilter | undefined {
+export function parseBillFilter(value: string | undefined): BillListFilter | undefined {
   const option = BILL_FILTER_OPTIONS.find((o) => o.value === value);
   return option?.value ?? undefined;
 }
@@ -121,9 +107,7 @@ export function filterBillRows(
   filter: BillListFilter | null,
   query: string,
 ): BillListRow[] {
-  return rows.filter(
-    (row) => matchesBillFilter(row, filter) && matchesBillQuery(row, query),
-  );
+  return rows.filter((row) => matchesBillFilter(row, filter) && matchesBillQuery(row, query));
 }
 
 export interface BillActivityEntry {
@@ -148,9 +132,7 @@ export function billActivityTimeline(bill: {
   closed_at: string | null;
   closed_reason: string | null;
 }): BillActivityEntry[] {
-  const entries: BillActivityEntry[] = [
-    { label: "Draf dibuat", date: null, tone: "neutral" },
-  ];
+  const entries: BillActivityEntry[] = [{ label: "Draf dibuat", date: null, tone: "neutral" }];
   if (bill.submitted_at) {
     entries.push({
       label: "Diajukan untuk persetujuan",

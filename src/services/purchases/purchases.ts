@@ -121,34 +121,20 @@ export async function updateBillDraft(
   );
 }
 
-export async function submitBill(
-  input: z.input<typeof submitBillInputSchema>,
-): Promise<string> {
+export async function submitBill(input: z.input<typeof submitBillInputSchema>): Promise<string> {
   const v = submitBillInputSchema.parse(input);
-  return callRpc(
-    "submit_bill",
-    { p_bill: v.bill_id, p_key: v.idempotency_key },
-    uuidResultSchema,
-  );
+  return callRpc("submit_bill", { p_bill: v.bill_id, p_key: v.idempotency_key }, uuidResultSchema);
 }
 
 /** Takes a submitted bill back to draft. */
-export async function recallBill(
-  input: z.input<typeof billIdInputSchema>,
-): Promise<string> {
+export async function recallBill(input: z.input<typeof billIdInputSchema>): Promise<string> {
   const v = billIdInputSchema.parse(input);
   return callRpc("recall_bill", { p_bill: v.bill_id }, textResult);
 }
 
-export async function rejectBill(
-  input: z.input<typeof rejectBillInputSchema>,
-): Promise<string> {
+export async function rejectBill(input: z.input<typeof rejectBillInputSchema>): Promise<string> {
   const v = rejectBillInputSchema.parse(input);
-  return callRpc(
-    "reject_bill",
-    { p_bill: v.bill_id, p_reason: v.reason },
-    textResult,
-  );
+  return callRpc("reject_bill", { p_bill: v.bill_id, p_reason: v.reason }, textResult);
 }
 
 /**
@@ -156,9 +142,7 @@ export async function rejectBill(
  * duplicate of a recognised bill (same vendor, same vendor invoice number) is refused with CONFLICT until the
  * person supplies `duplicate_reason`.
  */
-export async function approveBill(
-  input: z.input<typeof approveBillInputSchema>,
-): Promise<string> {
+export async function approveBill(input: z.input<typeof approveBillInputSchema>): Promise<string> {
   const v = approveBillInputSchema.parse(input);
   return callRpc(
     "approve_bill",
@@ -172,9 +156,7 @@ export async function approveBill(
 }
 
 /** Cancels a draft or submitted bill: no accounting effect and the bill never received a number. */
-export async function cancelBill(
-  input: z.input<typeof cancelBillInputSchema>,
-): Promise<string> {
+export async function cancelBill(input: z.input<typeof cancelBillInputSchema>): Promise<string> {
   const v = cancelBillInputSchema.parse(input);
   return callRpc(
     "cancel_bill",
@@ -184,9 +166,7 @@ export async function cancelBill(
 }
 
 /** Voids an approved bill with no active payment: a linked reversal journal; the number stays used. */
-export async function voidBill(
-  input: z.input<typeof closeBillInputSchema>,
-): Promise<string> {
+export async function voidBill(input: z.input<typeof closeBillInputSchema>): Promise<string> {
   const v = closeBillInputSchema.parse(input);
   return callRpc(
     "void_bill",
@@ -201,9 +181,7 @@ export async function voidBill(
 }
 
 /** Voids the bill and creates a replacement draft with the same content. Returns the new bill id. */
-export async function correctBill(
-  input: z.input<typeof closeBillInputSchema>,
-): Promise<string> {
+export async function correctBill(input: z.input<typeof closeBillInputSchema>): Promise<string> {
   const v = closeBillInputSchema.parse(input);
   return callRpc(
     "correct_bill",
@@ -320,9 +298,7 @@ export async function submitExpense(
   );
 }
 
-export async function recallExpense(
-  input: z.input<typeof expenseIdInputSchema>,
-): Promise<string> {
+export async function recallExpense(input: z.input<typeof expenseIdInputSchema>): Promise<string> {
   const v = expenseIdInputSchema.parse(input);
   return callRpc("recall_expense", { p_expense: v.expense_id }, textResult);
 }
@@ -331,11 +307,7 @@ export async function rejectExpense(
   input: z.input<typeof rejectExpenseInputSchema>,
 ): Promise<string> {
   const v = rejectExpenseInputSchema.parse(input);
-  return callRpc(
-    "reject_expense",
-    { p_expense: v.expense_id, p_reason: v.reason },
-    textResult,
-  );
+  return callRpc("reject_expense", { p_expense: v.expense_id, p_reason: v.reason }, textResult);
 }
 
 /** Numbers the expense and posts it, with its money movement, in one transaction. Returns the expense id. */
@@ -460,11 +432,7 @@ export async function unlinkDocument(
   input: z.input<typeof unlinkDocumentInputSchema>,
 ): Promise<string> {
   const v = unlinkDocumentInputSchema.parse(input);
-  return callRpc(
-    "unlink_document",
-    { p_link: v.link_id, p_reason: v.reason },
-    textResult,
-  );
+  return callRpc("unlink_document", { p_link: v.link_id, p_reason: v.reason }, textResult);
 }
 
 export async function listDocumentLinks(
@@ -553,10 +521,7 @@ export async function getApAging(
 }
 
 /** Sub-ledger (bills and allocations) against the General Ledger; a difference blocks period close. */
-export async function getApControl(
-  entityId: string,
-  asOf?: string,
-): Promise<ApControlRow> {
+export async function getApControl(entityId: string, asOf?: string): Promise<ApControlRow> {
   const rows = await callRpc(
     "ap_control_report",
     { p_entity: uuid(entityId), p_as_of: asOfArg(asOf) },
@@ -577,9 +542,7 @@ export async function getApControl(
  * rows for those ids, not an error, so a missing name here is expected for some roles and every caller must
  * fall back to something else (the bill's own `vendor_reference`, then a generic label) rather than crash.
  */
-async function getVendorNames(
-  vendorIds: readonly string[],
-): Promise<Map<string, string>> {
+async function getVendorNames(vendorIds: readonly string[]): Promise<Map<string, string>> {
   if (vendorIds.length === 0) return new Map();
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
@@ -605,9 +568,7 @@ async function getVendorNames(
  * `submitted`/`cancelled` bills (no RPC lists those -- see `billRowSchema`'s doc comment). Filtering and the
  * status badge are computed client-side by `src/domain/purchases/billList.ts` over this merged list.
  */
-export async function listBillsOverview(
-  entityId: string,
-): Promise<BillListRow[]> {
+export async function listBillsOverview(entityId: string): Promise<BillListRow[]> {
   const supabase = await createSupabaseServerClient();
   const [positions, preparingResult] = await Promise.all([
     listBillPositions(entityId),
@@ -621,15 +582,10 @@ export async function listBillsOverview(
       .order("bill_date", { ascending: false }),
   ]);
   if (preparingResult.error) throw new Error("Gagal memuat tagihan pembelian.");
-  const parsedPreparing = z
-    .array(billSummaryRowSchema)
-    .safeParse(preparingResult.data);
-  if (!parsedPreparing.success)
-    throw new Error("Respons tagihan pembelian tidak dikenali.");
+  const parsedPreparing = z.array(billSummaryRowSchema).safeParse(preparingResult.data);
+  if (!parsedPreparing.success) throw new Error("Respons tagihan pembelian tidak dikenali.");
 
-  const vendorNames = await getVendorNames(
-    parsedPreparing.data.map((b) => b.vendor_id),
-  );
+  const vendorNames = await getVendorNames(parsedPreparing.data.map((b) => b.vendor_id));
 
   const fromPositions: BillListRow[] = positions.map((p) => ({
     bill_id: p.bill_id,
@@ -661,9 +617,7 @@ export async function listBillsOverview(
     is_overdue: false,
     days_overdue: 0,
   }));
-  return [...fromPositions, ...fromPreparing].sort((a, b) =>
-    a.bill_date < b.bill_date ? 1 : -1,
-  );
+  return [...fromPositions, ...fromPreparing].sort((a, b) => (a.bill_date < b.bill_date ? 1 : -1));
 }
 
 export interface BillDetail {
@@ -698,9 +652,7 @@ export interface BillDetail {
 
 /** `null` for a missing or inaccessible bill -- the same answer either way (no existence leak), matching
  * every P6 RPC's own "not found or not allowed" convention. */
-export async function getBillDetail(
-  billId: string,
-): Promise<BillDetail | null> {
+export async function getBillDetail(billId: string): Promise<BillDetail | null> {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("bills")
@@ -712,8 +664,7 @@ export async function getBillDetail(
   if (error) throw new Error("Gagal memuat tagihan pembelian.");
   if (!data) return null;
   const parsedBill = billRowSchema.safeParse(data);
-  if (!parsedBill.success)
-    throw new Error("Respons tagihan pembelian tidak dikenali.");
+  if (!parsedBill.success) throw new Error("Respons tagihan pembelian tidak dikenali.");
   const bill = parsedBill.data;
 
   const [linesResult, vendorNames, positions] = await Promise.all([
@@ -725,15 +676,11 @@ export async function getBillDetail(
       .eq("bill_id", bill.id)
       .order("line_no", { ascending: true }),
     getVendorNames([bill.vendor_id]),
-    bill.status === "approved" || bill.status === "void"
-      ? listBillPositions(bill.entity_id)
-      : null,
+    bill.status === "approved" || bill.status === "void" ? listBillPositions(bill.entity_id) : null,
   ]);
-  if (linesResult.error)
-    throw new Error("Gagal memuat baris tagihan pembelian.");
+  if (linesResult.error) throw new Error("Gagal memuat baris tagihan pembelian.");
   const parsedLines = z.array(billLineRowSchema).safeParse(linesResult.data);
-  if (!parsedLines.success)
-    throw new Error("Respons baris tagihan pembelian tidak dikenali.");
+  if (!parsedLines.success) throw new Error("Respons baris tagihan pembelian tidak dikenali.");
 
   const position = positions?.find((p) => p.bill_id === bill.id) ?? null;
 
@@ -741,8 +688,7 @@ export async function getBillDetail(
     id: bill.id,
     bill_number: bill.bill_number,
     vendor_id: bill.vendor_id,
-    vendor_name:
-      vendorNames.get(bill.vendor_id) ?? bill.vendor_reference ?? "Vendor",
+    vendor_name: vendorNames.get(bill.vendor_id) ?? bill.vendor_reference ?? "Vendor",
     vendor_reference: bill.vendor_reference,
     currency: bill.currency,
     status: bill.status,

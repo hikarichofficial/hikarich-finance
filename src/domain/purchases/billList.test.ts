@@ -49,9 +49,10 @@ describe("billListStatus", () => {
   });
 
   it("labels a paid approved bill as success even if is_overdue was left true", () => {
-    expect(
-      billListStatus(row({ settlement_status: "paid", is_overdue: true })),
-    ).toEqual({ text: "Lunas", tone: "success" });
+    expect(billListStatus(row({ settlement_status: "paid", is_overdue: true }))).toEqual({
+      text: "Lunas",
+      tone: "success",
+    });
   });
 
   it("labels an overdue approved bill as critical with the day count", () => {
@@ -88,15 +89,11 @@ describe("matchesBillFilter / filterBillRows", () => {
   ];
 
   it("null filter matches everything", () => {
-    expect(rows.filter((r) => matchesBillFilter(r, null))).toHaveLength(
-      rows.length,
-    );
+    expect(rows.filter((r) => matchesBillFilter(r, null))).toHaveLength(rows.length);
   });
 
   it("pending_approval matches draft and submitted only", () => {
-    const matched = rows.filter((r) =>
-      matchesBillFilter(r, "pending_approval"),
-    );
+    const matched = rows.filter((r) => matchesBillFilter(r, "pending_approval"));
     expect(matched.map((r) => r.bill_id)).toEqual(["a", "b"]);
   });
 
@@ -106,21 +103,20 @@ describe("matchesBillFilter / filterBillRows", () => {
   });
 
   it("overdue matches only is_overdue rows", () => {
-    expect(
-      rows.filter((r) => matchesBillFilter(r, "overdue")).map((r) => r.bill_id),
-    ).toEqual(["d"]);
+    expect(rows.filter((r) => matchesBillFilter(r, "overdue")).map((r) => r.bill_id)).toEqual([
+      "d",
+    ]);
   });
 
   it("paid matches settlement_status paid", () => {
-    expect(
-      rows.filter((r) => matchesBillFilter(r, "paid")).map((r) => r.bill_id),
-    ).toEqual(["e"]);
+    expect(rows.filter((r) => matchesBillFilter(r, "paid")).map((r) => r.bill_id)).toEqual(["e"]);
   });
 
   it("closed matches cancelled and void", () => {
-    expect(
-      rows.filter((r) => matchesBillFilter(r, "closed")).map((r) => r.bill_id),
-    ).toEqual(["f", "g"]);
+    expect(rows.filter((r) => matchesBillFilter(r, "closed")).map((r) => r.bill_id)).toEqual([
+      "f",
+      "g",
+    ]);
   });
 
   it("filterBillRows combines filter and query", () => {
@@ -153,12 +149,7 @@ describe("matchesBillQuery", () => {
   });
 
   it("matches a null bill_number bill by vendor name", () => {
-    expect(
-      matchesBillQuery(
-        row({ bill_number: null, vendor_name: "CV Draf" }),
-        "draf",
-      ),
-    ).toBe(true);
+    expect(matchesBillQuery(row({ bill_number: null, vendor_name: "CV Draf" }), "draf")).toBe(true);
   });
 });
 
