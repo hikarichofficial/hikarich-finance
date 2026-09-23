@@ -71,7 +71,8 @@ export function transferListStatus(row: TransferRow): TransferListStatus {
   }
 }
 
-export type TransferListFilter = "draft" | "confirmed" | "cancelled" | "reversed";
+export type TransferListFilter =
+  "draft" | "confirmed" | "cancelled" | "reversed";
 
 export interface TransferFilterOption {
   value: TransferListFilter | null;
@@ -93,7 +94,9 @@ export function matchesTransferFilter(
   return filter === null || row.status === filter;
 }
 
-export function parseTransferFilter(value: string | undefined): TransferListFilter | undefined {
+export function parseTransferFilter(
+  value: string | undefined,
+): TransferListFilter | undefined {
   const option = TRANSFER_FILTER_OPTIONS.find((o) => o.value === value);
   return option?.value ?? undefined;
 }
@@ -102,11 +105,15 @@ function normalize(text: string): string {
   return text.trim().toLowerCase();
 }
 
-export function matchesTransferQuery(row: TransferListRow, query: string): boolean {
+export function matchesTransferQuery(
+  row: TransferListRow,
+  query: string,
+): boolean {
   const needle = normalize(query);
   if (needle === "") return true;
   return (
-    (row.transfer_number !== null && normalize(row.transfer_number).includes(needle)) ||
+    (row.transfer_number !== null &&
+      normalize(row.transfer_number).includes(needle)) ||
     normalize(row.from_account_name).includes(needle) ||
     normalize(row.to_account_name).includes(needle) ||
     (row.description !== null && normalize(row.description).includes(needle)) ||
@@ -120,7 +127,8 @@ export function filterTransferRows(
   query: string,
 ): TransferListRow[] {
   return rows.filter(
-    (row) => matchesTransferFilter(row, filter) && matchesTransferQuery(row, query),
+    (row) =>
+      matchesTransferFilter(row, filter) && matchesTransferQuery(row, query),
   );
 }
 
@@ -133,19 +141,31 @@ export interface TransferActivityEntry {
 /** Transfer Detail's Activity area (Step 09 §10), built from the transfer row's own workflow timestamps
  * (`created_at`, `confirmed_at`, `cancelled_at`, `reversed_at`/`reverse_reason`) -- the direct read already
  * carries these, so nothing is fabricated. */
-export function transferActivityTimeline(transfer: TransferRow): TransferActivityEntry[] {
+export function transferActivityTimeline(
+  transfer: TransferRow,
+): TransferActivityEntry[] {
   const entries: TransferActivityEntry[] = [
     { label: "Draf dibuat", date: transfer.created_at, tone: "neutral" },
   ];
   if (transfer.confirmed_at) {
-    entries.push({ label: "Dikonfirmasi", date: transfer.confirmed_at, tone: "success" });
+    entries.push({
+      label: "Dikonfirmasi",
+      date: transfer.confirmed_at,
+      tone: "success",
+    });
   }
   if (transfer.cancelled_at) {
-    entries.push({ label: "Dibatalkan", date: transfer.cancelled_at, tone: "neutral" });
+    entries.push({
+      label: "Dibatalkan",
+      date: transfer.cancelled_at,
+      tone: "neutral",
+    });
   }
   if (transfer.reversed_at) {
     entries.push({
-      label: transfer.reverse_reason ? `Dibalik: ${transfer.reverse_reason}` : "Dibalik",
+      label: transfer.reverse_reason
+        ? `Dibalik: ${transfer.reverse_reason}`
+        : "Dibalik",
       date: transfer.reversed_at,
       tone: "neutral",
     });

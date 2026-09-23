@@ -49,7 +49,10 @@ export function TransfersListScreen({
           <h1>Transfer Antar Akun</h1>
           <p className="list-screen-summary">
             {rows.length} transfer{" "}
-            {activeFilter ? `pada tampilan "${filterLabel(activeFilter)}"` : "ditampilkan"}.
+            {activeFilter
+              ? `pada tampilan "${filterLabel(activeFilter)}"`
+              : "ditampilkan"}
+            .
           </p>
         </div>
         {canCreate ? (
@@ -84,7 +87,9 @@ export function TransfersListScreen({
         </nav>
         <form method="get" className="list-search-form">
           {entity ? <input type="hidden" name="entity" value={entity} /> : null}
-          {activeFilter ? <input type="hidden" name="status" value={activeFilter} /> : null}
+          {activeFilter ? (
+            <input type="hidden" name="status" value={activeFilter} />
+          ) : null}
           <input
             type="search"
             name="q"
@@ -135,11 +140,15 @@ export function TransfersListScreen({
                   <td>{row.to_account_name}</td>
                   <td>{formatShortDate(row.transfer_date)}</td>
                   <td>
-                    <span className={`status-badge status-badge-${status.tone}`}>
+                    <span
+                      className={`status-badge status-badge-${status.tone}`}
+                    >
                       {status.text}
                     </span>
                   </td>
-                  <td className="num">{formatMoney(row.amount_out, row.from_account_currency)}</td>
+                  <td className="num">
+                    {formatMoney(row.amount_out, row.from_account_currency)}
+                  </td>
                 </tr>
               );
             })}
@@ -151,5 +160,8 @@ export function TransfersListScreen({
 }
 
 function filterLabel(filter: TransferListFilter): string {
-  return TRANSFER_FILTER_OPTIONS.find((option) => option.value === filter)?.label ?? filter;
+  return (
+    TRANSFER_FILTER_OPTIONS.find((option) => option.value === filter)?.label ??
+    filter
+  );
 }

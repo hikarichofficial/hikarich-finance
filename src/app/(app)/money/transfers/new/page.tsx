@@ -14,9 +14,12 @@ export default async function NewTransferPage({
   searchParams: Promise<{ entity?: string }>;
 }) {
   const { entity } = await searchParams;
-  const { access, membership } = await requirePermission("money.transfer_create", {
-    entityCode: entity,
-  });
+  const { access, membership } = await requirePermission(
+    "money.transfer_create",
+    {
+      entityCode: entity,
+    },
+  );
   const accounts = await getMoneyControl(membership.entity_id);
 
   return (
@@ -24,7 +27,9 @@ export default async function NewTransferPage({
       <p className="record-detail-back">
         <Link
           href={
-            entity ? `/money/transfers?entity=${encodeURIComponent(entity)}` : "/money/transfers"
+            entity
+              ? `/money/transfers?entity=${encodeURIComponent(entity)}`
+              : "/money/transfers"
           }
         >
           ← Kembali ke daftar transfer
@@ -41,7 +46,11 @@ export default async function NewTransferPage({
           accounts={accounts}
           entityId={membership.entity_id}
           entity={entity}
-          canConfirmOnCreate={can(access, membership.entity_id, "money.transfer_approve")}
+          canConfirmOnCreate={can(
+            access,
+            membership.entity_id,
+            "money.transfer_approve",
+          )}
         />
       </section>
     </div>

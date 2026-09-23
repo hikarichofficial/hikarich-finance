@@ -19,7 +19,10 @@ import {
  */
 
 function IssueForm({ invoiceId }: { invoiceId: string }) {
-  const [state, action, pending] = useActionState(issueInvoiceAction, idleInvoiceActionState);
+  const [state, action, pending] = useActionState(
+    issueInvoiceAction,
+    idleInvoiceActionState,
+  );
   return (
     <form action={action} className="invoice-action-form">
       <input type="hidden" name="invoice_id" value={invoiceId} />
@@ -57,7 +60,11 @@ function ReasonForm({
 
   if (!open) {
     return (
-      <button type="button" className="btn-secondary" onClick={() => setOpen(true)}>
+      <button
+        type="button"
+        className="btn-secondary"
+        onClick={() => setOpen(true)}
+      >
         {label}
       </button>
     );
@@ -84,7 +91,11 @@ function ReasonForm({
         </p>
       ) : null}
       <div className="invoice-action-buttons">
-        <button type="submit" className="btn-danger" disabled={pending || reason.trim().length < 5}>
+        <button
+          type="submit"
+          className="btn-danger"
+          disabled={pending || reason.trim().length < 5}
+        >
           {pending ? pendingLabel : label}
         </button>
         <button
@@ -101,7 +112,10 @@ function ReasonForm({
 }
 
 function VoidForm({ invoiceId }: { invoiceId: string }) {
-  const [state, action, pending] = useActionState(voidInvoiceAction, idleInvoiceActionState);
+  const [state, action, pending] = useActionState(
+    voidInvoiceAction,
+    idleInvoiceActionState,
+  );
   return (
     <ReasonForm
       invoiceId={invoiceId}
@@ -117,7 +131,10 @@ function VoidForm({ invoiceId }: { invoiceId: string }) {
 
 function CorrectForm({ invoiceId }: { invoiceId: string }) {
   const router = useRouter();
-  const [state, action, pending] = useActionState(correctInvoiceAction, idleCorrectInvoiceState);
+  const [state, action, pending] = useActionState(
+    correctInvoiceAction,
+    idleCorrectInvoiceState,
+  );
   useEffect(() => {
     if (state.status === "ok" && state.newInvoiceId) {
       router.push(`/sales/invoices/${state.newInvoiceId}`);
@@ -137,7 +154,10 @@ function CorrectForm({ invoiceId }: { invoiceId: string }) {
 }
 
 function CopyLinkForm({ invoiceId }: { invoiceId: string }) {
-  const [state, action, pending] = useActionState(ensureInvoiceLinkAction, idleInvoiceLinkState);
+  const [state, action, pending] = useActionState(
+    ensureInvoiceLinkAction,
+    idleInvoiceLinkState,
+  );
   const [copied, setCopied] = useState(false);
   const url =
     state.token && typeof window !== "undefined"

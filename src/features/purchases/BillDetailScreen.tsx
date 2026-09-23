@@ -61,15 +61,24 @@ export function BillDetailScreen({
           <p className="record-detail-counterparty">{bill.vendor_name}</p>
         </div>
         <div className="record-detail-header-end">
-          <span className={`status-badge status-badge-${status.tone}`}>{status.text}</span>
-          <p className="record-detail-amount">{formatMoney(bill.total, bill.currency)}</p>
+          <span className={`status-badge status-badge-${status.tone}`}>
+            {status.text}
+          </span>
+          <p className="record-detail-amount">
+            {formatMoney(bill.total, bill.currency)}
+          </p>
           <p className="record-detail-dates">
-            {formatShortDate(bill.bill_date)} · Jatuh tempo {formatShortDate(bill.due_date)}
+            {formatShortDate(bill.bill_date)} · Jatuh tempo{" "}
+            {formatShortDate(bill.due_date)}
           </p>
         </div>
       </header>
 
-      <BillActions billId={bill.id} status={bill.status} permissions={permissions} />
+      <BillActions
+        billId={bill.id}
+        status={bill.status}
+        permissions={permissions}
+      />
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">
@@ -132,7 +141,9 @@ export function BillDetailScreen({
           <h2 className="dashboard-section-title">Rincian Item</h2>
         </div>
         {bill.lines.length === 0 ? (
-          <p className="dashboard-empty">Tagihan ini belum memiliki baris item.</p>
+          <p className="dashboard-empty">
+            Tagihan ini belum memiliki baris item.
+          </p>
         ) : (
           <table className="record-table">
             <thead>
@@ -156,8 +167,12 @@ export function BillDetailScreen({
                   <td>{line.description}</td>
                   <td>{PURCHASE_TREATMENT_LABELS[line.treatment]}</td>
                   <td className="num">{formatPlain(line.quantity)}</td>
-                  <td className="num">{formatMoney(line.unit_price, bill.currency)}</td>
-                  <td className="num">{formatMoney(line.line_total, bill.currency)}</td>
+                  <td className="num">
+                    {formatMoney(line.unit_price, bill.currency)}
+                  </td>
+                  <td className="num">
+                    {formatMoney(line.line_total, bill.currency)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -171,8 +186,13 @@ export function BillDetailScreen({
         </div>
         <ul className="record-activity-list">
           {timeline.map((entry, index) => (
-            <li key={`${entry.label}-${index}`} className="record-activity-item">
-              <span className={`status-badge status-badge-${entry.tone}`}>{entry.label}</span>
+            <li
+              key={`${entry.label}-${index}`}
+              className="record-activity-item"
+            >
+              <span className={`status-badge status-badge-${entry.tone}`}>
+                {entry.label}
+              </span>
               {entry.date ? (
                 <span className="record-activity-date">
                   {formatShortDate(entry.date.slice(0, 10))}
@@ -188,8 +208,9 @@ export function BillDetailScreen({
           <h2 className="dashboard-section-title">Akuntansi</h2>
         </div>
         <p className="dashboard-empty">
-          Rincian jurnal per tagihan belum tersedia di tahap ini; lihat Buku Besar pada modul
-          Akuntansi untuk dampak akuntansi Entitas secara keseluruhan.
+          Rincian jurnal per tagihan belum tersedia di tahap ini; lihat Buku
+          Besar pada modul Akuntansi untuk dampak akuntansi Entitas secara
+          keseluruhan.
         </p>
       </section>
 
@@ -197,21 +218,27 @@ export function BillDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Pajak</h2>
         </div>
-        <p className="dashboard-empty">Penentuan pajak per tagihan belum tersedia di tahap ini.</p>
+        <p className="dashboard-empty">
+          Penentuan pajak per tagihan belum tersedia di tahap ini.
+        </p>
       </section>
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Dokumen</h2>
         </div>
-        <p className="dashboard-empty">Lampiran dan bukti pendukung belum tersedia di tahap ini.</p>
+        <p className="dashboard-empty">
+          Lampiran dan bukti pendukung belum tersedia di tahap ini.
+        </p>
       </section>
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Audit / Lanjutan</h2>
         </div>
-        <p className="dashboard-empty">Riwayat teknis dan versi belum tersedia di tahap ini.</p>
+        <p className="dashboard-empty">
+          Riwayat teknis dan versi belum tersedia di tahap ini.
+        </p>
       </section>
     </div>
   );

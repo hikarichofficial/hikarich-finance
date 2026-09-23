@@ -19,7 +19,9 @@ export default async function TransferDetailPage({
 }) {
   const { id } = await params;
   const { entity } = await searchParams;
-  const { access, membership } = await requirePermission("money.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("money.view", {
+    entityCode: entity,
+  });
 
   const transfer = await getTransfer(id).catch(() => null);
   if (!transfer) notFound();

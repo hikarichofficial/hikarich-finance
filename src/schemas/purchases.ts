@@ -16,7 +16,8 @@ import { whtObjectSchema } from "@/schemas/tax";
  */
 
 const optionalText = (max: number) => z.string().trim().max(max).optional();
-const nullableText = (max: number) => z.string().trim().max(max).nullable().optional();
+const nullableText = (max: number) =>
+  z.string().trim().max(max).nullable().optional();
 /** Reasons are kept by the audit trail: 5 to 1000 characters (a rejection needs only 3). */
 const reasonSchema = z.string().trim().min(5).max(1000);
 const shortReasonSchema = z.string().trim().min(3).max(1000);
@@ -267,7 +268,12 @@ export const registerDocumentInputSchema = z.object({
     .regex(/^[0-9a-f]{64}$/),
 });
 
-export const documentPurposeSchema = z.enum(["vendor_invoice", "receipt", "contract", "other"]);
+export const documentPurposeSchema = z.enum([
+  "vendor_invoice",
+  "receipt",
+  "contract",
+  "other",
+]);
 
 export const linkDocumentInputSchema = z.object({
   document_id: z.uuid(),
@@ -282,7 +288,14 @@ export const unlinkDocumentInputSchema = z.object({
 });
 
 // ---- RPC results
-export const billFilterSchema = z.enum(["open", "overdue", "paid", "unpaid", "partial", "closed"]);
+export const billFilterSchema = z.enum([
+  "open",
+  "overdue",
+  "paid",
+  "unpaid",
+  "partial",
+  "closed",
+]);
 export type BillFilter = z.infer<typeof billFilterSchema>;
 
 export const billPositionSchema = z.object({

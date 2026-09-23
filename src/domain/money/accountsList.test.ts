@@ -28,7 +28,9 @@ function control(overrides: Partial<MoneyControlRow> = {}): MoneyControlRow {
   };
 }
 
-function reconciliation(overrides: Partial<ReconciliationStatusRow> = {}): ReconciliationStatusRow {
+function reconciliation(
+  overrides: Partial<ReconciliationStatusRow> = {},
+): ReconciliationStatusRow {
   return {
     financial_account_id: "11111111-1111-1111-1111-111111111111",
     name: "Bank BCA",
@@ -49,7 +51,10 @@ function row(overrides: Partial<AccountListRow> = {}): AccountListRow {
 describe("mergeAccountRows", () => {
   it("joins purely by financial_account_id, keeping every control row even without a match", () => {
     const merged = mergeAccountRows(
-      [control({ financial_account_id: "a" }), control({ financial_account_id: "b" })],
+      [
+        control({ financial_account_id: "a" }),
+        control({ financial_account_id: "b" }),
+      ],
       [reconciliation({ financial_account_id: "a" })],
     );
     expect(merged.map((r) => r.financial_account_id)).toEqual(["a", "b"]);
@@ -61,7 +66,9 @@ describe("mergeAccountRows", () => {
 describe("accountListStatus", () => {
   it("labels an inactive account as neutral regardless of everything else", () => {
     expect(
-      accountListStatus(row({ is_active: false, difference: "500", reconciliation: null })),
+      accountListStatus(
+        row({ is_active: false, difference: "500", reconciliation: null }),
+      ),
     ).toEqual({ text: "Tidak Aktif", tone: "neutral" });
   });
 
@@ -74,19 +81,27 @@ describe("accountListStatus", () => {
 
   it("labels an in-progress reconciliation session as attention", () => {
     expect(
-      accountListStatus(row({ reconciliation: reconciliation({ session_in_progress: true }) })),
+      accountListStatus(
+        row({ reconciliation: reconciliation({ session_in_progress: true }) }),
+      ),
     ).toEqual({ text: "Sesi rekonsiliasi berjalan", tone: "attention" });
   });
 
   it("labels unresolved lines as attention with the count", () => {
     expect(
-      accountListStatus(row({ reconciliation: reconciliation({ unresolved_lines: 3 }) })),
+      accountListStatus(
+        row({ reconciliation: reconciliation({ unresolved_lines: 3 }) }),
+      ),
     ).toEqual({ text: "3 baris belum selesai", tone: "attention" });
   });
 
   it("labels a never-reconciled account as progress", () => {
     expect(
-      accountListStatus(row({ reconciliation: reconciliation({ last_reconciled_until: null }) })),
+      accountListStatus(
+        row({
+          reconciliation: reconciliation({ last_reconciled_until: null }),
+        }),
+      ),
     ).toEqual({ text: "Belum pernah direkonsiliasi", tone: "progress" });
     expect(accountListStatus(row({ reconciliation: null }))).toEqual({
       text: "Belum pernah direkonsiliasi",
@@ -95,7 +110,10 @@ describe("accountListStatus", () => {
   });
 
   it("labels a clean, reconciled account as success", () => {
-    expect(accountListStatus(row())).toEqual({ text: "Direkonsiliasi", tone: "success" });
+    expect(accountListStatus(row())).toEqual({
+      text: "Direkonsiliasi",
+      tone: "success",
+    });
   });
 });
 
@@ -111,21 +129,29 @@ describe("matchesAccountFilter / filterAccountRows", () => {
   ];
 
   it("null filter matches everything", () => {
-    expect(rows.filter((r) => matchesAccountFilter(r, null))).toHaveLength(rows.length);
+    expect(rows.filter((r) => matchesAccountFilter(r, null))).toHaveLength(
+      rows.length,
+    );
   });
 
   it("active/inactive partition the set", () => {
     expect(
-      rows.filter((r) => matchesAccountFilter(r, "active")).map((r) => r.financial_account_id),
+      rows
+        .filter((r) => matchesAccountFilter(r, "active"))
+        .map((r) => r.financial_account_id),
     ).toEqual(["a", "c", "d"]);
     expect(
-      rows.filter((r) => matchesAccountFilter(r, "inactive")).map((r) => r.financial_account_id),
+      rows
+        .filter((r) => matchesAccountFilter(r, "inactive"))
+        .map((r) => r.financial_account_id),
     ).toEqual(["b"]);
   });
 
   it("difference matches a non-zero ledger difference", () => {
     expect(
-      rows.filter((r) => matchesAccountFilter(r, "difference")).map((r) => r.financial_account_id),
+      rows
+        .filter((r) => matchesAccountFilter(r, "difference"))
+        .map((r) => r.financial_account_id),
     ).toEqual(["c"]);
   });
 
@@ -142,7 +168,9 @@ describe("matchesAccountFilter / filterAccountRows", () => {
       row({ financial_account_id: "x", name: "Bank Mandiri" }),
       row({ financial_account_id: "y", name: "Kas Kecil", kind: "cash" }),
     ];
-    expect(filterAccountRows(withNames, null, "mandiri")).toEqual([withNames[0]]);
+    expect(filterAccountRows(withNames, null, "mandiri")).toEqual([
+      withNames[0],
+    ]);
     expect(filterAccountRows(withNames, null, "cash")).toEqual([withNames[1]]);
   });
 });
@@ -157,8 +185,12 @@ describe("parseAccountFilter", () => {
 
 describe("matchesAccountQuery", () => {
   it("matches case-insensitively on name or kind", () => {
-    expect(matchesAccountQuery(row({ name: "Bank BCA", kind: "bank" }), "bca")).toBe(true);
-    expect(matchesAccountQuery(row({ name: "Kas Kecil", kind: "cash" }), "cash")).toBe(true);
+    expect(
+      matchesAccountQuery(row({ name: "Bank BCA", kind: "bank" }), "bca"),
+    ).toBe(true);
+    expect(
+      matchesAccountQuery(row({ name: "Kas Kecil", kind: "cash" }), "cash"),
+    ).toBe(true);
     expect(matchesAccountQuery(row(), "tidak-ada")).toBe(false);
   });
 });
@@ -179,10 +211,12 @@ describe("resolveActivityRange", () => {
   const reference = new Date("2026-09-23T12:00:00Z");
 
   it("uses a valid from/to pair as given", () => {
-    expect(resolveActivityRange("2026-09-01", "2026-09-15", reference)).toEqual({
-      from: "2026-09-01",
-      to: "2026-09-15",
-    });
+    expect(resolveActivityRange("2026-09-01", "2026-09-15", reference)).toEqual(
+      {
+        from: "2026-09-01",
+        to: "2026-09-15",
+      },
+    );
   });
 
   it("falls back to a trailing 30-day window when from/to are absent", () => {
@@ -193,23 +227,29 @@ describe("resolveActivityRange", () => {
   });
 
   it("falls back when the pair is inverted (from after to)", () => {
-    expect(resolveActivityRange("2026-09-20", "2026-09-01", reference)).toEqual({
-      from: "2026-08-25",
-      to: "2026-09-23",
-    });
+    expect(resolveActivityRange("2026-09-20", "2026-09-01", reference)).toEqual(
+      {
+        from: "2026-08-25",
+        to: "2026-09-23",
+      },
+    );
   });
 
   it("falls back when either value is malformed", () => {
-    expect(resolveActivityRange("not-a-date", "2026-09-15", reference)).toEqual({
-      from: "2026-08-25",
-      to: "2026-09-23",
-    });
+    expect(resolveActivityRange("not-a-date", "2026-09-15", reference)).toEqual(
+      {
+        from: "2026-08-25",
+        to: "2026-09-23",
+      },
+    );
   });
 
   it("accepts from equal to to as a single-day range", () => {
-    expect(resolveActivityRange("2026-09-10", "2026-09-10", reference)).toEqual({
-      from: "2026-09-10",
-      to: "2026-09-10",
-    });
+    expect(resolveActivityRange("2026-09-10", "2026-09-10", reference)).toEqual(
+      {
+        from: "2026-09-10",
+        to: "2026-09-10",
+      },
+    );
   });
 });

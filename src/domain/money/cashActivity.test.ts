@@ -57,7 +57,13 @@ describe("mergeCashActivityRows", () => {
   it("resolves account name/currency and journal number by joining against the given lookups", () => {
     const merged = mergeCashActivityRows(
       [movement({ financial_account_id: "a", journal_id: "j1" })],
-      [account({ financial_account_id: "a", name: "Bank Mandiri", currency: "USD" })],
+      [
+        account({
+          financial_account_id: "a",
+          name: "Bank Mandiri",
+          currency: "USD",
+        }),
+      ],
       new Map([["j1", "JRN-2026-0042"]]),
     );
     expect(merged[0].account_name).toBe("Bank Mandiri");
@@ -76,7 +82,11 @@ describe("mergeCashActivityRows", () => {
   });
 
   it("resolves a missing journal number to null rather than throwing", () => {
-    const merged = mergeCashActivityRows([movement({ journal_id: "j1" })], [account()], new Map());
+    const merged = mergeCashActivityRows(
+      [movement({ journal_id: "j1" })],
+      [account()],
+      new Map(),
+    );
     expect(merged[0].journal_number).toBeNull();
   });
 });
@@ -92,7 +102,9 @@ describe("matchesAccountId / filterCashActivityRows", () => {
   });
 
   it("a specific account id matches only that account", () => {
-    expect(rows.filter((r) => matchesAccountId(r, "b")).map((r) => r.id)).toEqual(["y"]);
+    expect(
+      rows.filter((r) => matchesAccountId(r, "b")).map((r) => r.id),
+    ).toEqual(["y"]);
   });
 
   it("filterCashActivityRows combines the account filter and the query", () => {
@@ -101,22 +113,44 @@ describe("matchesAccountId / filterCashActivityRows", () => {
       row({ id: "y", financial_account_id: "b", account_name: "Kas Kecil" }),
     ];
     expect(filterCashActivityRows(withNames, "a", "")).toEqual([withNames[0]]);
-    expect(filterCashActivityRows(withNames, null, "kas kecil")).toEqual([withNames[1]]);
+    expect(filterCashActivityRows(withNames, null, "kas kecil")).toEqual([
+      withNames[1],
+    ]);
   });
 });
 
 describe("matchesCashActivityQuery", () => {
   it("matches the account name, the humanized source type, the description or the journal number", () => {
-    expect(matchesCashActivityQuery(row({ account_name: "Bank Mandiri" }), "mandiri")).toBe(true);
     expect(
-      matchesCashActivityQuery(row({ source_type: "vendor_payment" }), "pembayaran vendor"),
+      matchesCashActivityQuery(
+        row({ account_name: "Bank Mandiri" }),
+        "mandiri",
+      ),
     ).toBe(true);
-    expect(matchesCashActivityQuery(row({ description: "Bayar sewa kantor" }), "sewa")).toBe(true);
-    expect(matchesCashActivityQuery(row({ journal_number: "JRN-2026-0099" }), "0099")).toBe(true);
+    expect(
+      matchesCashActivityQuery(
+        row({ source_type: "vendor_payment" }),
+        "pembayaran vendor",
+      ),
+    ).toBe(true);
+    expect(
+      matchesCashActivityQuery(
+        row({ description: "Bayar sewa kantor" }),
+        "sewa",
+      ),
+    ).toBe(true);
+    expect(
+      matchesCashActivityQuery(
+        row({ journal_number: "JRN-2026-0099" }),
+        "0099",
+      ),
+    ).toBe(true);
     expect(matchesCashActivityQuery(row(), "tidak-ada")).toBe(false);
   });
 
   it("a null journal_number never matches a journal-number query", () => {
-    expect(matchesCashActivityQuery(row({ journal_number: null }), "jrn")).toBe(false);
+    expect(matchesCashActivityQuery(row({ journal_number: null }), "jrn")).toBe(
+      false,
+    );
   });
 });

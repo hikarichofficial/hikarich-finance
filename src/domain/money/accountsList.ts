@@ -10,7 +10,8 @@ import type { MoneyControlRow, ReconciliationStatusRow } from "@/schemas/money";
  * `financial_account_id`, exactly like the Dashboard already does, never recomputing either RPC's numbers.
  */
 
-export type AccountListTone = "neutral" | "progress" | "attention" | "success" | "critical";
+export type AccountListTone =
+  "neutral" | "progress" | "attention" | "success" | "critical";
 
 export interface AccountListStatus {
   text: string;
@@ -41,16 +42,21 @@ export function accountListStatus(row: AccountListRow): AccountListStatus {
     return { text: "Selisih dengan Buku Besar", tone: "critical" };
   }
   const r = row.reconciliation;
-  if (r?.session_in_progress) return { text: "Sesi rekonsiliasi berjalan", tone: "attention" };
+  if (r?.session_in_progress)
+    return { text: "Sesi rekonsiliasi berjalan", tone: "attention" };
   if (r && r.unresolved_lines > 0) {
-    return { text: `${r.unresolved_lines} baris belum selesai`, tone: "attention" };
+    return {
+      text: `${r.unresolved_lines} baris belum selesai`,
+      tone: "attention",
+    };
   }
   if (!r || !r.last_reconciled_until)
     return { text: "Belum pernah direkonsiliasi", tone: "progress" };
   return { text: "Direkonsiliasi", tone: "success" };
 }
 
-export type AccountListFilter = "active" | "inactive" | "difference" | "unreconciled";
+export type AccountListFilter =
+  "active" | "inactive" | "difference" | "unreconciled";
 
 export interface AccountFilterOption {
   value: AccountListFilter | null;
@@ -83,7 +89,9 @@ export function matchesAccountFilter(
   }
 }
 
-export function parseAccountFilter(value: string | undefined): AccountListFilter | undefined {
+export function parseAccountFilter(
+  value: string | undefined,
+): AccountListFilter | undefined {
   const option = ACCOUNT_FILTER_OPTIONS.find((o) => o.value === value);
   return option?.value ?? undefined;
 }
@@ -92,10 +100,15 @@ function normalize(text: string): string {
   return text.trim().toLowerCase();
 }
 
-export function matchesAccountQuery(row: AccountListRow, query: string): boolean {
+export function matchesAccountQuery(
+  row: AccountListRow,
+  query: string,
+): boolean {
   const needle = normalize(query);
   if (needle === "") return true;
-  return normalize(row.name).includes(needle) || normalize(row.kind).includes(needle);
+  return (
+    normalize(row.name).includes(needle) || normalize(row.kind).includes(needle)
+  );
 }
 
 export function filterAccountRows(
@@ -103,7 +116,10 @@ export function filterAccountRows(
   filter: AccountListFilter | null,
   query: string,
 ): AccountListRow[] {
-  return rows.filter((row) => matchesAccountFilter(row, filter) && matchesAccountQuery(row, query));
+  return rows.filter(
+    (row) =>
+      matchesAccountFilter(row, filter) && matchesAccountQuery(row, query),
+  );
 }
 
 /** A small label map for the source types this codebase's modules already record onto `money_movements`
@@ -144,13 +160,18 @@ export function resolveActivityRange(
   reference: Date = new Date(),
 ): AccountActivityRange {
   const validFrom =
-    requestedFrom && ISO_DATE_PATTERN.test(requestedFrom) ? requestedFrom : undefined;
-  const validTo = requestedTo && ISO_DATE_PATTERN.test(requestedTo) ? requestedTo : undefined;
+    requestedFrom && ISO_DATE_PATTERN.test(requestedFrom)
+      ? requestedFrom
+      : undefined;
+  const validTo =
+    requestedTo && ISO_DATE_PATTERN.test(requestedTo) ? requestedTo : undefined;
   if (validFrom && validTo && validFrom <= validTo) {
     return { from: validFrom, to: validTo };
   }
   const to = toIsoDate(reference);
-  const from = toIsoDate(new Date(reference.getTime() - 29 * 24 * 60 * 60 * 1000));
+  const from = toIsoDate(
+    new Date(reference.getTime() - 29 * 24 * 60 * 60 * 1000),
+  );
   return { from, to };
 }
 

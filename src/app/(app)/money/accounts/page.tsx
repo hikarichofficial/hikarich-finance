@@ -1,6 +1,9 @@
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import { getMoneyControl, getReconciliationStatus } from "@/services/money/money";
+import {
+  getMoneyControl,
+  getReconciliationStatus,
+} from "@/services/money/money";
 import {
   filterAccountRows,
   mergeAccountRows,
@@ -16,7 +19,9 @@ export default async function AccountsListPage({
   searchParams: Promise<{ entity?: string; status?: string; q?: string }>;
 }) {
   const { entity, status, q } = await searchParams;
-  const { access, membership } = await requirePermission("money.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("money.view", {
+    entityCode: entity,
+  });
   const filter = parseAccountFilter(status) ?? null;
   const query = q ?? "";
 

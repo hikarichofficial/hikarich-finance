@@ -230,7 +230,12 @@ export const workspaceLineSchema = z.object({
   description: z.string().nullable(),
   reference: z.string().nullable(),
   amount: signedDecimalTextSchema,
-  display_status: z.enum(["matched", "possible_match", "unmatched", "excluded"]),
+  display_status: z.enum([
+    "matched",
+    "possible_match",
+    "unmatched",
+    "excluded",
+  ]),
   matched_movements: z.number().int().nonnegative(),
   candidate_count: z.number().int().nonnegative(),
   exclusion_reason: z.string().nullable(),
@@ -248,8 +253,12 @@ export const reconciliationStatusRowSchema = z.object({
   outstanding_movements: z.number().int().nonnegative(),
   last_difference: signedDecimalTextSchema.nullable(),
 });
-export const reconciliationStatusSchema = z.array(reconciliationStatusRowSchema);
-export type ReconciliationStatusRow = z.infer<typeof reconciliationStatusRowSchema>;
+export const reconciliationStatusSchema = z.array(
+  reconciliationStatusRowSchema,
+);
+export type ReconciliationStatusRow = z.infer<
+  typeof reconciliationStatusRowSchema
+>;
 
 export const accountActivityRowSchema = z.object({
   movement_id: z.uuid(),

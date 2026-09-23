@@ -112,7 +112,11 @@ export async function cancelBillAction(
   const billId = text(formData, "bill_id");
   const reason = text(formData, "reason");
   try {
-    await cancelBill({ bill_id: billId, idempotency_key: randomUUID(), reason });
+    await cancelBill({
+      bill_id: billId,
+      idempotency_key: randomUUID(),
+      reason,
+    });
   } catch (error) {
     return errorState(error, "Tagihan tidak dapat dibatalkan.");
   }
@@ -150,7 +154,11 @@ export async function correctBillAction(
   const reason = text(formData, "reason");
   let newBillId: string;
   try {
-    newBillId = await correctBill({ bill_id: billId, idempotency_key: randomUUID(), reason });
+    newBillId = await correctBill({
+      bill_id: billId,
+      idempotency_key: randomUUID(),
+      reason,
+    });
   } catch (error) {
     return errorState(error, "Tagihan tidak dapat dikoreksi.");
   }

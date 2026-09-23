@@ -17,7 +17,9 @@ export default async function TransfersListPage({
   searchParams: Promise<{ entity?: string; status?: string; q?: string }>;
 }) {
   const { entity, status, q } = await searchParams;
-  const { access, membership } = await requirePermission("money.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("money.view", {
+    entityCode: entity,
+  });
   const filter = parseTransferFilter(status) ?? null;
   const query = q ?? "";
 

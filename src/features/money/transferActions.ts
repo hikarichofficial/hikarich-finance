@@ -98,7 +98,10 @@ export async function confirmTransferAction(
 ): Promise<TransferActionState> {
   const transferId = text(formData, "transfer_id");
   try {
-    await confirmTransfer({ transfer_id: transferId, idempotency_key: randomUUID() });
+    await confirmTransfer({
+      transfer_id: transferId,
+      idempotency_key: randomUUID(),
+    });
   } catch (error) {
     return errorState(error, "Transfer tidak dapat dikonfirmasi.");
   }

@@ -83,7 +83,10 @@ describe("mergeTransferRows", () => {
   });
 
   it("falls back to a generic label and default currency for an account not in the given list", () => {
-    const merged = mergeTransferRows([transfer({ from_account_id: "missing" })], []);
+    const merged = mergeTransferRows(
+      [transfer({ from_account_id: "missing" })],
+      [],
+    );
     expect(merged[0].from_account_name).toBe("Akun tidak dikenal");
     expect(merged[0].from_account_currency).toBe("IDR");
   });
@@ -117,8 +120,12 @@ describe("transferListStatus", () => {
   });
 
   it("labels cancelled and reversed as neutral", () => {
-    expect(transferListStatus(transfer({ status: "cancelled" })).tone).toBe("neutral");
-    expect(transferListStatus(transfer({ status: "reversed" })).tone).toBe("neutral");
+    expect(transferListStatus(transfer({ status: "cancelled" })).tone).toBe(
+      "neutral",
+    );
+    expect(transferListStatus(transfer({ status: "reversed" })).tone).toBe(
+      "neutral",
+    );
   });
 });
 
@@ -131,13 +138,17 @@ describe("matchesTransferFilter / filterTransferRows", () => {
   ];
 
   it("null filter matches everything", () => {
-    expect(rows.filter((r) => matchesTransferFilter(r, null))).toHaveLength(rows.length);
+    expect(rows.filter((r) => matchesTransferFilter(r, null))).toHaveLength(
+      rows.length,
+    );
   });
 
   it("a specific filter matches only that status", () => {
-    expect(rows.filter((r) => matchesTransferFilter(r, "confirmed")).map((r) => r.id)).toEqual([
-      "b",
-    ]);
+    expect(
+      rows
+        .filter((r) => matchesTransferFilter(r, "confirmed"))
+        .map((r) => r.id),
+    ).toEqual(["b"]);
   });
 
   it("filterTransferRows combines filter and query", () => {
@@ -156,7 +167,9 @@ describe("matchesTransferFilter / filterTransferRows", () => {
       }),
     ];
     expect(filterTransferRows(withNames, "draft", "")).toEqual([withNames[0]]);
-    expect(filterTransferRows(withNames, null, "kas kecil")).toEqual([withNames[1]]);
+    expect(filterTransferRows(withNames, null, "kas kecil")).toEqual([
+      withNames[1],
+    ]);
   });
 });
 
@@ -170,16 +183,31 @@ describe("parseTransferFilter", () => {
 
 describe("matchesTransferQuery", () => {
   it("matches the transfer number, either account name, description or reference", () => {
-    expect(matchesTransferQuery(row({ transfer_number: "TRF-2026-0099" }), "0099")).toBe(true);
-    expect(matchesTransferQuery(row({ from_account_name: "Bank Mandiri" }), "mandiri")).toBe(true);
-    expect(matchesTransferQuery(row({ to_account_name: "Kas Kecil" }), "kecil")).toBe(true);
-    expect(matchesTransferQuery(row({ description: "Setor tunai" }), "setor")).toBe(true);
-    expect(matchesTransferQuery(row({ reference: "REF-001" }), "ref-001")).toBe(true);
+    expect(
+      matchesTransferQuery(row({ transfer_number: "TRF-2026-0099" }), "0099"),
+    ).toBe(true);
+    expect(
+      matchesTransferQuery(
+        row({ from_account_name: "Bank Mandiri" }),
+        "mandiri",
+      ),
+    ).toBe(true);
+    expect(
+      matchesTransferQuery(row({ to_account_name: "Kas Kecil" }), "kecil"),
+    ).toBe(true);
+    expect(
+      matchesTransferQuery(row({ description: "Setor tunai" }), "setor"),
+    ).toBe(true);
+    expect(matchesTransferQuery(row({ reference: "REF-001" }), "ref-001")).toBe(
+      true,
+    );
     expect(matchesTransferQuery(row(), "tidak-ada")).toBe(false);
   });
 
   it("a null transfer_number never matches (draft transfers have none yet)", () => {
-    expect(matchesTransferQuery(row({ transfer_number: null }), "trf")).toBe(false);
+    expect(matchesTransferQuery(row({ transfer_number: null }), "trf")).toBe(
+      false,
+    );
   });
 });
 

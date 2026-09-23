@@ -1,10 +1,16 @@
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import { Decimal } from "@/domain/money/decimal";
-import { invoiceActivityTimeline, invoiceDocumentStatus } from "@/domain/sales/invoiceList";
+import {
+  invoiceActivityTimeline,
+  invoiceDocumentStatus,
+} from "@/domain/sales/invoiceList";
 import { SETTLEMENT_LABELS } from "@/domain/sales/settlement";
 import type { InvoiceDocument } from "@/schemas/sales";
-import { InvoiceActions, type InvoiceActionPermissions } from "./InvoiceActions";
+import {
+  InvoiceActions,
+  type InvoiceActionPermissions,
+} from "./InvoiceActions";
 import { InvoiceDocumentView, formatDocumentDate } from "./InvoiceDocumentView";
 import { formatShortDate } from "./format";
 
@@ -30,7 +36,9 @@ export function InvoiceDetailScreen({
   const status = invoiceDocumentStatus(doc);
   const timeline = invoiceActivityTimeline(doc);
   const customerName =
-    (doc.customer && typeof doc.customer.display_name === "string" && doc.customer.display_name) ||
+    (doc.customer &&
+      typeof doc.customer.display_name === "string" &&
+      doc.customer.display_name) ||
     "Pelanggan";
   const hasRefund = !Decimal.parse(doc.refunded).isZero();
 
@@ -47,15 +55,24 @@ export function InvoiceDetailScreen({
           <p className="record-detail-counterparty">{customerName}</p>
         </div>
         <div className="record-detail-header-end">
-          <span className={`status-badge status-badge-${status.tone}`}>{status.text}</span>
-          <p className="record-detail-amount">{formatMoney(doc.total, doc.currency)}</p>
+          <span className={`status-badge status-badge-${status.tone}`}>
+            {status.text}
+          </span>
+          <p className="record-detail-amount">
+            {formatMoney(doc.total, doc.currency)}
+          </p>
           <p className="record-detail-dates">
-            {formatDocumentDate(doc.issue_date)} · Jatuh tempo {formatDocumentDate(doc.due_date)}
+            {formatDocumentDate(doc.issue_date)} · Jatuh tempo{" "}
+            {formatDocumentDate(doc.due_date)}
           </p>
         </div>
       </header>
 
-      <InvoiceActions invoiceId={invoiceId} status={doc.status} permissions={permissions} />
+      <InvoiceActions
+        invoiceId={invoiceId}
+        status={doc.status}
+        permissions={permissions}
+      />
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">
@@ -99,10 +116,17 @@ export function InvoiceDetailScreen({
         </div>
         <ul className="record-activity-list">
           {timeline.map((entry, index) => (
-            <li key={`${entry.label}-${index}`} className="record-activity-item">
-              <span className={`status-badge status-badge-${entry.tone}`}>{entry.label}</span>
+            <li
+              key={`${entry.label}-${index}`}
+              className="record-activity-item"
+            >
+              <span className={`status-badge status-badge-${entry.tone}`}>
+                {entry.label}
+              </span>
               {entry.date ? (
-                <span className="record-activity-date">{formatShortDate(entry.date)}</span>
+                <span className="record-activity-date">
+                  {formatShortDate(entry.date)}
+                </span>
               ) : null}
             </li>
           ))}
@@ -114,8 +138,9 @@ export function InvoiceDetailScreen({
           <h2 className="dashboard-section-title">Akuntansi</h2>
         </div>
         <p className="dashboard-empty">
-          Rincian jurnal per faktur belum tersedia di tahap ini; lihat Buku Besar pada modul
-          Akuntansi untuk dampak akuntansi Entitas secara keseluruhan.
+          Rincian jurnal per faktur belum tersedia di tahap ini; lihat Buku
+          Besar pada modul Akuntansi untuk dampak akuntansi Entitas secara
+          keseluruhan.
         </p>
       </section>
 
@@ -123,7 +148,9 @@ export function InvoiceDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Pajak</h2>
         </div>
-        <p className="dashboard-empty">Penentuan pajak per faktur belum tersedia di tahap ini.</p>
+        <p className="dashboard-empty">
+          Penentuan pajak per faktur belum tersedia di tahap ini.
+        </p>
       </section>
 
       <section className="dashboard-section">
@@ -137,7 +164,9 @@ export function InvoiceDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Audit / Lanjutan</h2>
         </div>
-        <p className="dashboard-empty">Riwayat teknis dan versi belum tersedia di tahap ini.</p>
+        <p className="dashboard-empty">
+          Riwayat teknis dan versi belum tersedia di tahap ini.
+        </p>
       </section>
     </div>
   );

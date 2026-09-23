@@ -5,7 +5,10 @@ import {
   getMoneyControl,
   getReconciliationStatus,
 } from "@/services/money/money";
-import { mergeAccountRows, resolveActivityRange } from "@/domain/money/accountsList";
+import {
+  mergeAccountRows,
+  resolveActivityRange,
+} from "@/domain/money/accountsList";
 import { AccountDetailScreen } from "@/features/money/AccountDetailScreen";
 
 /** Account Detail (P13 Part 3c, Step 09 §10, §13). Permission is read off the currently active Entity
@@ -23,7 +26,9 @@ export default async function AccountDetailPage({
 }) {
   const { id } = await params;
   const { entity, from, to } = await searchParams;
-  const { membership } = await requirePermission("money.view", { entityCode: entity });
+  const { membership } = await requirePermission("money.view", {
+    entityCode: entity,
+  });
 
   const [control, reconciliation] = await Promise.all([
     getMoneyControl(membership.entity_id),
@@ -35,7 +40,11 @@ export default async function AccountDetailPage({
   if (!account) notFound();
 
   const range = resolveActivityRange(from, to);
-  const activity = await getAccountActivity(id, { from: range.from, to: range.to, limit: 500 });
+  const activity = await getAccountActivity(id, {
+    from: range.from,
+    to: range.to,
+    limit: 500,
+  });
 
   const backHref = entity
     ? `/money/accounts?entity=${encodeURIComponent(entity)}`

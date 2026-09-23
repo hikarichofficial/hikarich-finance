@@ -1,5 +1,12 @@
-import type { InvoiceDocument, InvoiceFilter, InvoicePosition } from "@/schemas/sales";
-import { INVOICE_STATUS_LABELS, SETTLEMENT_LABELS } from "@/domain/sales/settlement";
+import type {
+  InvoiceDocument,
+  InvoiceFilter,
+  InvoicePosition,
+} from "@/schemas/sales";
+import {
+  INVOICE_STATUS_LABELS,
+  SETTLEMENT_LABELS,
+} from "@/domain/sales/settlement";
 
 /**
  * Pure helpers for the Invoices List and Invoice Detail screens (P13 Part 3a, Step 09 §9-§11). Nothing here
@@ -7,7 +14,8 @@ import { INVOICE_STATUS_LABELS, SETTLEMENT_LABELS } from "@/domain/sales/settlem
  * already returned, matching this project's "screens never invent financial truth" rule (Step 15 P13 gate).
  */
 
-export type InvoiceListTone = "neutral" | "progress" | "attention" | "success" | "critical";
+export type InvoiceListTone =
+  "neutral" | "progress" | "attention" | "success" | "critical";
 
 export interface InvoiceListStatus {
   text: string;
@@ -21,7 +29,8 @@ export interface InvoiceListStatus {
  * recomputing a date comparison here.
  */
 export function invoicePositionStatus(row: InvoicePosition): InvoiceListStatus {
-  if (row.status === "draft") return { text: INVOICE_STATUS_LABELS.draft, tone: "neutral" };
+  if (row.status === "draft")
+    return { text: INVOICE_STATUS_LABELS.draft, tone: "neutral" };
   if (row.status === "cancelled" || row.status === "void") {
     return { text: INVOICE_STATUS_LABELS[row.status], tone: "neutral" };
   }
@@ -34,20 +43,28 @@ export function invoicePositionStatus(row: InvoicePosition): InvoiceListStatus {
   if (row.settlement_status === "partial") {
     return { text: SETTLEMENT_LABELS.partial, tone: "progress" };
   }
-  return { text: SETTLEMENT_LABELS[row.settlement_status ?? "unpaid"], tone: "neutral" };
+  return {
+    text: SETTLEMENT_LABELS[row.settlement_status ?? "unpaid"],
+    tone: "neutral",
+  };
 }
 
 /** Same badge, read off the frozen document (Invoice Detail's Header area) instead of a list row. */
 export function invoiceDocumentStatus(doc: InvoiceDocument): InvoiceListStatus {
-  if (doc.status === "draft") return { text: INVOICE_STATUS_LABELS.draft, tone: "neutral" };
+  if (doc.status === "draft")
+    return { text: INVOICE_STATUS_LABELS.draft, tone: "neutral" };
   if (doc.status === "cancelled" || doc.status === "void") {
     return { text: INVOICE_STATUS_LABELS[doc.status], tone: "neutral" };
   }
-  if (doc.settlement_status === "paid") return { text: SETTLEMENT_LABELS.paid, tone: "success" };
+  if (doc.settlement_status === "paid")
+    return { text: SETTLEMENT_LABELS.paid, tone: "success" };
   if (doc.is_overdue) return { text: "Jatuh tempo", tone: "critical" };
   if (doc.settlement_status === "partial")
     return { text: SETTLEMENT_LABELS.partial, tone: "progress" };
-  return { text: SETTLEMENT_LABELS[doc.settlement_status ?? "unpaid"], tone: "neutral" };
+  return {
+    text: SETTLEMENT_LABELS[doc.settlement_status ?? "unpaid"],
+    tone: "neutral",
+  };
 }
 
 export interface InvoiceFilterOption {
@@ -67,7 +84,9 @@ export const INVOICE_FILTER_OPTIONS: readonly InvoiceFilterOption[] = [
   { value: "closed", label: "Dibatalkan" },
 ];
 
-export function parseInvoiceFilter(value: string | undefined): InvoiceFilter | undefined {
+export function parseInvoiceFilter(
+  value: string | undefined,
+): InvoiceFilter | undefined {
   const option = INVOICE_FILTER_OPTIONS.find((o) => o.value === value);
   return option?.value ?? undefined;
 }
@@ -82,12 +101,16 @@ function normalize(text: string): string {
  * (DECISIONS 145) -- so this filters what the page already fetched rather than adding a second query shape
  * ahead of that index existing.
  */
-export function matchesInvoiceQuery(row: InvoicePosition, query: string): boolean {
+export function matchesInvoiceQuery(
+  row: InvoicePosition,
+  query: string,
+): boolean {
   const needle = normalize(query);
   if (needle === "") return true;
   return (
     normalize(row.customer_name).includes(needle) ||
-    (row.invoice_number !== null && normalize(row.invoice_number).includes(needle))
+    (row.invoice_number !== null &&
+      normalize(row.invoice_number).includes(needle))
   );
 }
 
@@ -111,12 +134,22 @@ export interface InvoiceActivityEntry {
  * reason beyond the reversal journal), so a fuller timeline (created-by, exact cancellation moment, refund
  * dates) is deferred rather than fabricated here (see DECISIONS, P13 Part 3a scope).
  */
-export function invoiceActivityTimeline(doc: InvoiceDocument): InvoiceActivityEntry[] {
+export function invoiceActivityTimeline(
+  doc: InvoiceDocument,
+): InvoiceActivityEntry[] {
   const entries: InvoiceActivityEntry[] = [];
   if (doc.status === "draft") {
-    entries.push({ label: "Draf, belum diterbitkan", date: null, tone: "neutral" });
+    entries.push({
+      label: "Draf, belum diterbitkan",
+      date: null,
+      tone: "neutral",
+    });
   } else {
-    entries.push({ label: "Diterbitkan", date: doc.issue_date, tone: "neutral" });
+    entries.push({
+      label: "Diterbitkan",
+      date: doc.issue_date,
+      tone: "neutral",
+    });
   }
   for (const payment of doc.payments) {
     entries.push({
@@ -126,7 +159,11 @@ export function invoiceActivityTimeline(doc: InvoiceDocument): InvoiceActivityEn
     });
   }
   if (doc.status === "cancelled" || doc.status === "void") {
-    entries.push({ label: INVOICE_STATUS_LABELS[doc.status], date: null, tone: "neutral" });
+    entries.push({
+      label: INVOICE_STATUS_LABELS[doc.status],
+      date: null,
+      tone: "neutral",
+    });
   }
   return entries;
 }
