@@ -21,13 +21,18 @@ import {
   reconciliationStatusSchema,
   reopenReconciliationInputSchema,
   reverseTransferInputSchema,
+  journalNumberRowSchema,
+  moneyMovementRowSchema,
   setFinancialAccountActiveInputSchema,
+  transferRowSchema,
   unreconciledMovementsSchema,
   updateFinancialAccountInputSchema,
   workspaceSchema,
   type AccountActivityRow,
   type MoneyControlRow,
+  type MoneyMovementRow,
   type ReconciliationStatusRow,
+  type TransferRow,
   type WorkspaceLine,
 } from "@/schemas/money";
 
@@ -213,6 +218,92 @@ export async function reverseTransfer(
     },
     uuidResultSchema,
   );
+}
+
+/** Every transfer of the Entity, newest first -- a direct read of `public.transfers` (see `transferRowSchema`'s
+ * doc comment: covered by the pre-existing `transfers_select` RLS policy, no RPC reads a transfer today). */
+export async function listTransfers(entityId: string): Promise<TransferRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("transfers")
+    .select(
+      "id, entity_id, transfer_number, status, transfer_date, from_account_id, to_account_id, amount_out, amount_in, fee_amount, rate_out, rate_in, base_out, base_in, base_fee, fx_difference, description, reference, journal_id, reversal_journal_id, confirmed_at, cancelled_at, reversed_at, reverse_reason, created_at",
+    )
+    .eq("entity_id", uuidResultSchema.parse(entityId))
+    .order("transfer_date", { ascending: false });
+  if (error) throw new Error("Gagal memuat transfer.");
+  const parsed = z.array(transferRowSchema).safeParse(data);
+  if (!parsed.success) throw new Error("Respons transfer tidak dikenali.");
+  return parsed.data;
+}
+
+/** `null` for a missing or inaccessible transfer -- the same answer either way (no existence leak), matching
+ * every P6/P4 command's own "not found or not allowed" convention. */
+export async function getTransfer(transferId: string): Promise<TransferRow | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("transfers")
+    .select(
+      "id, entity_id, transfer_number, status, transfer_date, from_account_id, to_account_id, amount_out, amount_in, fee_amount, rate_out, rate_in, base_out, base_in, base_fee, fx_difference, description, reference, journal_id, reversal_journal_id, confirmed_at, cancelled_at, reversed_at, reverse_reason, created_at",
+    )
+    .eq("id", uuidResultSchema.parse(transferId))
+    .maybeSingle();
+  if (error) throw new Error("Gagal memuat transfer.");
+  if (!data) return null;
+  const parsed = transferRowSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons transfer tidak dikenali.");
+  return parsed.data;
+}
+
+/** Every money movement of the Entity within a date range, newest first -- a direct read of
+ * `public.money_movements` (see `moneyMovementRowSchema`'s doc comment). This is the Cash/Bank Activity
+ * screen's Entity-wide feed (Step 09 §13), distinct from `getAccountActivity`'s single-account ledger. */
+export async function listCashActivity(
+  entityId: string,
+  range: { from: string; to: string },
+  limit = 300,
+): Promise<MoneyMovementRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("money_movements")
+    .select(
+      "id, financial_account_id, currency, direction, amount, base_amount, movement_date, source_type, source_id, component, journal_id, reverses_movement_id, description",
+    )
+    .eq("entity_id", uuidResultSchema.parse(entityId))
+    .gte("movement_date", isoDateSchema.parse(range.from))
+    .lte("movement_date", isoDateSchema.parse(range.to))
+    .order("movement_date", { ascending: false })
+    .limit(limit);
+  if (error) throw new Error("Gagal memuat aktivitas kas/bank.");
+  const parsed = z.array(moneyMovementRowSchema).safeParse(data);
+  if (!parsed.success) throw new Error("Respons aktivitas kas/bank tidak dikenali.");
+  return parsed.data;
+}
+
+/**
+ * Journal numbers for the given journal ids, as a `Map<id, journal_number | null>`. Reading `journal_entries`
+ * needs `accounting.view` -- a DIFFERENT permission from `money.view` (confirmed in
+ * `20260920100100_p2_permission_catalog.sql`: `finance_staff` and `approver` hold `money.view` without
+ * `accounting.view`), the same shape of gap decision 168 already found and filed for `contacts.view`/
+ * `bills.view`. This is written defensively for the same reason `getVendorNames` is: it never throws, an
+ * empty result (RLS-filtered, not an error) just means the caller falls back to a generic label.
+ */
+export async function getJournalNumbers(
+  journalIds: readonly string[],
+): Promise<Map<string, string | null>> {
+  if (journalIds.length === 0) return new Map();
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("journal_entries")
+    .select("id, journal_number")
+    .in(
+      "id",
+      journalIds.map((id) => uuidResultSchema.parse(id)),
+    );
+  if (error) return new Map();
+  const parsed = z.array(journalNumberRowSchema).safeParse(data);
+  if (!parsed.success) return new Map();
+  return new Map(parsed.data.map((row) => [row.id, row.journal_number]));
 }
 
 // ---- reconciliation
