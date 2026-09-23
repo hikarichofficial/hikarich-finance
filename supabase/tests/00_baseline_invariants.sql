@@ -177,6 +177,12 @@ declare
                                          'list_legacy_open_items', 'settle_legacy_open_item',
                                          -- P11 search: also granted to service_role for the scheduled background path
                                          'refresh_search_index_batch', 'rebuild_search_index', 'search',
+                                         -- P12 reports: year-end closing, canonical financial statements, drill-down,
+                                         -- consolidated analysis and the curated custom report builder
+                                         'close_fiscal_year', 'reverse_fiscal_year_closing',
+                                         'profit_and_loss', 'balance_sheet', 'statement_of_changes_in_equity',
+                                         'cash_flow_statement', 'general_ledger',
+                                         'run_custom_report', 'consolidated_cash_position',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];
