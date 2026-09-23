@@ -9,7 +9,10 @@ import {
   approveBillInputSchema,
   billFilterSchema,
   billIdInputSchema,
+  billLineRowSchema,
   billPositionsSchema,
+  billRowSchema,
+  billSummaryRowSchema,
   cancelBillInputSchema,
   cancelExpenseInputSchema,
   closeBillInputSchema,
@@ -34,16 +37,19 @@ import {
   updateBillDraftInputSchema,
   updateBillDueDateInputSchema,
   updateExpenseDraftInputSchema,
+  vendorNameRowSchema,
   vendorPaymentListSchema,
   type ApAgingRow,
   type ApControlRow,
   type BillFilter,
+  type BillLineRow,
   type BillPosition,
   type DocumentLinkRow,
   type MissingEvidenceRow,
   type PurchaseDuplicate,
   type VendorPaymentRow,
 } from "@/schemas/purchases";
+import type { BillListRow } from "@/domain/purchases/billList";
 
 /**
  * Thin, typed wrappers over the purchase RPCs (P6). Every call runs as the signed-in person; the database
@@ -488,4 +494,177 @@ export async function getApControl(entityId: string, asOf?: string): Promise<ApC
   );
   if (rows.length !== 1) throw new Error("Respons pembelian tidak dikenali.");
   return rows[0];
+}
+
+// ---- Bills List / Detail (P13 Part 3b, Step 09 §9-§10, §12). Not RPC wrappers: `bills`/`bill_lines`/
+// `contacts` are read directly, RLS-governed (`bills.view`/`contacts.view`), the same direct-table-read
+// shape `getEntityBaseCurrency` established (DECISIONS 161).
+
+/**
+ * Best-effort vendor display names, keyed by contact id. `contacts_select`'s RLS requires `contacts.view`
+ * (P2), a permission not every `bills.view` role template grants (`approver`, `tax` -- Step 06's own
+ * catalog, decision this file records in DECISIONS' Open items): a caller without it simply gets back no
+ * rows for those ids, not an error, so a missing name here is expected for some roles and every caller must
+ * fall back to something else (the bill's own `vendor_reference`, then a generic label) rather than crash.
+ */
+async function getVendorNames(vendorIds: readonly string[]): Promise<Map<string, string>> {
+  if (vendorIds.length === 0) return new Map();
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("contacts")
+    .select("id, display_name")
+    .in("id", [...vendorIds]);
+  if (error) return new Map();
+  const parsed = z.array(z.object({ id: z.uuid(), display_name: vendorNameRowSchema.shape.display_name }))
+    .safeParse(data);
+  if (!parsed.success) return new Map();
+  return new Map(parsed.data.map((row) => [row.id, row.display_name]));
+}
+
+/**
+ * Every bill regardless of workflow state, merged into one list-row shape: `list_bill_positions` (P6) for
+ * `approved`/`void` bills (it already carries settlement/overdue), plus a direct read of `draft`/
+ * `submitted`/`cancelled` bills (no RPC lists those -- see `billRowSchema`'s doc comment). Filtering and the
+ * status badge are computed client-side by `src/domain/purchases/billList.ts` over this merged list.
+ */
+export async function listBillsOverview(entityId: string): Promise<BillListRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const [positions, preparingResult] = await Promise.all([
+    listBillPositions(entityId),
+    supabase
+      .from("bills")
+      .select("id, bill_number, vendor_id, vendor_reference, currency, status, bill_date, due_date, total")
+      .eq("entity_id", uuid(entityId))
+      .in("status", ["draft", "submitted", "cancelled"])
+      .order("bill_date", { ascending: false }),
+  ]);
+  if (preparingResult.error) throw new Error("Gagal memuat tagihan pembelian.");
+  const parsedPreparing = z.array(billSummaryRowSchema).safeParse(preparingResult.data);
+  if (!parsedPreparing.success) throw new Error("Respons tagihan pembelian tidak dikenali.");
+
+  const vendorNames = await getVendorNames(parsedPreparing.data.map((b) => b.vendor_id));
+
+  const fromPositions: BillListRow[] = positions.map((p) => ({
+    bill_id: p.bill_id,
+    bill_number: p.bill_number,
+    vendor_id: p.vendor_id,
+    vendor_name: p.vendor_name,
+    currency: p.currency,
+    status: p.status,
+    bill_date: p.bill_date,
+    due_date: p.due_date,
+    total: p.total,
+    outstanding: p.outstanding,
+    settlement_status: p.settlement_status,
+    is_overdue: p.is_overdue,
+    days_overdue: p.days_overdue,
+  }));
+  const fromPreparing: BillListRow[] = parsedPreparing.data.map((b) => ({
+    bill_id: b.id,
+    bill_number: b.bill_number,
+    vendor_id: b.vendor_id,
+    vendor_name: vendorNames.get(b.vendor_id) ?? b.vendor_reference ?? "Vendor",
+    currency: b.currency,
+    status: b.status,
+    bill_date: b.bill_date,
+    due_date: b.due_date,
+    total: b.total,
+    outstanding: null,
+    settlement_status: null,
+    is_overdue: false,
+    days_overdue: 0,
+  }));
+  return [...fromPositions, ...fromPreparing].sort((a, b) => (a.bill_date < b.bill_date ? 1 : -1));
+}
+
+export interface BillDetail {
+  id: string;
+  bill_number: string | null;
+  vendor_id: string;
+  vendor_name: string;
+  vendor_reference: string | null;
+  currency: string;
+  status: "draft" | "submitted" | "approved" | "cancelled" | "void";
+  bill_date: string;
+  due_date: string;
+  notes: string | null;
+  subtotal: string;
+  tax_total: string;
+  total: string;
+  submitted_at: string | null;
+  rejected_at: string | null;
+  reject_reason: string | null;
+  approved_at: string | null;
+  closed_at: string | null;
+  closed_date: string | null;
+  closed_reason: string | null;
+  lines: BillLineRow[];
+  /** Only set for `approved`/`void` bills (from `list_bill_positions`); `null` while in preparation. */
+  settled: string | null;
+  outstanding: string | null;
+  settlement_status: "unpaid" | "partial" | "paid" | null;
+  is_overdue: boolean;
+  days_overdue: number;
+}
+
+/** `null` for a missing or inaccessible bill -- the same answer either way (no existence leak), matching
+ * every P6 RPC's own "not found or not allowed" convention. */
+export async function getBillDetail(billId: string): Promise<BillDetail | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("bills")
+    .select(
+      "id, entity_id, bill_number, vendor_id, vendor_reference, currency, status, bill_date, due_date, notes, subtotal, tax_total, total, submitted_at, rejected_at, reject_reason, approved_at, closed_at, closed_date, closed_reason",
+    )
+    .eq("id", uuid(billId))
+    .maybeSingle();
+  if (error) throw new Error("Gagal memuat tagihan pembelian.");
+  if (!data) return null;
+  const parsedBill = billRowSchema.safeParse(data);
+  if (!parsedBill.success) throw new Error("Respons tagihan pembelian tidak dikenali.");
+  const bill = parsedBill.data;
+
+  const [linesResult, vendorNames, positions] = await Promise.all([
+    supabase
+      .from("bill_lines")
+      .select("line_no, description, quantity, unit_price, line_subtotal, tax_amount, line_total, treatment")
+      .eq("bill_id", bill.id)
+      .order("line_no", { ascending: true }),
+    getVendorNames([bill.vendor_id]),
+    bill.status === "approved" || bill.status === "void" ? listBillPositions(bill.entity_id) : null,
+  ]);
+  if (linesResult.error) throw new Error("Gagal memuat baris tagihan pembelian.");
+  const parsedLines = z.array(billLineRowSchema).safeParse(linesResult.data);
+  if (!parsedLines.success) throw new Error("Respons baris tagihan pembelian tidak dikenali.");
+
+  const position = positions?.find((p) => p.bill_id === bill.id) ?? null;
+
+  return {
+    id: bill.id,
+    bill_number: bill.bill_number,
+    vendor_id: bill.vendor_id,
+    vendor_name: vendorNames.get(bill.vendor_id) ?? bill.vendor_reference ?? "Vendor",
+    vendor_reference: bill.vendor_reference,
+    currency: bill.currency,
+    status: bill.status,
+    bill_date: bill.bill_date,
+    due_date: bill.due_date,
+    notes: bill.notes,
+    subtotal: bill.subtotal,
+    tax_total: bill.tax_total,
+    total: bill.total,
+    submitted_at: bill.submitted_at,
+    rejected_at: bill.rejected_at,
+    reject_reason: bill.reject_reason,
+    approved_at: bill.approved_at,
+    closed_at: bill.closed_at,
+    closed_date: bill.closed_date,
+    closed_reason: bill.closed_reason,
+    lines: parsedLines.data,
+    settled: position?.settled ?? null,
+    outstanding: position?.outstanding ?? null,
+    settlement_status: position?.settlement_status ?? null,
+    is_overdue: position?.is_overdue ?? false,
+    days_overdue: position?.days_overdue ?? 0,
+  };
 }

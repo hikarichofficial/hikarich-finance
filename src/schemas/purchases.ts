@@ -306,6 +306,68 @@ export const billPositionSchema = z.object({
 export const billPositionsSchema = z.array(billPositionSchema);
 export type BillPosition = z.infer<typeof billPositionSchema>;
 
+/**
+ * Row shape of a direct, RLS-governed read of `public.bills` (P13 Part 3b's List/Detail screens, not an
+ * RPC): `bills_select`/`bill_lines_select` (P6, `*_p6_bills.sql`) already gate `select` on `bills.view` per
+ * row, the same direct-table-read shape `entities.base_currency` established (DECISIONS 161). This exists
+ * because `list_bill_positions` only ever returns `approved`/`void` bills (it reads
+ * `app_private.bill_positions`, which has no notion of a bill still in preparation) -- Step 09 §12's "Bills
+ * list emphasizes... approval... state" needs draft/submitted/cancelled bills too, and no RPC lists those.
+ */
+export const billRowSchema = z.object({
+  id: z.uuid(),
+  entity_id: z.uuid(),
+  bill_number: z.string().nullable(),
+  vendor_id: z.uuid(),
+  vendor_reference: z.string().nullable(),
+  currency: z.string(),
+  status: z.enum(["draft", "submitted", "approved", "cancelled", "void"]),
+  bill_date: isoDateSchema,
+  due_date: isoDateSchema,
+  notes: z.string().nullable(),
+  subtotal: moneyTextSchema,
+  tax_total: moneyTextSchema,
+  total: moneyTextSchema,
+  submitted_at: z.string().nullable(),
+  rejected_at: z.string().nullable(),
+  reject_reason: z.string().nullable(),
+  approved_at: z.string().nullable(),
+  closed_at: z.string().nullable(),
+  closed_date: isoDateSchema.nullable(),
+  closed_reason: z.string().nullable(),
+});
+export type BillRow = z.infer<typeof billRowSchema>;
+
+/** Narrow projection of `billRowSchema` for the List screen's in-preparation rows (draft/submitted/cancelled
+ * bills `list_bill_positions` never returns). `vendor_reference` is the fallback label when the caller's
+ * role lacks `contacts.view` (see `listBillsOverview`'s doc comment) and the vendor's name cannot be read. */
+export const billSummaryRowSchema = z.object({
+  id: z.uuid(),
+  bill_number: z.string().nullable(),
+  vendor_id: z.uuid(),
+  vendor_reference: z.string().nullable(),
+  currency: z.string(),
+  status: z.enum(["draft", "submitted", "cancelled"]),
+  bill_date: isoDateSchema,
+  due_date: isoDateSchema,
+  total: moneyTextSchema,
+});
+export type BillSummaryRow = z.infer<typeof billSummaryRowSchema>;
+
+export const billLineRowSchema = z.object({
+  line_no: z.number().int().positive(),
+  description: z.string(),
+  quantity: z.string(),
+  unit_price: moneyTextSchema,
+  line_subtotal: moneyTextSchema,
+  tax_amount: moneyTextSchema,
+  line_total: moneyTextSchema,
+  treatment: purchaseTreatmentSchema,
+});
+export type BillLineRow = z.infer<typeof billLineRowSchema>;
+
+export const vendorNameRowSchema = z.object({ display_name: z.string() });
+
 export const apControlRowSchema = z.object({
   sub_ledger: signedDecimalTextSchema,
   ledger_purchases: signedDecimalTextSchema,
