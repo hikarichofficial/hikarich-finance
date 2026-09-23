@@ -372,7 +372,7 @@ composition over existing RPCs).
 | 3b: Purchases & Expenses              | §12                 | In Progress |
 | 3c: Money / Accounts / Reconciliation | §13                 | In Progress |
 | 3d: Accounting                        | §14                 | In Progress |
-| 3e: Tax                               | §15                 | Not Started |
+| 3e: Tax                               | §15                 | In Progress |
 | 3f: Assets, Loans & Equity            | §16                 | Not Started |
 | 3g: Payroll                           | §17                 | Not Started |
 | 3h: Planning & Recurring              | §18                 | Not Started |
@@ -462,3 +462,25 @@ build` pass (448 tests, up from 407); `/accounting/journal`, `/accounting/journa
 `/accounting/coa` register as routes; `pnpm db:test` does not apply (no migration touched). Not yet
 done in 3d: Period Close, Opening Balances, the Manual Journal debit/credit grid builder, and
 Advanced Adjustments (DECISIONS 172 records each as a deferred increment).
+
+Part 3e (Tax) first increment is implemented (DECISIONS 173): Tax Overview (`/tax`, outstanding
+balances by tax type, the Entity's own recorded tax facts, needs-review count, calendar steps due or
+overdue in the last two months), Tax Ledger (`/tax/ledger`, Step 09 §15's own "filterable by tax
+family, period, source, status and Entity" -- a four-way filter toolbar + `?q=` search) and Tax
+Determination Detail (`/tax/determination/[sourceType]/[sourceId]`, answering Step 09 §15's "what
+tax, why, rule/version, basis, rate/formula, amount and source transaction" for one document, current
+determinations first and superseded ones kept underneath as history). Unlike every earlier Part 3
+sub-slice, P7's tax RPCs were already fully service-wrapped before this increment
+(`src/schemas/tax.ts`/`src/services/tax/tax.ts`, built during P7 itself), so this increment mostly
+completed two under-typed schemas (`taxOverviewSchema`'s `profile`/`attention`, and a
+`taxLedgerRowSchema.source_id` nullability bug fixed to match what the RPC actually returns) and
+added the one genuinely missing read, `listTaxDeterminations`, extending the direct-read pattern
+(decisions 161/167/170/171/172) to `tax_determinations`. Only `invoice`/`bill`/`expense` ledger
+entries get a Determination Detail link; a `period` source (PPh Final UMKM's own monthly
+determination, no single document) is deferred along with that whole family of screens. `pnpm check`
+and `pnpm build` pass (463 tests, up from 448); `/tax`, `/tax/ledger` and
+`/tax/determination/[sourceType]/[sourceId]` register as routes; `pnpm db:test` does not apply (no
+migration touched). Not yet done in 3e: tax-facts recording forms, the rule master, the review queue
+and line-confirmation workflow, payments/filings/evidence/reconciliation, PPh Final UMKM's compute
+screen, Tax Calendar, Filing & Evidence, Tax Rules/Configuration, and the PPh Final/Withholding/PPN
+family views (DECISIONS 173 records each as a deferred increment).
