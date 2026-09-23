@@ -1352,3 +1352,397 @@ a.kpi-card:hover {
     grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
   }
 }
+
+/* ------------------------------------------------------------------------------------------------------
+ * Standard List / Detail screens (P13 Part 3a, Step 09 §9-§10). Shared across every module (Sales first;
+ * Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll and Planning reuse these same classes as
+ * their own list/detail screens ship) rather than each module styling its own table and buttons.
+ * ------------------------------------------------------------------------------------------------------ */
+
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 10px 18px;
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--motion-ease);
+}
+
+.btn-primary {
+  color: #fff;
+  background: var(--ink);
+  border: 1px solid var(--ink);
+}
+
+.btn-secondary {
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+}
+
+.btn-danger {
+  color: var(--danger);
+  background: var(--danger-wash);
+  border: 1px solid transparent;
+}
+
+.btn-ghost {
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-danger:disabled,
+.btn-ghost:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-danger:focus-visible,
+.btn-ghost:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.list-screen,
+.record-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 1100px;
+}
+
+.list-screen-header,
+.record-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.list-screen-header h1 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-2xl);
+}
+
+.list-screen-summary {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.list-screen-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.list-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.list-filter-tab {
+  padding: 6px 14px;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+}
+
+.list-filter-tab-active {
+  color: #fff;
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.list-search-form {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.list-search-form input {
+  padding: 8px 14px;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  min-width: 220px;
+}
+
+.list-empty {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--text-secondary);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.record-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  font-size: var(--text-sm);
+}
+
+.record-table th,
+.record-table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+
+.record-table th {
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.record-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.record-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.record-table a {
+  color: var(--foreground);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.record-table a:hover {
+  text-decoration: underline;
+}
+
+.record-detail-back {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.record-detail-back a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.record-detail-back a:hover {
+  text-decoration: underline;
+}
+
+.record-detail-eyebrow {
+  margin: 0 0 var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.record-detail-header h1 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-2xl);
+}
+
+.record-detail-counterparty {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.record-detail-header-end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  text-align: right;
+}
+
+.record-detail-amount {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.record-detail-dates {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}
+
+.record-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.record-summary-grid dt {
+  margin: 0 0 4px;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}
+
+.record-summary-grid dd {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.record-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.record-activity-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.record-activity-date {
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+
+.invoice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.invoice-action-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 260px;
+}
+
+.invoice-action-form label {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.invoice-action-form textarea {
+  padding: var(--space-3);
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  min-height: 72px;
+  resize: vertical;
+}
+
+.invoice-action-buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.invoice-link-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.invoice-link-row input {
+  flex: 1;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+/* Generic single-record create form (P13 Part 3c's Transfer form; reusable by a future Part 3 create/edit
+   builder needing the same plain, no-JS-required field layout), sharing `.list-search-form input`'s exact
+   input styling so a field looks identical whether it sits in a toolbar or a form. */
+.record-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 480px;
+}
+
+.record-form label {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.record-form input,
+.record-form select {
+  padding: 8px 14px;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.checkbox-field {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+@media (max-width: 640px) {
+  .record-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .list-screen-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .list-search-form {
+    flex-direction: column;
+  }
+
+  .list-search-form input {
+    min-width: 0;
+  }
+}
