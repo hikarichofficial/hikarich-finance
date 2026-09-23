@@ -373,7 +373,7 @@ composition over existing RPCs).
 | 3c: Money / Accounts / Reconciliation | §13                 | In Progress |
 | 3d: Accounting                        | §14                 | In Progress |
 | 3e: Tax                               | §15                 | In Progress |
-| 3f: Assets, Loans & Equity            | §16                 | Not Started |
+| 3f: Assets, Loans & Equity            | §16                 | In Progress |
 | 3g: Payroll                           | §17                 | Not Started |
 | 3h: Planning & Recurring              | §18                 | Not Started |
 
@@ -484,3 +484,16 @@ migration touched). Not yet done in 3e: tax-facts recording forms, the rule mast
 and line-confirmation workflow, payments/filings/evidence/reconciliation, PPh Final UMKM's compute
 screen, Tax Calendar, Filing & Evidence, Tax Rules/Configuration, and the PPh Final/Withholding/PPN
 family views (DECISIONS 173 records each as a deferred increment).
+
+Part 3f (Assets, Loans & Equity) first increment is implemented (DECISIONS 174): Asset Register
+(`/assets`, Step 09 §16's own "asset detail, acquisition source, depreciation, documents and
+lifecycle" -- a status filter sent server-side to `asset_register`'s own `p_status` argument, plus a
+client-side code/name search) and Asset Detail (`/assets/[id]`, Header/Summary/Schedule/Activity, plus
+a Disposal section when the asset has been disposed). Like Tax, P8's fixed-asset RPCs were already
+fully service-wrapped before this increment, so `listAssets`/`getAsset` needed no new wrapper at all;
+only `getEntityBaseCurrency` (the same per-module direct-read duplicate every screen family now has)
+was added. `pnpm check` and `pnpm build` pass (472 tests, up from 463); `/assets` and `/assets/[id]`
+register as routes; `pnpm db:test` does not apply (no migration touched). Not yet done in 3f: the
+Depreciation report, Loans (list/detail, schedule preview), Other Receivables/Payables, and Capital &
+Equity -- each its own independent capability with its own permission key (DECISIONS 174 records each
+as a deferred increment).
