@@ -16,9 +16,7 @@ export default async function InvoiceDetailPage({
 }) {
   const { id } = await params;
   const { entity } = await searchParams;
-  const { access, membership } = await requirePermission("invoices.view", {
-    entityCode: entity,
-  });
+  const { access, membership } = await requirePermission("invoices.view", { entityCode: entity });
 
   const doc = await getInvoiceDocument(id).catch(() => null);
   if (!doc) notFound();
@@ -37,8 +35,7 @@ export default async function InvoiceDetailPage({
         canIssue: can(access, entityId, "invoices.issue"),
         canVoid: can(access, entityId, "invoices.void"),
         canCorrect:
-          can(access, entityId, "invoices.void") &&
-          can(access, entityId, "invoices.create"),
+          can(access, entityId, "invoices.void") && can(access, entityId, "invoices.create"),
         canManageLink: can(access, entityId, "invoices.regenerate_link"),
       }}
     />

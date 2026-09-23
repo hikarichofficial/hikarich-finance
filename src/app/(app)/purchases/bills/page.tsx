@@ -12,9 +12,7 @@ export default async function BillsListPage({
   searchParams: Promise<{ entity?: string; status?: string; q?: string }>;
 }) {
   const { entity, status, q } = await searchParams;
-  const { access, membership } = await requirePermission("bills.view", {
-    entityCode: entity,
-  });
+  const { access, membership } = await requirePermission("bills.view", { entityCode: entity });
   const filter = parseBillFilter(status) ?? null;
   const query = q ?? "";
 

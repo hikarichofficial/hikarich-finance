@@ -33,9 +33,7 @@ export function CashActivityScreen({
       <header className="list-screen-header">
         <div>
           <h1>Aktivitas Kas &amp; Bank</h1>
-          <p className="list-screen-summary">
-            {rows.length} pergerakan ditampilkan.
-          </p>
+          <p className="list-screen-summary">{rows.length} pergerakan ditampilkan.</p>
         </div>
       </header>
 
@@ -47,10 +45,7 @@ export function CashActivityScreen({
             <select name="account" defaultValue={accountId ?? ""}>
               <option value="">Semua akun</option>
               {accounts.map((a) => (
-                <option
-                  key={a.financial_account_id}
-                  value={a.financial_account_id}
-                >
+                <option key={a.financial_account_id} value={a.financial_account_id}>
                   {a.name}
                 </option>
               ))}

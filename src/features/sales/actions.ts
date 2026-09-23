@@ -59,10 +59,7 @@ export async function issueInvoiceAction(
 ): Promise<InvoiceActionState> {
   const invoiceId = text(formData, "invoice_id");
   try {
-    await issueInvoice({
-      invoice_id: invoiceId,
-      idempotency_key: randomUUID(),
-    });
+    await issueInvoice({ invoice_id: invoiceId, idempotency_key: randomUUID() });
   } catch (error) {
     return errorState(error, "Faktur tidak dapat diterbitkan.");
   }
@@ -78,11 +75,7 @@ export async function voidInvoiceAction(
   const invoiceId = text(formData, "invoice_id");
   const reason = text(formData, "reason");
   try {
-    await voidInvoice({
-      invoice_id: invoiceId,
-      idempotency_key: randomUUID(),
-      reason,
-    });
+    await voidInvoice({ invoice_id: invoiceId, idempotency_key: randomUUID(), reason });
   } catch (error) {
     return errorState(error, "Faktur tidak dapat dibatalkan.");
   }

@@ -50,10 +50,7 @@ export function AccountsListScreen({
           <h1>Akun Kas &amp; Bank</h1>
           <p className="list-screen-summary">
             {rows.length} akun{" "}
-            {activeFilter
-              ? `pada tampilan "${filterLabel(activeFilter)}"`
-              : "ditampilkan"}
-            .
+            {activeFilter ? `pada tampilan "${filterLabel(activeFilter)}"` : "ditampilkan"}.
           </p>
         </div>
         {canCreate ? (
@@ -81,9 +78,7 @@ export function AccountsListScreen({
         </nav>
         <form method="get" className="list-search-form">
           {entity ? <input type="hidden" name="entity" value={entity} /> : null}
-          {activeFilter ? (
-            <input type="hidden" name="status" value={activeFilter} />
-          ) : null}
+          {activeFilter ? <input type="hidden" name="status" value={activeFilter} /> : null}
           <input
             type="search"
             name="q"
@@ -133,18 +128,12 @@ export function AccountsListScreen({
                   </td>
                   <td>{row.kind}</td>
                   <td>
-                    <span
-                      className={`status-badge status-badge-${status.tone}`}
-                    >
+                    <span className={`status-badge status-badge-${status.tone}`}>
                       {status.text}
                     </span>
                   </td>
-                  <td className="num">
-                    {formatMoney(row.movement_balance, row.currency)}
-                  </td>
-                  <td className="num">
-                    {formatMoney(row.ledger_balance, row.currency)}
-                  </td>
+                  <td className="num">{formatMoney(row.movement_balance, row.currency)}</td>
+                  <td className="num">{formatMoney(row.ledger_balance, row.currency)}</td>
                 </tr>
               );
             })}
@@ -156,8 +145,5 @@ export function AccountsListScreen({
 }
 
 function filterLabel(filter: AccountListFilter): string {
-  return (
-    ACCOUNT_FILTER_OPTIONS.find((option) => option.value === filter)?.label ??
-    filter
-  );
+  return ACCOUNT_FILTER_OPTIONS.find((option) => option.value === filter)?.label ?? filter;
 }

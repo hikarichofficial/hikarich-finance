@@ -20,9 +20,7 @@ export default async function BillDetailPage({
 }) {
   const { id } = await params;
   const { entity } = await searchParams;
-  const { access, membership } = await requirePermission("bills.view", {
-    entityCode: entity,
-  });
+  const { access, membership } = await requirePermission("bills.view", { entityCode: entity });
 
   const bill = await getBillDetail(id).catch(() => null);
   if (!bill) notFound();
@@ -41,9 +39,7 @@ export default async function BillDetailPage({
         canEdit: can(access, entityId, "bills.edit"),
         canApprove: can(access, entityId, "bills.approve"),
         canVoid: can(access, entityId, "bills.void"),
-        canCorrect:
-          can(access, entityId, "bills.void") &&
-          can(access, entityId, "bills.create"),
+        canCorrect: can(access, entityId, "bills.void") && can(access, entityId, "bills.create"),
       }}
     />
   );

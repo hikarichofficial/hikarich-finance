@@ -2,11 +2,7 @@ import "server-only";
 import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
-import {
-  uuidResultSchema,
-  signedDecimalTextSchema,
-  isoDateSchema,
-} from "@/schemas/accounting";
+import { uuidResultSchema, signedDecimalTextSchema, isoDateSchema } from "@/schemas/accounting";
 import {
   accountActivitySchema,
   addStatementLinesInputSchema,
@@ -94,11 +90,7 @@ export async function updateFinancialAccount(
   const v = updateFinancialAccountInputSchema.parse(input);
   return callRpc(
     "update_financial_account",
-    {
-      p_account: v.account_id,
-      p_patch: v.patch,
-      p_expected_version: v.expected_version ?? null,
-    },
+    { p_account: v.account_id, p_patch: v.patch, p_expected_version: v.expected_version ?? null },
     z.number().int(),
   );
 }
@@ -114,10 +106,7 @@ export async function setFinancialAccountActive(
   );
 }
 
-export async function getMoneyControl(
-  entityId: string,
-  asOf?: string,
-): Promise<MoneyControlRow[]> {
+export async function getMoneyControl(entityId: string, asOf?: string): Promise<MoneyControlRow[]> {
   return callRpc(
     "money_control",
     {
@@ -250,9 +239,7 @@ export async function listTransfers(entityId: string): Promise<TransferRow[]> {
 
 /** `null` for a missing or inaccessible transfer -- the same answer either way (no existence leak), matching
  * every P6/P4 command's own "not found or not allowed" convention. */
-export async function getTransfer(
-  transferId: string,
-): Promise<TransferRow | null> {
+export async function getTransfer(transferId: string): Promise<TransferRow | null> {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("transfers")
@@ -289,8 +276,7 @@ export async function listCashActivity(
     .limit(limit);
   if (error) throw new Error("Gagal memuat aktivitas kas/bank.");
   const parsed = z.array(moneyMovementRowSchema).safeParse(data);
-  if (!parsed.success)
-    throw new Error("Respons aktivitas kas/bank tidak dikenali.");
+  if (!parsed.success) throw new Error("Respons aktivitas kas/bank tidak dikenali.");
   return parsed.data;
 }
 
@@ -341,9 +327,7 @@ export async function createReconciliationSession(
   );
 }
 
-export async function discardReconciliationSession(
-  sessionId: string,
-): Promise<void> {
+export async function discardReconciliationSession(sessionId: string): Promise<void> {
   await callRpc(
     "discard_reconciliation_session",
     { p_session: uuidResultSchema.parse(sessionId) },
@@ -370,11 +354,7 @@ export async function matchStatementLine(
   const v = matchStatementLineInputSchema.parse(input);
   return callRpc(
     "match_statement_line",
-    {
-      p_line: v.line_id,
-      p_movements: v.movement_ids,
-      p_manual_reason: v.manual_reason ?? null,
-    },
+    { p_line: v.line_id, p_movements: v.movement_ids, p_manual_reason: v.manual_reason ?? null },
     z.number().int(),
   );
 }
@@ -394,19 +374,11 @@ export async function excludeStatementLine(
   input: z.input<typeof reasonInputSchema>,
 ): Promise<boolean> {
   const v = reasonInputSchema.parse(input);
-  return callRpc(
-    "exclude_statement_line",
-    { p_line: v.line_id, p_reason: v.reason },
-    z.boolean(),
-  );
+  return callRpc("exclude_statement_line", { p_line: v.line_id, p_reason: v.reason }, z.boolean());
 }
 
 export async function includeStatementLine(lineId: string): Promise<boolean> {
-  return callRpc(
-    "include_statement_line",
-    { p_line: uuidResultSchema.parse(lineId) },
-    z.boolean(),
-  );
+  return callRpc("include_statement_line", { p_line: uuidResultSchema.parse(lineId) }, z.boolean());
 }
 
 /** Returns the difference as exact decimal text; a non-zero difference needs `accept_reason`. */
@@ -432,9 +404,7 @@ export async function reopenReconciliation(
   );
 }
 
-export async function getReconciliationWorkspace(
-  sessionId: string,
-): Promise<WorkspaceLine[]> {
+export async function getReconciliationWorkspace(sessionId: string): Promise<WorkspaceLine[]> {
   return callRpc(
     "reconciliation_workspace",
     { p_session: uuidResultSchema.parse(sessionId) },
@@ -450,10 +420,7 @@ export async function getReconciliationCandidates(lineId: string) {
   );
 }
 
-export async function getUnreconciledMovements(
-  accountId: string,
-  until?: string,
-) {
+export async function getUnreconciledMovements(accountId: string, until?: string) {
   return callRpc(
     "unreconciled_movements",
     {

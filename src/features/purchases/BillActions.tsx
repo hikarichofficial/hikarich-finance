@@ -80,11 +80,7 @@ function ReasonActionForm({
 
   if (!open) {
     return (
-      <button
-        type="button"
-        className="btn-secondary"
-        onClick={() => setOpen(true)}
-      >
+      <button type="button" className="btn-secondary" onClick={() => setOpen(true)}>
         {label}
       </button>
     );
@@ -132,10 +128,7 @@ function ReasonActionForm({
 }
 
 function SubmitForm({ billId }: { billId: string }) {
-  const [state, action, pending] = useActionState(
-    submitBillAction,
-    idleBillActionState,
-  );
+  const [state, action, pending] = useActionState(submitBillAction, idleBillActionState);
   return (
     <SimpleActionForm
       billId={billId}
@@ -149,10 +142,7 @@ function SubmitForm({ billId }: { billId: string }) {
 }
 
 function RecallForm({ billId }: { billId: string }) {
-  const [state, action, pending] = useActionState(
-    recallBillAction,
-    idleBillActionState,
-  );
+  const [state, action, pending] = useActionState(recallBillAction, idleBillActionState);
   return (
     <SimpleActionForm
       billId={billId}
@@ -167,10 +157,7 @@ function RecallForm({ billId }: { billId: string }) {
 }
 
 function ApproveForm({ billId }: { billId: string }) {
-  const [state, action, pending] = useActionState(
-    approveBillAction,
-    idleBillActionState,
-  );
+  const [state, action, pending] = useActionState(approveBillAction, idleBillActionState);
   return (
     <SimpleActionForm
       billId={billId}
@@ -184,10 +171,7 @@ function ApproveForm({ billId }: { billId: string }) {
 }
 
 function RejectForm({ billId }: { billId: string }) {
-  const [state, action, pending] = useActionState(
-    rejectBillAction,
-    idleBillActionState,
-  );
+  const [state, action, pending] = useActionState(rejectBillAction, idleBillActionState);
   return (
     <ReasonActionForm
       billId={billId}
@@ -203,10 +187,7 @@ function RejectForm({ billId }: { billId: string }) {
 }
 
 function CancelForm({ billId }: { billId: string }) {
-  const [state, action, pending] = useActionState(
-    cancelBillAction,
-    idleBillActionState,
-  );
+  const [state, action, pending] = useActionState(cancelBillAction, idleBillActionState);
   return (
     <ReasonActionForm
       billId={billId}
@@ -221,10 +202,7 @@ function CancelForm({ billId }: { billId: string }) {
 }
 
 function VoidForm({ billId }: { billId: string }) {
-  const [state, action, pending] = useActionState(
-    voidBillAction,
-    idleBillActionState,
-  );
+  const [state, action, pending] = useActionState(voidBillAction, idleBillActionState);
   return (
     <ReasonActionForm
       billId={billId}
@@ -240,10 +218,7 @@ function VoidForm({ billId }: { billId: string }) {
 
 function CorrectForm({ billId }: { billId: string }) {
   const router = useRouter();
-  const [state, action, pending] = useActionState(
-    correctBillAction,
-    idleCorrectBillState,
-  );
+  const [state, action, pending] = useActionState(correctBillAction, idleCorrectBillState);
   useEffect(() => {
     if (state.status === "ok" && state.newBillId) {
       router.push(`/purchases/bills/${state.newBillId}`);
@@ -292,10 +267,7 @@ export function BillActions({
   if (status === "submitted" && permissions.canEdit) {
     actions.push(<RecallForm key="recall" billId={billId} />);
   }
-  if (
-    (status === "draft" || status === "submitted") &&
-    permissions.canApprove
-  ) {
+  if ((status === "draft" || status === "submitted") && permissions.canApprove) {
     actions.push(<ApproveForm key="approve" billId={billId} />);
   }
   if (status === "submitted" && permissions.canApprove) {

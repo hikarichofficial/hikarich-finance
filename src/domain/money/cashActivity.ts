@@ -21,9 +21,7 @@ export function mergeCashActivityRows(
   accounts: readonly MoneyControlRow[],
   journalNumbers: ReadonlyMap<string, string | null>,
 ): CashActivityRow[] {
-  const accountsById = new Map(
-    accounts.map((a) => [a.financial_account_id, a]),
-  );
+  const accountsById = new Map(accounts.map((a) => [a.financial_account_id, a]));
   return movements.map((m) => {
     const account = accountsById.get(m.financial_account_id);
     return {
@@ -40,25 +38,18 @@ function normalize(text: string): string {
 }
 
 /** `null` (the default) matches every account -- the same "no filter" meaning every other List screen uses. */
-export function matchesAccountId(
-  row: CashActivityRow,
-  accountId: string | null,
-): boolean {
+export function matchesAccountId(row: CashActivityRow, accountId: string | null): boolean {
   return accountId === null || row.financial_account_id === accountId;
 }
 
-export function matchesCashActivityQuery(
-  row: CashActivityRow,
-  query: string,
-): boolean {
+export function matchesCashActivityQuery(row: CashActivityRow, query: string): boolean {
   const needle = normalize(query);
   if (needle === "") return true;
   return (
     normalize(row.account_name).includes(needle) ||
     normalize(sourceTypeLabel(row.source_type)).includes(needle) ||
     (row.description !== null && normalize(row.description).includes(needle)) ||
-    (row.journal_number !== null &&
-      normalize(row.journal_number).includes(needle))
+    (row.journal_number !== null && normalize(row.journal_number).includes(needle))
   );
 }
 
@@ -68,7 +59,6 @@ export function filterCashActivityRows(
   query: string,
 ): CashActivityRow[] {
   return rows.filter(
-    (row) =>
-      matchesAccountId(row, accountId) && matchesCashActivityQuery(row, query),
+    (row) => matchesAccountId(row, accountId) && matchesCashActivityQuery(row, query),
   );
 }

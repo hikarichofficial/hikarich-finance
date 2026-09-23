@@ -45,10 +45,7 @@ function SimpleActionForm({
 }
 
 function ConfirmForm({ transferId }: { transferId: string }) {
-  const [state, action, pending] = useActionState(
-    confirmTransferAction,
-    idleTransferActionState,
-  );
+  const [state, action, pending] = useActionState(confirmTransferAction, idleTransferActionState);
   return (
     <SimpleActionForm
       transferId={transferId}
@@ -62,20 +59,13 @@ function ConfirmForm({ transferId }: { transferId: string }) {
 }
 
 function CancelForm({ transferId }: { transferId: string }) {
-  const [state, action, pending] = useActionState(
-    cancelTransferAction,
-    idleTransferActionState,
-  );
+  const [state, action, pending] = useActionState(cancelTransferAction, idleTransferActionState);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
 
   if (!open) {
     return (
-      <button
-        type="button"
-        className="btn-secondary"
-        onClick={() => setOpen(true)}
-      >
+      <button type="button" className="btn-secondary" onClick={() => setOpen(true)}>
         Batalkan Transfer
       </button>
     );
@@ -84,9 +74,7 @@ function CancelForm({ transferId }: { transferId: string }) {
   return (
     <form action={action} className="invoice-action-form">
       <input type="hidden" name="transfer_id" value={transferId} />
-      <p className="hint">
-        Draf transfer ini dibatalkan tanpa dampak akuntansi.
-      </p>
+      <p className="hint">Draf transfer ini dibatalkan tanpa dampak akuntansi.</p>
       <label>
         Alasan (opsional)
         <textarea
@@ -119,21 +107,14 @@ function CancelForm({ transferId }: { transferId: string }) {
 }
 
 function ReverseForm({ transferId }: { transferId: string }) {
-  const [state, action, pending] = useActionState(
-    reverseTransferAction,
-    idleTransferActionState,
-  );
+  const [state, action, pending] = useActionState(reverseTransferAction, idleTransferActionState);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const today = new Date().toISOString().slice(0, 10);
 
   if (!open) {
     return (
-      <button
-        type="button"
-        className="btn-secondary"
-        onClick={() => setOpen(true)}
-      >
+      <button type="button" className="btn-secondary" onClick={() => setOpen(true)}>
         Balik Transfer (Reverse)
       </button>
     );
@@ -143,8 +124,8 @@ function ReverseForm({ transferId }: { transferId: string }) {
     <form action={action} className="invoice-action-form">
       <input type="hidden" name="transfer_id" value={transferId} />
       <p className="hint">
-        Transfer yang sudah dikonfirmasi akan dibalik dengan jurnal pembalik dan
-        pergerakan kas pembalik. Tidak dapat diurungkan.
+        Transfer yang sudah dikonfirmasi akan dibalik dengan jurnal pembalik dan pergerakan kas
+        pembalik. Tidak dapat diurungkan.
       </p>
       <label>
         Tanggal Pembalikan
@@ -167,11 +148,7 @@ function ReverseForm({ transferId }: { transferId: string }) {
         </p>
       ) : null}
       <div className="invoice-action-buttons">
-        <button
-          type="submit"
-          className="btn-danger"
-          disabled={pending || reason.trim().length < 5}
-        >
+        <button type="submit" className="btn-danger" disabled={pending || reason.trim().length < 5}>
           {pending ? "Membalik…" : "Balik Transfer"}
         </button>
         <button

@@ -25,10 +25,7 @@ export function TransferForm({
   entity: string | undefined;
   canConfirmOnCreate: boolean;
 }) {
-  const [state, action, pending] = useActionState(
-    createTransferAction,
-    idleTransferFormState,
-  );
+  const [state, action, pending] = useActionState(createTransferAction, idleTransferFormState);
   const today = new Date().toISOString().slice(0, 10);
   const active = accounts.filter((a) => a.is_active);
 
@@ -72,13 +69,7 @@ export function TransferForm({
 
       <label>
         Jumlah Dikirim
-        <input
-          type="text"
-          inputMode="decimal"
-          name="amount_out"
-          required
-          placeholder="0"
-        />
+        <input type="text" inputMode="decimal" name="amount_out" required placeholder="0" />
       </label>
 
       <label>
@@ -87,8 +78,7 @@ export function TransferForm({
       </label>
 
       <p className="hint">
-        Isi field di bawah ini hanya jika mata uang akun sumber dan tujuan
-        berbeda.
+        Isi field di bawah ini hanya jika mata uang akun sumber dan tujuan berbeda.
       </p>
       <label>
         Jumlah Diterima (opsional)
@@ -124,8 +114,7 @@ export function TransferForm({
         </label>
       ) : (
         <p className="hint">
-          Transfer ini disimpan sebagai draf dan menunggu konfirmasi dari pihak
-          yang berwenang.
+          Transfer ini disimpan sebagai draf dan menunggu konfirmasi dari pihak yang berwenang.
         </p>
       )}
 

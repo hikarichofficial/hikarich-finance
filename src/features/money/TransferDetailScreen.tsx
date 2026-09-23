@@ -5,10 +5,7 @@ import {
   transferListStatus,
   type TransferListRow,
 } from "@/domain/money/transferList";
-import {
-  TransferActions,
-  type TransferActionPermissions,
-} from "./TransferActions";
+import { TransferActions, type TransferActionPermissions } from "./TransferActions";
 import { formatShortDate } from "./format";
 
 /**
@@ -29,8 +26,7 @@ export function TransferDetailScreen({
 }) {
   const status = transferListStatus(transfer);
   const timeline = transferActivityTimeline(transfer);
-  const sameCurrency =
-    transfer.from_account_currency === transfer.to_account_currency;
+  const sameCurrency = transfer.from_account_currency === transfer.to_account_currency;
 
   return (
     <div className="record-detail">
@@ -47,15 +43,11 @@ export function TransferDetailScreen({
           </p>
         </div>
         <div className="record-detail-header-end">
-          <span className={`status-badge status-badge-${status.tone}`}>
-            {status.text}
-          </span>
+          <span className={`status-badge status-badge-${status.tone}`}>{status.text}</span>
           <p className="record-detail-amount">
             {formatMoney(transfer.amount_out, transfer.from_account_currency)}
           </p>
-          <p className="record-detail-dates">
-            {formatShortDate(transfer.transfer_date)}
-          </p>
+          <p className="record-detail-dates">{formatShortDate(transfer.transfer_date)}</p>
         </div>
       </header>
 
@@ -80,25 +72,16 @@ export function TransferDetailScreen({
           </div>
           <div>
             <dt>Jumlah Dikirim</dt>
-            <dd>
-              {formatMoney(transfer.amount_out, transfer.from_account_currency)}
-            </dd>
+            <dd>{formatMoney(transfer.amount_out, transfer.from_account_currency)}</dd>
           </div>
           <div>
             <dt>Jumlah Diterima</dt>
-            <dd>
-              {formatMoney(transfer.amount_in, transfer.to_account_currency)}
-            </dd>
+            <dd>{formatMoney(transfer.amount_in, transfer.to_account_currency)}</dd>
           </div>
           {Number(transfer.fee_amount) > 0 ? (
             <div>
               <dt>Biaya Bank</dt>
-              <dd>
-                {formatMoney(
-                  transfer.fee_amount,
-                  transfer.from_account_currency,
-                )}
-              </dd>
+              <dd>{formatMoney(transfer.fee_amount, transfer.from_account_currency)}</dd>
             </div>
           ) : null}
           {!sameCurrency ? (
@@ -128,13 +111,8 @@ export function TransferDetailScreen({
         </div>
         <ul className="record-activity-list">
           {timeline.map((entry, index) => (
-            <li
-              key={`${entry.label}-${index}`}
-              className="record-activity-item"
-            >
-              <span className={`status-badge status-badge-${entry.tone}`}>
-                {entry.label}
-              </span>
+            <li key={`${entry.label}-${index}`} className="record-activity-item">
+              <span className={`status-badge status-badge-${entry.tone}`}>{entry.label}</span>
               {entry.date ? (
                 <span className="record-activity-date">
                   {formatShortDate(entry.date.slice(0, 10))}

@@ -1,9 +1,6 @@
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
-import {
-  INVOICE_FILTER_OPTIONS,
-  invoicePositionStatus,
-} from "@/domain/sales/invoiceList";
+import { INVOICE_FILTER_OPTIONS, invoicePositionStatus } from "@/domain/sales/invoiceList";
 import type { InvoiceFilter, InvoicePosition } from "@/schemas/sales";
 import { formatShortDate } from "./format";
 
@@ -17,11 +14,7 @@ import { formatShortDate } from "./format";
  * since the invoice builder itself is that same later increment.
  */
 
-function buildHref(
-  entity: string | undefined,
-  filter: InvoiceFilter | null,
-  q: string,
-): string {
+function buildHref(entity: string | undefined, filter: InvoiceFilter | null, q: string): string {
   const params = new URLSearchParams();
   if (entity) params.set("entity", entity);
   if (filter) params.set("status", filter);
@@ -50,10 +43,7 @@ export function InvoicesListScreen({
           <h1>Faktur Penjualan</h1>
           <p className="list-screen-summary">
             {rows.length} faktur{" "}
-            {activeFilter
-              ? `pada tampilan "${filterLabel(activeFilter)}"`
-              : "ditampilkan"}
-            .
+            {activeFilter ? `pada tampilan "${filterLabel(activeFilter)}"` : "ditampilkan"}.
           </p>
         </div>
         {canCreate ? (
@@ -81,9 +71,7 @@ export function InvoicesListScreen({
         </nav>
         <form method="get" className="list-search-form">
           {entity ? <input type="hidden" name="entity" value={entity} /> : null}
-          {activeFilter ? (
-            <input type="hidden" name="status" value={activeFilter} />
-          ) : null}
+          {activeFilter ? <input type="hidden" name="status" value={activeFilter} /> : null}
           <input
             type="search"
             name="q"
@@ -137,18 +125,12 @@ export function InvoicesListScreen({
                   <td>{formatShortDate(row.issue_date)}</td>
                   <td>{formatShortDate(row.due_date)}</td>
                   <td>
-                    <span
-                      className={`status-badge status-badge-${status.tone}`}
-                    >
+                    <span className={`status-badge status-badge-${status.tone}`}>
                       {status.text}
                     </span>
                   </td>
-                  <td className="num">
-                    {formatMoney(row.total, row.currency)}
-                  </td>
-                  <td className="num">
-                    {formatMoney(row.outstanding, row.currency)}
-                  </td>
+                  <td className="num">{formatMoney(row.total, row.currency)}</td>
+                  <td className="num">{formatMoney(row.outstanding, row.currency)}</td>
                 </tr>
               );
             })}
@@ -160,8 +142,5 @@ export function InvoicesListScreen({
 }
 
 function filterLabel(filter: InvoiceFilter): string {
-  return (
-    INVOICE_FILTER_OPTIONS.find((option) => option.value === filter)?.label ??
-    filter
-  );
+  return INVOICE_FILTER_OPTIONS.find((option) => option.value === filter)?.label ?? filter;
 }

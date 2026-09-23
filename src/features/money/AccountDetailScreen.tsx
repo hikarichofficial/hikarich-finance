@@ -43,15 +43,11 @@ export function AccountDetailScreen({
 
       <header className="record-detail-header">
         <div>
-          <p className="record-detail-eyebrow">
-            Akun Kas &amp; Bank · {account.kind}
-          </p>
+          <p className="record-detail-eyebrow">Akun Kas &amp; Bank · {account.kind}</p>
           <h1>{account.name}</h1>
         </div>
         <div className="record-detail-header-end">
-          <span className={`status-badge status-badge-${status.tone}`}>
-            {status.text}
-          </span>
+          <span className={`status-badge status-badge-${status.tone}`}>{status.text}</span>
           <p className="record-detail-amount">
             {formatMoney(account.movement_balance, account.currency)}
           </p>
@@ -89,8 +85,7 @@ export function AccountDetailScreen({
                 : "Belum pernah"}
             </dd>
           </div>
-          {account.reconciliation &&
-          account.reconciliation.unresolved_lines > 0 ? (
+          {account.reconciliation && account.reconciliation.unresolved_lines > 0 ? (
             <div>
               <dt>Baris Belum Selesai</dt>
               <dd>{account.reconciliation.unresolved_lines}</dd>
@@ -118,9 +113,7 @@ export function AccountDetailScreen({
           </button>
         </form>
         {activity.length === 0 ? (
-          <p className="dashboard-empty">
-            Tidak ada aktivitas pada rentang tanggal ini.
-          </p>
+          <p className="dashboard-empty">Tidak ada aktivitas pada rentang tanggal ini.</p>
         ) : (
           <table className="record-table">
             <thead>
