@@ -321,7 +321,7 @@ continues on P13 rather than waiting idle).
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
 | Part 1: Foundation & shell  | Design tokens (Step 10 §2, §4-§6), application shell -- sidebar, top bar, Entity switcher, Global Search, Command Menu, responsive shell (Step 09 §2-§8)               | Implemented |
 | Part 2: Dashboard           | Overview screen reading only already-built report RPCs, no independent frontend financial truth (Step 09 §8, Step 10 §10-§13)                                          | Implemented |
-| Part 3: Module screens      | Standard list/detail patterns (Step 09 §9-§10) applied to Sales, Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning (Step 09 §11-§18)           | Not Started |
+| Part 3: Module screens      | Standard list/detail patterns (Step 09 §9-§10) applied to Sales, Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning (Step 09 §11-§18)           | In Progress |
 | Part 4: Reports & Documents | Statement viewers, Custom Report Builder UI, Consolidated Analysis (DECISIONS 148); Documents Center (Step 09 §20); Command Menu quick-create registry (DECISIONS 140) | Not Started |
 | Part 5: Documents & polish  | Invoice/Receipt customer-document templates (Step 11); responsive/mobile, accessibility, motion polish across every part (Step 09 §23, §25-§27; Step 10 §21-§25)       | Not Started |
 | Gate                        | Dashboard KPI drill-down reconciles to report/source values; mobile essential workflows pass (Step 15 P13)                                                             | Not Started |
@@ -363,3 +363,82 @@ placeholder), with `?month=YYYY-MM` as the period selector. Scope-trim: Tasks & 
 pending invoice/bill approvals (Part 3's own workflow, DECISIONS 163). `pnpm check` and `pnpm build`
 pass (325 tests, up from 303); `pnpm db:test` does not apply (no migration touched -- pure frontend
 composition over existing RPCs).
+
+### Part 3 sub-checklist (DECISIONS 164)
+
+| Slice                                 | Scope (Step 09)     | Status      |
+| ------------------------------------- | ------------------- | ----------- |
+| 3a: Sales                             | §11 Invoice screens | In Progress |
+| 3b: Purchases & Expenses              | §12                 | In Progress |
+| 3c: Money / Accounts / Reconciliation | §13                 | In Progress |
+| 3d: Accounting                        | §14                 | Not Started |
+| 3e: Tax                               | §15                 | Not Started |
+| 3f: Assets, Loans & Equity            | §16                 | Not Started |
+| 3g: Payroll                           | §17                 | Not Started |
+| 3h: Planning & Recurring              | §18                 | Not Started |
+
+Part 3a (Sales) first increment is implemented (DECISIONS 165-166): Invoices List
+(`/sales/invoices`, filter tabs from `invoiceFilterSchema` + a `?q=` search over the page's own
+already-fetched rows) and Invoice Detail (`/sales/invoices/[id]`, Header/Summary/Activity/
+Accounting/Tax/Documents/Audit per the Standard Record Detail Pattern, Documents reusing the
+existing `InvoiceDocumentView`). Status actions Issue/Void/Correct/Copy Link call the unmodified P5
+RPCs through small `useActionState` forms (`src/features/sales/actions.ts`,
+`InvoiceActions.tsx`), gated per-permission exactly as each RPC's own migration checks. `pnpm check`
+and `pnpm build` pass (342 tests, up from 325); `pnpm db:test` does not apply (no migration touched).
+Not yet done in 3a: the Create/Edit invoice builder, Send, Payment Confirmation queue, Refund
+actions, Customers, Products & Services, aging, Quick Preview's side drawer, saved views and export
+(DECISIONS 165 records each as a deferred increment, not a silent omission).
+
+Part 3b (Purchases) first increment is implemented (DECISIONS 167-168): Bills List
+(`/purchases/bills`, filter tabs over a merged list -- `list_bill_positions` for approved/void plus
+a direct RLS-governed read of draft/submitted/cancelled bills, decision 167's extension of the
+direct-read pattern -- + a `?q=` search over the page's own already-fetched rows) and Bill Detail
+(`/purchases/bills/[id]`, Header/Summary/Rincian Item (line items)/Activity/Accounting/Tax/
+Documents/Audit per the Standard Record Detail Pattern plus one extra Line Items section, since
+that data already exists and Step 09 §12 names it specifically). Status actions Submit/Recall/
+Reject/Approve/Void/Correct/Cancel call the unmodified P6 RPCs through small `useActionState` forms
+(`src/features/purchases/actions.ts`, `BillActions.tsx`), gated per-permission exactly as each
+RPC's own migration checks. `pnpm check` and `pnpm build` pass (363 tests, up from 342); `pnpm
+db:test` does not apply (no migration touched). A genuine `contacts.view`/`bills.view` permission
+gap was found and filed for the OWNER rather than papered over (DECISIONS 168): the `approver`/
+`tax` role templates lack `contacts.view`, so vendor-name resolution for in-preparation bills falls
+back to `vendor_reference`/"Vendor" for those roles; the code is defensive (never throws) and the
+gap is documented, not silently worked around. Not yet done in 3b: the Record Bill/Record Expense
+builders, the Payment action, Expenses, Vendors, evidence upload, aging, Quick Preview's side
+drawer, saved views and export (DECISIONS 167 records each as a deferred increment).
+
+Part 3c (Money) first increment is implemented (DECISIONS 169): Accounts List (`/money/accounts`,
+filter tabs over `money_control` merged with `reconciliation_status` by `financial_account_id` +
+a `?q=` search) and Account Detail (`/money/accounts/[id]`, Header/Summary-as-Activity with the
+account's own ledger from `account_activity` -- running balance, a `?from=`/`?to=` date filter,
+and a `sourceTypeLabel` humanizer for each line's origin). Unlike Invoice/Bill Detail, an account
+has no issue/void/correct-style actions, so the Accounting/Tax/Documents/Audit placeholders are
+not repeated here -- a narrower, not different, application of the "coming soon" principle. `pnpm
+check` and `pnpm build` pass (384 tests, up from 363); `pnpm db:test` does not apply (no migration
+touched). Not yet done in 3c: the Transfer form, the Reconciliation workspace, balance
+adjustments, Cash/Bank Activity (the Entity-wide feed), Create/Edit Account, and source links from
+a ledger line to its originating record (DECISIONS 169 records each as a deferred increment).
+
+Part 3c second increment adds Transfers List (`/money/transfers`), a Transfer create form
+(`/money/transfers/new`) and Transfer Detail (`/money/transfers/[id]`) (DECISIONS 170): a direct
+read of `public.transfers` (no RPC reads one), status actions Confirm/Cancel/Reverse gated exactly
+as `confirm_transfer`/`cancel_transfer`/`reverse_transfer`'s own migrations check, and a Transfer
+form whose account pickers only list the active Entity's own accounts so a PT<->Personal or
+cross-Entity pair is structurally unselectable (Step 09 §13). Unlike Sales/Purchases, this create
+form ships alongside List/Detail rather than deferred, since it is small (a handful of fields, no
+line items). `pnpm check` and `pnpm build` pass (399 tests, up from 384); `pnpm db:test` does not
+apply (no migration touched). Still not done in 3c: the Reconciliation workspace, balance
+adjustments, Cash/Bank Activity, and Create/Edit Account.
+
+Part 3c third increment adds Cash/Bank Activity (`/money/activity`, DECISIONS 171): an Entity-wide,
+chronological feed across every account's `money_movements`, following the Standard List Screen
+Pattern with an account-filter `<select>` in place of status tabs (this feed has no workflow status
+of its own) plus the same `?from=`/`?to=` range filter and `?q=` search as elsewhere. Journal
+numbers are resolved defensively (`getJournalNumbers`): a second authorization-model gap of the
+same shape as DECISIONS 168 was found (`accounting.view` vs. this page's own `money.view`, affecting
+the `finance_staff`/`approver` role templates) and handled the same way -- caught, returns an empty
+`Map`, screen falls back to "—" rather than throwing; filed as an OWNER call, not silently resolved.
+No running-balance column, unlike Account Detail's ledger: a running balance across mixed accounts
+and currencies would not be meaningful. `pnpm check` and `pnpm build` pass (407 tests, up from 399);
+`/money/activity` registers as a route; `pnpm db:test` does not apply (no migration touched). Still
+not done in 3c: the Reconciliation workspace, balance adjustments, and Create/Edit Account.
