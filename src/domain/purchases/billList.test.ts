@@ -30,7 +30,10 @@ function row(overrides: Partial<BillListRow> = {}): BillListRow {
 
 describe("billListStatus", () => {
   it("labels draft as neutral", () => {
-    expect(billListStatus(row({ status: "draft" }))).toEqual({ text: "Draf", tone: "neutral" });
+    expect(billListStatus(row({ status: "draft" }))).toEqual({
+      text: "Draf",
+      tone: "neutral",
+    });
   });
 
   it("labels submitted as attention (awaiting approval)", () => {
@@ -66,7 +69,10 @@ describe("billListStatus", () => {
   });
 
   it("labels an unpaid, not-yet-due approved bill as neutral", () => {
-    expect(billListStatus(row())).toEqual({ text: "Belum dibayar", tone: "neutral" });
+    expect(billListStatus(row())).toEqual({
+      text: "Belum dibayar",
+      tone: "neutral",
+    });
   });
 });
 
@@ -82,11 +88,15 @@ describe("matchesBillFilter / filterBillRows", () => {
   ];
 
   it("null filter matches everything", () => {
-    expect(rows.filter((r) => matchesBillFilter(r, null))).toHaveLength(rows.length);
+    expect(rows.filter((r) => matchesBillFilter(r, null))).toHaveLength(
+      rows.length,
+    );
   });
 
   it("pending_approval matches draft and submitted only", () => {
-    const matched = rows.filter((r) => matchesBillFilter(r, "pending_approval"));
+    const matched = rows.filter((r) =>
+      matchesBillFilter(r, "pending_approval"),
+    );
     expect(matched.map((r) => r.bill_id)).toEqual(["a", "b"]);
   });
 
@@ -96,18 +106,21 @@ describe("matchesBillFilter / filterBillRows", () => {
   });
 
   it("overdue matches only is_overdue rows", () => {
-    expect(rows.filter((r) => matchesBillFilter(r, "overdue")).map((r) => r.bill_id)).toEqual(["d"]);
+    expect(
+      rows.filter((r) => matchesBillFilter(r, "overdue")).map((r) => r.bill_id),
+    ).toEqual(["d"]);
   });
 
   it("paid matches settlement_status paid", () => {
-    expect(rows.filter((r) => matchesBillFilter(r, "paid")).map((r) => r.bill_id)).toEqual(["e"]);
+    expect(
+      rows.filter((r) => matchesBillFilter(r, "paid")).map((r) => r.bill_id),
+    ).toEqual(["e"]);
   });
 
   it("closed matches cancelled and void", () => {
-    expect(rows.filter((r) => matchesBillFilter(r, "closed")).map((r) => r.bill_id)).toEqual([
-      "f",
-      "g",
-    ]);
+    expect(
+      rows.filter((r) => matchesBillFilter(r, "closed")).map((r) => r.bill_id),
+    ).toEqual(["f", "g"]);
   });
 
   it("filterBillRows combines filter and query", () => {
@@ -130,14 +143,22 @@ describe("parseBillFilter", () => {
 
 describe("matchesBillQuery", () => {
   it("matches case-insensitively on vendor name or bill number", () => {
-    const r = row({ vendor_name: "CV Pemasok Utama", bill_number: "BILL-2026-0099" });
+    const r = row({
+      vendor_name: "CV Pemasok Utama",
+      bill_number: "BILL-2026-0099",
+    });
     expect(matchesBillQuery(r, "pemasok")).toBe(true);
     expect(matchesBillQuery(r, "0099")).toBe(true);
     expect(matchesBillQuery(r, "tidak-ada")).toBe(false);
   });
 
   it("matches a null bill_number bill by vendor name", () => {
-    expect(matchesBillQuery(row({ bill_number: null, vendor_name: "CV Draf" }), "draf")).toBe(true);
+    expect(
+      matchesBillQuery(
+        row({ bill_number: null, vendor_name: "CV Draf" }),
+        "draf",
+      ),
+    ).toBe(true);
   });
 });
 
@@ -196,6 +217,10 @@ describe("billActivityTimeline", () => {
       closed_at: "2026-09-03T00:00:00Z",
       closed_reason: null,
     });
-    expect(timeline.at(-1)).toEqual({ label: "Dibatalkan", date: "2026-09-03T00:00:00Z", tone: "neutral" });
+    expect(timeline.at(-1)).toEqual({
+      label: "Dibatalkan",
+      date: "2026-09-03T00:00:00Z",
+      tone: "neutral",
+    });
   });
 });
