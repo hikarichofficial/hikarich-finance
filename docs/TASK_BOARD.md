@@ -320,7 +320,7 @@ continues on P13 rather than waiting idle).
 | Part                        | Scope                                                                                                                                                                  | Status      |
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
 | Part 1: Foundation & shell  | Design tokens (Step 10 §2, §4-§6), application shell -- sidebar, top bar, Entity switcher, Global Search, Command Menu, responsive shell (Step 09 §2-§8)               | Implemented |
-| Part 2: Dashboard           | Overview screen reading only already-built report RPCs, no independent frontend financial truth (Step 09 §8, Step 10 §10-§13)                                          | Not Started |
+| Part 2: Dashboard           | Overview screen reading only already-built report RPCs, no independent frontend financial truth (Step 09 §8, Step 10 §10-§13)                                          | Implemented |
 | Part 3: Module screens      | Standard list/detail patterns (Step 09 §9-§10) applied to Sales, Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning (Step 09 §11-§18)           | Not Started |
 | Part 4: Reports & Documents | Statement viewers, Custom Report Builder UI, Consolidated Analysis (DECISIONS 148); Documents Center (Step 09 §20); Command Menu quick-create registry (DECISIONS 140) | Not Started |
 | Part 5: Documents & polish  | Invoice/Receipt customer-document templates (Step 11); responsive/mobile, accessibility, motion polish across every part (Step 09 §23, §25-§27; Step 10 §21-§25)       | Not Started |
@@ -348,3 +348,18 @@ sitemap destinations are already linkable even before their own screens exist. `
 frontend). Not yet done in Part 1: wiring the Command Menu to search/quick-create beyond navigation
 (deferred to Part 4 by design, DECISIONS 155) and the OWNER's review of the tuned token colors
 (Open items, DECISIONS #243 equivalent).
+
+Part 2 (Dashboard) is implemented (DECISIONS 160-163): `src/domain/dashboard/dashboard.ts` (pure,
+unit-tested -- period resolution, the equity-statement net-result extraction, P&L/aging/cash/tax
+aggregation, the Attention and Recent Activity merges) and `src/services/dashboard/dashboard.ts`
+(`getDashboardSnapshot`, permission-gated per section against the actual RPC `has_permission`
+checks, `Promise.all`-parallel) compose Finance, Cashflow Trend (6 trailing months), Receivables &
+Payables, Tax Snapshot, Tasks & Attention, Account Snapshot and Recent Activity from RPCs P3/P5/P6/
+P7/P9/P12 already shipped -- no new RPC, no independent frontend financial truth. The Profit/Surplus
+KPI reads `statement_of_changes_in_equity`'s "Net result for the period" row, so it is structurally
+guaranteed to reconcile to that statement once Part 4 builds its viewer (the Step 15 P13 gate).
+`src/features/dashboard/*` renders it under `src/app/(app)/page.tsx` (replacing Part 1's
+placeholder), with `?month=YYYY-MM` as the period selector. Scope-trim: Tasks & Attention excludes
+pending invoice/bill approvals (Part 3's own workflow, DECISIONS 163). `pnpm check` and `pnpm build`
+pass (325 tests, up from 303); `pnpm db:test` does not apply (no migration touched -- pure frontend
+composition over existing RPCs).

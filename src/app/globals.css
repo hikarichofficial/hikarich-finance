@@ -986,3 +986,369 @@ body {
     padding: 0;
   }
 }
+
+/* Dashboard — P13 Part 2 (Step 09 §8, Step 10 §10-13). Reuses the same surface/line/shadow tokens every
+ * other screen uses; nothing here introduces a new visual language. */
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 1400px;
+}
+
+.dashboard-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.dashboard-hero-title {
+  margin: 0 0 4px;
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.dashboard-hero-subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.dashboard-hero-net {
+  text-align: right;
+}
+
+.dashboard-hero-net-label {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dashboard-hero-net-value {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-2xl);
+  font-weight: 600;
+}
+
+/* Semantic color is reserved for the one figure whose sign is inherently meaningful (Step 10 §11) --
+ * a profit/loss result, never applied automatically to every debit/credit figure on the screen. */
+.dashboard-hero-net-value[data-tone="positive"] {
+  color: var(--success);
+}
+
+.dashboard-hero-net-value[data-tone="negative"] {
+  color: var(--danger);
+}
+
+.period-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.period-nav-label {
+  min-width: 132px;
+  text-align: center;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.period-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  text-decoration: none;
+  font-size: var(--text-sm);
+}
+
+.period-nav-link:hover {
+  background: var(--surface-sunken);
+}
+
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--space-4);
+}
+
+.kpi-card {
+  display: block;
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+a.kpi-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.kpi-card-label {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.kpi-card-value {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.kpi-card-context {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.dashboard-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.dashboard-section {
+  padding: var(--space-5);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.dashboard-section-title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+.dashboard-section-link {
+  font-size: var(--text-xs);
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dashboard-section-link:hover {
+  text-decoration: underline;
+}
+
+.dashboard-empty {
+  padding: var(--space-3) 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.dashboard-note {
+  margin-top: var(--space-3);
+}
+
+.dashboard-subsection {
+  margin-top: var(--space-5);
+}
+
+/* Cashflow / Trend (Step 10 §12: a restrained line chart, bronze/neutral, exact tooltips, always backed
+ * by a table/drill-down source -- the trend section's own numeric legend beneath it). */
+.trend-chart {
+  display: block;
+  width: 100%;
+  height: 160px;
+}
+
+.trend-chart-area {
+  fill: var(--accent-wash);
+  stroke: none;
+}
+
+.trend-chart-line {
+  fill: none;
+  stroke: var(--bronze);
+  stroke-width: 2;
+}
+
+.trend-chart-dot {
+  fill: var(--surface-solid);
+  stroke: var(--bronze);
+  stroke-width: 2;
+}
+
+.trend-chart-axis {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.trend-legend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-2);
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+/* Receivables / Payables aging distribution */
+.aging-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-3);
+}
+
+.aging-summary-figure {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.aging-bar {
+  display: flex;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--surface-sunken);
+  margin-bottom: var(--space-2);
+}
+
+.aging-bar-segment {
+  height: 100%;
+}
+
+.aging-bar-segment[data-bucket="not_due"] {
+  background: var(--info);
+}
+
+.aging-bar-segment[data-bucket="overdue"] {
+  background: var(--danger);
+}
+
+/* Lists shared by Tasks & Attention, Recent Activity and the Tax Snapshot's deadline list */
+.dashboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard-list-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.dashboard-list-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dashboard-list-item-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.dashboard-list-item-detail {
+  margin: 2px 0 0;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.dashboard-list-item-end {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.dashboard-list-item-value {
+  display: block;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dashboard-list-item-date {
+  display: block;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Account Snapshot */
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.account-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.account-row-name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.account-row-meta {
+  margin-top: 2px;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.account-row-balance {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 1023px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-strip {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
