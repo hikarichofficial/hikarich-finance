@@ -493,7 +493,18 @@ a Disposal section when the asset has been disposed). Like Tax, P8's fixed-asset
 fully service-wrapped before this increment, so `listAssets`/`getAsset` needed no new wrapper at all;
 only `getEntityBaseCurrency` (the same per-module direct-read duplicate every screen family now has)
 was added. `pnpm check` and `pnpm build` pass (472 tests, up from 463); `/assets` and `/assets/[id]`
-register as routes; `pnpm db:test` does not apply (no migration touched). Not yet done in 3f: the
-Depreciation report, Loans (list/detail, schedule preview), Other Receivables/Payables, and Capital &
-Equity -- each its own independent capability with its own permission key (DECISIONS 174 records each
-as a deferred increment).
+register as routes; `pnpm db:test` does not apply (no migration touched).
+
+Part 3f second increment is implemented (DECISIONS 175): Loan Register (`/assets/loans`, Step 09
+§16's own "Loan dashboard shows principal outstanding, next due, interest/fee split and schedule" --
+direction and status filters sent server-side to `loan_list`'s own arguments, plus a client-side
+loan-number/counterparty search) and Loan Detail (`/assets/loans/[id]`, Header/Ringkasan/Jadwal
+Cicilan/Riwayat Pembayaran, plus a schedule-version history section when more than one version
+exists). Like Assets, P8's loan RPCs were already fully service-wrapped before this increment, so
+`listLoans`/`getLoan`/`getLoanSchedule` needed no new wrapper at all; only `getEntityBaseCurrency`
+(the same per-module direct-read duplicate) was added. `pnpm check` and `pnpm build` pass (483 tests,
+up from 472); `/assets/loans` and `/assets/loans/[id]` register as routes; `pnpm db:test` does not
+apply (no migration touched). Not yet done in 3f: the Depreciation report, Other Receivables/Payables,
+and Capital & Equity -- each its own independent capability with its own permission key -- plus the
+loan origination/repayment/restructure/write-off action forms and the Loans Due/Loan Summary reports
+(DECISIONS 174, 175 record each as a deferred increment).
