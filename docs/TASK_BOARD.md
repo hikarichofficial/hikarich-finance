@@ -374,7 +374,7 @@ composition over existing RPCs).
 | 3d: Accounting                        | §14                 | In Progress |
 | 3e: Tax                               | §15                 | In Progress |
 | 3f: Assets, Loans & Equity            | §16                 | In Progress |
-| 3g: Payroll                           | §17                 | Not Started |
+| 3g: Payroll                           | §17                 | In Progress |
 | 3h: Planning & Recurring              | §18                 | Not Started |
 
 Part 3a (Sales) first increment is implemented (DECISIONS 165-166): Invoices List
@@ -493,7 +493,98 @@ a Disposal section when the asset has been disposed). Like Tax, P8's fixed-asset
 fully service-wrapped before this increment, so `listAssets`/`getAsset` needed no new wrapper at all;
 only `getEntityBaseCurrency` (the same per-module direct-read duplicate every screen family now has)
 was added. `pnpm check` and `pnpm build` pass (472 tests, up from 463); `/assets` and `/assets/[id]`
-register as routes; `pnpm db:test` does not apply (no migration touched). Not yet done in 3f: the
-Depreciation report, Loans (list/detail, schedule preview), Other Receivables/Payables, and Capital &
-Equity -- each its own independent capability with its own permission key (DECISIONS 174 records each
-as a deferred increment).
+register as routes; `pnpm db:test` does not apply (no migration touched).
+
+Part 3f second increment is implemented (DECISIONS 175): Loan Register (`/assets/loans`, Step 09
+§16's own "Loan dashboard shows principal outstanding, next due, interest/fee split and schedule" --
+direction and status filters sent server-side to `loan_list`'s own arguments, plus a client-side
+loan-number/counterparty search) and Loan Detail (`/assets/loans/[id]`, Header/Ringkasan/Jadwal
+Cicilan/Riwayat Pembayaran, plus a schedule-version history section when more than one version
+exists). Like Assets, P8's loan RPCs were already fully service-wrapped before this increment, so
+`listLoans`/`getLoan`/`getLoanSchedule` needed no new wrapper at all; only `getEntityBaseCurrency`
+(the same per-module direct-read duplicate) was added. `pnpm check` and `pnpm build` pass (483 tests,
+up from 472); `/assets/loans` and `/assets/loans/[id]` register as routes; `pnpm db:test` does not
+apply (no migration touched).
+
+Part 3f third increment is implemented (DECISIONS 176): Other Receivables (`/assets/other-receivables`)
+and Other Payables (`/assets/other-payables`, Step 09 §16's own "simplified obligation screens without
+forcing invoice/bill semantics" -- one screen component serving both, `kind` fixed per page, status
+filtered server-side, a client-side number/counterparty/purpose search), sharing one Detail route
+(`/assets/obligations/[id]`, Header/Ringkasan/Riwayat Pelunasan). A nav permission bug was found and
+fixed while checking the RPC gate directly against its migration SQL: `src/domain/shell/navigation.ts`
+listed `assets.view` for these two nav items, but `obligation_list`/`obligation_detail` actually check
+`loans.view` -- fixed to match what the RPC already enforces. Like Loans, P8's obligation RPCs were
+already fully service-wrapped, so `listObligations`/`getObligation` needed no new wrapper; only
+`getEntityBaseCurrency` was added. `pnpm check` and `pnpm build` pass (491 tests, up from 483);
+`/assets/other-receivables`, `/assets/other-payables` and `/assets/obligations/[id]` register as
+routes; `pnpm db:test` does not apply (no migration touched).
+
+Part 3f fourth increment is implemented (DECISIONS 177): Capital & Equity (`/assets/equity`,
+`/assets/equity/[id]`, Step 09 §16's own "clearly separates contribution, return, dividend/distribution
+and history" -- a `kind` filter alongside `status`, both sent server-side to `equity_list`'s own
+arguments, plus a client-side number/counterparty/purpose search). Unlike Other Receivables/Payables,
+the nav's own `equity.view` permission was already correct. Like every Part 3f screen family, P8's
+equity RPCs were already fully service-wrapped, so `listEquityEvents`/`getEquityEvent` needed no new
+wrapper; only `getEntityBaseCurrency` was added, plus a small domain gap filled (`EQUITY_CLASS_LABELS`,
+which had no label map anywhere yet). Equity Detail is Header/Ringkasan, plus Riwayat Pembayaran only
+when the event carries dividend payments. `pnpm check` and `pnpm build` pass (499 tests, up from 491);
+`/assets/equity` and `/assets/equity/[id]` register as routes; `pnpm db:test` does not apply (no
+migration touched). Only the Depreciation report remains unbuilt in 3f, plus every action form across
+the whole capability (loan/obligation/equity) and the Loans Due/Loan Summary reports (DECISIONS 174,
+175, 176, 177 record each as a deferred increment).
+
+Part 3f fifth and final increment is implemented (DECISIONS 178): the Depreciation report
+(`/assets/depreciation`, Step 12's report catalogue "Accounting Depreciation Schedule by asset/period").
+This is the first report-shaped screen in the codebase -- it follows Step 09 §19's "filter bar + summary
+
+- table" pattern instead of the Standard List Screen Pattern: a `?from=`/`?to=` date-range filter sent
+  straight to `asset_depreciation_report`'s own arguments (`resolveDepreciationRange`, a trailing-12-months
+  default, mirroring Cash/Bank Activity's own range resolver), a posted/scheduled totals summary band, and
+  an attention band of `asset_depreciation_due` rows still postable, above the schedule-line table.
+  `?q=` is a client-side asset code/name search. The nav's own `assets.view` permission was already
+  correct, confirmed against the RPCs' migration SQL. Like every Part 3f screen family, P8's
+  `depreciationReport`/`depreciationDue` were already fully service-wrapped, so no new RPC wrapper was
+  needed; `getEntityBaseCurrency` was already on the Assets module from decision 174, so no new duplicate
+  either. The schedule-line status badge reuses Asset Detail's own `depreciationLineStatusBadge` rather
+  than a second copy, since both share the exact same status vocabulary. `src/domain/assets/depreciationReport.ts`
+  (pure, unit-tested, 9 cases) is the only new domain file. `pnpm check` and `pnpm build` pass (508 tests,
+  up from 499); `/assets/depreciation` registers as a route; `pnpm db:test` does not apply (no migration
+  touched). Part 3f is now fully closed out (DECISIONS 174-178); remaining for a later slice: every action
+  form across the whole capability, the depreciation run action (`postDepreciation`), the Fiscal
+  Depreciation Schedule/Asset Movement/Asset GL reconciliation reports, and the Loans Due/Loan Summary
+  reports (which belong with the Reports Architecture slice, P13 Part 5).
+
+Part 3g first increment is implemented (DECISIONS 179): Employee Register (`/payroll/employees`) and
+Employee Detail (`/payroll/employees/[id]`), Step 09 §17's own "Payroll is isolated as a sensitive
+module; compensation is permission-gated." Like most of Part 3f, P9's employee RPCs were already
+fully service-wrapped, so `listEmployees`/`getEmploymentHistory`/`getCompensation`/`getBpjsEnrolment`/
+`getTaxProfile` needed no new wrapper; only `getEntityBaseCurrency` was added. The permission-gating
+requirement is enforced by the database itself (`employee_list` never returns a compensation figure;
+`employee_compensation_get`/`employee_bpjs_get` check the separate `payroll.compensation_view`,
+`employee_tax_profile_get` checks `payroll.tax_view`) -- Employee Detail is the first screen in this
+codebase to fetch optional sections conditionally on the viewer's own permission (`can()`, the same
+helper Journal Detail uses for its action buttons) rather than gating the whole page. No per-employee
+RPC exists, so Employee Detail looks the row up from the Entity-scoped `employee_list`, the same shape
+Account Detail already uses. `pnpm check` and `pnpm build` pass (518 tests, up from 508);
+`/payroll/employees` and `/payroll/employees/[id]` register as routes; `pnpm db:test` does not apply
+(no migration touched). Remaining in 3g after the first increment: Payroll Runs (the full wizard),
+Payslips, Payroll Tax & Liabilities, and every employee action form (DECISIONS 179 records each as a
+deferred increment).
+
+Part 3g second increment is implemented (DECISIONS 180): Payroll Run Register (`/payroll/runs`) and
+Payroll Run Detail (`/payroll/runs/[id]`), Step 09 §17's own period -> employees -> calculation ->
+review -> approval -> post/pay -> close wizard -- the List+Detail read surface only, same precedent as
+every other Part 3 family; the wizard's own actions (calculate/adjust/submit/approve/post/pay/close/
+reopen/correct, all already service-wrapped) get no button here yet. A new authorization shape was
+found and matched exactly rather than approximated: `payroll_run_list`/`payroll_run_get` and friends
+require BOTH `payroll.compensation_view` AND at least one of `payroll.run`/`payroll.approve`/
+`payroll.pay` -- a compound rule `requirePermission`'s single-permission check cannot express, so both
+pages call `requireAccess` directly and assert the same compound rule themselves with `can()`. The
+"Payroll Runs" nav item had no permission of its own (inherited the parent's `payroll.employee_view`,
+which plays no part in the RPC's own check) -- fixed to `payroll.compensation_view`, the closest match
+the nav's OR-only permission model allows for a compound AND rule, honestly recorded as imperfect
+rather than glossed over (DECISIONS 180 spells out the residual gap). Tax-specific fields on a run/line
+are null for a viewer without `payroll.tax_view`, enforced by the RPC row-by-row -- shown as "—".
+`pnpm check` and `pnpm build` pass (526 tests, up from 518); `/payroll/runs` and `/payroll/runs/[id]`
+register as routes; `pnpm db:test` does not apply (no migration touched). Remaining in 3g: Payslips,
+Payroll Tax & Liabilities, and every payroll action form (employee and run alike).

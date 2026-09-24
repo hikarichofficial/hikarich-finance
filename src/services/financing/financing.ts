@@ -3,6 +3,7 @@ import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import { isoDateSchema, uuidResultSchema } from "@/schemas/accounting";
+import { entityCurrencyRowSchema } from "@/schemas/dashboard";
 import {
   activateLoanInputSchema,
   cancelEquityEventInputSchema,
@@ -532,4 +533,20 @@ export async function recordFinancingTaxReview(
     { p_entity: v.entity_id, p_source: v.source, p_id: v.source_id, p_note: v.note },
     nothing,
   );
+}
+
+/** Every loan/obligation/equity amount is base-currency (Step 15 §12, as the financing RPCs already assume) --
+ * the same direct read decision 161 established for the Dashboard, repeated here per that decision's own
+ * precedent of each service module reading it independently rather than sharing a cross-module accessor. */
+export async function getEntityBaseCurrency(entityId: string): Promise<string> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("entities")
+    .select("base_currency")
+    .eq("id", uuid(entityId))
+    .single();
+  if (error) throw new Error("Gagal memuat mata uang dasar Entity.");
+  const parsed = entityCurrencyRowSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons mata uang dasar Entity tidak dikenali.");
+  return parsed.data.base_currency;
 }

@@ -21,6 +21,7 @@ export type EquityKind =
   | "investment_return"
   | "distribution_received";
 export type EquityStatus = "draft" | "confirmed" | "reversed" | "cancelled";
+export type EquityClass = "capital" | "additional";
 export type TaxReviewStatus = "not_applicable" | "needs_review" | "reviewed";
 
 export const LOAN_DIRECTION_LABELS: Readonly<Record<LoanDirection, string>> = {
@@ -67,6 +68,11 @@ export const EQUITY_STATUS_LABELS: Readonly<Record<EquityStatus, string>> = {
   confirmed: "Terkonfirmasi",
   reversed: "Dibalik",
   cancelled: "Dibatalkan",
+};
+
+export const EQUITY_CLASS_LABELS: Readonly<Record<EquityClass, string>> = {
+  capital: "Modal Disetor",
+  additional: "Tambahan (Agio dan sejenisnya)",
 };
 
 export const TAX_REVIEW_LABELS: Readonly<Record<TaxReviewStatus, string>> = {
