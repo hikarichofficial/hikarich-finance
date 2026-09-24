@@ -3,6 +3,7 @@ import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import { isoDateSchema, uuidResultSchema } from "@/schemas/accounting";
+import { entityCurrencyRowSchema } from "@/schemas/dashboard";
 import {
   activateEngineInputSchema,
   computeFinalTaxInputSchema,
@@ -31,18 +32,21 @@ import {
   taxCalendarInputSchema,
   taxCalendarSchema,
   taxControlSchema,
+  taxDeterminationRowsSchema,
   taxEvidenceSchema,
   taxLedgerInputSchema,
   taxLedgerSchema,
   taxOverviewSchema,
   taxPaymentListSchema,
   taxPreviewSchema,
+  taxSourceTypeSchema,
   withdrawOverrideInputSchema,
   type FinalPreview,
   type ReviewQueueRow,
   type RuleInForceRow,
   type TaxCalendarRow,
   type TaxControlRow,
+  type TaxDeterminationRow,
   type TaxEvidenceRow,
   type TaxLedgerRow,
   type TaxOverview,
@@ -476,4 +480,55 @@ export async function getTaxCalendar(
 
 export async function getTaxOverview(entityId: string): Promise<TaxOverview> {
   return callRpc("tax_overview", { p_entity: uuidResultSchema.parse(entityId) }, taxOverviewSchema);
+}
+
+// ---- direct read (P13 Part 3e): no RPC reads a stored determination back -- `tax_preview_document` is a live,
+// unconfirmed recomputation of a document's tax (useful before it is posted), a different concept from reading
+// what was actually recorded (Step 05 §14). This is a plain `.from(table).select(...)` covered by
+// `tax_determinations`' own pre-existing `tax.view`-gated RLS policy, extending the direct-table-read pattern
+// (decisions 161/167/170/171/172) to `public.tax_determinations`.
+
+const TAX_DETERMINATION_COLUMNS =
+  "id, entity_id, tax_kind, tax_type, source_type, source_id, event_date, tax_period, status, currency, base_amount, rate, tax_amount, direction, rules, facts, trace, components, consequence, computed_tax_amount, override_id, journal_id, confirmed, revision, supersedes_id, superseded_at, superseded_reason, created_at, updated_at";
+
+/** Every determination ever made for one document, newest first -- a document can carry more than one
+ * `tax_kind` at once (a bill can owe both input VAT and PPh 23 withholding), and a superseded row stays as
+ * visible history rather than being deleted or edited (Step 05 §12, §15; the table is append-only). Only
+ * `invoice`/`bill`/`expense` are accepted: `period` determinations (PPh Final UMKM's own monthly result,
+ * `source_id` null) belong to the Tax Calendar / PPh Final family of screens, deferred to a later increment. */
+export async function listTaxDeterminations(
+  sourceType: z.infer<typeof taxSourceTypeSchema>,
+  sourceId: string,
+): Promise<TaxDeterminationRow[]> {
+  const v = z
+    .object({ sourceType: taxSourceTypeSchema, sourceId: uuidResultSchema })
+    .parse({ sourceType, sourceId });
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("tax_determinations")
+    .select(TAX_DETERMINATION_COLUMNS)
+    .eq("source_type", v.sourceType)
+    .eq("source_id", v.sourceId)
+    .order("created_at", { ascending: false });
+  if (error) throw new Error("Gagal memuat penentuan pajak.");
+  const parsed = taxDeterminationRowsSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons penentuan pajak tidak dikenali.");
+  return parsed.data;
+}
+
+/** Every tax amount this layer reads is base-currency (Step 04 §14, as `tax_ledger_report`/`tax_overview`
+ * already assume in booking each accrual) -- the same direct read decision 161 established for the Dashboard,
+ * repeated here per that decision's own precedent of each service module reading it independently rather than
+ * sharing a cross-module accessor. */
+export async function getEntityBaseCurrency(entityId: string): Promise<string> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("entities")
+    .select("base_currency")
+    .eq("id", uuidResultSchema.parse(entityId))
+    .single();
+  if (error) throw new Error("Gagal memuat mata uang dasar Entity.");
+  const parsed = entityCurrencyRowSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons mata uang dasar Entity tidak dikenali.");
+  return parsed.data.base_currency;
 }

@@ -52,6 +52,85 @@ export function blocksRecognition(status: DeterminationStatus): boolean {
   return status === "needs_review";
 }
 
+/** The status badge tone the Tax Ledger and Tax Determination Detail screens (P13 Part 3e) show a status in,
+ * matching the tone vocabulary `.status-badge-*` already defines (Bills, Invoices, Accounts). */
+export type DeterminationTone = "neutral" | "progress" | "attention" | "success" | "critical";
+
+export const DETERMINATION_STATUS_TONE: Readonly<Record<DeterminationStatus, DeterminationTone>> = {
+  auto_determined: "progress",
+  owner_confirmed: "success",
+  overridden: "attention",
+  needs_review: "critical",
+  not_configured: "neutral",
+  not_applicable: "neutral",
+  superseded: "neutral",
+};
+
+// ---- the Entity's own tax facts (Step 05 §1-§2's profile), as `tax_overview` returns them
+export type TaxpayerKind =
+  "individual" | "perseroan_perorangan" | "company" | "cooperative" | "other" | "unknown";
+
+export const TAXPAYER_KIND_LABELS: Readonly<Record<TaxpayerKind, string>> = {
+  individual: "Orang pribadi",
+  perseroan_perorangan: "Perseroan perorangan",
+  company: "Badan usaha",
+  cooperative: "Koperasi",
+  other: "Lainnya",
+  unknown: "Belum diketahui",
+};
+
+export function taxpayerKindLabel(kind: TaxpayerKind): string {
+  return TAXPAYER_KIND_LABELS[kind];
+}
+
+export type TaxResidency = "resident" | "non_resident" | "unknown";
+
+export const TAX_RESIDENCY_LABELS: Readonly<Record<TaxResidency, string>> = {
+  resident: "Dalam negeri",
+  non_resident: "Luar negeri",
+  unknown: "Belum diketahui",
+};
+
+export function taxResidencyLabel(residency: TaxResidency): string {
+  return TAX_RESIDENCY_LABELS[residency];
+}
+
+export type IncomeRegime = "final_umkm" | "general" | "unknown";
+
+export const INCOME_REGIME_LABELS: Readonly<Record<IncomeRegime, string>> = {
+  final_umkm: "PPh Final UMKM",
+  general: "Umum",
+  unknown: "Belum diketahui",
+};
+
+export function incomeRegimeLabel(regime: IncomeRegime): string {
+  return INCOME_REGIME_LABELS[regime];
+}
+
+export type VatStatus = "pkp" | "non_pkp" | "unknown";
+
+export const VAT_STATUS_LABELS: Readonly<Record<VatStatus, string>> = {
+  pkp: "Pengusaha Kena Pajak (PKP)",
+  non_pkp: "Bukan PKP",
+  unknown: "Belum diketahui",
+};
+
+export function vatStatusLabel(status: VatStatus): string {
+  return VAT_STATUS_LABELS[status];
+}
+
+export type YesNoUnknown = "yes" | "no" | "unknown";
+
+export const YES_NO_UNKNOWN_LABELS: Readonly<Record<YesNoUnknown, string>> = {
+  yes: "Ya",
+  no: "Tidak",
+  unknown: "Belum diketahui",
+};
+
+export function yesNoUnknownLabel(value: YesNoUnknown): string {
+  return YES_NO_UNKNOWN_LABELS[value];
+}
+
 export type CalendarStep = "calculate" | "pay" | "file" | "evidence";
 export type CalendarState = "done" | "due" | "overdue" | "upcoming" | "not_applicable" | "no_rule";
 

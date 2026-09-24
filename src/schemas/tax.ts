@@ -62,12 +62,12 @@ export const taxpayerKindSchema = z.enum([
   "other",
   "unknown",
 ]);
-const residencySchema = z.enum(["resident", "non_resident", "unknown"]);
-const incomeRegimeSchema = z.enum(["final_umkm", "general", "unknown"]);
-const umkmExclusionSchema = z.enum(["none", "excluded", "unknown"]);
-const aggregationStatusSchema = z.enum(["none", "applies", "unknown"]);
-const vatStatusSchema = z.enum(["pkp", "non_pkp", "unknown"]);
-const yesNoUnknownSchema = z.enum(["yes", "no", "unknown"]);
+export const residencySchema = z.enum(["resident", "non_resident", "unknown"]);
+export const incomeRegimeSchema = z.enum(["final_umkm", "general", "unknown"]);
+export const umkmExclusionSchema = z.enum(["none", "excluded", "unknown"]);
+export const aggregationStatusSchema = z.enum(["none", "applies", "unknown"]);
+export const vatStatusSchema = z.enum(["pkp", "non_pkp", "unknown"]);
+export const yesNoUnknownSchema = z.enum(["yes", "no", "unknown"]);
 
 export const recordEntityProfileInputSchema = z.object({
   entity_id: z.uuid(),
@@ -415,7 +415,10 @@ export const taxLedgerRowSchema = z.object({
   entry_kind: z.enum(["accrual", "reversal"]),
   amount: signedDecimalTextSchema,
   source_type: z.string(),
-  source_id: z.uuid(),
+  /** `null` for a `period` source (PPh Final UMKM's own monthly determination has no single document behind
+   * it, Step 05 §9) -- fixed here to match what `tax_ledger_report` actually returns (it joins through the
+   * determination's own `source_id`, which the table itself allows null for that one source type). */
+  source_id: z.uuid().nullable(),
   determination_status: z.string(),
   journal_id: z.uuid().nullable(),
   description: z.string().nullable(),
@@ -450,12 +453,31 @@ export const taxCalendarRowSchema = z.object({
 export const taxCalendarSchema = z.array(taxCalendarRowSchema);
 export type TaxCalendarRow = z.infer<typeof taxCalendarRowSchema>;
 
-export const taxOverviewSchema = z.looseObject({
+/** The Entity's own tax facts in force today (P13 Part 3e, Step 05 §1-§2) -- `null` before an OWNER records one,
+ * which `tax_overview` shows as-is rather than defaulting it, since an unrecorded profile is itself the fact
+ * that matters most to a Tax user opening the Overview. */
+export const taxOverviewProfileSchema = z.object({
+  effective_from: isoDateSchema,
+  taxpayer_kind: taxpayerKindSchema,
+  residency: residencySchema,
+  income_regime: incomeRegimeSchema,
+  vat_status: vatStatusSchema,
+  withholding_agent: yesNoUnknownSchema,
+  umkm_exclusion: umkmExclusionSchema,
+  aggregation_status: aggregationStatusSchema,
+});
+export type TaxOverviewProfile = z.infer<typeof taxOverviewProfileSchema>;
+
+export const taxOverviewSchema = z.object({
   entity_id: z.uuid(),
   as_of: isoDateSchema,
   engine_active_from: isoDateSchema.nullable(),
+  profile: taxOverviewProfileSchema.nullable(),
   needs_review_count: z.number().int().nonnegative(),
   outstanding: z.record(z.string(), signedDecimalTextSchema),
+  /** Calendar steps due or overdue in the last two months, for the Overview's own attention list -- the same
+   * `tax_calendar` rows the Tax Calendar screen (deferred to a later increment) will show in full. */
+  attention: taxCalendarSchema,
 });
 export type TaxOverview = z.infer<typeof taxOverviewSchema>;
 
@@ -473,3 +495,75 @@ export const ruleInForceRowSchema = z.object({
 });
 export const ruleInForceSchema = z.array(ruleInForceRowSchema);
 export type RuleInForceRow = z.infer<typeof ruleInForceRowSchema>;
+
+// ---- a stored determination (P13 Part 3e's Tax Determination Detail; `public.tax_determinations`, read
+// directly -- see `listTaxDeterminations` in `src/services/tax/tax.ts` for why no RPC covers this)
+
+/** One rule version the engine applied (`app_private.tax_rule_ref`), kept with the row so a superseded
+ * determination still shows exactly which rule produced it, even after the rule master moves on. */
+export const taxDeterminationRuleRefSchema = z.object({
+  rule_id: z.uuid(),
+  code: z.string(),
+  rule_version: z.number().int(),
+  effective_from: isoDateSchema,
+  source_ref: z.string().nullable(),
+  verified_on: isoDateSchema.nullable(),
+});
+export type TaxDeterminationRuleRef = z.infer<typeof taxDeterminationRuleRefSchema>;
+
+/** One step of the engine's own explanation (`app_private.tax_trace_add`), numbered in the order it reasoned. */
+export const taxDeterminationTraceEntrySchema = z.object({ n: z.number().int(), text: z.string() });
+export type TaxDeterminationTraceEntry = z.infer<typeof taxDeterminationTraceEntrySchema>;
+
+/** One line of the amount breakdown (`label` plus whichever of `base`/`rate`/`tax` that line carries -- the
+ * three engines build different fields, Step 05 §5/§7/§9), kept loose rather than typing every combination. */
+export const taxDeterminationComponentSchema = z.looseObject({ label: z.string() });
+export type TaxDeterminationComponent = z.infer<typeof taxDeterminationComponentSchema>;
+
+const rateTextSchema = z
+  .string()
+  .regex(/^\d{1,4}(\.\d{1,8})?$/, "Tarif harus berupa angka desimal (maks. 8 desimal)")
+  .nullable();
+
+export const taxDeterminationRowSchema = z.object({
+  id: z.uuid(),
+  entity_id: z.uuid(),
+  tax_kind: taxKindSchema,
+  tax_type: taxTypeSchema,
+  /** `period` (PPh Final UMKM's own monthly determination, `source_id` null) is a real value here even though
+   * `taxSourceTypeSchema` -- the RPC input vocabulary -- only ever accepts `invoice`/`bill`/`expense`. */
+  source_type: z.enum(["invoice", "bill", "expense", "period"]),
+  source_id: z.uuid().nullable(),
+  event_date: isoDateSchema,
+  tax_period: isoDateSchema,
+  status: z.enum([
+    "auto_determined",
+    "needs_review",
+    "owner_confirmed",
+    "overridden",
+    "superseded",
+  ]),
+  currency: z.string(),
+  base_amount: moneyTextSchema,
+  rate: rateTextSchema,
+  tax_amount: moneyTextSchema,
+  direction: z.enum(["payable", "asset"]),
+  rules: z.array(taxDeterminationRuleRefSchema),
+  facts: z.record(z.string(), z.unknown()),
+  trace: z.array(taxDeterminationTraceEntrySchema),
+  components: z.array(taxDeterminationComponentSchema),
+  consequence: z.string().nullable(),
+  /** What the engine computed before an OWNER's override replaced it; present only on an overridden row. */
+  computed_tax_amount: moneyTextSchema.nullable(),
+  override_id: z.uuid().nullable(),
+  journal_id: z.uuid().nullable(),
+  confirmed: z.boolean(),
+  revision: z.number().int().positive(),
+  supersedes_id: z.uuid().nullable(),
+  superseded_at: z.string().nullable(),
+  superseded_reason: z.string().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+export const taxDeterminationRowsSchema = z.array(taxDeterminationRowSchema);
+export type TaxDeterminationRow = z.infer<typeof taxDeterminationRowSchema>;
