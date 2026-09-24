@@ -517,8 +517,18 @@ listed `assets.view` for these two nav items, but `obligation_list`/`obligation_
 already fully service-wrapped, so `listObligations`/`getObligation` needed no new wrapper; only
 `getEntityBaseCurrency` was added. `pnpm check` and `pnpm build` pass (491 tests, up from 483);
 `/assets/other-receivables`, `/assets/other-payables` and `/assets/obligations/[id]` register as
-routes; `pnpm db:test` does not apply (no migration touched). Not yet done in 3f: the Depreciation
-report and Capital & Equity -- each its own independent capability with its own permission key -- plus
-the loan action forms, the Loans Due/Loan Summary reports, and the obligation
-create/settle/write-off/reverse-settlement/void action forms (DECISIONS 174, 175, 176 record each as a
-deferred increment).
+routes; `pnpm db:test` does not apply (no migration touched).
+
+Part 3f fourth increment is implemented (DECISIONS 177): Capital & Equity (`/assets/equity`,
+`/assets/equity/[id]`, Step 09 §16's own "clearly separates contribution, return, dividend/distribution
+and history" -- a `kind` filter alongside `status`, both sent server-side to `equity_list`'s own
+arguments, plus a client-side number/counterparty/purpose search). Unlike Other Receivables/Payables,
+the nav's own `equity.view` permission was already correct. Like every Part 3f screen family, P8's
+equity RPCs were already fully service-wrapped, so `listEquityEvents`/`getEquityEvent` needed no new
+wrapper; only `getEntityBaseCurrency` was added, plus a small domain gap filled (`EQUITY_CLASS_LABELS`,
+which had no label map anywhere yet). Equity Detail is Header/Ringkasan, plus Riwayat Pembayaran only
+when the event carries dividend payments. `pnpm check` and `pnpm build` pass (499 tests, up from 491);
+`/assets/equity` and `/assets/equity/[id]` register as routes; `pnpm db:test` does not apply (no
+migration touched). Only the Depreciation report remains unbuilt in 3f, plus every action form across
+the whole capability (loan/obligation/equity) and the Loans Due/Loan Summary reports (DECISIONS 174,
+175, 176, 177 record each as a deferred increment).
