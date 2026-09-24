@@ -375,7 +375,7 @@ composition over existing RPCs).
 | 3e: Tax                               | §15                 | In Progress |
 | 3f: Assets, Loans & Equity            | §16                 | In Progress |
 | 3g: Payroll                           | §17                 | In Progress |
-| 3h: Planning & Recurring              | §18                 | Not Started |
+| 3h: Planning & Recurring              | §18                 | In Progress |
 
 Part 3a (Sales) first increment is implemented (DECISIONS 165-166): Invoices List
 (`/sales/invoices`, filter tabs from `invoiceFilterSchema` + a `?q=` search over the page's own
@@ -617,3 +617,26 @@ was wrong for the same reason as Payroll Runs/Payslips and got the identical fix
 one. `pnpm check` and `pnpm build` pass (538 tests, up from 533); `/payroll/tax` registers as a route;
 `pnpm db:test` does not apply (no migration touched). This closes out every Payroll nav item except
 the action forms -- Part 3g's List/Detail/report surface is now fully shipped.
+
+Part 3h (Planning & Recurring) first increment is implemented (DECISIONS 183): Recurring Rules
+Register (`/planning/recurring`) and Recurring Rule Detail (`/planning/recurring/[id]`), Step 09
+§9-§10, §18. This is Part 3's own final lettered sub-slice (decision 164). Unlike every Payroll
+increment, Planning's read RPCs check a single permission (`planning.view`) confirmed directly
+against `app_private.planning_authorize`, and the nav item's own permission was already correct --
+no fix needed here, the first Part 3 family where that has been true. No per-rule RPC exists, so
+Detail fetches `list_recurring_rules` and finds the row by id (the same precedent decisions 169/179
+established); occurrence history (`list_recurring_occurrences`) is always rendered with an
+empty-state message since generated history is this screen's own reason to exist per Step 09 §18's
+own wording. A generated occurrence links onward only for `invoices`/`bills` (both have a Detail
+route); a generated `expense` shows as plain text since no Expense Detail screen exists yet. The
+rule's own template (arbitrary per-kind jsonb line items) is not rendered -- a later builder
+increment needs to interpret it anyway. `pauseRecurringRule`/`resumeRecurringRule`/
+`endRecurringRule`/`runDueRecurringOccurrences` and the create/edit template builder are deferred
+together to a later increment; `recurringRuleActions`' eligibility booleans are shown only as an
+inert hint sentence for now. `getEntityBaseCurrency` was added to the planning service module ahead
+of need, for the Budgets/Revenue Targets increments still to come. `pnpm check` and `pnpm build`
+pass (545 tests, up from 538); `/planning/recurring` and `/planning/recurring/[id]` register as
+routes; `pnpm db:test` does not apply (no migration touched). Remaining in 3h: Budgets, Revenue
+Targets (list/detail/report for both), Forecasts (folds into the Budget/Target report screens rather
+than becoming its own route, per decision 139's "no locked projection methodology" ruling), and
+every Recurring/Budget/Target action form.
