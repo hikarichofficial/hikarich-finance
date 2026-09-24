@@ -374,7 +374,7 @@ composition over existing RPCs).
 | 3d: Accounting                        | §14                 | In Progress |
 | 3e: Tax                               | §15                 | In Progress |
 | 3f: Assets, Loans & Equity            | §16                 | In Progress |
-| 3g: Payroll                           | §17                 | Not Started |
+| 3g: Payroll                           | §17                 | In Progress |
 | 3h: Planning & Recurring              | §18                 | Not Started |
 
 Part 3a (Sales) first increment is implemented (DECISIONS 165-166): Invoices List
@@ -553,3 +553,19 @@ This is the first report-shaped screen in the codebase -- it follows Step 09 §1
   form across the whole capability, the depreciation run action (`postDepreciation`), the Fiscal
   Depreciation Schedule/Asset Movement/Asset GL reconciliation reports, and the Loans Due/Loan Summary
   reports (which belong with the Reports Architecture slice, P13 Part 5).
+
+Part 3g first increment is implemented (DECISIONS 179): Employee Register (`/payroll/employees`) and
+Employee Detail (`/payroll/employees/[id]`), Step 09 §17's own "Payroll is isolated as a sensitive
+module; compensation is permission-gated." Like most of Part 3f, P9's employee RPCs were already
+fully service-wrapped, so `listEmployees`/`getEmploymentHistory`/`getCompensation`/`getBpjsEnrolment`/
+`getTaxProfile` needed no new wrapper; only `getEntityBaseCurrency` was added. The permission-gating
+requirement is enforced by the database itself (`employee_list` never returns a compensation figure;
+`employee_compensation_get`/`employee_bpjs_get` check the separate `payroll.compensation_view`,
+`employee_tax_profile_get` checks `payroll.tax_view`) -- Employee Detail is the first screen in this
+codebase to fetch optional sections conditionally on the viewer's own permission (`can()`, the same
+helper Journal Detail uses for its action buttons) rather than gating the whole page. No per-employee
+RPC exists, so Employee Detail looks the row up from the Entity-scoped `employee_list`, the same shape
+Account Detail already uses. `pnpm check` and `pnpm build` pass (518 tests, up from 508);
+`/payroll/employees` and `/payroll/employees/[id]` register as routes; `pnpm db:test` does not apply
+(no migration touched). Remaining in 3g: Payroll Runs (the full wizard), Payslips, Payroll Tax &
+Liabilities, and every employee action form (DECISIONS 179 records each as a deferred increment).
