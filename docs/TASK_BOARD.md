@@ -504,7 +504,21 @@ exists). Like Assets, P8's loan RPCs were already fully service-wrapped before t
 `listLoans`/`getLoan`/`getLoanSchedule` needed no new wrapper at all; only `getEntityBaseCurrency`
 (the same per-module direct-read duplicate) was added. `pnpm check` and `pnpm build` pass (483 tests,
 up from 472); `/assets/loans` and `/assets/loans/[id]` register as routes; `pnpm db:test` does not
-apply (no migration touched). Not yet done in 3f: the Depreciation report, Other Receivables/Payables,
-and Capital & Equity -- each its own independent capability with its own permission key -- plus the
-loan origination/repayment/restructure/write-off action forms and the Loans Due/Loan Summary reports
-(DECISIONS 174, 175 record each as a deferred increment).
+apply (no migration touched).
+
+Part 3f third increment is implemented (DECISIONS 176): Other Receivables (`/assets/other-receivables`)
+and Other Payables (`/assets/other-payables`, Step 09 §16's own "simplified obligation screens without
+forcing invoice/bill semantics" -- one screen component serving both, `kind` fixed per page, status
+filtered server-side, a client-side number/counterparty/purpose search), sharing one Detail route
+(`/assets/obligations/[id]`, Header/Ringkasan/Riwayat Pelunasan). A nav permission bug was found and
+fixed while checking the RPC gate directly against its migration SQL: `src/domain/shell/navigation.ts`
+listed `assets.view` for these two nav items, but `obligation_list`/`obligation_detail` actually check
+`loans.view` -- fixed to match what the RPC already enforces. Like Loans, P8's obligation RPCs were
+already fully service-wrapped, so `listObligations`/`getObligation` needed no new wrapper; only
+`getEntityBaseCurrency` was added. `pnpm check` and `pnpm build` pass (491 tests, up from 483);
+`/assets/other-receivables`, `/assets/other-payables` and `/assets/obligations/[id]` register as
+routes; `pnpm db:test` does not apply (no migration touched). Not yet done in 3f: the Depreciation
+report and Capital & Equity -- each its own independent capability with its own permission key -- plus
+the loan action forms, the Loans Due/Loan Summary reports, and the obligation
+create/settle/write-off/reverse-settlement/void action forms (DECISIONS 174, 175, 176 record each as a
+deferred increment).

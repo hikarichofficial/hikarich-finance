@@ -141,9 +141,9 @@ export const NAVIGATION: readonly NavGroup[] = [
       {
         label: "Other Receivables",
         href: "/assets/other-receivables",
-        permission: ["assets.view"],
+        permission: ["loans.view"],
       },
-      { label: "Other Payables", href: "/assets/other-payables", permission: ["assets.view"] },
+      { label: "Other Payables", href: "/assets/other-payables", permission: ["loans.view"] },
       { label: "Capital & Equity", href: "/assets/equity", permission: ["equity.view"] },
     ],
   },
