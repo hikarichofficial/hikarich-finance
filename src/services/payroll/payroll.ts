@@ -3,6 +3,7 @@ import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import { isoDateSchema, uuidResultSchema } from "@/schemas/accounting";
+import { entityCurrencyRowSchema } from "@/schemas/dashboard";
 import {
   addAdjustmentInputSchema,
   annualReconciliationInputSchema,
@@ -552,4 +553,21 @@ export async function getPayrollControl(
     { p_entity: v.entity_id, p_as_of: dateArg(v.as_of) },
     payrollControlSchema,
   );
+}
+
+/** Every payroll amount is base-currency (Step 05 §15, as every other report/row in this module already
+ * assumes) -- the same per-module direct-read decision 161 established for the Dashboard, repeated here per
+ * that decision's own precedent of each service module reading it independently rather than sharing a
+ * cross-module accessor. */
+export async function getEntityBaseCurrency(entityId: string): Promise<string> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("entities")
+    .select("base_currency")
+    .eq("id", uuid(entityId))
+    .single();
+  if (error) throw new Error("Gagal memuat mata uang dasar Entity.");
+  const parsed = entityCurrencyRowSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons mata uang dasar Entity tidak dikenali.");
+  return parsed.data.base_currency;
 }
