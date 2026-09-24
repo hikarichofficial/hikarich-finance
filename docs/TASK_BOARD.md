@@ -586,5 +586,34 @@ the nav's OR-only permission model allows for a compound AND rule, honestly reco
 rather than glossed over (DECISIONS 180 spells out the residual gap). Tax-specific fields on a run/line
 are null for a viewer without `payroll.tax_view`, enforced by the RPC row-by-row -- shown as "—".
 `pnpm check` and `pnpm build` pass (526 tests, up from 518); `/payroll/runs` and `/payroll/runs/[id]`
-register as routes; `pnpm db:test` does not apply (no migration touched). Remaining in 3g: Payslips,
-Payroll Tax & Liabilities, and every payroll action form (employee and run alike).
+register as routes; `pnpm db:test` does not apply (no migration touched). Remaining in 3g after the
+second increment: Payslips, Payroll Tax & Liabilities, and every payroll action form (employee and
+run alike).
+
+Part 3g third increment is implemented (DECISIONS 181): Payslip Register (`/payroll/payslips`) and
+Payslip Detail (`/payroll/payslips/[id]`). Shares the exact same compound permission rule as Payroll
+Runs (`payroll.compensation_view` AND at least one of `payroll.run`/`payroll.approve`/`payroll.pay`),
+so both pages reuse the same `requireAccess` + manual `can()` pattern, and the "Payslips" nav item gets
+the same permission fix. No Create button -- unlike every other Register screen, this is not deferred:
+a payslip is issued as a side effect of the payroll run wizard, never created directly. Payslip Detail
+is the first Detail screen with nothing that can go stale (`payroll_payslip_get` returns an immutable
+issued-at snapshot, not a live recomputation), and introduces a third distinct tax-masking shape: the
+whole `tax` key is absent from the snapshot for a viewer without `payroll.tax_view` (Employee Detail
+skips the RPC call entirely; Payroll Run Detail nulls individual columns; here the key itself is gone).
+`pnpm check` and `pnpm build` pass (533 tests, up from 526); `/payroll/payslips` and
+`/payroll/payslips/[id]` register as routes; `pnpm db:test` does not apply (no migration touched).
+Remaining in 3g after the third increment: Payroll Tax & Liabilities, and every payroll action form
+(employee and run alike).
+
+Part 3g fourth increment is implemented (DECISIONS 182): Payroll Tax & Liabilities (`/payroll/tax`).
+Ships two of the five payroll report RPCs -- Payroll Liabilities (always visible, needs only the base
+compound permission) and, gated further behind `payroll.tax_view`, Annual Reconciliation and the
+Employee Tax Ledger (both hard-FORBIDDEN without it, so fetched only when the viewer holds it).
+Payroll Summary and Payroll Control are deferred to the Reports Architecture slice (P13 Part 5), same
+treatment as the Loans Due/Loan Summary reports. The nav item's permission (`payroll.tax_view` alone)
+was wrong for the same reason as Payroll Runs/Payslips and got the identical fix
+(`payroll.compensation_view`). Two new pure helpers with no prior precedent: `resolveAsOfDate` and
+`resolveTaxYear`, each mirroring the matching RPC's own default/validation rather than inventing a new
+one. `pnpm check` and `pnpm build` pass (538 tests, up from 533); `/payroll/tax` registers as a route;
+`pnpm db:test` does not apply (no migration touched). This closes out every Payroll nav item except
+the action forms -- Part 3g's List/Detail/report surface is now fully shipped.
