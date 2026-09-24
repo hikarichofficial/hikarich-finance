@@ -3,6 +3,7 @@ import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import { isoDateSchema, uuidResultSchema } from "@/schemas/accounting";
+import { entityCurrencyRowSchema } from "@/schemas/dashboard";
 import {
   activateAssetInputSchema,
   assetControlSchema,
@@ -336,4 +337,20 @@ export async function assetControl(entityId: string, asOf?: string): Promise<Ass
     { p_entity: uuid(entityId), p_as_of: dateArg(asOf) },
     assetControlSchema,
   );
+}
+
+/** Every fixed-asset amount is base-currency (Step 15 §12, as `asset_register`/`asset_detail` already assume) --
+ * the same direct read decision 161 established for the Dashboard, repeated here per that decision's own
+ * precedent of each service module reading it independently rather than sharing a cross-module accessor. */
+export async function getEntityBaseCurrency(entityId: string): Promise<string> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("entities")
+    .select("base_currency")
+    .eq("id", uuid(entityId))
+    .single();
+  if (error) throw new Error("Gagal memuat mata uang dasar Entity.");
+  const parsed = entityCurrencyRowSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons mata uang dasar Entity tidak dikenali.");
+  return parsed.data.base_currency;
 }
