@@ -2,18 +2,29 @@ import "server-only";
 import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
+import { entityCurrencyRowSchema } from "@/schemas/dashboard";
 import {
+  accountingPeriodRowsSchema,
   createJournalInputSchema,
+  journalEntryRowSchema,
+  journalEntryRowsSchema,
+  journalLineRowsSchema,
+  ledgerAccountRowsSchema,
   openingBalanceInputSchema,
   periodChecksSchema,
   periodStatusSchema,
   postJournalInputSchema,
   reopenPeriodInputSchema,
   reverseJournalInputSchema,
+  reversingJournalRowSchema,
   signedDecimalTextSchema,
   trialBalanceSchema,
   uuidResultSchema,
+  type AccountingPeriodRow,
   type CreateJournalInput,
+  type JournalEntryRow,
+  type JournalLineRow,
+  type LedgerAccountRow,
   type PeriodCheck,
   type PeriodStatus,
   type TrialBalanceRow,
@@ -188,4 +199,123 @@ export async function completeOpeningBalances(entityId: string, note?: string): 
     { p_entity: uuidResultSchema.parse(entityId), p_note: note ?? null },
     signedDecimalTextSchema,
   );
+}
+
+// ---- direct reads (P13 Part 3d): no RPC lists or reads a journal, a ledger account or a period -- only the
+// write commands above exist. Each read below is a plain `.from(table).select(...)` covered by that table's
+// own pre-existing `accounting.view`-gated RLS policy, extending the direct-table-read pattern (decisions
+// 161/167/170/171) to `public.journal_entries`/`journal_lines`/`ledger_accounts`/`accounting_periods`.
+
+const JOURNAL_ENTRY_COLUMNS =
+  "id, entity_id, journal_number, entry_date, period_id, status, entry_type, description, source_type, source_id, posting_key, reverses_journal_id, control_override_reason, posted_at, created_at, version";
+
+export async function listJournals(entityId: string): Promise<JournalEntryRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("journal_entries")
+    .select(JOURNAL_ENTRY_COLUMNS)
+    .eq("entity_id", uuidResultSchema.parse(entityId))
+    .order("entry_date", { ascending: false })
+    .order("created_at", { ascending: false });
+  if (error) throw new Error("Gagal memuat daftar jurnal.");
+  const parsed = journalEntryRowsSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons jurnal tidak dikenali.");
+  return parsed.data;
+}
+
+/** `null` for a missing or inaccessible journal -- the same answer either way (no existence leak), matching
+ * every other direct-read `get*` in this codebase. */
+export async function getJournalEntry(journalId: string): Promise<JournalEntryRow | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("journal_entries")
+    .select(JOURNAL_ENTRY_COLUMNS)
+    .eq("id", uuidResultSchema.parse(journalId))
+    .maybeSingle();
+  if (error) throw new Error("Gagal memuat jurnal.");
+  if (!data) return null;
+  const parsed = journalEntryRowSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons jurnal tidak dikenali.");
+  return parsed.data;
+}
+
+export async function getJournalLines(journalId: string): Promise<JournalLineRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("journal_lines")
+    .select(
+      "id, journal_id, line_no, ledger_account_id, debit, credit, description, original_currency, original_amount, exchange_rate",
+    )
+    .eq("journal_id", uuidResultSchema.parse(journalId))
+    .order("line_no", { ascending: true });
+  if (error) throw new Error("Gagal memuat baris jurnal.");
+  const parsed = journalLineRowsSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons baris jurnal tidak dikenali.");
+  return parsed.data;
+}
+
+/** The journal (if any) whose own `reverses_journal_id` points back at this one -- "was this journal
+ * reversed, and by which one" is the reverse direction of the column, so it needs its own small lookup
+ * rather than a field already on the row (see the schema's own doc comment). */
+export async function getReversingJournal(
+  journalId: string,
+): Promise<{ id: string; journal_number: string | null } | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("journal_entries")
+    .select("id, journal_number")
+    .eq("reverses_journal_id", uuidResultSchema.parse(journalId))
+    .maybeSingle();
+  if (error) throw new Error("Gagal memuat status pembalikan jurnal.");
+  if (!data) return null;
+  const parsed = reversingJournalRowSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons jurnal tidak dikenali.");
+  return parsed.data;
+}
+
+export async function listLedgerAccounts(entityId: string): Promise<LedgerAccountRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("ledger_accounts")
+    .select(
+      "id, entity_id, code, name, account_class, normal_balance, system_key, parent_id, is_group, is_control, allows_manual_posting, status",
+    )
+    .eq("entity_id", uuidResultSchema.parse(entityId))
+    .order("code", { ascending: true });
+  if (error) throw new Error("Gagal memuat bagan akun.");
+  const parsed = ledgerAccountRowsSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons bagan akun tidak dikenali.");
+  return parsed.data;
+}
+
+/** `journal_lines.debit`/`credit` are always base-currency amounts (Step 04 §14; the table's own column
+ * comment), so the Journal Detail lines table needs the Entity's base currency to format them -- the same
+ * direct read decision 161 established for the Dashboard, repeated here per that decision's own precedent of
+ * each service module reading it independently rather than sharing a cross-module accessor. */
+export async function getEntityBaseCurrency(entityId: string): Promise<string> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("entities")
+    .select("base_currency")
+    .eq("id", uuidResultSchema.parse(entityId))
+    .single();
+  if (error) throw new Error("Gagal memuat mata uang dasar Entity.");
+  const parsed = entityCurrencyRowSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons mata uang dasar Entity tidak dikenali.");
+  return parsed.data.base_currency;
+}
+
+export async function listAccountingPeriods(entityId: string): Promise<AccountingPeriodRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("accounting_periods")
+    .select(
+      "id, entity_id, fiscal_year, period_start, period_end, status, closed_at, reopened_at, reopen_reason",
+    )
+    .eq("entity_id", uuidResultSchema.parse(entityId))
+    .order("period_start", { ascending: false });
+  if (error) throw new Error("Gagal memuat periode akuntansi.");
+  const parsed = accountingPeriodRowsSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons periode akuntansi tidak dikenali.");
+  return parsed.data;
 }

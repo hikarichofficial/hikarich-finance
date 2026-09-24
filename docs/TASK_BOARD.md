@@ -371,7 +371,7 @@ composition over existing RPCs).
 | 3a: Sales                             | §11 Invoice screens | In Progress |
 | 3b: Purchases & Expenses              | §12                 | In Progress |
 | 3c: Money / Accounts / Reconciliation | §13                 | In Progress |
-| 3d: Accounting                        | §14                 | Not Started |
+| 3d: Accounting                        | §14                 | In Progress |
 | 3e: Tax                               | §15                 | Not Started |
 | 3f: Assets, Loans & Equity            | §16                 | Not Started |
 | 3g: Payroll                           | §17                 | Not Started |
@@ -442,3 +442,23 @@ No running-balance column, unlike Account Detail's ledger: a running balance acr
 and currencies would not be meaningful. `pnpm check` and `pnpm build` pass (407 tests, up from 399);
 `/money/activity` registers as a route; `pnpm db:test` does not apply (no migration touched). Still
 not done in 3c: the Reconciliation workspace, balance adjustments, and Create/Edit Account.
+
+Part 3d (Accounting) first increment is implemented (DECISIONS 172): Journal List
+(`/accounting/journal`, a three-way `entry_type`/status/period filter toolbar + a `?q=` search) and
+Journal Detail (`/accounting/journal/[id]`, Header/Lines (debit-credit grid)/Activity -- narrower
+than the full Standard Record Detail Pattern, the same application decision 169 gave Account Detail,
+since a journal's own lines already ARE its accounting detail) plus Chart of Accounts
+(`/accounting/coa`, a read-only depth-first hierarchical tree with status/search filter and
+protected-control indicators for Step 09 §14's "COA uses hierarchical tree/list with search, account
+status and protected-control indicators"). No RPC lists or reads a journal, a journal's lines, a
+ledger account or a period at all, so `src/services/accounting/ledger.ts` extends the direct-read
+pattern (decisions 161/167/170/171) to `journal_entries`/`journal_lines`/`ledger_accounts`/
+`accounting_periods`. Status actions Post/Discard Draft/Reverse call the unmodified P3 RPCs
+(`post_journal`/`discard_journal_draft`/`reverse_journal`) through small `useActionState` forms
+(`src/features/accounting/actions.ts`, `JournalActions.tsx`), gated per-permission exactly as each
+RPC's own migration checks (`accounting.journal_post`/`accounting.journal_create`), and shown only
+for `entry_type` manual/adjusting, matching what the RPCs themselves refuse. `pnpm check` and `pnpm
+build` pass (448 tests, up from 407); `/accounting/journal`, `/accounting/journal/[id]` and
+`/accounting/coa` register as routes; `pnpm db:test` does not apply (no migration touched). Not yet
+done in 3d: Period Close, Opening Balances, the Manual Journal debit/credit grid builder, and
+Advanced Adjustments (DECISIONS 172 records each as a deferred increment).
