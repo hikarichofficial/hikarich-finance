@@ -532,3 +532,24 @@ when the event carries dividend payments. `pnpm check` and `pnpm build` pass (49
 migration touched). Only the Depreciation report remains unbuilt in 3f, plus every action form across
 the whole capability (loan/obligation/equity) and the Loans Due/Loan Summary reports (DECISIONS 174,
 175, 176, 177 record each as a deferred increment).
+
+Part 3f fifth and final increment is implemented (DECISIONS 178): the Depreciation report
+(`/assets/depreciation`, Step 12's report catalogue "Accounting Depreciation Schedule by asset/period").
+This is the first report-shaped screen in the codebase -- it follows Step 09 §19's "filter bar + summary
+
+- table" pattern instead of the Standard List Screen Pattern: a `?from=`/`?to=` date-range filter sent
+  straight to `asset_depreciation_report`'s own arguments (`resolveDepreciationRange`, a trailing-12-months
+  default, mirroring Cash/Bank Activity's own range resolver), a posted/scheduled totals summary band, and
+  an attention band of `asset_depreciation_due` rows still postable, above the schedule-line table.
+  `?q=` is a client-side asset code/name search. The nav's own `assets.view` permission was already
+  correct, confirmed against the RPCs' migration SQL. Like every Part 3f screen family, P8's
+  `depreciationReport`/`depreciationDue` were already fully service-wrapped, so no new RPC wrapper was
+  needed; `getEntityBaseCurrency` was already on the Assets module from decision 174, so no new duplicate
+  either. The schedule-line status badge reuses Asset Detail's own `depreciationLineStatusBadge` rather
+  than a second copy, since both share the exact same status vocabulary. `src/domain/assets/depreciationReport.ts`
+  (pure, unit-tested, 9 cases) is the only new domain file. `pnpm check` and `pnpm build` pass (508 tests,
+  up from 499); `/assets/depreciation` registers as a route; `pnpm db:test` does not apply (no migration
+  touched). Part 3f is now fully closed out (DECISIONS 174-178); remaining for a later slice: every action
+  form across the whole capability, the depreciation run action (`postDepreciation`), the Fiscal
+  Depreciation Schedule/Asset Movement/Asset GL reconciliation reports, and the Loans Due/Loan Summary
+  reports (which belong with the Reports Architecture slice, P13 Part 5).
