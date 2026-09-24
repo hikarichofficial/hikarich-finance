@@ -640,3 +640,16 @@ routes; `pnpm db:test` does not apply (no migration touched). Remaining in 3h: B
 Targets (list/detail/report for both), Forecasts (folds into the Budget/Target report screens rather
 than becoming its own route, per decision 139's "no locked projection methodology" ruling), and
 every Recurring/Budget/Target action form.
+
+Part 3h second increment is implemented (DECISIONS 184): Budget Register (`/planning/budgets`) and
+Budget Detail (`/planning/budgets/[id]`). Same single `planning.view` read permission as Recurring
+Rules, confirmed against each RPC's own SQL; writes check `planning.budget_edit` instead, deferred
+with the rest of the action forms. Detail fetches the register and finds the row by id (no per-budget
+RPC exists) and uses `get_budget_report` alone for its own Anggaran vs Aktual table -- the report RPC
+is a strict superset of `get_budget_lines`, already carrying budgeted/actual/committed/remaining/%
+used/variance per category and month. `forecast_amount` gets no column (always null, decision 139).
+`src/domain/planning/budgetList.ts` introduces the shared `PlanStatus` badge/filter helpers, kept in
+one file since Revenue Targets (still pending) uses the identical enum, not duplicated a second time.
+`pnpm check` and `pnpm build` pass (551 tests, up from 545); `/planning/budgets` and
+`/planning/budgets/[id]` register as routes; `pnpm db:test` does not apply (no migration touched).
+Remaining in 3h: Revenue Targets (list/detail/report), and every Recurring/Budget/Target action form.
