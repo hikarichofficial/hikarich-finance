@@ -165,11 +165,25 @@ export const NAVIGATION: readonly NavGroup[] = [
         // Other Receivables/Payables when the nav's own permission didn't match the RPC's.
         permission: ["payroll.compensation_view"],
       },
-      { label: "Payslips", href: "/payroll/payslips" },
+      {
+        label: "Payslips",
+        href: "/payroll/payslips",
+        // `payroll_payslip_list`/`payroll_payslip_get` share the exact same compound rule as Payroll Runs
+        // above -- same fix, same residual imperfection (decision 181).
+        permission: ["payroll.compensation_view"],
+      },
       {
         label: "Payroll Tax & Liabilities",
         href: "/payroll/tax",
-        permission: ["payroll.tax_view"],
+        // Was `payroll.tax_view` -- wrong on its own: `payroll_liability_report` (the screen's own "always
+        // visible" section) needs only the base compound rule (`payroll.compensation_view` AND run/approve/
+        // pay), not `tax_view` at all, while `payroll_annual_reconciliation`/`payroll_employee_tax_ledger`
+        // hard-require `tax_view` on top of that base rule (decision 182). `payroll.compensation_view` is
+        // kept as the closer single-permission match, the same choice made for Payroll Runs/Payslips above,
+        // since a `tax_view`-only holder without the base rule would see a nav entry that fails immediately,
+        // whereas a `compensation_view` holder without `tax_view` still sees a working page (just without
+        // the two tax-gated sections) -- the same documented residual imperfection as above.
+        permission: ["payroll.compensation_view"],
       },
     ],
   },
