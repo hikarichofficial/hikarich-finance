@@ -567,5 +567,24 @@ helper Journal Detail uses for its action buttons) rather than gating the whole 
 RPC exists, so Employee Detail looks the row up from the Entity-scoped `employee_list`, the same shape
 Account Detail already uses. `pnpm check` and `pnpm build` pass (518 tests, up from 508);
 `/payroll/employees` and `/payroll/employees/[id]` register as routes; `pnpm db:test` does not apply
-(no migration touched). Remaining in 3g: Payroll Runs (the full wizard), Payslips, Payroll Tax &
-Liabilities, and every employee action form (DECISIONS 179 records each as a deferred increment).
+(no migration touched). Remaining in 3g after the first increment: Payroll Runs (the full wizard),
+Payslips, Payroll Tax & Liabilities, and every employee action form (DECISIONS 179 records each as a
+deferred increment).
+
+Part 3g second increment is implemented (DECISIONS 180): Payroll Run Register (`/payroll/runs`) and
+Payroll Run Detail (`/payroll/runs/[id]`), Step 09 §17's own period -> employees -> calculation ->
+review -> approval -> post/pay -> close wizard -- the List+Detail read surface only, same precedent as
+every other Part 3 family; the wizard's own actions (calculate/adjust/submit/approve/post/pay/close/
+reopen/correct, all already service-wrapped) get no button here yet. A new authorization shape was
+found and matched exactly rather than approximated: `payroll_run_list`/`payroll_run_get` and friends
+require BOTH `payroll.compensation_view` AND at least one of `payroll.run`/`payroll.approve`/
+`payroll.pay` -- a compound rule `requirePermission`'s single-permission check cannot express, so both
+pages call `requireAccess` directly and assert the same compound rule themselves with `can()`. The
+"Payroll Runs" nav item had no permission of its own (inherited the parent's `payroll.employee_view`,
+which plays no part in the RPC's own check) -- fixed to `payroll.compensation_view`, the closest match
+the nav's OR-only permission model allows for a compound AND rule, honestly recorded as imperfect
+rather than glossed over (DECISIONS 180 spells out the residual gap). Tax-specific fields on a run/line
+are null for a viewer without `payroll.tax_view`, enforced by the RPC row-by-row -- shown as "—".
+`pnpm check` and `pnpm build` pass (526 tests, up from 518); `/payroll/runs` and `/payroll/runs/[id]`
+register as routes; `pnpm db:test` does not apply (no migration touched). Remaining in 3g: Payslips,
+Payroll Tax & Liabilities, and every payroll action form (employee and run alike).

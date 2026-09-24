@@ -155,7 +155,16 @@ export const NAVIGATION: readonly NavGroup[] = [
     permission: ["payroll.employee_view"],
     items: [
       { label: "Employees", href: "/payroll/employees" },
-      { label: "Payroll Runs", href: "/payroll/runs" },
+      {
+        label: "Payroll Runs",
+        href: "/payroll/runs",
+        // `payroll_run_list`/`payroll_run_get` need `payroll.compensation_view` AND (`payroll.run` OR
+        // `payroll.approve` OR `payroll.pay`) -- a compound rule this OR-only permission array cannot fully
+        // express (decision 180). `payroll.compensation_view` is the one component the RPC always requires,
+        // so declaring it here is the closest match available, same "primary gate" fix decision 176 made for
+        // Other Receivables/Payables when the nav's own permission didn't match the RPC's.
+        permission: ["payroll.compensation_view"],
+      },
       { label: "Payslips", href: "/payroll/payslips" },
       {
         label: "Payroll Tax & Liabilities",
