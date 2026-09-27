@@ -13,3 +13,16 @@ const SHORT_DATE_FORMAT = new Intl.DateTimeFormat("id-ID", {
 export function formatShortDate(isoDate: string): string {
   return SHORT_DATE_FORMAT.format(new Date(`${isoDate}T00:00:00Z`));
 }
+
+/** Month-only label ("Jan 2026") for the Budget/Revenue Target "set lines" grid's own month columns/rows
+ * (P13 Part 3h, fifth increment) -- a day-of-month would be misleading there since `period_month` is always
+ * the first of the month. */
+const MONTH_LABEL_FORMAT = new Intl.DateTimeFormat("id-ID", {
+  month: "short",
+  year: "numeric",
+  timeZone: "UTC",
+});
+
+export function formatMonthLabel(periodMonth: string): string {
+  return MONTH_LABEL_FORMAT.format(new Date(`${periodMonth}T00:00:00Z`));
+}
