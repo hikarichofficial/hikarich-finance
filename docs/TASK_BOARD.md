@@ -685,3 +685,25 @@ and pass a `permissions` prop via the same active-Entity `can()` pattern Invoice
 touched). This closes out every action form decision 185 listed as remaining except create and the
 "set lines"/template builders, still deferred (genuinely new UI territory, no editable multi-row grid
 precedent exists in this codebase) -- Part 3h's status-transition surface is otherwise complete.
+
+Part 3h fifth increment is implemented (DECISIONS 187): Budget/Revenue Target create forms
+(`/planning/budgets/new`, `/planning/targets/new`, gated on `planning.budget_edit`, redirecting to
+the new record's own Detail page on success) and their "set lines" editable grids on Detail
+(`BudgetLinesEditor`/`RevenueTargetLinesEditor`, wholesale-replacing via `set_budget_lines`/
+`set_revenue_target_lines`, pre-populated from `get_budget_lines`/`get_revenue_target_lines`). A new
+`listActiveCategories` (`src/services/accounting/categories.ts`, backed by `src/schemas/
+categories.ts`) is the first direct table read this codebase has added purely to back a picker --
+`categories_select` needs only Entity membership, no new permission or RPC required, and it is not
+filtered by `kind` since neither `budget_lines`'s FK nor `set_budget_lines` restricts one. One shared
+`CreatePlanForm` covers both Budget and Revenue Target (identical create-shell fields); the two "set
+lines" editors deliberately differ in shape -- Budget is a real category x month grid, Revenue Target
+a flat month list -- matching the same category/no-category asymmetry their own report tables already
+have (decision 185). Both editors share a new pure `monthRangeInclusive` helper
+(`src/domain/planning/planning.ts`, unit-tested) for their month columns/rows, and both serialize their
+row state into one hidden `lines` JSON field per submit rather than a dynamic per-cell field set.
+`pnpm check` and `pnpm build` pass (560 tests, up from 557); `/planning/budgets/new` and
+`/planning/targets/new` register as routes; `pnpm db:test` does not apply (no migration touched --
+this was a pure application-layer increment). Remaining in 3h: Recurring Rule's own create/edit
+template builder (invoice/bill/expense line items), materially larger and still deferred to a later
+increment (decisions 164, 183, 186-187's own ordering) -- every other Part 3h screen and action form is
+now complete.
