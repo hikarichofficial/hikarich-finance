@@ -3,6 +3,7 @@ import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import { uuidResultSchema } from "@/schemas/accounting";
+import { entityCurrencyRowSchema } from "@/schemas/dashboard";
 import {
   activateBudgetInputSchema,
   activateRevenueTargetInputSchema,
@@ -66,6 +67,23 @@ async function callRpc<T>(
 
 const nothing = z.null();
 const integerResultSchema = z.number().int();
+const uuid = (value: string) => uuidResultSchema.parse(value);
+
+/** Duplicated per module (the established precedent -- accounting/tax/assets/financing/payroll each carry
+ * their own copy rather than a shared import) so a screen can format money without a second round trip
+ * through a cross-module import. */
+export async function getEntityBaseCurrency(entityId: string): Promise<string> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("entities")
+    .select("base_currency")
+    .eq("id", uuid(entityId))
+    .single();
+  if (error) throw new Error("Gagal memuat mata uang dasar Entity.");
+  const parsed = entityCurrencyRowSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons mata uang dasar Entity tidak dikenali.");
+  return parsed.data.base_currency;
+}
 
 // ================================================================ recurring rules
 export async function createRecurringRule(
