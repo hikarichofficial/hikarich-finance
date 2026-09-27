@@ -95,7 +95,7 @@ function ReasonGatedForm({
       ) : null}
       <div className="invoice-action-buttons">
         <button type="submit" className="btn-danger" disabled={pending || reason.trim().length < 5}>
-         {pending ? pendingLabel : submitLabel}
+          {pending ? pendingLabel : submitLabel}
         </button>
         <button
           type="button"
