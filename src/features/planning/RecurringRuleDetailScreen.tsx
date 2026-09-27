@@ -9,6 +9,7 @@ import {
   recurringStatusBadge,
 } from "@/domain/planning/recurringList";
 import type { RecurringOccurrenceRow, RecurringRuleRow } from "@/schemas/planning";
+import { RecurringRuleActions, type RecurringRuleActionPermissions } from "./RecurringRuleActions";
 import { formatShortDate } from "./format";
 
 /** Only "invoices" and "bills" have a Detail route to link to yet -- "expenses" has no Detail screen built
@@ -31,22 +32,24 @@ const GENERATED_TABLE_HREF: Readonly<Partial<Record<"invoices" | "bills" | "expe
  * sections made (decision 175), not the "hide when empty" choice used for Payroll Run's optional
  * adjustments/payments sections. The template's own raw line items (`template`, arbitrary jsonb per kind) are
  * not rendered here -- a later increment's create/edit builder needs to interpret that shape anyway, so
- * showing a partial, un-interpreted rendering here first would be more confusing than nothing. `pauseRecurringRule`/
- * `resumeRecurringRule`/`endRecurringRule`/`runDueRecurringOccurrences` (the manual "generate now" action) are
- * command actions, deferred to that same later increment along with the builder -- `recurringRuleActions` is
- * imported and its eligibility booleans are shown only as inert hints (no buttons yet), so the action-forms
- * increment has a documented, already-verified place to hook in.
+ * showing a partial, un-interpreted rendering here first would be more confusing than nothing. Pause/Resume/
+ * End are rendered as actual buttons by `RecurringRuleActions` (P13 Part 3h, fourth increment); the manual
+ * "generate now" action (`runDueRecurringOccurrences`) is entity-wide rather than per-rule, so it lives on
+ * the Register screen instead. `recurringRuleActions` stays the single eligibility source for both the hint
+ * sentence below and the buttons, so they can never disagree.
  */
 export function RecurringRuleDetailScreen({
   rule,
   occurrences,
   entity,
   backHref,
+  permissions,
 }: {
   rule: RecurringRuleRow;
   occurrences: readonly RecurringOccurrenceRow[];
   entity: string | undefined;
   backHref: string;
+  permissions: RecurringRuleActionPermissions;
 }) {
   const statusBadge = recurringStatusBadge(rule.status);
   const actions = recurringRuleActions(rule.status);
@@ -130,11 +133,9 @@ export function RecurringRuleDetailScreen({
         </dl>
         <p className="hint">
           {actions.canEdit ? "Dapat diedit. " : "Tidak dapat diedit lagi. "}
-          {actions.canPause ? "Dapat dijeda. " : null}
-          {actions.canResume ? "Dapat dilanjutkan. " : null}
-          {actions.canEnd ? "Dapat diakhiri. " : null}
           Mengedit aturan ini tidak mengubah catatan yang sudah dibuat sebelumnya.
         </p>
+        <RecurringRuleActions ruleId={rule.id} status={rule.status} permissions={permissions} />
       </section>
 
       <section className="dashboard-section">
