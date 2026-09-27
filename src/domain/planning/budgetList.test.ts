@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   PLAN_STATUS_FILTER_OPTIONS,
+  budgetActions,
   filterBudgetRows,
   filterRevenueTargetRows,
   matchesBudgetQuery,
@@ -108,5 +109,19 @@ describe("filterRevenueTargetRows", () => {
     ];
     expect(filterRevenueTargetRows(rows, "regional").map((r) => r.id)).toEqual(["2"]);
     expect(filterRevenueTargetRows(rows, "").map((r) => r.id)).toEqual(["1", "2"]);
+  });
+});
+
+describe("budgetActions", () => {
+  it("a draft may be activated but not closed", () => {
+    expect(budgetActions("draft")).toEqual({ canActivate: true, canClose: false });
+  });
+
+  it("an active plan may be closed but not activated again", () => {
+    expect(budgetActions("active")).toEqual({ canActivate: false, canClose: true });
+  });
+
+  it("a closed plan may neither be activated nor closed again", () => {
+    expect(budgetActions("closed")).toEqual({ canActivate: false, canClose: false });
   });
 });
