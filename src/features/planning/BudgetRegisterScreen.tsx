@@ -13,21 +13,27 @@ import { formatShortDate } from "./format";
  * Budget Register (P13 Part 3h, second increment, Step 09 §9, §18). Follows the same Standard List Screen
  * Pattern as Recurring Rules (decision 183): `list_budgets`'s own `p_status` argument is sent server-side,
  * only the free-text name search is client-side. No Create button -- a budget's own create flow is a
- * multi-step period x category grid builder (`set_budget_lines` takes up to 2000 lines), materially larger
- * than this list/detail pair, deferred to a later increment along with activate/close (decision 164's own
- * ordering).
+ * multi-step period x category grid builder (`set_budget_lines` takes up to 2000 lines) -- shipped in the
+ * fifth increment as its own "set lines" grid on Budget Detail, reached from here via the "Buat Anggaran
+ * Baru" button (`canCreate`, `planning.budget_edit`, the exact permission `create_budget` itself checks).
  */
 export function BudgetRegisterScreen({
   rows,
   status,
   query,
   entity,
+  canCreate,
 }: {
   rows: readonly BudgetRow[];
   status: PlanStatus | null;
   query: string;
   entity: string | undefined;
+  canCreate: boolean;
 }) {
+  const newHref = entity
+    ? `/planning/budgets/new?entity=${encodeURIComponent(entity)}`
+    : "/planning/budgets/new";
+
   return (
     <div className="list-screen">
       <header className="list-screen-header">
@@ -35,6 +41,11 @@ export function BudgetRegisterScreen({
           <h1>Anggaran</h1>
           <p className="list-screen-summary">{rows.length} anggaran ditampilkan.</p>
         </div>
+        {canCreate ? (
+          <Link href={newHref} className="btn-primary">
+            Buat Anggaran Baru
+          </Link>
+        ) : null}
       </header>
 
       <div className="list-screen-toolbar">
