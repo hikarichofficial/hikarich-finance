@@ -3,6 +3,7 @@ import { formatMoney } from "@/domain/money/format";
 import { PLAN_PERIOD_TYPE_LABELS } from "@/domain/planning/planning";
 import { planStatusBadge } from "@/domain/planning/budgetList";
 import type { BudgetReportRow, BudgetRow } from "@/schemas/planning";
+import { BudgetActions, type BudgetActionPermissions } from "./BudgetActions";
 import { formatShortDate } from "./format";
 
 /**
@@ -16,18 +17,22 @@ import { formatShortDate } from "./format";
  * a projection methodology, filed as an open OWNER question"), so a column that could only ever show "—"
  * would be pure noise rather than information. The report is already ordered by the RPC itself
  * (`period_month`, then category `sort_order`/`name`) -- rendered in that order rather than re-grouped, the
- * same "trust the RPC's own order" choice every other flat report table in this codebase makes.
+ * same "trust the RPC's own order" choice every other flat report table in this codebase makes. Activate/
+ * Close are rendered as actual buttons by `BudgetActions` (P13 Part 3h, fourth increment); the "set lines"
+ * editable grid builder is a separate, later increment (decision 164's own ordering).
  */
 export function BudgetDetailScreen({
   budget,
   report,
   currency,
   backHref,
+  permissions,
 }: {
   budget: BudgetRow;
   report: readonly BudgetReportRow[];
   currency: string;
   backHref: string;
+  permissions: BudgetActionPermissions;
 }) {
   const statusBadge = planStatusBadge(budget.status);
 
@@ -73,6 +78,7 @@ export function BudgetDetailScreen({
             </div>
           ) : null}
         </dl>
+        <BudgetActions budgetId={budget.id} status={budget.status} permissions={permissions} />
       </section>
 
       <section className="dashboard-section">
