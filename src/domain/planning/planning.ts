@@ -93,6 +93,27 @@ export function previewNextOccurrenceDate(
   return formatDate(targetYear, targetMonth, day);
 }
 
+/**
+ * Every first-of-month date from `startDate` through `endDate`, inclusive (P13 Part 3h, fifth increment):
+ * the Budget "set lines" grid's own month columns and the Revenue Target lines editor's own fixed row set
+ * are both derived from a plan's own `start_date`/`end_date` this way, rather than a further round trip --
+ * pure calendar math, the same year*12+month stepping `previewNextOccurrenceDate`'s own monthly branch
+ * already uses.
+ */
+export function monthRangeInclusive(startDate: string, endDate: string): string[] {
+  const [startYear, startMonth] = startDate.split("-").map(Number);
+  const [endYear, endMonth] = endDate.split("-").map(Number);
+  const startTotal = startYear * 12 + (startMonth - 1);
+  const endTotal = endYear * 12 + (endMonth - 1);
+  const months: string[] = [];
+  for (let total = startTotal; total <= endTotal; total++) {
+    const year = Math.floor(total / 12);
+    const month = (total % 12) + 1;
+    months.push(formatDate(year, month, 1));
+  }
+  return months;
+}
+
 function daysInMonth(year: number, month: number): number {
   return new Date(Date.UTC(year, month, 0)).getUTCDate();
 }
