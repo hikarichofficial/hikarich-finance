@@ -1710,7 +1710,8 @@ a.kpi-card:hover {
 }
 
 .record-form input,
-.record-form select {
+.record-form select,
+.record-form textarea {
   padding: 8px 14px;
   font: inherit;
   font-size: var(--text-sm);
@@ -1720,11 +1721,51 @@ a.kpi-card:hover {
   border-radius: var(--radius-md);
 }
 
+.record-form textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
 .checkbox-field {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: var(--space-2);
+}
+
+/* Budget/Revenue Target "set lines" editable grid (P13 Part 3h, fifth increment): a month x category grid
+   for Budgets, a fixed month list for Revenue Targets, sharing this same table-with-inputs shell. */
+.plan-lines-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.plan-lines-table-wrap {
+  overflow-x: auto;
+}
+
+.plan-lines-table input,
+.plan-lines-table select {
+  width: 100%;
+  min-width: 96px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.plan-lines-table select {
+  min-width: 160px;
+}
+
+.plan-lines-editor-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
 }
 
 @media (max-width: 640px) {
