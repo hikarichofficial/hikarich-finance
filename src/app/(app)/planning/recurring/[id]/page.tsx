@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { listRecurringOccurrences, listRecurringRules } from "@/services/planning/planning";
 import { RecurringRuleDetailScreen } from "@/features/planning/RecurringRuleDetailScreen";
@@ -7,7 +8,10 @@ import { RecurringRuleDetailScreen } from "@/features/planning/RecurringRuleDeta
  * itself -- only `list_recurring_rules`, Entity-scoped -- so the page fetches the register for the active
  * Entity and looks up the one row by id, the same "no per-record RPC, fetch the list and find by id" shape
  * Employee Detail already uses (decision 179, itself reusing decision 169). An id belonging to a different
- * Entity, or one the caller cannot see, lands here as "not found", never a cross-Entity leak. */
+ * Entity, or one the caller cannot see, lands here as "not found", never a cross-Entity leak. `permissions`
+ * (fourth increment) is read off the currently active Entity, the same per-page pattern every other screen
+ * uses (decision 158); the database still re-checks every action against the rule's own actual Entity
+ * regardless of what is active here. */
 export default async function RecurringRuleDetailPage({
   params,
   searchParams,
@@ -17,7 +21,7 @@ export default async function RecurringRuleDetailPage({
 }) {
   const { id } = await params;
   const { entity } = await searchParams;
-  const { membership } = await requirePermission("planning.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("planning.view", { entityCode: entity });
 
   const entries = await listRecurringRules({ entity_id: membership.entity_id });
   const rule = entries.find((row) => row.id === id);
@@ -34,6 +38,9 @@ export default async function RecurringRuleDetailPage({
       occurrences={occurrences}
       entity={entity}
       backHref={backHref}
+      permissions={{
+        canManage: can(access, membership.entity_id, "planning.recurring_edit"),
+      }}
     />
   );
 }
