@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { previewNextOccurrenceDate, recurringRuleActions } from "./planning";
+import { monthRangeInclusive, previewNextOccurrenceDate, recurringRuleActions } from "./planning";
 
 describe("previewNextOccurrenceDate", () => {
   it("steps weekly by 7 * interval days", () => {
@@ -24,6 +24,30 @@ describe("previewNextOccurrenceDate", () => {
 
   it("steps monthly across a year boundary", () => {
     expect(previewNextOccurrenceDate("2027-12-15", "monthly", 1)).toBe("2028-01-15");
+  });
+});
+
+describe("monthRangeInclusive", () => {
+  it("returns every first-of-month date within a single year", () => {
+    expect(monthRangeInclusive("2026-01-15", "2026-04-05")).toEqual([
+      "2026-01-01",
+      "2026-02-01",
+      "2026-03-01",
+      "2026-04-01",
+    ]);
+  });
+
+  it("returns exactly the start month when start and end fall in the same month", () => {
+    expect(monthRangeInclusive("2026-03-01", "2026-03-31")).toEqual(["2026-03-01"]);
+  });
+
+  it("steps across a year boundary", () => {
+    expect(monthRangeInclusive("2026-11-01", "2027-02-28")).toEqual([
+      "2026-11-01",
+      "2026-12-01",
+      "2027-01-01",
+      "2027-02-01",
+    ]);
   });
 });
 
