@@ -670,5 +670,3 @@ register as routes; `pnpm db:test` does not apply (no migration touched). This c
 list/detail surface. Remaining in 3h: Forecasts (folds into the Budget/Target report screens rather
 than becoming its own route, per decision 139's ruling), and every Recurring/Budget/Target action
 form. Completing those closes out all of Part 3 (decision 164) -- Part 4 is next per decision 155.
-
-
