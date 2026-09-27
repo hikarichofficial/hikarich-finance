@@ -653,3 +653,22 @@ one file since Revenue Targets (still pending) uses the identical enum, not dupl
 `pnpm check` and `pnpm build` pass (551 tests, up from 545); `/planning/budgets` and
 `/planning/budgets/[id]` register as routes; `pnpm db:test` does not apply (no migration touched).
 Remaining in 3h: Revenue Targets (list/detail/report), and every Recurring/Budget/Target action form.
+
+Part 3h third increment is implemented (DECISIONS 185): Revenue Target Register (`/planning/targets`)
+and Revenue Target Detail (`/planning/targets/[id]`). Completes Part 3h's list/detail surface. Same
+single `planning.view` read permission as Recurring Rules and Budgets; writes check the same
+`planning.budget_edit` Budgets uses (no separate revenue-target permission), deferred with the rest of
+the action forms. Detail fetches the register and finds the row by id (no per-target RPC exists) and
+uses `get_revenue_target_report` alone -- unlike Budgets, a revenue target has no category breakdown
+(Step 01 #23 names none), so the report is one row per month, entity-wide (Target/Actual/AR
+Outstanding/Variance), with no Committed or %Used column since neither concept exists without a
+category. `forecast_amount` gets no column (always null, decision 139). `src/domain/planning/
+budgetList.ts` gains `matchesRevenueTargetQuery`/`filterRevenueTargetRows` alongside the existing
+Budget pair, reusing the same shared `PlanStatus` badge/filter helpers -- no new file. `pnpm check`
+and `pnpm build` pass (554 tests, up from 551); `/planning/targets` and `/planning/targets/[id]`
+register as routes; `pnpm db:test` does not apply (no migration touched). This completes Part 3h's
+list/detail surface. Remaining in 3h: Forecasts (folds into the Budget/Target report screens rather
+than becoming its own route, per decision 139's ruling), and every Recurring/Budget/Target action
+form. Completing those closes out all of Part 3 (decision 164) -- Part 4 is next per decision 155.
+
+
