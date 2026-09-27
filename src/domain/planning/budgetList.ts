@@ -28,6 +28,19 @@ export function planStatusBadge(status: PlanStatus): BudgetListBadge {
   return { text: PLAN_STATUS_LABELS[status], tone: PLAN_STATUS_TONE[status] };
 }
 
+/** Whether a Budget or Revenue Target may currently be activated or closed, for disabling screen actions
+ * before a command round-trip. Both share `PlanStatus` (decision 184) and both pairs of RPCs enforce the
+ * identical draft-only-activate / active-only-close rule (`activate_budget`/`close_budget`,
+ * `activate_revenue_target`/`close_revenue_target`), so one helper covers both -- the same "genuinely shared,
+ * not just similarly shaped" reasoning as the badge/filter helpers above. The database re-checks this itself;
+ * this is presentation only. */
+export function budgetActions(status: PlanStatus): { canActivate: boolean; canClose: boolean } {
+  return {
+    canActivate: status === "draft",
+    canClose: status === "active",
+  };
+}
+
 export interface PlanStatusFilterOption {
   value: PlanStatus | null;
   label: string;

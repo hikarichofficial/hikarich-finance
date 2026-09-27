@@ -670,3 +670,18 @@ register as routes; `pnpm db:test` does not apply (no migration touched). This c
 list/detail surface. Remaining in 3h: Forecasts (folds into the Budget/Target report screens rather
 than becoming its own route, per decision 139's ruling), and every Recurring/Budget/Target action
 form. Completing those closes out all of Part 3 (decision 164) -- Part 4 is next per decision 155.
+
+Part 3h fourth increment is implemented (DECISIONS 186): status-transition action forms --
+Recurring Rule pause/resume/end plus the entity-wide manual "generate now" button
+(`planning.recurring_run`), and Budget/Revenue Target activate/close (sharing `planning.budget_edit`).
+New `src/features/planning/actions.ts` mirrors `transferActions.ts` exactly; a new `budgetActions`
+helper in `budgetList.ts` mirrors the existing `recurringRuleActions`, shared by Budget and Revenue
+Target. Pause/End require a 5-1000 character reason (reveal-confirm, `ReverseForm` shape); Resume and
+Activate need no reason; Close is terminal for both plan types and gets a reveal-confirm with no
+reason field. "Generate now" is entity-wide, not per-rule, so its button sits on the Recurring Rules
+Register header rather than Detail. All three Detail screens and their `page.tsx` files now compute
+and pass a `permissions` prop via the same active-Entity `can()` pattern Invoice Detail uses.
+`pnpm check` and `pnpm build` pass (557 tests, up from 554); `pnpm db:test` passes (no migration
+touched). This closes out every action form decision 185 listed as remaining except create and the
+"set lines"/template builders, still deferred (genuinely new UI territory, no editable multi-row grid
+precedent exists in this codebase) -- Part 3h's status-transition surface is otherwise complete.

@@ -7,6 +7,7 @@ import {
 } from "@/domain/planning/recurringList";
 import type { RecurringRuleRow } from "@/schemas/planning";
 import type { RecurringStatus } from "@/domain/planning/planning";
+import { RunDueRecurringOccurrencesButton } from "./RecurringRuleActions";
 import { formatShortDate } from "./format";
 
 /**
@@ -17,18 +18,23 @@ import { formatShortDate } from "./format";
  * parameter covers it. No Create button -- a recurring rule's own create flow is a multi-step template builder
  * (invoice/bill/expense line items), materially larger than this list/detail pair, so it is deferred to a
  * later increment exactly like every other Part 3 family's own create/edit builder (decision 164's own
- * ordering).
+ * ordering). The manual "generate now" action (`planning.recurring_run`, P13 Part 3h, fourth increment) is
+ * entity-wide rather than per-rule, so its button lives here in the header rather than on Detail.
  */
 export function RecurringRuleRegisterScreen({
   rows,
   status,
   query,
   entity,
+  entityId,
+  canRun,
 }: {
   rows: readonly RecurringRuleRow[];
   status: RecurringStatus | null;
   query: string;
   entity: string | undefined;
+  entityId: string;
+  canRun: boolean;
 }) {
   return (
     <div className="list-screen">
@@ -37,6 +43,7 @@ export function RecurringRuleRegisterScreen({
           <h1>Aturan Berulang</h1>
           <p className="list-screen-summary">{rows.length} aturan ditampilkan.</p>
         </div>
+        <RunDueRecurringOccurrencesButton entityId={entityId} canRun={canRun} />
       </header>
 
       <div className="list-screen-toolbar">
