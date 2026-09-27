@@ -238,6 +238,7 @@ export const budgetLineRowSchema = z.object({
   budgeted_amount: signedDecimalTextSchema,
 });
 export const budgetLineListSchema = z.array(budgetLineRowSchema);
+export type BudgetLineRow = z.infer<typeof budgetLineRowSchema>;
 
 /** `forecast_amount` is always null (DECISIONS 139): no locked spec defines a projection methodology, so
  * this is filed as an open OWNER question rather than guessed. */
@@ -314,6 +315,7 @@ export const revenueTargetLineRowSchema = z.object({
   target_amount: signedDecimalTextSchema,
 });
 export const revenueTargetLineListSchema = z.array(revenueTargetLineRowSchema);
+export type RevenueTargetLineRow = z.infer<typeof revenueTargetLineRowSchema>;
 
 export const revenueTargetReportRowSchema = z.object({
   period_month: isoDateSchema,

@@ -13,20 +13,28 @@ import { formatShortDate } from "./format";
  * Revenue Target Register (P13 Part 3h, third increment, Step 09 §9, §18). Follows the same Standard List
  * Screen Pattern as Recurring Rules (decision 183) and Budgets (decision 184): `list_revenue_targets`'s own
  * `p_status` argument is sent server-side, only the free-text name search is client-side. No Create button --
- * a revenue target's own create flow is a multi-step period grid builder (`set_revenue_target_lines`),
- * deferred to a later increment along with activate/close, the same ordering decision 164 already set out.
+ * a revenue target's own create flow is a multi-step period grid builder (`set_revenue_target_lines`) --
+ * shipped in the fifth increment as its own "set lines" list on Revenue Target Detail, reached from here via
+ * the "Buat Target Baru" button (`canCreate`, `planning.budget_edit`, the exact permission
+ * `create_revenue_target` itself checks).
  */
 export function RevenueTargetRegisterScreen({
   rows,
   status,
   query,
   entity,
+  canCreate,
 }: {
   rows: readonly RevenueTargetRow[];
   status: PlanStatus | null;
   query: string;
   entity: string | undefined;
+  canCreate: boolean;
 }) {
+  const newHref = entity
+    ? `/planning/targets/new?entity=${encodeURIComponent(entity)}`
+    : "/planning/targets/new";
+
   return (
     <div className="list-screen">
       <header className="list-screen-header">
@@ -34,6 +42,11 @@ export function RevenueTargetRegisterScreen({
           <h1>Target Pendapatan</h1>
           <p className="list-screen-summary">{rows.length} target pendapatan ditampilkan.</p>
         </div>
+        {canCreate ? (
+          <Link href={newHref} className="btn-primary">
+            Buat Target Baru
+          </Link>
+        ) : null}
       </header>
 
       <div className="list-screen-toolbar">

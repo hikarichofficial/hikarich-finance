@@ -1,9 +1,14 @@
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
-import { PLAN_PERIOD_TYPE_LABELS } from "@/domain/planning/planning";
+import { PLAN_PERIOD_TYPE_LABELS, monthRangeInclusive } from "@/domain/planning/planning";
 import { planStatusBadge } from "@/domain/planning/budgetList";
-import type { RevenueTargetReportRow, RevenueTargetRow } from "@/schemas/planning";
+import type {
+  RevenueTargetLineRow,
+  RevenueTargetReportRow,
+  RevenueTargetRow,
+} from "@/schemas/planning";
 import { RevenueTargetActions, type RevenueTargetActionPermissions } from "./RevenueTargetActions";
+import { RevenueTargetLinesEditor } from "./RevenueTargetLinesEditor";
 import { formatShortDate } from "./format";
 
 /**
@@ -17,23 +22,29 @@ import { formatShortDate } from "./format";
  * column for the same reason as Budget Detail: the RPC always returns it `null` (decision 139's own "no
  * locked projection methodology" ruling), so a column that could only ever show "—" would be noise, not
  * information. The report is already ordered by the RPC itself (`period_month`) -- rendered in that order.
- * Activate/Close are rendered as actual buttons by `RevenueTargetActions` (P13 Part 3h, fourth increment);
- * the "set lines" editable grid builder is a separate, later increment (decision 164's own ordering).
+ * Activate/Close are rendered as actual buttons by `RevenueTargetActions` (P13 Part 3h, fourth increment).
+ * "Atur Baris Target Pendapatan" (P13 Part 3h, fifth increment) renders `RevenueTargetLinesEditor` -- gated
+ * and keyed exactly like Budget Detail's own `BudgetLinesEditor` (`permissions.canManage`, not while
+ * `closed`, keyed by `target.version` so a successful save remounts it from the freshly revalidated `lines`).
  */
 export function RevenueTargetDetailScreen({
   target,
   report,
+  lines,
   currency,
   backHref,
   permissions,
 }: {
   target: RevenueTargetRow;
   report: readonly RevenueTargetReportRow[];
+  lines: readonly RevenueTargetLineRow[];
   currency: string;
   backHref: string;
   permissions: RevenueTargetActionPermissions;
 }) {
   const statusBadge = planStatusBadge(target.status);
+  const months = monthRangeInclusive(target.start_date, target.end_date);
+  const canEditLines = permissions.canManage && target.status !== "closed";
 
   return (
     <div className="record-detail">
@@ -82,6 +93,28 @@ export function RevenueTargetDetailScreen({
           status={target.status}
           permissions={permissions}
         />
+      </section>
+
+      <section className="dashboard-section">
+        <div className="dashboard-section-header">
+          <h2 className="dashboard-section-title">Atur Baris Target Pendapatan</h2>
+        </div>
+        {canEditLines ? (
+          <RevenueTargetLinesEditor
+            key={target.version}
+            targetId={target.id}
+            months={months}
+            existingLines={lines}
+            expectedVersion={target.version}
+            currency={currency}
+          />
+        ) : (
+          <p className="hint">
+            {target.status === "closed"
+              ? "Target pendapatan yang ditutup tidak dapat diedit lagi."
+              : "Anda tidak memiliki izin untuk mengubah baris target pendapatan."}
+          </p>
+        )}
       </section>
 
       <section className="dashboard-section">

@@ -3,6 +3,7 @@ import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import {
   getEntityBaseCurrency,
+  getRevenueTargetLines,
   getRevenueTargetReport,
   listRevenueTargets,
 } from "@/services/planning/planning";
@@ -14,7 +15,9 @@ import { RevenueTargetDetailScreen } from "@/features/planning/RevenueTargetDeta
  * covers the report (Target/Actual/AR Outstanding/Variance per month, entity-wide -- no category breakdown
  * and no separate lines RPC to fetch alongside it, unlike Budgets). `permissions` (fourth increment) follows
  * the same active-Entity `can()` pattern every other screen uses (decision 158), reusing `planning.budget_edit`
- * since Revenue Target shares that capability with Budget (decision 184). */
+ * since Revenue Target shares that capability with Budget (decision 184). From the fifth increment,
+ * `get_revenue_target_lines`'s own raw lines feed `RevenueTargetLinesEditor`, fetched unconditionally
+ * (needs only Entity membership) alongside the report and currency. */
 export default async function RevenueTargetDetailPage({
   params,
   searchParams,
@@ -30,8 +33,9 @@ export default async function RevenueTargetDetailPage({
   const target = entries.find((row) => row.id === id);
   if (!target) notFound();
 
-  const [report, currency] = await Promise.all([
+  const [report, lines, currency] = await Promise.all([
     getRevenueTargetReport(id),
+    getRevenueTargetLines(id),
     getEntityBaseCurrency(membership.entity_id),
   ]);
   const backHref = entity
@@ -42,6 +46,7 @@ export default async function RevenueTargetDetailPage({
     <RevenueTargetDetailScreen
       target={target}
       report={report}
+      lines={lines}
       currency={currency}
       backHref={backHref}
       permissions={{ canManage: can(access, membership.entity_id, "planning.budget_edit") }}

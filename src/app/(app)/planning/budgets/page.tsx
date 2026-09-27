@@ -1,3 +1,4 @@
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { listBudgets } from "@/services/planning/planning";
 import { filterBudgetRows, parsePlanStatusFilter } from "@/domain/planning/budgetList";
@@ -5,14 +6,15 @@ import { BudgetRegisterScreen } from "@/features/planning/BudgetRegisterScreen";
 
 /** Budget Register (P13 Part 3h, second increment, Step 09 §9, §18). `?status=` is sent straight to
  * `list_budgets`'s own `p_status` argument (server-side filtering); `?q=` is a client-side name search since
- * no RPC parameter covers it. */
+ * no RPC parameter covers it. `canCreate` (fifth increment) gates the "Buat Anggaran Baru" button, the same
+ * per-page `can()` pattern every other screen uses (decision 158). */
 export default async function BudgetRegisterPage({
   searchParams,
 }: {
   searchParams: Promise<{ entity?: string; status?: string; q?: string }>;
 }) {
   const { entity, status, q } = await searchParams;
-  const { membership } = await requirePermission("planning.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("planning.view", { entityCode: entity });
   const planStatus = parsePlanStatusFilter(status) ?? null;
   const query = q ?? "";
 
@@ -22,5 +24,13 @@ export default async function BudgetRegisterPage({
   });
   const rows = filterBudgetRows(entries, query);
 
-  return <BudgetRegisterScreen rows={rows} status={planStatus} query={query} entity={entity} />;
+  return (
+    <BudgetRegisterScreen
+      rows={rows}
+      status={planStatus}
+      query={query}
+      entity={entity}
+      canCreate={can(access, membership.entity_id, "planning.budget_edit")}
+    />
+  );
 }
