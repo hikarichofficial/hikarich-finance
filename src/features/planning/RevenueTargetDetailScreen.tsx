@@ -3,6 +3,7 @@ import { formatMoney } from "@/domain/money/format";
 import { PLAN_PERIOD_TYPE_LABELS } from "@/domain/planning/planning";
 import { planStatusBadge } from "@/domain/planning/budgetList";
 import type { RevenueTargetReportRow, RevenueTargetRow } from "@/schemas/planning";
+import { RevenueTargetActions, type RevenueTargetActionPermissions } from "./RevenueTargetActions";
 import { formatShortDate } from "./format";
 
 /**
@@ -16,17 +17,21 @@ import { formatShortDate } from "./format";
  * column for the same reason as Budget Detail: the RPC always returns it `null` (decision 139's own "no
  * locked projection methodology" ruling), so a column that could only ever show "—" would be noise, not
  * information. The report is already ordered by the RPC itself (`period_month`) -- rendered in that order.
+ * Activate/Close are rendered as actual buttons by `RevenueTargetActions` (P13 Part 3h, fourth increment);
+ * the "set lines" editable grid builder is a separate, later increment (decision 164's own ordering).
  */
 export function RevenueTargetDetailScreen({
   target,
   report,
   currency,
   backHref,
+  permissions,
 }: {
   target: RevenueTargetRow;
   report: readonly RevenueTargetReportRow[];
   currency: string;
   backHref: string;
+  permissions: RevenueTargetActionPermissions;
 }) {
   const statusBadge = planStatusBadge(target.status);
 
@@ -72,6 +77,11 @@ export function RevenueTargetDetailScreen({
             </div>
           ) : null}
         </dl>
+        <RevenueTargetActions
+          targetId={target.id}
+          status={target.status}
+          permissions={permissions}
+        />
       </section>
 
       <section className="dashboard-section">
