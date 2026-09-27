@@ -1,9 +1,11 @@
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
-import { PLAN_PERIOD_TYPE_LABELS } from "@/domain/planning/planning";
+import { PLAN_PERIOD_TYPE_LABELS, monthRangeInclusive } from "@/domain/planning/planning";
 import { planStatusBadge } from "@/domain/planning/budgetList";
-import type { BudgetReportRow, BudgetRow } from "@/schemas/planning";
+import type { CategoryRow } from "@/schemas/categories";
+import type { BudgetLineRow, BudgetReportRow, BudgetRow } from "@/schemas/planning";
 import { BudgetActions, type BudgetActionPermissions } from "./BudgetActions";
+import { BudgetLinesEditor } from "./BudgetLinesEditor";
 import { formatShortDate } from "./format";
 
 /**
@@ -18,23 +20,34 @@ import { formatShortDate } from "./format";
  * would be pure noise rather than information. The report is already ordered by the RPC itself
  * (`period_month`, then category `sort_order`/`name`) -- rendered in that order rather than re-grouped, the
  * same "trust the RPC's own order" choice every other flat report table in this codebase makes. Activate/
- * Close are rendered as actual buttons by `BudgetActions` (P13 Part 3h, fourth increment); the "set lines"
- * editable grid builder is a separate, later increment (decision 164's own ordering).
+ * Close are rendered as actual buttons by `BudgetActions` (P13 Part 3h, fourth increment). "Atur Baris
+ * Anggaran" (P13 Part 3h, fifth increment) renders `BudgetLinesEditor` -- gated the same way every other
+ * write action on this screen is (`permissions.canManage`), and only while the budget is not `closed` (a
+ * closed budget can never be reopened or edited again, `budgetActions`'s own reasoning). Its month columns
+ * are derived from the budget's own date range (`monthRangeInclusive`) rather than fetched, and it is keyed
+ * by `budget.version` so a successful save (which bumps the version) remounts it with the freshly revalidated
+ * `lines` rather than keeping stale local row state around.
  */
 export function BudgetDetailScreen({
   budget,
   report,
+  lines,
+  categories,
   currency,
   backHref,
   permissions,
 }: {
   budget: BudgetRow;
   report: readonly BudgetReportRow[];
+  lines: readonly BudgetLineRow[];
+  categories: readonly CategoryRow[];
   currency: string;
   backHref: string;
   permissions: BudgetActionPermissions;
 }) {
   const statusBadge = planStatusBadge(budget.status);
+  const months = monthRangeInclusive(budget.start_date, budget.end_date);
+  const canEditLines = permissions.canManage && budget.status !== "closed";
 
   return (
     <div className="record-detail">
@@ -79,6 +92,29 @@ export function BudgetDetailScreen({
           ) : null}
         </dl>
         <BudgetActions budgetId={budget.id} status={budget.status} permissions={permissions} />
+      </section>
+
+      <section className="dashboard-section">
+        <div className="dashboard-section-header">
+          <h2 className="dashboard-section-title">Atur Baris Anggaran</h2>
+        </div>
+        {canEditLines ? (
+          <BudgetLinesEditor
+            key={budget.version}
+            budgetId={budget.id}
+            months={months}
+            categories={categories}
+            existingLines={lines}
+            expectedVersion={budget.version}
+            currency={currency}
+          />
+        ) : (
+          <p className="hint">
+            {budget.status === "closed"
+              ? "Anggaran yang ditutup tidak dapat diedit lagi."
+              : "Anda tidak memiliki izin untuk mengubah baris anggaran."}
+          </p>
+        )}
       </section>
 
       <section className="dashboard-section">
