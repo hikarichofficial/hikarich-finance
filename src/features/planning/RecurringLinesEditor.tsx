@@ -169,7 +169,9 @@ export function RecurringLinesEditor({
                         type="text"
                         maxLength={500}
                         value={row.description}
-                        onChange={(event) => updateRow(row.key, { description: event.target.value })}
+                        onChange={(event) =>
+                          updateRow(row.key, { description: event.target.value })
+                        }
                         placeholder="Deskripsi baris"
                       />
                     </td>
@@ -210,7 +212,9 @@ export function RecurringLinesEditor({
                     <td>
                       <select
                         value={row.category_id}
-                        onChange={(event) => updateRow(row.key, { category_id: event.target.value })}
+                        onChange={(event) =>
+                          updateRow(row.key, { category_id: event.target.value })
+                        }
                       >
                         <option value="">Tanpa kategori</option>
                         {rowCategories.map((category) => (
@@ -221,7 +225,11 @@ export function RecurringLinesEditor({
                       </select>
                     </td>
                     <td>
-                      <button type="button" className="btn-ghost" onClick={() => removeRow(row.key)}>
+                      <button
+                        type="button"
+                        className="btn-ghost"
+                        onClick={() => removeRow(row.key)}
+                      >
                         Hapus
                       </button>
                     </td>
