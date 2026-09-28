@@ -477,3 +477,50 @@ export function customReportTotals(
   const totalAmount = sumDecimals(rows.map((r) => Decimal.parse(r.total_amount)));
   return { rowCount, totalAmount };
 }
+
+// ================================================================ Consolidated Analysis (P13 Part 4, fifth increment)
+
+/** The Entity selection a Consolidated Analysis screen resolves to (Step 12 §15). `eligible` is expected
+ * already filtered to what the caller actually holds `reports.cross_entity` for (checked in the page via
+ * `can`, `@/domain/authz/access`) -- this function never re-derives authorization, it only picks which of
+ * those authorized Entities are in view. Any requested id that is not in `eligible` is silently dropped
+ * (never sent to `consolidated_cash_position`, which would otherwise fail the whole call closed per its
+ * own per-Entity check) rather than surfaced as an error -- a stale or tampered id just falls out of the
+ * selection. When nothing requested survives that filter (first load, or every requested id was dropped),
+ * this defaults to every eligible Entity -- a cross-Entity view starting from "show everything I may see"
+ * is the sensible default, mirroring `resolveGeneralLedgerAccount`/`resolveCustomReportDataset`'s own
+ * "always resolve to something sensible" shape. An empty `eligible` list (no cross-Entity permission
+ * anywhere) returns an empty selection -- there is nothing sensible to fall back to. */
+export function resolveConsolidatedEntityIds(
+  eligible: readonly { entity_id: string }[],
+  requested: readonly string[],
+): string[] {
+  if (eligible.length === 0) return [];
+  const eligibleIds = new Set(eligible.map((e) => e.entity_id));
+  const filtered = requested.filter((id) => eligibleIds.has(id));
+  return filtered.length > 0 ? filtered : eligible.map((e) => e.entity_id);
+}
+
+export interface ConsolidatedCashPositionTotals {
+  entityCount: number;
+  totalCashBalance: Decimal | null;
+}
+
+/** The grand total row under a Consolidated Analysis table -- a display-only sum of exactly the
+ * per-Entity `cash_balance` figures `consolidated_cash_position` already returned, never a merge of the
+ * underlying books (the RPC's own comment: "Company and Personal books are never merged"; this only adds
+ * up the already-computed display figures). Each Entity's own base currency is looked up separately (the
+ * RPC returns no currency of its own), so `totalCashBalance` is `null` -- not a silently wrong number --
+ * whenever the selected Entities do not all share one base currency; summing IDR and, say, USD balances
+ * into one figure would be exactly the "invented second financial truth" this app's reports never do. */
+export function consolidatedCashPositionTotals(
+  rows: readonly { entity_id: string; cash_balance: string }[],
+  currencyByEntity: Readonly<Record<string, string>>,
+): ConsolidatedCashPositionTotals {
+  const entityCount = rows.length;
+  if (entityCount === 0) return { entityCount, totalCashBalance: Decimal.zero() };
+  const currencies = new Set(rows.map((r) => currencyByEntity[r.entity_id]));
+  if (currencies.size !== 1) return { entityCount, totalCashBalance: null };
+  const totalCashBalance = sumDecimals(rows.map((r) => Decimal.parse(r.cash_balance)));
+  return { entityCount, totalCashBalance };
+}
