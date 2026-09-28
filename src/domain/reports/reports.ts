@@ -442,3 +442,38 @@ export function generalLedgerTotals(
     rows.length > 0 ? Decimal.parse(rows[rows.length - 1].running_balance) : Decimal.zero();
   return { debit, credit, closingBalance };
 }
+
+// ================================================================ Custom Report Builder (P13 Part 4, fourth increment)
+
+/** The dataset a Custom Report Builder screen resolves to (Step 12 §19). `datasets` is expected already
+ * filtered to what the caller may actually run -- the page checks each dataset's own `required_permission`
+ * against the active membership (via `can`, `@/domain/authz/access`) before this ever sees them, so this
+ * function never re-derives authorization, it only picks a default, mirroring
+ * `resolveGeneralLedgerAccount`'s own "always resolve to something sensible" shape. A missing or unknown
+ * key falls back to the first available dataset; an empty list (no dataset the caller may run) returns
+ * `null`, exactly like `resolveGeneralLedgerAccount` returns `null` for an Entity with no posting account. */
+export function resolveCustomReportDataset(
+  datasets: readonly { dataset_key: string }[],
+  requested: string | undefined,
+): string | null {
+  if (datasets.length === 0) return null;
+  if (requested && datasets.some((d) => d.dataset_key === requested)) return requested;
+  return datasets[0].dataset_key;
+}
+
+export interface CustomReportTotals {
+  rowCount: number;
+  totalAmount: Decimal;
+}
+
+/** The grand total row under a Custom Report Builder table -- a display-only sum of exactly the
+ * per-dimension `row_count`/`total_amount` figures `run_custom_report` already returned, never a second
+ * aggregation of source data (Step 12 §19's own "constrained to safe curated datasets" applies to the RPC,
+ * not to a frontend recomputation of it). */
+export function customReportTotals(
+  rows: readonly { row_count: number; total_amount: string }[],
+): CustomReportTotals {
+  const rowCount = rows.reduce((sum, r) => sum + r.row_count, 0);
+  const totalAmount = sumDecimals(rows.map((r) => Decimal.parse(r.total_amount)));
+  return { rowCount, totalAmount };
+}
