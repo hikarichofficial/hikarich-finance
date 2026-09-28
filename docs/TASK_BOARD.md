@@ -822,3 +822,19 @@ wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (600 tests, up 
 db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred, per the third
 increment's own list minus this item: Consolidated Analysis, the Documents Center, and the Command
 Menu quick-create registry.
+
+Part 4 fifth increment is implemented (DECISIONS 193): the Consolidated Analysis dashboard, a
+seventh `/reports?statement=consolidated` tab over `consolidated_cash_position`'s cross-Entity cash
+position -- `getConsolidatedCashPosition` and its schemas already existed since P12, unused until
+now. Unlike every other Reports tab this one is not scoped to a single active Entity: the Entity
+checkboxes only ever list what the caller holds `reports.cross_entity` for (checked locally via
+`can` against the already-loaded access snapshot), mirroring the fourth increment's own
+filter-before-offering shape for datasets. New pure domain helpers `resolveConsolidatedEntityIds`
+(falls back to every eligible Entity when nothing requested survives the permission filter) and
+`consolidatedCashPositionTotals` (grand total across Entities, `null` rather than a silently wrong
+number whenever the selected Entities do not all share one base currency -- each Entity's own
+currency is looked up separately, since the RPC returns none and Company/Personal books are never
+merged). No new RPC, schema or service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build`
+pass (608 tests, up from 600); `pnpm db:test` passes (schema fingerprint unchanged at
+`5335133e42e3`). Still deferred, per the fourth increment's own list minus this item: the Documents
+Center and the Command Menu quick-create registry.
