@@ -4,13 +4,14 @@ import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
-import type { PlanPeriodType } from "@/domain/planning/planning";
+import type { PlanPeriodType, RecurringFrequency, RecurringKind } from "@/domain/planning/planning";
 import {
   activateBudget,
   activateRevenueTarget,
   closeBudget,
   closeRevenueTarget,
   createBudget,
+  createRecurringRule,
   createRevenueTarget,
   endRecurringRule,
   pauseRecurringRule,
@@ -18,6 +19,7 @@ import {
   runDueRecurringOccurrences,
   setBudgetLines,
   setRevenueTargetLines,
+  updateRecurringRule,
 } from "@/services/planning/planning";
 
 /**
@@ -29,8 +31,16 @@ import {
  * `set_budget_lines`/`set_revenue_target_lines` all check). Every call is an unmodified P10 RPC -- this layer
  * only shapes form input and turns a thrown `AuthzError` into the same user-safe Indonesian copy every other
  * screen uses, mirroring `src/features/money/transferActions.ts` exactly (including its own
- * `redirect()`-after-success shape for the two create actions). Recurring's own per-kind template create/
- * edit builder is still a separate, later increment (decision 164's own ordering) -- not here.
+ * `redirect()`-after-success shape for the two create actions). From the sixth increment: Recurring Rule's
+ * own create/edit template builder (`createRecurringRuleAction`/`updateRecurringRuleAction`, gated by
+ * `planning.recurring_edit`, the exact permission `create_recurring_rule`/`update_recurring_rule` themselves
+ * check). `RecurringRuleForm` never assembles the per-kind `template` object itself -- it submits flat,
+ * kind-specific named fields (`customer_id`, `vendor_id`, `account_id`, ...) plus one hidden `lines` JSON
+ * field (`RecurringLinesEditor`'s own serialization, the same `parseLinesJson` shape `setBudgetLinesAction`
+ * already established), and `buildRecurringTemplate` below assembles the actual jsonb template server-side,
+ * keyed off the same `kind` the form also sends as a hidden field. This is simpler than replicating Budget's
+ * two-RPC create-then-"set-lines" split: `create_recurring_rule`/`update_recurring_rule` both take the whole
+ * template as one jsonb parameter, so one form and one submit covers header fields and lines together.
  */
 
 export interface PlanningActionState {
@@ -176,6 +186,127 @@ export async function runDueRecurringOccurrencesAction(
     message:
       count === 0 ? "Tidak ada kejadian yang jatuh tempo." : `${count} kejadian berhasil dibuat.`,
   };
+}
+
+type RecurringTemplateInput = Parameters<typeof createRecurringRule>[0]["template"];
+
+/** Assembles the per-kind `template` jsonb from the form's own flat, kind-specific fields plus the lines
+ * editor's already-parsed array -- the one place that maps `RecurringRuleForm`'s named inputs onto the
+ * exact shape `create_recurring_rule`/`update_recurring_rule` expect (mirroring `create_invoice_draft`/
+ * `create_bill_draft`/`create_expense_draft`'s own header fields minus `entity_id`/`idempotency_key`/dates,
+ * the shape the P10 migration's own comment already documents). A field the form did not render for this
+ * kind is simply absent from `formData`, so `optionalText` naturally leaves it out of the template too. */
+function buildRecurringTemplate(
+  formData: FormData,
+  kind: RecurringKind,
+  lines: unknown[],
+): Record<string, unknown> {
+  if (kind === "invoice") {
+    return {
+      customer_id: text(formData, "customer_id"),
+      currency: optionalText(formData, "currency"),
+      exchange_rate: optionalText(formData, "exchange_rate"),
+      payment_account_id: optionalText(formData, "payment_account_id"),
+      payment_channel_id: optionalText(formData, "payment_channel_id"),
+      notes: optionalText(formData, "notes"),
+      terms: optionalText(formData, "terms"),
+      payment_note: optionalText(formData, "payment_note"),
+      internal_note: optionalText(formData, "internal_note"),
+      lines,
+    };
+  }
+  if (kind === "bill") {
+    return {
+      vendor_id: text(formData, "vendor_id"),
+      vendor_reference: optionalText(formData, "vendor_reference"),
+      currency: optionalText(formData, "currency"),
+      exchange_rate: optionalText(formData, "exchange_rate"),
+      notes: optionalText(formData, "notes"),
+      internal_note: optionalText(formData, "internal_note"),
+      lines,
+    };
+  }
+  return {
+    account_id: text(formData, "account_id"),
+    payee_id: optionalText(formData, "payee_id"),
+    payee_name: optionalText(formData, "payee_name"),
+    receipt_reference: optionalText(formData, "receipt_reference"),
+    exchange_rate: optionalText(formData, "exchange_rate"),
+    notes: optionalText(formData, "notes"),
+    internal_note: optionalText(formData, "internal_note"),
+    lines,
+  };
+}
+
+/** Redirects to the new rule's own Detail page on success, the same shape `createBudgetAction` established. */
+export async function createRecurringRuleAction(
+  _previous: PlanningActionState,
+  formData: FormData,
+): Promise<PlanningActionState> {
+  const entity = text(formData, "entity");
+  const kind = text(formData, "kind") as RecurringKind;
+  const lines = parseLinesJson(formData, "lines");
+  if (lines === null) {
+    return { status: "error", message: "Data baris template tidak valid." };
+  }
+  let ruleId: string;
+  try {
+    ruleId = await createRecurringRule({
+      entity_id: text(formData, "entity_id"),
+      idempotency_key: randomUUID(),
+      kind,
+      label: text(formData, "label"),
+      frequency: text(formData, "frequency") as RecurringFrequency,
+      start_date: text(formData, "start_date"),
+      template: buildRecurringTemplate(formData, kind, lines) as RecurringTemplateInput,
+      interval_count: optionalNumber(formData, "interval_count") ?? 1,
+      due_offset_days: optionalNumber(formData, "due_offset_days") ?? 0,
+      end_date: optionalText(formData, "end_date"),
+      note: optionalText(formData, "note"),
+    });
+  } catch (error) {
+    return errorState(error, "Aturan berulang tidak dapat dibuat.");
+  }
+  revalidatePath("/planning/recurring");
+  redirect(
+    entity
+      ? `/planning/recurring/${ruleId}?entity=${encodeURIComponent(entity)}`
+      : `/planning/recurring/${ruleId}`,
+  );
+}
+
+/** `kind`, `frequency` and `start_date` are immutable after creation (confirmed against
+ * `update_recurring_rule`'s own SQL body: its patch never reads any of the three) -- the form sends `kind`
+ * only so this action can assemble the right template shape, and never sends `frequency`/`start_date` at
+ * all in edit mode. */
+export async function updateRecurringRuleAction(
+  _previous: PlanningActionState,
+  formData: FormData,
+): Promise<PlanningActionState> {
+  const ruleId = text(formData, "rule_id");
+  const kind = text(formData, "kind") as RecurringKind;
+  const lines = parseLinesJson(formData, "lines");
+  if (lines === null) {
+    return { status: "error", message: "Data baris template tidak valid." };
+  }
+  try {
+    await updateRecurringRule({
+      rule_id: ruleId,
+      expected_version: optionalNumber(formData, "expected_version"),
+      patch: {
+        label: text(formData, "label"),
+        template: buildRecurringTemplate(formData, kind, lines) as RecurringTemplateInput,
+        interval_count: optionalNumber(formData, "interval_count"),
+        due_offset_days: optionalNumber(formData, "due_offset_days"),
+        end_date: optionalText(formData, "end_date") ?? null,
+        note: optionalText(formData, "note") ?? null,
+      },
+    });
+  } catch (error) {
+    return errorState(error, "Aturan berulang tidak dapat disimpan.");
+  }
+  revalidateRecurringRule(ruleId);
+  return { status: "ok" };
 }
 
 // ---------------------------------------------------------------- budgets
