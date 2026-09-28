@@ -838,3 +838,21 @@ merged). No new RPC, schema or service wrapper. `pnpm check`, `pnpm format:check
 pass (608 tests, up from 600); `pnpm db:test` passes (schema fingerprint unchanged at
 `5335133e42e3`). Still deferred, per the fourth increment's own list minus this item: the Documents
 Center and the Command Menu quick-create registry.
+
+Part 4 sixth increment is implemented (DECISIONS 194): the Documents Center listing at `/documents`
+-- search by name, filter by target kind, permission-scoped, the only requirement traced for Step
+09 §20 in this repository. `listDocuments` and its schemas already existed since P11, unused until
+now. New pure domain helpers `DOCUMENT_TARGET_TYPE_FILTER_OPTIONS`/`parseDocumentTargetTypeFilter`
+mirror `parseBillFilter`'s "unrecognized filter shows everything" shape (a listing's natural
+default is unfiltered, unlike a report's "always pick one" account/dataset selector), and
+`documentTargetTypesLabel` renders a document's possibly-multiple linked target kinds as one
+string. Unlike every List screen before Part 4, `list_documents` filters and paginates
+server-side, so the route passes `?target_type=`/`?q=`/`?offset=` straight through as RPC
+arguments. Deliberately excluded this increment: Upload (Storage is not yet configured), a
+per-document detail/download view (not traced as required), and the `/documents/uploads`,
+`/documents/evidence`, `/documents/archive` nav sub-routes (their exact semantics are not stated
+anywhere in this repository, so they keep falling through to the "coming soon" placeholder). No new
+RPC, schema or service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (616 tests,
+up from 608); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still
+deferred, per the fifth increment's own list minus this item: the Command Menu quick-create
+registry, the three Documents nav sub-routes, and Documents Center upload/download/detail.
