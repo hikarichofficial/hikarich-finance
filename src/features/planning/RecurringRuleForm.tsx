@@ -14,7 +14,11 @@ import type {
   PaymentChannelPickerRow,
   RecurringRuleRow,
 } from "@/schemas/planning";
-import { createRecurringRuleAction, updateRecurringRuleAction, idlePlanningActionState } from "./actions";
+import {
+  createRecurringRuleAction,
+  updateRecurringRuleAction,
+  idlePlanningActionState,
+} from "./actions";
 import {
   RecurringLinesEditor,
   buildInitialRecurringLines,
@@ -40,7 +44,10 @@ import {
  */
 
 const KIND_OPTIONS = Object.entries(RECURRING_KIND_LABELS) as [RecurringKind, string][];
-const FREQUENCY_OPTIONS = Object.entries(RECURRING_FREQUENCY_LABELS) as [RecurringFrequency, string][];
+const FREQUENCY_OPTIONS = Object.entries(RECURRING_FREQUENCY_LABELS) as [
+  RecurringFrequency,
+  string,
+][];
 
 function templateField(template: unknown, key: string): string {
   if (!template || typeof template !== "object") return "";
@@ -223,7 +230,11 @@ export function RecurringRuleForm({
           <>
             <label>
               Pelanggan
-              <select name="customer_id" required defaultValue={templateField(template, "customer_id")}>
+              <select
+                name="customer_id"
+                required
+                defaultValue={templateField(template, "customer_id")}
+              >
                 <option value="" disabled>
                   Pilih pelanggan…
                 </option>
@@ -236,7 +247,10 @@ export function RecurringRuleForm({
             </label>
             <label>
               Akun Pembayaran (opsional)
-              <select name="payment_account_id" defaultValue={templateField(template, "payment_account_id")}>
+              <select
+                name="payment_account_id"
+                defaultValue={templateField(template, "payment_account_id")}
+              >
                 <option value="">Tidak ditentukan</option>
                 {accounts.map((account) => (
                   <option key={account.id} value={account.id}>
@@ -247,7 +261,10 @@ export function RecurringRuleForm({
             </label>
             <label>
               Kanal Pembayaran (opsional)
-              <select name="payment_channel_id" defaultValue={templateField(template, "payment_channel_id")}>
+              <select
+                name="payment_channel_id"
+                defaultValue={templateField(template, "payment_channel_id")}
+              >
                 <option value="">Tidak ditentukan</option>
                 {channels.map((channel) => (
                   <option key={channel.id} value={channel.id}>
@@ -268,11 +285,19 @@ export function RecurringRuleForm({
             </label>
             <label>
               Syarat Pembayaran (opsional)
-              <textarea name="terms" maxLength={4000} defaultValue={templateField(template, "terms")} />
+              <textarea
+                name="terms"
+                maxLength={4000}
+                defaultValue={templateField(template, "terms")}
+              />
             </label>
             <label>
               Catatan Faktur (opsional)
-              <textarea name="notes" maxLength={2000} defaultValue={templateField(template, "notes")} />
+              <textarea
+                name="notes"
+                maxLength={2000}
+                defaultValue={templateField(template, "notes")}
+              />
             </label>
             <label>
               Catatan Internal (opsional)
@@ -321,7 +346,11 @@ export function RecurringRuleForm({
             </label>
             <label>
               Catatan Tagihan (opsional)
-              <textarea name="notes" maxLength={2000} defaultValue={templateField(template, "notes")} />
+              <textarea
+                name="notes"
+                maxLength={2000}
+                defaultValue={templateField(template, "notes")}
+              />
             </label>
             <label>
               Catatan Internal (opsional)
@@ -338,7 +367,11 @@ export function RecurringRuleForm({
           <>
             <label>
               Akun Pembayar
-              <select name="account_id" required defaultValue={templateField(template, "account_id")}>
+              <select
+                name="account_id"
+                required
+                defaultValue={templateField(template, "account_id")}
+              >
                 <option value="" disabled>
                   Pilih akun…
                 </option>
@@ -380,7 +413,11 @@ export function RecurringRuleForm({
             </label>
             <label>
               Catatan Pengeluaran (opsional)
-              <textarea name="notes" maxLength={2000} defaultValue={templateField(template, "notes")} />
+              <textarea
+                name="notes"
+                maxLength={2000}
+                defaultValue={templateField(template, "notes")}
+              />
             </label>
             <label>
               Catatan Internal (opsional)
