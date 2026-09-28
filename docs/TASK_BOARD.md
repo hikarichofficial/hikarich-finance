@@ -321,8 +321,8 @@ continues on P13 rather than waiting idle).
 | --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
 | Part 1: Foundation & shell  | Design tokens (Step 10 §2, §4-§6), application shell -- sidebar, top bar, Entity switcher, Global Search, Command Menu, responsive shell (Step 09 §2-§8)               | Implemented |
 | Part 2: Dashboard           | Overview screen reading only already-built report RPCs, no independent frontend financial truth (Step 09 §8, Step 10 §10-§13)                                          | Implemented |
-| Part 3: Module screens      | Standard list/detail patterns (Step 09 §9-§10) applied to Sales, Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning (Step 09 §11-§18)           | In Progress |
-| Part 4: Reports & Documents | Statement viewers, Custom Report Builder UI, Consolidated Analysis (DECISIONS 148); Documents Center (Step 09 §20); Command Menu quick-create registry (DECISIONS 140) | Not Started |
+| Part 3: Module screens      | Standard list/detail patterns (Step 09 §9-§10) applied to Sales, Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning (Step 09 §11-§18)           | Implemented |
+| Part 4: Reports & Documents | Statement viewers, Custom Report Builder UI, Consolidated Analysis (DECISIONS 148); Documents Center (Step 09 §20); Command Menu quick-create registry (DECISIONS 140) | In Progress |
 | Part 5: Documents & polish  | Invoice/Receipt customer-document templates (Step 11); responsive/mobile, accessibility, motion polish across every part (Step 09 §23, §25-§27; Step 10 §21-§25)       | Not Started |
 | Gate                        | Dashboard KPI drill-down reconciles to report/source values; mobile essential workflows pass (Step 15 P13)                                                             | Not Started |
 
@@ -368,14 +368,21 @@ composition over existing RPCs).
 
 | Slice                                 | Scope (Step 09)     | Status      |
 | ------------------------------------- | ------------------- | ----------- |
-| 3a: Sales                             | §11 Invoice screens | In Progress |
-| 3b: Purchases & Expenses              | §12                 | In Progress |
-| 3c: Money / Accounts / Reconciliation | §13                 | In Progress |
-| 3d: Accounting                        | §14                 | In Progress |
-| 3e: Tax                               | §15                 | In Progress |
-| 3f: Assets, Loans & Equity            | §16                 | In Progress |
-| 3g: Payroll                           | §17                 | In Progress |
-| 3h: Planning & Recurring              | §18                 | In Progress |
+| 3a: Sales                             | §11 Invoice screens | Implemented |
+| 3b: Purchases & Expenses              | §12                 | Implemented |
+| 3c: Money / Accounts / Reconciliation | §13                 | Implemented |
+| 3d: Accounting                        | §14                 | Implemented |
+| 3e: Tax                               | §15                 | Implemented |
+| 3f: Assets, Loans & Equity            | §16                 | Implemented |
+| 3g: Payroll                           | §17                 | Implemented |
+| 3h: Planning & Recurring              | §18                 | Implemented |
+
+Each 3a-3h row carries its own List/Detail/report surface only, exactly as its own increment
+paragraphs below describe -- action forms and builders each increment explicitly deferred (create
+flows, status-transition forms, the Recurring Rule template builder) are now shipped too (decisions
+164-188), but a handful of report screens each sub-slice pushed to "the Reports Architecture slice"
+(Loans Due/Loan Summary, Payroll Summary/Payroll Control, the Fiscal Depreciation Schedule/Asset
+Movement/Asset GL reconciliation reports) remain open items for Part 4, not silently dropped.
 
 Part 3a (Sales) first increment is implemented (DECISIONS 165-166): Invoices List
 (`/sales/invoices`, filter tabs from `invoiceFilterSchema` + a `?q=` search over the page's own
@@ -730,3 +737,39 @@ check` and `pnpm build` pass (560 tests, unchanged -- no new domain logic, only 
 plumbing); `/planning/recurring/new` registers as a route; `pnpm db:test` does not apply (no migration
 touched). This closes out Part 3h in full, and with it all of Part 3 (decision 164) -- Part 4 (Reports
 Architecture, Documents Center, Command Menu quick-create) is next per decision 155's own sequence.
+
+Part 4 first increment is implemented (DECISIONS 189): the Financial Reports statement viewer
+(`/reports`, nav's "Financial Reports" sub-item), the four canonical statements P12 already computes
+-- Profit & Loss, Balance Sheet, Statement of Changes in Equity, Cash Flow Statement -- switched by
+`?statement=` (`list-filter-tabs`, the same pattern every Part 3 status-filter toolbar already uses),
+each with its own date filter form (`?from=`/`?to=` year-to-date default for P&L/Equity/Cash Flow,
+`?as_of=` today default for Balance Sheet). No new RPC, schema or service wrapper beyond
+`getEntityBaseCurrency` (decision 161's exact duplicated-per-service shape) -- every figure is P12's
+own already-computed debit/credit, re-signed once via `naturalAmount`. New pure domain helpers in
+`src/domain/reports/reports.ts` (unit-tested, 560 -> 577 tests): `resolveReportRange`/
+`resolveAsOfDate` (the same fallback shape as `resolveActivityRange`/`resolveDashboardPeriod`, but
+year-to-date rather than a trailing window -- the reading a person actually wants on first opening a
+statement), `groupByAccountClass` (sections a statement's rows by `account_class` in a fixed order,
+skipping empty classes), `pnlNetIncome`/`balanceSheetTotals`/`equityRowAmounts`/`equityClosingTotal`/
+`cashFlowTotals` (each a display-only reconciliation check -- Balanced/Tidak seimbang, Rekonsiliasi
+cocok/Tidak cocok -- never a correction, since a Balance Sheet or Cash Flow Statement built from
+posted double-entry journals always reconciles by construction; `pnlNetIncome`'s income-minus-cost
+split is algebraically identical to `balance_sheet`'s and `statement_of_changes_in_equity`'s own
+"Current Year Earnings"/"Net result for the period" `v_pl_net := v_pl_credit - v_pl_debit`
+derivation, so the P&L's own net total is structurally guaranteed to reconcile to both of those,
+satisfying the Step 15 P13 gate's reconciliation requirement for this slice). Three new
+`.record-table` row classes (`statement-section-row`/`statement-subtotal-row`/`tfoot` styling) added
+to `globals.css`, reusing the table's own existing look rather than a new component. `pnpm check`
+and `pnpm build` pass (577 tests, up from 560); `/reports` registers as a route; `pnpm db:test`
+passes (double clean rebuild, no migration touched -- confirms nothing in this pure frontend
+increment disturbed the schema). Deferred to later Part 4 increments, recorded rather than silently
+dropped: General Ledger drill-down (`general_ledger`, the fifth P12 statement RPC -- an account
+picker plus running-balance card), the P&L comparison-period columns (`compare_start_date`/
+`compare_end_date`, already in the schema/service but not surfaced in this v1 UI), the Custom Report
+Builder UI, Consolidated Analysis, the Documents Center, and the Command Menu quick-create registry.
+The other Reports nav sub-items (Sales/Purchase, a standalone Cashflow view, Tax, Payroll,
+Assets/Loans, Saved Reports) have no P12 RPC behind them at all and correctly fall through to the
+`[...slug]` "coming soon" placeholder (decision 157's precedent) rather than getting an empty screen
+of their own; each of the P13 3f/3g "belongs with the Reports Architecture slice" report deferrals
+(Loans Due/Loan Summary, Payroll Summary/Payroll Control, the three Asset reconciliation reports)
+remains open for a future Part 4 increment too.
