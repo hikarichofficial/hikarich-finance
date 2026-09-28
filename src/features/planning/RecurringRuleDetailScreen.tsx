@@ -8,8 +8,16 @@ import {
   recurringOccurrenceStatusBadge,
   recurringStatusBadge,
 } from "@/domain/planning/recurringList";
-import type { RecurringOccurrenceRow, RecurringRuleRow } from "@/schemas/planning";
+import type { CategoryRow } from "@/schemas/categories";
+import type {
+  ContactPickerRow,
+  FinancialAccountPickerRow,
+  PaymentChannelPickerRow,
+  RecurringOccurrenceRow,
+  RecurringRuleRow,
+} from "@/schemas/planning";
 import { RecurringRuleActions, type RecurringRuleActionPermissions } from "./RecurringRuleActions";
+import { RecurringRuleForm } from "./RecurringRuleForm";
 import { formatShortDate } from "./format";
 
 /** Only "invoices" and "bills" have a Detail route to link to yet -- "expenses" has no Detail screen built
@@ -36,19 +44,35 @@ const GENERATED_TABLE_HREF: Readonly<Partial<Record<"invoices" | "bills" | "expe
  * End are rendered as actual buttons by `RecurringRuleActions` (P13 Part 3h, fourth increment); the manual
  * "generate now" action (`runDueRecurringOccurrences`) is entity-wide rather than per-rule, so it lives on
  * the Register screen instead. `recurringRuleActions` stays the single eligibility source for both the hint
- * sentence below and the buttons, so they can never disagree.
+ * sentence below and the buttons, so they can never disagree. From the sixth increment: the template's own
+ * raw line items ARE now interpretable (`RecurringRuleForm`), so this screen renders the create/edit builder
+ * itself, pre-filled from `rule.template`, whenever `permissions.canManage` and the rule is not `ended`
+ * (`actions.canEdit` -- the same eligibility source the buttons above already use, so the edit form and the
+ * Pause/End buttons can never disagree about whether this rule may still be changed).
  */
 export function RecurringRuleDetailScreen({
   rule,
   occurrences,
   entity,
+  entityId,
   backHref,
+  customers,
+  vendors,
+  accounts,
+  channels,
+  categories,
   permissions,
 }: {
   rule: RecurringRuleRow;
   occurrences: readonly RecurringOccurrenceRow[];
   entity: string | undefined;
+  entityId: string;
   backHref: string;
+  customers: readonly ContactPickerRow[];
+  vendors: readonly ContactPickerRow[];
+  accounts: readonly FinancialAccountPickerRow[];
+  channels: readonly PaymentChannelPickerRow[];
+  categories: readonly CategoryRow[];
   permissions: RecurringRuleActionPermissions;
 }) {
   const statusBadge = recurringStatusBadge(rule.status);
@@ -137,6 +161,25 @@ export function RecurringRuleDetailScreen({
         </p>
         <RecurringRuleActions ruleId={rule.id} status={rule.status} permissions={permissions} />
       </section>
+
+      {permissions.canManage && actions.canEdit ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Template</h2>
+          </div>
+          <RecurringRuleForm
+            mode="edit"
+            entityId={entityId}
+            entity={entity}
+            rule={rule}
+            customers={customers}
+            vendors={vendors}
+            accounts={accounts}
+            channels={channels}
+            categories={categories}
+          />
+        </section>
+      ) : null}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">
