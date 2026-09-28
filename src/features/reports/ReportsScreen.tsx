@@ -2,6 +2,7 @@ import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import type { Decimal } from "@/domain/money/decimal";
 import { ENTRY_TYPE_LABELS } from "@/domain/accounting/journalList";
+import { entityLabel } from "@/domain/authz/access";
 import {
   BALANCE_SHEET_SECTION_ORDER,
   CASH_FLOW_BUCKET_LABELS,
@@ -9,6 +10,7 @@ import {
   PNL_SECTION_ORDER,
   balanceSheetTotals,
   cashFlowTotals,
+  consolidatedCashPositionTotals,
   customReportTotals,
   equityClosingTotal,
   equityRowAmounts,
@@ -26,6 +28,7 @@ import {
 import type {
   BalanceSheetRow,
   CashFlowRow,
+  ConsolidatedCashPositionRow,
   CustomReportRow,
   EquityChangeRow,
   GeneralLedgerRow,
@@ -33,9 +36,11 @@ import type {
   ReportDatasetCatalogRow,
 } from "@/schemas/reports";
 import type { LedgerAccountRow } from "@/schemas/accounting";
+import type { Membership } from "@/schemas/access";
 import { formatShortDate } from "./format";
 
-export type ReportStatement = "pnl" | "balance_sheet" | "equity" | "cashflow" | "gl" | "custom";
+export type ReportStatement =
+  "pnl" | "balance_sheet" | "equity" | "cashflow" | "gl" | "custom" | "consolidated";
 
 export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: string }[] = [
   { value: "pnl", label: "Laba Rugi" },
@@ -44,6 +49,7 @@ export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: st
   { value: "cashflow", label: "Arus Kas" },
   { value: "gl", label: "Buku Besar" },
   { value: "custom", label: "Laporan Kustom" },
+  { value: "consolidated", label: "Analisis Konsolidasi" },
 ];
 
 export type ReportsData =
@@ -69,6 +75,14 @@ export type ReportsData =
       datasets: readonly ReportDatasetCatalogRow[];
       datasetKey: string | null;
       rows: readonly CustomReportRow[];
+    }
+  | {
+      statement: "consolidated";
+      asOf: string;
+      eligible: readonly Membership[];
+      entityIds: readonly string[];
+      rows: readonly ConsolidatedCashPositionRow[];
+      currencyByEntity: Readonly<Record<string, string>>;
     };
 
 function buildTabHref(entity: string | undefined, statement: ReportStatement): string {
@@ -90,12 +104,16 @@ function buildTabHref(entity: string | undefined, statement: ReportStatement): s
  * fourth increment) runs one of the curated, permission-gated datasets `run_custom_report` exposes
  * (Step 12 §19) -- the dataset picker only ever lists what the active membership may run (filtered
  * server-side in the route, never client-side), and every row's dimension/count/total is exactly what the
- * RPC returned, grouped and summed once, in the database. Consolidated Analysis is still a later Part 4
- * increment (decision 189); the other Reports nav sub-items (Sales/Purchase, a standalone Cashflow view,
- * Tax, Payroll, Assets/Loans, Saved Reports) have no P12 RPC behind them yet and fall through to the
- * `[...slug]` "coming soon" placeholder (decision 157's precedent) until one exists. Every figure here is
- * the database's own debit/credit, re-signed once via `naturalAmount` (`@/domain/reports`) -- never a
- * second computation of the same fact.
+ * RPC returned, grouped and summed once, in the database. The Consolidated Analysis tab (decision 193,
+ * fifth increment) is the one statement not scoped to a single active Entity: its checkboxes only ever
+ * list Entities the caller holds `reports.cross_entity` for, and its per-row cash balance is formatted with
+ * that Entity's own base currency (looked up in the route, `currencyByEntity`) rather than the active
+ * Entity's -- Company and Personal books are never merged, and a grand total is only ever shown when every
+ * selected Entity happens to share one base currency. The other Reports nav sub-items (Sales/Purchase, a
+ * standalone Cashflow view, Tax, Payroll, Assets/Loans, Saved Reports) have no P12 RPC behind them yet and
+ * fall through to the `[...slug]` "coming soon" placeholder (decision 157's precedent) until one exists.
+ * Every figure here is the database's own debit/credit, re-signed once via `naturalAmount`
+ * (`@/domain/reports`) -- never a second computation of the same fact.
  */
 export function ReportsScreen({
   data,
@@ -161,6 +179,13 @@ export function ReportsScreen({
           currency={currency}
         />
       ) : null}
+      {data.statement === "consolidated" ? (
+        <ConsolidatedAnalysisTable
+          eligible={data.eligible}
+          rows={data.rows}
+          currencyByEntity={data.currencyByEntity}
+        />
+      ) : null}
     </div>
   );
 }
@@ -196,7 +221,24 @@ function RangeForm({ data, entity }: { data: ReportsData; entity: string | undef
           </select>
         </label>
       ) : null}
-      {data.statement === "balance_sheet" ? (
+      {data.statement === "consolidated" ? (
+        <fieldset>
+          <legend>Entity</legend>
+          {data.eligible.length === 0 ? <p>Anda tidak memiliki izin lintas-Entity.</p> : null}
+          {data.eligible.map((membership) => (
+            <label key={membership.entity_id}>
+              <input
+                type="checkbox"
+                name="entities"
+                value={membership.entity_id}
+                defaultChecked={data.entityIds.includes(membership.entity_id)}
+              />
+              {membership.entity_name} ({entityLabel(membership)})
+            </label>
+          ))}
+        </fieldset>
+      ) : null}
+      {data.statement === "balance_sheet" || data.statement === "consolidated" ? (
         <label>
           Per tanggal
           <input type="date" name="as_of" defaultValue={data.asOf} />
@@ -689,6 +731,78 @@ function CustomReportTable({
           <th scope="row">Total</th>
           <td className="num">{totals.rowCount}</td>
           <td className="num">{formatMoney(totals.totalAmount.toString(), currency)}</td>
+        </tr>
+      </tfoot>
+    </table>
+  );
+}
+
+function consolidatedEntityTypeLabel(entityType: string): string {
+  if (entityType === "company") return "Perusahaan";
+  if (entityType === "personal") return "Personal";
+  return entityType;
+}
+
+function ConsolidatedAnalysisTable({
+  eligible,
+  rows,
+  currencyByEntity,
+}: {
+  eligible: readonly Membership[];
+  rows: readonly ConsolidatedCashPositionRow[];
+  currencyByEntity: Readonly<Record<string, string>>;
+}) {
+  if (eligible.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Anda tidak memiliki izin lintas-Entity untuk laporan ini.</p>
+      </div>
+    );
+  }
+  if (rows.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Pilih minimal satu Entity untuk melihat posisi kas konsolidasi.</p>
+      </div>
+    );
+  }
+  const totals = consolidatedCashPositionTotals(rows, currencyByEntity);
+  return (
+    <table className="record-table">
+      <thead>
+        <tr>
+          <th scope="col">Kode</th>
+          <th scope="col">Entity</th>
+          <th scope="col">Tipe</th>
+          <th scope="col">Mata Uang</th>
+          <th scope="col" className="num">
+            Saldo Kas
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.entity_id}>
+            <td>{row.entity_code}</td>
+            <td>{row.entity_name}</td>
+            <td>{consolidatedEntityTypeLabel(row.entity_type)}</td>
+            <td>{currencyByEntity[row.entity_id] ?? "—"}</td>
+            <td className="num">
+              {formatMoney(row.cash_balance, currencyByEntity[row.entity_id] ?? "IDR")}
+            </td>
+          </tr>
+        ))}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row" colSpan={4}>
+            Total ({totals.entityCount} Entity)
+          </th>
+          <td className="num">
+            {totals.totalCashBalance
+              ? formatMoney(totals.totalCashBalance.toString(), currencyByEntity[rows[0].entity_id])
+              : "— (mata uang berbeda)"}
+          </td>
         </tr>
       </tfoot>
     </table>
