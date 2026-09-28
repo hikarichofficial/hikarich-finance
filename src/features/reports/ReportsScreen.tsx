@@ -13,6 +13,10 @@ import {
   equityRowAmounts,
   generalLedgerTotals,
   groupByAccountClass,
+  hasPnlComparison,
+  pnlCompareAmount,
+  pnlCompareNetIncome,
+  pnlCompareSubtotal,
   pnlNetIncome,
   type CashFlowBucket,
   type CashFlowTotals,
@@ -39,7 +43,12 @@ export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: st
 ];
 
 export type ReportsData =
-  | { statement: "pnl"; range: ReportDateRange; rows: readonly ProfitAndLossRow[] }
+  | {
+      statement: "pnl";
+      range: ReportDateRange;
+      compareRange: ReportDateRange | undefined;
+      rows: readonly ProfitAndLossRow[];
+    }
   | { statement: "balance_sheet"; asOf: string; rows: readonly BalanceSheetRow[] }
   | { statement: "equity"; range: ReportDateRange; rows: readonly EquityChangeRow[] }
   | { statement: "cashflow"; range: ReportDateRange; rows: readonly CashFlowRow[] }
@@ -63,7 +72,10 @@ function buildTabHref(entity: string | undefined, statement: ReportStatement): s
  * four canonical statements P12 already computes -- Profit & Loss, Balance Sheet, Statement of Changes in
  * Equity, Cash Flow Statement -- plus the General Ledger drill-down (decision 190, second increment),
  * switched by `?statement=`, each with its own filter form (Standard List Screen Pattern, Step 09 §9, with
- * the usual status-filter tabs standing in for a statement switcher instead). The Custom Report Builder and
+ * the usual status-filter tabs standing in for a statement switcher instead). The P&L tab additionally
+ * accepts an optional comparison period (decision 191, third increment) -- when set, the table grows a
+ * "Periode Pembanding" and "Selisih" column, computed entirely from the RPC's own `compare_debit`/
+ * `compare_credit` pair, never a second frontend computation. The Custom Report Builder and
  * Consolidated Analysis are still later Part 4 increments (decision 189); the other Reports nav sub-items
  * (Sales/Purchase, a standalone Cashflow view, Tax, Payroll, Assets/Loans, Saved Reports) have no P12 RPC
  * behind them yet and fall through to the `[...slug]` "coming soon" placeholder (decision 157's precedent)
@@ -165,6 +177,18 @@ function RangeForm({ data, entity }: { data: ReportsData; entity: string | undef
           </label>
         </>
       )}
+      {data.statement === "pnl" ? (
+        <>
+          <label>
+            Pembanding dari
+            <input type="date" name="compare_from" defaultValue={data.compareRange?.from ?? ""} />
+          </label>
+          <label>
+            Pembanding sampai
+            <input type="date" name="compare_to" defaultValue={data.compareRange?.to ?? ""} />
+          </label>
+        </>
+      ) : null}
       <button type="submit" className="btn-secondary">
         Terapkan
       </button>
@@ -188,6 +212,9 @@ function ProfitAndLossTable({
     );
   }
   const net = pnlNetIncome(rows);
+  const showCompare = hasPnlComparison(rows);
+  const compareNet = pnlCompareNetIncome(rows);
+  const colSpan = showCompare ? 5 : 3;
   return (
     <table className="record-table">
       <thead>
@@ -197,36 +224,91 @@ function ProfitAndLossTable({
           <th scope="col" className="num">
             Jumlah
           </th>
+          {showCompare ? (
+            <>
+              <th scope="col" className="num">
+                Periode Pembanding
+              </th>
+              <th scope="col" className="num">
+                Selisih
+              </th>
+            </>
+          ) : null}
         </tr>
       </thead>
-      {sections.map((section) => (
-        <tbody key={section.accountClass}>
-          <tr className="statement-section-row">
-            <th scope="colgroup" colSpan={3}>
-              {section.label}
-            </th>
-          </tr>
-          {section.rows.map(({ row, amount }) => (
-            <tr key={row.account_id}>
-              <td>{row.code}</td>
-              <td>{row.name}</td>
-              <td className="num">{formatMoney(amount.toString(), currency)}</td>
+      {sections.map((section) => {
+        const sectionCompareSubtotal = pnlCompareSubtotal(section.rows.map((r) => r.row));
+        return (
+          <tbody key={section.accountClass}>
+            <tr className="statement-section-row">
+              <th scope="colgroup" colSpan={colSpan}>
+                {section.label}
+              </th>
             </tr>
-          ))}
-          <tr className="statement-subtotal-row">
-            <th scope="row" colSpan={2}>
-              Total {section.label}
-            </th>
-            <td className="num">{formatMoney(section.subtotal.toString(), currency)}</td>
-          </tr>
-        </tbody>
-      ))}
+            {section.rows.map(({ row, amount }) => {
+              const compareAmount = pnlCompareAmount(row);
+              return (
+                <tr key={row.account_id}>
+                  <td>{row.code}</td>
+                  <td>{row.name}</td>
+                  <td className="num">{formatMoney(amount.toString(), currency)}</td>
+                  {showCompare ? (
+                    <>
+                      <td className="num">
+                        {compareAmount ? formatMoney(compareAmount.toString(), currency) : "—"}
+                      </td>
+                      <td className="num">
+                        {compareAmount
+                          ? formatMoney(amount.sub(compareAmount).toString(), currency)
+                          : "—"}
+                      </td>
+                    </>
+                  ) : null}
+                </tr>
+              );
+            })}
+            <tr className="statement-subtotal-row">
+              <th scope="row" colSpan={2}>
+                Total {section.label}
+              </th>
+              <td className="num">{formatMoney(section.subtotal.toString(), currency)}</td>
+              {showCompare ? (
+                <>
+                  <td className="num">
+                    {sectionCompareSubtotal
+                      ? formatMoney(sectionCompareSubtotal.toString(), currency)
+                      : "—"}
+                  </td>
+                  <td className="num">
+                    {sectionCompareSubtotal
+                      ? formatMoney(
+                          section.subtotal.sub(sectionCompareSubtotal).toString(),
+                          currency,
+                        )
+                      : "—"}
+                  </td>
+                </>
+              ) : null}
+            </tr>
+          </tbody>
+        );
+      })}
       <tfoot>
         <tr>
           <th scope="row" colSpan={2}>
             {net.isNegative() ? "Rugi Bersih" : "Laba Bersih"}
           </th>
           <td className="num">{formatMoney(net.toString(), currency)}</td>
+          {showCompare ? (
+            <>
+              <td className="num">
+                {compareNet ? formatMoney(compareNet.toString(), currency) : "—"}
+              </td>
+              <td className="num">
+                {compareNet ? formatMoney(net.sub(compareNet).toString(), currency) : "—"}
+              </td>
+            </>
+          ) : null}
         </tr>
       </tfoot>
     </table>

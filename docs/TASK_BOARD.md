@@ -793,3 +793,17 @@ Detail screen rather than duplicating it. No new RPC, schema or service wrapper.
 `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred, per the first
 increment's own list minus this item: the P&L comparison-period columns, the Custom Report Builder
 UI, Consolidated Analysis, the Documents Center, and the Command Menu quick-create registry.
+
+Part 4 third increment is implemented (DECISIONS 191): the P&L comparison-period columns, an
+optional second date pair on the same `/reports?statement=pnl` RangeForm -- when set, the table
+grows a "Periode Pembanding" and "Selisih" column, sourced entirely from `profit_and_loss`'s own
+already-typed `p_compare_start`/`p_compare_end`/`compare_debit`/`compare_credit`, unused since the
+first increment (DECISIONS 189). New pure domain helpers `resolveCompareRange` (falls back to no
+comparison, never a guessed default period, on anything missing/partial/invalid/inverted) and
+`hasPnlComparison`/`pnlCompareAmount`/`pnlCompareSubtotal`/`pnlCompareNetIncome` (mirroring
+`pnlNetIncome`'s own income-minus-cost split for the comparison figures). No comparison requested
+renders the v1 table unchanged. No new RPC, schema or service wrapper. `pnpm check`,
+`pnpm format:check` and `pnpm build` pass (593 tests, up from 584); `pnpm db:test` passes (schema
+fingerprint unchanged at `5335133e42e3`). Still deferred, per the second increment's own list minus
+this item: the Custom Report Builder UI, Consolidated Analysis, the Documents Center, and the
+Command Menu quick-create registry.

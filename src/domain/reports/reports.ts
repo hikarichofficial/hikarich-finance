@@ -148,6 +148,25 @@ export function resolveAsOfDate(
   return requested && ISO_DATE_PATTERN.test(requested) ? requested : toIsoDate(reference);
 }
 
+/** The Profit & Loss comparison-period filter (Step 12 §3, `profit_and_loss`'s own `p_compare_start`/
+ * `p_compare_end`, decision 189's own deferred item). Unlike `resolveReportRange`, there is no sensible
+ * default comparison period to fall back to -- a P&L with no comparison requested is a completely normal,
+ * common case, not a filter someone forgot to fill in -- so a missing, partial, invalid, or inverted pair
+ * simply means "no comparison", returned as `undefined` rather than guessing a period. Mirrors
+ * `profitAndLossInputSchema`'s own `superRefine` (`@/schemas/reports`): both dates are required together,
+ * and the end must not precede the start. */
+export function resolveCompareRange(
+  requestedFrom: string | undefined,
+  requestedTo: string | undefined,
+): ReportDateRange | undefined {
+  if (!requestedFrom || !requestedTo) return undefined;
+  if (!ISO_DATE_PATTERN.test(requestedFrom) || !ISO_DATE_PATTERN.test(requestedTo)) {
+    return undefined;
+  }
+  if (requestedTo < requestedFrom) return undefined;
+  return { from: requestedFrom, to: requestedTo };
+}
+
 interface StatementRow {
   account_id: string;
   code: string;
@@ -232,6 +251,58 @@ export function pnlNetIncome(
     rows
       .filter((r) => !PNL_INCOME_CLASSES.includes(r.account_class))
       .map((r) => naturalAmount(r.debit, r.credit, r.account_class)),
+  );
+  return income.sub(cost);
+}
+
+interface ComparablePnlRow {
+  compare_debit: string | null;
+  compare_credit: string | null;
+  account_class: AccountClass;
+}
+
+/** Whether a Profit & Loss result carries a comparison period at all -- `profit_and_loss` returns
+ * `compare_debit`/`compare_credit` either both `null` (no `p_compare_start` given) or both a decimal text
+ * together, never one without the other (see the RPC's own `case when p_compare_start is null then null ...`
+ * pair), so checking one row's `compare_debit` is enough to know the whole result. Empty `rows` (nothing
+ * posted in either period) reads as "no comparison", matching `pnlCompareAmount`'s own `null`-when-absent
+ * shape rather than guessing from a result with nothing to check. */
+export function hasPnlComparison(rows: readonly { compare_debit: string | null }[]): boolean {
+  return rows.some((r) => r.compare_debit !== null);
+}
+
+/** A P&L row's comparison-period natural amount, `null` when the row's own comparison figures are absent
+ * (no comparison period was requested). Uses the same `naturalAmount` direction as the row's primary-period
+ * amount, so the two are directly comparable and a variance is a plain subtraction, never a sign flip. */
+export function pnlCompareAmount(row: ComparablePnlRow): Decimal | null {
+  if (row.compare_debit === null || row.compare_credit === null) return null;
+  return naturalAmount(row.compare_debit, row.compare_credit, row.account_class);
+}
+
+/** Comparison-period subtotal across a homogeneous set of rows (one P&L section's own rows, all sharing one
+ * `account_class`, exactly how `groupByAccountClass` already sums `section.subtotal`) -- `null` when the
+ * rows carry no comparison period at all, otherwise the plain sum of each row's own `pnlCompareAmount`. Only
+ * safe to sum straight across rows that share one class (or are otherwise already sign-uniform); net income
+ * across every P&L class needs `pnlCompareNetIncome`'s own income-minus-cost split instead. */
+export function pnlCompareSubtotal(rows: readonly ComparablePnlRow[]): Decimal | null {
+  if (!hasPnlComparison(rows)) return null;
+  return sumDecimals(rows.map((r) => pnlCompareAmount(r) ?? Decimal.zero()));
+}
+
+/** Net income/loss for the comparison period alone, `null` when the result carries none -- mirrors
+ * `pnlNetIncome` exactly (same `PNL_INCOME_CLASSES` income-minus-cost split), applied to each row's
+ * `pnlCompareAmount` instead of its primary-period `naturalAmount`. */
+export function pnlCompareNetIncome(rows: readonly ComparablePnlRow[]): Decimal | null {
+  if (!hasPnlComparison(rows)) return null;
+  const income = sumDecimals(
+    rows
+      .filter((r) => PNL_INCOME_CLASSES.includes(r.account_class))
+      .map((r) => pnlCompareAmount(r) ?? Decimal.zero()),
+  );
+  const cost = sumDecimals(
+    rows
+      .filter((r) => !PNL_INCOME_CLASSES.includes(r.account_class))
+      .map((r) => pnlCompareAmount(r) ?? Decimal.zero()),
   );
   return income.sub(cost);
 }
