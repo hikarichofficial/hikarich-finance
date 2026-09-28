@@ -1,8 +1,9 @@
 import { requirePermission } from "@/services/identity/access";
-import { can } from "@/domain/authz/access";
+import { activeMemberships, can } from "@/domain/authz/access";
 import {
   getBalanceSheet,
   getCashFlowStatement,
+  getConsolidatedCashPosition,
   getEntityBaseCurrency,
   getGeneralLedger,
   getProfitAndLoss,
@@ -14,6 +15,7 @@ import { listLedgerAccounts } from "@/services/accounting/ledger";
 import {
   resolveAsOfDate,
   resolveCompareRange,
+  resolveConsolidatedEntityIds,
   resolveCustomReportDataset,
   resolveGeneralLedgerAccount,
   resolveReportRange,
@@ -32,6 +34,7 @@ const REPORT_STATEMENTS: readonly ReportStatement[] = [
   "cashflow",
   "gl",
   "custom",
+  "consolidated",
 ];
 
 function resolveStatement(value: string | undefined): ReportStatement {
@@ -53,7 +56,12 @@ function resolveStatement(value: string | undefined): ReportStatement {
  * `listReportDatasets` (a plain permission-gated table, not an RPC) and keeps only the datasets the active
  * membership actually holds `required_permission` for (checked locally via `can`, never a second round trip),
  * so the picker only ever offers a dataset `run_custom_report` will accept -- it never surfaces a choice the
- * RPC would then reject with FORBIDDEN. */
+ * RPC would then reject with FORBIDDEN. The Consolidated Analysis tab (decision 193, fifth increment) is the
+ * one statement not scoped to the active Entity: it reads every membership `requirePermission` already
+ * loaded (`access.memberships`) and keeps only the ones the caller holds `reports.cross_entity` for, so the
+ * Entity checkboxes only ever offer a selection `consolidated_cash_position` will accept -- the same
+ * filter-before-offering shape the Custom Report Builder tab uses for datasets. Each selected Entity's own
+ * base currency is looked up separately (the RPC returns none), never assumed to match the active Entity's. */
 export default async function ReportsPage({
   searchParams,
 }: {
@@ -67,6 +75,7 @@ export default async function ReportsPage({
     compare_from?: string;
     compare_to?: string;
     dataset?: string;
+    entities?: string | string[];
   }>;
 }) {
   const {
@@ -79,6 +88,7 @@ export default async function ReportsPage({
     compare_from,
     compare_to,
     dataset,
+    entities,
   } = await searchParams;
   const { access, membership } = await requirePermission("reports.view", { entityCode: entity });
   const statement = resolveStatement(statementParam);
@@ -132,6 +142,21 @@ export default async function ReportsPage({
         })
       : [];
     data = { statement, range, datasets, datasetKey, rows };
+  } else if (statement === "consolidated") {
+    const eligible = activeMemberships(access).filter((m) =>
+      can(access, m.entity_id, "reports.cross_entity"),
+    );
+    const requestedIds = Array.isArray(entities) ? entities : entities ? [entities] : [];
+    const entityIds = resolveConsolidatedEntityIds(eligible, requestedIds);
+    const rows =
+      entityIds.length > 0
+        ? await getConsolidatedCashPosition({ entity_ids: entityIds, as_of: asOf })
+        : [];
+    const currencyEntries = await Promise.all(
+      rows.map(async (r) => [r.entity_id, await getEntityBaseCurrency(r.entity_id)] as const),
+    );
+    const currencyByEntity = Object.fromEntries(currencyEntries);
+    data = { statement, asOf, eligible, entityIds, rows, currencyByEntity };
   } else {
     const compareRange = resolveCompareRange(compare_from, compare_to);
     const rows = await getProfitAndLoss({

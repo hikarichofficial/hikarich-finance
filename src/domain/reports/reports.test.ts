@@ -8,6 +8,7 @@ import {
   PNL_SECTION_ORDER,
   balanceSheetTotals,
   cashFlowTotals,
+  consolidatedCashPositionTotals,
   customReportTotals,
   equityClosingTotal,
   equityRowAmounts,
@@ -22,6 +23,7 @@ import {
   pnlNetIncome,
   resolveAsOfDate,
   resolveCompareRange,
+  resolveConsolidatedEntityIds,
   resolveCustomReportDataset,
   resolveGeneralLedgerAccount,
   resolveReportRange,
@@ -480,5 +482,60 @@ describe("customReportTotals", () => {
     const totals = customReportTotals([]);
     expect(totals.rowCount).toBe(0);
     expect(totals.totalAmount.toString()).toBe("0");
+  });
+});
+
+describe("resolveConsolidatedEntityIds", () => {
+  const eligible = [{ entity_id: "pt-1" }, { entity_id: "personal-1" }];
+
+  it("keeps requested ids that are all eligible", () => {
+    expect(resolveConsolidatedEntityIds(eligible, ["personal-1"])).toEqual(["personal-1"]);
+  });
+
+  it("drops requested ids that are not eligible without failing the whole selection", () => {
+    expect(resolveConsolidatedEntityIds(eligible, ["pt-1", "not-eligible"])).toEqual(["pt-1"]);
+  });
+
+  it("falls back to every eligible Entity when nothing is requested", () => {
+    expect(resolveConsolidatedEntityIds(eligible, [])).toEqual(["pt-1", "personal-1"]);
+  });
+
+  it("falls back to every eligible Entity when every requested id was dropped", () => {
+    expect(resolveConsolidatedEntityIds(eligible, ["not-eligible"])).toEqual([
+      "pt-1",
+      "personal-1",
+    ]);
+  });
+
+  it("returns an empty selection when there is no eligible Entity at all", () => {
+    expect(resolveConsolidatedEntityIds([], ["pt-1"])).toEqual([]);
+  });
+});
+
+describe("consolidatedCashPositionTotals", () => {
+  it("sums cash_balance across Entities that share one base currency", () => {
+    const rows = [
+      { entity_id: "pt-1", cash_balance: "1000000.0000" },
+      { entity_id: "personal-1", cash_balance: "250000.0000" },
+    ];
+    const totals = consolidatedCashPositionTotals(rows, { "pt-1": "IDR", "personal-1": "IDR" });
+    expect(totals.entityCount).toBe(2);
+    expect(totals.totalCashBalance?.toString()).toBe("1250000.0000");
+  });
+
+  it("returns a null total, never a mixed-currency sum, when Entities do not share one base currency", () => {
+    const rows = [
+      { entity_id: "pt-1", cash_balance: "1000000.0000" },
+      { entity_id: "us-1", cash_balance: "500.0000" },
+    ];
+    const totals = consolidatedCashPositionTotals(rows, { "pt-1": "IDR", "us-1": "USD" });
+    expect(totals.entityCount).toBe(2);
+    expect(totals.totalCashBalance).toBeNull();
+  });
+
+  it("returns a zero total and zero count for no rows", () => {
+    const totals = consolidatedCashPositionTotals([], {});
+    expect(totals.entityCount).toBe(0);
+    expect(totals.totalCashBalance?.toString()).toBe("0");
   });
 });
