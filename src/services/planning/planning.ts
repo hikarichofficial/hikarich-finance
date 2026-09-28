@@ -12,14 +12,17 @@ import {
   budgetReportSchema,
   closeBudgetInputSchema,
   closeRevenueTargetInputSchema,
+  contactPickerListSchema,
   createBudgetInputSchema,
   createRecurringRuleInputSchema,
   createRevenueTargetInputSchema,
   endRecurringRuleInputSchema,
+  financialAccountPickerListSchema,
   listBudgetsInputSchema,
   listRecurringOccurrencesInputSchema,
   listRecurringRulesInputSchema,
   listRevenueTargetsInputSchema,
+  paymentChannelPickerListSchema,
   pauseRecurringRuleInputSchema,
   recurringOccurrenceListSchema,
   recurringRuleListSchema,
@@ -33,6 +36,9 @@ import {
   updateRecurringRuleInputSchema,
   type BudgetReportRow,
   type BudgetRow,
+  type ContactPickerRow,
+  type FinancialAccountPickerRow,
+  type PaymentChannelPickerRow,
   type RecurringOccurrenceRow,
   type RecurringRuleRow,
   type RevenueTargetReportRow,
@@ -83,6 +89,60 @@ export async function getEntityBaseCurrency(entityId: string): Promise<string> {
   const parsed = entityCurrencyRowSchema.safeParse(data);
   if (!parsed.success) throw new Error("Respons mata uang dasar Entity tidak dikenali.");
   return parsed.data.base_currency;
+}
+
+/** Recurring template builder pickers (sixth increment): direct RLS-scoped table reads, the same
+ * `listActiveCategories` precedent (decision 187) -- see `@/schemas/planning`'s own doc comment. A contact
+ * of kind `both` satisfies either a customer or a vendor picker, matching `invoice_check_header`/
+ * `bill_check_header`/`expense_check_header`'s own `kind in (..., 'both')` checks exactly. */
+export async function listActiveContacts(
+  entityId: string,
+  kind: "customer" | "vendor",
+): Promise<ContactPickerRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("contacts")
+    .select("id, display_name")
+    .eq("entity_id", uuid(entityId))
+    .eq("status", "active")
+    .in("kind", [kind, "both"])
+    .order("display_name");
+  if (error) throw new Error("Gagal memuat daftar kontak.");
+  const parsed = contactPickerListSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons daftar kontak tidak dikenali.");
+  return parsed.data;
+}
+
+export async function listActiveFinancialAccounts(
+  entityId: string,
+): Promise<FinancialAccountPickerRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("financial_accounts")
+    .select("id, name, currency")
+    .eq("entity_id", uuid(entityId))
+    .eq("is_active", true)
+    .order("name");
+  if (error) throw new Error("Gagal memuat daftar akun keuangan.");
+  const parsed = financialAccountPickerListSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons daftar akun keuangan tidak dikenali.");
+  return parsed.data;
+}
+
+export async function listActivePaymentChannels(
+  entityId: string,
+): Promise<PaymentChannelPickerRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("payment_channels")
+    .select("id, name")
+    .eq("entity_id", uuid(entityId))
+    .eq("is_active", true)
+    .order("name");
+  if (error) throw new Error("Gagal memuat daftar kanal pembayaran.");
+  const parsed = paymentChannelPickerListSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons daftar kanal pembayaran tidak dikenali.");
+  return parsed.data;
 }
 
 // ================================================================ recurring rules
