@@ -178,6 +178,31 @@ export const runDueRecurringOccurrencesInputSchema = z.object({
   as_of: isoDateSchema.optional(),
 });
 
+/** Pickers for the recurring template builder (P13 Part 3h, sixth increment, Step 09 §13, §18): no RPC lists
+ * a plain customer/vendor/financial-account/payment-channel set, and none is needed -- `contacts_select`,
+ * `financial_accounts_select` and `payment_channels_select` already scope to `contacts.view`/`money.view`
+ * (`20260920100200_p2_rls_policies.sql`), the exact "no RPC exists, direct RLS-scoped table read" precedent
+ * `listActiveCategories` already set for `public.categories` (decision 187). Every role template granting
+ * `planning.recurring_edit` also grants `contacts.view` and `money.view` (confirmed in
+ * `20260920100100_p2_permission_catalog.sql`: only `finance_admin` holds `planning.recurring_edit`, and it
+ * holds every other permission too), so fetching these never hits a permission the recurring builder page
+ * did not already require. */
+export const contactPickerRowSchema = z.object({ id: z.uuid(), display_name: z.string() });
+export const contactPickerListSchema = z.array(contactPickerRowSchema);
+export type ContactPickerRow = z.infer<typeof contactPickerRowSchema>;
+
+export const financialAccountPickerRowSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  currency: z.string(),
+});
+export const financialAccountPickerListSchema = z.array(financialAccountPickerRowSchema);
+export type FinancialAccountPickerRow = z.infer<typeof financialAccountPickerRowSchema>;
+
+export const paymentChannelPickerRowSchema = z.object({ id: z.uuid(), name: z.string() });
+export const paymentChannelPickerListSchema = z.array(paymentChannelPickerRowSchema);
+export type PaymentChannelPickerRow = z.infer<typeof paymentChannelPickerRowSchema>;
+
 // ================================================================ budgets
 export const createBudgetInputSchema = z
   .object({
