@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import type { Decimal } from "@/domain/money/decimal";
+import { ENTRY_TYPE_LABELS } from "@/domain/accounting/journalList";
 import {
   BALANCE_SHEET_SECTION_ORDER,
   CASH_FLOW_BUCKET_LABELS,
@@ -10,6 +11,7 @@ import {
   cashFlowTotals,
   equityClosingTotal,
   equityRowAmounts,
+  generalLedgerTotals,
   groupByAccountClass,
   pnlNetIncome,
   type CashFlowBucket,
@@ -20,23 +22,34 @@ import type {
   BalanceSheetRow,
   CashFlowRow,
   EquityChangeRow,
+  GeneralLedgerRow,
   ProfitAndLossRow,
 } from "@/schemas/reports";
+import type { LedgerAccountRow } from "@/schemas/accounting";
+import { formatShortDate } from "./format";
 
-export type ReportStatement = "pnl" | "balance_sheet" | "equity" | "cashflow";
+export type ReportStatement = "pnl" | "balance_sheet" | "equity" | "cashflow" | "gl";
 
 export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: string }[] = [
   { value: "pnl", label: "Laba Rugi" },
   { value: "balance_sheet", label: "Neraca" },
   { value: "equity", label: "Perubahan Ekuitas" },
   { value: "cashflow", label: "Arus Kas" },
+  { value: "gl", label: "Buku Besar" },
 ];
 
 export type ReportsData =
   | { statement: "pnl"; range: ReportDateRange; rows: readonly ProfitAndLossRow[] }
   | { statement: "balance_sheet"; asOf: string; rows: readonly BalanceSheetRow[] }
   | { statement: "equity"; range: ReportDateRange; rows: readonly EquityChangeRow[] }
-  | { statement: "cashflow"; range: ReportDateRange; rows: readonly CashFlowRow[] };
+  | { statement: "cashflow"; range: ReportDateRange; rows: readonly CashFlowRow[] }
+  | {
+      statement: "gl";
+      range: ReportDateRange;
+      accountId: string | null;
+      accounts: readonly LedgerAccountRow[];
+      rows: readonly GeneralLedgerRow[];
+    };
 
 function buildTabHref(entity: string | undefined, statement: ReportStatement): string {
   const params = new URLSearchParams();
@@ -46,12 +59,12 @@ function buildTabHref(entity: string | undefined, statement: ReportStatement): s
 }
 
 /**
- * Financial Reports (P13 Part 4, Step 12 §3-§5, first increment; nav's "Financial Reports" -> `/reports`,
- * decision 155). The four canonical statements P12 already computes -- Profit & Loss, Balance Sheet,
- * Statement of Changes in Equity, Cash Flow Statement -- switched by `?statement=`, each with its own date
- * filter form (Standard List Screen Pattern, Step 09 §9, with the usual status-filter tabs standing in for
- * a statement switcher instead). General Ledger drill-down, the Custom Report Builder and Consolidated
- * Analysis are their own later Part 4 increments (decision 189); the other Reports nav sub-items
+ * Financial Reports (P13 Part 4, Step 12 §3-§5, nav's "Financial Reports" -> `/reports`, decision 155). The
+ * four canonical statements P12 already computes -- Profit & Loss, Balance Sheet, Statement of Changes in
+ * Equity, Cash Flow Statement -- plus the General Ledger drill-down (decision 190, second increment),
+ * switched by `?statement=`, each with its own filter form (Standard List Screen Pattern, Step 09 §9, with
+ * the usual status-filter tabs standing in for a statement switcher instead). The Custom Report Builder and
+ * Consolidated Analysis are still later Part 4 increments (decision 189); the other Reports nav sub-items
  * (Sales/Purchase, a standalone Cashflow view, Tax, Payroll, Assets/Loans, Saved Reports) have no P12 RPC
  * behind them yet and fall through to the `[...slug]` "coming soon" placeholder (decision 157's precedent)
  * until one exists. Every figure here is the database's own debit/credit, re-signed once via
@@ -104,6 +117,15 @@ export function ReportsScreen({
       {data.statement === "cashflow" ? (
         <CashFlowTable rows={data.rows} currency={currency} />
       ) : null}
+      {data.statement === "gl" ? (
+        <GeneralLedgerTable
+          rows={data.rows}
+          accounts={data.accounts}
+          accountId={data.accountId}
+          currency={currency}
+          entity={entity}
+        />
+      ) : null}
     </div>
   );
 }
@@ -113,6 +135,19 @@ function RangeForm({ data, entity }: { data: ReportsData; entity: string | undef
     <form method="get" className="list-search-form">
       {entity ? <input type="hidden" name="entity" value={entity} /> : null}
       <input type="hidden" name="statement" value={data.statement} />
+      {data.statement === "gl" ? (
+        <label>
+          Akun
+          <select name="account" defaultValue={data.accountId ?? ""}>
+            {data.accounts.length === 0 ? <option value="">Tidak ada akun</option> : null}
+            {data.accounts.map((account) => (
+              <option key={account.id} value={account.id}>
+                {account.code} · {account.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       {data.statement === "balance_sheet" ? (
         <label>
           Per tanggal
@@ -376,6 +411,101 @@ function CashFlowTable({ rows, currency }: { rows: readonly CashFlowRow[]; curre
               {totals.reconciled ? "Rekonsiliasi cocok" : "Tidak cocok"}
             </span>
           </td>
+        </tr>
+      </tfoot>
+    </table>
+  );
+}
+
+function generalLedgerEntryTypeLabel(entryType: string): string {
+  return (ENTRY_TYPE_LABELS as Record<string, string>)[entryType] ?? entryType;
+}
+
+function GeneralLedgerTable({
+  rows,
+  accounts,
+  accountId,
+  currency,
+  entity,
+}: {
+  rows: readonly GeneralLedgerRow[];
+  accounts: readonly LedgerAccountRow[];
+  accountId: string | null;
+  currency: string;
+  entity: string | undefined;
+}) {
+  if (accounts.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada akun yang dapat dipilih.</p>
+      </div>
+    );
+  }
+  const account = accounts.find((a) => a.id === accountId);
+  if (rows.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada transaksi terposting untuk akun ini pada periode ini.</p>
+      </div>
+    );
+  }
+  const totals = generalLedgerTotals(rows);
+  return (
+    <table className="record-table">
+      <thead>
+        <tr>
+          <th scope="col" colSpan={6}>
+            {account ? `${account.code} · ${account.name}` : "Akun"}
+          </th>
+        </tr>
+        <tr>
+          <th scope="col">Tanggal</th>
+          <th scope="col">No. Jurnal</th>
+          <th scope="col">Tipe</th>
+          <th scope="col">Deskripsi</th>
+          <th scope="col" className="num">
+            Debit
+          </th>
+          <th scope="col" className="num">
+            Kredit
+          </th>
+          <th scope="col" className="num">
+            Saldo Berjalan
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, index) => {
+          const journalHref = entity
+            ? `/accounting/journal/${row.journal_id}?entity=${encodeURIComponent(entity)}`
+            : `/accounting/journal/${row.journal_id}`;
+          return (
+            <tr key={`${row.journal_id}-${index}`}>
+              <td>{formatShortDate(row.entry_date)}</td>
+              <td>
+                <Link href={journalHref}>{row.journal_number}</Link>
+              </td>
+              <td>{generalLedgerEntryTypeLabel(row.entry_type)}</td>
+              <td>{row.description ?? "—"}</td>
+              <td className="num">
+                {Number(row.debit) > 0 ? formatMoney(row.debit, currency) : "—"}
+              </td>
+              <td className="num">
+                {Number(row.credit) > 0 ? formatMoney(row.credit, currency) : "—"}
+              </td>
+              <td className="num">{formatMoney(row.running_balance, currency)}</td>
+            </tr>
+          );
+        })}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row" colSpan={4}>
+            Total Periode
+          </th>
+          <td className="num">{formatMoney(totals.debit.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.credit.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.closingBalance.toString(), currency)}</td>
         </tr>
       </tfoot>
     </table>
