@@ -8,7 +8,8 @@ import { RecurringRuleRegisterScreen } from "@/features/planning/RecurringRuleRe
  * `list_recurring_rules`'s own `p_status` argument (server-side filtering, matching every other Part 3
  * register); `?q=` is a client-side label search since no RPC parameter covers it. `canRun` (fourth
  * increment) gates the manual "generate now" button, the same per-page `can()` pattern every other screen
- * uses (decision 158). */
+ * uses (decision 158). `canCreate` (sixth increment) gates the "Buat Aturan Baru" button with the same
+ * `planning.recurring_edit` permission `create_recurring_rule` itself checks. */
 export default async function RecurringRuleRegisterPage({
   searchParams,
 }: {
@@ -34,6 +35,7 @@ export default async function RecurringRuleRegisterPage({
       entity={entity}
       entityId={entityId}
       canRun={can(access, entityId, "planning.recurring_run")}
+      canCreate={can(access, entityId, "planning.recurring_edit")}
     />
   );
 }

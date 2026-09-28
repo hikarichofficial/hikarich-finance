@@ -15,11 +15,12 @@ import { formatShortDate } from "./format";
  * run, status, frequency and generated history"). Follows the same Standard List Screen Pattern as every
  * other Part 3 register: `list_recurring_rules`'s own `p_status` argument is sent server-side (matching the
  * Loan/Payroll Run registers' own split), and only the free-text label search is client-side since no RPC
- * parameter covers it. No Create button -- a recurring rule's own create flow is a multi-step template builder
- * (invoice/bill/expense line items), materially larger than this list/detail pair, so it is deferred to a
- * later increment exactly like every other Part 3 family's own create/edit builder (decision 164's own
- * ordering). The manual "generate now" action (`planning.recurring_run`, P13 Part 3h, fourth increment) is
- * entity-wide rather than per-rule, so its button lives here in the header rather than on Detail.
+ * parameter covers it. The manual "generate now" action (`planning.recurring_run`, P13 Part 3h, fourth
+ * increment) is entity-wide rather than per-rule, so its button lives here in the header rather than on
+ * Detail. From the sixth increment: the "Buat Aturan Baru" button (`canCreate`, `planning.recurring_edit`,
+ * the exact permission `create_recurring_rule` itself checks) follows the identical conditional-Link-button
+ * precedent `BudgetRegisterScreen`/`AccountsListScreen`/`InvoicesListScreen` already established, reaching
+ * the create/edit template builder (`RecurringRuleForm`) that decisions 186/187 had deferred.
  */
 export function RecurringRuleRegisterScreen({
   rows,
@@ -28,6 +29,7 @@ export function RecurringRuleRegisterScreen({
   entity,
   entityId,
   canRun,
+  canCreate,
 }: {
   rows: readonly RecurringRuleRow[];
   status: RecurringStatus | null;
@@ -35,7 +37,12 @@ export function RecurringRuleRegisterScreen({
   entity: string | undefined;
   entityId: string;
   canRun: boolean;
+  canCreate: boolean;
 }) {
+  const newHref = entity
+    ? `/planning/recurring/new?entity=${encodeURIComponent(entity)}`
+    : "/planning/recurring/new";
+
   return (
     <div className="list-screen">
       <header className="list-screen-header">
@@ -43,7 +50,14 @@ export function RecurringRuleRegisterScreen({
           <h1>Aturan Berulang</h1>
           <p className="list-screen-summary">{rows.length} aturan ditampilkan.</p>
         </div>
-        <RunDueRecurringOccurrencesButton entityId={entityId} canRun={canRun} />
+        <div className="invoice-actions">
+          {canCreate ? (
+            <Link href={newHref} className="btn-primary">
+              Buat Aturan Baru
+            </Link>
+          ) : null}
+          <RunDueRecurringOccurrencesButton entityId={entityId} canRun={canRun} />
+        </div>
       </header>
 
       <div className="list-screen-toolbar">
