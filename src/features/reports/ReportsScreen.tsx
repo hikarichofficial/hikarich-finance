@@ -9,6 +9,7 @@ import {
   PNL_SECTION_ORDER,
   balanceSheetTotals,
   cashFlowTotals,
+  customReportTotals,
   equityClosingTotal,
   equityRowAmounts,
   generalLedgerTotals,
@@ -25,14 +26,16 @@ import {
 import type {
   BalanceSheetRow,
   CashFlowRow,
+  CustomReportRow,
   EquityChangeRow,
   GeneralLedgerRow,
   ProfitAndLossRow,
+  ReportDatasetCatalogRow,
 } from "@/schemas/reports";
 import type { LedgerAccountRow } from "@/schemas/accounting";
 import { formatShortDate } from "./format";
 
-export type ReportStatement = "pnl" | "balance_sheet" | "equity" | "cashflow" | "gl";
+export type ReportStatement = "pnl" | "balance_sheet" | "equity" | "cashflow" | "gl" | "custom";
 
 export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: string }[] = [
   { value: "pnl", label: "Laba Rugi" },
@@ -40,6 +43,7 @@ export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: st
   { value: "equity", label: "Perubahan Ekuitas" },
   { value: "cashflow", label: "Arus Kas" },
   { value: "gl", label: "Buku Besar" },
+  { value: "custom", label: "Laporan Kustom" },
 ];
 
 export type ReportsData =
@@ -58,6 +62,13 @@ export type ReportsData =
       accountId: string | null;
       accounts: readonly LedgerAccountRow[];
       rows: readonly GeneralLedgerRow[];
+    }
+  | {
+      statement: "custom";
+      range: ReportDateRange;
+      datasets: readonly ReportDatasetCatalogRow[];
+      datasetKey: string | null;
+      rows: readonly CustomReportRow[];
     };
 
 function buildTabHref(entity: string | undefined, statement: ReportStatement): string {
@@ -75,12 +86,16 @@ function buildTabHref(entity: string | undefined, statement: ReportStatement): s
  * the usual status-filter tabs standing in for a statement switcher instead). The P&L tab additionally
  * accepts an optional comparison period (decision 191, third increment) -- when set, the table grows a
  * "Periode Pembanding" and "Selisih" column, computed entirely from the RPC's own `compare_debit`/
- * `compare_credit` pair, never a second frontend computation. The Custom Report Builder and
- * Consolidated Analysis are still later Part 4 increments (decision 189); the other Reports nav sub-items
- * (Sales/Purchase, a standalone Cashflow view, Tax, Payroll, Assets/Loans, Saved Reports) have no P12 RPC
- * behind them yet and fall through to the `[...slug]` "coming soon" placeholder (decision 157's precedent)
- * until one exists. Every figure here is the database's own debit/credit, re-signed once via
- * `naturalAmount` (`@/domain/reports`) -- never a second computation of the same fact.
+ * `compare_credit` pair, never a second frontend computation. The Custom Report Builder tab (decision 192,
+ * fourth increment) runs one of the curated, permission-gated datasets `run_custom_report` exposes
+ * (Step 12 §19) -- the dataset picker only ever lists what the active membership may run (filtered
+ * server-side in the route, never client-side), and every row's dimension/count/total is exactly what the
+ * RPC returned, grouped and summed once, in the database. Consolidated Analysis is still a later Part 4
+ * increment (decision 189); the other Reports nav sub-items (Sales/Purchase, a standalone Cashflow view,
+ * Tax, Payroll, Assets/Loans, Saved Reports) have no P12 RPC behind them yet and fall through to the
+ * `[...slug]` "coming soon" placeholder (decision 157's precedent) until one exists. Every figure here is
+ * the database's own debit/credit, re-signed once via `naturalAmount` (`@/domain/reports`) -- never a
+ * second computation of the same fact.
  */
 export function ReportsScreen({
   data,
@@ -138,6 +153,14 @@ export function ReportsScreen({
           entity={entity}
         />
       ) : null}
+      {data.statement === "custom" ? (
+        <CustomReportTable
+          datasets={data.datasets}
+          datasetKey={data.datasetKey}
+          rows={data.rows}
+          currency={currency}
+        />
+      ) : null}
     </div>
   );
 }
@@ -155,6 +178,19 @@ function RangeForm({ data, entity }: { data: ReportsData; entity: string | undef
             {data.accounts.map((account) => (
               <option key={account.id} value={account.id}>
                 {account.code} · {account.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+      {data.statement === "custom" ? (
+        <label>
+          Dataset
+          <select name="dataset" defaultValue={data.datasetKey ?? ""}>
+            {data.datasets.length === 0 ? <option value="">Tidak ada dataset</option> : null}
+            {data.datasets.map((dataset) => (
+              <option key={dataset.dataset_key} value={dataset.dataset_key}>
+                {dataset.name}
               </option>
             ))}
           </select>
@@ -588,6 +624,71 @@ function GeneralLedgerTable({
           <td className="num">{formatMoney(totals.debit.toString(), currency)}</td>
           <td className="num">{formatMoney(totals.credit.toString(), currency)}</td>
           <td className="num">{formatMoney(totals.closingBalance.toString(), currency)}</td>
+        </tr>
+      </tfoot>
+    </table>
+  );
+}
+
+function CustomReportTable({
+  datasets,
+  datasetKey,
+  rows,
+  currency,
+}: {
+  datasets: readonly ReportDatasetCatalogRow[];
+  datasetKey: string | null;
+  rows: readonly CustomReportRow[];
+  currency: string;
+}) {
+  if (datasets.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada dataset laporan yang dapat Anda akses.</p>
+      </div>
+    );
+  }
+  const dataset = datasets.find((d) => d.dataset_key === datasetKey);
+  if (rows.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada data pada periode ini.</p>
+      </div>
+    );
+  }
+  const totals = customReportTotals(rows);
+  return (
+    <table className="record-table">
+      <thead>
+        <tr>
+          <th scope="col" colSpan={3}>
+            {dataset?.description ?? dataset?.name ?? "Laporan"}
+          </th>
+        </tr>
+        <tr>
+          <th scope="col">{dataset?.dimension_label ?? "Dimensi"}</th>
+          <th scope="col" className="num">
+            Jumlah Transaksi
+          </th>
+          <th scope="col" className="num">
+            {dataset?.measure_label ?? "Total"}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.dimension}>
+            <td>{row.dimension}</td>
+            <td className="num">{row.row_count}</td>
+            <td className="num">{formatMoney(row.total_amount, currency)}</td>
+          </tr>
+        ))}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row">Total</th>
+          <td className="num">{totals.rowCount}</td>
+          <td className="num">{formatMoney(totals.totalAmount.toString(), currency)}</td>
         </tr>
       </tfoot>
     </table>
