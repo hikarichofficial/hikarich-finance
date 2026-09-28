@@ -708,7 +708,6 @@ template builder (invoice/bill/expense line items), materially larger and still 
 increment (decisions 164, 183, 186-187's own ordering) -- every other Part 3h screen and action form is
 now complete.
 
-
 Part 3h sixth increment is implemented (DECISIONS 188): Recurring Rule's own create/edit template
 builder -- the one piece deferred since decision 186. Most of the backend (schemas, service wrappers)
 already existed from P10; this increment is UI plus three new pickers (`listActiveContacts`/
