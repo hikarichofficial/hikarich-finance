@@ -8,6 +8,7 @@ import {
   PNL_SECTION_ORDER,
   balanceSheetTotals,
   cashFlowTotals,
+  customReportTotals,
   equityClosingTotal,
   equityRowAmounts,
   generalLedgerTotals,
@@ -21,6 +22,7 @@ import {
   pnlNetIncome,
   resolveAsOfDate,
   resolveCompareRange,
+  resolveCustomReportDataset,
   resolveGeneralLedgerAccount,
   resolveReportRange,
   type AccountClass,
@@ -431,5 +433,52 @@ describe("generalLedgerTotals", () => {
     expect(totals.debit.toString()).toBe("0");
     expect(totals.credit.toString()).toBe("0");
     expect(totals.closingBalance.toString()).toBe("0");
+  });
+});
+
+describe("resolveCustomReportDataset", () => {
+  const datasets = [
+    { dataset_key: "invoices_by_customer" },
+    { dataset_key: "bills_by_vendor" },
+    { dataset_key: "expenses_by_payee" },
+  ];
+
+  it("keeps a requested key that is a dataset the caller may run", () => {
+    expect(resolveCustomReportDataset(datasets, "bills_by_vendor")).toBe("bills_by_vendor");
+  });
+
+  it("falls back to the first available dataset when nothing valid is requested", () => {
+    expect(resolveCustomReportDataset(datasets, undefined)).toBe("invoices_by_customer");
+  });
+
+  it("falls back to the first available dataset when the requested key is unknown", () => {
+    expect(resolveCustomReportDataset(datasets, "not_a_real_dataset")).toBe("invoices_by_customer");
+  });
+
+  it("falls back to the first available dataset when the requested key was filtered out for lacking permission", () => {
+    const permitted = datasets.filter((d) => d.dataset_key !== "invoices_by_customer");
+    expect(resolveCustomReportDataset(permitted, "invoices_by_customer")).toBe("bills_by_vendor");
+  });
+
+  it("returns null when the caller may run no dataset at all", () => {
+    expect(resolveCustomReportDataset([], undefined)).toBeNull();
+  });
+});
+
+describe("customReportTotals", () => {
+  it("sums row_count and total_amount across every dimension row", () => {
+    const rows = [
+      { dimension: "Acme Corp", row_count: 3, total_amount: "1500.0000" },
+      { dimension: "Beta Ltd", row_count: 2, total_amount: "800.5000" },
+    ];
+    const totals = customReportTotals(rows);
+    expect(totals.rowCount).toBe(5);
+    expect(totals.totalAmount.toString()).toBe("2300.5000");
+  });
+
+  it("returns a zero grand total for no rows", () => {
+    const totals = customReportTotals([]);
+    expect(totals.rowCount).toBe(0);
+    expect(totals.totalAmount.toString()).toBe("0");
   });
 });

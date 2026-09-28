@@ -807,3 +807,18 @@ renders the v1 table unchanged. No new RPC, schema or service wrapper. `pnpm che
 fingerprint unchanged at `5335133e42e3`). Still deferred, per the second increment's own list minus
 this item: the Custom Report Builder UI, Consolidated Analysis, the Documents Center, and the
 Command Menu quick-create registry.
+
+Part 4 fourth increment is implemented (DECISIONS 192): the Custom Report Builder UI, a sixth
+`/reports?statement=custom` tab over `run_custom_report`'s three curated datasets (invoices by
+customer, bills by vendor, expenses by payee) -- `runCustomReport`/`listReportDatasets` and their
+schemas already existed since P12, unused until now. The dataset picker only ever lists datasets the
+active membership's own `required_permission` actually covers (checked locally via `can`, no second
+round trip), so it never offers a choice the RPC would reject. New pure domain helpers
+`resolveCustomReportDataset` (falls back to the first permitted dataset on anything missing, unknown,
+or filtered out) and `customReportTotals` (grand-total row over the RPC's own per-dimension count/sum).
+Column headers come from the selected dataset's own catalog row (`dimension_label`/`measure_label`),
+not a hardcoded label, so a future dataset needs no frontend change. No new RPC, schema or service
+wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (600 tests, up from 593); `pnpm
+db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred, per the third
+increment's own list minus this item: Consolidated Analysis, the Documents Center, and the Command
+Menu quick-create registry.

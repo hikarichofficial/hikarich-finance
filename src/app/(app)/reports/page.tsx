@@ -1,4 +1,5 @@
 import { requirePermission } from "@/services/identity/access";
+import { can } from "@/domain/authz/access";
 import {
   getBalanceSheet,
   getCashFlowStatement,
@@ -6,14 +7,18 @@ import {
   getGeneralLedger,
   getProfitAndLoss,
   getStatementOfChangesInEquity,
+  listReportDatasets,
+  runCustomReport,
 } from "@/services/reports/reports";
 import { listLedgerAccounts } from "@/services/accounting/ledger";
 import {
   resolveAsOfDate,
   resolveCompareRange,
+  resolveCustomReportDataset,
   resolveGeneralLedgerAccount,
   resolveReportRange,
 } from "@/domain/reports/reports";
+import type { ReportDatasetKey } from "@/schemas/reports";
 import {
   ReportsScreen,
   type ReportStatement,
@@ -26,6 +31,7 @@ const REPORT_STATEMENTS: readonly ReportStatement[] = [
   "equity",
   "cashflow",
   "gl",
+  "custom",
 ];
 
 function resolveStatement(value: string | undefined): ReportStatement {
@@ -43,7 +49,11 @@ function resolveStatement(value: string | undefined): ReportStatement {
  * accepts an optional `?compare_from=&compare_to=` pair (decision 189's own deferred item): when both are
  * present and valid, `profit_and_loss`'s own `p_compare_start`/`p_compare_end` are passed through unchanged
  * and the RPC does the comparison-period aggregation itself -- this route never computes one figure of a
- * comparison independently. */
+ * comparison independently. The Custom Report Builder tab (decision 192, fourth increment) reads
+ * `listReportDatasets` (a plain permission-gated table, not an RPC) and keeps only the datasets the active
+ * membership actually holds `required_permission` for (checked locally via `can`, never a second round trip),
+ * so the picker only ever offers a dataset `run_custom_report` will accept -- it never surfaces a choice the
+ * RPC would then reject with FORBIDDEN. */
 export default async function ReportsPage({
   searchParams,
 }: {
@@ -56,6 +66,7 @@ export default async function ReportsPage({
     account?: string;
     compare_from?: string;
     compare_to?: string;
+    dataset?: string;
   }>;
 }) {
   const {
@@ -67,8 +78,9 @@ export default async function ReportsPage({
     account,
     compare_from,
     compare_to,
+    dataset,
   } = await searchParams;
-  const { membership } = await requirePermission("reports.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("reports.view", { entityCode: entity });
   const statement = resolveStatement(statementParam);
   const range = resolveReportRange(from, to);
   const asOf = resolveAsOfDate(as_of);
@@ -105,6 +117,21 @@ export default async function ReportsPage({
         })
       : [];
     data = { statement, range, accountId, accounts, rows };
+  } else if (statement === "custom") {
+    const catalog = await listReportDatasets();
+    const datasets = catalog.filter((d) =>
+      can(access, membership.entity_id, d.required_permission),
+    );
+    const datasetKey = resolveCustomReportDataset(datasets, dataset);
+    const rows = datasetKey
+      ? await runCustomReport({
+          entity_id: membership.entity_id,
+          dataset: datasetKey as ReportDatasetKey,
+          start_date: range.from,
+          end_date: range.to,
+        })
+      : [];
+    data = { statement, range, datasets, datasetKey, rows };
   } else {
     const compareRange = resolveCompareRange(compare_from, compare_to);
     const rows = await getProfitAndLoss({
