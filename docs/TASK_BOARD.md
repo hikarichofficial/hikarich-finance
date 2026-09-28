@@ -707,3 +707,27 @@ this was a pure application-layer increment). Remaining in 3h: Recurring Rule's 
 template builder (invoice/bill/expense line items), materially larger and still deferred to a later
 increment (decisions 164, 183, 186-187's own ordering) -- every other Part 3h screen and action form is
 now complete.
+
+
+Part 3h sixth increment is implemented (DECISIONS 188): Recurring Rule's own create/edit template
+builder -- the one piece deferred since decision 186. Most of the backend (schemas, service wrappers)
+already existed from P10; this increment is UI plus three new pickers (`listActiveContacts`/
+`listActiveFinancialAccounts`/`listActivePaymentChannels` in `src/services/planning/planning.ts`,
+the same "no RPC exists, direct RLS-scoped table read" shape `listActiveCategories` set in decision
+187). One shared `RecurringRuleForm` (new) covers both create (`/planning/recurring/new`, gated on
+`planning.recurring_edit`) and edit (rendered inline on Recurring Rule Detail, gated by
+`permissions.canManage` and `recurringRuleActions(status).canEdit`) since `create_recurring_rule`/
+`update_recurring_rule` both take the whole `template` as one jsonb parameter; `kind`/`frequency`/
+`start_date` are immutable after creation (confirmed against `update_recurring_rule`'s own SQL) and
+rendered read-only in edit mode, while every template header field and the lines grid stay editable
+in both modes. `RecurringLinesEditor` (new) is a plain repeating-row grid (not Budget's category x
+month shape) covering description/quantity/unit price/category for every kind plus treatment
+(expense/asset/prepaid) for bill/expense, filtering the category picker by kind and treatment
+together exactly as `purchase_prepare_lines` itself validates; every other optional tax/discount field
+those RPCs accept stays unexposed in this v1 UI (defaulted at generation time) but is preserved
+verbatim on a re-save via each row's own `extra` bag. The Register screen gained a "Buat Aturan Baru"
+button (`canCreate`), the same conditional-Link-button precedent Budget/Revenue Target use. `pnpm
+check` and `pnpm build` pass (560 tests, unchanged -- no new domain logic, only UI/service/schema
+plumbing); `/planning/recurring/new` registers as a route; `pnpm db:test` does not apply (no migration
+touched). This closes out Part 3h in full, and with it all of Part 3 (decision 164) -- Part 4 (Reports
+Architecture, Documents Center, Command Menu quick-create) is next per decision 155's own sequence.
