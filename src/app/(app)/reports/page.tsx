@@ -10,6 +10,7 @@ import {
 import { listLedgerAccounts } from "@/services/accounting/ledger";
 import {
   resolveAsOfDate,
+  resolveCompareRange,
   resolveGeneralLedgerAccount,
   resolveReportRange,
 } from "@/domain/reports/reports";
@@ -38,7 +39,11 @@ function resolveStatement(value: string | undefined): ReportStatement {
  * P13 gate's own rule (decision 155: "never computing an independent frontend financial truth"). Only the
  * active statement's own RPC is called per request, chosen by `?statement=`; the General Ledger tab
  * (decision 190) additionally reads `listLedgerAccounts` (`accounting.view`-gated, same as every role that
- * carries `reports.view` in the seed catalog) to populate its account picker. */
+ * carries `reports.view` in the seed catalog) to populate its account picker. The P&L tab additionally
+ * accepts an optional `?compare_from=&compare_to=` pair (decision 189's own deferred item): when both are
+ * present and valid, `profit_and_loss`'s own `p_compare_start`/`p_compare_end` are passed through unchanged
+ * and the RPC does the comparison-period aggregation itself -- this route never computes one figure of a
+ * comparison independently. */
 export default async function ReportsPage({
   searchParams,
 }: {
@@ -49,9 +54,20 @@ export default async function ReportsPage({
     to?: string;
     as_of?: string;
     account?: string;
+    compare_from?: string;
+    compare_to?: string;
   }>;
 }) {
-  const { entity, statement: statementParam, from, to, as_of, account } = await searchParams;
+  const {
+    entity,
+    statement: statementParam,
+    from,
+    to,
+    as_of,
+    account,
+    compare_from,
+    compare_to,
+  } = await searchParams;
   const { membership } = await requirePermission("reports.view", { entityCode: entity });
   const statement = resolveStatement(statementParam);
   const range = resolveReportRange(from, to);
@@ -90,12 +106,15 @@ export default async function ReportsPage({
       : [];
     data = { statement, range, accountId, accounts, rows };
   } else {
+    const compareRange = resolveCompareRange(compare_from, compare_to);
     const rows = await getProfitAndLoss({
       entity_id: membership.entity_id,
       start_date: range.from,
       end_date: range.to,
+      compare_start_date: compareRange?.from,
+      compare_end_date: compareRange?.to,
     });
-    data = { statement, range, rows };
+    data = { statement, range, compareRange, rows };
   }
 
   return <ReportsScreen data={data} entity={entity} currency={currency} />;
