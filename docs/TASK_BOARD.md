@@ -773,3 +773,23 @@ Assets/Loans, Saved Reports) have no P12 RPC behind them at all and correctly fa
 of their own; each of the P13 3f/3g "belongs with the Reports Architecture slice" report deferrals
 (Loans Due/Loan Summary, Payroll Summary/Payroll Control, the three Asset reconciliation reports)
 remains open for a future Part 4 increment too.
+
+Part 4 second increment is implemented (DECISIONS 190): the General Ledger drill-down, a fifth tab
+(`?statement=gl`) on the same `/reports` screen -- an account picker plus a running-balance card,
+exactly the shape the first increment's own deferred-item note named. Reads `general_ledger` (P12,
+already typed and wrapped, unused until now) with a specific `p_account`, never the RPC's other mode
+(`p_account` omitted, a flat cross-account Journal Report) -- that remains its own future increment,
+not silently folded into this one. The account picker reads `listLedgerAccounts` (already built for
+the Chart of Accounts screen), filtered to posting accounts. New pure domain helper
+`resolveGeneralLedgerAccount` in `src/domain/reports/reports.ts` (unit-tested, 577 -> 584 tests)
+falls back to the first posting account by code on a missing/unknown/group id, matching
+`resolveReportRange`/`resolveAsOfDate`'s own "never block on a missing filter" shape; `null` only
+when the Entity has no posting account at all. `generalLedgerTotals` sums the period's own
+debit/credit and reads the closing balance off the last row's own `running_balance` -- explicitly
+the balance _within the requested range_, not a true carried-forward opening balance, since the RPC
+itself has no opening-balance parameter. Each row links its journal number to the existing Journal
+Detail screen rather than duplicating it. No new RPC, schema or service wrapper. `pnpm check`,
+`pnpm format:check` and `pnpm build` pass (584 tests, up from 577); `/reports?statement=gl` renders;
+`pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred, per the first
+increment's own list minus this item: the P&L comparison-period columns, the Custom Report Builder
+UI, Consolidated Analysis, the Documents Center, and the Command Menu quick-create registry.
