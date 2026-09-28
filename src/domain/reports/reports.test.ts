@@ -12,10 +12,15 @@ import {
   equityRowAmounts,
   generalLedgerTotals,
   groupByAccountClass,
+  hasPnlComparison,
   isFiscalYearClosureActive,
   naturalAmount,
+  pnlCompareAmount,
+  pnlCompareNetIncome,
+  pnlCompareSubtotal,
   pnlNetIncome,
   resolveAsOfDate,
+  resolveCompareRange,
   resolveGeneralLedgerAccount,
   resolveReportRange,
   type AccountClass,
@@ -150,6 +155,32 @@ describe("resolveAsOfDate", () => {
   });
 });
 
+describe("resolveCompareRange", () => {
+  it("returns undefined when nothing is requested", () => {
+    expect(resolveCompareRange(undefined, undefined)).toBeUndefined();
+  });
+
+  it("returns undefined when only one side of the pair is given", () => {
+    expect(resolveCompareRange("2026-01-01", undefined)).toBeUndefined();
+    expect(resolveCompareRange(undefined, "2026-01-31")).toBeUndefined();
+  });
+
+  it("returns undefined for an invalid date", () => {
+    expect(resolveCompareRange("not-a-date", "2026-01-31")).toBeUndefined();
+  });
+
+  it("returns undefined for an inverted pair", () => {
+    expect(resolveCompareRange("2026-02-01", "2026-01-01")).toBeUndefined();
+  });
+
+  it("keeps a valid requested pair", () => {
+    expect(resolveCompareRange("2025-01-01", "2025-12-31")).toEqual({
+      from: "2025-01-01",
+      to: "2025-12-31",
+    });
+  });
+});
+
 describe("groupByAccountClass", () => {
   const rows = [
     {
@@ -201,6 +232,57 @@ describe("pnlNetIncome", () => {
       { debit: "500.0000", credit: "0.0000", account_class: "expense" as AccountClass },
     ];
     expect(pnlNetIncome(rows).toString()).toBe("-400.0000");
+  });
+});
+
+describe("hasPnlComparison / pnlCompareAmount / pnlCompareSubtotal / pnlCompareNetIncome", () => {
+  const withCompare = [
+    {
+      debit: "0.0000",
+      credit: "1000.0000",
+      compare_debit: "0.0000",
+      compare_credit: "800.0000",
+      account_class: "revenue" as AccountClass,
+    },
+    {
+      debit: "300.0000",
+      credit: "0.0000",
+      compare_debit: "250.0000",
+      compare_credit: "0.0000",
+      account_class: "expense" as AccountClass,
+    },
+  ];
+  const withoutCompare = [
+    {
+      debit: "0.0000",
+      credit: "1000.0000",
+      compare_debit: null,
+      compare_credit: null,
+      account_class: "revenue" as AccountClass,
+    },
+  ];
+
+  it("hasPnlComparison reads true only when compare_debit is present", () => {
+    expect(hasPnlComparison(withCompare)).toBe(true);
+    expect(hasPnlComparison(withoutCompare)).toBe(false);
+    expect(hasPnlComparison([])).toBe(false);
+  });
+
+  it("pnlCompareAmount is null when the row carries no comparison figures", () => {
+    expect(pnlCompareAmount(withoutCompare[0])?.toString()).toBeUndefined();
+    expect(pnlCompareAmount(withCompare[0])?.toString()).toBe("800.0000");
+    expect(pnlCompareAmount(withCompare[1])?.toString()).toBe("250.0000");
+  });
+
+  it("pnlCompareSubtotal sums a homogeneous set of rows, null when none carry a comparison", () => {
+    expect(pnlCompareSubtotal([withCompare[0]])?.toString()).toBe("800.0000");
+    expect(pnlCompareSubtotal(withoutCompare)).toBeNull();
+  });
+
+  it("pnlCompareNetIncome nets income minus cost for the comparison period, null when none", () => {
+    // compare income 800; compare cost 250; net 550
+    expect(pnlCompareNetIncome(withCompare)?.toString()).toBe("550.0000");
+    expect(pnlCompareNetIncome(withoutCompare)).toBeNull();
   });
 });
 
