@@ -10,11 +10,13 @@ import {
   cashFlowTotals,
   equityClosingTotal,
   equityRowAmounts,
+  generalLedgerTotals,
   groupByAccountClass,
   isFiscalYearClosureActive,
   naturalAmount,
   pnlNetIncome,
   resolveAsOfDate,
+  resolveGeneralLedgerAccount,
   resolveReportRange,
   type AccountClass,
 } from "./reports";
@@ -297,5 +299,55 @@ describe("cashFlowTotals", () => {
       { bucket: "closing_cash" as const, amount: "1000.0000" },
     ];
     expect(cashFlowTotals(rows).reconciled).toBe(false);
+  });
+});
+
+describe("resolveGeneralLedgerAccount", () => {
+  const accounts = [
+    { id: "group-1", is_group: true },
+    { id: "acc-1", is_group: false },
+    { id: "acc-2", is_group: false },
+  ];
+
+  it("keeps a requested id that is a real posting account", () => {
+    expect(resolveGeneralLedgerAccount(accounts, "acc-2")).toBe("acc-2");
+  });
+
+  it("falls back to the first posting account when nothing valid is requested", () => {
+    expect(resolveGeneralLedgerAccount(accounts, undefined)).toBe("acc-1");
+  });
+
+  it("falls back to the first posting account when the requested id is a group account", () => {
+    expect(resolveGeneralLedgerAccount(accounts, "group-1")).toBe("acc-1");
+  });
+
+  it("falls back to the first posting account when the requested id is unknown", () => {
+    expect(resolveGeneralLedgerAccount(accounts, "not-a-real-id")).toBe("acc-1");
+  });
+
+  it("returns null when the Entity has no posting account at all", () => {
+    expect(resolveGeneralLedgerAccount([{ id: "group-1", is_group: true }], undefined)).toBeNull();
+    expect(resolveGeneralLedgerAccount([], undefined)).toBeNull();
+  });
+});
+
+describe("generalLedgerTotals", () => {
+  it("sums debit/credit and takes the last row's own running_balance as the closing balance", () => {
+    const rows = [
+      { debit: "1000.0000", credit: "0.0000", running_balance: "1000.0000" },
+      { debit: "0.0000", credit: "300.0000", running_balance: "700.0000" },
+      { debit: "200.0000", credit: "0.0000", running_balance: "900.0000" },
+    ];
+    const totals = generalLedgerTotals(rows);
+    expect(totals.debit.toString()).toBe("1200.0000");
+    expect(totals.credit.toString()).toBe("300.0000");
+    expect(totals.closingBalance.toString()).toBe("900.0000");
+  });
+
+  it("returns zero totals and a zero closing balance for no rows", () => {
+    const totals = generalLedgerTotals([]);
+    expect(totals.debit.toString()).toBe("0");
+    expect(totals.credit.toString()).toBe("0");
+    expect(totals.closingBalance.toString()).toBe("0");
   });
 });

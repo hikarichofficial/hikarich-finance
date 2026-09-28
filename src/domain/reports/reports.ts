@@ -331,3 +331,43 @@ export function cashFlowTotals(
     reconciled: expectedClosing.eq(closing),
   };
 }
+
+// ================================================================ General Ledger drill-down (P13 Part 4, second increment)
+
+/** The account a General Ledger card resolves to (Step 12 §3, `general_ledger`'s own comment: a specific
+ * account carries a running balance; omitting it returns every posting account's lines instead, a
+ * materially different shape this screen doesn't render). A missing, unknown, or group account falls back
+ * to the first posting account, mirroring `resolveReportRange`/`resolveAsOfDate`'s own "always resolve to
+ * something sensible, never block on a missing filter" shape -- never `null` unless the Entity genuinely
+ * has no posting account yet. `accounts` is expected pre-sorted by code, `listLedgerAccounts`'s own order. */
+export function resolveGeneralLedgerAccount(
+  accounts: readonly { id: string; is_group: boolean }[],
+  requested: string | undefined,
+): string | null {
+  const posting = accounts.filter((a) => !a.is_group);
+  if (posting.length === 0) return null;
+  if (requested && posting.some((a) => a.id === requested)) return requested;
+  return posting[0].id;
+}
+
+export interface GeneralLedgerTotals {
+  debit: Decimal;
+  credit: Decimal;
+  closingBalance: Decimal;
+}
+
+/** Period debit/credit sums plus the closing balance -- the sums are a display-only total of exactly the
+ * figures already in each row, and the closing balance is simply the last row's own `running_balance`
+ * (the RPC's own windowed sum, ordered `entry_date, created_at, line_no`), never a second computation. Note
+ * this is the balance *within the requested range*, not a true carried-forward opening-adjusted balance --
+ * `general_ledger` has no opening-balance parameter, so a `start_date` filter genuinely restarts the running
+ * sum from zero at that date; this function reflects that faithfully rather than papering over it. */
+export function generalLedgerTotals(
+  rows: readonly { debit: string; credit: string; running_balance: string }[],
+): GeneralLedgerTotals {
+  const debit = sumDecimals(rows.map((r) => Decimal.parse(r.debit)));
+  const credit = sumDecimals(rows.map((r) => Decimal.parse(r.credit)));
+  const closingBalance =
+    rows.length > 0 ? Decimal.parse(rows[rows.length - 1].running_balance) : Decimal.zero();
+  return { debit, credit, closingBalance };
+}
