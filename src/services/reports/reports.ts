@@ -3,6 +3,7 @@ import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import { uuidResultSchema } from "@/schemas/accounting";
+import { entityCurrencyRowSchema } from "@/schemas/dashboard";
 import {
   balanceSheetInputSchema,
   balanceSheetSchema,
@@ -58,6 +59,23 @@ async function callRpc<T>(
   const parsed = schema.safeParse(data);
   if (!parsed.success) throw new Error("Respons laporan tidak dikenali.");
   return parsed.data;
+}
+
+/** The Entity's own reporting currency, for a statement screen to pass to `formatMoney` -- no statement RPC
+ * returns it (every one of them assumes the caller already knows it, same gap decision 161 found for the
+ * Dashboard), so this reads `entities.base_currency` directly, the identical shape decision 161 established
+ * and every later service (planning, assets, payroll, tax, accounting/ledger, financing) has since reused. */
+export async function getEntityBaseCurrency(entityId: string): Promise<string> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("entities")
+    .select("base_currency")
+    .eq("id", entityId)
+    .single();
+  if (error) throw new Error("Gagal memuat mata uang dasar Entity.");
+  const parsed = entityCurrencyRowSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons mata uang dasar Entity tidak dikenali.");
+  return parsed.data.base_currency;
 }
 
 // ================================================================ canonical financial statements

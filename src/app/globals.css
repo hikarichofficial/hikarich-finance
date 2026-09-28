@@ -1544,6 +1544,29 @@ a.kpi-card:hover {
   text-decoration: underline;
 }
 
+/* Reports statement viewer (P13 Part 4, Step 12 §3-§5): a canonical statement (Profit & Loss, Balance
+   Sheet, Statement of Changes in Equity, Cash Flow) is one `.record-table` with a section-header row per
+   `account_class`, a subtotal row closing each section, and a `<tfoot>` grand-total row -- these three
+   share the table's own styling and only need a distinguishing weight/background to read as a boundary. */
+.record-table .statement-section-row th {
+  background: var(--surface-sunken);
+  font-size: var(--text-sm);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.record-table .statement-subtotal-row td,
+.record-table .statement-subtotal-row th {
+  font-weight: 600;
+  border-top: 1px solid var(--line);
+}
+
+.record-table tfoot th,
+.record-table tfoot td {
+  font-weight: 700;
+  border-top: 2px solid var(--line);
+}
+
 .record-detail-back {
   margin: 0;
   font-size: var(--text-sm);
