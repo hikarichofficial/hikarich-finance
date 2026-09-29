@@ -1146,3 +1146,25 @@ alike, has now been read and either converted or confirmed excluded by design --
 mobile-stacked, and the remaining 8 stay on plain `.record-table` as confirmed columnar/comparative tables.
 Still deferred: the Refund Receipt view/template, Step 11 §23's named component primitives, and the rest of
 the broader responsive/accessibility/motion polish pass that decision 155's plan places in Part 5.
+
+Part 5's eleventh increment (DECISIONS 210): the accessibility/motion polish pass decision 155's plan
+places at the end of Part 5 opens with its first concrete item -- keyboard focus visibility (WCAG 2.4.7).
+An audit of every `:focus-visible`/`:focus` rule in `globals.css` found four component classes already
+established the app's own treatment (`.form input`/`.form button`/`.entities a` from P2, `.app-nav-link`/
+`.icon-button` from Part 1, all four `.btn-*` variants from Part 3, all sharing the identical
+`outline: 2px solid var(--accent); outline-offset: 2px`), but nothing else had any override at all: every
+`.record-table` drill-down link, every `.record-form`/`.record-form-wide`/`.plan-lines-table` input/select/
+textarea (the field shell shared by every Create/Edit form and editable grid in the app, `RecurringLinesEditor`
+included), `.list-search-form`/`.invoice-link-row` inputs, `.invoice-action-form`'s textarea, and
+`.list-filter-tab` links all fell back to the browser's own inconsistent default outline -- the majority of
+the app's interactive surface. One base-level rule keyed off the plain tag (`a`/`button`/`input`/`select`/
+`textarea`, placed right after the `* { box-sizing: border-box; }` reset) extends the existing pattern to
+cover them, without visibly changing any already-covered element (identical declaration) and without
+affecting `.command-menu-input:focus { outline: none }` (a class selector, still wins on specificity).
+Touch-target sizing (`.icon-button` renders at 36x36px, clearing WCAG 2.5.8's AA 24x24 minimum but not the
+stricter AAA 44x44) was investigated and deliberately left out pending the exact Step 10 spec number rather
+than guessed at. No new RPC, schema, service wrapper, test file, or markup change -- pure CSS. `pnpm check`,
+`pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (schema fingerprint
+unchanged at `5335133e42e3`). Still deferred: the Refund Receipt view/template (blocked on the Refunds list/
+detail screens, a Part 3-scope gap), Step 11 §23's named component primitives, touch-target sizing, and the
+rest of the empty/loading/error visuals, micro-interactions and dashboard-personalization work.
