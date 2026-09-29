@@ -19,6 +19,10 @@ import { formatShortDate } from "./format";
  * own `p_status` argument, unlike the Tax Ledger's client-side filters: this RPC already filters server-side.
  * No Create button: an asset is registered from an approved purchase/expense line (Step 08 §5) or loaded at the
  * cut-over, never created directly here.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5,
+ * fifth increment; Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- Kode as
+ * the unlabelled heading link.
  */
 export function AssetRegisterScreen({
   rows,
@@ -73,7 +77,7 @@ export function AssetRegisterScreen({
           <p>Tidak ada aset pada saringan ini.</p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Kode</th>
@@ -99,20 +103,22 @@ export function AssetRegisterScreen({
                   <td>
                     <Link href={href}>{row.asset_code}</Link>
                   </td>
-                  <td>{row.name}</td>
-                  <td>{formatShortDate(row.acquisition_date)}</td>
-                  <td>{ASSET_SOURCE_LABELS[row.source_type]}</td>
-                  <td>
+                  <td data-label="Nama">{row.name}</td>
+                  <td data-label="Tanggal Perolehan">{formatShortDate(row.acquisition_date)}</td>
+                  <td data-label="Sumber">{ASSET_SOURCE_LABELS[row.source_type]}</td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${statusBadge.tone}`}>
                       {statusBadge.text}
                     </span>
                   </td>
-                  <td>
+                  <td data-label="Kondisi">
                     <span className={`status-badge status-badge-${conditionBadge.tone}`}>
                       {conditionBadge.text}
                     </span>
                   </td>
-                  <td className="num">{formatMoney(row.net_book_value, currency)}</td>
+                  <td className="num" data-label="Nilai Buku">
+                    {formatMoney(row.net_book_value, currency)}
+                  </td>
                 </tr>
               );
             })}

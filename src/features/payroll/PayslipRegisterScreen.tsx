@@ -18,6 +18,10 @@ import { formatShortDate } from "./format";
  * toolbar exposes yet. No Create button: a payslip is issued as part of the payroll run wizard, not created
  * directly, so there is nothing to create here at all -- unlike every other Register screen's own deferred
  * create form, this one is not a future increment, it simply does not apply to this screen.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
+ * Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- Nomor as the unlabelled
+ * heading link.
  */
 export function PayslipRegisterScreen({
   rows,
@@ -72,7 +76,7 @@ export function PayslipRegisterScreen({
           <p>Tidak ada slip gaji pada saringan ini.</p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Nomor</th>
@@ -96,13 +100,15 @@ export function PayslipRegisterScreen({
                   <td>
                     <Link href={href}>{row.payslip_number}</Link>
                   </td>
-                  <td>
+                  <td data-label="Karyawan">
                     {row.employee_code} — {row.employee_name}
                   </td>
-                  <td>{payrollPeriodName(`${row.period}-01`)}</td>
-                  <td>{formatShortDate(row.issued_at.slice(0, 10))}</td>
-                  <td className="num">{formatMoney(row.net_pay, currency)}</td>
-                  <td>
+                  <td data-label="Periode">{payrollPeriodName(`${row.period}-01`)}</td>
+                  <td data-label="Diterbitkan">{formatShortDate(row.issued_at.slice(0, 10))}</td>
+                  <td className="num" data-label="Gaji Bersih">
+                    {formatMoney(row.net_pay, currency)}
+                  </td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${badge.tone}`}>{badge.text}</span>
                   </td>
                 </tr>

@@ -24,6 +24,10 @@ import { formatShortDate } from "./format";
  * a client-side code/name/position/department search. No Create button: employee creation is a dedicated
  * command flow, out of scope for this List/Detail increment, the same boundary every other Part 3 Register
  * screen's first increment drew.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
+ * Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- Kode as the unlabelled
+ * heading link.
  */
 export function EmployeeRegisterScreen({
   rows,
@@ -88,7 +92,7 @@ export function EmployeeRegisterScreen({
           <p>Tidak ada karyawan pada saringan ini.</p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Kode</th>
@@ -111,12 +115,12 @@ export function EmployeeRegisterScreen({
                   <td>
                     <Link href={href}>{row.employee_code}</Link>
                   </td>
-                  <td>{row.full_name}</td>
-                  <td>{row.position_title}</td>
-                  <td>{row.department ?? "—"}</td>
-                  <td>{EMPLOYMENT_TYPE_LABELS[row.employment_type]}</td>
-                  <td>{formatShortDate(row.join_date)}</td>
-                  <td>
+                  <td data-label="Nama">{row.full_name}</td>
+                  <td data-label="Jabatan">{row.position_title}</td>
+                  <td data-label="Departemen">{row.department ?? "—"}</td>
+                  <td data-label="Jenis">{EMPLOYMENT_TYPE_LABELS[row.employment_type]}</td>
+                  <td data-label="Tanggal Masuk">{formatShortDate(row.join_date)}</td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${badge.tone}`}>{badge.text}</span>
                   </td>
                 </tr>

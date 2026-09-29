@@ -21,6 +21,10 @@ import { formatShortDate } from "./format";
  * the exact permission `create_recurring_rule` itself checks) follows the identical conditional-Link-button
  * precedent `BudgetRegisterScreen`/`AccountsListScreen`/`InvoicesListScreen` already established, reaching
  * the create/edit template builder (`RecurringRuleForm`) that decisions 186/187 had deferred.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
+ * Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- Nama as the unlabelled
+ * heading link.
  */
 export function RecurringRuleRegisterScreen({
   rows,
@@ -91,7 +95,7 @@ export function RecurringRuleRegisterScreen({
           <p>Tidak ada aturan berulang pada saringan ini.</p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Nama</th>
@@ -113,13 +117,13 @@ export function RecurringRuleRegisterScreen({
                   <td>
                     <Link href={href}>{row.label}</Link>
                   </td>
-                  <td>{RECURRING_KIND_LABELS[row.kind]}</td>
-                  <td>{RECURRING_FREQUENCY_LABELS[row.frequency]}</td>
-                  <td>{formatShortDate(row.next_occurrence_date)}</td>
-                  <td>
+                  <td data-label="Jenis">{RECURRING_KIND_LABELS[row.kind]}</td>
+                  <td data-label="Frekuensi">{RECURRING_FREQUENCY_LABELS[row.frequency]}</td>
+                  <td data-label="Berikutnya">{formatShortDate(row.next_occurrence_date)}</td>
+                  <td data-label="Terakhir Dibuat">
                     {row.last_generated_date ? formatShortDate(row.last_generated_date) : "—"}
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${badge.tone}`}>{badge.text}</span>
                   </td>
                 </tr>

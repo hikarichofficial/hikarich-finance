@@ -14,6 +14,10 @@ import { formatShortDate } from "./format";
  * (`/money/transfers/new`) rather than the catch-all placeholder -- the Transfer form is small enough that
  * Part 3c builds it alongside List/Detail rather than deferring it (decision 164's own "materially larger"
  * test for when to defer a builder).
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
+ * Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- No. Transfer as the
+ * unlabelled heading link.
  */
 
 function buildHref(
@@ -107,7 +111,7 @@ export function TransfersListScreen({
           </p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">No. Transfer</th>
@@ -131,15 +135,17 @@ export function TransfersListScreen({
                   <td>
                     <Link href={href}>{row.transfer_number ?? "Draf"}</Link>
                   </td>
-                  <td>{row.from_account_name}</td>
-                  <td>{row.to_account_name}</td>
-                  <td>{formatShortDate(row.transfer_date)}</td>
-                  <td>
+                  <td data-label="Dari">{row.from_account_name}</td>
+                  <td data-label="Ke">{row.to_account_name}</td>
+                  <td data-label="Tanggal">{formatShortDate(row.transfer_date)}</td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${status.tone}`}>
                       {status.text}
                     </span>
                   </td>
-                  <td className="num">{formatMoney(row.amount_out, row.from_account_currency)}</td>
+                  <td className="num" data-label="Jumlah">
+                    {formatMoney(row.amount_out, row.from_account_currency)}
+                  </td>
                 </tr>
               );
             })}

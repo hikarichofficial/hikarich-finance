@@ -20,6 +20,11 @@ import { formatShortDate } from "./format";
  * fixed row of tabs. No Create button: journal creation is the Advanced Adjustments builder (`entry_type`
  * manual/adjusting only), deferred per decision 164's "materially larger builder" test -- this list only
  * shows every journal already in the database, whatever created it.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
+ * Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- No. Jurnal as the unlabelled
+ * heading link. This is the plain journal list, not `JournalDetailScreen`'s own debit/credit grid (excluded
+ * per decision 202's carve-out for genuinely columnar/comparative tables).
  */
 
 export function JournalsListScreen({
@@ -100,7 +105,7 @@ export function JournalsListScreen({
           <p>Tidak ada jurnal pada saringan ini.</p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">No. Jurnal</th>
@@ -121,10 +126,10 @@ export function JournalsListScreen({
                   <td>
                     <Link href={href}>{row.journal_number ?? "Draf"}</Link>
                   </td>
-                  <td>{formatShortDate(row.entry_date)}</td>
-                  <td>{entryTypeLabel(row.entry_type)}</td>
-                  <td>{row.description}</td>
-                  <td>
+                  <td data-label="Tanggal">{formatShortDate(row.entry_date)}</td>
+                  <td data-label="Sumber">{entryTypeLabel(row.entry_type)}</td>
+                  <td data-label="Deskripsi">{row.description}</td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${rowStatus.tone}`}>
                       {rowStatus.text}
                     </span>

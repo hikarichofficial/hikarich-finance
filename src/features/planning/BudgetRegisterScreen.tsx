@@ -79,7 +79,7 @@ export function BudgetRegisterScreen({
           <p>Tidak ada anggaran pada saringan ini.</p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Nama</th>
@@ -100,12 +100,12 @@ export function BudgetRegisterScreen({
                   <td>
                     <Link href={href}>{row.name}</Link>
                   </td>
-                  <td>{PLAN_PERIOD_TYPE_LABELS[row.period_type]}</td>
-                  <td>{row.fiscal_year ?? "—"}</td>
-                  <td>
+                  <td data-label="Jenis Periode">{PLAN_PERIOD_TYPE_LABELS[row.period_type]}</td>
+                  <td data-label="Tahun Fiskal">{row.fiscal_year ?? "—"}</td>
+                  <td data-label="Periode">
                     {formatShortDate(row.start_date)} – {formatShortDate(row.end_date)}
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${badge.tone}`}>{badge.text}</span>
                   </td>
                 </tr>

@@ -18,6 +18,10 @@ import { formatShortDate } from "./format";
  * List/Detail increment, the same boundary every other Part 3 Register screen's first increment drew.
  * `tax_allowance_total`/`pph21_total` are null for a viewer without `payroll.tax_view` (the RPC's own doing,
  * not this screen's) -- shown as "—" rather than 0, so a masked figure is never mistaken for an actual zero.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
+ * Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- Nomor as the unlabelled
+ * heading link.
  */
 export function PayrollRunRegisterScreen({
   rows,
@@ -72,7 +76,7 @@ export function PayrollRunRegisterScreen({
           <p>Tidak ada proses penggajian pada saringan ini.</p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Nomor</th>
@@ -98,11 +102,15 @@ export function PayrollRunRegisterScreen({
                   <td>
                     <Link href={href}>{row.run_number}</Link>
                   </td>
-                  <td>{payrollPeriodName(row.period_start)}</td>
-                  <td>{formatShortDate(row.pay_date)}</td>
-                  <td className="num">{row.employee_count}</td>
-                  <td className="num">{formatMoney(row.net_pay_total, currency)}</td>
-                  <td>
+                  <td data-label="Periode">{payrollPeriodName(row.period_start)}</td>
+                  <td data-label="Tanggal Bayar">{formatShortDate(row.pay_date)}</td>
+                  <td className="num" data-label="Karyawan">
+                    {row.employee_count}
+                  </td>
+                  <td className="num" data-label="Gaji Bersih">
+                    {formatMoney(row.net_pay_total, currency)}
+                  </td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${badge.tone}`}>{badge.text}</span>
                   </td>
                 </tr>

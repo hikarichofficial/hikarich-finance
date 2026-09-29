@@ -17,6 +17,10 @@ import { formatShortDate } from "./format";
  * shipped in the fifth increment as its own "set lines" list on Revenue Target Detail, reached from here via
  * the "Buat Target Baru" button (`canCreate`, `planning.budget_edit`, the exact permission
  * `create_revenue_target` itself checks).
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
+ * Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- Nama as the unlabelled
+ * heading link.
  */
 export function RevenueTargetRegisterScreen({
   rows,
@@ -80,7 +84,7 @@ export function RevenueTargetRegisterScreen({
           <p>Tidak ada target pendapatan pada saringan ini.</p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Nama</th>
@@ -101,12 +105,12 @@ export function RevenueTargetRegisterScreen({
                   <td>
                     <Link href={href}>{row.name}</Link>
                   </td>
-                  <td>{PLAN_PERIOD_TYPE_LABELS[row.period_type]}</td>
-                  <td>{row.fiscal_year ?? "—"}</td>
-                  <td>
+                  <td data-label="Jenis Periode">{PLAN_PERIOD_TYPE_LABELS[row.period_type]}</td>
+                  <td data-label="Tahun Fiskal">{row.fiscal_year ?? "—"}</td>
+                  <td data-label="Periode">
                     {formatShortDate(row.start_date)} – {formatShortDate(row.end_date)}
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${badge.tone}`}>{badge.text}</span>
                   </td>
                 </tr>
