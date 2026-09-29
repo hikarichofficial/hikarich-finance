@@ -6,6 +6,7 @@ import {
   type BillListFilter,
   type BillListRow,
 } from "@/domain/purchases/billList";
+import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -127,7 +128,26 @@ export function BillsListScreen({
               return (
                 <tr key={row.bill_id}>
                   <td>
-                    <Link href={href}>{row.bill_number ?? "Draf"}</Link>
+                    <RecordPreviewLink
+                      href={href}
+                      label={row.bill_number ?? "Draf"}
+                      eyebrow="Tagihan Pembelian"
+                      title={row.bill_number ?? "Draf"}
+                      badges={[{ tone: status.tone, text: status.text }]}
+                      fields={[
+                        { label: "Vendor", value: row.vendor_name },
+                        { label: "Tanggal", value: formatShortDate(row.bill_date) },
+                        { label: "Jatuh Tempo", value: formatShortDate(row.due_date) },
+                        { label: "Total", value: formatMoney(row.total, row.currency) },
+                        {
+                          label: "Sisa Tagihan",
+                          value:
+                            row.outstanding !== null
+                              ? formatMoney(row.outstanding, row.currency)
+                              : "—",
+                        },
+                      ]}
+                    />
                   </td>
                   <td data-label="Vendor">{row.vendor_name}</td>
                   <td data-label="Tanggal">{formatShortDate(row.bill_date)}</td>

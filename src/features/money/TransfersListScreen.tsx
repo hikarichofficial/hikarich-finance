@@ -6,6 +6,7 @@ import {
   type TransferListFilter,
   type TransferListRow,
 } from "@/domain/money/transferList";
+import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -133,7 +134,22 @@ export function TransfersListScreen({
               return (
                 <tr key={row.id}>
                   <td>
-                    <Link href={href}>{row.transfer_number ?? "Draf"}</Link>
+                    <RecordPreviewLink
+                      href={href}
+                      label={row.transfer_number ?? "Draf"}
+                      eyebrow="Transfer Antar Akun"
+                      title={row.transfer_number ?? "Draf"}
+                      badges={[{ tone: status.tone, text: status.text }]}
+                      fields={[
+                        { label: "Dari", value: row.from_account_name },
+                        { label: "Ke", value: row.to_account_name },
+                        { label: "Tanggal", value: formatShortDate(row.transfer_date) },
+                        {
+                          label: "Jumlah",
+                          value: formatMoney(row.amount_out, row.from_account_currency),
+                        },
+                      ]}
+                    />
                   </td>
                   <td data-label="Dari">{row.from_account_name}</td>
                   <td data-label="Ke">{row.to_account_name}</td>
