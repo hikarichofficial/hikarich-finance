@@ -1273,3 +1273,16 @@ yet (Sales/Purchases screens still remaining, decisions 286/290/294) -- document
 around, the same choice this project already makes elsewhere. No RPC, schema, migration or service file
 changed; `pnpm check`, `pnpm format:check`, `pnpm build` pass (658 tests, +3) and `pnpm db:test`'s schema
 fingerprint stays `5335133e42e3`.
+
+Drawer retrofit, first module group (DECISIONS 216): `RecordPreviewLink` is wired onto the identity-column
+link of every Sales/Purchases/Money/Accounting List screen -- `InvoicesListScreen`, `BillsListScreen`,
+`AccountsListScreen`, `TransfersListScreen`, `JournalsListScreen`. Each change swaps a plain `<Link>` for
+`RecordPreviewLink` carrying the exact same fields and status badge that row's own table cell already
+computes, so no new data fetching or RPC/service call was added anywhere. `CashActivityScreen` is
+deliberately left unchanged: its one link per row already goes to the account a movement belongs to, not
+to "this movement" (which has no Detail screen of its own), and `AccountsListScreen` already gives that
+account its own Quick Preview one screen up -- adding a second, redundant drawer here would preview the
+wrong record for what the row represents. `pnpm check` (658 tests, unchanged), `pnpm format:check`,
+`pnpm build` all pass; no RPC/schema/service touched, so no `pnpm db:test` fingerprint change. This is PR
+2 of the OWNER-agreed 3-PR plan; the remaining module group (Assets & Financing, Payroll, Planning,
+Documents) is the third and final increment.

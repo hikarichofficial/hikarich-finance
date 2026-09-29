@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   ENTRY_TYPE_LABELS,
   JOURNAL_FILTER_OPTIONS,
@@ -10,6 +9,7 @@ import {
   type JournalStatusFilter,
 } from "@/domain/accounting/journalList";
 import type { AccountingPeriodRow, JournalEntryRow } from "@/schemas/accounting";
+import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -124,7 +124,18 @@ export function JournalsListScreen({
               return (
                 <tr key={row.id}>
                   <td>
-                    <Link href={href}>{row.journal_number ?? "Draf"}</Link>
+                    <RecordPreviewLink
+                      href={href}
+                      label={row.journal_number ?? "Draf"}
+                      eyebrow="Jurnal"
+                      title={row.journal_number ?? "Draf"}
+                      badges={[{ tone: rowStatus.tone, text: rowStatus.text }]}
+                      fields={[
+                        { label: "Tanggal", value: formatShortDate(row.entry_date) },
+                        { label: "Sumber", value: entryTypeLabel(row.entry_type) },
+                        { label: "Deskripsi", value: row.description },
+                      ]}
+                    />
                   </td>
                   <td data-label="Tanggal">{formatShortDate(row.entry_date)}</td>
                   <td data-label="Sumber">{entryTypeLabel(row.entry_type)}</td>
