@@ -1828,6 +1828,17 @@ a.kpi-card:hover {
   border-radius: var(--radius-lg);
 }
 
+.list-empty p {
+  margin: 0;
+}
+
+/* Step 09 §25/§9, Step 10 §24: empty states are "action-oriented" and carry "one clear CTA" -- this is that
+   CTA slot, a `.btn-primary`/`.btn-secondary` placed below the `.list-empty` message (decision 218). */
+.list-empty-action {
+  display: inline-block;
+  margin-top: var(--space-4);
+}
+
 /* Skeleton loading (Step 09 §25 "Use skeleton loading for primary workspace content rather than disruptive
  * full-screen spinners"; Step 10 §23 "Skeletons match final geometry to minimize layout shift"; Step 10 §24
  * "Skeleton loading uses neutral shimmer or subtle pulse compatible with reduced-motion") -- P13 Part 5,

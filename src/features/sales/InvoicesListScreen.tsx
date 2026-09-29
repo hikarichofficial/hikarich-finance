@@ -13,7 +13,10 @@ import { formatShortDate } from "./format";
  * side drawer) is wired in this increment (P13 Part 6, decision 215's retrofit) via `RecordPreviewLink` --
  * zero-network, every field shown is already in `row`; saved views, export and bulk actions stay deferred.
  * "Create" already routes through the catch-all placeholder (DECISIONS 157) since the invoice builder
- * itself is a later increment.
+ * itself is a later increment. The empty state carries one CTA (Step 09 §9/§25, Step 10 §24, decision 218):
+ * "Hapus Saringan" when a search/filter produced zero rows, else the same "Buat Faktur" action the header
+ * already offers when `canCreate` -- never both, and never a guessed-at action neither the header nor the
+ * URL already provides.
  *
  * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5,
  * third increment; Step 09 §23: "dense tables convert to cards/stacked rows with key fields," explicitly
@@ -101,6 +104,15 @@ export function InvoicesListScreen({
               ? "Tidak ada faktur yang cocok dengan pencarian ini."
               : "Belum ada faktur pada tampilan ini."}
           </p>
+          {query.trim() || activeFilter ? (
+            <Link href={buildHref(entity, null, "")} className="btn-secondary list-empty-action">
+              Hapus Saringan
+            </Link>
+          ) : canCreate ? (
+            <Link href="/sales/invoices/new" className="btn-primary list-empty-action">
+              Buat Faktur
+            </Link>
+          ) : null}
         </div>
       ) : (
         <table className="record-table record-table-stacked">

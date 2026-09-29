@@ -17,6 +17,8 @@ import { formatShortDate } from "./format";
  * multi-step period x category grid builder (`set_budget_lines` takes up to 2000 lines) -- shipped in the
  * fifth increment as its own "set lines" grid on Budget Detail, reached from here via the "Buat Anggaran
  * Baru" button (`canCreate`, `planning.budget_edit`, the exact permission `create_budget` itself checks).
+ * The empty state carries one CTA (Step 09 §9/§25, Step 10 §24, decision 218): "Hapus Saringan" when the
+ * status/query form is active, else the header's own "Buat Anggaran Baru" action.
  */
 export function BudgetRegisterScreen({
   rows,
@@ -34,6 +36,10 @@ export function BudgetRegisterScreen({
   const newHref = entity
     ? `/planning/budgets/new?entity=${encodeURIComponent(entity)}`
     : "/planning/budgets/new";
+  const baseHref = entity
+    ? `/planning/budgets?entity=${encodeURIComponent(entity)}`
+    : "/planning/budgets";
+  const isFiltered = Boolean(status) || query.trim().length > 0;
 
   return (
     <div className="list-screen">
@@ -78,6 +84,15 @@ export function BudgetRegisterScreen({
       {rows.length === 0 ? (
         <div className="list-empty">
           <p>Tidak ada anggaran pada saringan ini.</p>
+          {isFiltered ? (
+            <Link href={baseHref} className="btn-secondary list-empty-action">
+              Hapus Saringan
+            </Link>
+          ) : canCreate ? (
+            <Link href={newHref} className="btn-primary list-empty-action">
+              Buat Anggaran Baru
+            </Link>
+          ) : null}
         </div>
       ) : (
         <table className="record-table record-table-stacked">

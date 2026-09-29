@@ -21,7 +21,8 @@ import { formatShortDate } from "./format";
  *
  * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
  * Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- Nama as the unlabelled
- * heading link.
+ * heading link. The empty state carries one CTA (Step 09 §9/§25, Step 10 §24, decision 218), the same
+ * "Hapus Saringan"-or-header-action pattern `BudgetRegisterScreen` established.
  */
 export function RevenueTargetRegisterScreen({
   rows,
@@ -39,6 +40,10 @@ export function RevenueTargetRegisterScreen({
   const newHref = entity
     ? `/planning/targets/new?entity=${encodeURIComponent(entity)}`
     : "/planning/targets/new";
+  const baseHref = entity
+    ? `/planning/targets?entity=${encodeURIComponent(entity)}`
+    : "/planning/targets";
+  const isFiltered = Boolean(status) || query.trim().length > 0;
 
   return (
     <div className="list-screen">
@@ -83,6 +88,15 @@ export function RevenueTargetRegisterScreen({
       {rows.length === 0 ? (
         <div className="list-empty">
           <p>Tidak ada target pendapatan pada saringan ini.</p>
+          {isFiltered ? (
+            <Link href={baseHref} className="btn-secondary list-empty-action">
+              Hapus Saringan
+            </Link>
+          ) : canCreate ? (
+            <Link href={newHref} className="btn-primary list-empty-action">
+              Buat Target Baru
+            </Link>
+          ) : null}
         </div>
       ) : (
         <table className="record-table record-table-stacked">

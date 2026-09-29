@@ -18,7 +18,8 @@ import { formatShortDate } from "./format";
  *
  * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
  * Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- No. Transfer as the
- * unlabelled heading link.
+ * unlabelled heading link. The empty state carries one CTA (Step 09 §9/§25, Step 10 §24, decision 218):
+ * "Hapus Saringan" when filtered/searched to zero rows, else the header's own "Buat Transfer" action.
  */
 
 function buildHref(
@@ -110,6 +111,22 @@ export function TransfersListScreen({
               ? "Tidak ada transfer yang cocok dengan pencarian ini."
               : "Belum ada transfer pada tampilan ini."}
           </p>
+          {query.trim() || activeFilter ? (
+            <Link href={buildHref(entity, null, "")} className="btn-secondary list-empty-action">
+              Hapus Saringan
+            </Link>
+          ) : canCreate ? (
+            <Link
+              href={
+                entity
+                  ? `/money/transfers/new?entity=${encodeURIComponent(entity)}`
+                  : "/money/transfers/new"
+              }
+              className="btn-primary list-empty-action"
+            >
+              Buat Transfer
+            </Link>
+          ) : null}
         </div>
       ) : (
         <table className="record-table record-table-stacked">
