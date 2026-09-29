@@ -12,6 +12,13 @@ import { formatShortDate } from "./format";
  * views, export and bulk actions are deferred to a later Part 3a increment (recorded in DECISIONS/TASK_BOARD
  * rather than silently dropped); "Create" already routes through the catch-all placeholder (DECISIONS 157)
  * since the invoice builder itself is that same later increment.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5,
+ * third increment; Step 09 §23: "dense tables convert to cards/stacked rows with key fields," explicitly
+ * naming invoice viewing as a mobile-priority flow) rather than the plain `overflow-x: auto` every other
+ * `.record-table` still falls back to -- this is the first screen in a module-by-module rollout, not a
+ * blanket change, since Reports' statement viewer and other genuinely columnar `.record-table` usages are
+ * deliberately excluded (§23's own carve-out keeps "advanced report building" desktop-optimized).
  */
 
 function buildHref(entity: string | undefined, filter: InvoiceFilter | null, q: string): string {
@@ -94,7 +101,7 @@ export function InvoicesListScreen({
           </p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">No. Faktur</th>
@@ -121,16 +128,20 @@ export function InvoicesListScreen({
                   <td>
                     <Link href={href}>{row.invoice_number ?? "Draf"}</Link>
                   </td>
-                  <td>{row.customer_name}</td>
-                  <td>{formatShortDate(row.issue_date)}</td>
-                  <td>{formatShortDate(row.due_date)}</td>
-                  <td>
+                  <td data-label="Pelanggan">{row.customer_name}</td>
+                  <td data-label="Tanggal">{formatShortDate(row.issue_date)}</td>
+                  <td data-label="Jatuh Tempo">{formatShortDate(row.due_date)}</td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${status.tone}`}>
                       {status.text}
                     </span>
                   </td>
-                  <td className="num">{formatMoney(row.total, row.currency)}</td>
-                  <td className="num">{formatMoney(row.outstanding, row.currency)}</td>
+                  <td className="num" data-label="Total">
+                    {formatMoney(row.total, row.currency)}
+                  </td>
+                  <td className="num" data-label="Sisa Tagihan">
+                    {formatMoney(row.outstanding, row.currency)}
+                  </td>
                 </tr>
               );
             })}

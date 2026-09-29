@@ -1025,3 +1025,22 @@ pure CSS/markup increment). `pnpm check`, `pnpm format:check` and `pnpm build` p
 unchanged); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred: the
 Refund Receipt view/template, Step 11 §23's named component primitives, §9's backend-blocked fields, and
 the broader responsive/accessibility/motion polish pass across every other P13 part.
+
+Part 5's third increment (DECISIONS 202): the first step of the broader Step 09/Step 10 responsive pass,
+decision 200's last remaining deferred item. Step 09 §23 says dense tables convert to cards/stacked rows
+on mobile, but `.record-table` -- the shared class every List/Detail screen uses (38 files across Sales,
+Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning, Reports and Documents) -- only
+had `overflow-x: auto`. The App Shell and Dashboard were checked first and confirmed already compliant
+(built in Part 1). Converting all 38 files at once was rejected: `.record-table` is also what the Reports
+statement viewer, Chart of Accounts and Journal debit/credit grid use, and those are genuinely columnar
+tables where stacking would break the alignment a reader needs -- exactly what §23's own carve-out
+anticipates for "advanced report building." So a new opt-in `record-table-stacked` class (reusing decision
+201's own `.doc-lines` pattern: hidden `<thead>`, each `<tr>` a block, each `<td>` reading its column
+header back via `data-label`/`content: attr()`) is being rolled out module by module rather than as one
+blanket change. `InvoicesListScreen.tsx` ships first, since §23 explicitly names invoice viewing as
+mobile-priority; its seven columns become a card per invoice, No. Faktur as the unlabelled heading link.
+No new RPC, schema, service wrapper or test file. `pnpm check`, `pnpm format:check` and `pnpm build` pass
+(655 tests, unchanged); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still
+deferred: the other 37 `.record-table` screens (Money Accounts/Cash Activity and Purchases Bills next),
+the Refund Receipt view/template, Step 11 §23's named component primitives, and the rest of the broader
+responsive/accessibility/motion polish pass.
