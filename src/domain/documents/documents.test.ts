@@ -5,6 +5,7 @@ import {
   DOCUMENT_TARGET_TYPE_FILTER_OPTIONS,
   DOCUMENT_TARGET_TYPE_LABELS,
   documentTargetTypesLabel,
+  filterDocumentsByLinkStatus,
   formatDocumentSize,
   parseDocumentTargetTypeFilter,
 } from "./documents";
@@ -98,5 +99,26 @@ describe("documentTargetTypesLabel", () => {
 
   it("falls back to the raw value for an unrecognized kind rather than dropping it", () => {
     expect(documentTargetTypesLabel(["future_kind"])).toBe("future_kind");
+  });
+});
+
+describe("filterDocumentsByLinkStatus", () => {
+  const rows = [
+    { id: "a", link_count: 0 },
+    { id: "b", link_count: 2 },
+    { id: "c", link_count: 0 },
+    { id: "d", link_count: 1 },
+  ];
+
+  it("keeps only documents with no active link for 'unlinked'", () => {
+    expect(filterDocumentsByLinkStatus(rows, "unlinked").map((r) => r.id)).toEqual(["a", "c"]);
+  });
+
+  it("keeps only documents with at least one active link for 'linked'", () => {
+    expect(filterDocumentsByLinkStatus(rows, "linked").map((r) => r.id)).toEqual(["b", "d"]);
+  });
+
+  it("returns an empty array when nothing matches", () => {
+    expect(filterDocumentsByLinkStatus([], "linked")).toEqual([]);
   });
 });

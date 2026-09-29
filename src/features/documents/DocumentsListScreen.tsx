@@ -15,14 +15,21 @@ import { formatShortDate } from "./format";
  * params sent straight to the route rather than a client-side filter over an already-fetched list; "Next"
  * appears whenever a full page came back (the RPC returns no total count to check against instead).
  * Upload (`documents.upload`, `registerDocument`/`finalizeDocumentUpload`) and a per-document detail/download
- * view are deferred to a later increment -- Storage itself is not yet configured (DECISIONS 142), and no
- * traced requirement (`docs/TRACEABILITY.md`, Step 01 #35) asks this increment for more than the listing
- * itself (search by name, filter by target kind, permission-scoped).
+ * view stay deferred -- Storage itself is not yet configured (DECISIONS 142) -- but the nav's own "Uploads"
+ * and "Linked Evidence" sub-routes (P13 Part 4, tenth increment, DECISIONS 198) reuse this exact screen: an
+ * optional `basePath`/`title`/`showTargetTypeFilter` let `/documents/uploads` and `/documents/evidence` point
+ * every link and form at their own route and hide a filter tab that would never match (an unlinked document
+ * never has a `target_type` of its own, so filtering the Uploads view by kind would always come back empty --
+ * `filterDocumentsByLinkStatus`, `@/domain/documents/documents`). `hasMore` is accepted as a prop rather than
+ * always derived from `rows.length` because those two routes filter the fetched page by link status before
+ * it reaches this component -- the caller computes it from the RPC's own raw page, so "Berikutnya" keeps
+ * reflecting the real `list_documents` windowing even when the displayed row count has shrunk.
  */
 
 const PAGE_SIZE = 50;
 
 function buildHref(
+  basePath: string,
   entity: string | undefined,
   targetType: DocumentTargetType | null,
   q: string,
@@ -34,7 +41,7 @@ function buildHref(
   if (q.trim()) params.set("q", q.trim());
   if (offset > 0) params.set("offset", String(offset));
   const qs = params.toString();
-  return qs ? `/documents?${qs}` : "/documents";
+  return qs ? `${basePath}?${qs}` : basePath;
 }
 
 export function DocumentsListScreen({
@@ -43,20 +50,28 @@ export function DocumentsListScreen({
   query,
   entity,
   offset,
+  basePath = "/documents",
+  title = "Pusat Dokumen",
+  showTargetTypeFilter = true,
+  hasMore,
 }: {
   rows: readonly DocumentRow[];
   activeFilter: DocumentTargetType | null;
   query: string;
   entity: string | undefined;
   offset: number;
+  basePath?: string;
+  title?: string;
+  showTargetTypeFilter?: boolean;
+  hasMore?: boolean;
 }) {
-  const hasMore = rows.length === PAGE_SIZE;
+  const more = hasMore ?? rows.length === PAGE_SIZE;
 
   return (
     <div className="list-screen">
       <header className="list-screen-header">
         <div>
-          <h1>Pusat Dokumen</h1>
+          <h1>{title}</h1>
           <p className="list-screen-summary">
             {rows.length} dokumen{" "}
             {activeFilter ? `pada tampilan "${filterLabel(activeFilter)}"` : "ditampilkan"}.
@@ -65,21 +80,23 @@ export function DocumentsListScreen({
       </header>
 
       <div className="list-screen-toolbar">
-        <nav className="list-filter-tabs" aria-label="Saring jenis dokumen">
-          {DOCUMENT_TARGET_TYPE_FILTER_OPTIONS.map((option) => (
-            <Link
-              key={option.label}
-              href={buildHref(entity, option.value, query, 0)}
-              className={
-                option.value === activeFilter
-                  ? "list-filter-tab list-filter-tab-active"
-                  : "list-filter-tab"
-              }
-            >
-              {option.label}
-            </Link>
-          ))}
-        </nav>
+        {showTargetTypeFilter ? (
+          <nav className="list-filter-tabs" aria-label="Saring jenis dokumen">
+            {DOCUMENT_TARGET_TYPE_FILTER_OPTIONS.map((option) => (
+              <Link
+                key={option.label}
+                href={buildHref(basePath, entity, option.value, query, 0)}
+                className={
+                  option.value === activeFilter
+                    ? "list-filter-tab list-filter-tab-active"
+                    : "list-filter-tab"
+                }
+              >
+                {option.label}
+              </Link>
+            ))}
+          </nav>
+        ) : null}
         <form method="get" className="list-search-form">
           {entity ? <input type="hidden" name="entity" value={entity} /> : null}
           {activeFilter ? <input type="hidden" name="target_type" value={activeFilter} /> : null}
@@ -133,19 +150,25 @@ export function DocumentsListScreen({
         </table>
       )}
 
-      {offset > 0 || hasMore ? (
+      {offset > 0 || more ? (
         <div className="list-screen-toolbar" aria-label="Navigasi halaman">
           {offset > 0 ? (
             <Link
-              href={buildHref(entity, activeFilter, query, Math.max(0, offset - PAGE_SIZE))}
+              href={buildHref(
+                basePath,
+                entity,
+                activeFilter,
+                query,
+                Math.max(0, offset - PAGE_SIZE),
+              )}
               className="btn-secondary"
             >
               Sebelumnya
             </Link>
           ) : null}
-          {hasMore ? (
+          {more ? (
             <Link
-              href={buildHref(entity, activeFilter, query, offset + PAGE_SIZE)}
+              href={buildHref(basePath, entity, activeFilter, query, offset + PAGE_SIZE)}
               className="btn-secondary"
             >
               Berikutnya
