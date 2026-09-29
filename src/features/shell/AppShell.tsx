@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import type { AccessSnapshot } from "@/schemas/access";
 import { resolveActiveEntity } from "@/domain/authz/access";
 import { visibleNavigation } from "@/domain/shell/navigation";
+import { visibleQuickCreate } from "@/domain/shell/quickCreate";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { CommandMenu } from "./CommandMenu";
@@ -32,6 +33,13 @@ export function AppShell({ access, children }: { access: AccessSnapshot; childre
     [access, searchParams, switchable],
   );
   const navigation = useMemo(() => visibleNavigation(membership?.permissions ?? []), [membership]);
+  // Command Menu quick-create registry (P13 Part 4, eleventh increment, DECISIONS 199): filtered here,
+  // the same "already scoped before it reaches the component" shape `navigation` above already uses, so
+  // `CommandMenu` never re-checks a permission itself.
+  const quickCreate = useMemo(
+    () => visibleQuickCreate(membership?.permissions ?? []),
+    [membership],
+  );
 
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -129,6 +137,7 @@ export function AppShell({ access, children }: { access: AccessSnapshot; childre
         open={commandOpen}
         onClose={() => setCommandOpen(false)}
         groups={navigation}
+        quickCreate={quickCreate}
       />
     </div>
   );

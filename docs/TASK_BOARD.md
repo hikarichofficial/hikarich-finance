@@ -953,3 +953,24 @@ from 643); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`
 the ninth increment's own list minus this item: the Command Menu quick-create registry (OWNER-approved
 4-item scope, not yet built), the `/documents/archive` sub-route, Documents Center upload/download/
 detail, and the Asset Movement/Disposal Report.
+
+Part 4 eleventh increment is implemented (DECISIONS 199): the Command Menu quick-create registry, the
+OWNER's answer to the first of two scoping questions asked alongside the Documents Center question in
+DECISIONS 198. Most modules (invoices, bills, loans, obligations, equity, assets, and more) have no
+create form/UI yet, so the OWNER chose to scope this to exactly the four `/new` routes that already
+exist ("Registry terbatas 4 item dulu"): Transfer Uang, Anggaran, Aturan Berulang and Target Pendapatan.
+New domain module `src/domain/shell/quickCreate.ts`: `QUICK_CREATE_REGISTRY` (the four entries) and
+`visibleQuickCreate(permissions)`, mirroring `visibleNavigation`'s own "unavailable by permission is
+omitted" contract but gated on a single required permission per item, since every `/new` route checks
+exactly one permission (never a compound/OR rule the way some nav items only approximate). `CommandMenu`
+takes a new `quickCreate` prop, already filtered by `AppShell` the same way its existing `groups` prop
+is; quick-create entries are flattened into the same searchable result list as navigation entries
+(labelled "Buat Baru"), not a separate always-visible section, so they search and sort through the
+identical pipeline. Global Search stays unwired into the Command Menu -- still no settled data-fetching
+pattern for a server-backed result source inside this synchronous local-filter shell. No new RPC, schema
+or service wrapper; no component-level test file, matching the existing convention that `src/features/**`
+components have none of their own. `pnpm check`, `pnpm format:check` and `pnpm build` pass (653 tests,
+up from 646); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred, per
+the tenth increment's own list minus this item: the `/documents/archive` sub-route, Documents Center
+upload/download/detail, and the Asset Movement/Disposal Report. The registry itself grows automatically
+as future increments ship more `/new` routes.
