@@ -8,6 +8,7 @@ import {
 import type { RecurringRuleRow } from "@/schemas/planning";
 import type { RecurringStatus } from "@/domain/planning/planning";
 import { RunDueRecurringOccurrencesButton } from "./RecurringRuleActions";
+import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -115,7 +116,24 @@ export function RecurringRuleRegisterScreen({
               return (
                 <tr key={row.id}>
                   <td>
-                    <Link href={href}>{row.label}</Link>
+                    <RecordPreviewLink
+                      href={href}
+                      label={row.label}
+                      eyebrow="Aturan Berulang"
+                      title={row.label}
+                      badges={[{ tone: badge.tone, text: badge.text }]}
+                      fields={[
+                        { label: "Jenis", value: RECURRING_KIND_LABELS[row.kind] },
+                        { label: "Frekuensi", value: RECURRING_FREQUENCY_LABELS[row.frequency] },
+                        { label: "Berikutnya", value: formatShortDate(row.next_occurrence_date) },
+                        {
+                          label: "Terakhir Dibuat",
+                          value: row.last_generated_date
+                            ? formatShortDate(row.last_generated_date)
+                            : "—",
+                        },
+                      ]}
+                    />
                   </td>
                   <td data-label="Jenis">{RECURRING_KIND_LABELS[row.kind]}</td>
                   <td data-label="Frekuensi">{RECURRING_FREQUENCY_LABELS[row.frequency]}</td>

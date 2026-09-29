@@ -1286,3 +1286,21 @@ wrong record for what the row represents. `pnpm check` (658 tests, unchanged), `
 `pnpm build` all pass; no RPC/schema/service touched, so no `pnpm db:test` fingerprint change. This is PR
 2 of the OWNER-agreed 3-PR plan; the remaining module group (Assets & Financing, Payroll, Planning,
 Documents) is the third and final increment.
+
+Drawer retrofit, second and final module group (DECISIONS 217): `RecordPreviewLink` is wired onto the
+identity-column link of the ten remaining Register screens across Assets & Financing (`AssetRegisterScreen`,
+`EquityRegisterScreen`, `LoanRegisterScreen`, `ObligationRegisterScreen`), Payroll (`EmployeeRegisterScreen`,
+`PayrollRunRegisterScreen`, `PayslipRegisterScreen`) and Planning (`BudgetRegisterScreen`,
+`RecurringRuleRegisterScreen`, `RevenueTargetRegisterScreen`) -- the exact same swap decision 216 already
+established, each Drawer carrying only fields/badges that row's own table cell already computes. `Link` from
+`next/link` is dropped from the seven files that had no other use for it once their identity-column swapped
+over, and kept in the three Planning screens whose own "Buat ... Baru" create button still needs it.
+`DocumentsListScreen`, the eleventh screen decision 214 named, stays deliberately excluded -- not the same
+reason as `CashActivityScreen`, but because its filename cell was never a `<Link>` to begin with: no document
+Detail screen exists yet (Storage itself is still unconfigured, decision 142), so there is no `href` to build
+a preview toward without inventing one. `pnpm check` (658 tests, unchanged), `pnpm format:check`, `pnpm build`
+all pass; no RPC/schema/service touched, so no `pnpm db:test` fingerprint change. This is PR 3 of 3 and closes
+Part 6 in full -- every List/Register screen decision 214's audit found reachable now has Quick Preview, and
+Global Search is wired end to end, closing the Step 15 §17 P13 gate's own "drawers" criterion. `DetailTabs`
+(decision 214's softer gap) stays open, unchanged, since it was never part of the OWNER's "Bangun penuh:
+Drawer + Global Search" scope.

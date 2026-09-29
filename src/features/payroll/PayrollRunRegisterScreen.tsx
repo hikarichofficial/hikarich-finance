@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import { payrollPeriodName, type PayrollStatus } from "@/domain/payroll/payroll";
 import {
@@ -7,6 +6,7 @@ import {
   type PayrollRunStatusFilterOption,
 } from "@/domain/payroll/runList";
 import type { PayrollRunRow } from "@/schemas/payroll";
+import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -100,7 +100,19 @@ export function PayrollRunRegisterScreen({
               return (
                 <tr key={row.run_id}>
                   <td>
-                    <Link href={href}>{row.run_number}</Link>
+                    <RecordPreviewLink
+                      href={href}
+                      label={row.run_number}
+                      eyebrow="Proses Penggajian"
+                      title={row.run_number}
+                      badges={[{ tone: badge.tone, text: badge.text }]}
+                      fields={[
+                        { label: "Periode", value: payrollPeriodName(row.period_start) },
+                        { label: "Tanggal Bayar", value: formatShortDate(row.pay_date) },
+                        { label: "Karyawan", value: row.employee_count },
+                        { label: "Gaji Bersih", value: formatMoney(row.net_pay_total, currency) },
+                      ]}
+                    />
                   </td>
                   <td data-label="Periode">{payrollPeriodName(row.period_start)}</td>
                   <td data-label="Tanggal Bayar">{formatShortDate(row.pay_date)}</td>

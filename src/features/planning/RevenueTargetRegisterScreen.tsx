@@ -7,6 +7,7 @@ import {
 } from "@/domain/planning/budgetList";
 import type { RevenueTargetRow } from "@/schemas/planning";
 import type { PlanStatus } from "@/domain/planning/planning";
+import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -103,7 +104,21 @@ export function RevenueTargetRegisterScreen({
               return (
                 <tr key={row.id}>
                   <td>
-                    <Link href={href}>{row.name}</Link>
+                    <RecordPreviewLink
+                      href={href}
+                      label={row.name}
+                      eyebrow="Target Pendapatan"
+                      title={row.name}
+                      badges={[{ tone: badge.tone, text: badge.text }]}
+                      fields={[
+                        { label: "Jenis Periode", value: PLAN_PERIOD_TYPE_LABELS[row.period_type] },
+                        { label: "Tahun Fiskal", value: row.fiscal_year ?? "—" },
+                        {
+                          label: "Periode",
+                          value: `${formatShortDate(row.start_date)} – ${formatShortDate(row.end_date)}`,
+                        },
+                      ]}
+                    />
                   </td>
                   <td data-label="Jenis Periode">{PLAN_PERIOD_TYPE_LABELS[row.period_type]}</td>
                   <td data-label="Tahun Fiskal">{row.fiscal_year ?? "—"}</td>
