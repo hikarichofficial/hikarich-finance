@@ -18,6 +18,10 @@ import { formatShortDate } from "./format";
  * matching how the Loan Register (decision 175) and Asset Register (decision 174) each stayed single-purpose.
  * `status` is sent server-side to `obligation_list`'s own `p_status` argument; `?q=` is a client-side
  * number/counterparty/purpose search.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5,
+ * fifth increment; Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- Nomor as
+ * the unlabelled heading link.
  */
 export function ObligationRegisterScreen({
   rows,
@@ -75,7 +79,7 @@ export function ObligationRegisterScreen({
           <p>Tidak ada {title.toLowerCase()} pada saringan ini.</p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Nomor</th>
@@ -102,12 +106,18 @@ export function ObligationRegisterScreen({
                   <td>
                     <Link href={href}>{row.obligation_number}</Link>
                   </td>
-                  <td>{row.counterparty_name}</td>
-                  <td>{row.purpose}</td>
-                  <td>{row.due_date ? formatShortDate(row.due_date) : "—"}</td>
-                  <td className="num">{formatMoney(row.principal, currency)}</td>
-                  <td className="num">{formatMoney(row.outstanding, currency)}</td>
-                  <td>
+                  <td data-label="Pihak">{row.counterparty_name}</td>
+                  <td data-label="Tujuan">{row.purpose}</td>
+                  <td data-label="Jatuh Tempo">
+                    {row.due_date ? formatShortDate(row.due_date) : "—"}
+                  </td>
+                  <td className="num" data-label="Pokok">
+                    {formatMoney(row.principal, currency)}
+                  </td>
+                  <td className="num" data-label="Outstanding">
+                    {formatMoney(row.outstanding, currency)}
+                  </td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${statusBadge.tone}`}>
                       {statusBadge.text}
                     </span>

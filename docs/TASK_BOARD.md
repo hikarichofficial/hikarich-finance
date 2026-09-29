@@ -1057,3 +1057,39 @@ already exists). `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 te
 db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred: 34 more `.record-table`
 screens, the Refund Receipt view/template, Step 11 §23's named component primitives, and the rest of the
 broader responsive/accessibility/motion polish pass.
+
+Part 5's fifth increment (DECISIONS 204): the rollout continues onto four Assets/Loans/Equity Register
+screens -- `AssetRegisterScreen.tsx`, `EquityRegisterScreen.tsx`, `LoanRegisterScreen.tsx` and
+`ObligationRegisterScreen.tsx` -- all an exact structural match to the Register/List pattern already
+established (identifying number/code as the unlabelled heading link, every other column labelled via
+`data-label`). No new RPC, schema, service wrapper or test file, and no `globals.css` change. `pnpm check`,
+`pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (schema fingerprint
+unchanged at `5335133e42e3`). Still deferred: 30 more `.record-table` screens (remaining Register screens
+next, then Detail screens needing individual inspection for their own secondary tables, then the
+LinesEditor components pending a reachability check), the Refund Receipt view/template, Step 11 §23's named
+component primitives, and the rest of the broader responsive/accessibility/motion polish pass.
+
+Part 5's sixth increment (DECISIONS 205): the rollout continues onto Payroll's three Register screens plus
+Money's Transfers List -- `EmployeeRegisterScreen.tsx`, `PayrollRunRegisterScreen.tsx`,
+`PayslipRegisterScreen.tsx` and `TransfersListScreen.tsx` -- all an exact structural match to the
+Register/List pattern already established. No new RPC, schema, service wrapper or test file, and no
+`globals.css` change. `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm
+db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred: 26 more `.record-table`
+screens (Budget/Recurring Rule/Revenue Target/Journals List next, then Detail screens needing individual
+inspection, then the LinesEditor components pending a reachability check), the Refund Receipt view/template,
+Step 11 §23's named component primitives, and the rest of the broader responsive/accessibility/motion polish
+pass.
+
+Part 5's seventh increment (DECISIONS 206): the rollout continues onto Planning's three Register screens
+plus Accounting's Journals List -- `BudgetRegisterScreen.tsx`, `RecurringRuleRegisterScreen.tsx`,
+`RevenueTargetRegisterScreen.tsx` and `JournalsListScreen.tsx` -- all an exact structural match to the
+Register/List pattern already established; `JournalsListScreen.tsx` is confirmed to be the plain journal
+list, not the excluded debit/credit grid (`JournalDetailScreen.tsx`). No new RPC, schema, service wrapper or
+test file, and no `globals.css` change. `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests,
+unchanged); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Every simple Register/List
+screen has now shipped `record-table-stacked`. Still deferred: the 13 Detail screens (each needing individual
+inspection for their own secondary activity/ledger/lines sub-table; `JournalDetailScreen` excluded by
+design), `PayrollTaxScreen.tsx`/`TaxLedgerScreen.tsx`/`DocumentsListScreen.tsx`/`DepreciationReportScreen.tsx`
+not yet read/categorized, the LinesEditor components pending a reachability check, the Refund Receipt
+view/template, Step 11 §23's named component primitives, and the rest of the broader
+responsive/accessibility/motion polish pass.

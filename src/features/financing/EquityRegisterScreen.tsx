@@ -24,6 +24,10 @@ import { formatShortDate } from "./format";
  * separates" requirement is read as a kind filter plus each kind's own label -- one screen, not a route split
  * like Other Receivables/Payables (decision 176), since the spec names this as one screen unlike its own
  * separate "Other AR/AP" bullet.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5,
+ * fifth increment; Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- Nomor as
+ * the unlabelled heading link.
  */
 export function EquityRegisterScreen({
   rows,
@@ -90,7 +94,7 @@ export function EquityRegisterScreen({
           <p>Tidak ada peristiwa ekuitas pada saringan ini.</p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Nomor</th>
@@ -115,11 +119,13 @@ export function EquityRegisterScreen({
                   <td>
                     <Link href={href}>{row.event_number}</Link>
                   </td>
-                  <td>{EQUITY_KIND_LABELS[row.kind]}</td>
-                  <td>{formatShortDate(row.event_date)}</td>
-                  <td>{row.counterparty_name}</td>
-                  <td className="num">{formatMoney(row.amount, currency)}</td>
-                  <td>
+                  <td data-label="Jenis">{EQUITY_KIND_LABELS[row.kind]}</td>
+                  <td data-label="Tanggal">{formatShortDate(row.event_date)}</td>
+                  <td data-label="Pihak">{row.counterparty_name}</td>
+                  <td className="num" data-label="Jumlah">
+                    {formatMoney(row.amount, currency)}
+                  </td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${statusBadge.tone}`}>
                       {statusBadge.text}
                     </span>
