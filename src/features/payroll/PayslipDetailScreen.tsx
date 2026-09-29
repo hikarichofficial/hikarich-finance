@@ -27,6 +27,10 @@ function bpjsRows(share: Readonly<Record<string, string>>): readonly [string, st
  * `bpjs_employee`/`bpjs_employer` are each a `{component: amount}` record (only the components that actually
  * applied to this employee); `bpjsRows` drops zero-amount entries so a component the employee simply doesn't
  * have (e.g. no JP) is not shown as an explicit 0.
+ *
+ * On a narrow screen the Komponen Gaji / Penyesuaian / Rincian BPJS tables become stacked cards
+ * (`record-table-stacked`, `globals.css`; P13 Part 5; Step 09 §23), the same way `PayslipRegisterScreen`
+ * already does (decision 205) -- each table's own first column stays the unlabelled heading.
  */
 export function PayslipDetailScreen({
   detail,
@@ -112,7 +116,7 @@ export function PayslipDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Komponen Gaji</h2>
         </div>
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Komponen</th>
@@ -128,10 +132,12 @@ export function PayslipDetailScreen({
             {detail.components.map((component) => (
               <tr key={component.code}>
                 <td>{component.label}</td>
-                <td>{COMPENSATION_KIND_LABELS[component.kind]}</td>
-                <td className="num">{formatMoney(component.amount, currency)}</td>
-                <td>{component.taxable ? "Ya" : "Tidak"}</td>
-                <td>{component.bpjs_base ? "Ya" : "Tidak"}</td>
+                <td data-label="Jenis">{COMPENSATION_KIND_LABELS[component.kind]}</td>
+                <td className="num" data-label="Jumlah">
+                  {formatMoney(component.amount, currency)}
+                </td>
+                <td data-label="Kena Pajak">{component.taxable ? "Ya" : "Tidak"}</td>
+                <td data-label="Dasar BPJS">{component.bpjs_base ? "Ya" : "Tidak"}</td>
               </tr>
             ))}
           </tbody>
@@ -143,7 +149,7 @@ export function PayslipDetailScreen({
           <div className="dashboard-section-header">
             <h2 className="dashboard-section-title">Penyesuaian</h2>
           </div>
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Jenis</th>
@@ -158,9 +164,11 @@ export function PayslipDetailScreen({
               {detail.adjustments.map((adjustment, index) => (
                 <tr key={`${adjustment.label}-${index}`}>
                   <td>{COMPENSATION_KIND_LABELS[adjustment.kind]}</td>
-                  <td>{adjustment.label}</td>
-                  <td className="num">{formatMoney(adjustment.amount, currency)}</td>
-                  <td>{adjustment.taxable ? "Ya" : "Tidak"}</td>
+                  <td data-label="Label">{adjustment.label}</td>
+                  <td className="num" data-label="Jumlah">
+                    {formatMoney(adjustment.amount, currency)}
+                  </td>
+                  <td data-label="Kena Pajak">{adjustment.taxable ? "Ya" : "Tidak"}</td>
                 </tr>
               ))}
             </tbody>
@@ -173,7 +181,7 @@ export function PayslipDetailScreen({
           <div className="dashboard-section-header">
             <h2 className="dashboard-section-title">Rincian BPJS</h2>
           </div>
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Program</th>
@@ -195,12 +203,12 @@ export function PayslipDetailScreen({
                 .map((component) => (
                   <tr key={component}>
                     <td>{BPJS_COMPONENT_LABELS[component as BpjsComponent]}</td>
-                    <td className="num">
+                    <td className="num" data-label="Iuran Karyawan">
                       {detail.bpjs_employee[component]
                         ? formatMoney(detail.bpjs_employee[component], currency)
                         : "—"}
                     </td>
-                    <td className="num">
+                    <td className="num" data-label="Iuran Perusahaan">
                       {detail.bpjs_employer[component]
                         ? formatMoney(detail.bpjs_employer[component], currency)
                         : "—"}

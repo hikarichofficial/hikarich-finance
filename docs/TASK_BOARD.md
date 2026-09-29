@@ -1093,3 +1093,20 @@ design), `PayrollTaxScreen.tsx`/`TaxLedgerScreen.tsx`/`DocumentsListScreen.tsx`/
 not yet read/categorized, the LinesEditor components pending a reachability check, the Refund Receipt
 view/template, Step 11 §23's named component primitives, and the rest of the broader
 responsive/accessibility/motion polish pass.
+
+Part 5's eighth increment (DECISIONS 207): all 13 Detail screens named as remaining are inspected, each read
+in full before editing. 10 carry a simple line-item/activity/schedule table safe to stack --
+`AccountDetailScreen.tsx`, `BillDetailScreen.tsx`, `RecurringRuleDetailScreen.tsx`, `AssetDetailScreen.tsx`,
+`EmployeeDetailScreen.tsx` (3 tables), `PayslipDetailScreen.tsx` (3 tables), `PayrollRunDetailScreen.tsx` (3
+tables), `EquityDetailScreen.tsx`, `ObligationDetailScreen.tsx` and `LoanDetailScreen.tsx` (3 tables) -- 18
+tables in total, each table's own first column staying the unlabelled heading. The remaining 3 stay excluded
+by design: `BudgetDetailScreen.tsx`'s and `RevenueTargetDetailScreen.tsx`'s own "vs Aktual" comparison tables
+(the same columnar/comparative shape as Reports' statement viewer) and `JournalDetailScreen.tsx`'s debit/
+credit grid (reconfirming decision 202's original exclusion). No new RPC, schema, service wrapper or test
+file, and no `globals.css` change. `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests,
+unchanged); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). This exhausts every
+`.record-table` consumer that fits the stacked-card pattern. Still deferred:
+`PayrollTaxScreen.tsx`/`TaxLedgerScreen.tsx`/`DocumentsListScreen.tsx`/`DepreciationReportScreen.tsx` not yet
+read/categorized, the LinesEditor components pending a reachability check, the Refund Receipt view/template,
+Step 11 §23's named component primitives, and the rest of the broader responsive/accessibility/motion polish
+pass.

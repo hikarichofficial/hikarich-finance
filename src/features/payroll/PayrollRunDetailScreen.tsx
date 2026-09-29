@@ -31,6 +31,10 @@ function money(value: string | null, currency: string): string {
  * RPC's own doing (`payroll_run_get`/`payroll_run_lines` each check it row-by-row), not this screen's, shown
  * as "—" so a masked figure is never mistaken for an actual zero. `review_flags`/`info_flags` reuse
  * `describePayrollFlag` (P9, `@/domain/payroll/payroll`) rather than a second copy of the same flag vocabulary.
+ *
+ * On a narrow screen the Baris Gaji Karyawan / Penyesuaian / Pembayaran tables become stacked cards
+ * (`record-table-stacked`, `globals.css`; P13 Part 5; Step 09 §23), the same way `PayrollRunRegisterScreen`
+ * already does (decision 205) -- each table's own first column stays the unlabelled heading.
  */
 export function PayrollRunDetailScreen({
   run,
@@ -183,7 +187,7 @@ export function PayrollRunDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Baris Gaji Karyawan</h2>
         </div>
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Karyawan</th>
@@ -224,11 +228,21 @@ export function PayrollRunDetailScreen({
                     </p>
                   ) : null}
                 </td>
-                <td className="num">{formatMoney(line.gross_pay, currency)}</td>
-                <td className="num">{formatMoney(line.bpjs_employee, currency)}</td>
-                <td className="num">{money(line.pph21, currency)}</td>
-                <td className="num">{formatMoney(line.net_pay, currency)}</td>
-                <td className="num">{formatMoney(line.net_paid, currency)}</td>
+                <td className="num" data-label="Gaji Bruto">
+                  {formatMoney(line.gross_pay, currency)}
+                </td>
+                <td className="num" data-label="BPJS Karyawan">
+                  {formatMoney(line.bpjs_employee, currency)}
+                </td>
+                <td className="num" data-label="PPh 21">
+                  {money(line.pph21, currency)}
+                </td>
+                <td className="num" data-label="Gaji Bersih">
+                  {formatMoney(line.net_pay, currency)}
+                </td>
+                <td className="num" data-label="Terbayar">
+                  {formatMoney(line.net_paid, currency)}
+                </td>
               </tr>
             ))}
           </tbody>
@@ -240,7 +254,7 @@ export function PayrollRunDetailScreen({
           <div className="dashboard-section-header">
             <h2 className="dashboard-section-title">Penyesuaian</h2>
           </div>
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Karyawan</th>
@@ -256,10 +270,12 @@ export function PayrollRunDetailScreen({
               {adjustments.map((adjustment) => (
                 <tr key={adjustment.adjustment_id}>
                   <td>{adjustment.employee_code}</td>
-                  <td>{COMPENSATION_KIND_LABELS[adjustment.kind]}</td>
-                  <td>{adjustment.label}</td>
-                  <td className="num">{formatMoney(adjustment.amount, currency)}</td>
-                  <td>{adjustment.taxable ? "Ya" : "Tidak"}</td>
+                  <td data-label="Jenis">{COMPENSATION_KIND_LABELS[adjustment.kind]}</td>
+                  <td data-label="Label">{adjustment.label}</td>
+                  <td className="num" data-label="Jumlah">
+                    {formatMoney(adjustment.amount, currency)}
+                  </td>
+                  <td data-label="Kena Pajak">{adjustment.taxable ? "Ya" : "Tidak"}</td>
                 </tr>
               ))}
             </tbody>
@@ -272,7 +288,7 @@ export function PayrollRunDetailScreen({
           <div className="dashboard-section-header">
             <h2 className="dashboard-section-title">Pembayaran</h2>
           </div>
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Nomor</th>
@@ -291,15 +307,19 @@ export function PayrollRunDetailScreen({
                 return (
                   <tr key={payment.payment_id}>
                     <td>{payment.payment_number}</td>
-                    <td>{payment.kind === "net_pay" ? "Gaji Bersih" : "BPJS"}</td>
-                    <td>{formatShortDate(payment.payment_date)}</td>
-                    <td className="num">{formatMoney(payment.amount, currency)}</td>
-                    <td>
+                    <td data-label="Jenis">
+                      {payment.kind === "net_pay" ? "Gaji Bersih" : "BPJS"}
+                    </td>
+                    <td data-label="Tanggal">{formatShortDate(payment.payment_date)}</td>
+                    <td className="num" data-label="Jumlah">
+                      {formatMoney(payment.amount, currency)}
+                    </td>
+                    <td data-label="Status">
                       <span className={`status-badge status-badge-${paymentBadge.tone}`}>
                         {paymentBadge.text}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Jurnal">
                       <Link href={`/accounting/journal/${payment.journal_id}${qs}`}>Lihat →</Link>
                       {payment.reversal_journal_id ? (
                         <>
