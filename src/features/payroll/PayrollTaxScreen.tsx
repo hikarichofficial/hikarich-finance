@@ -22,6 +22,11 @@ function money(value: string | null, currency: string): string {
  * hard `FORBIDDEN` without it (unlike Liabilities' own row-omission), so the page skips the fetch entirely,
  * the same "gate the fetch, not just the section" precedent decision 179/181 already established.
  * `payroll_summary_report`/`payroll_control_report` are deferred (see `taxLiabilities.ts`'s own doc comment).
+ *
+ * On a narrow screen the three tables become stacked cards (`record-table-stacked`, `globals.css`; P13 Part
+ * 5; Step 09 §23), each keeping its own first column as the unlabelled heading -- these are per-row
+ * liability/reconciliation/ledger lines, not a period-by-period comparison, so they are not the kind of
+ * columnar table decision 202/207 excludes.
  */
 export function PayrollTaxScreen({
   liabilities,
@@ -78,7 +83,7 @@ export function PayrollTaxScreen({
             <p>Tidak ada kewajiban pada tanggal ini.</p>
           </div>
         ) : (
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Jenis</th>
@@ -99,11 +104,17 @@ export function PayrollTaxScreen({
               {liabilities.map((row, index) => (
                 <tr key={`${row.liability}-${row.period_start}-${index}`}>
                   <td>{PAYROLL_LIABILITY_LABELS[row.liability]}</td>
-                  <td>{formatShortDate(row.period_start)}</td>
-                  <td>{row.run_number ?? "—"}</td>
-                  <td className="num">{formatMoney(row.owed, currency)}</td>
-                  <td className="num">{formatMoney(row.paid, currency)}</td>
-                  <td className="num">{formatMoney(row.outstanding, currency)}</td>
+                  <td data-label="Periode">{formatShortDate(row.period_start)}</td>
+                  <td data-label="Proses">{row.run_number ?? "—"}</td>
+                  <td className="num" data-label="Terutang">
+                    {formatMoney(row.owed, currency)}
+                  </td>
+                  <td className="num" data-label="Dibayar">
+                    {formatMoney(row.paid, currency)}
+                  </td>
+                  <td className="num" data-label="Sisa">
+                    {formatMoney(row.outstanding, currency)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -121,7 +132,7 @@ export function PayrollTaxScreen({
               <p>Tidak ada karyawan pada tahun pajak ini.</p>
             </div>
           ) : (
-            <table className="record-table">
+            <table className="record-table record-table-stacked">
               <thead>
                 <tr>
                   <th scope="col">Karyawan</th>
@@ -151,12 +162,22 @@ export function PayrollTaxScreen({
                       <td>
                         {row.employee_code} — {row.employee_name}
                       </td>
-                      <td className="num">{row.months_worked}</td>
-                      <td className="num">{formatMoney(row.gross_income, currency)}</td>
-                      <td className="num">{money(row.annual_tax, currency)}</td>
-                      <td className="num">{formatMoney(row.withheld, currency)}</td>
-                      <td className="num">{money(row.difference, currency)}</td>
-                      <td>
+                      <td className="num" data-label="Bulan Kerja">
+                        {row.months_worked}
+                      </td>
+                      <td className="num" data-label="Penghasilan Bruto">
+                        {formatMoney(row.gross_income, currency)}
+                      </td>
+                      <td className="num" data-label="Pajak Tahunan">
+                        {money(row.annual_tax, currency)}
+                      </td>
+                      <td className="num" data-label="Dipotong">
+                        {formatMoney(row.withheld, currency)}
+                      </td>
+                      <td className="num" data-label="Selisih">
+                        {money(row.difference, currency)}
+                      </td>
+                      <td data-label="Status">
                         <span className={`status-badge status-badge-${badge.tone}`}>
                           {badge.text}
                         </span>
@@ -180,7 +201,7 @@ export function PayrollTaxScreen({
               <p>Tidak ada catatan pajak pada tahun pajak ini.</p>
             </div>
           ) : (
-            <table className="record-table">
+            <table className="record-table record-table-stacked">
               <thead>
                 <tr>
                   <th scope="col">Karyawan</th>
@@ -207,13 +228,21 @@ export function PayrollTaxScreen({
                     <td>
                       {row.employee_code} — {row.employee_name}
                     </td>
-                    <td>{payrollPeriodName(row.tax_period)}</td>
-                    <td>{TAX_LEDGER_SOURCE_LABELS[row.source]}</td>
-                    <td>{row.run_number ?? "—"}</td>
-                    <td className="num">{formatMoney(row.tax_base, currency)}</td>
-                    <td className="num">{formatMoney(row.pph21, currency)}</td>
-                    <td className="num">{formatMoney(row.tax_allowance, currency)}</td>
-                    <td className="num">{formatMoney(row.pension_deduction, currency)}</td>
+                    <td data-label="Periode">{payrollPeriodName(row.tax_period)}</td>
+                    <td data-label="Sumber">{TAX_LEDGER_SOURCE_LABELS[row.source]}</td>
+                    <td data-label="Proses">{row.run_number ?? "—"}</td>
+                    <td className="num" data-label="Dasar Pajak">
+                      {formatMoney(row.tax_base, currency)}
+                    </td>
+                    <td className="num" data-label="PPh 21">
+                      {formatMoney(row.pph21, currency)}
+                    </td>
+                    <td className="num" data-label="Tunjangan">
+                      {formatMoney(row.tax_allowance, currency)}
+                    </td>
+                    <td className="num" data-label="Potongan Pensiun">
+                      {formatMoney(row.pension_deduction, currency)}
+                    </td>
                   </tr>
                 ))}
               </tbody>

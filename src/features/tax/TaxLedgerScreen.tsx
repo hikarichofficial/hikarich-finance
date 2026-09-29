@@ -23,6 +23,11 @@ import { formatShortDate } from "./format";
  * and every filter here -- family, source, status, period, and the free-text search -- is applied client-side
  * over that one list, mirroring `filterJournalRows`'s own precedent rather than mixing server and client
  * filtering for a page this size.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
+ * Step 09 §23), the same way `CashActivityScreen` already does (decision 203) -- Tanggal stays the unlabelled
+ * heading rather than the drill-down link in Deskripsi, since this is a chronological ledger feed across
+ * every tax kind and source, not a register of one record kind.
  */
 export function TaxLedgerScreen({
   rows,
@@ -116,7 +121,7 @@ export function TaxLedgerScreen({
           <p>Tidak ada entri pajak pada saringan ini.</p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Tanggal</th>
@@ -136,21 +141,23 @@ export function TaxLedgerScreen({
               return (
                 <tr key={row.entry_id}>
                   <td>{formatShortDate(row.entry_date)}</td>
-                  <td>{taxPeriodLabel(row.tax_period)}</td>
-                  <td>{taxKindLabel(row.tax_kind)}</td>
-                  <td>
+                  <td data-label="Masa Pajak">{taxPeriodLabel(row.tax_period)}</td>
+                  <td data-label="Jenis">{taxKindLabel(row.tax_kind)}</td>
+                  <td data-label="Deskripsi">
                     {href ? (
                       <Link href={href}>{row.description ?? "—"}</Link>
                     ) : (
                       (row.description ?? "—")
                     )}
                   </td>
-                  <td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${rowStatus.tone}`}>
                       {rowStatus.text}
                     </span>
                   </td>
-                  <td className="num">{formatMoney(row.amount, currency)}</td>
+                  <td className="num" data-label="Jumlah">
+                    {formatMoney(row.amount, currency)}
+                  </td>
                 </tr>
               );
             })}
