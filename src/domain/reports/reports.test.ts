@@ -34,6 +34,11 @@ import {
   payrollControlAccountLabel,
   payrollControlRowBalanced,
   payrollControlSummary,
+  resolveFiscalScheduleAsset,
+  fiscalScheduleTotalDepreciation,
+  assetControlAccountLabel,
+  assetControlRowBalanced,
+  assetControlSummary,
   type AccountClass,
 } from "./reports";
 
@@ -749,5 +754,76 @@ describe("payrollControlRowBalanced", () => {
   it("is false for a nonzero difference, positive or negative", () => {
     expect(payrollControlRowBalanced({ difference: "150000.0000" })).toBe(false);
     expect(payrollControlRowBalanced({ difference: "-50000.0000" })).toBe(false);
+  });
+});
+
+describe("resolveFiscalScheduleAsset", () => {
+  const assets = [{ asset_id: "asset-1" }, { asset_id: "asset-2" }];
+
+  it("keeps a requested id that is a real asset", () => {
+    expect(resolveFiscalScheduleAsset(assets, "asset-2")).toBe("asset-2");
+  });
+
+  it("falls back to the first asset when nothing valid is requested", () => {
+    expect(resolveFiscalScheduleAsset(assets, undefined)).toBe("asset-1");
+  });
+
+  it("falls back to the first asset when the requested id is unknown", () => {
+    expect(resolveFiscalScheduleAsset(assets, "not-a-real-id")).toBe("asset-1");
+  });
+
+  it("returns null when the Entity has no assets at all", () => {
+    expect(resolveFiscalScheduleAsset([], undefined)).toBeNull();
+  });
+});
+
+describe("fiscalScheduleTotalDepreciation", () => {
+  it("sums the depreciation column across fiscal years", () => {
+    const rows = [
+      { depreciation: "1000000.0000" },
+      { depreciation: "1000000.0000" },
+      { depreciation: "500000.0000" },
+    ];
+    expect(fiscalScheduleTotalDepreciation(rows).toString()).toBe("2500000.0000");
+  });
+
+  it("returns zero for no rows", () => {
+    expect(fiscalScheduleTotalDepreciation([]).toString()).toBe("0");
+  });
+});
+
+describe("assetControlAccountLabel", () => {
+  it("labels the two known account keys", () => {
+    expect(assetControlAccountLabel("FIXED_ASSET_COST")).toBe("Biaya Perolehan Aset Tetap");
+    expect(assetControlAccountLabel("ACCUMULATED_DEPRECIATION")).toBe("Akumulasi Penyusutan");
+  });
+
+  it("falls back to the raw key for an unrecognized value", () => {
+    expect(assetControlAccountLabel("SOMETHING_ELSE")).toBe("SOMETHING_ELSE");
+  });
+});
+
+describe("assetControlSummary", () => {
+  it("counts nonzero differences as mismatches", () => {
+    const rows = [{ difference: "0.0000" }, { difference: "-75000.0000" }];
+    const summary = assetControlSummary(rows);
+    expect(summary.accountCount).toBe(2);
+    expect(summary.mismatchCount).toBe(1);
+  });
+
+  it("returns zero counts for no rows", () => {
+    const summary = assetControlSummary([]);
+    expect(summary.accountCount).toBe(0);
+    expect(summary.mismatchCount).toBe(0);
+  });
+});
+
+describe("assetControlRowBalanced", () => {
+  it("is true for a zero difference", () => {
+    expect(assetControlRowBalanced({ difference: "0.0000" })).toBe(true);
+  });
+
+  it("is false for a nonzero difference", () => {
+    expect(assetControlRowBalanced({ difference: "42.0000" })).toBe(false);
   });
 });

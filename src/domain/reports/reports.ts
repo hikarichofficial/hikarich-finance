@@ -703,3 +703,69 @@ export function payrollControlSummary(
 export function payrollControlRowBalanced(row: { difference: string }): boolean {
   return Decimal.parse(row.difference).isZero();
 }
+
+// ================================================================ Fiscal Depreciation Schedule / Asset GL
+// Reconciliation (P13 Part 4, ninth increment)
+
+/** `asset_fiscal_schedule` is per-asset (`p_asset`), not per-Entity -- unlike every other Reports tab, this
+ * one needs a record picker, the same shape the General Ledger tab's own account picker already uses
+ * (`resolveGeneralLedgerAccount`). Mirrors that function's exact "always resolve to something sensible when
+ * asked" contract: an invalid or missing `requested` falls back to the first asset in the register (in
+ * whatever order `asset_register` itself returns, the same "never a second sort here" rule every other list
+ * screen already follows); an Entity with no assets registered yet returns `null`, the same "nothing to
+ * select" case `resolveGeneralLedgerAccount` returns for an Entity with no posting account. The RPC itself
+ * silently returns no rows for an asset with no fiscal class or in `draft`/`cancelled` status -- that is a
+ * legitimate empty schedule, not an error, so this never filters the picker down to only depreciable assets. */
+export function resolveFiscalScheduleAsset(
+  assets: readonly { asset_id: string }[],
+  requested: string | undefined,
+): string | null {
+  if (assets.length === 0) return null;
+  if (requested && assets.some((a) => a.asset_id === requested)) return requested;
+  return assets[0].asset_id;
+}
+
+/** A grand total of the schedule's own `depreciation` column, the same "already in each row, never a second
+ * aggregation" shape every other totals helper here uses -- roughly the asset's total fiscal depreciation
+ * over its useful life (opening value of the first year less closing value of the last), never a separate
+ * frontend computation of that figure. */
+export function fiscalScheduleTotalDepreciation(
+  rows: readonly { depreciation: string }[],
+): Decimal {
+  return sumDecimals(rows.map((r) => Decimal.parse(r.depreciation)));
+}
+
+/** `asset_control_report`'s own fixed two account keys (`FIXED_ASSET_COST`, `ACCUMULATED_DEPRECIATION`,
+ * `app_private.asset_control`'s own migration SQL), the same per-module label-map duplication
+ * `PAYROLL_CONTROL_ACCOUNT_LABELS` already established for Payroll Control rather than one shared,
+ * cross-module label map spanning two unrelated reconciliation reports. */
+export const ASSET_CONTROL_ACCOUNT_LABELS: Readonly<Record<string, string>> = {
+  FIXED_ASSET_COST: "Biaya Perolehan Aset Tetap",
+  ACCUMULATED_DEPRECIATION: "Akumulasi Penyusutan",
+};
+
+/** Falls back to the raw key for any value the catalog above hasn't labelled, the same shape
+ * `payrollControlAccountLabel`/`documentTargetTypesLabel` already use. */
+export function assetControlAccountLabel(accountKey: string): string {
+  return ASSET_CONTROL_ACCOUNT_LABELS[accountKey] ?? accountKey;
+}
+
+export interface AssetControlSummary {
+  accountCount: number;
+  mismatchCount: number;
+}
+
+/** The same "count a flag the RPC already returns, never a second computation, no cross-account grand
+ * total" shape `payrollControlSummary` uses -- `FIXED_ASSET_COST` and `ACCUMULATED_DEPRECIATION` are two
+ * unrelated balances, so summing them would not be a meaningful figure. */
+export function assetControlSummary(rows: readonly { difference: string }[]): AssetControlSummary {
+  return {
+    accountCount: rows.length,
+    mismatchCount: rows.filter((r) => !Decimal.parse(r.difference).isZero()).length,
+  };
+}
+
+/** The same per-row zero-check `payrollControlRowBalanced` exposes, for this report's own table. */
+export function assetControlRowBalanced(row: { difference: string }): boolean {
+  return Decimal.parse(row.difference).isZero();
+}

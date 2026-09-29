@@ -14,11 +14,13 @@ import {
 import { listLedgerAccounts } from "@/services/accounting/ledger";
 import { loanSummary, loansDue } from "@/services/financing/financing";
 import { getPayrollControl, getPayrollSummary } from "@/services/payroll/payroll";
+import { assetControl, fiscalSchedule, listAssets } from "@/services/assets/assets";
 import {
   resolveAsOfDate,
   resolveCompareRange,
   resolveConsolidatedEntityIds,
   resolveCustomReportDataset,
+  resolveFiscalScheduleAsset,
   resolveGeneralLedgerAccount,
   resolveLoanDueThrough,
   resolveReportRange,
@@ -42,6 +44,8 @@ const REPORT_STATEMENTS: readonly ReportStatement[] = [
   "loan_summary",
   "payroll_summary",
   "payroll_control",
+  "fiscal_schedule",
+  "asset_control",
 ];
 
 function resolveStatement(value: string | undefined): ReportStatement {
@@ -84,7 +88,16 @@ function resolveStatement(value: string | undefined): ReportStatement {
  * here once as `canViewPayroll` and checked before either RPC is called, same pattern as `loans.view` above.
  * Payroll Control's own RPC additionally hard-requires `accounting.view` (it raises `FORBIDDEN` without it,
  * unlike the row/column masking `payroll.tax_view` does inside `payroll_summary_report`), so its own `canView`
- * is `canViewPayroll && can(access, membership.entity_id, "accounting.view")`. */
+ * is `canViewPayroll && can(access, membership.entity_id, "accounting.view")`. The Fiscal Depreciation Schedule
+ * and Asset GL Reconciliation tabs (decision 197, ninth increment) read the already-built `fiscalSchedule`/
+ * `assetControl` wrappers (`@/services/assets/assets.ts`). `asset_fiscal_schedule` takes one asset, not the
+ * active Entity, so this route also lists every asset (`listAssets`, gated the same as every other read here)
+ * to populate its picker and resolves the requested one with `resolveFiscalScheduleAsset` -- the same
+ * "always resolve to something sensible" contract `resolveGeneralLedgerAccount` already uses for the General
+ * Ledger tab's own account picker. Both tabs are gated by `assets.view` plus a second hard-required permission
+ * (`tax.view` for the schedule, `accounting.view` for the reconciliation) -- unlike Payroll Summary/Control,
+ * the `accountant` and `viewer_auditor` seed roles already hold every permission either tab needs together
+ * with `reports.view`, so both are reachable by an ordinary role, not only the OWNER. */
 export default async function ReportsPage({
   searchParams,
 }: {
@@ -100,6 +113,7 @@ export default async function ReportsPage({
     dataset?: string;
     entities?: string | string[];
     through?: string;
+    asset?: string;
   }>;
 }) {
   const {
@@ -114,6 +128,7 @@ export default async function ReportsPage({
     dataset,
     entities,
     through: throughParam,
+    asset: assetParam,
   } = await searchParams;
   const { access, membership } = await requirePermission("reports.view", { entityCode: entity });
   const statement = resolveStatement(statementParam);
@@ -213,6 +228,20 @@ export default async function ReportsPage({
     const rows = canView
       ? await getPayrollControl({ entity_id: membership.entity_id, as_of: asOf })
       : [];
+    data = { statement, asOf, canView, rows };
+  } else if (statement === "fiscal_schedule") {
+    const canView =
+      can(access, membership.entity_id, "assets.view") &&
+      can(access, membership.entity_id, "tax.view");
+    const assets = canView ? await listAssets({ entity_id: membership.entity_id }) : [];
+    const assetId = resolveFiscalScheduleAsset(assets, assetParam);
+    const rows = assetId ? await fiscalSchedule(assetId) : [];
+    data = { statement, assets, assetId, canView, rows };
+  } else if (statement === "asset_control") {
+    const canView =
+      can(access, membership.entity_id, "assets.view") &&
+      can(access, membership.entity_id, "accounting.view");
+    const rows = canView ? await assetControl(membership.entity_id, asOf) : [];
     data = { statement, asOf, canView, rows };
   } else {
     const compareRange = resolveCompareRange(compare_from, compare_to);

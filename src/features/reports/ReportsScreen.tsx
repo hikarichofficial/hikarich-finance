@@ -12,12 +12,16 @@ import {
   CASH_FLOW_BUCKET_LABELS,
   CASH_FLOW_BUCKET_ORDER,
   PNL_SECTION_ORDER,
+  assetControlAccountLabel,
+  assetControlRowBalanced,
+  assetControlSummary,
   balanceSheetTotals,
   cashFlowTotals,
   consolidatedCashPositionTotals,
   customReportTotals,
   equityClosingTotal,
   equityRowAmounts,
+  fiscalScheduleTotalDepreciation,
   generalLedgerTotals,
   groupByAccountClass,
   hasPnlComparison,
@@ -47,6 +51,7 @@ import type {
 } from "@/schemas/reports";
 import type { LoanDueRow, LoanSummaryRow } from "@/schemas/financing";
 import type { PayrollControlRow, PayrollSummaryRow } from "@/schemas/payroll";
+import type { AssetControlRow, AssetRow, FiscalScheduleRow } from "@/schemas/assets";
 import type { LedgerAccountRow } from "@/schemas/accounting";
 import type { Membership } from "@/schemas/access";
 import { formatShortDate } from "./format";
@@ -62,7 +67,9 @@ export type ReportStatement =
   | "loans_due"
   | "loan_summary"
   | "payroll_summary"
-  | "payroll_control";
+  | "payroll_control"
+  | "fiscal_schedule"
+  | "asset_control";
 
 export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: string }[] = [
   { value: "pnl", label: "Laba Rugi" },
@@ -76,6 +83,8 @@ export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: st
   { value: "loan_summary", label: "Ringkasan Pinjaman" },
   { value: "payroll_summary", label: "Ringkasan Payroll" },
   { value: "payroll_control", label: "Kontrol Payroll" },
+  { value: "fiscal_schedule", label: "Jadwal Penyusutan Fiskal" },
+  { value: "asset_control", label: "Kontrol Aset Tetap" },
 ];
 
 export type ReportsData =
@@ -128,6 +137,19 @@ export type ReportsData =
       asOf: string;
       canView: boolean;
       rows: readonly PayrollControlRow[];
+    }
+  | {
+      statement: "fiscal_schedule";
+      assets: readonly AssetRow[];
+      assetId: string | null;
+      canView: boolean;
+      rows: readonly FiscalScheduleRow[];
+    }
+  | {
+      statement: "asset_control";
+      asOf: string;
+      canView: boolean;
+      rows: readonly AssetControlRow[];
     };
 
 function buildTabHref(entity: string | undefined, statement: ReportStatement): string {
@@ -179,11 +201,28 @@ function buildTabHref(entity: string | undefined, statement: ReportStatement): s
  * "has*-or-null" idiom as `hasPnlComparison`/`pnlCompareSubtotal`, never a misleading zero. Payroll Control
  * always returns exactly two rows (Payroll Liability, BPJS Liability) with no cross-account grand total, since
  * summing two unrelated liability accounts would not be a meaningful figure -- `payrollControlSummary` reports
- * only a mismatch count. The other Reports nav sub-items (Sales/Purchase, a standalone Cashflow view, Tax,
- * Saved Reports) have no P12/P9 RPC behind them yet and fall through to the `[...slug]` "coming soon"
- * placeholder (decision 157's precedent) until one exists. Every figure here is the database's own debit/
- * credit, re-signed once via `naturalAmount` (`@/domain/reports`) -- never a second computation of the same
- * fact.
+ * only a mismatch count. The Fiscal Depreciation Schedule and Asset GL Reconciliation tabs (decision 197,
+ * ninth increment) wire the already-built `asset_fiscal_schedule`/`asset_control_report` RPCs (P8, unused in
+ * a screen until now, `fiscalSchedule`/`assetControl` -- `@/services/assets/assets.ts`) in, closing out every
+ * P12 report catalogue item decision 178 pushed here except Asset Movement/Disposal (no dedicated RPC yet).
+ * Both are gated by `assets.view` plus a second permission (`tax.view` for the schedule, `accounting.view`
+ * for the reconciliation, both hard `FORBIDDEN`s inside the RPC, not a mask) -- unlike Payroll Summary/
+ * Control, the `accountant` and `viewer_auditor` seed roles already hold every permission either tab needs
+ * together with `reports.view`, so no OWNER-reachability question arose here. Unlike every other tab,
+ * `asset_fiscal_schedule` takes one asset (`p_asset`), not the active Entity, so Fiscal Depreciation Schedule
+ * needs its own record picker -- the exact same shape the General Ledger tab's account picker already uses
+ * (`resolveGeneralLedgerAccount`/`resolveFiscalScheduleAsset` share one "always resolve to something
+ * sensible" contract). An asset with no fiscal class or in `draft`/`cancelled` status legitimately has an
+ * empty schedule (the RPC itself returns no rows, not an error), so the picker is never filtered down to
+ * only depreciable assets. Asset GL Reconciliation mirrors Payroll Control's own shape exactly (two fixed,
+ * unrelated account keys, a mismatch count with no cross-account grand total) via its own
+ * `assetControlAccountLabel`/`assetControlSummary`/`assetControlRowBalanced` -- a second, asset-specific copy
+ * of the same three small helpers rather than repurposing the payroll-named ones across an unrelated module,
+ * the same per-module duplication precedent used throughout Part 3/4. The other Reports nav sub-items
+ * (Sales/Purchase, a standalone Cashflow view, Tax, Saved Reports) have no P12/P9 RPC behind them yet and
+ * fall through to the `[...slug]` "coming soon" placeholder (decision 157's precedent) until one exists.
+ * Every figure here is the database's own debit/credit, re-signed once via `naturalAmount`
+ * (`@/domain/reports`) -- never a second computation of the same fact.
  */
 export function ReportsScreen({
   data,
@@ -283,6 +322,18 @@ export function ReportsScreen({
       {data.statement === "payroll_control" ? (
         <PayrollControlTable rows={data.rows} canView={data.canView} currency={currency} />
       ) : null}
+      {data.statement === "fiscal_schedule" ? (
+        <FiscalScheduleTable
+          rows={data.rows}
+          assets={data.assets}
+          assetId={data.assetId}
+          canView={data.canView}
+          currency={currency}
+        />
+      ) : null}
+      {data.statement === "asset_control" ? (
+        <AssetControlTable rows={data.rows} canView={data.canView} currency={currency} />
+      ) : null}
     </div>
   );
 }
@@ -335,9 +386,23 @@ function RangeForm({ data, entity }: { data: ReportsData; entity: string | undef
           ))}
         </fieldset>
       ) : null}
+      {data.statement === "fiscal_schedule" ? (
+        <label>
+          Aset
+          <select name="asset" defaultValue={data.assetId ?? ""}>
+            {data.assets.length === 0 ? <option value="">Tidak ada aset</option> : null}
+            {data.assets.map((asset) => (
+              <option key={asset.asset_id} value={asset.asset_id}>
+                {asset.asset_code} · {asset.name}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       {data.statement === "balance_sheet" ||
       data.statement === "consolidated" ||
-      data.statement === "payroll_control" ? (
+      data.statement === "payroll_control" ||
+      data.statement === "asset_control" ? (
         <label>
           Per tanggal
           <input type="date" name="as_of" defaultValue={data.asOf} />
@@ -347,7 +412,7 @@ function RangeForm({ data, entity }: { data: ReportsData; entity: string | undef
           Sampai Tanggal
           <input type="date" name="through" defaultValue={data.through} />
         </label>
-      ) : (
+      ) : data.statement === "fiscal_schedule" ? null : (
         <>
           <label>
             Dari
@@ -1290,6 +1355,168 @@ function PayrollControlTable({
             return (
               <tr key={row.account_key}>
                 <td>{payrollControlAccountLabel(row.account_key)}</td>
+                <td className="num">{formatMoney(row.sub_ledger, currency)}</td>
+                <td className="num">{formatMoney(row.ledger_workflow, currency)}</td>
+                <td className="num">{formatMoney(row.ledger_other, currency)}</td>
+                <td className="num">{formatMoney(row.ledger_total, currency)}</td>
+                <td className="num">{formatMoney(row.difference, currency)}</td>
+                <td>
+                  <span
+                    className={`status-badge status-badge-${balanced ? "success" : "critical"}`}
+                  >
+                    {balanced ? "Seimbang" : "Tidak Seimbang"}
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </>
+  );
+}
+
+function FiscalScheduleTable({
+  rows,
+  assets,
+  assetId,
+  canView,
+  currency,
+}: {
+  rows: readonly FiscalScheduleRow[];
+  assets: readonly AssetRow[];
+  assetId: string | null;
+  canView: boolean;
+  currency: string;
+}) {
+  if (!canView) {
+    return (
+      <div className="list-empty">
+        <p>Anda tidak memiliki izin untuk melihat jadwal penyusutan fiskal.</p>
+      </div>
+    );
+  }
+  if (assets.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada aset yang dapat dipilih.</p>
+      </div>
+    );
+  }
+  const asset = assets.find((a) => a.asset_id === assetId);
+  if (rows.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Aset ini tidak memiliki jadwal penyusutan fiskal.</p>
+      </div>
+    );
+  }
+  const totalDepreciation = fiscalScheduleTotalDepreciation(rows);
+  return (
+    <table className="record-table">
+      <thead>
+        <tr>
+          <th scope="col" colSpan={4}>
+            {asset ? `${asset.asset_code} · ${asset.name}` : "Aset"}
+          </th>
+        </tr>
+        <tr>
+          <th scope="col">Tahun Fiskal</th>
+          <th scope="col" className="num">
+            Nilai Awal
+          </th>
+          <th scope="col" className="num">
+            Penyusutan
+          </th>
+          <th scope="col" className="num">
+            Nilai Akhir
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.fiscal_year}>
+            <td>
+              {row.fiscal_year} (v{row.rule_version})
+            </td>
+            <td className="num">{formatMoney(row.opening_value, currency)}</td>
+            <td className="num">{formatMoney(row.depreciation, currency)}</td>
+            <td className="num">{formatMoney(row.closing_value, currency)}</td>
+          </tr>
+        ))}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row" colSpan={2}>
+            Total Penyusutan Fiskal
+          </th>
+          <td className="num">{formatMoney(totalDepreciation.toString(), currency)}</td>
+          <td />
+        </tr>
+      </tfoot>
+    </table>
+  );
+}
+
+function AssetControlTable({
+  rows,
+  canView,
+  currency,
+}: {
+  rows: readonly AssetControlRow[];
+  canView: boolean;
+  currency: string;
+}) {
+  if (!canView) {
+    return (
+      <div className="list-empty">
+        <p>Anda tidak memiliki izin untuk melihat kontrol aset tetap.</p>
+      </div>
+    );
+  }
+  if (rows.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada akun kontrol aset tetap untuk Entity ini.</p>
+      </div>
+    );
+  }
+  const summary = assetControlSummary(rows);
+  return (
+    <>
+      <p className="list-screen-summary">
+        {summary.mismatchCount === 0
+          ? `Seluruh ${summary.accountCount} akun seimbang.`
+          : `${summary.mismatchCount} dari ${summary.accountCount} akun tidak seimbang.`}
+      </p>
+      <table className="record-table">
+        <thead>
+          <tr>
+            <th scope="col">Akun</th>
+            <th scope="col" className="num">
+              Sub-Ledger
+            </th>
+            <th scope="col" className="num">
+              Ledger (Alur Kerja Aset)
+            </th>
+            <th scope="col" className="num">
+              Ledger (Lainnya)
+            </th>
+            <th scope="col" className="num">
+              Ledger (Total)
+            </th>
+            <th scope="col" className="num">
+              Selisih
+            </th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => {
+            const balanced = assetControlRowBalanced(row);
+            return (
+              <tr key={row.account_key}>
+                <td>{assetControlAccountLabel(row.account_key)}</td>
                 <td className="num">{formatMoney(row.sub_ledger, currency)}</td>
                 <td className="num">{formatMoney(row.ledger_workflow, currency)}</td>
                 <td className="num">{formatMoney(row.ledger_other, currency)}</td>
