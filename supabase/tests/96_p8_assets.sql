@@ -328,7 +328,10 @@ begin
   perform test_helpers.login(v_owner);
   perform test_helpers.assert((select count(*) from public.asset_depreciation_due(pt)) = 10, 'ten months are due: five for each depreciated asset');
   perform test_helpers.expect_msg(format('select public.asset_post_depreciation(%L, %L)', pt, v_through - 3), 'INVALID', 'post through a month-end');
-  perform test_helpers.expect_msg(format('select public.asset_post_depreciation(%L, %L)', pt, (date_trunc('month', v_today) + interval '1 month - 1 day')::date), 'INVALID', 'not through a month that is not over');
+  -- Next month's end, never the current month's: asset_post_depreciation only rejects p_through > v_today
+  -- (20260926100300_p8_asset_lifecycle.sql), so the current month's own end is a legal p_through once today
+  -- IS that end -- the one calendar day per month this test would otherwise, wrongly, expect INVALID on.
+  perform test_helpers.expect_msg(format('select public.asset_post_depreciation(%L, %L)', pt, (date_trunc('month', v_today) + interval '2 months - 1 day')::date), 'INVALID', 'not through a month that is not over yet');
   perform test_helpers.logout();
   perform test_helpers.login(v_viewer);
   perform test_helpers.expect_msg(format('select public.asset_post_depreciation(%L, %L)', pt, v_through), 'FORBIDDEN', 'a viewer cannot post depreciation');

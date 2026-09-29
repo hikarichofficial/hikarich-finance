@@ -1320,3 +1320,47 @@ remain usable on mobile/tablet" is the only line), so this stays a permanently o
 OWNER-supplied number rather than something this session can resolve further. `pnpm check` (658 tests,
 unchanged), `pnpm format:check`, `pnpm build`, `pnpm db:test` (fingerprint unchanged) all pass. Dashboard
 Personalization and `DetailTabs` remain open, unchanged from decisions 213/214.
+
+Phase 14 (Hardening, Recovery & Performance) opens (DECISIONS 219): with P13 substantially closed, Step 15's
+own build order (read directly, `pandoc`, continuing decision 213's discipline) moves next to Phase 14.
+Security review: Supabase Security Advisor found one WARN, `public.rls_auto_enable()` -- confirmed a
+Supabase-platform `event_trigger` handler absent from this repo's own migrations, structurally uninvokable
+outside the event-trigger machinery by ordinary Postgres semantics regardless of its nominal `anon`/
+`authenticated` EXECUTE grant. A live empirical check was attempted and declined by this session's own
+tool-permission layer, so the conclusion rests on the function's definition and standard semantics rather
+than an executed test -- stated plainly rather than glossed over. Performance review: Advisor returned zero
+findings, low-signal pre-launch with no real data volume yet. Concurrency audit: `docs/TESTING.md`/
+`scripts/db-test.sh` read directly confirm five existing, independently reviewed and mutation-tested
+concurrency suites (numbering, duplicate posting, money P4, sales P5, purchases P6) -- covering four of
+Phase 14's five named concurrency areas ("payment, refund, posting, numbering and recurring generation").
+**No recurring-generation concurrency stress test exists yet** -- confirmed by the test-file listing and the
+absence of any recurring-named concurrency function -- a concrete, spec-named, well-scoped next small item
+fitting the established `db-test.sh` pattern exactly. Payroll has no concurrency suite either but isn't named
+in Phase 14's own bullet. Phase 14's remaining bullets (backup/recovery + Storage recovery verification,
+migration-from-clean/upgrade tests, accessibility/browser/device/failure-mode testing) are substantial and
+some may need OWNER-level Supabase/Vercel account actions -- surfaced to the OWNER as a scoping question
+rather than assumed. No files changed -- an audit only, like decision 214; schema fingerprint unchanged.
+
+Recurring-generation concurrency stress test (DECISIONS 220): the OWNER chose decision 219's own proposed
+next item over backup/recovery, migration/upgrade testing or moving to P15. `recurring_concurrency_test`
+added to `scripts/db-test.sh`, following the established `concurrency_test`/`money_concurrency_test`/
+`sales_concurrency_test`/`purchases_concurrency_test` pattern exactly: a synthetic Entity with six active,
+due `expense`-kind recurring rules, six sessions calling `run_due_recurring_occurrences` at once. The
+engine's `for update skip locked` claim (read directly from `20260928100200_p10_recurring_engine.sql`) means
+two concurrent runs structurally never process the same rule; `recurring_occurrences`' UNIQUE constraint is
+the backstop. Asserts exactly 6 generated occurrences / 6 distinct documents / 0 still-due rules after the
+race, and a pure no-op on a second concurrent wave with nothing left due. **Mutation-tested for real**: the
+`for update skip locked` clause was temporarily removed and `pnpm db:test` re-run -- the new test correctly
+failed, catching the exact double-processing race (an unhandled UNIQUE-constraint error) the lock exists to
+prevent -- then the migration was restored byte-identical (diffed against a backup) before shipping.
+
+Incidentally, running `pnpm db:test` today (2026-09-30, the last day of the month) surfaced a pre-existing
+calendar-boundary bug in the already-closed P8 test suite (`96_p8_assets.sql`): its "not through a month
+that is not over" case posted depreciation through the _current_ month's own end, which only fails when
+that end is strictly in the future -- on the one day per month when it equals today, the call legitimately
+succeeds and the test's own expectation, not the app code, was wrong. Fixed directly (pure test-arithmetic,
+not economic/tax/authorization/workflow) to use _next_ month's end instead, unconditionally future on every
+calendar day. `pnpm check` (658 tests, unchanged), `npx prettier --check .` and `pnpm db:test` (two clean
+rebuilds, fingerprint `5335133e42e3` unchanged, new suite passes both times) all pass. Phase 14's remaining
+bullets (backup/recovery, migration/upgrade tests, accessibility/browser/device/failure-mode testing) stay
+open.

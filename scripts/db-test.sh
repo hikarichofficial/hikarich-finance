@@ -720,6 +720,71 @@ SQL
   fi
 }
 
+# Recurring generation under real concurrency (Step 15 Phase 14: "concurrency and idempotency stress tests on
+# payment, refund, posting, numbering and recurring generation"; Step 13 §9). Several sessions call
+# run_due_recurring_occurrences for the same Entity at once, racing to claim the same due rules. Each rule
+# must be generated exactly once: run_due_recurring_occurrences' own `for update skip locked` claim (P10
+# recurring engine, generate_recurring_occurrence) means two concurrent runs never process the same rule
+# together, and recurring_occurrences' UNIQUE (recurring_rule_id, occurrence_date) is the idempotency
+# backstop if they ever did. Every statement runs in its own transaction, as a scheduled job or the manual
+# "generate now" button would.
+RC_OWNER="d3000000-0000-0000-0000-000000000001"
+rc_gen_run() { local w="$1"; mc_as "$RC_OWNER" "select public.run_due_recurring_occurrences('$RC_ENT');"; }
+
+recurring_concurrency_test() {
+  echo "  testing  concurrent recurring occurrence generation (6 sessions racing to claim the same due rules)"
+  "${PSQL[@]}" -o /dev/null "$TEST_URL" <<SQL
+insert into public.entities (entity_type, code, legal_name) values ('company', 'conc_recur', 'Recurring concurrency (synthetic)');
+select app_private.provision_default_coa((select id from public.entities where code = 'conc_recur'));
+select test_helpers.mk_user('$RC_OWNER', 'rc_owner');
+select test_helpers.mk_member((select id from public.entities where code = 'conc_recur'), '$RC_OWNER', 'owner');
+begin;
+select test_helpers.login('$RC_OWNER');
+select public.create_financial_account((select id from public.entities where code = 'conc_recur'), 'conc-rc-bank-1', 'bank', 'RC Bank', 'IDR');
+commit;
+SQL
+  RC_ENT="$(mc_q "select id from public.entities where code = 'conc_recur'")"
+  RC_BANK="$(mc_q "select id from public.financial_accounts where entity_id = '$RC_ENT'")"
+  local n
+  for n in $(seq 1 6); do
+    "${PSQL[@]}" -o /dev/null "$TEST_URL" <<SQL
+begin;
+select test_helpers.login('$RC_OWNER');
+select public.create_recurring_rule('$RC_ENT', 'conc-rc-rule-$n', 'expense', 'Concurrent Recurring $n', 'monthly',
+  test_helpers.today('$RC_ENT') - 1,
+  jsonb_build_object('account_id', '$RC_BANK', 'payee_name', 'Konkurensi Vendor $n',
+    'lines', jsonb_build_array(jsonb_build_object('description', 'Recurring item $n', 'unit_price', 100000))));
+commit;
+SQL
+  done
+
+  # 1. six sessions all call run_due_recurring_occurrences at once, racing to claim the same six due rules:
+  #    every rule must be generated exactly once, never zero times and never twice.
+  money_workers run 6 rc_gen_run
+  local result
+  result="$(mc_q "select (select count(*) from public.recurring_occurrences where entity_id = '$RC_ENT' and status = 'generated')
+                       || '/' || (select count(distinct generated_id) from public.recurring_occurrences where entity_id = '$RC_ENT' and status = 'generated')
+                       || '/' || (select count(*) from public.recurring_rules where entity_id = '$RC_ENT' and status = 'active' and next_occurrence_date <= test_helpers.today('$RC_ENT'))")"
+  if [[ "$result" != "6/6/0" ]]; then
+    echo "FAIL: concurrent recurring generation produced $result, expected 6/6/0 (occurrences/distinct documents/still-due rules)." >&2
+    exit 1
+  fi
+  result="$(mc_q "select count(*) from public.expenses e join public.recurring_occurrences o on o.generated_table = 'expenses' and o.generated_id = e.id where e.entity_id = '$RC_ENT'")"
+  if [[ "$result" != "6" ]]; then
+    echo "FAIL: concurrent recurring generation created $result expense drafts, expected exactly 6 (one per rule)." >&2
+    exit 1
+  fi
+
+  # 2. a second wave of six concurrent calls with nothing left due must be a pure no-op: no new occurrence
+  #    rows, no error, next_occurrence_date left untouched.
+  money_workers rerun 6 rc_gen_run
+  result="$(mc_q "select count(*) from public.recurring_occurrences where entity_id = '$RC_ENT'")"
+  if [[ "$result" != "6" ]]; then
+    echo "FAIL: a second wave of concurrent runs with nothing due left $result occurrence rows, expected still 6." >&2
+    exit 1
+  fi
+}
+
 rebuild() {
   "${PSQL[@]}" "$ADMIN_URL" -c "drop database if exists ${TEST_DB} with (force)"
   "${PSQL[@]}" "$ADMIN_URL" -c "create database ${TEST_DB}"
@@ -738,6 +803,7 @@ rebuild() {
   money_concurrency_test
   sales_concurrency_test
   purchases_concurrency_test
+  recurring_concurrency_test
 }
 
 fingerprint() {
