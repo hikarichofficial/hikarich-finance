@@ -901,3 +901,26 @@ up from 622); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42
 per the seventh increment's own list minus this item: the Command Menu quick-create registry, the
 three Documents nav sub-routes, Documents Center upload/download/detail, and the Fiscal Depreciation
 Schedule/Asset Movement/Asset GL reconciliation reports.
+
+Part 4 ninth increment is implemented (DECISIONS 197): the Fiscal Depreciation Schedule and Asset GL
+Reconciliation reports, a twelfth and thirteenth `/reports` tab over `asset_fiscal_schedule`/
+`asset_control_report` -- `fiscalSchedule`/`assetControl` and their schemas already existed since P8,
+unused until now. Both are gated by `assets.view` plus a second hard-required permission (`tax.view`
+for the schedule, `accounting.view` for the reconciliation) -- unlike Payroll Summary/Control, the
+`accountant` and `viewer_auditor` seed roles already hold every permission either tab needs together
+with `reports.view`, so no OWNER-reachability question arose here. Unlike every other Reports tab,
+`asset_fiscal_schedule` takes one asset, not the active Entity, so this tab needed its own record
+picker: the route reads `listAssets` and resolves the requested one with a new
+`resolveFiscalScheduleAsset`, mirroring `resolveGeneralLedgerAccount`'s exact "always resolve to
+something sensible" contract. The RPC itself legitimately returns an empty schedule for an asset
+with no fiscal class or in `draft`/`cancelled` status, so the picker is never filtered down to only
+depreciable assets. New pure domain helpers: `resolveFiscalScheduleAsset` (above);
+`fiscalScheduleTotalDepreciation` (grand total of the schedule's own `depreciation` column);
+`assetControlAccountLabel`/`assetControlSummary`/`assetControlRowBalanced`, a second, asset-specific
+copy of Payroll Control's own three small helpers (same shape, different account keys and labels)
+rather than repurposing the payroll-named ones across an unrelated module. No new RPC, schema or
+service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (643 tests, up from 631);
+`pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred, per the
+eighth increment's own list minus these two items: the Command Menu quick-create registry, the three
+Documents nav sub-routes, Documents Center upload/download/detail, and the Asset Movement/Disposal
+Report (no dedicated RPC yet -- new backend work).
