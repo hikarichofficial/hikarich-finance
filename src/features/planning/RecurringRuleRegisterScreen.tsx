@@ -25,7 +25,8 @@ import { formatShortDate } from "./format";
  *
  * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
  * Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- Nama as the unlabelled
- * heading link.
+ * heading link. The empty state carries one CTA (Step 09 §9/§25, Step 10 §24, decision 218), the same
+ * "Hapus Saringan"-or-header-action pattern `BudgetRegisterScreen` established.
  */
 export function RecurringRuleRegisterScreen({
   rows,
@@ -47,6 +48,10 @@ export function RecurringRuleRegisterScreen({
   const newHref = entity
     ? `/planning/recurring/new?entity=${encodeURIComponent(entity)}`
     : "/planning/recurring/new";
+  const baseHref = entity
+    ? `/planning/recurring?entity=${encodeURIComponent(entity)}`
+    : "/planning/recurring";
+  const isFiltered = Boolean(status) || query.trim().length > 0;
 
   return (
     <div className="list-screen">
@@ -94,6 +99,15 @@ export function RecurringRuleRegisterScreen({
       {rows.length === 0 ? (
         <div className="list-empty">
           <p>Tidak ada aturan berulang pada saringan ini.</p>
+          {isFiltered ? (
+            <Link href={baseHref} className="btn-secondary list-empty-action">
+              Hapus Saringan
+            </Link>
+          ) : canCreate ? (
+            <Link href={newHref} className="btn-primary list-empty-action">
+              Buat Aturan Baru
+            </Link>
+          ) : null}
         </div>
       ) : (
         <table className="record-table record-table-stacked">

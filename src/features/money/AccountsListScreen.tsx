@@ -20,6 +20,8 @@ import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
  * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5,
  * fourth increment; Step 09 §23) the same way `InvoicesListScreen` already does (decision 202) -- Nama
  * Akun as the unlabelled heading link, every other column reading its own header back via `data-label`.
+ * The empty state carries one CTA (Step 09 §9/§25, Step 10 §24, decision 218), the same pattern
+ * `InvoicesListScreen`/`BillsListScreen` established.
  */
 
 function buildHref(
@@ -104,6 +106,15 @@ export function AccountsListScreen({
               ? "Tidak ada akun yang cocok dengan pencarian ini."
               : "Belum ada akun pada tampilan ini."}
           </p>
+          {query.trim() || activeFilter ? (
+            <Link href={buildHref(entity, null, "")} className="btn-secondary list-empty-action">
+              Hapus Saringan
+            </Link>
+          ) : canCreate ? (
+            <Link href="/money/accounts/new" className="btn-primary list-empty-action">
+              Tambah Akun
+            </Link>
+          ) : null}
         </div>
       ) : (
         <table className="record-table record-table-stacked">

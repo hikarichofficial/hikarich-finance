@@ -1304,3 +1304,19 @@ Part 6 in full -- every List/Register screen decision 214's audit found reachabl
 Global Search is wired end to end, closing the Step 15 §17 P13 gate's own "drawers" criterion. `DetailTabs`
 (decision 214's softer gap) stays open, unchanged, since it was never part of the OWNER's "Bangun penuh:
 Drawer + Global Search" scope.
+
+Empty-state CTA and touch-target close-out (DECISIONS 218): with Part 6 closed, the OWNER chose "Lanjut item
+kecil dulu" over Dashboard Personalization or moving straight to P14/P15 -- concretely-scoped, presentational
+items built directly from spec, no further OWNER decision needed. A new `.list-empty-action` CSS slot
+(`globals.css`) plus a real CTA wired onto the 7 List/Register screens with a `canCreate` prop
+(`InvoicesListScreen`, `BillsListScreen`, `AccountsListScreen`, `TransfersListScreen`, `BudgetRegisterScreen`,
+`RecurringRuleRegisterScreen`, `RevenueTargetRegisterScreen`): "Hapus Saringan" (back to the screen's own base
+URL) when a search/filter produced zero rows, else the exact same create action the header already
+conditionally shows -- never a third, invented action. The ~30 screens with no `canCreate` prop at all keep
+the plain-text panel, since there is no create destination to link to yet; their own CTA arrives only when
+their own create form ships. Touch-target sizing (decision 210's open question) is now closed definitively:
+re-reading Step 09/Step 10's actual text found no numeric minimum anywhere in either document ("Touch targets
+remain usable on mobile/tablet" is the only line), so this stays a permanently open item pending an
+OWNER-supplied number rather than something this session can resolve further. `pnpm check` (658 tests,
+unchanged), `pnpm format:check`, `pnpm build`, `pnpm db:test` (fingerprint unchanged) all pass. Dashboard
+Personalization and `DetailTabs` remain open, unchanged from decisions 213/214.
