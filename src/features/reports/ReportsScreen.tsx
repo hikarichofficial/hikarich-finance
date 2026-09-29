@@ -5,6 +5,8 @@ import { ENTRY_TYPE_LABELS } from "@/domain/accounting/journalList";
 import { entityLabel } from "@/domain/authz/access";
 import { LOAN_DIRECTION_LABELS } from "@/domain/financing/financing";
 import { loanScheduleStateBadge } from "@/domain/financing/loanList";
+import { payrollPeriodName } from "@/domain/payroll/payroll";
+import { payrollRunStatusBadge } from "@/domain/payroll/runList";
 import {
   BALANCE_SHEET_SECTION_ORDER,
   CASH_FLOW_BUCKET_LABELS,
@@ -21,6 +23,10 @@ import {
   hasPnlComparison,
   loanDueTotals,
   loanSummaryTotals,
+  payrollControlAccountLabel,
+  payrollControlRowBalanced,
+  payrollControlSummary,
+  payrollSummaryTotals,
   pnlCompareAmount,
   pnlCompareNetIncome,
   pnlCompareSubtotal,
@@ -40,6 +46,7 @@ import type {
   ReportDatasetCatalogRow,
 } from "@/schemas/reports";
 import type { LoanDueRow, LoanSummaryRow } from "@/schemas/financing";
+import type { PayrollControlRow, PayrollSummaryRow } from "@/schemas/payroll";
 import type { LedgerAccountRow } from "@/schemas/accounting";
 import type { Membership } from "@/schemas/access";
 import { formatShortDate } from "./format";
@@ -53,7 +60,9 @@ export type ReportStatement =
   | "custom"
   | "consolidated"
   | "loans_due"
-  | "loan_summary";
+  | "loan_summary"
+  | "payroll_summary"
+  | "payroll_control";
 
 export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: string }[] = [
   { value: "pnl", label: "Laba Rugi" },
@@ -65,6 +74,8 @@ export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: st
   { value: "consolidated", label: "Analisis Konsolidasi" },
   { value: "loans_due", label: "Pinjaman Jatuh Tempo" },
   { value: "loan_summary", label: "Ringkasan Pinjaman" },
+  { value: "payroll_summary", label: "Ringkasan Payroll" },
+  { value: "payroll_control", label: "Kontrol Payroll" },
 ];
 
 export type ReportsData =
@@ -105,6 +116,18 @@ export type ReportsData =
       range: ReportDateRange;
       canView: boolean;
       rows: readonly LoanSummaryRow[];
+    }
+  | {
+      statement: "payroll_summary";
+      range: ReportDateRange;
+      canView: boolean;
+      rows: readonly PayrollSummaryRow[];
+    }
+  | {
+      statement: "payroll_control";
+      asOf: string;
+      canView: boolean;
+      rows: readonly PayrollControlRow[];
     };
 
 function buildTabHref(entity: string | undefined, statement: ReportStatement): string {
@@ -140,10 +163,27 @@ function buildTabHref(entity: string | undefined, statement: ReportStatement): s
  * from the accounting module. Loans Due reuses `loanScheduleStateBadge`/`LOAN_DIRECTION_LABELS` unchanged
  * from Loan Detail/Register (decisions 172/174) so the same installment can never show a different state or
  * direction label depending on which screen it is viewed from; each row links to the existing Loan Detail
- * screen. The other Reports nav sub-items (Sales/Purchase, a standalone Cashflow view, Tax, Payroll, Saved
- * Reports) have no P12 RPC behind them yet and fall through to the `[...slug]` "coming soon" placeholder
- * (decision 157's precedent) until one exists. Every figure here is the database's own debit/credit,
- * re-signed once via `naturalAmount` (`@/domain/reports`) -- never a second computation of the same fact.
+ * screen. The Payroll Summary and Payroll Control tabs (decision 196, eighth increment) wire the already-built
+ * `payroll_summary_report`/`payroll_control_report` RPCs (P9, unused in a screen until now) in the same shape,
+ * via the existing `getPayrollSummary`/`getPayrollControl` wrappers (`@/services/payroll/payroll`). Both share
+ * the compound "base payroll" gate already established for Payroll Runs/Payslips/Tax (decision 180:
+ * `payroll.compensation_view` AND at least one of `payroll.run`/`payroll.approve`/`payroll.pay`), and Payroll
+ * Control additionally hard-requires `accounting.view` (the RPC itself raises `FORBIDDEN` without it) -- no
+ * role in the seed catalog holds the full payroll-run set together with `reports.view`, but the OWNER role
+ * holds every permission unconditionally (confirmed directly against `app_authz.has_permission`'s own
+ * special-case for `role_key = 'owner'`), so these tabs are reachable exactly like every other Reports tab,
+ * the same "filter-before-calling, plain permission message instead of an error" pattern as Loans Due/Summary.
+ * Payroll Summary's masked columns (`tax_allowance`/`pph21`/`pph21_period_outstanding`, gated by
+ * `payroll.tax_view` inside the RPC itself) render "—" per row and are omitted from the totals row entirely
+ * when every row in view has them masked, via `payrollSummaryTotals`'s null-when-all-null rule -- the same
+ * "has*-or-null" idiom as `hasPnlComparison`/`pnlCompareSubtotal`, never a misleading zero. Payroll Control
+ * always returns exactly two rows (Payroll Liability, BPJS Liability) with no cross-account grand total, since
+ * summing two unrelated liability accounts would not be a meaningful figure -- `payrollControlSummary` reports
+ * only a mismatch count. The other Reports nav sub-items (Sales/Purchase, a standalone Cashflow view, Tax,
+ * Saved Reports) have no P12/P9 RPC behind them yet and fall through to the `[...slug]` "coming soon"
+ * placeholder (decision 157's precedent) until one exists. Every figure here is the database's own debit/
+ * credit, re-signed once via `naturalAmount` (`@/domain/reports`) -- never a second computation of the same
+ * fact.
  */
 export function ReportsScreen({
   data,
@@ -232,6 +272,17 @@ export function ReportsScreen({
           entity={entity}
         />
       ) : null}
+      {data.statement === "payroll_summary" ? (
+        <PayrollSummaryTable
+          rows={data.rows}
+          canView={data.canView}
+          currency={currency}
+          entity={entity}
+        />
+      ) : null}
+      {data.statement === "payroll_control" ? (
+        <PayrollControlTable rows={data.rows} canView={data.canView} currency={currency} />
+      ) : null}
     </div>
   );
 }
@@ -284,7 +335,9 @@ function RangeForm({ data, entity }: { data: ReportsData; entity: string | undef
           ))}
         </fieldset>
       ) : null}
-      {data.statement === "balance_sheet" || data.statement === "consolidated" ? (
+      {data.statement === "balance_sheet" ||
+      data.statement === "consolidated" ||
+      data.statement === "payroll_control" ? (
         <label>
           Per tanggal
           <input type="date" name="as_of" defaultValue={data.asOf} />
@@ -1042,5 +1095,218 @@ function LoanSummaryTable({
         </tr>
       </tfoot>
     </table>
+  );
+}
+
+function payrollRunHref(entity: string | undefined, runId: string): string {
+  return entity
+    ? `/payroll/runs/${runId}?entity=${encodeURIComponent(entity)}`
+    : `/payroll/runs/${runId}`;
+}
+
+function PayrollSummaryTable({
+  rows,
+  canView,
+  currency,
+  entity,
+}: {
+  rows: readonly PayrollSummaryRow[];
+  canView: boolean;
+  currency: string;
+  entity: string | undefined;
+}) {
+  if (!canView) {
+    return (
+      <div className="list-empty">
+        <p>Anda tidak memiliki izin untuk melihat laporan payroll.</p>
+      </div>
+    );
+  }
+  if (rows.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada payroll run pada periode ini.</p>
+      </div>
+    );
+  }
+  const totals = payrollSummaryTotals(rows);
+  return (
+    <table className="record-table">
+      <thead>
+        <tr>
+          <th scope="col">No. Run</th>
+          <th scope="col">Periode</th>
+          <th scope="col">Status</th>
+          <th scope="col" className="num">
+            Jml. Karyawan
+          </th>
+          <th scope="col" className="num">
+            Gaji Kotor
+          </th>
+          <th scope="col" className="num">
+            Tunjangan Pajak
+          </th>
+          <th scope="col" className="num">
+            BPJS Karyawan
+          </th>
+          <th scope="col" className="num">
+            BPJS Perusahaan
+          </th>
+          <th scope="col" className="num">
+            PPh 21
+          </th>
+          <th scope="col" className="num">
+            Gaji Bersih
+          </th>
+          <th scope="col" className="num">
+            Belum Dibayar
+          </th>
+          <th scope="col" className="num">
+            BPJS Belum Disetor
+          </th>
+          <th scope="col" className="num">
+            PPh 21 Belum Disetor
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => {
+          const badge = payrollRunStatusBadge(row.status);
+          return (
+            <tr key={`${row.run_id}-${row.revision}`}>
+              <td>
+                <Link href={payrollRunHref(entity, row.run_id)}>{row.run_number}</Link>
+              </td>
+              <td>{payrollPeriodName(row.period_start)}</td>
+              <td>
+                <span className={`status-badge status-badge-${badge.tone}`}>{badge.text}</span>
+              </td>
+              <td className="num">{row.employee_count}</td>
+              <td className="num">{formatMoney(row.gross_pay, currency)}</td>
+              <td className="num">
+                {row.tax_allowance === null ? "—" : formatMoney(row.tax_allowance, currency)}
+              </td>
+              <td className="num">{formatMoney(row.employee_bpjs, currency)}</td>
+              <td className="num">{formatMoney(row.employer_bpjs, currency)}</td>
+              <td className="num">{row.pph21 === null ? "—" : formatMoney(row.pph21, currency)}</td>
+              <td className="num">{formatMoney(row.net_pay, currency)}</td>
+              <td className="num">{formatMoney(row.net_unpaid, currency)}</td>
+              <td className="num">{formatMoney(row.bpjs_unpaid, currency)}</td>
+              <td className="num">
+                {row.pph21_period_outstanding === null
+                  ? "—"
+                  : formatMoney(row.pph21_period_outstanding, currency)}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row" colSpan={4}>
+            Total
+          </th>
+          <td className="num">{formatMoney(totals.grossPay.toString(), currency)}</td>
+          <td className="num">
+            {totals.taxAllowance === null
+              ? "—"
+              : formatMoney(totals.taxAllowance.toString(), currency)}
+          </td>
+          <td className="num">{formatMoney(totals.employeeBpjs.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.employerBpjs.toString(), currency)}</td>
+          <td className="num">
+            {totals.pph21 === null ? "—" : formatMoney(totals.pph21.toString(), currency)}
+          </td>
+          <td className="num">{formatMoney(totals.netPay.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.netUnpaid.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.bpjsUnpaid.toString(), currency)}</td>
+          <td className="num">
+            {totals.pph21PeriodOutstanding === null
+              ? "—"
+              : formatMoney(totals.pph21PeriodOutstanding.toString(), currency)}
+          </td>
+        </tr>
+      </tfoot>
+    </table>
+  );
+}
+
+function PayrollControlTable({
+  rows,
+  canView,
+  currency,
+}: {
+  rows: readonly PayrollControlRow[];
+  canView: boolean;
+  currency: string;
+}) {
+  if (!canView) {
+    return (
+      <div className="list-empty">
+        <p>Anda tidak memiliki izin untuk melihat laporan payroll.</p>
+      </div>
+    );
+  }
+  if (rows.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada akun kontrol payroll untuk Entity ini.</p>
+      </div>
+    );
+  }
+  const summary = payrollControlSummary(rows);
+  return (
+    <>
+      <p className="list-screen-summary">
+        {summary.mismatchCount === 0
+          ? `Seluruh ${summary.accountCount} akun seimbang.`
+          : `${summary.mismatchCount} dari ${summary.accountCount} akun tidak seimbang.`}
+      </p>
+      <table className="record-table">
+        <thead>
+          <tr>
+            <th scope="col">Akun</th>
+            <th scope="col" className="num">
+              Sub-Ledger
+            </th>
+            <th scope="col" className="num">
+              Ledger (Payroll Run)
+            </th>
+            <th scope="col" className="num">
+              Ledger (Lainnya)
+            </th>
+            <th scope="col" className="num">
+              Ledger (Total)
+            </th>
+            <th scope="col" className="num">
+              Selisih
+            </th>
+            <th scope="col">Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => {
+            const balanced = payrollControlRowBalanced(row);
+            return (
+              <tr key={row.account_key}>
+                <td>{payrollControlAccountLabel(row.account_key)}</td>
+                <td className="num">{formatMoney(row.sub_ledger, currency)}</td>
+                <td className="num">{formatMoney(row.ledger_workflow, currency)}</td>
+                <td className="num">{formatMoney(row.ledger_other, currency)}</td>
+                <td className="num">{formatMoney(row.ledger_total, currency)}</td>
+                <td className="num">{formatMoney(row.difference, currency)}</td>
+                <td>
+                  <span
+                    className={`status-badge status-badge-${balanced ? "success" : "critical"}`}
+                  >
+                    {balanced ? "Seimbang" : "Tidak Seimbang"}
+                  </span>
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+    </>
   );
 }

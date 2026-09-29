@@ -877,3 +877,27 @@ up from 616); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42
 deferred, per the sixth increment's own list minus this item: the Command Menu quick-create
 registry, the three Documents nav sub-routes, Documents Center upload/download/detail, and the
 Payroll Summary/Control and Fiscal asset reports.
+
+Part 4 eighth increment is implemented (DECISIONS 196): the Payroll Summary and Payroll Control
+reports, a tenth and eleventh `/reports` tab over `payroll_summary_report`/`payroll_control_report`
+-- `getPayrollSummary`/`getPayrollControl` and their schemas already existed since P9, unused until
+now. Before building, whether these tabs would be practically reachable was raised with the OWNER:
+no seeded role holds `reports.view` together with the full payroll-run permission set these RPCs
+require. The OWNER confirmed the `owner` role's own unconditional access (every `has_permission`
+check passes for `role_key = 'owner'`) resolves this -- the tabs are reachable by the OWNER, same as
+every other Reports tab, so building them under `/reports` was correct. The route computes
+`canViewPayroll` (the compound base rule already used by Payroll Runs/Payslips/Tax: `payroll.
+compensation_view` AND run/approve/pay) once and reuses it for both tabs, Payroll Control's own
+`canView` additionally requiring `accounting.view` (a hard RPC-level FORBIDDEN, not a mask) -- never
+surfacing a call either RPC would reject, showing a plain permission message instead of an error
+when false. New pure domain helpers `payrollSummaryTotals` (grand totals, with a private
+`sumMaskedColumn` returning `null` rather than a misleading zero when a tax-masked column is fully
+masked in view, the same "has*-or-null" idiom as the P&L comparison columns), `payrollControlAccountLabel`
+(labels the two fixed account keys, falls back to the raw key), `payrollControlSummary` (a mismatch
+count, deliberately no grand total across the two unrelated liability accounts) and
+`payrollControlRowBalanced` (the same zero-check, exposed per row for the table's badges). No new
+RPC, schema or service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (631 tests,
+up from 622); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred,
+per the seventh increment's own list minus this item: the Command Menu quick-create registry, the
+three Documents nav sub-routes, Documents Center upload/download/detail, and the Fiscal Depreciation
+Schedule/Asset Movement/Asset GL reconciliation reports.

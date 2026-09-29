@@ -608,3 +608,98 @@ export function loanSummaryTotals(
     feesPaid: sumDecimals(rows.map((r) => Decimal.parse(r.fees_paid))),
   };
 }
+
+// ================================================================ Payroll Summary / Payroll Control (P13 Part 4, eighth increment)
+
+export interface PayrollSummaryTotals {
+  grossPay: Decimal;
+  employeeBpjs: Decimal;
+  employerBpjs: Decimal;
+  netPay: Decimal;
+  netUnpaid: Decimal;
+  bpjsUnpaid: Decimal;
+  taxAllowance: Decimal | null;
+  pph21: Decimal | null;
+  pph21PeriodOutstanding: Decimal | null;
+}
+
+function sumMaskedColumn(values: readonly (string | null)[]): Decimal | null {
+  if (values.every((v) => v === null)) return null;
+  return sumDecimals(values.map((v) => (v === null ? Decimal.zero() : Decimal.parse(v))));
+}
+
+/** The grand-total row under a Payroll Summary table -- a display-only sum of exactly the per-run figures
+ * `payroll_summary_report` already returned, the same "already in each row, never a second aggregation"
+ * shape every other totals helper here uses. `tax_allowance`/`pph21`/`pph21_period_outstanding` are the
+ * RPC's own tax-masked columns (`null` whenever the caller lacks `payroll.tax_view`, or, for
+ * `pph21_period_outstanding` alone, whenever a run has not yet reached a postable status) -- their totals
+ * are `null`, not a silently-zero figure, whenever every row's own value is null, mirroring
+ * `hasPnlComparison`'s own "absent means no comparison, not zero" rule; when at least one row carries a
+ * value, the total sums only the rows that do, treating an individual masked/inapplicable row as excluded
+ * rather than zero. */
+export function payrollSummaryTotals(
+  rows: readonly {
+    gross_pay: string;
+    tax_allowance: string | null;
+    employee_bpjs: string;
+    employer_bpjs: string;
+    pph21: string | null;
+    net_pay: string;
+    net_unpaid: string;
+    bpjs_unpaid: string;
+    pph21_period_outstanding: string | null;
+  }[],
+): PayrollSummaryTotals {
+  return {
+    grossPay: sumDecimals(rows.map((r) => Decimal.parse(r.gross_pay))),
+    employeeBpjs: sumDecimals(rows.map((r) => Decimal.parse(r.employee_bpjs))),
+    employerBpjs: sumDecimals(rows.map((r) => Decimal.parse(r.employer_bpjs))),
+    netPay: sumDecimals(rows.map((r) => Decimal.parse(r.net_pay))),
+    netUnpaid: sumDecimals(rows.map((r) => Decimal.parse(r.net_unpaid))),
+    bpjsUnpaid: sumDecimals(rows.map((r) => Decimal.parse(r.bpjs_unpaid))),
+    taxAllowance: sumMaskedColumn(rows.map((r) => r.tax_allowance)),
+    pph21: sumMaskedColumn(rows.map((r) => r.pph21)),
+    pph21PeriodOutstanding: sumMaskedColumn(rows.map((r) => r.pph21_period_outstanding)),
+  };
+}
+
+/** `payroll_control`'s own `account_key` (`ledger_accounts.system_key`, `app_private.payroll_control`'s own
+ * migration SQL: always exactly `PAYROLL_LIABILITY`/`BPJS_LIABILITY`, one row each) as a label. */
+export const PAYROLL_CONTROL_ACCOUNT_LABELS: Readonly<Record<string, string>> = {
+  PAYROLL_LIABILITY: "Utang Gaji Karyawan",
+  BPJS_LIABILITY: "Utang BPJS",
+};
+
+/** Falls back to the raw key for any value the catalog above hasn't labelled, the same "never drop an
+ * unrecognized value silently" shape `documentTargetTypesLabel` already uses (decision 194). */
+export function payrollControlAccountLabel(accountKey: string): string {
+  return PAYROLL_CONTROL_ACCOUNT_LABELS[accountKey] ?? accountKey;
+}
+
+export interface PayrollControlSummary {
+  accountCount: number;
+  mismatchCount: number;
+}
+
+/** A row-count summary for the Payroll Control table -- `payroll_control_report` already computes each
+ * row's own `difference` (`sub_ledger - ledger_workflow`, the payroll sub-ledger's own view of what is owed
+ * against the GL postings payroll itself made); this only counts how many of those are nonzero, the same
+ * "count a flag the RPC already returns, never a second computation" shape `loanDueTotals`'s own
+ * `overdueCount` uses. Reconciliation here is necessarily per-account-key (`PAYROLL_LIABILITY`'s and
+ * `BPJS_LIABILITY`'s own balances are unrelated figures), so unlike every other totals helper this
+ * intentionally has no grand-total money column -- summing across account keys would combine two unrelated
+ * liabilities into a meaningless figure. */
+export function payrollControlSummary(
+  rows: readonly { difference: string }[],
+): PayrollControlSummary {
+  return {
+    accountCount: rows.length,
+    mismatchCount: rows.filter((r) => !Decimal.parse(r.difference).isZero()).length,
+  };
+}
+
+/** The same zero-check `payrollControlSummary`'s own `mismatchCount` uses, exposed per-row so the table can
+ * badge each account individually without a second, string-literal ("0") zero test of its own. */
+export function payrollControlRowBalanced(row: { difference: string }): boolean {
+  return Decimal.parse(row.difference).isZero();
+}

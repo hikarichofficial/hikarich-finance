@@ -13,6 +13,7 @@ import {
 } from "@/services/reports/reports";
 import { listLedgerAccounts } from "@/services/accounting/ledger";
 import { loanSummary, loansDue } from "@/services/financing/financing";
+import { getPayrollControl, getPayrollSummary } from "@/services/payroll/payroll";
 import {
   resolveAsOfDate,
   resolveCompareRange,
@@ -39,6 +40,8 @@ const REPORT_STATEMENTS: readonly ReportStatement[] = [
   "consolidated",
   "loans_due",
   "loan_summary",
+  "payroll_summary",
+  "payroll_control",
 ];
 
 function resolveStatement(value: string | undefined): ReportStatement {
@@ -73,7 +76,15 @@ function resolveStatement(value: string | undefined): ReportStatement {
  * the seed catalog, confirmed against `20260920100100_p2_permission_catalog.sql`) -- so this route checks
  * `can(access, membership.entity_id, "loans.view")` before calling either RPC, the same "never surface a
  * choice the RPC would reject with FORBIDDEN" rule the Custom Report Builder and Consolidated Analysis tabs
- * already follow, and the screen renders a plain permission message instead of an error when it is false. */
+ * already follow, and the screen renders a plain permission message instead of an error when it is false. The
+ * Payroll Summary and Payroll Control tabs (decision 196, eighth increment) read the already-built
+ * `getPayrollSummary`/`getPayrollControl` wrappers (`@/services/payroll/payroll`). Their own RPCs share the
+ * compound "base payroll" gate already established for Payroll Runs/Payslips/Tax (decision 180:
+ * `payroll.compensation_view` AND at least one of `payroll.run`/`payroll.approve`/`payroll.pay`) -- computed
+ * here once as `canViewPayroll` and checked before either RPC is called, same pattern as `loans.view` above.
+ * Payroll Control's own RPC additionally hard-requires `accounting.view` (it raises `FORBIDDEN` without it,
+ * unlike the row/column masking `payroll.tax_view` does inside `payroll_summary_report`), so its own `canView`
+ * is `canViewPayroll && can(access, membership.entity_id, "accounting.view")`. */
 export default async function ReportsPage({
   searchParams,
 }: {
@@ -182,6 +193,27 @@ export default async function ReportsPage({
       ? await loanSummary({ entity_id: membership.entity_id, from: range.from, to: range.to })
       : [];
     data = { statement, range, canView, rows };
+  } else if (statement === "payroll_summary") {
+    const canView =
+      can(access, membership.entity_id, "payroll.compensation_view") &&
+      (can(access, membership.entity_id, "payroll.run") ||
+        can(access, membership.entity_id, "payroll.approve") ||
+        can(access, membership.entity_id, "payroll.pay"));
+    const rows = canView
+      ? await getPayrollSummary({ entity_id: membership.entity_id, from: range.from, to: range.to })
+      : [];
+    data = { statement, range, canView, rows };
+  } else if (statement === "payroll_control") {
+    const canViewPayroll =
+      can(access, membership.entity_id, "payroll.compensation_view") &&
+      (can(access, membership.entity_id, "payroll.run") ||
+        can(access, membership.entity_id, "payroll.approve") ||
+        can(access, membership.entity_id, "payroll.pay"));
+    const canView = canViewPayroll && can(access, membership.entity_id, "accounting.view");
+    const rows = canView
+      ? await getPayrollControl({ entity_id: membership.entity_id, as_of: asOf })
+      : [];
+    data = { statement, asOf, canView, rows };
   } else {
     const compareRange = resolveCompareRange(compare_from, compare_to);
     const rows = await getProfitAndLoss({
