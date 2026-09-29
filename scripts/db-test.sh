@@ -807,20 +807,73 @@ rebuild() {
 }
 
 fingerprint() {
-  pg_dump --schema-only --no-owner --no-privileges --exclude-schema=test_helpers "$TEST_URL" | grep -v -E '^(--|SET |SELECT pg_catalog.set_config|\\restrict|\\unrestrict)' | sha256sum | cut -d' ' -f1
+  pg_dump --schema-only --no-owner --no-privileges --exclude-schema=test_helpers "$1" | grep -v -E '^(--|SET |SELECT pg_catalog.set_config|\\restrict|\\unrestrict)' | sha256sum | cut -d' ' -f1
+}
+
+# Upgrade-from-previous-version groundwork (Step 15 Phase 14: "migration-from-clean and upgrade-from-
+# previous-version tests"). This project has not shipped a production release yet (Phase 15 -- Production
+# Launch -- has not run), so there is no historical "previous version" to literally restore and upgrade
+# from; the buildable, meaningful subset of the gate for a still-pre-launch codebase is proving migrations
+# are safe to apply to a database that already holds real records, not only to an empty one -- exactly what
+# every future deploy to the live Supabase project actually does. rebuild()'s own clean-rebuild check never
+# exercises this: supabase/seed.sql only ever runs after every migration is already applied, so no
+# migration is ever tested against non-empty tables. This closes that gap for whichever migration is newest
+# at any given time, automatically, with no manual update needed as new migrations are added later.
+upgrade_test() {
+  echo "Upgrade check: apply the newest migration to a database seeded with real records first"
+  local UPGRADE_DB="hikarich_upgrade_test"
+  local UPGRADE_URL
+  UPGRADE_URL="$(db_url "$UPGRADE_DB")"
+  local last_idx=$(( ${#migrations[@]} - 1 ))
+  "${PSQL[@]}" "$ADMIN_URL" -c "drop database if exists ${UPGRADE_DB} with (force)"
+  "${PSQL[@]}" "$ADMIN_URL" -c "create database ${UPGRADE_DB}"
+  "${PSQL[@]}" "$UPGRADE_URL" -f supabase/tests/stubs/00_supabase_stubs.sql
+  local i f
+  for ((i = 0; i < last_idx; i++)); do
+    f="${migrations[$i]}"
+    "${PSQL[@]}" "$UPGRADE_URL" -1 -f "$f" >/dev/null
+  done
+  echo "  seeding real records on $((last_idx)) already-applied migration(s), before the newest one"
+  "${PSQL[@]}" "$UPGRADE_URL" -f supabase/seed.sql >/dev/null
+  echo "  applying the newest migration: $(basename "${migrations[$last_idx]}")"
+  if ! "${PSQL[@]}" "$UPGRADE_URL" -1 -f "${migrations[$last_idx]}" >/dev/null; then
+    echo "FAIL: the newest migration failed to apply to a database that already holds real records (this would fail an upgrade of the live project)." >&2
+    exit 1
+  fi
+  # The schema must land identical to a normal clean rebuild: migrating "seed partway through" must never
+  # leave the database in a different shape than migrating everything first and seeding after.
+  local upgrade_fp
+  upgrade_fp="$(fingerprint "$UPGRADE_URL")"
+  if [[ "$upgrade_fp" != "$fp1" ]]; then
+    echo "FAIL: the upgraded database's schema (${upgrade_fp:0:12}) differs from a normal clean rebuild (${fp1:0:12})." >&2
+    exit 1
+  fi
+  # The seeded records, and everything provision_default_coa derived from them, must have survived the
+  # newest migration completely intact -- an upgrade must never touch, let alone lose, existing data.
+  local result
+  result="$("${PSQL[@]}" -tA "$UPGRADE_URL" -c "select (select count(*) from public.entities where code in ('demo_pt', 'demo_personal'))
+                       || '/' || (select count(*) from public.ledger_accounts where entity_id = (select id from public.entities where code = 'demo_pt'))
+                       || '/' || (select count(*) from public.contacts where entity_id = (select id from public.entities where code = 'demo_pt') and display_name = 'Demo Customer')")"
+  if [[ "$result" != "2/"* || "$result" != *"/1" ]]; then
+    echo "FAIL: seeded records did not survive the newest migration intact ($result)." >&2
+    exit 1
+  fi
+  "${PSQL[@]}" "$ADMIN_URL" -c "drop database if exists ${UPGRADE_DB} with (force)"
 }
 
 echo "Rebuild #1"
 rebuild
-fp1="$(fingerprint)"
+fp1="$(fingerprint "$TEST_URL")"
 echo "Rebuild #2 (from scratch)"
 rebuild
-fp2="$(fingerprint)"
+fp2="$(fingerprint "$TEST_URL")"
 
 if [[ "$fp1" != "$fp2" ]]; then
   echo "FAIL: two clean rebuilds produced different schemas." >&2
   exit 1
 fi
 
+upgrade_test
+
 "${PSQL[@]}" "$ADMIN_URL" -c "drop database if exists ${TEST_DB} with (force)"
-echo "OK: clean rebuild reproducible (schema fingerprint ${fp1:0:12}), ${#migrations[@]} migration(s), invariants pass."
+echo "OK: clean rebuild reproducible (schema fingerprint ${fp1:0:12}), ${#migrations[@]} migration(s), invariants pass; upgrade-from-seeded-data check passes."
