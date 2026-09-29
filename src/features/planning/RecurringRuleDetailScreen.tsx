@@ -49,6 +49,10 @@ const GENERATED_TABLE_HREF: Readonly<Partial<Record<"invoices" | "bills" | "expe
  * itself, pre-filled from `rule.template`, whenever `permissions.canManage` and the rule is not `ended`
  * (`actions.canEdit` -- the same eligibility source the buttons above already use, so the edit form and the
  * Pause/End buttons can never disagree about whether this rule may still be changed).
+ *
+ * On a narrow screen the Riwayat Pembuatan table becomes stacked cards (`record-table-stacked`,
+ * `globals.css`; P13 Part 5; Step 09 §23), the same way `RecurringRuleRegisterScreen` already does (decision
+ * 206) -- Tanggal as the unlabelled heading.
  */
 export function RecurringRuleDetailScreen({
   rule,
@@ -188,7 +192,7 @@ export function RecurringRuleDetailScreen({
         {occurrences.length === 0 ? (
           <p className="dashboard-empty">Belum ada kejadian yang dibuat.</p>
         ) : (
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Tanggal</th>
@@ -204,14 +208,16 @@ export function RecurringRuleDetailScreen({
                 return (
                   <tr key={occurrence.id}>
                     <td>{formatShortDate(occurrence.occurrence_date)}</td>
-                    <td>
+                    <td data-label="Status">
                       <span className={`status-badge status-badge-${badge.tone}`}>
                         {badge.text}
                       </span>
                     </td>
-                    <td>{occurrence.attempts}</td>
-                    <td>{formatShortDate(occurrence.last_attempted_at.slice(0, 10))}</td>
-                    <td>
+                    <td data-label="Percobaan">{occurrence.attempts}</td>
+                    <td data-label="Terakhir Dicoba">
+                      {formatShortDate(occurrence.last_attempted_at.slice(0, 10))}
+                    </td>
+                    <td data-label="Hasil">
                       {(() => {
                         const base =
                           occurrence.generated_table &&

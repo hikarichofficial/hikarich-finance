@@ -28,6 +28,10 @@ import { formatShortDate } from "./format";
  * "isolated as a sensitive module" reading Step 09 §17 asks for. The full (unmasked) tax identifier
  * (`employee_tax_identifier`, needs a fresh step-up) is deferred: nothing on this read-only screen needs it
  * yet, and `taxProfile.tax_id_masked` already covers what a Detail screen shows day to day.
+ *
+ * On a narrow screen the Riwayat Jabatan / Kompensasi / BPJS tables become stacked cards
+ * (`record-table-stacked`, `globals.css`; P13 Part 5; Step 09 §23), the same way `EmployeeRegisterScreen`
+ * already does (decision 205) -- each table's own first column stays the unlabelled heading.
  */
 export function EmployeeDetailScreen({
   employee,
@@ -104,7 +108,7 @@ export function EmployeeDetailScreen({
         {history.length === 0 ? (
           <p className="dashboard-empty">Belum ada riwayat jabatan.</p>
         ) : (
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Berlaku Sejak</th>
@@ -118,10 +122,10 @@ export function EmployeeDetailScreen({
               {history.map((line) => (
                 <tr key={line.effective_from}>
                   <td>{formatShortDate(line.effective_from)}</td>
-                  <td>{EMPLOYMENT_TYPE_LABELS[line.employment_type]}</td>
-                  <td>{line.position_title}</td>
-                  <td>{line.department ?? "—"}</td>
-                  <td>{line.note ?? "—"}</td>
+                  <td data-label="Jenis">{EMPLOYMENT_TYPE_LABELS[line.employment_type]}</td>
+                  <td data-label="Jabatan">{line.position_title}</td>
+                  <td data-label="Departemen">{line.department ?? "—"}</td>
+                  <td data-label="Catatan">{line.note ?? "—"}</td>
                 </tr>
               ))}
             </tbody>
@@ -147,7 +151,7 @@ export function EmployeeDetailScreen({
           {compensation.components.length === 0 ? (
             <p className="dashboard-empty">Belum ada komponen gaji.</p>
           ) : (
-            <table className="record-table">
+            <table className="record-table record-table-stacked">
               <thead>
                 <tr>
                   <th scope="col">Komponen</th>
@@ -162,9 +166,11 @@ export function EmployeeDetailScreen({
                 {compensation.components.map((c) => (
                   <tr key={c.component}>
                     <td>{c.label}</td>
-                    <td>{COMPENSATION_KIND_LABELS[c.kind]}</td>
-                    <td className="num">{formatMoney(c.amount, currency)}</td>
-                    <td>{formatShortDate(c.effective_from)}</td>
+                    <td data-label="Jenis">{COMPENSATION_KIND_LABELS[c.kind]}</td>
+                    <td className="num" data-label="Jumlah">
+                      {formatMoney(c.amount, currency)}
+                    </td>
+                    <td data-label="Berlaku Sejak">{formatShortDate(c.effective_from)}</td>
                   </tr>
                 ))}
               </tbody>
@@ -181,7 +187,7 @@ export function EmployeeDetailScreen({
           {bpjs.enrolled.length === 0 ? (
             <p className="dashboard-empty">Belum terdaftar BPJS.</p>
           ) : (
-            <table className="record-table">
+            <table className="record-table record-table-stacked">
               <thead>
                 <tr>
                   <th scope="col">Program</th>
@@ -193,8 +199,8 @@ export function EmployeeDetailScreen({
                 {bpjs.enrolled.map((e) => (
                   <tr key={e.component}>
                     <td>{BPJS_COMPONENT_LABELS[e.component]}</td>
-                    <td>{e.member_ref ?? "—"}</td>
-                    <td>{formatShortDate(e.effective_from)}</td>
+                    <td data-label="Nomor Anggota">{e.member_ref ?? "—"}</td>
+                    <td data-label="Berlaku Sejak">{formatShortDate(e.effective_from)}</td>
                   </tr>
                 ))}
               </tbody>

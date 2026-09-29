@@ -31,6 +31,10 @@ const SOURCE_TYPE_LABELS: Readonly<Record<LoanDetail["source_type"], string>> = 
  * schedule is a separate RPC (`loan_schedule`) rather than embedded in `loan_detail`, so the page fetches it
  * alongside. The principal/financial account ids on `loan_detail` are left unlinked (the "only link what has
  * somewhere to go" precedent, decision 172): there is no Chart of Accounts detail route yet to link to.
+ *
+ * On a narrow screen the Jadwal Cicilan / Riwayat Jadwal / Riwayat Pembayaran tables become stacked cards
+ * (`record-table-stacked`, `globals.css`; P13 Part 5; Step 09 §23), the same way `LoanRegisterScreen` already
+ * does (decision 204) -- each table's own first column stays the unlabelled heading.
  */
 export function LoanDetailScreen({
   detail,
@@ -153,7 +157,7 @@ export function LoanDetailScreen({
         {schedule.length === 0 ? (
           <p className="dashboard-empty">Belum ada jadwal cicilan.</p>
         ) : (
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">#</th>
@@ -179,12 +183,20 @@ export function LoanDetailScreen({
                 return (
                   <tr key={line.seq}>
                     <td>{line.seq}</td>
-                    <td>{formatShortDate(line.due_date)}</td>
-                    <td className="num">{formatMoney(line.principal_due, currency)}</td>
-                    <td className="num">{formatMoney(line.interest_due, currency)}</td>
-                    <td className="num">{formatMoney(line.fee_due, currency)}</td>
-                    <td className="num">{formatMoney(line.outstanding, currency)}</td>
-                    <td>
+                    <td data-label="Jatuh Tempo">{formatShortDate(line.due_date)}</td>
+                    <td className="num" data-label="Pokok">
+                      {formatMoney(line.principal_due, currency)}
+                    </td>
+                    <td className="num" data-label="Bunga">
+                      {formatMoney(line.interest_due, currency)}
+                    </td>
+                    <td className="num" data-label="Fee">
+                      {formatMoney(line.fee_due, currency)}
+                    </td>
+                    <td className="num" data-label="Outstanding">
+                      {formatMoney(line.outstanding, currency)}
+                    </td>
+                    <td data-label="Status">
                       <span className={`status-badge status-badge-${lineBadge.tone}`}>
                         {lineBadge.text}
                       </span>
@@ -202,7 +214,7 @@ export function LoanDetailScreen({
           <div className="dashboard-section-header">
             <h2 className="dashboard-section-title">Riwayat Jadwal</h2>
           </div>
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Versi</th>
@@ -220,12 +232,14 @@ export function LoanDetailScreen({
                 return (
                   <tr key={version.id}>
                     <td>{version.version_no}</td>
-                    <td>{LOAN_METHOD_LABELS[version.method as LoanMethod]}</td>
-                    <td className="num">{version.rate}%</td>
-                    <td>
+                    <td data-label="Metode">{LOAN_METHOD_LABELS[version.method as LoanMethod]}</td>
+                    <td className="num" data-label="Bunga">
+                      {version.rate}%
+                    </td>
+                    <td data-label="Berlaku Sejak">
                       {version.effective_from ? formatShortDate(version.effective_from) : "—"}
                     </td>
-                    <td>
+                    <td data-label="Status">
                       <span className={`status-badge status-badge-${versionBadge.tone}`}>
                         {versionBadge.text}
                       </span>
@@ -245,7 +259,7 @@ export function LoanDetailScreen({
         {detail.payments.length === 0 ? (
           <p className="dashboard-empty">Belum ada pembayaran.</p>
         ) : (
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Nomor</th>
@@ -270,17 +284,25 @@ export function LoanDetailScreen({
                 return (
                   <tr key={payment.id}>
                     <td>{payment.number}</td>
-                    <td>{formatShortDate(payment.date)}</td>
-                    <td>{LOAN_PAYMENT_KIND_LABELS[payment.kind as LoanPaymentKind]}</td>
-                    <td className="num">{formatMoney(payment.principal, currency)}</td>
-                    <td className="num">{formatMoney(payment.interest, currency)}</td>
-                    <td className="num">{formatMoney(payment.fee, currency)}</td>
-                    <td>
+                    <td data-label="Tanggal">{formatShortDate(payment.date)}</td>
+                    <td data-label="Jenis">
+                      {LOAN_PAYMENT_KIND_LABELS[payment.kind as LoanPaymentKind]}
+                    </td>
+                    <td className="num" data-label="Pokok">
+                      {formatMoney(payment.principal, currency)}
+                    </td>
+                    <td className="num" data-label="Bunga">
+                      {formatMoney(payment.interest, currency)}
+                    </td>
+                    <td className="num" data-label="Fee">
+                      {formatMoney(payment.fee, currency)}
+                    </td>
+                    <td data-label="Status">
                       <span className={`status-badge status-badge-${paymentBadge.tone}`}>
                         {paymentBadge.text}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Jurnal">
                       <Link href={`/accounting/journal/${payment.journal_id}${qs}`}>Lihat →</Link>
                       {payment.reversal_journal_id ? (
                         <>

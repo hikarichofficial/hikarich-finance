@@ -19,6 +19,10 @@ import { formatMonth, formatShortDate } from "./format";
  * rather than the full pattern with a separate placeholder section: an asset's depreciation schedule and
  * lifecycle events already ARE its detail. Document attachment (the spec's "documents") is deferred; nothing
  * in the P8 RPC surface reads or writes one yet.
+ *
+ * On a narrow screen the Jadwal Penyusutan table becomes stacked cards (`record-table-stacked`,
+ * `globals.css`; P13 Part 5; Step 09 §23), the same way `AssetRegisterScreen` already does (decision 204) --
+ * Bulan as the unlabelled heading.
  */
 export function AssetDetailScreen({
   detail,
@@ -140,7 +144,7 @@ export function AssetDetailScreen({
         {schedule.length === 0 ? (
           <p className="dashboard-empty">Belum ada jadwal penyusutan.</p>
         ) : (
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Bulan</th>
@@ -157,13 +161,15 @@ export function AssetDetailScreen({
                 return (
                   <tr key={line.id}>
                     <td>{formatMonth(line.month)}</td>
-                    <td className="num">{formatMoney(line.amount, currency)}</td>
-                    <td>
+                    <td className="num" data-label="Jumlah">
+                      {formatMoney(line.amount, currency)}
+                    </td>
+                    <td data-label="Status">
                       <span className={`status-badge status-badge-${lineBadge.tone}`}>
                         {lineBadge.text}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Jurnal">
                       {line.journal_id ? (
                         <Link href={`/accounting/journal/${line.journal_id}${qs}`}>Lihat →</Link>
                       ) : (

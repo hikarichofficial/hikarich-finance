@@ -18,6 +18,11 @@ import { formatShortDate } from "./format";
  * (payments, refunds, vendor payments, transfers, tax payments...) that mostly don't have their own detail
  * screen yet in this codebase (only Invoices/Bills do, and neither is `money_movements`' own source_id), so
  * linking out today would mean guessing at routes rather than reading an actual established one.
+ *
+ * On a narrow screen the Activity table becomes stacked cards (`record-table-stacked`, `globals.css`; P13
+ * Part 5; Step 09 §23), the same treatment `CashActivityScreen` already uses (decision 203) -- Tanggal stays
+ * the unlabelled heading rather than a drill-down link, since this is already scoped to one account and date
+ * is the natural reading key for a ledger.
  */
 export function AccountDetailScreen({
   account,
@@ -115,7 +120,7 @@ export function AccountDetailScreen({
         {activity.length === 0 ? (
           <p className="dashboard-empty">Tidak ada aktivitas pada rentang tanggal ini.</p>
         ) : (
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Tanggal</th>
@@ -136,23 +141,23 @@ export function AccountDetailScreen({
               {activity.map((movement) => (
                 <tr key={movement.movement_id}>
                   <td>{formatShortDate(movement.movement_date)}</td>
-                  <td>
+                  <td data-label="Keterangan">
                     {sourceTypeLabel(movement.source_type)}
                     {movement.description ? ` — ${movement.description}` : ""}
                     {movement.reverses_movement_id ? " (pembalik)" : ""}
                   </td>
-                  <td>{movement.journal_number ?? "—"}</td>
-                  <td className="num">
+                  <td data-label="Jurnal">{movement.journal_number ?? "—"}</td>
+                  <td className="num" data-label="Masuk">
                     {movement.direction === "in"
                       ? formatMoney(movement.amount, movement.currency)
                       : ""}
                   </td>
-                  <td className="num">
+                  <td className="num" data-label="Keluar">
                     {movement.direction === "out"
                       ? formatMoney(movement.amount, movement.currency)
                       : ""}
                   </td>
-                  <td className="num">
+                  <td className="num" data-label="Saldo Berjalan">
                     {formatMoney(movement.running_balance, movement.currency)}
                   </td>
                 </tr>

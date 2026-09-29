@@ -17,6 +17,10 @@ import { formatShortDate } from "./format";
  * `payments` array is empty for every kind except `dividend` (a declared-but-unpaid dividend has `outstanding`
  * but no payments yet). `financial_account_id` is left unlinked, the same "no Chart of Accounts detail route
  * yet" reason Loan/Obligation Detail's own account ids were left unlinked.
+ *
+ * On a narrow screen the Riwayat Pembayaran table becomes stacked cards (`record-table-stacked`,
+ * `globals.css`; P13 Part 5; Step 09 §23), the same way `EquityRegisterScreen` already does (decision 204) --
+ * Nomor as the unlabelled heading.
  */
 export function EquityDetailScreen({
   detail,
@@ -139,7 +143,7 @@ export function EquityDetailScreen({
           <div className="dashboard-section-header">
             <h2 className="dashboard-section-title">Riwayat Pembayaran</h2>
           </div>
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Nomor</th>
@@ -159,14 +163,16 @@ export function EquityDetailScreen({
                 return (
                   <tr key={payment.id}>
                     <td>{payment.number}</td>
-                    <td>{formatShortDate(payment.date)}</td>
-                    <td className="num">{formatMoney(payment.amount, currency)}</td>
-                    <td>
+                    <td data-label="Tanggal">{formatShortDate(payment.date)}</td>
+                    <td className="num" data-label="Jumlah">
+                      {formatMoney(payment.amount, currency)}
+                    </td>
+                    <td data-label="Status">
                       <span className={`status-badge status-badge-${paymentBadge.tone}`}>
                         {paymentBadge.text}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Jurnal">
                       <Link href={`/accounting/journal/${payment.journal_id}${qs}`}>Lihat →</Link>
                       {payment.reversal_journal_id ? (
                         <>

@@ -24,6 +24,10 @@ import { formatShortDate } from "./format";
  * route exists yet). An `asset_disposal`-sourced obligation's `source_id` points at the disposal event, which
  * has no detail route of its own (only the asset's own Detail page shows its disposal inline) -- also left
  * unlinked rather than guessed at, the same "only link what has somewhere to go" precedent (decision 172).
+ *
+ * On a narrow screen the Riwayat Pelunasan table becomes stacked cards (`record-table-stacked`,
+ * `globals.css`; P13 Part 5; Step 09 §23), the same way `ObligationRegisterScreen` already does (decision
+ * 204) -- Nomor as the unlabelled heading.
  */
 export function ObligationDetailScreen({
   detail,
@@ -115,7 +119,7 @@ export function ObligationDetailScreen({
         {detail.settlements.length === 0 ? (
           <p className="dashboard-empty">Belum ada pelunasan.</p>
         ) : (
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Nomor</th>
@@ -136,21 +140,23 @@ export function ObligationDetailScreen({
                 return (
                   <tr key={settlement.id}>
                     <td>{settlement.number}</td>
-                    <td>{formatShortDate(settlement.date)}</td>
-                    <td>
+                    <td data-label="Tanggal">{formatShortDate(settlement.date)}</td>
+                    <td data-label="Jenis">
                       {
                         OBLIGATION_SETTLEMENT_KIND_LABELS[
                           settlement.kind as ObligationSettlementKind
                         ]
                       }
                     </td>
-                    <td className="num">{formatMoney(settlement.principal, currency)}</td>
-                    <td>
+                    <td className="num" data-label="Pokok">
+                      {formatMoney(settlement.principal, currency)}
+                    </td>
+                    <td data-label="Status">
                       <span className={`status-badge status-badge-${settlementBadge.tone}`}>
                         {settlementBadge.text}
                       </span>
                     </td>
-                    <td>
+                    <td data-label="Jurnal">
                       <Link href={`/accounting/journal/${settlement.journal_id}${qs}`}>
                         Lihat →
                       </Link>

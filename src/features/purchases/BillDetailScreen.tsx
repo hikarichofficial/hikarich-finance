@@ -20,6 +20,10 @@ import { formatShortDate } from "./format";
  * than folding it into Summary or inventing a placeholder for data that already exists. No attachment/receipt
  * upload exists yet (that is part of the same deferred "Record Bill" increment as the create form), so
  * Documents stays a placeholder rather than showing an empty upload control.
+ *
+ * On a narrow screen the Rincian Item table becomes stacked cards (`record-table-stacked`, `globals.css`;
+ * P13 Part 5; Step 09 §23), the same line-item treatment `.doc-lines` already uses on the public
+ * Invoice/Receipt page (decision 201) -- Deskripsi as the unlabelled heading line.
  */
 export function BillDetailScreen({
   bill,
@@ -134,7 +138,7 @@ export function BillDetailScreen({
         {bill.lines.length === 0 ? (
           <p className="dashboard-empty">Tagihan ini belum memiliki baris item.</p>
         ) : (
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Deskripsi</th>
@@ -154,10 +158,16 @@ export function BillDetailScreen({
               {bill.lines.map((line) => (
                 <tr key={line.line_no}>
                   <td>{line.description}</td>
-                  <td>{PURCHASE_TREATMENT_LABELS[line.treatment]}</td>
-                  <td className="num">{formatPlain(line.quantity)}</td>
-                  <td className="num">{formatMoney(line.unit_price, bill.currency)}</td>
-                  <td className="num">{formatMoney(line.line_total, bill.currency)}</td>
+                  <td data-label="Perlakuan">{PURCHASE_TREATMENT_LABELS[line.treatment]}</td>
+                  <td className="num" data-label="Kuantitas">
+                    {formatPlain(line.quantity)}
+                  </td>
+                  <td className="num" data-label="Harga Satuan">
+                    {formatMoney(line.unit_price, bill.currency)}
+                  </td>
+                  <td className="num" data-label="Total Baris">
+                    {formatMoney(line.line_total, bill.currency)}
+                  </td>
                 </tr>
               ))}
             </tbody>
