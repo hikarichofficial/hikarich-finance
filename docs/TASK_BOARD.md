@@ -1320,3 +1320,23 @@ remain usable on mobile/tablet" is the only line), so this stays a permanently o
 OWNER-supplied number rather than something this session can resolve further. `pnpm check` (658 tests,
 unchanged), `pnpm format:check`, `pnpm build`, `pnpm db:test` (fingerprint unchanged) all pass. Dashboard
 Personalization and `DetailTabs` remain open, unchanged from decisions 213/214.
+
+Phase 14 (Hardening, Recovery & Performance) opens (DECISIONS 219): with P13 substantially closed, Step 15's
+own build order (read directly, `pandoc`, continuing decision 213's discipline) moves next to Phase 14.
+Security review: Supabase Security Advisor found one WARN, `public.rls_auto_enable()` -- confirmed a
+Supabase-platform `event_trigger` handler absent from this repo's own migrations, structurally uninvokable
+outside the event-trigger machinery by ordinary Postgres semantics regardless of its nominal `anon`/
+`authenticated` EXECUTE grant. A live empirical check was attempted and declined by this session's own
+tool-permission layer, so the conclusion rests on the function's definition and standard semantics rather
+than an executed test -- stated plainly rather than glossed over. Performance review: Advisor returned zero
+findings, low-signal pre-launch with no real data volume yet. Concurrency audit: `docs/TESTING.md`/
+`scripts/db-test.sh` read directly confirm five existing, independently reviewed and mutation-tested
+concurrency suites (numbering, duplicate posting, money P4, sales P5, purchases P6) -- covering four of
+Phase 14's five named concurrency areas ("payment, refund, posting, numbering and recurring generation").
+**No recurring-generation concurrency stress test exists yet** -- confirmed by the test-file listing and the
+absence of any recurring-named concurrency function -- a concrete, spec-named, well-scoped next small item
+fitting the established `db-test.sh` pattern exactly. Payroll has no concurrency suite either but isn't named
+in Phase 14's own bullet. Phase 14's remaining bullets (backup/recovery + Storage recovery verification,
+migration-from-clean/upgrade tests, accessibility/browser/device/failure-mode testing) are substantial and
+some may need OWNER-level Supabase/Vercel account actions -- surfaced to the OWNER as a scoping question
+rather than assumed. No files changed -- an audit only, like decision 214; schema fingerprint unchanged.
