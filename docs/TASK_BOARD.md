@@ -1044,3 +1044,16 @@ No new RPC, schema, service wrapper or test file. `pnpm check`, `pnpm format:che
 deferred: the other 37 `.record-table` screens (Money Accounts/Cash Activity and Purchases Bills next),
 the Refund Receipt view/template, Step 11 §23's named component primitives, and the rest of the broader
 responsive/accessibility/motion polish pass.
+
+Part 5's fourth increment (DECISIONS 203): the `record-table-stacked` rollout continues onto
+`AccountsListScreen.tsx`, `BillsListScreen.tsx` and `CashActivityScreen.tsx`. The first two follow
+decision 202's own pattern exactly. `CashActivityScreen` needed one judgment call: its first column is
+`Tanggal` (date), not a drill-down link -- the `Akun` link is its second column, since this screen is a
+chronological cross-account feed rather than a register of one record kind. Rather than mechanically
+making a bare date the only unlabelled line, the column order was kept exactly as it already reads on
+desktop: Tanggal stays the unlabelled heading, `Akun`'s link stays reachable and clearly labelled one row
+down. No new RPC, schema, service wrapper or test file, and no `globals.css` change (`record-table-stacked`
+already exists). `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm
+db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred: 34 more `.record-table`
+screens, the Refund Receipt view/template, Step 11 §23's named component primitives, and the rest of the
+broader responsive/accessibility/motion polish pass.
