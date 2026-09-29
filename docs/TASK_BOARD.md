@@ -1189,3 +1189,42 @@ rather than folded in here. Still deferred: the Refund Receipt view/template, St
 primitives, touch-target sizing against a concrete number, loading/error UI for the non-`(app)` segments,
 and the rest of the polish pass (micro-interactions, dashboard personalization) which has no further
 objectively-verifiable gap to ground against without OWNER input or the actual spec text.
+
+Part 5's thirteenth increment (DECISIONS 212): decision 211's own deferred "loading/error UI for the
+non-`(app)` route segments" item. `/login`, `/auth/mfa`, `/auth/step-up` and the public
+`/i/[token]`/`/i/[token]/receipt` pages sit outside the `(app)` route group, so decision 211's
+`(app)/loading.tsx`/`error.tsx` never covered them. Two new root-level files, `src/app/loading.tsx` and
+`src/app/error.tsx` -- Next.js only falls back to a root `loading.tsx`/`error.tsx` for a segment with no
+closer one of its own, so neither overrides `(app)`'s pair. Styled with `.shell`/`.card` (the layout
+`/login`, `/auth/mfa`, `/auth/step-up` and this route's own `not-found.tsx` already use) rather than
+the `.shell`/`.card` layout, since none of these routes render inside `AppShell`'s chrome. The public
+invoice page mattered most for `error.tsx`: an unhandled exception there (distinct from the deliberate
+`notFound()` call already made for an invalid/expired token) previously reached a customer as Next.js's
+bare default error screen. `loading.tsx` renders a small `.skeleton-panel` (three pulsing lines) rather
+than plain text, per the real Step 09/Step 10 spec text read for the first time this increment (see
+decision 213); `error.tsx` otherwise matches decision 211: a generic "Terjadi masalah saat memuat halaman
+ini." with a "Coba Lagi" button calling `reset()`, `error.message` never rendered. A `global-error.tsx` for
+the root layout itself was considered and left out since that layout has no data fetching to fail. No new
+RPC, schema, service wrapper, or test file. `pnpm check`, `pnpm format:check` and `pnpm build` pass (655
+tests, unchanged); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`).
+
+Process correction (DECISIONS 213): decisions 210-212 were built reasoning indirectly from the existing
+codebase rather than the actual Step 09/Step 10 spec DOCX text, on a mistaken belief those files were not
+reachable from this session -- asked directly by the OWNER, they turned out to sit one level up from the
+git repo in the same connected device folder. Reading them in full confirmed decisions 210 and the
+error-boundary halves of 211/212, but found the loading-state halves did not comply: Step 09 §25/Step 10
+§23-§24 require skeleton loading ("match final geometry," "neutral shimmer or subtle pulse compatible with
+reduced-motion"), not plain text. Both `(app)/loading.tsx` (decision 211, already merged) and the root
+`loading.tsx` (corrected before it ever shipped) now render a new `.skeleton-panel`/`.skeleton-block` pulse
+treatment (`globals.css`), fully disabled under `prefers-reduced-motion: reduce`. The same spec read
+surfaced two further, now-concretely-scoped gaps deliberately left out of this correction: the plain-text
+`.list-empty` empty-state panel (roughly 40 screens) falls short of the spec's "action-oriented... one
+clear CTA" wording, and Step 10 §25 Dashboard Personalization describes a genuine per-user/per-Entity
+widget reorder/hide feature the Dashboard does not have at all -- a schema-plus-feature build, not a
+CSS-only polish item. `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged);
+`pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). This closes out every
+objectively-verifiable item the accessibility/motion polish pass had left to ground without OWNER input,
+now that the actual spec text is being read directly going forward. Still deferred: the Refund Receipt
+view/template (Part 3-scope), Step 11 §23's named component primitives, the `.list-empty` CTA gap, Dashboard
+Personalization, touch-target sizing against a concrete number, and the rest of the polish pass
+(micro-interactions).

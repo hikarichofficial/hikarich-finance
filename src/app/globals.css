@@ -1729,6 +1729,70 @@ a.kpi-card:hover {
   border-radius: var(--radius-lg);
 }
 
+/* Skeleton loading (Step 09 §25 "Use skeleton loading for primary workspace content rather than disruptive
+ * full-screen spinners"; Step 10 §23 "Skeletons match final geometry to minimize layout shift"; Step 10 §24
+ * "Skeleton loading uses neutral shimmer or subtle pulse compatible with reduced-motion") -- P13 Part 5,
+ * decision 213: this replaces the plain-text "Memuat…" panel decisions 211/212 shipped before the actual
+ * Step 09/Step 10 spec text was read (see decision 213's own note on that correction). `.skeleton-panel`
+ * lays out a stack of pulsing placeholder blocks; `.skeleton-header`/`.skeleton-row` size two shapes reused
+ * by both `(app)/loading.tsx` (a list-screen-shaped stack, since List/Detail screens are this segment's
+ * majority shape) and the root `loading.tsx` (a shorter stack sized to the `.card` panel `/login`,
+ * `/auth/*` and `/i/[token]`'s own `not-found.tsx` already use) -- an approximation of each route's own
+ * geometry, not literally page-specific, since a shared segment-level `loading.tsx` cannot know which
+ * route triggered it; true per-route skeletons would need one `loading.tsx` per route, a materially larger
+ * increment recorded as still open rather than attempted here. The pulse uses a duration deliberately
+ * outside the `--motion-fast/base/slow` scale (those are interaction-timing tokens, 150-250ms, far too
+ * quick for a resting ambient loop) but reuses `--motion-ease`; `prefers-reduced-motion: reduce` disables
+ * the animation outright rather than merely shortening it, satisfying §24's "compatible with reduced-motion"
+ * the same explicit way decision 156's own token-level override already established for this codebase. */
+.skeleton-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.skeleton-block {
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  animation: skeleton-pulse 1.4s var(--motion-ease) infinite;
+}
+
+.skeleton-header {
+  height: 32px;
+  width: min(320px, 60%);
+}
+
+.skeleton-row {
+  height: 56px;
+  width: 100%;
+}
+
+.skeleton-line {
+  height: 16px;
+  width: 100%;
+}
+
+.skeleton-line:last-child {
+  width: 70%;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block {
+    animation: none;
+    opacity: 0.75;
+  }
+}
+
 .record-table {
   width: 100%;
   border-collapse: collapse;
