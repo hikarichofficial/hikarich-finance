@@ -16,6 +16,10 @@ import { formatShortDate } from "./format";
  * free-text index yet; Global Search is Part 4, DECISIONS 145). "Record Bill" is deferred to a later
  * increment (DECISIONS, P13 Part 3b scope) and routes through the catch-all placeholder (DECISIONS 157) for
  * now, same as Sales' "Buat Faktur".
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5,
+ * fourth increment; Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- No.
+ * Tagihan as the unlabelled heading link, every other column reading its own header back via `data-label`.
  */
 
 function buildHref(entity: string | undefined, filter: BillListFilter | null, q: string): string {
@@ -98,7 +102,7 @@ export function BillsListScreen({
           </p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">No. Tagihan</th>
@@ -125,16 +129,18 @@ export function BillsListScreen({
                   <td>
                     <Link href={href}>{row.bill_number ?? "Draf"}</Link>
                   </td>
-                  <td>{row.vendor_name}</td>
-                  <td>{formatShortDate(row.bill_date)}</td>
-                  <td>{formatShortDate(row.due_date)}</td>
-                  <td>
+                  <td data-label="Vendor">{row.vendor_name}</td>
+                  <td data-label="Tanggal">{formatShortDate(row.bill_date)}</td>
+                  <td data-label="Jatuh Tempo">{formatShortDate(row.due_date)}</td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${status.tone}`}>
                       {status.text}
                     </span>
                   </td>
-                  <td className="num">{formatMoney(row.total, row.currency)}</td>
-                  <td className="num">
+                  <td className="num" data-label="Total">
+                    {formatMoney(row.total, row.currency)}
+                  </td>
+                  <td className="num" data-label="Sisa Tagihan">
                     {row.outstanding !== null ? formatMoney(row.outstanding, row.currency) : "—"}
                   </td>
                 </tr>

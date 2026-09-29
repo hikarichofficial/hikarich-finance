@@ -15,6 +15,10 @@ import {
  * plain GET round-trip over the page's own already-fetched, already-merged rows (`mergeAccountRows`), same
  * rationale as Sales/Purchases (no server-side free-text index yet). "Tambah Akun" is deferred to a later
  * increment and routes through the catch-all placeholder (DECISIONS 157) for now.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5,
+ * fourth increment; Step 09 §23) the same way `InvoicesListScreen` already does (decision 202) -- Nama
+ * Akun as the unlabelled heading link, every other column reading its own header back via `data-label`.
  */
 
 function buildHref(
@@ -101,7 +105,7 @@ export function AccountsListScreen({
           </p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Nama Akun</th>
@@ -126,14 +130,18 @@ export function AccountsListScreen({
                   <td>
                     <Link href={href}>{row.name}</Link>
                   </td>
-                  <td>{row.kind}</td>
-                  <td>
+                  <td data-label="Jenis">{row.kind}</td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${status.tone}`}>
                       {status.text}
                     </span>
                   </td>
-                  <td className="num">{formatMoney(row.movement_balance, row.currency)}</td>
-                  <td className="num">{formatMoney(row.ledger_balance, row.currency)}</td>
+                  <td className="num" data-label="Saldo Sistem">
+                    {formatMoney(row.movement_balance, row.currency)}
+                  </td>
+                  <td className="num" data-label="Saldo Buku Besar">
+                    {formatMoney(row.ledger_balance, row.currency)}
+                  </td>
                 </tr>
               );
             })}
