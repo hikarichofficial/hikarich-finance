@@ -2,8 +2,11 @@ import { describe, expect, it } from "vitest";
 import { documentTargetTypeSchema, genericLinkableTargetTypeSchema } from "@/schemas/documents";
 import {
   DOCUMENT_PURPOSE_LABELS,
+  DOCUMENT_TARGET_TYPE_FILTER_OPTIONS,
   DOCUMENT_TARGET_TYPE_LABELS,
+  documentTargetTypesLabel,
   formatDocumentSize,
+  parseDocumentTargetTypeFilter,
 } from "./documents";
 
 describe("DOCUMENT_TARGET_TYPE_LABELS", () => {
@@ -53,5 +56,47 @@ describe("formatDocumentSize", () => {
 
   it("formats megabytes with no decimal at or above 10 MB", () => {
     expect(formatDocumentSize(20 * 1024 * 1024)).toBe("20 MB");
+  });
+});
+
+describe("DOCUMENT_TARGET_TYPE_FILTER_OPTIONS", () => {
+  it("starts with the unfiltered 'Semua' option, then every catalogued target kind in schema order", () => {
+    expect(DOCUMENT_TARGET_TYPE_FILTER_OPTIONS[0]).toEqual({ value: null, label: "Semua" });
+    expect(DOCUMENT_TARGET_TYPE_FILTER_OPTIONS.slice(1).map((o) => o.value)).toEqual([
+      ...documentTargetTypeSchema.options,
+    ]);
+  });
+});
+
+describe("parseDocumentTargetTypeFilter", () => {
+  it("resolves a known target kind", () => {
+    expect(parseDocumentTargetTypeFilter("bill")).toBe("bill");
+  });
+
+  it("falls back to the unfiltered default (undefined) for an unknown value", () => {
+    expect(parseDocumentTargetTypeFilter("not-a-kind")).toBeUndefined();
+  });
+
+  it("falls back to the unfiltered default (undefined) when nothing is requested", () => {
+    expect(parseDocumentTargetTypeFilter(undefined)).toBeUndefined();
+  });
+
+  it("treats the literal 'null' query value as unknown, not as the unfiltered option", () => {
+    // the unfiltered option's *value* is JS null, never the string "null" a query param could carry.
+    expect(parseDocumentTargetTypeFilter("null")).toBeUndefined();
+  });
+});
+
+describe("documentTargetTypesLabel", () => {
+  it("joins multiple target kinds into one display string", () => {
+    expect(documentTargetTypesLabel(["bill", "expense"])).toBe("Tagihan, Pengeluaran");
+  });
+
+  it("returns an em dash for a document with no links yet", () => {
+    expect(documentTargetTypesLabel([])).toBe("—");
+  });
+
+  it("falls back to the raw value for an unrecognized kind rather than dropping it", () => {
+    expect(documentTargetTypesLabel(["future_kind"])).toBe("future_kind");
   });
 });
