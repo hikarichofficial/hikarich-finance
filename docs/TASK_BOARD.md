@@ -1110,3 +1110,39 @@ unchanged); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3
 read/categorized, the LinesEditor components pending a reachability check, the Refund Receipt view/template,
 Step 11 §23's named component primitives, and the rest of the broader responsive/accessibility/motion polish
 pass.
+
+Part 5's ninth increment (DECISIONS 208): the last 4 not-yet-categorized `.record-table` screens are
+inspected -- `DepreciationReportScreen.tsx`, `PayrollTaxScreen.tsx`, `TaxLedgerScreen.tsx` and
+`DocumentsListScreen.tsx`. None of their 7 tables is a period-by-period comparison the way Reports'
+statement viewer or Budget/Revenue Target's "vs Aktual" tables are, despite three being named
+"report"/"ledger" screens -- every one is a per-row schedule/liability/reconciliation/ledger/document list,
+so all 4 ship `record-table-stacked`. No new RPC, schema, service wrapper or test file, and no `globals.css`
+change. `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes
+(schema fingerprint unchanged at `5335133e42e3`). This closes out the `record-table-stacked` rollout
+entirely: 30 of 38 `.record-table` screens are now mobile-stacked, and the remaining 8 are confirmed genuine
+columnar/comparative tables that stay excluded by design (Reports' statement viewer, the Chart of Accounts,
+the Journal debit/credit grid, Budget/Revenue Target Detail's own "vs Aktual" tables). Still deferred: the
+LinesEditor components pending a reachability check, the Refund Receipt view/template, Step 11 §23's named
+component primitives, and the rest of the broader responsive/accessibility/motion polish pass.
+
+Part 5's tenth increment (DECISIONS 209): decision 204's own deferred reachability question for the Budget/
+Recurring/Revenue-Target "LinesEditor" components is finally answered. All three are confirmed live,
+reachable components -- `BudgetLinesEditor` inside `BudgetDetailScreen.tsx`, `RevenueTargetLinesEditor`
+inside `RevenueTargetDetailScreen.tsx`, `RecurringLinesEditor` inside `RecurringRuleForm.tsx` (rendered by
+`RecurringRuleDetailScreen.tsx`) -- not orphaned code belonging to a still-deferred form. Being reachable
+does not automatically make a component safe to stack: `BudgetLinesEditor.tsx` and
+`RevenueTargetLinesEditor.tsx` are genuine category x month editable matrices, the same period-by-period-
+comparison shape decision 202/207 already excludes for read-only tables, so both stay on plain
+`.record-table` by design. `RecurringLinesEditor.tsx` is structurally different -- a plain repeating row list
+with a fixed, small column set and no month columns, the same shape as `BillDetailScreen.tsx`'s own line
+items (decision 207) just editable -- so it ships `record-table-stacked`: Deskripsi's own input stays the
+unlabelled heading, every other cell (including each `<select>`) reads its own column header back via
+`data-label`, and the trailing "Hapus" delete-button column carries no `data-label` since its header has no
+visible text to echo. No new RPC, schema, service wrapper or test file, and no `globals.css` change.
+`pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (schema
+fingerprint unchanged at `5335133e42e3`). This closes out the `record-table-stacked` rollout genuinely
+entirely: every `.record-table`-class consumer in the codebase, screens and reachable editing components
+alike, has now been read and either converted or confirmed excluded by design -- 31 of 39 consumers are
+mobile-stacked, and the remaining 8 stay on plain `.record-table` as confirmed columnar/comparative tables.
+Still deferred: the Refund Receipt view/template, Step 11 §23's named component primitives, and the rest of
+the broader responsive/accessibility/motion polish pass that decision 155's plan places in Part 5.

@@ -13,6 +13,12 @@ import { formatMonth, formatShortDate } from "./format";
  * (`asset_depreciation_due`), and the schedule line table itself. One screen, not a route split like Other
  * Receivables/Payables (decision 176): the spec names Depreciation as a single nav item and a single report,
  * unlike its own separate "Other AR/AP" bullet.
+ *
+ * On a narrow screen both tables become stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
+ * Step 09 §23), the same treatment `AssetDetailScreen`'s own depreciation schedule already uses (decision
+ * 207) -- Aset as the unlabelled heading. Unlike Reports' statement viewer or Budget/Revenue Target's "vs
+ * Aktual" tables (decision 202/207's carve-out), these are per-row schedule lines, not a period-by-period
+ * comparison, so stacking loses no reading structure.
  */
 export function DepreciationReportScreen({
   rows,
@@ -85,7 +91,7 @@ export function DepreciationReportScreen({
           <div className="dashboard-section-header">
             <h2 className="dashboard-section-title">Perlu Diposting</h2>
           </div>
-          <table className="record-table">
+          <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Aset</th>
@@ -100,9 +106,11 @@ export function DepreciationReportScreen({
               {due.map((line) => (
                 <tr key={`${line.asset_id}-${line.period_month}`}>
                   <td>{line.asset_code}</td>
-                  <td>{formatMonth(line.period_month.slice(0, 7))}</td>
-                  <td>{formatShortDate(line.journal_date)}</td>
-                  <td className="num">{formatMoney(line.amount, currency)}</td>
+                  <td data-label="Periode">{formatMonth(line.period_month.slice(0, 7))}</td>
+                  <td data-label="Batas Posting">{formatShortDate(line.journal_date)}</td>
+                  <td className="num" data-label="Jumlah">
+                    {formatMoney(line.amount, currency)}
+                  </td>
                 </tr>
               ))}
             </tbody>
@@ -115,7 +123,7 @@ export function DepreciationReportScreen({
           <p>Tidak ada baris penyusutan pada rentang dan saringan ini.</p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Aset</th>
@@ -139,18 +147,20 @@ export function DepreciationReportScreen({
                       {line.asset_code} · {line.asset_name}
                     </Link>
                   </td>
-                  <td>{formatMonth(line.period_month.slice(0, 7))}</td>
-                  <td>
+                  <td data-label="Periode">{formatMonth(line.period_month.slice(0, 7))}</td>
+                  <td data-label="Status">
                     <span className={`status-badge status-badge-${badge.tone}`}>{badge.text}</span>
                   </td>
-                  <td>
+                  <td data-label="Jurnal">
                     {line.journal_id ? (
                       <Link href={`/accounting/journal/${line.journal_id}${qs}`}>Lihat →</Link>
                     ) : (
                       "—"
                     )}
                   </td>
-                  <td className="num">{formatMoney(line.amount, currency)}</td>
+                  <td className="num" data-label="Jumlah">
+                    {formatMoney(line.amount, currency)}
+                  </td>
                 </tr>
               );
             })}

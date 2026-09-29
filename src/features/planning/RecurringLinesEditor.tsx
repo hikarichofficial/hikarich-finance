@@ -25,6 +25,15 @@ import type { RecurringKind } from "@/domain/planning/planning";
  * blank description or unit price is silently dropped at serialization time rather than blocking the
  * submit -- "a blank cell simply omits that line", the same choice `BudgetLinesEditor` made for an empty
  * amount cell.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
+ * Step 09 §23), reachable and safe to stack now that decision 204's own reachability question is answered:
+ * this editor is live inside `RecurringRuleForm`, reached from Recurring Rule Detail/Create. Unlike
+ * `BudgetLinesEditor`/`RevenueTargetLinesEditor` -- a genuine category x month matrix whose columns grow with
+ * the plan's own date range, the same period-comparison shape decision 202/207 excludes -- this editor has a
+ * fixed, small column set (Deskripsi/Kuantitas/Harga Satuan/Perlakuan/Kategori/Hapus), the same plain
+ * repeating-row shape as `BillDetailScreen`'s own line items (decision 207), just editable; Deskripsi stays
+ * the unlabelled heading input.
  */
 
 export interface RecurringLineRow {
@@ -143,7 +152,7 @@ export function RecurringLinesEditor({
         <p className="dashboard-empty">Belum ada baris. Tambahkan baris untuk mulai mengisi.</p>
       ) : (
         <div className="plan-lines-table-wrap">
-          <table className="record-table plan-lines-table">
+          <table className="record-table plan-lines-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Deskripsi</th>
@@ -175,7 +184,7 @@ export function RecurringLinesEditor({
                         placeholder="Deskripsi baris"
                       />
                     </td>
-                    <td className="num">
+                    <td className="num" data-label="Kuantitas">
                       <input
                         type="text"
                         inputMode="decimal"
@@ -184,7 +193,7 @@ export function RecurringLinesEditor({
                         placeholder="1"
                       />
                     </td>
-                    <td className="num">
+                    <td className="num" data-label="Harga Satuan">
                       <input
                         type="text"
                         inputMode="decimal"
@@ -194,7 +203,7 @@ export function RecurringLinesEditor({
                       />
                     </td>
                     {showTreatment ? (
-                      <td>
+                      <td data-label="Perlakuan">
                         <select
                           value={row.treatment}
                           onChange={(event) =>
@@ -209,7 +218,7 @@ export function RecurringLinesEditor({
                         </select>
                       </td>
                     ) : null}
-                    <td>
+                    <td data-label="Kategori">
                       <select
                         value={row.category_id}
                         onChange={(event) =>

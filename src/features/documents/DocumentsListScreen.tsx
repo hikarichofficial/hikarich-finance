@@ -24,6 +24,10 @@ import { formatShortDate } from "./format";
  * always derived from `rows.length` because those two routes filter the fetched page by link status before
  * it reaches this component -- the caller computes it from the RPC's own raw page, so "Berikutnya" keeps
  * reflecting the real `list_documents` windowing even when the displayed row count has shrunk.
+ *
+ * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
+ * Step 09 §23), the same way `BillsListScreen` already does (decision 203) -- Nama Berkas as the unlabelled
+ * heading, a plain filename with no drill-down since no per-document detail screen exists yet.
  */
 
 const PAGE_SIZE = 50;
@@ -122,7 +126,7 @@ export function DocumentsListScreen({
           </p>
         </div>
       ) : (
-        <table className="record-table">
+        <table className="record-table record-table-stacked">
           <thead>
             <tr>
               <th scope="col">Nama Berkas</th>
@@ -140,10 +144,14 @@ export function DocumentsListScreen({
             {rows.map((row) => (
               <tr key={row.document_id}>
                 <td>{row.file_name}</td>
-                <td>{documentTargetTypesLabel(row.target_types)}</td>
-                <td className="num">{row.link_count}</td>
-                <td className="num">{formatDocumentSize(row.size_bytes)}</td>
-                <td>{formatShortDate(row.created_at)}</td>
+                <td data-label="Terkait Dengan">{documentTargetTypesLabel(row.target_types)}</td>
+                <td className="num" data-label="Tautan">
+                  {row.link_count}
+                </td>
+                <td className="num" data-label="Ukuran">
+                  {formatDocumentSize(row.size_bytes)}
+                </td>
+                <td data-label="Diunggah">{formatShortDate(row.created_at)}</td>
               </tr>
             ))}
           </tbody>
