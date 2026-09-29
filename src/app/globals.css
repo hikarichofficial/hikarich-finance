@@ -291,7 +291,16 @@ body {
   margin-top: 16px;
 }
 
-/* P5 customer documents: invoice and receipt (print-clean; final design comes with P13). */
+/* Customer documents: invoice, payment receipt and refund receipt (P13 Part 5, first increment -- Step 11
+ * Invoice/Receipt Visual Specification, FINAL/LOCKED). `.doc` itself defines its own fixed `--doc-*` custom
+ * properties instead of inheriting the app's own `--ink`/`--text-secondary`/`--line`/`--bronze` tokens: those
+ * are redefined under `@media (prefers-color-scheme: dark)` for the rest of the app (Step 10 §3), but Step 11
+ * §2 requires every customer document to render on a "white/warm-white canvas, near-black text" on screen or
+ * in print, regardless of the viewer's own OS/browser theme -- inheriting the app's dark-mode tokens here
+ * would put near-white text on this deliberately-white canvas. `.doc-page`/`.doc-actions`/`.print-button`
+ * stay on the app's own tokens: Step 11 §8 explicitly allows the *surrounding* web chrome (the print/download
+ * controls) to follow "Step 10 premium design language," it is only the document body itself that must stay
+ * fixed. */
 .doc-page {
   width: min(100%, 860px);
   margin: 0 auto;
@@ -322,12 +331,44 @@ body {
 }
 
 .doc {
+  --doc-ink: #191714;
+  --doc-text-secondary: #777069;
+  --doc-line: rgba(25, 23, 20, 0.14);
+  --doc-bronze: #b77a43;
+  --doc-tone-neutral: #6b6459;
+  --doc-tone-progress: #a06736;
+  --doc-tone-attention: #9b6a1f;
+  --doc-tone-success: #1f6b3a;
+  --doc-tone-critical: #9b2c2c;
+  position: relative;
   padding: 32px;
   background: #fff;
-  border: 1px solid var(--line);
+  color: var(--doc-ink);
+  border: 1px solid var(--doc-line);
   border-radius: 16px;
   box-shadow: 0 12px 40px rgba(25, 23, 20, 0.06);
   line-height: 1.5;
+}
+
+/* Step 11 §12: "VOID watermark/badge; document remains readable for audit; cannot masquerade as active
+ * invoice." A faint, print-visible diagonal mark rather than a badge alone, so a printed/downloaded copy of
+ * a voided document is unmistakable even skimmed at a glance -- never only a small on-screen status pill
+ * that a quick PDF read could miss. */
+.doc[data-watermark="void"]::before {
+  content: "VOID";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--doc-tone-critical);
+  opacity: 0.12;
+  transform: rotate(-24deg);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .doc p {
@@ -339,7 +380,7 @@ body {
   font-size: 0.75rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: var(--doc-text-secondary);
 }
 
 .doc-head,
@@ -352,7 +393,7 @@ body {
 
 .doc-head {
   padding-bottom: 20px;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--doc-line);
 }
 
 .doc-meta {
@@ -371,7 +412,7 @@ body {
 
 .doc-kind {
   letter-spacing: 0.14em;
-  color: var(--text-secondary);
+  color: var(--doc-text-secondary);
 }
 
 .doc-number {
@@ -386,18 +427,36 @@ body {
   font-size: 0.75rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  border: 1px solid var(--line);
+  border: 1px solid var(--doc-line);
   border-radius: 999px;
 }
 
-.doc-status-ok {
-  color: #1f6b3a;
-  border-color: #1f6b3a;
+/* Tones match `InvoiceListTone` (`src/domain/sales/invoiceList.ts`) exactly -- the class name is the tone
+ * name itself, so a document view never needs its own ok/warn/muted translation layer on top of the domain
+ * helper's already-decided tone. */
+.doc-status-neutral {
+  color: var(--doc-tone-neutral);
+  border-color: var(--doc-tone-neutral);
 }
 
-.doc-status-warn {
-  color: #9b2c2c;
-  border-color: #9b2c2c;
+.doc-status-progress {
+  color: var(--doc-tone-progress);
+  border-color: var(--doc-tone-progress);
+}
+
+.doc-status-attention {
+  color: var(--doc-tone-attention);
+  border-color: var(--doc-tone-attention);
+}
+
+.doc-status-success {
+  color: var(--doc-tone-success);
+  border-color: var(--doc-tone-success);
+}
+
+.doc-status-critical {
+  color: var(--doc-tone-critical);
+  border-color: var(--doc-tone-critical);
 }
 
 .doc dl {
@@ -421,7 +480,7 @@ body {
 .doc-lines td {
   padding: 10px 8px;
   text-align: left;
-  border-bottom: 1px solid var(--line);
+  border-bottom: 1px solid var(--doc-line);
   vertical-align: top;
 }
 
@@ -429,7 +488,7 @@ body {
   font-size: 0.75rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: var(--text-secondary);
+  color: var(--doc-text-secondary);
 }
 
 .doc .num {
@@ -446,8 +505,12 @@ body {
 
 .doc-totals .grand {
   padding-top: 8px;
-  border-top: 1px solid var(--line);
+  border-top: 1px solid var(--doc-line);
   font-weight: 600;
+}
+
+.doc-totals .refund {
+  color: var(--doc-tone-attention);
 }
 
 .doc-block {
@@ -966,6 +1029,17 @@ body {
   }
 }
 
+/* Step 11 §13 PDF/Print Rules: A4 portrait, no application chrome, pagination that never orphans a total or
+ * cuts a line item mid-row, and a repeated line-item table header on every continuation page. A running
+ * invoice-identity header/footer on every page beyond that repeated table header is not achievable with
+ * CSS-only browser print -- @page margin-box content (the one CSS mechanism for it) has no reliable Chrome
+ * support, so this is a documented limitation of the "browser print-to-PDF" approach this codebase already
+ * uses (`PrintButton`, decision -- P5), not silently claimed done. */
+@page {
+  size: A4;
+  margin: 16mm;
+}
+
 @media print {
   .no-print {
     display: none !important;
@@ -984,6 +1058,24 @@ body {
     border: 0;
     box-shadow: none;
     padding: 0;
+  }
+
+  .doc[data-watermark="void"]::before {
+    /* Faded further under print so it reads as a mark, not a full-page alarm (Step 11 §12: "no alarming
+     * full-page red" applies to VOID's treatment the same as OVERDUE's). */
+    opacity: 0.08;
+  }
+
+  .doc-lines thead {
+    display: table-header-group;
+  }
+
+  .doc-lines tr,
+  .doc-head,
+  .doc-meta,
+  .doc-totals,
+  .doc-block {
+    break-inside: avoid;
   }
 }
 

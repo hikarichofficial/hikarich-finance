@@ -322,8 +322,8 @@ continues on P13 rather than waiting idle).
 | Part 1: Foundation & shell  | Design tokens (Step 10 §2, §4-§6), application shell -- sidebar, top bar, Entity switcher, Global Search, Command Menu, responsive shell (Step 09 §2-§8)               | Implemented |
 | Part 2: Dashboard           | Overview screen reading only already-built report RPCs, no independent frontend financial truth (Step 09 §8, Step 10 §10-§13)                                          | Implemented |
 | Part 3: Module screens      | Standard list/detail patterns (Step 09 §9-§10) applied to Sales, Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning (Step 09 §11-§18)           | Implemented |
-| Part 4: Reports & Documents | Statement viewers, Custom Report Builder UI, Consolidated Analysis (DECISIONS 148); Documents Center (Step 09 §20); Command Menu quick-create registry (DECISIONS 140) | In Progress |
-| Part 5: Documents & polish  | Invoice/Receipt customer-document templates (Step 11); responsive/mobile, accessibility, motion polish across every part (Step 09 §23, §25-§27; Step 10 §21-§25)       | Not Started |
+| Part 4: Reports & Documents | Statement viewers, Custom Report Builder UI, Consolidated Analysis (DECISIONS 148); Documents Center (Step 09 §20); Command Menu quick-create registry (DECISIONS 140) | Implemented |
+| Part 5: Documents & polish  | Invoice/Receipt customer-document templates (Step 11); responsive/mobile, accessibility, motion polish across every part (Step 09 §23, §25-§27; Step 10 §21-§25)       | In Progress |
 | Gate                        | Dashboard KPI drill-down reconciles to report/source values; mobile essential workflows pass (Step 15 P13)                                                             | Not Started |
 
 Status: unblocked this session -- the OWNER supplied every remaining Step spec document (Steps
@@ -974,3 +974,29 @@ up from 646); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42
 the tenth increment's own list minus this item: the `/documents/archive` sub-route, Documents Center
 upload/download/detail, and the Asset Movement/Disposal Report. The registry itself grows automatically
 as future increments ship more `/new` routes.
+
+Part 4 is closed (DECISIONS 200): every screen decision 155 assigned to it has shipped. Part 5 opens
+with its first increment: bringing `InvoiceDocumentView`/`ReceiptDocumentView` (`src/features/sales/`,
+built in P5 before P13 existed) up to Step 11 -- Invoice/Receipt Visual Specification, which
+`globals.css`'s own `.doc*` comment had flagged since P5 as "final design comes with P13." Three
+concrete gaps fixed: (1) the Invoice document view's own local three-tone status label had drifted from
+`invoiceDocumentStatus`, the exact status the Invoice List/Detail screens already show for the same
+invoice -- fixed by calling that existing helper directly; the Receipt view gets a matching new
+`paymentReceiptStatus` (`src/domain/sales/receiptDocument.ts`), since no receipt-status helper existed
+yet. (2) Every `.doc*` CSS rule inherited the app's own dark-mode-aware tokens while `.doc` hard-coded a
+white background -- in dark mode this put near-white text on that white canvas, a genuine contrast
+failure against Step 11 §2/§18. Fixed with `.doc`'s own fixed `--doc-*` tokens, never redefined under
+`prefers-color-scheme: dark`; the surrounding print/download chrome deliberately keeps the app's own
+theme-aware tokens, since Step 11 §8 allows that. (3) Step 11 §12's VOID state had no watermark -- added
+a faint, print-visible diagonal mark; REFUNDED is now shown as a totals line using the already-fetched
+`refunded` figure (no new computation); CORRECTED/SUPERSEDED stays unrepresented since `invoices.status`
+has no such value and no supersession column exists to read (recorded, not guessed at, the same "no new
+backend" boundary as Documents Archive). Print CSS gained `@page` A4 sizing, a repeated line-item table
+header on continuation pages (Step 11 §13's own line verbatim) and break-inside-avoid on totals/blocks;
+a running invoice-identity header on every page beyond that is recorded as not achievable with this
+codebase's browser-print-to-PDF approach (no reliable Chrome support for `@page` margin-box content).
+No new RPC, schema or service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (655
+tests, up from 653); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Deferred:
+the Refund Receipt view/template, Step 11 §23's named component primitives, the Public Invoice Page's
+responsive/mobile treatment and "Saya Sudah Bayar" field audit, and the broader responsive/accessibility/
+motion polish pass across every other P13 part.

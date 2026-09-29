@@ -1,10 +1,14 @@
 import { formatMoney } from "@/domain/money/format";
+import { paymentReceiptStatus } from "@/domain/sales/receiptDocument";
 import type { ReceiptDocument } from "@/schemas/sales";
 import { formatDocumentDate } from "./InvoiceDocumentView";
 
 /**
- * A payment receipt as the payer reads it: what was received, when, and which invoices it settled. A reversed
- * payment is shown as reversed, never hidden. Refundable balances and internal facts are not part of it.
+ * A payment receipt as the payer reads it (P13 Part 5, first increment; Step 11 §10, FINAL/LOCKED): what was
+ * received, when, and which invoices it settled. A reversed payment is shown as reversed, never hidden.
+ * Refundable balances and internal facts are not part of it. The status badge reuses `paymentReceiptStatus`
+ * (`src/domain/sales/receiptDocument.ts`) and the shared `.doc-status-{tone}` classes (`globals.css`,
+ * keyed on `InvoiceListTone`) instead of this view's own local `ok`/`muted` mapping.
  */
 
 type Party = Record<string, unknown> | null | undefined;
@@ -18,7 +22,7 @@ export function ReceiptDocumentView({ receipt }: { receipt: ReceiptDocument }) {
   const brand =
     field(receipt.issuer, "brand_name") ?? field(receipt.issuer, "legal_name") ?? "Hikarich";
   const method = receipt.method;
-  const reversed = receipt.status === "reversed";
+  const status = paymentReceiptStatus(receipt);
   return (
     <article className="doc" aria-label={`Kwitansi ${receipt.receipt_number}`}>
       <header className="doc-head">
@@ -31,9 +35,7 @@ export function ReceiptDocumentView({ receipt }: { receipt: ReceiptDocument }) {
         <div className="doc-title">
           <p className="doc-kind">KWITANSI</p>
           <p className="doc-number">{receipt.receipt_number}</p>
-          <span className={`doc-status doc-status-${reversed ? "muted" : "ok"}`}>
-            {reversed ? "Dibatalkan" : "Diterima"}
-          </span>
+          <span className={`doc-status doc-status-${status.tone}`}>{status.text}</span>
         </div>
       </header>
 
