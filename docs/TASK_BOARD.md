@@ -1168,3 +1168,24 @@ than guessed at. No new RPC, schema, service wrapper, test file, or markup chang
 unchanged at `5335133e42e3`). Still deferred: the Refund Receipt view/template (blocked on the Refunds list/
 detail screens, a Part 3-scope gap), Step 11 §23's named component primitives, touch-target sizing, and the
 rest of the empty/loading/error visuals, micro-interactions and dashboard-personalization work.
+
+Part 5's twelfth increment (DECISIONS 211): the "loading visuals"/"error visuals" items of the accessibility
+polish pass. A repo-wide check found zero `loading.tsx`/`error.tsx` anywhere in `src/app` apart from the
+public invoice token page's own `not-found.tsx` -- a genuine structural gap, since every route under the
+`(app)` route group fetches its own data via RPC before it can render and Next.js's own App Router
+convention already defines exactly these two files for segment-level loading/error UI. Two new files:
+`src/app/(app)/loading.tsx` ("Memuat…", `role="status" aria-live="polite"`) and `src/app/(app)/error.tsx`
+(`"use client"`, a generic "Terjadi masalah saat memuat halaman ini." message with a "Coba Lagi" button
+calling Next.js's own `reset()`, `role="alert"`) -- `(app)/layout.tsx` and `AppShell` (sidebar/top bar) sit
+outside both Next.js boundaries and keep rendering immediately, so only the content area shows either
+fallback. Both reuse `.list-empty` (`globals.css`) verbatim rather than inventing a new visual language.
+`error.tsx` deliberately never renders `error.message`, since an RPC failure's own text can carry internal
+detail (a raised Postgres exception, a `FORBIDDEN: missing <permission>` string) -- the same
+customer-facing-vs-internal boundary already established for document data (decision 201). No new RPC,
+schema, service wrapper, or test file. `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests,
+unchanged); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Scoped to the `(app)`
+segment only -- `/login`/`/auth/*`/`/i/[token]` still have neither, recorded as a further deferred item
+rather than folded in here. Still deferred: the Refund Receipt view/template, Step 11 §23's named component
+primitives, touch-target sizing against a concrete number, loading/error UI for the non-`(app)` segments,
+and the rest of the polish pass (micro-interactions, dashboard personalization) which has no further
+objectively-verifiable gap to ground against without OWNER input or the actual spec text.
