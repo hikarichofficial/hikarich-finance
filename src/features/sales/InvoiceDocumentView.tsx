@@ -1,12 +1,20 @@
 import { Decimal } from "@/domain/money/decimal";
 import { formatMoney, formatMoneyExact, formatPlain } from "@/domain/money/format";
-import { SETTLEMENT_LABELS } from "@/domain/sales/settlement";
+import { invoiceDocumentStatus } from "@/domain/sales/invoiceList";
 import type { InvoiceDocument } from "@/schemas/sales";
 
 /**
- * The invoice as a customer reads it (Step 11): issuer, customer, lines, totals, payments received and the
+ * The invoice as a customer reads it (P13 Part 5, first increment; Step 11 -- Invoice/Receipt Visual
+ * Specification §3-§7, §12-§13, FINAL/LOCKED): issuer, customer, lines, totals, payments received and the
  * payment instructions the OWNER chose to show. It renders only what the frozen document carries; internal
  * notes, ledger facts and tax identifiers never reach it. Print-clean: the print stylesheet removes chrome.
+ *
+ * The status badge reuses `invoiceDocumentStatus` (`src/domain/sales/invoiceList.ts`) rather than its own
+ * copy of the same logic -- this view previously had its own local three-tone `statusLabel` (ok/warn/muted)
+ * that drifted from the Invoice List/Detail screens' own five-tone badge (Step 09 §11: "Draft/Unpaid/
+ * Partial/Paid/Overdue/Void"), so a customer could in principle see a different status word than the staff
+ * screens showing the exact same invoice. `.doc-status-{tone}` (`globals.css`) is keyed on `InvoiceListTone`
+ * directly now, so no local ok/warn/muted translation is needed either.
  */
 
 type Party = Record<string, unknown> | null | undefined;
@@ -36,15 +44,6 @@ export function formatDocumentDate(isoDate: string): string {
   return DATE_FORMAT.format(new Date(`${isoDate}T00:00:00Z`));
 }
 
-function statusLabel(doc: InvoiceDocument): { text: string; tone: "ok" | "warn" | "muted" } {
-  if (doc.status === "cancelled" || doc.status === "void")
-    return { text: "Dibatalkan", tone: "muted" };
-  if (doc.status === "draft") return { text: "Draf", tone: "muted" };
-  if (doc.settlement_status === "paid") return { text: SETTLEMENT_LABELS.paid, tone: "ok" };
-  if (doc.is_overdue) return { text: "Jatuh tempo", tone: "warn" };
-  return { text: SETTLEMENT_LABELS[doc.settlement_status ?? "unpaid"], tone: "muted" };
-}
-
 export function InvoiceDocumentView({
   doc,
   receiptHref,
@@ -54,14 +53,19 @@ export function InvoiceDocumentView({
   receiptHref?: (receiptNumber: string) => string;
 }) {
   const { issuer, customer, payment_instructions: instructions } = doc;
-  const status = statusLabel(doc);
+  const status = invoiceDocumentStatus(doc);
   const showDiscount = doc.lines.some((line) => line.discount_type !== "none");
   const showTax = !Decimal.parse(doc.tax_total).isZero();
+  const showRefund = !Decimal.parse(doc.refunded).isZero();
   const brand = field(issuer, "brand_name") ?? field(issuer, "legal_name") ?? "Hikarich";
   const legal = field(issuer, "legal_name");
 
   return (
-    <article className="doc" aria-label={`Faktur ${doc.invoice_number ?? ""}`}>
+    <article
+      className="doc"
+      aria-label={`Faktur ${doc.invoice_number ?? ""}`}
+      data-watermark={doc.status === "void" ? "void" : undefined}
+    >
       <header className="doc-head">
         <div>
           <h1 className="doc-brand">{brand}</h1>
@@ -168,6 +172,12 @@ export function InvoiceDocumentView({
             <dd>{formatMoney(doc.settled, doc.currency)}</dd>
             <dt className="grand">Sisa tagihan</dt>
             <dd className="grand">{formatMoney(doc.outstanding, doc.currency)}</dd>
+          </>
+        ) : null}
+        {showRefund ? (
+          <>
+            <dt className="refund">Dikembalikan (refund)</dt>
+            <dd className="refund">{formatMoney(doc.refunded, doc.currency)}</dd>
           </>
         ) : null}
       </dl>
