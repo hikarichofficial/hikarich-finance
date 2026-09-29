@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import type { LoanDirection, LoanStatus } from "@/domain/financing/financing";
 import {
@@ -11,6 +10,7 @@ import {
 } from "@/domain/financing/loanList";
 import { LOAN_DIRECTION_LABELS } from "@/domain/financing/financing";
 import type { LoanRow } from "@/schemas/financing";
+import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -116,7 +116,30 @@ export function LoanRegisterScreen({
               return (
                 <tr key={row.loan_id}>
                   <td>
-                    <Link href={href}>{row.loan_number}</Link>
+                    <RecordPreviewLink
+                      href={href}
+                      label={row.loan_number}
+                      eyebrow="Pinjaman"
+                      title={row.loan_number}
+                      badges={
+                        overdueBadge
+                          ? [
+                              { tone: statusBadge.tone, text: statusBadge.text },
+                              { tone: overdueBadge.tone, text: overdueBadge.text },
+                            ]
+                          : [{ tone: statusBadge.tone, text: statusBadge.text }]
+                      }
+                      fields={[
+                        { label: "Arah", value: LOAN_DIRECTION_LABELS[row.direction] },
+                        { label: "Pihak", value: row.counterparty_name },
+                        { label: "Pokok", value: formatMoney(row.principal, currency) },
+                        { label: "Outstanding", value: formatMoney(row.outstanding, currency) },
+                        {
+                          label: "Jatuh Tempo Berikutnya",
+                          value: row.next_due_date ? formatShortDate(row.next_due_date) : "—",
+                        },
+                      ]}
+                    />
                   </td>
                   <td data-label="Arah">{LOAN_DIRECTION_LABELS[row.direction]}</td>
                   <td data-label="Pihak">{row.counterparty_name}</td>

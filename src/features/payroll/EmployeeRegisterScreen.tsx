@@ -1,4 +1,3 @@
-import Link from "next/link";
 import {
   EMPLOYMENT_TYPE_LABELS,
   type EmployeeStatus,
@@ -12,6 +11,7 @@ import {
   type EmploymentTypeFilterOption,
 } from "@/domain/payroll/employeeList";
 import type { EmployeeRow } from "@/schemas/payroll";
+import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -113,7 +113,20 @@ export function EmployeeRegisterScreen({
               return (
                 <tr key={row.id}>
                   <td>
-                    <Link href={href}>{row.employee_code}</Link>
+                    <RecordPreviewLink
+                      href={href}
+                      label={row.employee_code}
+                      eyebrow="Karyawan"
+                      title={row.employee_code}
+                      badges={[{ tone: badge.tone, text: badge.text }]}
+                      fields={[
+                        { label: "Nama", value: row.full_name },
+                        { label: "Jabatan", value: row.position_title },
+                        { label: "Departemen", value: row.department ?? "—" },
+                        { label: "Jenis", value: EMPLOYMENT_TYPE_LABELS[row.employment_type] },
+                        { label: "Tanggal Masuk", value: formatShortDate(row.join_date) },
+                      ]}
+                    />
                   </td>
                   <td data-label="Nama">{row.full_name}</td>
                   <td data-label="Jabatan">{row.position_title}</td>

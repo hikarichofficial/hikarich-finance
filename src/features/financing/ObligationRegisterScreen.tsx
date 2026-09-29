@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import type { ObligationKind, ObligationStatus } from "@/domain/financing/financing";
 import {
@@ -8,6 +7,7 @@ import {
   type ObligationStatusFilterOption,
 } from "@/domain/financing/obligationList";
 import type { ObligationRow } from "@/schemas/financing";
+import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -104,7 +104,23 @@ export function ObligationRegisterScreen({
               return (
                 <tr key={row.obligation_id}>
                   <td>
-                    <Link href={href}>{row.obligation_number}</Link>
+                    <RecordPreviewLink
+                      href={href}
+                      label={row.obligation_number}
+                      eyebrow={title}
+                      title={row.obligation_number}
+                      badges={[{ tone: statusBadge.tone, text: statusBadge.text }]}
+                      fields={[
+                        { label: "Pihak", value: row.counterparty_name },
+                        { label: "Tujuan", value: row.purpose },
+                        {
+                          label: "Jatuh Tempo",
+                          value: row.due_date ? formatShortDate(row.due_date) : "—",
+                        },
+                        { label: "Pokok", value: formatMoney(row.principal, currency) },
+                        { label: "Outstanding", value: formatMoney(row.outstanding, currency) },
+                      ]}
+                    />
                   </td>
                   <td data-label="Pihak">{row.counterparty_name}</td>
                   <td data-label="Tujuan">{row.purpose}</td>

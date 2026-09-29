@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import {
   ASSET_SOURCE_LABELS,
@@ -9,6 +8,7 @@ import {
 } from "@/domain/assets/assetList";
 import type { AssetRow } from "@/schemas/assets";
 import type { AssetStatus } from "@/domain/assets/assets";
+import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -101,7 +101,25 @@ export function AssetRegisterScreen({
               return (
                 <tr key={row.asset_id}>
                   <td>
-                    <Link href={href}>{row.asset_code}</Link>
+                    <RecordPreviewLink
+                      href={href}
+                      label={row.asset_code}
+                      eyebrow="Aset"
+                      title={row.asset_code}
+                      badges={[
+                        { tone: statusBadge.tone, text: statusBadge.text },
+                        { tone: conditionBadge.tone, text: conditionBadge.text },
+                      ]}
+                      fields={[
+                        { label: "Nama", value: row.name },
+                        {
+                          label: "Tanggal Perolehan",
+                          value: formatShortDate(row.acquisition_date),
+                        },
+                        { label: "Sumber", value: ASSET_SOURCE_LABELS[row.source_type] },
+                        { label: "Nilai Buku", value: formatMoney(row.net_book_value, currency) },
+                      ]}
+                    />
                   </td>
                   <td data-label="Nama">{row.name}</td>
                   <td data-label="Tanggal Perolehan">{formatShortDate(row.acquisition_date)}</td>

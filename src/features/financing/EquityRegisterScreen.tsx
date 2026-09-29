@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import {
   EQUITY_KIND_LABELS,
@@ -14,6 +13,7 @@ import {
   type EquityStatusFilterOption,
 } from "@/domain/financing/equityList";
 import type { EquityRow } from "@/schemas/financing";
+import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -117,7 +117,26 @@ export function EquityRegisterScreen({
               return (
                 <tr key={row.event_id}>
                   <td>
-                    <Link href={href}>{row.event_number}</Link>
+                    <RecordPreviewLink
+                      href={href}
+                      label={row.event_number}
+                      eyebrow="Modal & Ekuitas"
+                      title={row.event_number}
+                      badges={
+                        retainedBadge
+                          ? [
+                              { tone: statusBadge.tone, text: statusBadge.text },
+                              { tone: retainedBadge.tone, text: retainedBadge.text },
+                            ]
+                          : [{ tone: statusBadge.tone, text: statusBadge.text }]
+                      }
+                      fields={[
+                        { label: "Jenis", value: EQUITY_KIND_LABELS[row.kind] },
+                        { label: "Tanggal", value: formatShortDate(row.event_date) },
+                        { label: "Pihak", value: row.counterparty_name },
+                        { label: "Jumlah", value: formatMoney(row.amount, currency) },
+                      ]}
+                    />
                   </td>
                   <td data-label="Jenis">{EQUITY_KIND_LABELS[row.kind]}</td>
                   <td data-label="Tanggal">{formatShortDate(row.event_date)}</td>

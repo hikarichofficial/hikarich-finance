@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import { payrollPeriodName, type PayslipStatus } from "@/domain/payroll/payroll";
 import {
@@ -7,6 +6,7 @@ import {
   type PayslipStatusFilterOption,
 } from "@/domain/payroll/payslipList";
 import type { PayslipRow } from "@/schemas/payroll";
+import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -98,7 +98,25 @@ export function PayslipRegisterScreen({
               return (
                 <tr key={row.payslip_id}>
                   <td>
-                    <Link href={href}>{row.payslip_number}</Link>
+                    <RecordPreviewLink
+                      href={href}
+                      label={row.payslip_number}
+                      eyebrow="Slip Gaji"
+                      title={row.payslip_number}
+                      badges={[{ tone: badge.tone, text: badge.text }]}
+                      fields={[
+                        {
+                          label: "Karyawan",
+                          value: `${row.employee_code} — ${row.employee_name}`,
+                        },
+                        { label: "Periode", value: payrollPeriodName(`${row.period}-01`) },
+                        {
+                          label: "Diterbitkan",
+                          value: formatShortDate(row.issued_at.slice(0, 10)),
+                        },
+                        { label: "Gaji Bersih", value: formatMoney(row.net_pay, currency) },
+                      ]}
+                    />
                   </td>
                   <td data-label="Karyawan">
                     {row.employee_code} — {row.employee_name}
