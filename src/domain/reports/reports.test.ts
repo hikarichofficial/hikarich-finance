@@ -30,6 +30,10 @@ import {
   resolveReportRange,
   loanDueTotals,
   loanSummaryTotals,
+  payrollSummaryTotals,
+  payrollControlAccountLabel,
+  payrollControlRowBalanced,
+  payrollControlSummary,
   type AccountClass,
 } from "./reports";
 
@@ -635,5 +639,115 @@ describe("loanSummaryTotals", () => {
     expect(totals.closingPrincipal.toString()).toBe("0");
     expect(totals.interestPaid.toString()).toBe("0");
     expect(totals.feesPaid.toString()).toBe("0");
+  });
+});
+
+describe("payrollSummaryTotals", () => {
+  it("sums every non-masked column across runs", () => {
+    const rows = [
+      {
+        gross_pay: "50000000.0000",
+        tax_allowance: "1000000.0000",
+        employee_bpjs: "2000000.0000",
+        employer_bpjs: "3000000.0000",
+        pph21: "1500000.0000",
+        net_pay: "45000000.0000",
+        net_unpaid: "0.0000",
+        bpjs_unpaid: "5000000.0000",
+        pph21_period_outstanding: "1500000.0000",
+      },
+      {
+        gross_pay: "40000000.0000",
+        tax_allowance: "800000.0000",
+        employee_bpjs: "1500000.0000",
+        employer_bpjs: "2500000.0000",
+        pph21: "1000000.0000",
+        net_pay: "36000000.0000",
+        net_unpaid: "36000000.0000",
+        bpjs_unpaid: "0.0000",
+        pph21_period_outstanding: null,
+      },
+    ];
+    const totals = payrollSummaryTotals(rows);
+    expect(totals.grossPay.toString()).toBe("90000000.0000");
+    expect(totals.employeeBpjs.toString()).toBe("3500000.0000");
+    expect(totals.employerBpjs.toString()).toBe("5500000.0000");
+    expect(totals.netPay.toString()).toBe("81000000.0000");
+    expect(totals.netUnpaid.toString()).toBe("36000000.0000");
+    expect(totals.bpjsUnpaid.toString()).toBe("5000000.0000");
+    expect(totals.taxAllowance?.toString()).toBe("1800000.0000");
+    expect(totals.pph21?.toString()).toBe("2500000.0000");
+    expect(totals.pph21PeriodOutstanding?.toString()).toBe("1500000.0000");
+  });
+
+  it("returns null, not zero, for a masked column that is null on every row", () => {
+    const rows = [
+      {
+        gross_pay: "50000000.0000",
+        tax_allowance: null,
+        employee_bpjs: "2000000.0000",
+        employer_bpjs: "3000000.0000",
+        pph21: null,
+        net_pay: "45000000.0000",
+        net_unpaid: "0.0000",
+        bpjs_unpaid: "0.0000",
+        pph21_period_outstanding: null,
+      },
+    ];
+    const totals = payrollSummaryTotals(rows);
+    expect(totals.taxAllowance).toBeNull();
+    expect(totals.pph21).toBeNull();
+    expect(totals.pph21PeriodOutstanding).toBeNull();
+    expect(totals.grossPay.toString()).toBe("50000000.0000");
+  });
+
+  it("returns zero money totals and null masked totals for no rows", () => {
+    const totals = payrollSummaryTotals([]);
+    expect(totals.grossPay.toString()).toBe("0");
+    expect(totals.netPay.toString()).toBe("0");
+    expect(totals.taxAllowance).toBeNull();
+    expect(totals.pph21).toBeNull();
+    expect(totals.pph21PeriodOutstanding).toBeNull();
+  });
+});
+
+describe("payrollControlAccountLabel", () => {
+  it("labels the two known account keys", () => {
+    expect(payrollControlAccountLabel("PAYROLL_LIABILITY")).toBe("Utang Gaji Karyawan");
+    expect(payrollControlAccountLabel("BPJS_LIABILITY")).toBe("Utang BPJS");
+  });
+
+  it("falls back to the raw key for an unrecognized value", () => {
+    expect(payrollControlAccountLabel("SOMETHING_ELSE")).toBe("SOMETHING_ELSE");
+  });
+});
+
+describe("payrollControlSummary", () => {
+  it("counts nonzero differences as mismatches", () => {
+    const rows = [
+      { difference: "0.0000" },
+      { difference: "150000.0000" },
+      { difference: "-50000.0000" },
+    ];
+    const summary = payrollControlSummary(rows);
+    expect(summary.accountCount).toBe(3);
+    expect(summary.mismatchCount).toBe(2);
+  });
+
+  it("returns zero counts for no rows", () => {
+    const summary = payrollControlSummary([]);
+    expect(summary.accountCount).toBe(0);
+    expect(summary.mismatchCount).toBe(0);
+  });
+});
+
+describe("payrollControlRowBalanced", () => {
+  it("is true for a zero difference", () => {
+    expect(payrollControlRowBalanced({ difference: "0.0000" })).toBe(true);
+  });
+
+  it("is false for a nonzero difference, positive or negative", () => {
+    expect(payrollControlRowBalanced({ difference: "150000.0000" })).toBe(false);
+    expect(payrollControlRowBalanced({ difference: "-50000.0000" })).toBe(false);
   });
 });
