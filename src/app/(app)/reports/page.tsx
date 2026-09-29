@@ -12,12 +12,14 @@ import {
   runCustomReport,
 } from "@/services/reports/reports";
 import { listLedgerAccounts } from "@/services/accounting/ledger";
+import { loanSummary, loansDue } from "@/services/financing/financing";
 import {
   resolveAsOfDate,
   resolveCompareRange,
   resolveConsolidatedEntityIds,
   resolveCustomReportDataset,
   resolveGeneralLedgerAccount,
+  resolveLoanDueThrough,
   resolveReportRange,
 } from "@/domain/reports/reports";
 import type { ReportDatasetKey } from "@/schemas/reports";
@@ -35,6 +37,8 @@ const REPORT_STATEMENTS: readonly ReportStatement[] = [
   "gl",
   "custom",
   "consolidated",
+  "loans_due",
+  "loan_summary",
 ];
 
 function resolveStatement(value: string | undefined): ReportStatement {
@@ -61,7 +65,15 @@ function resolveStatement(value: string | undefined): ReportStatement {
  * loaded (`access.memberships`) and keeps only the ones the caller holds `reports.cross_entity` for, so the
  * Entity checkboxes only ever offer a selection `consolidated_cash_position` will accept -- the same
  * filter-before-offering shape the Custom Report Builder tab uses for datasets. Each selected Entity's own
- * base currency is looked up separately (the RPC returns none), never assumed to match the active Entity's. */
+ * base currency is looked up separately (the RPC returns none), never assumed to match the active Entity's.
+ * The Loans Due and Loan Summary tabs (decision 195, seventh increment) read the already-built `loansDue`/
+ * `loanSummary` wrappers (`@/services/financing/financing`, unused in a screen until now) -- unlike every
+ * other tab here, their own RPCs (`loan_due`/`loan_summary`) are gated by `loans.view`, not `reports.view`,
+ * and not every role holding `reports.view` also holds `loans.view` (the `tax` role is the one exception in
+ * the seed catalog, confirmed against `20260920100100_p2_permission_catalog.sql`) -- so this route checks
+ * `can(access, membership.entity_id, "loans.view")` before calling either RPC, the same "never surface a
+ * choice the RPC would reject with FORBIDDEN" rule the Custom Report Builder and Consolidated Analysis tabs
+ * already follow, and the screen renders a plain permission message instead of an error when it is false. */
 export default async function ReportsPage({
   searchParams,
 }: {
@@ -76,6 +88,7 @@ export default async function ReportsPage({
     compare_to?: string;
     dataset?: string;
     entities?: string | string[];
+    through?: string;
   }>;
 }) {
   const {
@@ -89,6 +102,7 @@ export default async function ReportsPage({
     compare_to,
     dataset,
     entities,
+    through: throughParam,
   } = await searchParams;
   const { access, membership } = await requirePermission("reports.view", { entityCode: entity });
   const statement = resolveStatement(statementParam);
@@ -157,6 +171,17 @@ export default async function ReportsPage({
     );
     const currencyByEntity = Object.fromEntries(currencyEntries);
     data = { statement, asOf, eligible, entityIds, rows, currencyByEntity };
+  } else if (statement === "loans_due") {
+    const through = resolveLoanDueThrough(throughParam);
+    const canView = can(access, membership.entity_id, "loans.view");
+    const rows = canView ? await loansDue({ entity_id: membership.entity_id, through }) : [];
+    data = { statement, through, canView, rows };
+  } else if (statement === "loan_summary") {
+    const canView = can(access, membership.entity_id, "loans.view");
+    const rows = canView
+      ? await loanSummary({ entity_id: membership.entity_id, from: range.from, to: range.to })
+      : [];
+    data = { statement, range, canView, rows };
   } else {
     const compareRange = resolveCompareRange(compare_from, compare_to);
     const rows = await getProfitAndLoss({

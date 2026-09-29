@@ -856,3 +856,24 @@ RPC, schema or service wrapper. `pnpm check`, `pnpm format:check` and `pnpm buil
 up from 608); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still
 deferred, per the fifth increment's own list minus this item: the Command Menu quick-create
 registry, the three Documents nav sub-routes, and Documents Center upload/download/detail.
+
+Part 4 seventh increment is implemented (DECISIONS 195): the Loans Due and Loan Summary reports, an
+eighth and ninth `/reports` tab over `loan_due`/`loan_summary` -- `loansDue`/`loanSummary` and their
+schemas already existed since P8, unused until now. Imported straight from the financing module
+into the Reports screen/route rather than duplicated into the reports schemas/services, the same
+shape the General Ledger tab already uses for `listLedgerAccounts`. Unlike every other Reports tab,
+these two RPCs are gated by `loans.view`, not `reports.view` -- the `tax` role holds the latter but
+not the former in the seed catalog -- so the route checks `can(access, membership.entity_id,
+"loans.view")` before calling either RPC and shows a plain permission message instead of an error
+when it is false, the same "never surface a choice the RPC would reject" rule the Custom Report
+Builder and Consolidated Analysis tabs already follow. New pure domain helpers
+`resolveLoanDueThrough` (mirrors `resolveAsOfDate`, but defaults to 30 days out, matching the RPC's
+own default) and `loanDueTotals`/`loanSummaryTotals` (grand-total rows, the same "already in each
+row" shape every other totals helper uses); Loan Summary's own period reuses `resolveReportRange`
+unchanged, needing no new helper. Both tables reuse `loanScheduleStateBadge`/`LOAN_DIRECTION_LABELS`
+from Loan Register/Detail unchanged, and each row links to the existing Loan Detail screen. No new
+RPC, schema or service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (622 tests,
+up from 616); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still
+deferred, per the sixth increment's own list minus this item: the Command Menu quick-create
+registry, the three Documents nav sub-routes, Documents Center upload/download/detail, and the
+Payroll Summary/Control and Fiscal asset reports.

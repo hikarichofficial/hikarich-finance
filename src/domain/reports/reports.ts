@@ -524,3 +524,87 @@ export function consolidatedCashPositionTotals(
   const totalCashBalance = sumDecimals(rows.map((r) => Decimal.parse(r.cash_balance)));
   return { entityCount, totalCashBalance };
 }
+
+// ================================================================ Loans Due / Loan Summary (P13 Part 4, seventh increment)
+
+/** Loans Due's own `through` filter (Step 12 §17, `loan_due`'s own comment: "installments falling due
+ * (default: the next 30 days)"). Mirrors `resolveAsOfDate`'s own "invalid or missing falls back to
+ * something sensible" shape, but the sensible default here is `reference` plus 30 days, matching the RPC's
+ * own `coalesce(p_through, entity_today(p_entity) + 30)` default (`20260926100700_p8_loans_reports.sql`)
+ * rather than `reference` itself -- a Loans Due screen opened with no filter should show what is coming due
+ * soon, not only what is due exactly today. */
+export function resolveLoanDueThrough(
+  requested: string | undefined,
+  reference: Date = new Date(),
+): string {
+  if (requested && ISO_DATE_PATTERN.test(requested)) return requested;
+  const through = new Date(reference);
+  through.setUTCDate(through.getUTCDate() + 30);
+  return toIsoDate(through);
+}
+
+export interface LoanDueTotals {
+  principalOutstanding: Decimal;
+  interestOutstanding: Decimal;
+  feeOutstanding: Decimal;
+  overdueCount: number;
+}
+
+/** The grand-total row under a Loans Due table -- a display-only sum of exactly the per-installment
+ * `principal_outstanding`/`interest_outstanding`/`fee_outstanding` figures `loan_due` already returned,
+ * never a second aggregation, the same "already in each row" shape `generalLedgerTotals`/`customReportTotals`
+ * already use. `overdueCount` is a plain count of the RPC's own `overdue` flag, for the summary line --
+ * `loan_due` already orders overdue installments first, this only counts how many there are. */
+export function loanDueTotals(
+  rows: readonly {
+    principal_outstanding: string;
+    interest_outstanding: string;
+    fee_outstanding: string;
+    overdue: boolean;
+  }[],
+): LoanDueTotals {
+  return {
+    principalOutstanding: sumDecimals(rows.map((r) => Decimal.parse(r.principal_outstanding))),
+    interestOutstanding: sumDecimals(rows.map((r) => Decimal.parse(r.interest_outstanding))),
+    feeOutstanding: sumDecimals(rows.map((r) => Decimal.parse(r.fee_outstanding))),
+    overdueCount: rows.filter((r) => r.overdue).length,
+  };
+}
+
+export interface LoanSummaryTotals {
+  openingPrincipal: Decimal;
+  proceeds: Decimal;
+  principalRepaid: Decimal;
+  principalWrittenOff: Decimal;
+  closingPrincipal: Decimal;
+  interestPaid: Decimal;
+  feesPaid: Decimal;
+}
+
+/** The grand-total row under a Loan Summary table -- a display-only sum of exactly the per-loan
+ * `opening_principal`/`proceeds`/`principal_repaid`/`principal_written_off`/`closing_principal`/
+ * `interest_paid`/`fees_paid` figures `loan_summary` already returned, the same "already in each row, never
+ * a second aggregation" shape every other totals helper here uses. The period itself (`from`/`to`) reuses
+ * `resolveReportRange` unchanged -- `loan_summary` takes a plain mandatory period, the same shape Equity and
+ * Cash Flow already use, so no new range-resolving helper is needed for it. */
+export function loanSummaryTotals(
+  rows: readonly {
+    opening_principal: string;
+    proceeds: string;
+    principal_repaid: string;
+    principal_written_off: string;
+    closing_principal: string;
+    interest_paid: string;
+    fees_paid: string;
+  }[],
+): LoanSummaryTotals {
+  return {
+    openingPrincipal: sumDecimals(rows.map((r) => Decimal.parse(r.opening_principal))),
+    proceeds: sumDecimals(rows.map((r) => Decimal.parse(r.proceeds))),
+    principalRepaid: sumDecimals(rows.map((r) => Decimal.parse(r.principal_repaid))),
+    principalWrittenOff: sumDecimals(rows.map((r) => Decimal.parse(r.principal_written_off))),
+    closingPrincipal: sumDecimals(rows.map((r) => Decimal.parse(r.closing_principal))),
+    interestPaid: sumDecimals(rows.map((r) => Decimal.parse(r.interest_paid))),
+    feesPaid: sumDecimals(rows.map((r) => Decimal.parse(r.fees_paid))),
+  };
+}

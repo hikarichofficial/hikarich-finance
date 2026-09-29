@@ -3,6 +3,8 @@ import { formatMoney } from "@/domain/money/format";
 import type { Decimal } from "@/domain/money/decimal";
 import { ENTRY_TYPE_LABELS } from "@/domain/accounting/journalList";
 import { entityLabel } from "@/domain/authz/access";
+import { LOAN_DIRECTION_LABELS } from "@/domain/financing/financing";
+import { loanScheduleStateBadge } from "@/domain/financing/loanList";
 import {
   BALANCE_SHEET_SECTION_ORDER,
   CASH_FLOW_BUCKET_LABELS,
@@ -17,6 +19,8 @@ import {
   generalLedgerTotals,
   groupByAccountClass,
   hasPnlComparison,
+  loanDueTotals,
+  loanSummaryTotals,
   pnlCompareAmount,
   pnlCompareNetIncome,
   pnlCompareSubtotal,
@@ -35,12 +39,21 @@ import type {
   ProfitAndLossRow,
   ReportDatasetCatalogRow,
 } from "@/schemas/reports";
+import type { LoanDueRow, LoanSummaryRow } from "@/schemas/financing";
 import type { LedgerAccountRow } from "@/schemas/accounting";
 import type { Membership } from "@/schemas/access";
 import { formatShortDate } from "./format";
 
 export type ReportStatement =
-  "pnl" | "balance_sheet" | "equity" | "cashflow" | "gl" | "custom" | "consolidated";
+  | "pnl"
+  | "balance_sheet"
+  | "equity"
+  | "cashflow"
+  | "gl"
+  | "custom"
+  | "consolidated"
+  | "loans_due"
+  | "loan_summary";
 
 export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: string }[] = [
   { value: "pnl", label: "Laba Rugi" },
@@ -50,6 +63,8 @@ export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: st
   { value: "gl", label: "Buku Besar" },
   { value: "custom", label: "Laporan Kustom" },
   { value: "consolidated", label: "Analisis Konsolidasi" },
+  { value: "loans_due", label: "Pinjaman Jatuh Tempo" },
+  { value: "loan_summary", label: "Ringkasan Pinjaman" },
 ];
 
 export type ReportsData =
@@ -83,6 +98,13 @@ export type ReportsData =
       entityIds: readonly string[];
       rows: readonly ConsolidatedCashPositionRow[];
       currencyByEntity: Readonly<Record<string, string>>;
+    }
+  | { statement: "loans_due"; through: string; canView: boolean; rows: readonly LoanDueRow[] }
+  | {
+      statement: "loan_summary";
+      range: ReportDateRange;
+      canView: boolean;
+      rows: readonly LoanSummaryRow[];
     };
 
 function buildTabHref(entity: string | undefined, statement: ReportStatement): string {
@@ -109,11 +131,19 @@ function buildTabHref(entity: string | undefined, statement: ReportStatement): s
  * list Entities the caller holds `reports.cross_entity` for, and its per-row cash balance is formatted with
  * that Entity's own base currency (looked up in the route, `currencyByEntity`) rather than the active
  * Entity's -- Company and Personal books are never merged, and a grand total is only ever shown when every
- * selected Entity happens to share one base currency. The other Reports nav sub-items (Sales/Purchase, a
- * standalone Cashflow view, Tax, Payroll, Assets/Loans, Saved Reports) have no P12 RPC behind them yet and
- * fall through to the `[...slug]` "coming soon" placeholder (decision 157's precedent) until one exists.
- * Every figure here is the database's own debit/credit, re-signed once via `naturalAmount`
- * (`@/domain/reports`) -- never a second computation of the same fact.
+ * selected Entity happens to share one base currency. The Loans Due and Loan Summary tabs (decision 195,
+ * seventh increment) wire the already-built `loan_due`/`loan_summary` RPCs (P8, unused in a screen until
+ * now) straight in, following the same "no new RPC, schema or service wrapper" shape every Part 4 increment
+ * has used -- `LoanDueRow`/`LoanSummaryRow` and the `loansDue`/`loanSummary` service wrappers are imported
+ * directly from `@/schemas/financing`/`@/services/financing/financing` rather than duplicated into the
+ * reports module, exactly like the General Ledger tab already imports `listLedgerAccounts`/`LedgerAccountRow`
+ * from the accounting module. Loans Due reuses `loanScheduleStateBadge`/`LOAN_DIRECTION_LABELS` unchanged
+ * from Loan Detail/Register (decisions 172/174) so the same installment can never show a different state or
+ * direction label depending on which screen it is viewed from; each row links to the existing Loan Detail
+ * screen. The other Reports nav sub-items (Sales/Purchase, a standalone Cashflow view, Tax, Payroll, Saved
+ * Reports) have no P12 RPC behind them yet and fall through to the `[...slug]` "coming soon" placeholder
+ * (decision 157's precedent) until one exists. Every figure here is the database's own debit/credit,
+ * re-signed once via `naturalAmount` (`@/domain/reports`) -- never a second computation of the same fact.
  */
 export function ReportsScreen({
   data,
@@ -186,6 +216,22 @@ export function ReportsScreen({
           currencyByEntity={data.currencyByEntity}
         />
       ) : null}
+      {data.statement === "loans_due" ? (
+        <LoansDueTable
+          rows={data.rows}
+          canView={data.canView}
+          currency={currency}
+          entity={entity}
+        />
+      ) : null}
+      {data.statement === "loan_summary" ? (
+        <LoanSummaryTable
+          rows={data.rows}
+          canView={data.canView}
+          currency={currency}
+          entity={entity}
+        />
+      ) : null}
     </div>
   );
 }
@@ -242,6 +288,11 @@ function RangeForm({ data, entity }: { data: ReportsData; entity: string | undef
         <label>
           Per tanggal
           <input type="date" name="as_of" defaultValue={data.asOf} />
+        </label>
+      ) : data.statement === "loans_due" ? (
+        <label>
+          Sampai Tanggal
+          <input type="date" name="through" defaultValue={data.through} />
         </label>
       ) : (
         <>
@@ -803,6 +854,191 @@ function ConsolidatedAnalysisTable({
               ? formatMoney(totals.totalCashBalance.toString(), currencyByEntity[rows[0].entity_id])
               : "— (mata uang berbeda)"}
           </td>
+        </tr>
+      </tfoot>
+    </table>
+  );
+}
+
+function loanHref(entity: string | undefined, loanId: string): string {
+  return entity
+    ? `/assets/loans/${loanId}?entity=${encodeURIComponent(entity)}`
+    : `/assets/loans/${loanId}`;
+}
+
+function LoansDueTable({
+  rows,
+  canView,
+  currency,
+  entity,
+}: {
+  rows: readonly LoanDueRow[];
+  canView: boolean;
+  currency: string;
+  entity: string | undefined;
+}) {
+  if (!canView) {
+    return (
+      <div className="list-empty">
+        <p>Anda tidak memiliki izin untuk melihat laporan pinjaman.</p>
+      </div>
+    );
+  }
+  if (rows.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada cicilan yang jatuh tempo pada rentang ini.</p>
+      </div>
+    );
+  }
+  const totals = loanDueTotals(rows);
+  return (
+    <table className="record-table">
+      <thead>
+        <tr>
+          <th scope="col">No. Pinjaman</th>
+          <th scope="col">Arah</th>
+          <th scope="col">Pihak</th>
+          <th scope="col">Cicilan Ke</th>
+          <th scope="col">Jatuh Tempo</th>
+          <th scope="col" className="num">
+            Pokok Tertunggak
+          </th>
+          <th scope="col" className="num">
+            Bunga Tertunggak
+          </th>
+          <th scope="col" className="num">
+            Biaya Tertunggak
+          </th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => {
+          const badge = loanScheduleStateBadge(row.state, row.overdue);
+          return (
+            <tr key={`${row.loan_id}-${row.seq}`}>
+              <td>
+                <Link href={loanHref(entity, row.loan_id)}>{row.loan_number}</Link>
+              </td>
+              <td>{LOAN_DIRECTION_LABELS[row.direction]}</td>
+              <td>{row.counterparty_name}</td>
+              <td>{row.seq}</td>
+              <td>
+                {formatShortDate(row.due_date)}
+                {row.overdue ? ` (${row.days_overdue} hari)` : null}
+              </td>
+              <td className="num">{formatMoney(row.principal_outstanding, currency)}</td>
+              <td className="num">{formatMoney(row.interest_outstanding, currency)}</td>
+              <td className="num">{formatMoney(row.fee_outstanding, currency)}</td>
+              <td>
+                <span className={`status-badge status-badge-${badge.tone}`}>{badge.text}</span>
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row" colSpan={5}>
+            Total ({totals.overdueCount} terlambat)
+          </th>
+          <td className="num">{formatMoney(totals.principalOutstanding.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.interestOutstanding.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.feeOutstanding.toString(), currency)}</td>
+          <td />
+        </tr>
+      </tfoot>
+    </table>
+  );
+}
+
+function LoanSummaryTable({
+  rows,
+  canView,
+  currency,
+  entity,
+}: {
+  rows: readonly LoanSummaryRow[];
+  canView: boolean;
+  currency: string;
+  entity: string | undefined;
+}) {
+  if (!canView) {
+    return (
+      <div className="list-empty">
+        <p>Anda tidak memiliki izin untuk melihat laporan pinjaman.</p>
+      </div>
+    );
+  }
+  if (rows.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada pinjaman pada periode ini.</p>
+      </div>
+    );
+  }
+  const totals = loanSummaryTotals(rows);
+  return (
+    <table className="record-table">
+      <thead>
+        <tr>
+          <th scope="col">No. Pinjaman</th>
+          <th scope="col">Arah</th>
+          <th scope="col">Pihak</th>
+          <th scope="col" className="num">
+            Pokok Awal
+          </th>
+          <th scope="col" className="num">
+            Pencairan
+          </th>
+          <th scope="col" className="num">
+            Pokok Dibayar
+          </th>
+          <th scope="col" className="num">
+            Pokok Dihapusbukukan
+          </th>
+          <th scope="col" className="num">
+            Pokok Akhir
+          </th>
+          <th scope="col" className="num">
+            Bunga Dibayar
+          </th>
+          <th scope="col" className="num">
+            Biaya Dibayar
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.loan_id}>
+            <td>
+              <Link href={loanHref(entity, row.loan_id)}>{row.loan_number}</Link>
+            </td>
+            <td>{LOAN_DIRECTION_LABELS[row.direction]}</td>
+            <td>{row.counterparty_name}</td>
+            <td className="num">{formatMoney(row.opening_principal, currency)}</td>
+            <td className="num">{formatMoney(row.proceeds, currency)}</td>
+            <td className="num">{formatMoney(row.principal_repaid, currency)}</td>
+            <td className="num">{formatMoney(row.principal_written_off, currency)}</td>
+            <td className="num">{formatMoney(row.closing_principal, currency)}</td>
+            <td className="num">{formatMoney(row.interest_paid, currency)}</td>
+            <td className="num">{formatMoney(row.fees_paid, currency)}</td>
+          </tr>
+        ))}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row" colSpan={3}>
+            Total
+          </th>
+          <td className="num">{formatMoney(totals.openingPrincipal.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.proceeds.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.principalRepaid.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.principalWrittenOff.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.closingPrincipal.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.interestPaid.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.feesPaid.toString(), currency)}</td>
         </tr>
       </tfoot>
     </table>
