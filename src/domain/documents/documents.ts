@@ -81,3 +81,23 @@ export function documentTargetTypesLabel(targetTypes: readonly string[]): string
     .map((t) => DOCUMENT_TARGET_TYPE_LABELS[t as DocumentTargetType] ?? t)
     .join(", ");
 }
+
+// ================================================================ Uploads / Linked Evidence sub-routes (P13 Part 4, tenth increment)
+
+export type DocumentLinkStatus = "unlinked" | "linked";
+
+/** `list_documents`'s own `link_count` (P13 Part 4, tenth increment) already distinguishes a raw upload
+ * nothing has been linked to yet from evidence actually attached to a record -- the exact concepts the
+ * nav's own "Uploads" and "Linked Evidence" sub-routes name (`src/domain/shell/navigation.ts`). This is a
+ * plain display filter over an already permission-scoped, already-fetched page (the same "client-side
+ * filter over what the RPC already returned" shape the Depreciation report's own `?q=` search and the
+ * base Documents Center screen's `formatDocumentSize` already use), never a second permission check or an
+ * independent financial computation. Because `list_documents` only returns unlinked rows when no
+ * `target_type` filter is requested (an unlinked document has none of its own), the Uploads route never
+ * sends one -- filtering a type-filtered page down to "unlinked" would always come back empty. */
+export function filterDocumentsByLinkStatus<T extends { link_count: number }>(
+  rows: readonly T[],
+  status: DocumentLinkStatus,
+): T[] {
+  return rows.filter((row) => (status === "unlinked" ? row.link_count === 0 : row.link_count > 0));
+}

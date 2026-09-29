@@ -924,3 +924,32 @@ service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (643 te
 eighth increment's own list minus these two items: the Command Menu quick-create registry, the three
 Documents nav sub-routes, Documents Center upload/download/detail, and the Asset Movement/Disposal
 Report (no dedicated RPC yet -- new backend work).
+
+Part 4 tenth increment is implemented (DECISIONS 198): the Documents Center's `/documents/uploads`
+("Unggahan Belum Ditautkan") and `/documents/evidence` ("Bukti Tertaut") sub-routes, both already
+declared in the nav but previously falling through to the "coming soon" placeholder since their exact
+semantics were unstated anywhere in this repository. Two scoping questions were put to the OWNER first:
+Command Menu quick-create (OWNER chose the 4-item registry limited to the four existing `/new` routes,
+a separate increment, not yet built) and Documents Center scope (OWNER's free-text answer, "harus di
+selesaikan", did not match either offered option). Resolved as far as the schema itself grounds an
+answer: `list_documents` already returns `link_count` per document, which distinguishes a raw upload
+nothing has been linked to yet (`link_count = 0`) from evidence attached to a real record
+(`link_count > 0`) -- exactly what the nav's own "Uploads"/"Linked Evidence" labels already name. New
+pure domain helper: `filterDocumentsByLinkStatus`, a plain display filter over an already
+permission-scoped, already-fetched page (never a second permission check or financial computation).
+`list_documents`'s own WHERE clause returns an unlinked document only when no `target_type` filter is
+supplied, so `/documents/uploads` never sends one and hides its filter-tab row entirely rather than
+offering a combination that would always come back empty. `DocumentsListScreen` was generalized with
+four optional props (`basePath`, `title`, `showTargetTypeFilter`, `hasMore`), all defaulting to the
+exact prior `/documents` behavior, instead of two near-duplicate screens. Filtering the fetched page
+client-side by link status meant "Berikutnya" needed its own fix: both new routes compute `hasMore`
+from the _raw_ fetched page length before filtering, passed down as an explicit prop, so pagination
+keeps reflecting the RPC's real windowing even though the displayed row count shrinks. The third
+declared sub-route, `/documents/archive`, stays deferred with a precise reason: `supersedes_document_id`
+exists on the table but no RPC, including `list_documents`, ever reads or returns it -- there is no way
+to render a supersession chain without new backend work. No new RPC, schema or service wrapper for
+Uploads/Evidence themselves. `pnpm check`, `pnpm format:check` and `pnpm build` pass (646 tests, up
+from 643); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred, per
+the ninth increment's own list minus this item: the Command Menu quick-create registry (OWNER-approved
+4-item scope, not yet built), the `/documents/archive` sub-route, Documents Center upload/download/
+detail, and the Asset Movement/Disposal Report.
