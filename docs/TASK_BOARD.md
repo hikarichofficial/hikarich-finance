@@ -1228,3 +1228,48 @@ now that the actual spec text is being read directly going forward. Still deferr
 view/template (Part 3-scope), Step 11 §23's named component primitives, the `.list-empty` CTA gap, Dashboard
 Personalization, touch-target sizing against a concrete number, and the rest of the polish pass
 (micro-interactions).
+
+Reusable-primitive audit (DECISIONS 214): per the OWNER's "pastikan bahwa P13 selesai dengan baik"
+instruction, this session audited the codebase directly against Step 09 §28's and Step 10 §26's own named
+primitive lists rather than assuming P13 Parts 1-4 already covered them, since Step 15 §17's own P13 gate
+names "drawers" as an explicit completion criterion. Found present, as consistent CSS-class-plus-JSX
+conventions rather than literal named components (this codebase's established style throughout, same as
+`record-table-stacked` and the focus-visible rule): PageHeader, StatusBadge, CommandMenu (⌘K), EntitySwitcher,
+a functional FilterBar-equivalent (search + status filter, no saved views/export yet), and ConfirmAction (met
+by the shared `ReasonForm` inline reason-required confirm, not a literal modal). Found genuinely missing, not
+just differently implemented: Global Search (Step 09 §6/§28) -- `CommandMenu.tsx`'s own doc comment already
+states search-across-records stays unwired, even though the backend RPC (`public.search`, P11) has existed
+since P11; and Drawer (Step 09 §2/§9/§27/§28, Step 10 §19/§26) -- no `.drawer` CSS, no component, every List
+screen links straight to a full Detail page instead of a quick-preview side drawer. DetailTabs (Step 09
+§10/§28) is a third, softer gap: Detail screens stack their sections on one page in the spec's own order
+rather than as interactive tabs. No code changed in this increment -- retrofitting Drawer/Global Search would
+touch most of the ~30 List/Detail screen pairs already shipped across P3-P12, which is new frontend scope
+rather than CSS-only polish, so per this project's own standing rule that a user-workflow change goes to the
+OWNER as a question, this was surfaced for a decision rather than built or silently deferred unilaterally.
+
+Drawer + Global Search primitives (DECISIONS 215): the OWNER chose "Bangun penuh: Drawer + Global Search" --
+build both fully. This increment ships the two shared primitives; retrofitting them onto the ~30 already-
+shipped List screens is planned as two further PRs grouped by module, at the OWNER's own request to reduce
+the number of merges needed, rather than one PR per screen. `Drawer` (`src/features/shell/Drawer.tsx`): a
+generic right-side panel, Escape/backdrop-click to close, focus moved in on open, a one-shot slide-in
+`animation` (Step 10 §8) disabled outright under `prefers-reduced-motion: reduce`. `RecordPreviewLink`
+(`src/features/shell/RecordPreviewLink.tsx`): the List-row Quick Preview pattern (Step 09 §9) built on
+`Drawer`, deliberately zero-network -- every prop is data the row's own table already renders, so using it
+on a screen is a presentational change only. The underlying link stays real (⌘/Ctrl/Shift/Alt-click or
+middle-click still opens the full Detail page in a new tab), and the Drawer always offers a "Lihat Detail
+Lengkap" link to it -- the full Summary/Activity/Accounting/Tax/Documents/Audit page (Step 09 §10) is
+unchanged and still the place for deep work.
+
+Global Search needed far less new work than decision 214 implied: P11 had already shipped the backend RPC
+and a typed service wrapper end-to-end (`public.search`, `src/services/search/search.ts`,
+`src/schemas/search.ts`, `SEARCH_TARGET_TYPE_LABELS`) -- only the UI wiring was missing. A new
+`searchRecordsAction` server action is a thin call-site for that existing service; `CommandMenu.tsx` now
+debounces the query (250ms, 2-character floor matching the RPC's own), drops out-of-order responses via a
+ref, and shows results in a second, separately-labelled section below navigation/quick-create per Step 13
+§17's own "Command Menu navigation/action search remains separate from financial content search." A new
+`searchResultHref` (`src/domain/search/routes.ts`, unit-tested) routes 7 of the 9 indexed kinds to their
+Detail page; `contact` and `expense` render as plain, non-clickable rows since neither has a Detail screen
+yet (Sales/Purchases screens still remaining, decisions 286/290/294) -- documented rather than guessed
+around, the same choice this project already makes elsewhere. No RPC, schema, migration or service file
+changed; `pnpm check`, `pnpm format:check`, `pnpm build` pass (658 tests, +3) and `pnpm db:test`'s schema
+fingerprint stays `5335133e42e3`.

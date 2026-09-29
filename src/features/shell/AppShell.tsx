@@ -138,6 +138,7 @@ export function AppShell({ access, children }: { access: AccessSnapshot; childre
         onClose={() => setCommandOpen(false)}
         groups={navigation}
         quickCreate={quickCreate}
+        entityId={membership.entity_id}
       />
     </div>
   );
