@@ -538,6 +538,120 @@ body {
   border-radius: 16px;
 }
 
+/* Step 11 §22 (Responsive Rules), read with §8's own note that "on mobile, Total/Outstanding and primary
+ * CTA remain easy to find without horizontal table scrolling." Desktop and Tablet already get §22's "single
+ * primary document column, actions remain visible" for free from `.doc-page`'s existing centred
+ * single-column width and `.doc-actions`'s top placement, so only a Mobile breakpoint is added here; it
+ * uses the app's own `max-width: 640px` convention (matches the shell's own mobile breakpoint above). Since
+ * `.doc-actions`/`.print-button` are the surrounding chrome, not the document body, they keep following the
+ * app's own theme-aware tokens exactly as they already did (Step 11 §8). */
+@media (max-width: 640px) {
+  .doc-page {
+    padding: 12px 12px 96px;
+  }
+
+  /* Print/download (and, on the receipt page, "back to invoice") stay reachable without scrolling back up
+   * through a long document -- §22's own "easy copy/download." */
+  .doc-actions {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 10px 0;
+    background: var(--background);
+  }
+
+  .doc {
+    padding: 20px 16px;
+  }
+
+  .doc-head,
+  .doc-meta {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .doc-title {
+    text-align: left;
+  }
+
+  .doc dl {
+    grid-template-columns: 1fr;
+    gap: 2px 0;
+  }
+
+  .doc dd {
+    margin-bottom: 8px;
+    text-align: left;
+  }
+
+  /* Line-item table becomes stacked cards, one per item: the description stays a full-width heading line,
+   * every other cell reads its column header back via `data-label` (set in `InvoiceDocumentView.tsx`) so
+   * nothing is ever cut off or needs horizontal scrolling to read (§8, §22 Mobile: "stacked item rows"). */
+  .doc-lines thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .doc-lines,
+  .doc-lines tbody,
+  .doc-lines tr,
+  .doc-lines td {
+    display: block;
+    width: 100%;
+  }
+
+  .doc-lines tr {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--doc-line);
+  }
+
+  .doc-lines td {
+    padding: 2px 0;
+    border-bottom: 0;
+    text-align: left;
+  }
+
+  .doc-lines td:first-child {
+    padding-top: 0;
+    font-weight: 600;
+  }
+
+  .doc-lines td[data-label] {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .doc-lines td[data-label]::before {
+    content: attr(data-label);
+    font-weight: 400;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--doc-text-secondary);
+  }
+
+  .doc-totals {
+    width: 100%;
+  }
+
+  /* Sticky, full-width, unmissable payment CTA (§22 Mobile: "sticky/obvious payment CTA") -- reachable
+   * without hunting back down through a long invoice once the claim form has scrolled into view. */
+  .doc-claim .form button[type="submit"] {
+    position: sticky;
+    bottom: 12px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+  }
+}
+
 /*
  * Application shell — Step 09 §2 (Global Application Shell), §4 (Sidebar Behavior), §6-§7
  * (Global Search / Command Menu), Step 10 §7 (glass is selective: navigation/command surfaces

@@ -15,6 +15,13 @@ import type { InvoiceDocument } from "@/schemas/sales";
  * Partial/Paid/Overdue/Void"), so a customer could in principle see a different status word than the staff
  * screens showing the exact same invoice. `.doc-status-{tone}` (`globals.css`) is keyed on `InvoiceListTone`
  * directly now, so no local ok/warn/muted translation is needed either.
+ *
+ * The line-item cells (except the description, which stays an unlabelled full-width heading) carry a
+ * `data-label` attribute (P13 Part 5, second increment; Step 11 §8, §22): unused on desktop/tablet, but on
+ * a narrow screen `globals.css`'s mobile breakpoint turns each `<tr>` into a stacked card and reads the
+ * label back out via `content: attr(data-label)`, so the line-item table never needs horizontal scrolling
+ * to be read (§8: "Total/Outstanding and primary CTA remain easy to find without horizontal table
+ * scrolling").
  */
 
 type Party = Record<string, unknown> | null | undefined;
@@ -134,16 +141,22 @@ export function InvoiceDocumentView({
           {doc.lines.map((line) => (
             <tr key={line.line_no}>
               <td>{line.description}</td>
-              <td className="num">{formatPlain(line.quantity)}</td>
-              <td className="num">{formatMoneyExact(line.unit_price, doc.currency)}</td>
+              <td className="num" data-label="Jumlah">
+                {formatPlain(line.quantity)}
+              </td>
+              <td className="num" data-label="Harga">
+                {formatMoneyExact(line.unit_price, doc.currency)}
+              </td>
               {showDiscount ? (
-                <td className="num">
+                <td className="num" data-label="Diskon">
                   {line.discount_type === "none"
                     ? "—"
                     : formatMoney(line.discount_amount, doc.currency)}
                 </td>
               ) : null}
-              <td className="num">{formatMoney(line.line_total, doc.currency)}</td>
+              <td className="num" data-label="Total">
+                {formatMoney(line.line_total, doc.currency)}
+              </td>
             </tr>
           ))}
         </tbody>

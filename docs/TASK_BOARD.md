@@ -1000,3 +1000,28 @@ tests, up from 653); `pnpm db:test` passes (schema fingerprint unchanged at `533
 the Refund Receipt view/template, Step 11 §23's named component primitives, the Public Invoice Page's
 responsive/mobile treatment and "Saya Sudah Bayar" field audit, and the broader responsive/accessibility/
 motion polish pass across every other P13 part.
+
+Part 5's second increment (DECISIONS 201): the Public Invoice/Receipt page's own Mobile treatment,
+Step 11 §22, read with §8's own "no horizontal table scrolling" note. Desktop and Tablet already matched
+§22's wording from the existing `.doc-page`/`.doc-actions` layout -- confirmed by inspection, not
+assumed -- so only a `max-width: 640px` breakpoint was added. Three changes: (1) the line-item table
+becomes stacked cards under 640px (each `<tr>` a block, the description an unlabelled full-width
+heading, every other cell reading its own column header back via a new `data-label` attribute plus
+`content: attr(data-label)`) so nothing needs horizontal scrolling to read; the Receipt view needed no
+change since its only tabular content is a `<dl>`/`<ul>` that already stacks once `.doc-head`/`.doc-meta`
+switch to a column. (2) `.doc-actions` (print/download, and the receipt page's "back to invoice" link)
+becomes `position: sticky; top: 0` so it stays reachable without scrolling back up. (3) the claim form's
+submit button becomes `position: sticky; bottom: 12px`, full width, with a shadow, so the payment CTA
+stays obvious once the form is in view. All CSS-only plus one markup attribute; a page-wide fixed bottom
+bar was considered and rejected as a bigger redesign than the spec calls for. Two related audits,
+resulting in no code change, are recorded rather than left undocumented: "Saya Sudah Bayar"
+(`PublicClaimForm.tsx`)'s five fields were checked against Step 11 §9 and against
+`public_submit_payment_claim`'s own RPC signature and found already fully compliant for everything the
+backend can accept -- §9's own payment-source field and proof-upload are genuine backend gaps, not
+frontend oversights. `invoice_document`'s full JSON return was checked against Step 11 §16's
+customer-vs-internal table and confirmed already compliant by construction (no journal ID, tax-engine
+trace, staff note or database ID is ever included). No new RPC, schema, service wrapper or test file (a
+pure CSS/markup increment). `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests,
+unchanged); `pnpm db:test` passes (schema fingerprint unchanged at `5335133e42e3`). Still deferred: the
+Refund Receipt view/template, Step 11 §23's named component primitives, §9's backend-blocked fields, and
+the broader responsive/accessibility/motion polish pass across every other P13 part.
