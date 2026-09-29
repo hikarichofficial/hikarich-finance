@@ -26,7 +26,10 @@ import {
   resolveConsolidatedEntityIds,
   resolveCustomReportDataset,
   resolveGeneralLedgerAccount,
+  resolveLoanDueThrough,
   resolveReportRange,
+  loanDueTotals,
+  loanSummaryTotals,
   type AccountClass,
 } from "./reports";
 
@@ -537,5 +540,100 @@ describe("consolidatedCashPositionTotals", () => {
     const totals = consolidatedCashPositionTotals([], {});
     expect(totals.entityCount).toBe(0);
     expect(totals.totalCashBalance?.toString()).toBe("0");
+  });
+});
+
+describe("resolveLoanDueThrough", () => {
+  const reference = new Date("2026-09-28T12:00:00Z");
+
+  it("falls back to 30 days past reference when missing or invalid", () => {
+    expect(resolveLoanDueThrough(undefined, reference)).toBe("2026-10-28");
+    expect(resolveLoanDueThrough("not-a-date", reference)).toBe("2026-10-28");
+  });
+
+  it("keeps a valid requested date", () => {
+    expect(resolveLoanDueThrough("2026-12-31", reference)).toBe("2026-12-31");
+  });
+});
+
+describe("loanDueTotals", () => {
+  it("sums outstanding principal/interest/fee and counts overdue rows", () => {
+    const rows = [
+      {
+        principal_outstanding: "1000000.0000",
+        interest_outstanding: "50000.0000",
+        fee_outstanding: "10000.0000",
+        overdue: true,
+      },
+      {
+        principal_outstanding: "500000.0000",
+        interest_outstanding: "20000.0000",
+        fee_outstanding: "0.0000",
+        overdue: false,
+      },
+      {
+        principal_outstanding: "250000.0000",
+        interest_outstanding: "5000.0000",
+        fee_outstanding: "0.0000",
+        overdue: true,
+      },
+    ];
+    const totals = loanDueTotals(rows);
+    expect(totals.principalOutstanding.toString()).toBe("1750000.0000");
+    expect(totals.interestOutstanding.toString()).toBe("75000.0000");
+    expect(totals.feeOutstanding.toString()).toBe("10000.0000");
+    expect(totals.overdueCount).toBe(2);
+  });
+
+  it("returns zero totals and a zero overdue count for no rows", () => {
+    const totals = loanDueTotals([]);
+    expect(totals.principalOutstanding.toString()).toBe("0");
+    expect(totals.interestOutstanding.toString()).toBe("0");
+    expect(totals.feeOutstanding.toString()).toBe("0");
+    expect(totals.overdueCount).toBe(0);
+  });
+});
+
+describe("loanSummaryTotals", () => {
+  it("sums every column across loans", () => {
+    const rows = [
+      {
+        opening_principal: "1000000.0000",
+        proceeds: "0.0000",
+        principal_repaid: "200000.0000",
+        principal_written_off: "0.0000",
+        closing_principal: "800000.0000",
+        interest_paid: "30000.0000",
+        fees_paid: "5000.0000",
+      },
+      {
+        opening_principal: "0.0000",
+        proceeds: "500000.0000",
+        principal_repaid: "100000.0000",
+        principal_written_off: "50000.0000",
+        closing_principal: "350000.0000",
+        interest_paid: "10000.0000",
+        fees_paid: "0.0000",
+      },
+    ];
+    const totals = loanSummaryTotals(rows);
+    expect(totals.openingPrincipal.toString()).toBe("1000000.0000");
+    expect(totals.proceeds.toString()).toBe("500000.0000");
+    expect(totals.principalRepaid.toString()).toBe("300000.0000");
+    expect(totals.principalWrittenOff.toString()).toBe("50000.0000");
+    expect(totals.closingPrincipal.toString()).toBe("1150000.0000");
+    expect(totals.interestPaid.toString()).toBe("40000.0000");
+    expect(totals.feesPaid.toString()).toBe("5000.0000");
+  });
+
+  it("returns zero totals for no rows", () => {
+    const totals = loanSummaryTotals([]);
+    expect(totals.openingPrincipal.toString()).toBe("0");
+    expect(totals.proceeds.toString()).toBe("0");
+    expect(totals.principalRepaid.toString()).toBe("0");
+    expect(totals.principalWrittenOff.toString()).toBe("0");
+    expect(totals.closingPrincipal.toString()).toBe("0");
+    expect(totals.interestPaid.toString()).toBe("0");
+    expect(totals.feesPaid.toString()).toBe("0");
   });
 });
