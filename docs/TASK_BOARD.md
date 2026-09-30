@@ -1480,9 +1480,21 @@ narrower pattern Transfer Detail already uses). Only Reverse is wired, gated `bi
 tests, unchanged), `pnpm build` (2 new real routes), `pnpm db:test` N/A, `npx prettier --check .` clean.
 Full detail in `docs/DECISIONS.md` decision 230.
 
-Still on the catch-all after these four increments (tracked so nothing is silently dropped): `/sales/products`,
-`/purchases/expenses`,
-`/accounting/opening-balances`, `/accounting/adjustments`, `/money/reconciliation`, `/tax/pph`,
+Decision 231, fifth increment (Reconciliation List, read-only): `/money/reconciliation` -- reads
+`reconciliation_status` joined against `money_control` for currency, gated `money.view`. Starting a
+session and the full matching workspace were drafted and then cut back out: no RPC anywhere returns a
+`reconciliation_sessions` row's own fields (status/period/statement balances), so a workspace page could
+not honestly render its own header or gate its own actions -- needs a new read RPC, flagged for the OWNER.
+The same audit confirmed `/sales/products` (no RPC of any kind exists over `public.products`) and
+`/purchases/expenses` (full write lifecycle exists, but no `list_expenses` RPC) are backend gaps too, not
+just missing UI. `pnpm check` (678 tests, up from 673), `pnpm build` (1 new real route), `pnpm db:test`
+N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 231.
+
+Still on the catch-all after these five increments (tracked so nothing is silently dropped):
+`/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
+`/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
+Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
+balances, decision 231), `/accounting/opening-balances`, `/accounting/adjustments`, `/tax/pph`,
 `/tax/withholding`, `/tax/ppn`, `/tax/calendar`, `/tax/filing`, `/tax/rules`, `/planning/forecasts`
 (blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
 `supersedes_document_id` has no reading RPC), `/activity`, `/admin/imports`, `/admin/audit`,

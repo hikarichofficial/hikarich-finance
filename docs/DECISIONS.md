@@ -596,3 +596,57 @@ db:test` does not apply (no migration touched). `npx prettier --check .` clean. 
   `/purchases/expenses`, Opening Balances, Advanced Adjustments, Money Reconciliation, the Tax family
   screens, Planning Forecasts, Documents Archive, Recent Activity, the Administration module, and every
   remaining action-form item decisions 165/167 still carry.
+
+- Reconciliation List, read-only (decision 231, unbuilt-screens backlog): `/money/reconciliation` --
+  reads `reconciliation_status` (per financial account: freshness, session-in-progress, unresolved lines,
+  outstanding movements), joined against `money_control` purely for each account's currency (the same
+  presentational join `mergeAccountRows`/`mergeTransferRows` already use), gated `money.view` matching both
+  RPCs. No search/filter toolbar, the same `PeriodsListScreen` precedent for a small, always-fully-shown
+  status overview.
+
+  This increment stops at the List screen. Starting a session and the full matching workspace
+  (`/money/reconciliation/new`, `/money/reconciliation/[id]`) were drafted and then deliberately cut back
+  out before shipping, once a close reading of `20260922100200_p4_reconciliation.sql` turned up a real
+  backend gap: `create_reconciliation_session`, `discard_reconciliation_session`, `add_statement_lines`,
+  `match_statement_line`/`unmatch_statement_line`/`exclude_statement_line`/`include_statement_line`,
+  `complete_reconciliation` and `reopen_reconciliation` are all real, already-wired-in-`services/money/
+money.ts` RPCs ready to call -- but **no RPC anywhere returns a `reconciliation_sessions` row's own
+  fields** (status open/reopened/reconciled, period, statement opening/closing, note). `reconciliation_
+status` is keyed per _account_, not per _session_, and only ever reports the latest **completed** session's
+  freshness -- never an in-progress one's own id. `reconciliation_workspace(p_session)` returns only its
+  statement lines, nothing about the session itself. This means: (1) a List row cannot link to an
+  in-progress session even to view it, since no RPC hands back that session's id; and (2) a workspace page,
+  if built anyway, could not honestly render its own header (period/statement balances) or correctly gate
+  its own actions (Complete/Discard only make sense on an open/reopened session, Reopen only on a reconciled
+  one) without fabricating or guessing that state -- exactly what this codebase's own discipline elsewhere
+  refuses to do (decision 230's `bill_count`-as-plain-number precedent, decision 226's "no single-item RPC"
+  precedent, both chose to show less rather than invent unreturned data). A `list_X` + client-side `.find()`
+  workaround (Accounting Periods, Payment Detail, Vendor Payment Detail's own precedent) does not apply here
+  either, because there is no `list_reconciliation_sessions` RPC to find from.
+
+  Closing this needs a new read RPC -- at minimum a `get_reconciliation_session(p_session)` (or a
+  `list_reconciliation_sessions(p_entity)` the same "look up from the list" pattern could reuse) returning
+  the session's status/period/statement balances/note, and ideally also surfacing an in-progress session's
+  own id per account so the List screen can link to it. Designing that RPC is new backend surface, not UI
+  wiring over an existing one, so it is flagged here for the OWNER rather than invented solo -- the same
+  class of gap as `/sales/products` and `/purchases/expenses` below.
+
+  While investigating this, the same audit confirmed two more backlog items are backend gaps, not just
+  missing UI, worth recording precisely since the catch-all previously listed them as plain unbuilt screens:
+  **`/sales/products`** -- `public.products`/`public.product_aliases` exist as tables (`20260919100400_
+p1_master_data.sql`) and `products.view`/`create`/`edit`/`archive` are catalogued permissions (P2), but
+  every migration was searched and **no RPC of any kind** (`list_products`, `create_product`, `get_product`,
+  ...) exists; the table is only ever read internally, by `create_invoice`/tax-facts logic looking up one
+  product by id to default a line. **`/purchases/expenses`** -- the full write lifecycle exists
+  (`create_expense_draft`/`update_expense_draft`/`submit_expense`/`confirm_expense`/`cancel_expense`/
+  `reverse_expense`/`correct_expense`, `20260924100200_p6_expenses.sql`), but **no `list_expenses` RPC**
+  exists at all, so even a Detail-only screen (reachable by a direct link from elsewhere, if there were one)
+  has nothing to read from. Both need new read RPCs before any UI increment, same as Reconciliation above.
+
+  `pnpm check` passes (678 tests, up from 673 -- `reconciliationList.test.ts` is new). `pnpm build` passes
+  (`/money/reconciliation` registers as a real route). `pnpm db:test` does not apply (no migration touched).
+  `npx prettier --check .` clean. Still on the catch-all: `/sales/products` (needs new backend), `/purchases/
+expenses` (needs new backend), the Money Reconciliation session/workspace (needs new backend, this
+  decision), Opening Balances, Advanced Adjustments, the Tax family screens, Planning Forecasts, Documents
+  Archive (needs new backend, decision 223's own finding), Recent Activity, the Administration module, and
+  every remaining action-form item decisions 165/167 still carry.
