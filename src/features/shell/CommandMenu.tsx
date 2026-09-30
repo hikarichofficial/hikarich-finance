@@ -129,7 +129,16 @@ export function CommandMenu({
   }
 
   return (
+    // Standard modal-backdrop pattern: click-to-close is a mouse convenience layered on top of the
+    // Escape-key handler wired above (this effect's own `onKeyDown`), which is the real keyboard
+    // equivalent -- the backdrop itself carries no semantics and needs none of its own.
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div className="command-menu-overlay no-print" onClick={onClose}>
+      {/* onClick here only stops the backdrop's onClose from firing when a click lands inside the
+          panel -- it is not itself a user-facing interaction, so it needs no keyboard equivalent.
+          The panel's real semantics (role="dialog", aria-modal, aria-label) and its real interactive
+          controls (the input and the result buttons below) are unaffected. */}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
       <div
         className="command-menu-panel"
         role="dialog"
@@ -138,6 +147,12 @@ export function CommandMenu({
         onClick={(event) => event.stopPropagation()}
       >
         <input
+          // Command palettes (VS Code, Linear, Slack, etc.) conventionally auto-focus their search
+          // input, and it is safe here specifically because the palette itself only ever opens from an
+          // explicit user-initiated keyboard shortcut (never on page load or programmatically), so
+          // autoFocus moves focus in direct response to the same keypress that opened it, not away
+          // from something the user was already doing unprompted.
+          // eslint-disable-next-line jsx-a11y/no-autofocus
           autoFocus
           type="text"
           className="command-menu-input"

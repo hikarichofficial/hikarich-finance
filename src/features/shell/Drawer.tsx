@@ -47,7 +47,16 @@ export function Drawer({
   if (!open) return null;
 
   return (
+    // Standard modal-backdrop pattern: click-to-close is a mouse convenience layered on top of the
+    // Escape-key handler wired above (this effect's own `onKeyDown`), which is the real keyboard
+    // equivalent -- the backdrop itself carries no semantics and needs none of its own.
+    // eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div className="drawer-overlay no-print" onClick={onClose}>
+      {/* onClick here only stops the backdrop's onClose from firing when a click lands inside the
+          panel -- it is not itself a user-facing interaction, so it needs no keyboard equivalent.
+          The panel's real semantics (role="dialog", aria-modal, aria-label) and its real interactive
+          controls (the close button, and any content in `children`) are unaffected. */}
+      {/* eslint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-noninteractive-element-interactions */}
       <div
         ref={panelRef}
         className="drawer-panel"

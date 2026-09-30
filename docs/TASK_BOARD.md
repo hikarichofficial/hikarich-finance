@@ -1383,6 +1383,37 @@ unchanged, new `upgrade_test` passes on first run against the newest migration,
 `20260930200200_p12_consolidated_and_custom_reports.sql`), `npx prettier --check .` all pass. Phase 14's
 remaining bullets (backup/recovery, accessibility/browser/device/failure-mode testing) stay open.
 
+Accessibility, browser/device and failure-mode testing (DECISIONS 222): continued automatically per the
+OWNER's explicit "don't stop, even without merge confirmation" instruction, without waiting for a
+sequencing choice. Live browser/device (E2E) testing investigated and found infeasible here on two
+grounds, both recorded rather than worked around: Docker's CLI is present but its daemon is unreachable in
+this sandbox, so `supabase start`'s local stack cannot run; and `hikarich-finance-dev` (the hosted
+Preview/dev Supabase backend) is 57 migrations behind the repo (only through P3, `list_migrations`
+confirms) -- both rule out real E2E against a working backend today. The second finding is flagged as a
+separate, OWNER-relevant live-infrastructure gap, not applied to unilaterally. Pivoted to the buildable,
+zero-infrastructure-risk half: wired `eslint-plugin-jsx-a11y`'s full 34-rule `recommended` set into
+`eslint.config.mjs` (only 6 of its rules were enabled via `eslint-config-next`'s bundle) as a permanent
+automated check. Surfaced 9 real pre-existing errors in `Drawer.tsx`/`CommandMenu.tsx`'s modal-backdrop
+pattern and `CommandMenu.tsx`'s search-input `autoFocus`; fixed with targeted, justified
+`eslint-disable-next-line` comments (not restructuring) because both already wire a real Escape-key
+handler as the keyboard equivalent the static rule can't see, and `autoFocus` only fires in direct response
+to the same explicit keyboard shortcut that opens the palette. `pnpm lint` now clean (0 errors, 0
+warnings), `pnpm check` (658 tests, unchanged), `pnpm db:test` (fingerprint `5335133e42e3` unchanged, no
+migration touched), `npx prettier --check .` all pass. Phase 14's remaining bullets: backup/recovery
+verification (needs OWNER dashboard action) and the `hikarich-finance-dev` migration-drift gap stay open.
+
+Backup/recovery and Storage recovery procedure verification in non-production, scope audit (DECISIONS 223):
+re-read the OWNER's own existing decision (line 10, 2026-09-19) -- recovery relies on the in-app Backup &
+Restore Center (Step 01 #36), not paid Supabase managed backups -- then found that Center was never built:
+only a nav placeholder exists. Read Step 01 #36, Step 01 #44 and Step 16 §34 directly from the FINAL spec
+docx files (via pandoc) to ground the real scope: this bullet requires BUILDING Full/Data-only/Documents-
+Archive backup export, validation-before-restore, history/reminders and the restore path itself, before a
+restore drill can even run against it -- a materially larger, higher-stakes item (writes recovered data
+back over real records) than any other Phase 14 bullet shipped so far. Two questions are OWNER-only and not
+resolvable from spec text alone: the V1 "external storage" target (plain download vs. a named integration),
+and re-confirming the free-tier infrastructure assumption behind §34's "actual subscribed infrastructure
+plan" language. No files changed -- an audit only, like decisions 214/219. Surfaced to the OWNER directly
+with a concrete recommended V1 scope rather than built on an assumed scope or silently skipped.
 Backup & Restore Center, Part 1: export backend + screen (DECISIONS 224): OWNER confirmed decision 223's V1
 scope (plain manual download, no external-storage integration; free-tier Supabase stays current). Builds
 Step 01 #36's Center for real: `export_backup_snapshot` (Full/Data-only/Documents Archive, dynamically
