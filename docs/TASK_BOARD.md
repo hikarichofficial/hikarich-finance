@@ -1539,18 +1539,33 @@ evidence belong together in a future `/tax/filing` increment, not scattered acro
 `pnpm check` (695 tests, unchanged -- no new domain logic needed), `pnpm build` (2 new real routes), `pnpm
 db:test` N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 235.
 
-Still on the catch-all after these nine increments (tracked so nothing is silently dropped):
+Decision 238, tenth increment (Filing & Evidence): `/tax/filing` -- the fifth Tax family item, the
+period-closing action set decision 235 deferred: recording a payment (and reversing one), recording a
+filing (original or amendment), reconciling the period, and attaching evidence to the period's filing. One
+screen serves all three tax types the write RPCs accept (new `resolveFilingTaxType`/`FILING_TAX_TYPES`;
+`wht_pph21` is excluded -- it is settled through `/payroll/tax` instead) via its own `?type=` selector.
+Reused domain groundwork already sitting unused from earlier P7 work (`checkTaxPayment`/
+`PAYMENT_ISSUE_LABELS`, `EVIDENCE_PURPOSE_LABELS`); added `eligibleTaxPaymentAccounts` (mirroring decision
+232's own `eligibleCounterAccounts`) and extended `periodPositionSchema` to read the `reconciliation`
+object `tax_period_position` already returns but nothing had read yet. Evidence targets the period's own
+filing only in this increment (not per-payment) -- documented as a deliberate scope cut, same as decision
+235's own deferral. Every write action's own server action lets `tax.mark_filed`'s `AuthzError` surface on
+submit rather than gating the page. `pnpm check` (701 tests, up from 695), `pnpm build` (1 new real route),
+`pnpm db:test` N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 238.
+
+Still on the catch-all after these ten increments (tracked so nothing is silently dropped):
 `/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
 `/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
 balances, decision 231), `/accounting/opening-balances` (needs new backend -- no reading RPC over
-`opening_balance_batches`, decision 232), `/tax/filing`, `/tax/rules` (both confirmed buildable with no
-backend gap, decision 233), `/planning/forecasts` (blocked on decision 139's own open methodology
-question), `/documents/archive` (needs new backend -- `supersedes_document_id` has no reading RPC),
-`/activity`, `/admin/imports`, `/admin/audit`, `/admin/users`, `/admin/settings`, `/admin/security`, and the
-`/reports/*` nav sub-items (`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`)
-which largely duplicate functionality already shipped as `/reports?statement=*` tabs (Part 4) under
-separate hrefs that were never wired to them -- worth a routing-only fix rather than new screens, taken up
+`opening_balance_batches`, decision 232), `/tax/rules` (confirmed buildable with no backend gap, decision
+233), per-payment evidence on `/tax/filing` (deferred, decision 238), `/planning/forecasts` (blocked on
+decision 139's own open methodology question), `/documents/archive` (needs new backend --
+`supersedes_document_id` has no reading RPC), `/activity`, `/admin/imports`, `/admin/audit`,
+`/admin/users`, `/admin/settings`, `/admin/security`, and the `/reports/*` nav sub-items
+(`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`) which largely duplicate
+functionality already shipped as `/reports?statement=*` tabs (Part 4) under separate hrefs that were never
+wired to them -- worth a routing-only fix rather than new screens, taken up
 in a later increment.
 
 `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46

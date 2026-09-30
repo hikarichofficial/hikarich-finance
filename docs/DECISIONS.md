@@ -804,3 +804,56 @@ expenses` (needs new backend), `/accounting/opening-balances` (needs new backend
   Reconciliation session/workspace (needs new backend), `/tax/filing`, `/tax/rules` (both confirmed
   buildable, no backend gap), Planning Forecasts, Documents Archive (needs new backend), Recent Activity, the
   Administration module, and every remaining action-form item decisions 165/167 still carry.
+
+- Filing & Evidence (decision 238, unbuilt-screens backlog): `/tax/filing` -- the fifth Tax family item, the
+  period-closing action set decision 235 deliberately deferred out of `/tax/pph`/`/tax/withholding`/
+  `/tax/ppn`: recording a payment (`tax_record_payment`, and reversing one via `tax_reverse_payment`),
+  recording a filing -- original or amendment -- (`tax_record_filing`), reconciling the period
+  (`tax_reconcile_period`), and attaching evidence (`tax_link_evidence`/`tax_list_evidence`). One screen
+  serves all three tax types these write RPCs accept (`vat`/`wht_pph23`/`final_umkm` -- new
+  `resolveFilingTaxType`/`FILING_TAX_TYPES` in `src/domain/tax/tax.ts`; `wht_pph21`, employee withholding,
+  is excluded because `tax_record_payment`/`tax_record_filing`/`tax_reconcile_period` all reject it --
+  that type is settled through Payroll's own tax ledger, `/payroll/tax`, instead) through its own `?type=`
+  selector, rather than tripling the same five forms across three near-identical pages.
+
+  Most of the domain-layer groundwork for this screen was already sitting unused in `src/domain/tax/tax.ts`
+  from earlier P7 work -- `checkTaxPayment`/`PAYMENT_ISSUE_LABELS` (shape checks mirroring
+  `tax_record_payment`'s own validation exactly, for early feedback on the payment form) and
+  `EVIDENCE_PURPOSE_LABELS`, the same "unused domain helpers left over, ready for the screen that needed
+  them" pattern decision 233's own Tax Calendar labels were. New: `resolveFilingTaxType`/`FILING_TAX_TYPES`
+  and `eligibleTaxPaymentAccounts` (a payment's paying account must hold the Entity's own base currency,
+  `tax_record_payment`'s own check, mirroring decision 232's own `eligibleCounterAccounts`). The paying
+  account list itself reuses `listActiveFinancialAccounts` (`src/services/planning/planning.ts`, already
+  built for Recurring Rules) rather than a new tax-specific query.
+
+  `tax_period_position` already returns a `reconciliation` object (the period's current reconciliation
+  outcome/note/staleness) that `periodPositionSchema` had never been extended to read -- extended it here
+  (`reconciliation: taxReconciliationSchema`, new) since this screen is the first to need it; no RPC
+  behavior changed, only more of an already-returned response is now read.
+
+  Evidence in this increment targets **the period's own filing only** (`target_type: "tax_filing"`) --
+  `tax_link_evidence` also accepts a `"tax_payment"` target (each payment has its own transfer-receipt
+  evidence too), but that needs a target picker per payment row on top of the document search already
+  here; the primary real-world need -- attaching the filing receipt itself -- does not, so per-payment
+  evidence is left for a later refinement of this same screen, the same kind of incremental scoping
+  decision 235 itself made when it deferred this whole action family out of the position-report screens.
+  The evidence section (and its `?doc_q=` document search, `list_documents`, plain GET, no client script)
+  only renders once a filing exists for the period. `list_documents` needs the separate `documents.view`
+  permission (not `tax.view`); a viewer without it still sees the rest of the page, only the search itself
+  reports it cannot run -- caught in `page.tsx` rather than crashing the render, the one read on this page
+  that is not the page's own `tax.view` gate.
+
+  Every write action's own server action (`taxFilingActions.ts`) lets its `AuthzError` surface on submit
+  rather than pre-checking `tax.mark_filed` -- the same shape `taxFinalActions.ts`/`ReverseForm`/
+  `PeriodActions` already use throughout, and the only one available here since (per decision 233's own
+  permission-catalog reading) only the `tax` role template holds `tax.mark_filed` alongside `tax.view`.
+
+  `pnpm check` passes (701 tests, up from 695 -- `resolveFilingTaxType`/`eligibleTaxPaymentAccounts`'s own
+  new test cases in `tax.test.ts`, plus a `periodPositionSchema` test extended for the new `reconciliation`
+  field and one added for a reconciled-with-differences case). `pnpm build` passes (`/tax/filing` registers
+  as a real route). `pnpm db:test` does not apply (no migration touched). `npx prettier --check .` clean.
+  Still on the catch-all: `/sales/products` (needs new backend), `/purchases/expenses` (needs new backend),
+  `/accounting/opening-balances` (needs new backend), the Money Reconciliation session/workspace (needs new
+  backend), `/tax/rules` (confirmed buildable, no backend gap), per-payment evidence on this same screen
+  (deferred above), Planning Forecasts, Documents Archive (needs new backend), Recent Activity, the
+  Administration module, and every remaining action-form item decisions 165/167 still carry.

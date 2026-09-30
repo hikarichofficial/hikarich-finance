@@ -317,3 +317,26 @@ export function outstandingTax(accrued: string, paid: string): Decimal {
   if (!a || !p) throw new RangeError("Not a decimal amount");
   return a.sub(p);
 }
+
+// ---- Filing & Evidence (P13 unbuilt-screens backlog, decision 238)
+/** The three types `tax_record_payment`/`tax_record_filing`/`tax_reconcile_period` accept -- `wht_pph21` (the
+ * employee-withholding type) is settled through Payroll's own tax ledger instead, never through this screen. */
+export type FilingTaxType = "vat" | "wht_pph23" | "final_umkm";
+export const FILING_TAX_TYPES: readonly FilingTaxType[] = ["vat", "wht_pph23", "final_umkm"];
+
+function isFilingTaxType(value: string): value is FilingTaxType {
+  return (FILING_TAX_TYPES as readonly string[]).includes(value);
+}
+
+/** Falls back to `vat` for anything absent or outside the three types the write RPCs accept. */
+export function resolveFilingTaxType(requested: string | undefined): FilingTaxType {
+  return requested && isFilingTaxType(requested) ? requested : "vat";
+}
+
+/** A payment's paying account must hold the Entity's own base currency (`tax_record_payment`'s own check). */
+export function eligibleTaxPaymentAccounts<T extends { currency: string }>(
+  accounts: readonly T[],
+  baseCurrency: string,
+): T[] {
+  return accounts.filter((a) => a.currency === baseCurrency);
+}
