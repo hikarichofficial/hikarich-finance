@@ -1473,8 +1473,15 @@ latter, flagged as an OWNER-relevant observation rather than silently patched ov
 unchanged), `pnpm build` (3 new real routes), `pnpm db:test` N/A (no migration), `npx prettier --check .`
 clean. Full detail in `docs/DECISIONS.md` decision 229.
 
-Still on the catch-all after these three increments (tracked so nothing is silently dropped): `/sales/products`,
-`/purchases/expenses`, `/purchases/payments`,
+Decision 230, fourth increment (Payments Made): `/purchases/payments`, `/purchases/payments/[id]` --
+reads `list_vendor_payments` (P6), gated `bills.view`. No Refunds counterpart on the Purchases side. Detail
+has no single-item RPC and no printable document RPC, so it stays Header/Actions/Ringkasan only (the same
+narrower pattern Transfer Detail already uses). Only Reverse is wired, gated `bills.pay`. `pnpm check` (673
+tests, unchanged), `pnpm build` (2 new real routes), `pnpm db:test` N/A, `npx prettier --check .` clean.
+Full detail in `docs/DECISIONS.md` decision 230.
+
+Still on the catch-all after these four increments (tracked so nothing is silently dropped): `/sales/products`,
+`/purchases/expenses`,
 `/accounting/opening-balances`, `/accounting/adjustments`, `/money/reconciliation`, `/tax/pph`,
 `/tax/withholding`, `/tax/ppn`, `/tax/calendar`, `/tax/filing`, `/tax/rules`, `/planning/forecasts`
 (blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
