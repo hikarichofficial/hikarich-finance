@@ -1382,3 +1382,22 @@ comparison), not novel logic needing empirical proof; stated plainly rather than
 unchanged, new `upgrade_test` passes on first run against the newest migration,
 `20260930200200_p12_consolidated_and_custom_reports.sql`), `npx prettier --check .` all pass. Phase 14's
 remaining bullets (backup/recovery, accessibility/browser/device/failure-mode testing) stay open.
+
+Accessibility, browser/device and failure-mode testing (DECISIONS 222): continued automatically per the
+OWNER's explicit "don't stop, even without merge confirmation" instruction, without waiting for a
+sequencing choice. Live browser/device (E2E) testing investigated and found infeasible here on two
+grounds, both recorded rather than worked around: Docker's CLI is present but its daemon is unreachable in
+this sandbox, so `supabase start`'s local stack cannot run; and `hikarich-finance-dev` (the hosted
+Preview/dev Supabase backend) is 57 migrations behind the repo (only through P3, `list_migrations`
+confirms) -- both rule out real E2E against a working backend today. The second finding is flagged as a
+separate, OWNER-relevant live-infrastructure gap, not applied to unilaterally. Pivoted to the buildable,
+zero-infrastructure-risk half: wired `eslint-plugin-jsx-a11y`'s full 34-rule `recommended` set into
+`eslint.config.mjs` (only 6 of its rules were enabled via `eslint-config-next`'s bundle) as a permanent
+automated check. Surfaced 9 real pre-existing errors in `Drawer.tsx`/`CommandMenu.tsx`'s modal-backdrop
+pattern and `CommandMenu.tsx`'s search-input `autoFocus`; fixed with targeted, justified
+`eslint-disable-next-line` comments (not restructuring) because both already wire a real Escape-key
+handler as the keyboard equivalent the static rule can't see, and `autoFocus` only fires in direct response
+to the same explicit keyboard shortcut that opens the palette. `pnpm lint` now clean (0 errors, 0
+warnings), `pnpm check` (658 tests, unchanged), `pnpm db:test` (fingerprint `5335133e42e3` unchanged, no
+migration touched), `npx prettier --check .` all pass. Phase 14's remaining bullets: backup/recovery
+verification (needs OWNER dashboard action) and the `hikarich-finance-dev` migration-drift gap stay open.
