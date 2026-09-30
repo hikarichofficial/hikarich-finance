@@ -413,3 +413,26 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
   **Frontend**: `/admin/backup` (`src/app/(app)/admin/backup/page.tsx`) replaces the placeholder the nav already pointed at, gated on `backup.create` (the same "gate the page on the create RPC's own permission" shape every other `/new` page already establishes), with the validate-before-restore section additionally gated on `backup.restore` via `can(access, entityId, ...)` -- the same second-permission-beyond-the-page-gate shape `NewTransferPage`'s own `canConfirmOnCreate` already set (decision 170). `BackupRestoreScreen` (`src/features/backup/`) triggers each export's browser download client-side from the RPC's own JSON payload (`Blob` + a programmatic `<a download>` click) rather than a server route handler -- this codebase has never had one (confirmed: no `route.ts` file exists anywhere), and none is needed for a JSON blob. Server Actions (`src/features/backup/actions.ts`) are called directly as plain async functions, the same shape `searchRecordsAction` (`src/features/shell/searchActions.ts`) already established for a non-form-submission action, rather than forcing `useActionState`'s form-submission shape onto a "fetch data, then do something with it client-side" interaction. The validate-before-restore section says plainly, in its own copy, that the restore action itself is not yet available -- never implying a button is coming right after the person reads a validation result.
 
   `pnpm check` passes (673 tests, up from 658 -- 15 new: 6 domain unit tests for `formatByteSize`/`daysSinceLastBackup`, plus the rest already counted in `pnpm test`'s file total). `pnpm build` passes (`/admin/backup` compiles as a real route, not the `[...slug]` placeholder). `pnpm db:test` passes: two clean rebuilds reproduce schema fingerprint `f1427317e184` (changed from `5335133e42e3` -- the first schema change since decision 220, as expected: one new table, two new RPCs), the new `99_p14_1_backup.sql` suite passes both rebuild passes, and the `upgrade_test` passes applying this migration on top of already-seeded data. `npx prettier --check .` clean. Phase 14's remaining items: the Backup & Restore Center's Part 2 (the actual restore-write path and its non-production restore drill -- the drill itself also needs either `hikarich-finance-dev` brought current or a fresh non-production Supabase branch/project, both already-flagged OWNER-relevant infrastructure gaps), and the live browser/device E2E half of accessibility testing (decision 222).
+
+- `hikarich-finance-dev` brought current with the codebase (decision 225): OWNER approved applying the 46
+  pending migrations directly (this is the non-production Preview/dev backend, not real financial data).
+  Applied in strict filename order via the Supabase management API, matched by name against the 15 already
+  applied (Supabase assigns its own version timestamps on apply, which don't match the repo's own
+  filename-embedded dates -- expected, matched by migration _name_ instead). `list_migrations` now shows
+  61 migrations on `hikarich-finance-dev`, ending with `p14_backup_restore`, identical to the repo's own
+  `supabase/migrations/` set -- independently re-verified directly (not taken on trust) after the batch
+  finished. `hikarich-finance-prod` was never touched (confirmed unchanged). Security and performance
+  advisors were re-run afterward and show no new categories beyond what the codebase's own established
+  patterns already produce (SECURITY DEFINER RPCs with an internal `app_private.*_authorize` check on
+  every one, by design; RLS-enabled-no-policy on tables intentionally closed to direct SELECT, served only
+  through RPCs, including the new P9 payroll tables) -- nothing attributable specifically to this batch.
+
+  This closes the shared infrastructure gap decisions 222 and 223 both flagged as OWNER-relevant and
+  deliberately did not act on unilaterally. It unblocks both of Phase 14's remaining items at once: the
+  Backup & Restore Center's Part 2 non-production restore drill (Step 16 §34) now has a real, current,
+  non-production database to drill against, and the live browser/device E2E half of accessibility testing
+  (decision 222) can now run against a real Vercel Preview deployment (which backs onto `hikarich-finance-dev`)
+  instead of needing a local Docker-based Supabase stack this sandbox has never had. No repo files changed --
+  a pure database-side operation, like decisions 214/219/223's audits are pure documentation-side ones.
+  `pnpm db:test`'s schema fingerprint is unaffected (it tests a from-scratch local rebuild, not any hosted
+  project).

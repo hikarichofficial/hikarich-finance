@@ -1434,3 +1434,16 @@ prettier --check .` all pass. Phase 14's remaining items: Backup & Restore Cente
 path and its non-production restore drill, the drill itself still blocked on the already-flagged
 `hikarich-finance-dev` migration-drift gap or a fresh non-production project) and the live browser/device
 E2E half of accessibility testing (decision 222).
+
+`hikarich-finance-dev` brought current with the codebase (DECISIONS 225): OWNER approved applying the 46
+pending migrations to this non-production Preview/dev project directly. Applied via the Supabase management
+API in strict filename order, matched to the 15 already-applied migrations by name. `list_migrations`
+independently re-verified: 61 migrations total, ending with `p14_backup_restore`, matching the repo exactly.
+`hikarich-finance-prod` confirmed untouched. Security/performance advisors re-run and re-checked directly --
+no new finding categories, everything observed matches this codebase's own established, intentional patterns
+(SECURITY DEFINER RPCs with internal authorization checks; RLS-enabled-no-policy on RPC-only tables). Closes
+the infrastructure gap decisions 222/223 flagged as OWNER-only. Unblocks both remaining Phase 14 items at
+once: the Backup & Restore Center Part 2 restore drill now has a real non-production database to drill
+against, and live browser/device E2E accessibility testing can now run against a real Vercel Preview
+deployment instead of needing a local Docker-based Supabase stack. No repo files changed -- database-side
+only; `pnpm db:test`'s fingerprint (a from-scratch local rebuild) is unaffected.
