@@ -1460,8 +1460,21 @@ UI. Detail always fetches the checklist (not only while `closing_review`); actio
 via the existing generic `AuthzError` mapping. `pnpm check` (673 tests, unchanged), `pnpm build` (2 new real
 routes), `pnpm db:test` N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 226.
 
-Still on the catch-all after these two increments (tracked so nothing is silently dropped): `/sales/payments`,
-`/sales/refunds`, `/sales/products`, `/purchases/expenses`, `/purchases/payments`,
+Decision 229, third increment (Payments Received and Refunds): `/sales/payments`,
+`/sales/payments/[id]`, `/sales/refunds` -- both read `list_payments` (no `list_refunds` RPC exists), Refunds
+built as a filtered view of payments with refund activity, the same shared-screen-via-a-view-prop pattern
+the earlier increments already established. Payment Detail's row comes from `list_payments` matched by id
+(no single-item RPC, matching decision 226's own precedent); the already-shipped `ReceiptDocumentView` is
+reused for the printable Dokumen section. Only Reverse Payment is wired as a status action -- refund
+creation stays deferred to its own queue-screen-level increment, per `actions.ts`'s own long-standing scope
+note. `/sales/refunds` is gated on `refunds.view` (matching `navigation.ts`), while `list_payments` itself
+needs `invoices.view` at the database level -- every role holding the former currently also holds the
+latter, flagged as an OWNER-relevant observation rather than silently patched over. `pnpm check` (673 tests,
+unchanged), `pnpm build` (3 new real routes), `pnpm db:test` N/A (no migration), `npx prettier --check .`
+clean. Full detail in `docs/DECISIONS.md` decision 229.
+
+Still on the catch-all after these three increments (tracked so nothing is silently dropped): `/sales/products`,
+`/purchases/expenses`, `/purchases/payments`,
 `/accounting/opening-balances`, `/accounting/adjustments`, `/money/reconciliation`, `/tax/pph`,
 `/tax/withholding`, `/tax/ppn`, `/tax/calendar`, `/tax/filing`, `/tax/rules`, `/planning/forecasts`
 (blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --

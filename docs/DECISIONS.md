@@ -541,3 +541,39 @@ finance-dev`) was opened in a real browser. `/login` renders correctly end to en
   self-referential decision numbers and the section headers; this merge also fixed a pre-existing Markdown
   typo in this branch's own original text (stray backslashes before backticks, which rendered literally
   instead of as a code span) wherever it appeared in these two entries.
+
+- Payments Received and Refunds List/Detail (decision 229, unbuilt-screens backlog): `/sales/payments`,
+  `/sales/payments/[id]`, `/sales/refunds` -- Step 09's primary sitemap lists Payments Received and Refunds
+  as two separate Sales nav items. Both read `list_payments` (P5, decision 76): no `list_refunds` RPC exists
+  (only `payment_refund_options`, per-payment, and `refund_receipt_document`, per-refund -- neither wired to
+  any list yet), so Refunds is built as a filtered view of payments carrying refund activity
+  (`refund_status !== 'none'`), the same shared-List-screen-via-a-view-prop pattern decisions 198/176/225
+  already established, rather than guessing at an unbuilt data shape. Payment Detail has no single-item RPC
+  either (matching decision 226's own Accounting Periods precedent): the row comes from `list_payments`
+  matched by id for the Ringkasan fields (`refund_status`/`refundable`/`advance_remaining`, none of which
+  `payment_receipt_document` returns), and the already-shipped `ReceiptDocumentView` (P13 Part 5, built for
+  the public receipt page) is reused unchanged for the Dokumen section. The only status action wired is
+  Reverse Payment (`reverse_payment`, gated on `invoices.confirm_payment` -- there is no separate
+  `payments.reverse` permission key; the RPC itself refuses a payment with confirmed refunds still against
+  it, "reverse them first," which this form does not pre-check client-side, matching this codebase's own
+  "database is the one source of business truth" rule). Refund creation stays deferred: `actions.ts`'s own
+  standing note already scoped it to "their own queue screens (Step 09 §11 Payment confirmation queue...)
+  rather than a single-invoice action," the same reasoning that kept Confirm Payment/Refund out of
+  `InvoiceActions.tsx` since Part 3a.
+
+  `/sales/refunds` is gated on `refunds.view` (matching `navigation.ts`'s own declared permission for that
+  href), while `list_payments` itself is gated on `invoices.view` at the database level. Every role template
+  that currently holds `refunds.view` (finance_admin, approver) also holds `invoices.view`, so this does not
+  fail in practice today; flagged here as an OWNER-relevant observation rather than silently patched over,
+  since actually closing that gap would mean either widening `list_payments`' own gate or guaranteeing
+  `invoices.view` alongside every future `refunds.view` grant -- both authorization decisions outside this
+  increment's scope.
+
+  `pnpm check` passes (673 tests, unchanged -- pure UI/action-wiring over already-tested RPCs). `pnpm build`
+  passes (`/sales/payments`, `/sales/payments/[id]`, `/sales/refunds` register as real routes). `pnpm
+db:test` does not apply (no migration touched). `npx prettier --check .` clean. Still on the catch-all:
+  `/sales/products`, `/purchases/expenses`, `/purchases/payments`, Opening Balances, Advanced Adjustments,
+  Money Reconciliation, the Tax family screens, Planning Forecasts, Documents Archive, Recent Activity, the
+  Administration module, and every remaining action-form item decisions 165/167 still carry (invoice/bill
+  builders, Send, Payment Confirmation queue, Refund creation, Record Expense builder, the Payment action,
+  Products & Services, evidence upload, aging).

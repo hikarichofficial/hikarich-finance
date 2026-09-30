@@ -8,6 +8,7 @@ import {
   getInvoiceLink,
   issueInvoice,
   regenerateInvoiceLink,
+  reversePayment,
   voidInvoice,
 } from "@/services/sales/sales";
 
@@ -25,6 +26,10 @@ import {
  * email/notification channel built yet (not part of any shipped phase), and Confirm Payment/Refund belong
  * to their own queue screens (Step 09 §11 "Payment confirmation queue... accessible from Sales and
  * Attention/Tasks") rather than a single-invoice action.
+ *
+ * `reversePaymentAction` (unbuilt-screens backlog) belongs to Payment Detail, not Invoice Detail, but lives
+ * here rather than a second `actions.ts` for one function -- both screens are the same Sales module and
+ * already share this file's `text`/`errorState` helpers.
  */
 
 export interface InvoiceActionState {
@@ -140,4 +145,32 @@ export async function ensureInvoiceLinkAction(
   } catch (error) {
     return errorState(error, "Tautan publik tidak dapat dibuat.");
   }
+}
+
+function revalidatePayment(paymentId: string): void {
+  revalidatePath("/sales/payments");
+  revalidatePath("/sales/refunds");
+  revalidatePath(`/sales/payments/${paymentId}`);
+}
+
+const REVERSE_PAYMENT_IDLE: InvoiceActionState = { status: "idle" };
+export const idleReversePaymentState = REVERSE_PAYMENT_IDLE;
+
+/** Reverse Payment (Payment Detail, unbuilt-screens backlog): the RPC itself is gated on
+ * `invoices.confirm_payment` (there is no separate `payments.reverse` key) and refuses a payment that
+ * still has confirmed refunds against it. */
+export async function reversePaymentAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  const paymentId = text(formData, "payment_id");
+  const date = text(formData, "date");
+  const reason = text(formData, "reason");
+  try {
+    await reversePayment({ payment_id: paymentId, idempotency_key: randomUUID(), date, reason });
+  } catch (error) {
+    return errorState(error, "Pembayaran tidak dapat dibalik.");
+  }
+  revalidatePayment(paymentId);
+  return { status: "ok" };
 }
