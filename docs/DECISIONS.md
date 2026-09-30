@@ -461,6 +461,32 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
   `main`'s actual last committed decision (224); the other, differently-numbered 225/226 will renumber
   automatically once that separate PR merges and this file is next touched.
 
+  Decision 226, second increment: **Accounting Periods** (`/accounting/periods`,
+  `/accounting/periods/[id]`), Step 09 §14's own "Period Close screen presents a checklist of
+  blockers/warnings before Close." No new RPC, schema or service wrapper -- `listAccountingPeriods`/
+  `getPeriodChecks`/`beginPeriodClose`/`cancelPeriodClose`/`closePeriod`/`reopenPeriod` were already fully
+  wrapped in `src/services/accounting/ledger.ts` since decision 172 (Part 3d), just never given a UI. The
+  List screen has no search toolbar (a year carries at most ~12 rows, all meant to be seen, not filtered
+  out) and no Create action (no RPC creates a period; `accounting_periods` is seeded per Entity). Detail
+  always fetches `period_close_checks` -- not only while `closing_review` -- so a person can see what would
+  block closing before even starting the review, matching the spec's own "before Close" wording; blockers
+  and warnings render through the existing `dashboard-list`/`status-badge` primitives `TasksAttention`
+  already established, no new CSS. Status actions (Begin Close/Cancel Close/Close, gated on `periods.close`;
+  Reopen, gated on `periods.reopen`) follow the exact `JournalActions`/`ReverseForm` shape: small
+  `useActionState` forms calling the unmodified P3 RPCs directly, reason-gated reveal-confirm for Reopen (≥10
+  characters, matching `reopenPeriodInputSchema`). Reopen's own `STEP_UP_REQUIRED` case needs no special
+  handling here -- `errorState`'s existing generic `AuthzError` mapping already renders `authzErrorMessage`'s
+  friendly copy directing the caller to re-authenticate, the same shape every other step-up-gated action in
+  this codebase already relies on.
+
+  `pnpm check` passes (673 tests, unchanged -- pure UI/action-wiring over already-tested RPCs, no new domain
+  logic to unit-test). `pnpm build` passes (`/accounting/periods`, `/accounting/periods/[id]` register as
+  real routes). `pnpm db:test` does not apply (no migration touched). `npx prettier --check .` clean. Still
+  on the catch-all: Opening Balances, Advanced Adjustments, Money Reconciliation, the Tax family screens,
+  Planning Forecasts, Documents Archive, Recent Activity, the Administration module, and every action-form
+  item decisions 165/167 still carry (invoice/bill builders, Send, Payment Confirmation queue, Refund
+  actions, Record Expense builder, the Payment action, Products & Services, evidence upload, aging).
+
 - `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46
   pending migrations directly (this is the non-production Preview/dev backend, not real financial data).
   Applied in strict filename order via the Supabase management API, matched by name against the 15 already

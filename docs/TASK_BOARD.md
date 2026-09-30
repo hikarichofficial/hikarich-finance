@@ -1451,8 +1451,17 @@ never selected (column-level grant excludes it for `authenticated`; revealing it
 numbering, built from `main`; a differently-numbered 225/226 exists only in a separate, still-unmerged PR
 that branched earlier -- see that decision's own closing note).
 
-Still on the catch-all after this increment (tracked so nothing is silently dropped): `/sales/payments`,
-`/sales/refunds`, `/sales/products`, `/purchases/expenses`, `/purchases/payments`, `/accounting/periods`,
+Decision 226, second increment (Accounting Periods): `/accounting/periods`, `/accounting/periods/[id]` --
+Step 09 §14's "Period Close screen presents a checklist of blockers/warnings before Close." No new RPC,
+schema or service wrapper -- every function (`listAccountingPeriods`/`getPeriodChecks`/`beginPeriodClose`/
+`cancelPeriodClose`/`closePeriod`/`reopenPeriod`) was already wrapped since decision 172, just never given a
+UI. Detail always fetches the checklist (not only while `closing_review`); actions follow the exact
+`JournalActions` shape, including Reopen's reason-gated reveal-confirm and its `STEP_UP_REQUIRED` handling
+via the existing generic `AuthzError` mapping. `pnpm check` (673 tests, unchanged), `pnpm build` (2 new real
+routes), `pnpm db:test` N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 226.
+
+Still on the catch-all after these two increments (tracked so nothing is silently dropped): `/sales/payments`,
+`/sales/refunds`, `/sales/products`, `/purchases/expenses`, `/purchases/payments`,
 `/accounting/opening-balances`, `/accounting/adjustments`, `/money/reconciliation`, `/tax/pph`,
 `/tax/withholding`, `/tax/ppn`, `/tax/calendar`, `/tax/filing`, `/tax/rules`, `/planning/forecasts`
 (blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
