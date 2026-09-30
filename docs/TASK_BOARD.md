@@ -1526,19 +1526,32 @@ gating the whole page, and is disabled client-side whenever the live preview's s
 `auto_determined`. `pnpm check` (695 tests, up from 689), `pnpm build` (1 new real route), `pnpm db:test`
 N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 234.
 
-Still on the catch-all after these eight increments (tracked so nothing is silently dropped):
+Decision 235, ninth increment (Withholding PPh 23 and PPN): `/tax/withholding` and `/tax/ppn` -- the third
+and fourth Tax family items, shipped together since both are pure period-position reports with no compute
+step, unlike PPh Final UMKM (withholding and VAT are determined per document at invoice/bill/expense time,
+Step 05). New shared `TaxPositionScreen` (`taxType`/`title` prop) serves both routes, the same
+shared-screen-via-a-prop pattern decisions 198/176/225/229 already established; reuses decision 234's own
+`resolveTaxPeriod` unchanged. The input-VAT-credit fields (`accrued_asset`/`applied_asset`/
+`asset_available`) render only when `taxType === "vat"`. Gated `tax.view` on both, matching
+`tax_period_position` exactly. `recordTaxPayment`/`recordTaxFiling`/`tax_reconcile_period` (needs the
+narrower `tax.mark_filed`) are deliberately left out of both screens -- paying, filing, reconciling and
+evidence belong together in a future `/tax/filing` increment, not scattered across the position reports.
+`pnpm check` (695 tests, unchanged -- no new domain logic needed), `pnpm build` (2 new real routes), `pnpm
+db:test` N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 235.
+
+Still on the catch-all after these nine increments (tracked so nothing is silently dropped):
 `/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
 `/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
 balances, decision 231), `/accounting/opening-balances` (needs new backend -- no reading RPC over
-`opening_balance_batches`, decision 232), `/tax/withholding`, `/tax/ppn`, `/tax/filing`, `/tax/rules` (all
-four confirmed buildable with no backend gap, decision 233), `/planning/forecasts` (blocked on decision
-139's own open methodology question), `/documents/archive` (needs new backend -- `supersedes_document_id`
-has no reading RPC), `/activity`, `/admin/imports`, `/admin/audit`, `/admin/users`, `/admin/settings`,
-`/admin/security`, and the `/reports/*` nav sub-items
-(`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`) which largely duplicate
-functionality already shipped as `/reports?statement=*` tabs (Part 4) under separate hrefs that were never
-wired to them -- worth a routing-only fix rather than new screens, taken up in a later increment.
+`opening_balance_batches`, decision 232), `/tax/filing`, `/tax/rules` (both confirmed buildable with no
+backend gap, decision 233), `/planning/forecasts` (blocked on decision 139's own open methodology
+question), `/documents/archive` (needs new backend -- `supersedes_document_id` has no reading RPC),
+`/activity`, `/admin/imports`, `/admin/audit`, `/admin/users`, `/admin/settings`, `/admin/security`, and the
+`/reports/*` nav sub-items (`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`)
+which largely duplicate functionality already shipped as `/reports?statement=*` tabs (Part 4) under
+separate hrefs that were never wired to them -- worth a routing-only fix rather than new screens, taken up
+in a later increment.
 
 `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46
 pending migrations to this non-production Preview/dev project directly. Applied via the Supabase management

@@ -771,3 +771,36 @@ expenses` (needs new backend), `/accounting/opening-balances` (needs new backend
   `/tax/rules` (all four confirmed buildable, no backend gap), Planning Forecasts, Documents Archive (needs
   new backend), Recent Activity, the Administration module, and every remaining action-form item decisions
   165/167 still carry.
+
+- Withholding (PPh 23) and PPN (decision 235, unbuilt-screens backlog): `/tax/withholding` and `/tax/ppn`,
+  the third and fourth Tax family items, shipped together since both are read-only period position reports
+  with no compute step of their own -- unlike PPh Final UMKM (decision 234), withholding and VAT are
+  determined automatically per document, at invoice/bill/expense time (Step 05), not from a monthly batch
+  action on these screens. New `TaxPositionScreen` (`src/features/tax/TaxPositionScreen.tsx`) is shared
+  between both routes, a `taxType`/`title` prop picking the role -- the same shared-screen-via-a-prop
+  generalization decisions 198/176/225/229 already established, here extending PPh Final's own layout
+  (period picker, "Posisi Tercatat" section, link to the filtered Tax Ledger) but dropping the "Pratinjau"/
+  Compute half entirely, since `tax_period_position` is the only RPC either screen needs. Reuses
+  `resolveTaxPeriod` unchanged from decision 234 for the same native `<input type="month">` period picker.
+  `accrued_asset`/`applied_asset`/`asset_available` (the input-VAT-credit fields) render only when
+  `taxType === "vat"`, since those concepts are meaningless for withholding's own payable-only position.
+  Gated `tax.view` on both pages, matching `tax_period_position`'s own exact check and the Tax nav section's
+  own parent permission -- no narrower action exists on either screen to create a gate-mismatch the way
+  decision 234's Compute button did.
+
+  `recordTaxPayment`, `recordTaxFiling`, and `tax_reconcile_period` (gated the even narrower
+  `tax.mark_filed`, confirmed by decision 233's own permission-catalog inventory) are deliberately NOT wired
+  into either screen. Paying, filing, reconciling, and evidence all belong together as the period-closing
+  action set for a dedicated `/tax/filing` ("Filing & Evidence") increment, not scattered across the three
+  read-only position reports -- the same "defer to the increment where it naturally belongs" scoping
+  decision 234's own Compute-vs-page split established in miniature, applied here at the level of an entire
+  action family rather than one button.
+
+  `pnpm check` passes (695 tests, unchanged from decision 234 -- no new domain logic, `resolveTaxPeriod` and
+  `TaxPeriodPosition` were both already fully covered). `pnpm build` passes (`/tax/withholding` and
+  `/tax/ppn` both register as real routes). `pnpm db:test` does not apply (no migration touched). `npx
+prettier --check .` clean. Still on the catch-all: `/sales/products` (needs new backend), `/purchases/
+expenses` (needs new backend), `/accounting/opening-balances` (needs new backend), the Money
+  Reconciliation session/workspace (needs new backend), `/tax/filing`, `/tax/rules` (both confirmed
+  buildable, no backend gap), Planning Forecasts, Documents Archive (needs new backend), Recent Activity, the
+  Administration module, and every remaining action-form item decisions 165/167 still carry.
