@@ -9,6 +9,7 @@ import {
   correctBill,
   recallBill,
   rejectBill,
+  reverseVendorPayment,
   submitBill,
   voidBill,
 } from "@/services/purchases/purchases";
@@ -157,4 +158,36 @@ export async function correctBillAction(
   revalidateBill(billId);
   revalidatePath(`/purchases/bills/${newBillId}`);
   return { status: "ok", newBillId };
+}
+
+function revalidateVendorPayment(paymentId: string): void {
+  revalidatePath("/purchases/payments");
+  revalidatePath(`/purchases/payments/${paymentId}`);
+}
+
+const REVERSE_VENDOR_PAYMENT_IDLE: BillActionState = { status: "idle" };
+export const idleReverseVendorPaymentState = REVERSE_VENDOR_PAYMENT_IDLE;
+
+/** Reverse (Payment Made Detail, unbuilt-screens backlog): `reverse_vendor_payment` is gated on
+ * `bills.pay` (there is no separate `payments.reverse` key), mirroring `reversePaymentAction`'s own
+ * Sales-side counterpart (`src/features/sales/actions.ts`). */
+export async function reverseVendorPaymentAction(
+  _previous: BillActionState,
+  formData: FormData,
+): Promise<BillActionState> {
+  const paymentId = text(formData, "payment_id");
+  const date = text(formData, "date");
+  const reason = text(formData, "reason");
+  try {
+    await reverseVendorPayment({
+      payment_id: paymentId,
+      idempotency_key: randomUUID(),
+      date,
+      reason,
+    });
+  } catch (error) {
+    return errorState(error, "Pembayaran tidak dapat dibalik.");
+  }
+  revalidateVendorPayment(paymentId);
+  return { status: "ok" };
 }

@@ -577,3 +577,22 @@ db:test` does not apply (no migration touched). `npx prettier --check .` clean. 
   Administration module, and every remaining action-form item decisions 165/167 still carry (invoice/bill
   builders, Send, Payment Confirmation queue, Refund creation, Record Expense builder, the Payment action,
   Products & Services, evidence upload, aging).
+
+- Payments Made List/Detail (decision 230, unbuilt-screens backlog): `/purchases/payments`,
+  `/purchases/payments/[id]` -- Step 09's primary sitemap lists Payments Made as a Purchases nav item (no
+  Refunds counterpart exists on the Purchases side, unlike decision 229's Sales pairing, so this stays a
+  plain List/Detail). Reads `list_vendor_payments` (P6), gated on `bills.view` matching `navigation.ts`.
+  Detail has no single-item RPC either (matching decisions 226/229's own precedent): the row comes from
+  `list_vendor_payments` matched by id. No printable document section: `payment_receipt_document` has no
+  vendor-payment counterpart, so Detail stays Header/Actions/Ringkasan only, the same narrower Standard
+  Record Detail Pattern subset Transfer Detail already uses (decision 169) -- `bill_count` is shown as a
+  plain number rather than a fabricated drill-down list, since no RPC returns the allocated bills' own
+  numbers. Only Reverse is wired (gated `bills.pay`, the RPC's own permission -- there is no separate
+  `payments.reverse` key), mirroring decision 229's own Sales-side Reverse Payment exactly.
+
+  `pnpm check` passes (673 tests, unchanged -- pure UI/action-wiring over already-tested RPCs). `pnpm build`
+  passes (`/purchases/payments`, `/purchases/payments/[id]` register as real routes). `pnpm db:test` does
+  not apply (no migration touched). `npx prettier --check .` clean. Still on the catch-all: `/sales/products`,
+  `/purchases/expenses`, Opening Balances, Advanced Adjustments, Money Reconciliation, the Tax family
+  screens, Planning Forecasts, Documents Archive, Recent Activity, the Administration module, and every
+  remaining action-form item decisions 165/167 still carry.
