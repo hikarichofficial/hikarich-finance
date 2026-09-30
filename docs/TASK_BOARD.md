@@ -1434,3 +1434,30 @@ prettier --check .` all pass. Phase 14's remaining items: Backup & Restore Cente
 path and its non-production restore drill, the drill itself still blocked on the already-flagged
 `hikarich-finance-dev` migration-drift gap or a fresh non-production project) and the live browser/device
 E2E half of accessibility testing (decision 222).
+
+## Unbuilt-screens backlog (OWNER instruction: "kerjakan saja semuanya")
+
+A nav-vs-route audit (60 `navigation.ts` hrefs diffed against every real `page.tsx`) found 32 still served
+by the `[...slug]` catch-all. Almost all backend work behind them is already Verified/Implemented (P3-P12
+above) -- this is P13's own screens/action-forms backlog that decisions 165-208 already carried forward as
+open items, not a new phase. Building proceeds item by item, one PR per slice, without pausing between items.
+
+Decision 225, first increment (Customers/Vendors): `/sales/customers`, `/sales/customers/[id]`,
+`/purchases/vendors`, `/purchases/vendors/[id]` -- both read `public.contacts` directly (no RPC lists/reads
+one), one shared `ContactsListScreen`/`ContactDetailScreen` pair serves both roles. `tax_identifier` is
+never selected (column-level grant excludes it for `authenticated`; revealing it on demand is deferred).
+`pnpm check` (673 tests, unchanged), `pnpm build` (4 new real routes), `pnpm db:test` N/A (no migration),
+`npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 225 (this branch's own
+numbering, built from `main`; a differently-numbered 225/226 exists only in a separate, still-unmerged PR
+that branched earlier -- see that decision's own closing note).
+
+Still on the catch-all after this increment (tracked so nothing is silently dropped): `/sales/payments`,
+`/sales/refunds`, `/sales/products`, `/purchases/expenses`, `/purchases/payments`, `/accounting/periods`,
+`/accounting/opening-balances`, `/accounting/adjustments`, `/money/reconciliation`, `/tax/pph`,
+`/tax/withholding`, `/tax/ppn`, `/tax/calendar`, `/tax/filing`, `/tax/rules`, `/planning/forecasts`
+(blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
+`supersedes_document_id` has no reading RPC), `/activity`, `/admin/imports`, `/admin/audit`,
+`/admin/users`, `/admin/settings`, `/admin/security`, and the `/reports/*` nav sub-items
+(`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`) which largely duplicate
+functionality already shipped as `/reports?statement=*` tabs (Part 4) under separate hrefs that were never
+wired to them -- worth a routing-only fix rather than new screens, taken up in a later increment.

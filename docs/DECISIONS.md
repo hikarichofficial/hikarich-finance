@@ -283,11 +283,11 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 - Sub-ledger reconciliation of control-account opening balances (decision 44) once P7-P8 exist; financial account balances are covered since P4 (decisions 51-53), customer receivables since P5 (decision 74) and vendor payables since P6 (decision 80).
 - Money screens still remaining after Part 3c's Accounts List/Detail, Transfers List/Detail/create form and Cash/Bank Activity (decisions 169-171): the Reconciliation workspace, balance adjustments, Create/Edit Account, and statement file import (decision 62); source links from an account ledger line to its originating record, once those records have their own detail screens; the OWNER's choice of account kinds that may never go negative (decision 55).
 - Accounting screens still remaining after Part 3d's Journal List/Detail and Chart of Accounts (decision 172): Period Close (checklist of blockers/warnings before Close), Opening Balances, the Manual Journal debit/credit grid builder, and Advanced Adjustments.
-- Sales screens still remaining after Part 3a's Invoices List/Detail (decisions 164-166): the invoice Create/Edit builder, Send, the Payment Confirmation queue, Refund actions, Customers, Products & Services, and aging; step-up on reversal and refund specifically (Void/Correct already ship in Part 3a with no step-up, per decision 75's own finding that Step 06 §8 requires none).
+- Sales screens still remaining after Part 3a's Invoices List/Detail (decisions 164-166) and Customers List/Detail (decision 225): the invoice Create/Edit builder, Send, the Payment Confirmation queue, Refund actions, Products & Services, and aging; step-up on reversal and refund specifically (Void/Correct already ship in Part 3a with no step-up, per decision 75's own finding that Step 06 §8 requires none).
 - OWNER to decide the Step 09 §11 vs. P5 conflict recorded in decision 166: whether a draft invoice should get a public preview link (would mean reopening P5's locked `regenerate_invoice_link`/`invoice_public_link` SQL) or Step 09 §11's line is superseded by P5's already-reviewed decision 76 scope.
 - Set `PUBLIC_CLAIM_SALT` in Vercel Production before customers use the payment page (decision 70); OWNER to decide whether payment reversal should be OWNER-only (decision 76).
 - Tax on invoices and tax credit notes with P7 (decision 65).
-- Purchase screens still remaining after Part 3b's Bills List/Detail (decisions 167-168): the Record Bill/Record Expense builders, the Payment action, Expenses, Vendors, evidence upload and aging; step-up on void and payment reversal (decisions 84, 87).
+- Purchase screens still remaining after Part 3b's Bills List/Detail (decisions 167-168) and Vendors List/Detail (decision 225): the Record Bill/Record Expense builders, the Payment action, Expenses, evidence upload and aging; step-up on void and payment reversal (decisions 84, 87).
 - OWNER to decide whether paying and reversing vendor payments should be OWNER-only (decision 87) and whether purchase lines may use Depreciation, Bad Debt and Interest Expense accounts (decision 87).
 - OWNER to decide the `contacts.view`/`bills.view` permission gap recorded in decision 168: whether the `approver`/`tax` role templates should also receive `contacts.view` so vendor names resolve for draft/submitted/cancelled bills, or whether the `vendor_reference`/"Vendor" fallback already shipped is acceptable as-is.
 - OWNER to decide the `accounting.view`/`money.view` permission gap recorded in decision 171: whether the `finance_staff`/`approver` role templates should also receive `accounting.view` so journal numbers resolve on Cash/Bank Activity, or whether the "—" fallback already shipped is acceptable as-is.
@@ -413,3 +413,50 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
   **Frontend**: `/admin/backup` (`src/app/(app)/admin/backup/page.tsx`) replaces the placeholder the nav already pointed at, gated on `backup.create` (the same "gate the page on the create RPC's own permission" shape every other `/new` page already establishes), with the validate-before-restore section additionally gated on `backup.restore` via `can(access, entityId, ...)` -- the same second-permission-beyond-the-page-gate shape `NewTransferPage`'s own `canConfirmOnCreate` already set (decision 170). `BackupRestoreScreen` (`src/features/backup/`) triggers each export's browser download client-side from the RPC's own JSON payload (`Blob` + a programmatic `<a download>` click) rather than a server route handler -- this codebase has never had one (confirmed: no `route.ts` file exists anywhere), and none is needed for a JSON blob. Server Actions (`src/features/backup/actions.ts`) are called directly as plain async functions, the same shape `searchRecordsAction` (`src/features/shell/searchActions.ts`) already established for a non-form-submission action, rather than forcing `useActionState`'s form-submission shape onto a "fetch data, then do something with it client-side" interaction. The validate-before-restore section says plainly, in its own copy, that the restore action itself is not yet available -- never implying a button is coming right after the person reads a validation result.
 
   `pnpm check` passes (673 tests, up from 658 -- 15 new: 6 domain unit tests for `formatByteSize`/`daysSinceLastBackup`, plus the rest already counted in `pnpm test`'s file total). `pnpm build` passes (`/admin/backup` compiles as a real route, not the `[...slug]` placeholder). `pnpm db:test` passes: two clean rebuilds reproduce schema fingerprint `f1427317e184` (changed from `5335133e42e3` -- the first schema change since decision 220, as expected: one new table, two new RPCs), the new `99_p14_1_backup.sql` suite passes both rebuild passes, and the `upgrade_test` passes applying this migration on top of already-seeded data. `npx prettier --check .` clean. Phase 14's remaining items: the Backup & Restore Center's Part 2 (the actual restore-write path and its non-production restore drill -- the drill itself also needs either `hikarich-finance-dev` brought current or a fresh non-production Supabase branch/project, both already-flagged OWNER-relevant infrastructure gaps), and the live browser/device E2E half of accessibility testing (decision 222).
+
+- OWNER instruction ("saya lihat banyak halaman yang belum dibangun ... kerjakan saja semuanya" -- many nav
+  destinations are still unbuilt, so browsing is pointless; just build all of them): a full nav-vs-route
+  audit (`src/domain/shell/navigation.ts`'s 60 `href` values diffed against every real `page.tsx` under
+  `src/app`) found 32 still served by the `[...slug]` "coming soon" catch-all. Nearly every one already has
+  its backend fully `Implemented`/`Verified` per `docs/TASK_BOARD.md`'s own phase checklists -- this is
+  exactly the P13 screens/action-forms backlog `docs/DECISIONS.md`'s own "Open items for later phases"
+  section has been carrying forward since decisions 165-208, not new backend work, so it proceeds without a
+  new OWNER scoping question. Building continues item by item, one increment/PR per slice, the same
+  established rhythm, without pausing for confirmation between items per the OWNER's own standing
+  "lanjutkan sampai selesai jangan berhenti" instruction.
+
+  Decision 225, first increment: **Customers** (`/sales/customers`, `/sales/customers/[id]`) and **Vendors**
+  (`/purchases/vendors`, `/purchases/vendors/[id]`) -- the two items decisions 165/167 listed as remaining in
+  Part 3a/3b that were still genuinely unbuilt despite Part 3's own later closure note. Both read the same
+  `public.contacts` table (Step 02 §4); no RPC lists or reads a contact -- only `create_contact`/
+  `find_contact_duplicates` exist -- so `src/services/contacts/contacts.ts` extends the direct-table-read
+  pattern already established for accounting/money (decisions 161/167/169/170/171/172) rather than adding a
+  new RPC. One shared `ContactsListScreen`/`ContactDetailScreen` pair (`src/features/contacts/`) serves both
+  roles via a `role`/`basePath`/`title` prop, the same generalization precedent `DocumentsListScreen`
+  (decision 198) and Other Receivables/Payables (decision 176) already established; a contact recorded as
+  `kind = 'both'` legitimately appears on both lists, never duplicated or hidden. `tax_identifier` is a
+  genuinely sensitive column (Step 06 §6): `contacts_select`'s own column-level grant
+  (`app_private.expose_select`) never includes it for the `authenticated` role at all, so it is never
+  selected here -- selecting it would fail at the database itself. Revealing it on demand
+  (`reveal_sensitive('contact_tax_identifier', id)`, gated on the separate `contacts.view_sensitive`
+  permission) is deferred to a later increment, the same "no ungrounded UI" discipline every other
+  masked-field screen in this codebase already follows (Employee Detail, Payroll Run/Payslip). Unlike a
+  commercial document, a contact has no issue/void/correct lifecycle, so Detail keeps only Header and a
+  Summary of its own recorded facts, the same narrower application `AccountDetailScreen` established for a
+  non-document record (decision 169). Create/Edit is deferred (no `create_contact`/`update_contact` UI yet)
+  and stays on the catch-all placeholder for now.
+
+  `pnpm check` passes (673 tests, unchanged -- pure direct-read plumbing and routing, no new domain logic to
+  unit-test). `pnpm build` passes (`/sales/customers`, `/sales/customers/[id]`, `/purchases/vendors`,
+  `/purchases/vendors/[id]` all register as real routes, in place of the catch-all). `pnpm db:test` does not
+  apply (no migration touched). `npx prettier --check .` clean. Still deferred, per decisions 165/167's own
+  remaining lists minus these two items: the invoice/bill Create/Edit builders, Send, Payment Confirmation
+  queue, Refund actions, Record Expense builder, the Payment action, Products & Services, evidence upload,
+  aging, and every other item this session's fresh audit found still on the catch-all (Accounting Periods,
+  Opening Balances, Advanced Adjustments, Money Reconciliation, the Tax family screens, Planning Forecasts
+  -- blocked on decision 139's own open OWNER methodology question, Documents Archive -- needs new backend,
+  Recent Activity, and the Administration module). This branches from `main` independently of the
+  still-unmerged PR for decisions 225-226 shown in an earlier working-tree draft of this file that was never
+  committed -- to avoid confusion, this session's own decision numbering restarts cleanly at 225 from
+  `main`'s actual last committed decision (224); the other, differently-numbered 225/226 will renumber
+  automatically once that separate PR merges and this file is next touched.
