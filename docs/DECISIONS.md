@@ -460,3 +460,58 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
   committed -- to avoid confusion, this session's own decision numbering restarts cleanly at 225 from
   `main`'s actual last committed decision (224); the other, differently-numbered 225/226 will renumber
   automatically once that separate PR merges and this file is next touched.
+
+- `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46
+  pending migrations directly (this is the non-production Preview/dev backend, not real financial data).
+  Applied in strict filename order via the Supabase management API, matched by name against the 15 already
+  applied (Supabase assigns its own version timestamps on apply, which don't match the repo's own
+  filename-embedded dates -- expected, matched by migration _name_ instead). `list_migrations` now shows
+  61 migrations on `hikarich-finance-dev`, ending with `p14_backup_restore`, identical to the repo's own
+  `supabase/migrations/` set -- independently re-verified directly (not taken on trust) after the batch
+  finished. `hikarich-finance-prod` was never touched (confirmed unchanged). Security and performance
+  advisors were re-run afterward and show no new categories beyond what the codebase's own established
+  patterns already produce (SECURITY DEFINER RPCs with an internal `app_private.*_authorize` check on
+  every one, by design; RLS-enabled-no-policy on tables intentionally closed to direct SELECT, served only
+  through RPCs, including the new P9 payroll tables) -- nothing attributable specifically to this batch.
+
+  This closes the shared infrastructure gap decisions 222 and 223 both flagged as OWNER-relevant and
+  deliberately did not act on unilaterally. It unblocks both of Phase 14's remaining items at once: the
+  Backup & Restore Center's Part 2 non-production restore drill (Step 16 §34) now has a real, current,
+  non-production database to drill against, and the live browser/device E2E half of accessibility testing
+  (decision 222) can now run against a real Vercel Preview deployment (which backs onto `hikarich-finance-dev`)
+  instead of needing a local Docker-based Supabase stack this sandbox has never had. No repo files changed --
+  a pure database-side operation, like decisions 214/219/223's audits are pure documentation-side ones.
+  `pnpm db:test`'s schema fingerprint is unaffected (it tests a from-scratch local rebuild, not any hosted
+  project).
+
+- Live browser E2E smoke check against the now-current `hikarich-finance-dev` Preview deployment
+  (decision 228): with decision 227 shipped, the previously-blocked live half of decision 222's
+  accessibility/browser testing bullet was attempted for real. The PR's own Vercel Preview build
+  (`hikarich-finance-dqd025q3m-hikarich.vercel.app`, deployed against the now-current `hikarich-
+finance-dev`) was opened in a real browser. `/login` renders correctly end to end -- title,
+  heading, both fields (`Email`/`Kata sandi`) correctly wrapped in their own `<label>` (confirmed
+  via the page's accessibility tree, not assumed), submit button, zero console errors. This alone
+  is a meaningful confirmation: before decision 227, the large majority of routes would have
+  failed outright against a 57-migrations-behind backend (decision 222's own finding); now the
+  app actually renders against live infrastructure.
+
+  **Going further than the unauthenticated `/login` page requires signing in, and this session's own
+  standing safety rules prohibit that here.** Creating an account or entering a password is flatly
+  prohibited on any host that is not a local development address (`localhost`/`127.0.0.1`/`.test`) --
+  a real hosted Vercel Preview URL does not qualify, so this session cannot type real (or synthetic) login
+  credentials into it, with or without OWNER permission; that exception only covers a locally-running dev
+  server. This is a hard stop, not a scope choice, so authenticated live E2E/accessibility testing (walking
+  through actual List/Detail/Form screens signed in, keyboard-navigation and screen-reader passes on real
+  data-bearing pages, failure-mode testing against real validation) stays open pending one of: the OWNER
+  doing the signed-in walkthrough themselves (with this session driving specific checks alongside), or the
+  OWNER creating a dedicated non-production test login this session can be told to use. Recorded here
+  rather than worked around.
+
+  Renumbered 225->227 and 226->228 when merging onto `main`, which by then already had this project's own
+  decision 225 (Customers/Vendors) merged, with decision 226 (Accounting Periods, same numbering) queued in
+  its own still-open PR -- exactly the automatic renumbering the disambiguation note at the end of decision
+  225 above anticipated, done now (rather than waiting for that second PR to land first) so this branch stops
+  blocking on the conflict and 227/228 stay clear of either one. No content changed beyond the two
+  self-referential decision numbers and the section headers; this merge also fixed a pre-existing Markdown
+  typo in this branch's own original text (stray backslashes before backticks, which rendered literally
+  instead of as a code span) wherever it appeared in these two entries.

@@ -1461,3 +1461,23 @@ Still on the catch-all after this increment (tracked so nothing is silently drop
 (`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`) which largely duplicate
 functionality already shipped as `/reports?statement=*` tabs (Part 4) under separate hrefs that were never
 wired to them -- worth a routing-only fix rather than new screens, taken up in a later increment.
+
+`hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46
+pending migrations to this non-production Preview/dev project directly. Applied via the Supabase management
+API in strict filename order, matched to the 15 already-applied migrations by name. `list_migrations`
+independently re-verified: 61 migrations total, ending with `p14_backup_restore`, matching the repo exactly.
+`hikarich-finance-prod` confirmed untouched. Security/performance advisors re-run and re-checked directly --
+no new finding categories, everything observed matches this codebase's own established, intentional patterns
+(SECURITY DEFINER RPCs with internal authorization checks; RLS-enabled-no-policy on RPC-only tables). Closes
+the infrastructure gap decisions 222/223 flagged as OWNER-only. Unblocks both remaining Phase 14 items at
+once: the Backup & Restore Center Part 2 restore drill now has a real non-production database to drill
+against, and live browser/device E2E accessibility testing can now run against a real Vercel Preview
+deployment instead of needing a local Docker-based Supabase stack. No repo files changed -- database-side
+only; `pnpm db:test`'s fingerprint (a from-scratch local rebuild) is unaffected.
+
+Live browser E2E smoke check against the now-current Preview deployment (decision 228): confirmed the
+PR's own Vercel Preview build (backed by the now-current hikarich-finance-dev) renders /login correctly
+end to end with zero console errors and correctly-labeled form fields. Going further requires signing in,
+which this session's standing safety rules prohibit on any non-local host -- a hard stop, not a scope
+choice. Authenticated E2E/accessibility testing stays open pending either the OWNER doing a signed-in
+walkthrough with this session, or a dedicated non-production test login.
