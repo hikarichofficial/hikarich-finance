@@ -283,11 +283,11 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 - Sub-ledger reconciliation of control-account opening balances (decision 44) once P7-P8 exist; financial account balances are covered since P4 (decisions 51-53), customer receivables since P5 (decision 74) and vendor payables since P6 (decision 80).
 - Money screens still remaining after Part 3c's Accounts List/Detail, Transfers List/Detail/create form and Cash/Bank Activity (decisions 169-171): the Reconciliation workspace, balance adjustments, Create/Edit Account, and statement file import (decision 62); source links from an account ledger line to its originating record, once those records have their own detail screens; the OWNER's choice of account kinds that may never go negative (decision 55).
 - Accounting screens still remaining after Part 3d's Journal List/Detail and Chart of Accounts (decision 172): Period Close (checklist of blockers/warnings before Close), Opening Balances, the Manual Journal debit/credit grid builder, and Advanced Adjustments.
-- Sales screens still remaining after Part 3a's Invoices List/Detail (decisions 164-166): the invoice Create/Edit builder, Send, the Payment Confirmation queue, Refund actions, Customers, Products & Services, and aging; step-up on reversal and refund specifically (Void/Correct already ship in Part 3a with no step-up, per decision 75's own finding that Step 06 §8 requires none).
+- Sales screens still remaining after Part 3a's Invoices List/Detail (decisions 164-166) and Customers List/Detail (decision 225): the invoice Create/Edit builder, Send, the Payment Confirmation queue, Refund actions, Products & Services, and aging; step-up on reversal and refund specifically (Void/Correct already ship in Part 3a with no step-up, per decision 75's own finding that Step 06 §8 requires none).
 - OWNER to decide the Step 09 §11 vs. P5 conflict recorded in decision 166: whether a draft invoice should get a public preview link (would mean reopening P5's locked `regenerate_invoice_link`/`invoice_public_link` SQL) or Step 09 §11's line is superseded by P5's already-reviewed decision 76 scope.
 - Set `PUBLIC_CLAIM_SALT` in Vercel Production before customers use the payment page (decision 70); OWNER to decide whether payment reversal should be OWNER-only (decision 76).
 - Tax on invoices and tax credit notes with P7 (decision 65).
-- Purchase screens still remaining after Part 3b's Bills List/Detail (decisions 167-168): the Record Bill/Record Expense builders, the Payment action, Expenses, Vendors, evidence upload and aging; step-up on void and payment reversal (decisions 84, 87).
+- Purchase screens still remaining after Part 3b's Bills List/Detail (decisions 167-168) and Vendors List/Detail (decision 225): the Record Bill/Record Expense builders, the Payment action, Expenses, evidence upload and aging; step-up on void and payment reversal (decisions 84, 87).
 - OWNER to decide whether paying and reversing vendor payments should be OWNER-only (decision 87) and whether purchase lines may use Depreciation, Bad Debt and Interest Expense accounts (decision 87).
 - OWNER to decide the `contacts.view`/`bills.view` permission gap recorded in decision 168: whether the `approver`/`tax` role templates should also receive `contacts.view` so vendor names resolve for draft/submitted/cancelled bills, or whether the `vendor_reference`/"Vendor" fallback already shipped is acceptable as-is.
 - OWNER to decide the `accounting.view`/`money.view` permission gap recorded in decision 171: whether the `finance_staff`/`approver` role templates should also receive `accounting.view` so journal numbers resolve on Cash/Bank Activity, or whether the "—" fallback already shipped is acceptable as-is.
@@ -414,7 +414,54 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 
   `pnpm check` passes (673 tests, up from 658 -- 15 new: 6 domain unit tests for `formatByteSize`/`daysSinceLastBackup`, plus the rest already counted in `pnpm test`'s file total). `pnpm build` passes (`/admin/backup` compiles as a real route, not the `[...slug]` placeholder). `pnpm db:test` passes: two clean rebuilds reproduce schema fingerprint `f1427317e184` (changed from `5335133e42e3` -- the first schema change since decision 220, as expected: one new table, two new RPCs), the new `99_p14_1_backup.sql` suite passes both rebuild passes, and the `upgrade_test` passes applying this migration on top of already-seeded data. `npx prettier --check .` clean. Phase 14's remaining items: the Backup & Restore Center's Part 2 (the actual restore-write path and its non-production restore drill -- the drill itself also needs either `hikarich-finance-dev` brought current or a fresh non-production Supabase branch/project, both already-flagged OWNER-relevant infrastructure gaps), and the live browser/device E2E half of accessibility testing (decision 222).
 
-- `hikarich-finance-dev` brought current with the codebase (decision 225): OWNER approved applying the 46
+- OWNER instruction ("saya lihat banyak halaman yang belum dibangun ... kerjakan saja semuanya" -- many nav
+  destinations are still unbuilt, so browsing is pointless; just build all of them): a full nav-vs-route
+  audit (`src/domain/shell/navigation.ts`'s 60 `href` values diffed against every real `page.tsx` under
+  `src/app`) found 32 still served by the `[...slug]` "coming soon" catch-all. Nearly every one already has
+  its backend fully `Implemented`/`Verified` per `docs/TASK_BOARD.md`'s own phase checklists -- this is
+  exactly the P13 screens/action-forms backlog `docs/DECISIONS.md`'s own "Open items for later phases"
+  section has been carrying forward since decisions 165-208, not new backend work, so it proceeds without a
+  new OWNER scoping question. Building continues item by item, one increment/PR per slice, the same
+  established rhythm, without pausing for confirmation between items per the OWNER's own standing
+  "lanjutkan sampai selesai jangan berhenti" instruction.
+
+  Decision 225, first increment: **Customers** (`/sales/customers`, `/sales/customers/[id]`) and **Vendors**
+  (`/purchases/vendors`, `/purchases/vendors/[id]`) -- the two items decisions 165/167 listed as remaining in
+  Part 3a/3b that were still genuinely unbuilt despite Part 3's own later closure note. Both read the same
+  `public.contacts` table (Step 02 §4); no RPC lists or reads a contact -- only `create_contact`/
+  `find_contact_duplicates` exist -- so `src/services/contacts/contacts.ts` extends the direct-table-read
+  pattern already established for accounting/money (decisions 161/167/169/170/171/172) rather than adding a
+  new RPC. One shared `ContactsListScreen`/`ContactDetailScreen` pair (`src/features/contacts/`) serves both
+  roles via a `role`/`basePath`/`title` prop, the same generalization precedent `DocumentsListScreen`
+  (decision 198) and Other Receivables/Payables (decision 176) already established; a contact recorded as
+  `kind = 'both'` legitimately appears on both lists, never duplicated or hidden. `tax_identifier` is a
+  genuinely sensitive column (Step 06 §6): `contacts_select`'s own column-level grant
+  (`app_private.expose_select`) never includes it for the `authenticated` role at all, so it is never
+  selected here -- selecting it would fail at the database itself. Revealing it on demand
+  (`reveal_sensitive('contact_tax_identifier', id)`, gated on the separate `contacts.view_sensitive`
+  permission) is deferred to a later increment, the same "no ungrounded UI" discipline every other
+  masked-field screen in this codebase already follows (Employee Detail, Payroll Run/Payslip). Unlike a
+  commercial document, a contact has no issue/void/correct lifecycle, so Detail keeps only Header and a
+  Summary of its own recorded facts, the same narrower application `AccountDetailScreen` established for a
+  non-document record (decision 169). Create/Edit is deferred (no `create_contact`/`update_contact` UI yet)
+  and stays on the catch-all placeholder for now.
+
+  `pnpm check` passes (673 tests, unchanged -- pure direct-read plumbing and routing, no new domain logic to
+  unit-test). `pnpm build` passes (`/sales/customers`, `/sales/customers/[id]`, `/purchases/vendors`,
+  `/purchases/vendors/[id]` all register as real routes, in place of the catch-all). `pnpm db:test` does not
+  apply (no migration touched). `npx prettier --check .` clean. Still deferred, per decisions 165/167's own
+  remaining lists minus these two items: the invoice/bill Create/Edit builders, Send, Payment Confirmation
+  queue, Refund actions, Record Expense builder, the Payment action, Products & Services, evidence upload,
+  aging, and every other item this session's fresh audit found still on the catch-all (Accounting Periods,
+  Opening Balances, Advanced Adjustments, Money Reconciliation, the Tax family screens, Planning Forecasts
+  -- blocked on decision 139's own open OWNER methodology question, Documents Archive -- needs new backend,
+  Recent Activity, and the Administration module). This branches from `main` independently of the
+  still-unmerged PR for decisions 225-226 shown in an earlier working-tree draft of this file that was never
+  committed -- to avoid confusion, this session's own decision numbering restarts cleanly at 225 from
+  `main`'s actual last committed decision (224); the other, differently-numbered 225/226 will renumber
+  automatically once that separate PR merges and this file is next touched.
+
+- `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46
   pending migrations directly (this is the non-production Preview/dev backend, not real financial data).
   Applied in strict filename order via the Supabase management API, matched by name against the 15 already
   applied (Supabase assigns its own version timestamps on apply, which don't match the repo's own
@@ -437,19 +484,20 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
   `pnpm db:test`'s schema fingerprint is unaffected (it tests a from-scratch local rebuild, not any hosted
   project).
 
-- Live browser E2E smoke check against the now-current \`hikarich-finance-dev\` Preview deployment (decision
-  226): with decision 225 shipped, the previously-blocked live half of decision 222's accessibility/browser
-  testing bullet was attempted for real. The PR's own Vercel Preview build (\`hikarich-finance-dqd025q3m-
-  hikarich.vercel.app\`, deployed against the now-current \`hikarich-finance-dev\`) was opened in a real
-  browser. \`/login\` renders correctly end to end -- title, heading, both fields (\`Email\`/\`Kata sandi\`)
-  correctly wrapped in their own \`<label>\` (confirmed via the page's accessibility tree, not assumed),
-  submit button, zero console errors. This alone is a meaningful confirmation: before decision 225, the
-  large majority of routes would have failed outright against a 57-migrations-behind backend (decision
-  222's own finding); now the app actually renders against live infrastructure.
+- Live browser E2E smoke check against the now-current `hikarich-finance-dev` Preview deployment
+  (decision 228): with decision 227 shipped, the previously-blocked live half of decision 222's
+  accessibility/browser testing bullet was attempted for real. The PR's own Vercel Preview build
+  (`hikarich-finance-dqd025q3m-hikarich.vercel.app`, deployed against the now-current `hikarich-
+finance-dev`) was opened in a real browser. `/login` renders correctly end to end -- title,
+  heading, both fields (`Email`/`Kata sandi`) correctly wrapped in their own `<label>` (confirmed
+  via the page's accessibility tree, not assumed), submit button, zero console errors. This alone
+  is a meaningful confirmation: before decision 227, the large majority of routes would have
+  failed outright against a 57-migrations-behind backend (decision 222's own finding); now the
+  app actually renders against live infrastructure.
 
-  **Going further than the unauthenticated \`/login\` page requires signing in, and this session's own
+  **Going further than the unauthenticated `/login` page requires signing in, and this session's own
   standing safety rules prohibit that here.** Creating an account or entering a password is flatly
-  prohibited on any host that is not a local development address (\`localhost\`/\`127.0.0.1\`/\`.test\`) --
+  prohibited on any host that is not a local development address (`localhost`/`127.0.0.1`/`.test`) --
   a real hosted Vercel Preview URL does not qualify, so this session cannot type real (or synthetic) login
   credentials into it, with or without OWNER permission; that exception only covers a locally-running dev
   server. This is a hard stop, not a scope choice, so authenticated live E2E/accessibility testing (walking
@@ -458,3 +506,12 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
   doing the signed-in walkthrough themselves (with this session driving specific checks alongside), or the
   OWNER creating a dedicated non-production test login this session can be told to use. Recorded here
   rather than worked around.
+
+  Renumbered 225->227 and 226->228 when merging onto `main`, which by then already had this project's own
+  decision 225 (Customers/Vendors) merged, with decision 226 (Accounting Periods, same numbering) queued in
+  its own still-open PR -- exactly the automatic renumbering the disambiguation note at the end of decision
+  225 above anticipated, done now (rather than waiting for that second PR to land first) so this branch stops
+  blocking on the conflict and 227/228 stay clear of either one. No content changed beyond the two
+  self-referential decision numbers and the section headers; this merge also fixed a pre-existing Markdown
+  typo in this branch's own original text (stray backslashes before backticks, which rendered literally
+  instead of as a code span) wherever it appeared in these two entries.

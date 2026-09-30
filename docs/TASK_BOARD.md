@@ -1435,7 +1435,34 @@ path and its non-production restore drill, the drill itself still blocked on the
 `hikarich-finance-dev` migration-drift gap or a fresh non-production project) and the live browser/device
 E2E half of accessibility testing (decision 222).
 
-`hikarich-finance-dev` brought current with the codebase (DECISIONS 225): OWNER approved applying the 46
+## Unbuilt-screens backlog (OWNER instruction: "kerjakan saja semuanya")
+
+A nav-vs-route audit (60 `navigation.ts` hrefs diffed against every real `page.tsx`) found 32 still served
+by the `[...slug]` catch-all. Almost all backend work behind them is already Verified/Implemented (P3-P12
+above) -- this is P13's own screens/action-forms backlog that decisions 165-208 already carried forward as
+open items, not a new phase. Building proceeds item by item, one PR per slice, without pausing between items.
+
+Decision 225, first increment (Customers/Vendors): `/sales/customers`, `/sales/customers/[id]`,
+`/purchases/vendors`, `/purchases/vendors/[id]` -- both read `public.contacts` directly (no RPC lists/reads
+one), one shared `ContactsListScreen`/`ContactDetailScreen` pair serves both roles. `tax_identifier` is
+never selected (column-level grant excludes it for `authenticated`; revealing it on demand is deferred).
+`pnpm check` (673 tests, unchanged), `pnpm build` (4 new real routes), `pnpm db:test` N/A (no migration),
+`npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 225 (this branch's own
+numbering, built from `main`; a differently-numbered 225/226 exists only in a separate, still-unmerged PR
+that branched earlier -- see that decision's own closing note).
+
+Still on the catch-all after this increment (tracked so nothing is silently dropped): `/sales/payments`,
+`/sales/refunds`, `/sales/products`, `/purchases/expenses`, `/purchases/payments`, `/accounting/periods`,
+`/accounting/opening-balances`, `/accounting/adjustments`, `/money/reconciliation`, `/tax/pph`,
+`/tax/withholding`, `/tax/ppn`, `/tax/calendar`, `/tax/filing`, `/tax/rules`, `/planning/forecasts`
+(blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
+`supersedes_document_id` has no reading RPC), `/activity`, `/admin/imports`, `/admin/audit`,
+`/admin/users`, `/admin/settings`, `/admin/security`, and the `/reports/*` nav sub-items
+(`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`) which largely duplicate
+functionality already shipped as `/reports?statement=*` tabs (Part 4) under separate hrefs that were never
+wired to them -- worth a routing-only fix rather than new screens, taken up in a later increment.
+
+`hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46
 pending migrations to this non-production Preview/dev project directly. Applied via the Supabase management
 API in strict filename order, matched to the 15 already-applied migrations by name. `list_migrations`
 independently re-verified: 61 migrations total, ending with `p14_backup_restore`, matching the repo exactly.
@@ -1448,7 +1475,7 @@ against, and live browser/device E2E accessibility testing can now run against a
 deployment instead of needing a local Docker-based Supabase stack. No repo files changed -- database-side
 only; `pnpm db:test`'s fingerprint (a from-scratch local rebuild) is unaffected.
 
-Live browser E2E smoke check against the now-current Preview deployment (DECISIONS 226): confirmed the
+Live browser E2E smoke check against the now-current Preview deployment (decision 228): confirmed the
 PR's own Vercel Preview build (backed by the now-current hikarich-finance-dev) renders /login correctly
 end to end with zero console errors and correctly-labeled form fields. Going further requires signing in,
 which this session's standing safety rules prohibit on any non-local host -- a hard stop, not a scope
