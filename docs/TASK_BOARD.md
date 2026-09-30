@@ -1447,3 +1447,10 @@ once: the Backup & Restore Center Part 2 restore drill now has a real non-produc
 against, and live browser/device E2E accessibility testing can now run against a real Vercel Preview
 deployment instead of needing a local Docker-based Supabase stack. No repo files changed -- database-side
 only; `pnpm db:test`'s fingerprint (a from-scratch local rebuild) is unaffected.
+
+Live browser E2E smoke check against the now-current Preview deployment (DECISIONS 226): confirmed the
+PR's own Vercel Preview build (backed by the now-current hikarich-finance-dev) renders /login correctly
+end to end with zero console errors and correctly-labeled form fields. Going further requires signing in,
+which this session's standing safety rules prohibit on any non-local host -- a hard stop, not a scope
+choice. Authenticated E2E/accessibility testing stays open pending either the OWNER doing a signed-in
+walkthrough with this session, or a dedicated non-production test login.

@@ -436,3 +436,25 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
   a pure database-side operation, like decisions 214/219/223's audits are pure documentation-side ones.
   `pnpm db:test`'s schema fingerprint is unaffected (it tests a from-scratch local rebuild, not any hosted
   project).
+
+- Live browser E2E smoke check against the now-current \`hikarich-finance-dev\` Preview deployment (decision
+  226): with decision 225 shipped, the previously-blocked live half of decision 222's accessibility/browser
+  testing bullet was attempted for real. The PR's own Vercel Preview build (\`hikarich-finance-dqd025q3m-
+  hikarich.vercel.app\`, deployed against the now-current \`hikarich-finance-dev\`) was opened in a real
+  browser. \`/login\` renders correctly end to end -- title, heading, both fields (\`Email\`/\`Kata sandi\`)
+  correctly wrapped in their own \`<label>\` (confirmed via the page's accessibility tree, not assumed),
+  submit button, zero console errors. This alone is a meaningful confirmation: before decision 225, the
+  large majority of routes would have failed outright against a 57-migrations-behind backend (decision
+  222's own finding); now the app actually renders against live infrastructure.
+
+  **Going further than the unauthenticated \`/login\` page requires signing in, and this session's own
+  standing safety rules prohibit that here.** Creating an account or entering a password is flatly
+  prohibited on any host that is not a local development address (\`localhost\`/\`127.0.0.1\`/\`.test\`) --
+  a real hosted Vercel Preview URL does not qualify, so this session cannot type real (or synthetic) login
+  credentials into it, with or without OWNER permission; that exception only covers a locally-running dev
+  server. This is a hard stop, not a scope choice, so authenticated live E2E/accessibility testing (walking
+  through actual List/Detail/Form screens signed in, keyboard-navigation and screen-reader passes on real
+  data-bearing pages, failure-mode testing against real validation) stays open pending one of: the OWNER
+  doing the signed-in walkthrough themselves (with this session driving specific checks alongside), or the
+  OWNER creating a dedicated non-production test login this session can be told to use. Recorded here
+  rather than worked around.
