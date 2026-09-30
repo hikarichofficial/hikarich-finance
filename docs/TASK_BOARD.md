@@ -1401,3 +1401,16 @@ to the same explicit keyboard shortcut that opens the palette. `pnpm lint` now c
 warnings), `pnpm check` (658 tests, unchanged), `pnpm db:test` (fingerprint `5335133e42e3` unchanged, no
 migration touched), `npx prettier --check .` all pass. Phase 14's remaining bullets: backup/recovery
 verification (needs OWNER dashboard action) and the `hikarich-finance-dev` migration-drift gap stay open.
+
+Backup/recovery and Storage recovery procedure verification in non-production, scope audit (DECISIONS 223):
+re-read the OWNER's own existing decision (line 10, 2026-09-19) -- recovery relies on the in-app Backup &
+Restore Center (Step 01 #36), not paid Supabase managed backups -- then found that Center was never built:
+only a nav placeholder exists. Read Step 01 #36, Step 01 #44 and Step 16 §34 directly from the FINAL spec
+docx files (via pandoc) to ground the real scope: this bullet requires BUILDING Full/Data-only/Documents-
+Archive backup export, validation-before-restore, history/reminders and the restore path itself, before a
+restore drill can even run against it -- a materially larger, higher-stakes item (writes recovered data
+back over real records) than any other Phase 14 bullet shipped so far. Two questions are OWNER-only and not
+resolvable from spec text alone: the V1 "external storage" target (plain download vs. a named integration),
+and re-confirming the free-tier infrastructure assumption behind §34's "actual subscribed infrastructure
+plan" language. No files changed -- an audit only, like decisions 214/219. Surfaced to the OWNER directly
+with a concrete recommended V1 scope rather than built on an assumed scope or silently skipped.
