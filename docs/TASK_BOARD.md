@@ -1510,3 +1510,15 @@ end to end with zero console errors and correctly-labeled form fields. Going fur
 which this session's standing safety rules prohibit on any non-local host -- a hard stop, not a scope
 choice. Authenticated E2E/accessibility testing stays open pending either the OWNER doing a signed-in
 walkthrough with this session, or a dedicated non-production test login.
+
+**OWNER QUESTION -- unresolved** (decision 237): the "Migration clean-rebuild and invariants" CI job
+started failing on decisions 235/236's PRs (`95_p7_determination.sql` test 9.5), reproducibly on CI but
+not locally. Traced to a real timezone-boundary defect in already-shipped P7 code, not anything in 235/236
+(both touch zero P7 files): `tax_final_evaluate`'s "period is over" guard compares against
+`entity_today()` (Entity's own timezone), while the test picks its period with plain `current_date`
+(Postgres session's timezone) -- the two disagree during the hours, on the last day of any month, where
+the Entity's timezone has already rolled into next month but the session's hasn't, letting evaluation fall
+through the guard. Left unresolved: this is Step 05 §9 tax-computation logic and its own invariant test,
+both locked spec, so a fix (either make the test entity-timezone-aware, or decide what "period over" means
+across timezones) needs OWNER sign-off rather than a solo call. No repo behavior changed, documentation
+only. Full root-cause trace in `docs/DECISIONS.md` decision 237.
