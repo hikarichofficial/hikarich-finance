@@ -740,3 +740,34 @@ expenses` (needs new backend), `/accounting/opening-balances` (needs new backend
   `/tax/rules` (all five newly confirmed buildable, no backend gap, this decision), Planning Forecasts,
   Documents Archive (needs new backend), Recent Activity, the Administration module, and every remaining
   action-form item decisions 165/167 still carry.
+
+- PPh Final UMKM (decision 234, unbuilt-screens backlog): `/tax/pph` -- the second of the six Tax family
+  items, the one with its own compute step (`tax_final_compute`) rather than a plain per-document accrual,
+  since the UMKM final-tax regime recognises a flat rate on turnover once a month, not line by line (Step 05
+  §9). A period picker (native `<input type="month">`, no client script needed for its own GET submission --
+  new `resolveTaxPeriod` in `src/domain/tax/tax.ts` accepts its "YYYY-MM" value directly, or a full
+  "YYYY-MM-01" period, falling back to the most recently completed month when neither is given) selects the
+  month; "Pratinjau" shows `tax_final_preview`'s live, unrecorded evaluation of that month, "Posisi
+  Tercatat" shows what `tax_period_position` says is actually on the books (both already service-wrapped,
+  confirmed backend-ready by decision 233's own inventory).
+
+  `tax_final_compute` itself needs `tax.confirm_facts` -- narrower than `tax_final_preview`/
+  `tax_period_position`'s own `tax.view`, which is the permission this page is gated on (matching the Tax
+  nav section's own parent permission, same as decision 233). Rather than gating the whole page on the
+  narrower permission (which would hide the figures from every `tax.view`-only role -- `finance_admin`,
+  `accountant`, `viewer_auditor` all hold `tax.view` but not `tax.confirm_facts`, only the dedicated `tax`
+  role template holds both, `20260920100100_p2_permission_catalog.sql`), the Compute button's own server
+  action lets `tax_final_compute`'s `AuthzError` surface naturally on submit, the same "let the RPC's own
+  narrower permission fail on the action, not the page" shape `ReverseForm`/`PeriodActions` already use. The
+  button is also disabled client-side whenever the live preview's own status is not `auto_determined` --
+  early feedback only, since `tax_final_compute` re-checks the identical condition itself and raises its own
+  `CONFLICT` if bypassed.
+
+  `pnpm check` passes (695 tests, up from 689 -- `resolveTaxPeriod`'s own new test cases in `tax.test.ts`).
+  `pnpm build` passes (`/tax/pph` registers as a real route). `pnpm db:test` does not apply (no migration
+  touched). `npx prettier --check .` clean. Still on the catch-all: `/sales/products` (needs new backend),
+  `/purchases/expenses` (needs new backend), `/accounting/opening-balances` (needs new backend), the Money
+  Reconciliation session/workspace (needs new backend), `/tax/withholding`, `/tax/ppn`, `/tax/filing`,
+  `/tax/rules` (all four confirmed buildable, no backend gap), Planning Forecasts, Documents Archive (needs
+  new backend), Recent Activity, the Administration module, and every remaining action-form item decisions
+  165/167 still carry.
