@@ -1490,15 +1490,28 @@ The same audit confirmed `/sales/products` (no RPC of any kind exists over `publ
 just missing UI. `pnpm check` (678 tests, up from 673), `pnpm build` (1 new real route), `pnpm db:test`
 N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 231.
 
-Still on the catch-all after these five increments (tracked so nothing is silently dropped):
+Decision 232, sixth increment (Advanced Adjustments): `/accounting/adjustments` -- a single form (no
+List+New split), posting immediately via `record_balance_adjustment` (already wrapped as
+`recordBalanceAdjustment`, just never given a UI). Gated `money.adjust` matching the RPC exactly, not the
+nav section's `accounting.view`. Counter-account picker uses new `eligibleCounterAccounts` domain helper,
+matching the RPC's own validation exactly (active, non-group, non-control, not the opening-balance
+clearing account). Redirects to the affected account's own Detail page on success, since there is no
+adjustment record of its own to show. Reached after finding `/accounting/opening-balances` (next on the
+catch-all) is the same class of gap as Reconciliation's workspace: `post_opening_balances`/
+`complete_opening_balances` post immediately but `opening_balance_batches` has no reading RPC at all, so
+Advanced Adjustments was built instead. `pnpm check` (684 tests, up from 678), `pnpm build` (1 new real
+route), `pnpm db:test` N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 232.
+
+Still on the catch-all after these six increments (tracked so nothing is silently dropped):
 `/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
 `/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
-balances, decision 231), `/accounting/opening-balances`, `/accounting/adjustments`, `/tax/pph`,
-`/tax/withholding`, `/tax/ppn`, `/tax/calendar`, `/tax/filing`, `/tax/rules`, `/planning/forecasts`
-(blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
-`supersedes_document_id` has no reading RPC), `/activity`, `/admin/imports`, `/admin/audit`,
-`/admin/users`, `/admin/settings`, `/admin/security`, and the `/reports/*` nav sub-items
+balances, decision 231), `/accounting/opening-balances` (needs new backend -- no reading RPC over
+`opening_balance_batches`, decision 232), `/tax/pph`, `/tax/withholding`, `/tax/ppn`,
+`/tax/calendar`, `/tax/filing`, `/tax/rules`, `/planning/forecasts` (blocked on decision 139's own open
+methodology question), `/documents/archive` (needs new backend -- `supersedes_document_id` has no reading
+RPC), `/activity`, `/admin/imports`, `/admin/audit`, `/admin/users`, `/admin/settings`, `/admin/security`,
+and the `/reports/*` nav sub-items
 (`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`) which largely duplicate
 functionality already shipped as `/reports?statement=*` tabs (Part 4) under separate hrefs that were never
 wired to them -- worth a routing-only fix rather than new screens, taken up in a later increment.
