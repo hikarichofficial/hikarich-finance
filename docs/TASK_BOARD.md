@@ -1382,3 +1382,24 @@ comparison), not novel logic needing empirical proof; stated plainly rather than
 unchanged, new `upgrade_test` passes on first run against the newest migration,
 `20260930200200_p12_consolidated_and_custom_reports.sql`), `npx prettier --check .` all pass. Phase 14's
 remaining bullets (backup/recovery, accessibility/browser/device/failure-mode testing) stay open.
+
+Backup & Restore Center, Part 1: export backend + screen (DECISIONS 224): OWNER confirmed decision 223's V1
+scope (plain manual download, no external-storage integration; free-tier Supabase stays current). Builds
+Step 01 #36's Center for real: `export_backup_snapshot` (Full/Data-only/Documents Archive, dynamically
+enumerating every Entity-scoped table via `information_schema` so a future new table is never silently
+missed), `validate_backup_payload` (read-only shape/Entity-isolation check before any restore), a new
+`backup_jobs` history table, and `/admin/backup` (gated on the already-catalogued-but-never-granted
+`backup.create`/`backup.restore` permissions -- OWNER already holds both via the owner-bypass rule, no grant
+migration needed). Data-only excludes `audit_events`/`documents`/`document_links`; Documents Archive
+honestly reports `storage_configured: false` since Supabase Storage still isn't configured (decision 142).
+The actual restore-WRITE path is deliberately deferred to Part 2 -- this increment is read-only/append-only
+throughout, on purpose, given the stakes. New `99_p14_1_backup.sql` test suite (two synthetic Entities,
+authorization, table-set shape, Entity isolation, four validation scenarios, RLS) caught and fixed two real
+bugs before passing: a `jsonb_agg(... order by t.id)` that broke on a table with no `id` column, and a
+`text[] || text` array-append mistake that should have been `array_append`. `pnpm check` (673 tests, up
+from 658), `pnpm build` (`/admin/backup` is a real route now), `pnpm db:test` (schema fingerprint changed
+to `f1427317e184` -- one new table, two new RPCs, both clean rebuilds and the upgrade_test pass), `npx
+prettier --check .` all pass. Phase 14's remaining items: Backup & Restore Center Part 2 (the restore-write
+path and its non-production restore drill, the drill itself still blocked on the already-flagged
+`hikarich-finance-dev` migration-drift gap or a fresh non-production project) and the live browser/device
+E2E half of accessibility testing (decision 222).

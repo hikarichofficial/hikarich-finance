@@ -1938,6 +1938,44 @@ a.kpi-card:hover {
   white-space: nowrap;
 }
 
+/* Backup & Restore Center (P14, Step 01 #36, decision 224). */
+.backup-export-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.backup-export-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.backup-export-card h3 {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.backup-validation-ok,
+.backup-validation-fail {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+}
+
+.backup-validation-ok {
+  color: var(--success);
+  background: var(--success-wash);
+}
+
+.backup-validation-fail {
+  color: var(--danger);
+  background: var(--danger-wash);
+}
+
 .record-table a {
   color: var(--foreground);
   font-weight: 600;
