@@ -183,6 +183,10 @@ declare
                                          'profit_and_loss', 'balance_sheet', 'statement_of_changes_in_equity',
                                          'cash_flow_statement', 'general_ledger',
                                          'run_custom_report', 'consolidated_cash_position',
+                                         -- P14 backup/restore: export (Full/Data-only/Documents Archive) and
+                                         -- validate-before-restore (decision 224). The restore-write path itself
+                                         -- does not exist yet (Part 2, deliberately deferred).
+                                         'export_backup_snapshot', 'validate_backup_payload',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];

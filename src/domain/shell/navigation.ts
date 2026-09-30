@@ -235,14 +235,18 @@ export const NAVIGATION: readonly NavGroup[] = [
     icon: "Settings",
     label: "Administration",
     href: "/admin/settings",
-    permission: ["settings.view", "audit.view", "system.import"],
+    permission: ["settings.view", "audit.view", "system.import", "backup.create", "backup.restore"],
     items: [
       { label: "Imports", href: "/admin/imports", permission: ["system.import"] },
       { label: "Audit Log", href: "/admin/audit", permission: ["audit.view"] },
       { label: "Users & Roles", href: "/admin/users", permission: ["settings.view"] },
       { label: "Settings", href: "/admin/settings", permission: ["settings.view"] },
       { label: "Security", href: "/admin/security", permission: ["settings.view"] },
-      { label: "Backup & Restore", href: "/admin/backup", permission: ["settings.view"] },
+      {
+        label: "Backup & Restore",
+        href: "/admin/backup",
+        permission: ["backup.create", "backup.restore"],
+      },
     ],
   },
 ];
