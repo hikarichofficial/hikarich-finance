@@ -1364,3 +1364,21 @@ calendar day. `pnpm check` (658 tests, unchanged), `npx prettier --check .` and 
 rebuilds, fingerprint `5335133e42e3` unchanged, new suite passes both times) all pass. Phase 14's remaining
 bullets (backup/recovery, migration/upgrade tests, accessibility/browser/device/failure-mode testing) stay
 open.
+
+Migration-from-clean and upgrade-from-previous-version tests (DECISIONS 221): OWNER's next chosen item.
+"Migration-from-clean" already existed since P0/P1 (the clean-rebuild-x2 fingerprint check). This project
+has no shipped production release yet, so there's no real "previous version" to upgrade from -- the honest,
+buildable subset built instead: prove migrations are safe against a database that already holds real
+records, not only an empty one, which `rebuild()`'s own check never exercised (`supabase/seed.sql` only
+ever runs after every migration is already applied). New `upgrade_test` in `scripts/db-test.sh`: applies
+every migration except the newest, seeds real records (`supabase/seed.sql`), applies the newest migration
+on top, and asserts it applies without error, the resulting schema fingerprints identically to a normal
+clean rebuild, and the seeded records survive intact. Deliberately holds back only the single newest
+migration so the check is automatically exercised against whichever migration is newest at any time, no
+manual update needed later. Not formally mutation-tested like decision 220's concurrency test -- its
+failure detection reuses only already-proven mechanisms (`ON_ERROR_STOP=1` exit codes, the `fingerprint()`
+comparison), not novel logic needing empirical proof; stated plainly rather than assumed equivalent rigor.
+`pnpm check` (658 tests, unchanged), `pnpm db:test` (two clean rebuilds, fingerprint `5335133e42e3`
+unchanged, new `upgrade_test` passes on first run against the newest migration,
+`20260930200200_p12_consolidated_and_custom_reports.sql`), `npx prettier --check .` all pass. Phase 14's
+remaining bullets (backup/recovery, accessibility/browser/device/failure-mode testing) stay open.
