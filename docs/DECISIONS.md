@@ -1003,6 +1003,30 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   `profiles`) and `security.view` (`security_events`, `trusted_devices`). Whoever builds those screens
   must choose which permission the page itself requires; recorded so it is decided deliberately.
 
+- Settings, read-only (decision 243, unbuilt-screens backlog): `/admin/settings` -- the Administration
+  group's landing page, showing the active Entity's configuration on one page in four sections: Entity
+  profile (`entities` + `entity_profiles`), document numbering (`numbering_sequences`, with an example of
+  the first number each sequence would issue), approval rules (`approval_rules`, approver role names from
+  `roles`), and stored key/value settings (`entity_settings`). No RPC returns any of these, so
+  `getEntitySettingsOverview` (`src/services/settings/settings.ts`, new) reads each table directly under
+  its own existing RLS policy -- the direct-table-read precedent of decisions 161/167/170-173/239/242.
+  Gated on `settings.view`, the permission three of those policies already require and `navigation.ts`
+  declares.
+
+  `numberingExample` (`src/domain/settings/settings.ts`, unit-tested) builds the example exactly the way
+  `app_private.allocate_document_number` (P1) builds a real number: prefix, separator, optional year plus
+  separator, counter left-padded to the configured width. The three `entity_settings` keys the database
+  reads today (`money.block_negative_balance`, `money.match_date_tolerance_days`, `security.require_mfa`)
+  get readable labels; any other stored key is still shown under its raw key so nothing stored is hidden.
+
+  **Deliberately read-only.** Every value here changes authorization (approval rules, MFA), document
+  numbering, or money behaviour (negative-balance blocking, match tolerance); editing them is a separate
+  increment with its own scope and, where it changes a user workflow, an OWNER question -- not something to
+  add alongside a viewer.
+
+  `pnpm check` (738 tests, up from 731), `pnpm build` (1 new real route replacing the catch-all), `pnpm
+  db:test` N/A (no migration), prettier clean; verified via CI on the PR.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions
