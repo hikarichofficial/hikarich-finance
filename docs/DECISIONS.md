@@ -13,6 +13,7 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 | 2026-09-19 | Working rule (updated): improvising is acceptable when it is the best option. Decide and act without asking, except for crucial decisions only the OWNER can make (cost, exposure of data or code, changes to a locked specification). The OWNER clicks confirmations and types passwords personally.                                                     |
 | 2026-09-19 | The GitHub repository `hikarichofficial/hikarich-finance` is **public**, chosen over paying for a plan that enforces rulesets on private repositories. Consequence: never commit secrets, real data, real invoices or receipts, real business figures, or the full Step specification files. The secret scan stays mandatory and Actions logs are public. |
 | 2026-10-01 | Backup restore is allowed only into an **empty** Entity (decision 247). No merge or overwrite of existing data.                                                                                                                                                                                                                                           |
+| 2026-10-01 | Tax periods follow the Entity's own timezone and fiscal year (Indonesian defaults WIB, January); OWNER can change both in Settings (decision 248, answers decision 237).                                                                                                                                                                                  |
 
 ## Resolved by authority (no OWNER decision needed)
 
@@ -1119,6 +1120,25 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   No migration. Checked in a Vercel Sandbox before the PR (format, typecheck, lint, tests, build), then by
   CI.
 
+- Entity timezone and fiscal year in Settings; decision 237 resolved (decision 248, P14).
+
+  OWNER answer to decision 237: tax periods follow Indonesian rules for the Entity, and the OWNER can
+  change the settings later. Taken as option (a): "today" for every Entity rule is already
+  `app_private.entity_today` (the Entity's own timezone) and fiscal years already follow
+  `entities.fiscal_year_start_month`; the defaults stay WIB (`Asia/Jakarta`) and January, i.e. the tax
+  year is the calendar year unless the books use another year. Test 9.5 in
+  `supabase/tests/95_p7_determination.sql` now picks the current month with `test_helpers.today` (the
+  Entity's date) instead of the session's `current_date`, which removes the month-end flake.
+
+  New RPC `update_entity_time_settings` (`20261001200000_p14_entity_time_settings.sql`), taking the
+  Entity, timezone, fiscal-year start month, expected version and reason. It requires
+  `system.entity_config` (OWNER by default), a recent step-up, a 5-500 character reason, a valid IANA timezone, month 1-12 and the current
+  `entities.version`. The fiscal-year start is refused once the Entity has any accounting period, since
+  every period's fiscal-year label is derived from it; the timezone may change at any time (stored dates
+  never move). Each change is audited as `entities.time_settings_changed` with the reason and
+  before/after values. Settings (`/admin/settings`) gains a "Zona Waktu & Tahun Buku" form offering WIB,
+  WITA and WIT. Tests: `supabase/tests/99_p14_3_entity_time.sql`.
+
 - Backup & Restore Center Part 2 and trusted-device revocation (decision 247, P14).
 
   OWNER decision: a backup may be restored only into an **empty** Entity (no merge, no overwrite).
@@ -1180,7 +1200,7 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   tests, unchanged). `pnpm build` passes (no routes added or removed). `pnpm db:test` not re-run (a JS
   dependency bump touches no migration). `npx prettier --check .` clean.
 
-- **OWNER QUESTION -- unresolved.** CI invariant test flake traced to a real timezone-boundary defect in
+- **OWNER QUESTION -- resolved by decision 248.** CI invariant test flake traced to a real timezone-boundary defect in
   already-shipped P7 tax logic (decision 237). While verifying CI for decisions 235/236's PRs, the
   "Migration clean-rebuild and invariants" job started failing on `supabase/tests/95_p7_determination.sql`
   assertion "9.5 a period that is not over is not computed" -- reproducibly on GitHub's CI runner, but not

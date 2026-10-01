@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { formatMoney } from "@/domain/money/format";
 import {
   ENTITY_TYPE_LABELS,
@@ -7,14 +8,14 @@ import {
   entitySettingValueText,
   monthName,
   numberingExample,
+  timezoneLabel,
 } from "@/domain/settings/settings";
 import type { EntitySettingsOverview } from "@/services/settings/settings";
 
 /**
- * Settings (P13 unbuilt-screens backlog, decision 243), read-only: the active Entity's profile, document
- * numbering, approval rules and stored key/value settings on one page. Every value shown is the stored
- * one; editing any of them changes authorization, numbering or money behaviour, so editing is a later,
- * separately-scoped increment rather than something added alongside a viewer.
+ * Settings (P13 unbuilt-screens backlog, decision 243): the active Entity's profile, document numbering,
+ * approval rules and stored key/value settings on one page. The Entity's timezone and fiscal-year start are
+ * editable by `system.entity_config` holders (decision 248, `timeSettingsEditor`); the rest is read-only.
  */
 
 function activeTone(active: boolean): "success" | "neutral" {
@@ -38,9 +39,11 @@ function Field({ label, value }: { label: string; value: string | null | undefin
 export function SettingsScreen({
   overview,
   exampleYear,
+  timeSettingsEditor,
 }: {
   overview: EntitySettingsOverview;
   exampleYear: number;
+  timeSettingsEditor?: ReactNode;
 }) {
   const { entity, profile, numbering, approvalRules, roleNames, settings } = overview;
   const address = profile
@@ -79,7 +82,7 @@ export function SettingsScreen({
           <Field label="Kode" value={entity.code} />
           <Field label="Jenis" value={ENTITY_TYPE_LABELS[entity.entity_type]} />
           <Field label="Mata Uang Dasar" value={entity.base_currency} />
-          <Field label="Zona Waktu" value={entity.timezone} />
+          <Field label="Zona Waktu" value={timezoneLabel(entity.timezone)} />
           <Field label="Awal Tahun Fiskal" value={monthName(entity.fiscal_year_start_month)} />
           <Field label="Alamat" value={address} />
           <Field label="Email" value={profile?.contact_email} />
@@ -87,6 +90,15 @@ export function SettingsScreen({
           <Field label="Situs Web" value={profile?.website} />
         </dl>
       </section>
+
+      {timeSettingsEditor ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Zona Waktu &amp; Tahun Buku</h2>
+          </div>
+          {timeSettingsEditor}
+        </section>
+      ) : null}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">

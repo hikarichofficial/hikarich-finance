@@ -15,6 +15,7 @@ export const entitySummaryRowSchema = z.object({
   timezone: z.string(),
   fiscal_year_start_month: z.number().int().min(1).max(12),
   status: z.enum(["active", "disabled"]),
+  version: z.number().int().positive(),
 });
 export type EntitySummaryRow = z.infer<typeof entitySummaryRowSchema>;
 
@@ -76,3 +77,14 @@ export const entitySettingRowSchema = z.object({
 });
 export const entitySettingListSchema = z.array(entitySettingRowSchema);
 export type EntitySettingRow = z.infer<typeof entitySettingRowSchema>;
+
+/** Input of `update_entity_time_settings` (decision 248). The database validates the timezone name,
+ * the month range, the reason and the "fiscal year locked once periods exist" rule itself. */
+export const entityTimeSettingsInputSchema = z.object({
+  entity_id: z.uuid(),
+  timezone: z.string().trim().min(1).max(64),
+  fiscal_year_start_month: z.coerce.number().int().min(1).max(12),
+  expected_version: z.coerce.number().int().positive(),
+  reason: z.string().trim().min(5).max(500),
+});
+export type EntityTimeSettingsInput = z.infer<typeof entityTimeSettingsInputSchema>;

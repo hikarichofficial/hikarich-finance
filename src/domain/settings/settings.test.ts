@@ -4,7 +4,10 @@ import {
   NUMBERING_SCOPE_LABELS,
   entitySettingLabel,
   entitySettingValueText,
+  isFiscalYearLockedMessage,
   monthName,
+  timezoneLabel,
+  timezoneOptions,
   numberingExample,
 } from "./settings";
 
@@ -56,5 +59,36 @@ describe("entitySettingValueText", () => {
     expect(entitySettingValueText("abc")).toBe("abc");
     expect(entitySettingValueText({ a: 1 })).toBe('{"a":1}');
     expect(entitySettingValueText(undefined)).toBe("—");
+  });
+});
+
+describe("timezoneOptions / timezoneLabel (decision 248)", () => {
+  it("offers Indonesia's three zones", () => {
+    expect(timezoneOptions("Asia/Jakarta").map((z) => z.value)).toEqual([
+      "Asia/Jakarta",
+      "Asia/Makassar",
+      "Asia/Jayapura",
+    ]);
+  });
+
+  it("keeps a stored zone that is not Indonesian", () => {
+    expect(timezoneOptions("Asia/Singapore").map((z) => z.value)).toContain("Asia/Singapore");
+  });
+
+  it("labels known zones and falls back to the name", () => {
+    expect(timezoneLabel("Asia/Makassar")).toMatch(/^WITA/);
+    expect(timezoneLabel("Europe/Paris")).toBe("Europe/Paris");
+  });
+
+  it("recognises the fiscal-year lock message", () => {
+    expect(
+      isFiscalYearLockedMessage(
+        "CONFLICT: the fiscal year start cannot change once accounting periods exist",
+      ),
+    ).toBe(true);
+    expect(isFiscalYearLockedMessage("CONFLICT: the Entity changed since it was loaded")).toBe(
+      false,
+    );
+    expect(isFiscalYearLockedMessage(null)).toBe(false);
   });
 });
