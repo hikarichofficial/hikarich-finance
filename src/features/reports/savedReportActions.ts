@@ -38,7 +38,8 @@ export async function saveReportAction(
     if (error instanceof AuthzError && error.code === "CONFLICT") {
       return { status: "error", message: "Nama itu sudah dipakai. Pilih nama lain." };
     }
-    if (error instanceof AuthzError) return { status: "error", message: authzErrorMessage(error.code) };
+    if (error instanceof AuthzError)
+      return { status: "error", message: authzErrorMessage(error.code) };
     return { status: "error", message: "Laporan tidak dapat disimpan. Nama 2–120 karakter." };
   }
   revalidatePath("/reports/saved");
@@ -52,7 +53,8 @@ export async function deleteSavedReportAction(
   try {
     await deleteSavedReport(text(formData, "id"));
   } catch (error) {
-    if (error instanceof AuthzError) return { status: "error", message: authzErrorMessage(error.code) };
+    if (error instanceof AuthzError)
+      return { status: "error", message: authzErrorMessage(error.code) };
     return { status: "error", message: "Laporan tersimpan tidak dapat dihapus." };
   }
   revalidatePath("/reports/saved");

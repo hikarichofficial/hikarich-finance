@@ -12,7 +12,13 @@ import { SaveReportForm } from "@/features/reports/SavedReportForms";
 export default async function SalesPurchaseReportPage({
   searchParams,
 }: {
-  searchParams: Promise<{ entity?: string; side?: string; by?: string; from?: string; to?: string }>;
+  searchParams: Promise<{
+    entity?: string;
+    side?: string;
+    by?: string;
+    from?: string;
+    to?: string;
+  }>;
 }) {
   const params = await searchParams;
   const { access, membership } = await requirePermission("reports.view", {

@@ -22,8 +22,8 @@ export default async function SavedReportsPage({
         <div>
           <h1>Laporan Tersimpan</h1>
           <p className="list-screen-summary">
-            Laporan dengan filter yang Anda simpan. Buka laporan mana pun lalu pilih &quot;Simpan laporan
-            ini&quot; untuk menambahkannya.
+            Laporan dengan filter yang Anda simpan. Buka laporan mana pun lalu pilih &quot;Simpan
+            laporan ini&quot; untuk menambahkannya.
           </p>
         </div>
       </header>

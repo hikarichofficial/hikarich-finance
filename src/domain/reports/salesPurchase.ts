@@ -25,7 +25,9 @@ export const DIMENSION_LABELS: Readonly<Record<SalesPurchaseDimension, string>> 
 };
 
 export function dimensionOptions(side: SalesPurchaseSide): SalesPurchaseDimension[] {
-  return side === "sales" ? ["party", "category", "product", "month"] : ["party", "category", "month"];
+  return side === "sales"
+    ? ["party", "category", "product", "month"]
+    : ["party", "category", "month"];
 }
 
 export function parseSide(value: string | undefined): SalesPurchaseSide {

@@ -51,7 +51,13 @@ describe("salesPurchaseTotals", () => {
 describe("saved report links", () => {
   it("saves every filter except the Entity", () => {
     expect(
-      reportQueryToSave({ entity: "hkr", statement: "pnl", from: "2026-01-01", to: "", entities: ["a", "b"] }),
+      reportQueryToSave({
+        entity: "hkr",
+        statement: "pnl",
+        from: "2026-01-01",
+        to: "",
+        entities: ["a", "b"],
+      }),
     ).toBe("statement=pnl&from=2026-01-01&entities=a&entities=b");
   });
 
@@ -59,8 +65,8 @@ describe("saved report links", () => {
     expect(savedReportHref({ report_path: "/reports", report_query: "statement=pnl" }, "hkr")).toBe(
       "/reports?statement=pnl&entity=hkr",
     );
-    expect(savedReportHref({ report_path: "/reports/sales-purchase", report_query: "" }, undefined)).toBe(
-      "/reports/sales-purchase",
-    );
+    expect(
+      savedReportHref({ report_path: "/reports/sales-purchase", report_query: "" }, undefined),
+    ).toBe("/reports/sales-purchase");
   });
 });

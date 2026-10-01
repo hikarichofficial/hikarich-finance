@@ -159,8 +159,12 @@ create table public.saved_reports (
   report_path text not null check (report_path ~ '^/(reports|tax/ledger)(/[a-z0-9-]+)*$'),
   report_query text not null default '' check (length(report_query) <= 1000 and report_query !~ '[[:cntrl:]]'),
   created_at timestamptz not null default now(),
+  unique (entity_id, id),
   unique (entity_id, user_id, name)
 );
+-- A saved report is never edited (save a new one, delete the old); this also keeps entity_id fixed.
+create trigger tg_forbid_update before update on public.saved_reports
+  for each row execute function app_private.tg_forbid_update();
 create index saved_reports_owner_idx on public.saved_reports (entity_id, user_id, created_at desc);
 call app_private.secure_table('public.saved_reports');
 call app_private.expose_select('public.saved_reports');
