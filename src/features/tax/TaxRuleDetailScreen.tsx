@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { RULE_STATUS_LABELS, RULE_STATUS_TONE, RULE_VERIFICATION_LABELS } from "@/domain/tax/tax";
 import { ruleFamilyLabel } from "@/domain/tax/taxRulesList";
+import { ruleAuthoringActions } from "@/domain/tax/ruleAuthoring";
 import type { TaxRuleVersionRow } from "@/schemas/tax";
+import { TaxRuleDraftActions } from "./TaxRuleDraftActions";
 import { formatShortDate } from "./format";
 
 /**
@@ -9,20 +11,27 @@ import { formatShortDate } from "./format";
  * legal source, verification and publish/discard history, plus every other version of the same code so a
  * viewer can see how the rule changed over time. No per-rule RPC exists, so the page looks the row up from
  * the same `listTaxRuleVersions` read the List screen uses, the `PeriodClosePage`/`CustomerDetailPage`
- * precedent for a Detail screen with no dedicated single-row RPC.
+ * precedent for a Detail screen with no dedicated single-row RPC. With `tax.manage_rules` (decision 249) a
+ * published version offers "new version" (a prefilled copy), and a draft offers edit, publish and discard.
  */
 export function TaxRuleDetailScreen({
   rule,
   siblings,
   backHref,
   entity,
+  canManage = false,
 }: {
   rule: TaxRuleVersionRow;
   siblings: readonly TaxRuleVersionRow[];
   backHref: string;
   entity: string | undefined;
+  canManage?: boolean;
 }) {
   const otherVersions = siblings.filter((v) => v.id !== rule.id);
+  const actions = ruleAuthoringActions(rule, canManage);
+  const qs = entity ? `&entity=${encodeURIComponent(entity)}` : "";
+  const here = `/tax/rules/${rule.id}${entity ? `?entity=${encodeURIComponent(entity)}` : ""}`;
+  const stepUpHref = `/auth/step-up?next=${encodeURIComponent(here)}`;
 
   return (
     <div className="record-detail">
@@ -42,6 +51,35 @@ export function TaxRuleDetailScreen({
           {RULE_STATUS_LABELS[rule.status]}
         </span>
       </header>
+
+      {actions.newVersion || actions.editDraft || actions.publish || actions.discard ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Kelola Aturan</h2>
+          </div>
+          {actions.newVersion ? (
+            <p>
+              Aturan yang sudah terbit tidak diubah. Untuk menyesuaikannya, buat versi baru yang
+              disalin dari aturan ini lalu terbitkan dengan tanggal berlaku baru.{" "}
+              <Link href={`/tax/rules/new?from=${rule.id}${qs}`} className="btn-primary">
+                Buat versi baru
+              </Link>
+            </p>
+          ) : null}
+          {actions.editDraft ? (
+            <p>
+              <Link href={`/tax/rules/new?draft=${rule.id}${qs}`}>Ubah draf</Link>
+            </p>
+          ) : null}
+          <TaxRuleDraftActions
+            ruleId={rule.id}
+            entity={entity}
+            stepUpHref={stepUpHref}
+            publish={actions.publish}
+            discard={actions.discard}
+          />
+        </section>
+      ) : null}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">
