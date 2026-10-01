@@ -1027,6 +1027,25 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   `pnpm check` (738 tests, up from 731), `pnpm build` (1 new real route replacing the catch-all),
   `pnpm db:test` N/A (no migration), prettier clean; verified via CI on the PR.
 
+- OWNER answers applied (decision 244): three questions decisions 240 and 242 raised, answered by the
+  OWNER on 2026-10-01 as "1a, 2a, 3a".
+
+  1. Navigation gating for "Users & Roles" and "Security" (decision 242's observation): the items now
+     require `users.view` and `security.view` respectively, matching the RLS policies on
+     `entity_memberships`/`profiles` and `security_events`/`trusted_devices`, instead of
+     `settings.view`. The Administration group's own permission list gains both keys, so a person who
+     holds only one of them still sees the group. Both keys already exist in the P2 catalog.
+  2. `/reports/tax` now forwards to the Tax Ledger screen (`/tax/ledger`), keeping `?entity=`.
+  3. `/reports/assets-loans` now forwards to the Kontrol Aset Tetap tab
+     (`/reports?statement=asset_control`).
+
+  The decision-240 mapping is generalised from statement-only to `REPORT_SUBROUTE_TARGETS`, where each
+  sub-route names either a statement tab or a path; `reportSubrouteHref` builds both, unit-tested. Only
+  `/reports/sales-purchase` and `/reports/saved` remain on the catch-all (no backend).
+
+  `pnpm check` (740 tests, up from 738), `pnpm build` (2 new real routes replacing the catch-all),
+  `pnpm db:test` N/A (no migration), prettier clean; verified via CI on the PR.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions

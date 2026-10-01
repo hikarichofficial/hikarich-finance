@@ -1597,7 +1597,12 @@ stored key/value settings, each read directly under its own RLS policy, gated `s
 separate, later increment. `pnpm check` (738 tests, up from 731), `pnpm build` (1 new real route), `pnpm
 db:test` N/A. Full detail in `docs/DECISIONS.md` decision 243.
 
-Still on the catch-all after these fifteen increments (tracked so nothing is silently dropped):
+Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
+`users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
+forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
+real routes). Full detail in `docs/DECISIONS.md` decision 244.
+
+Still on the catch-all after these sixteen increments (tracked so nothing is silently dropped):
 `/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
 `/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
@@ -1606,9 +1611,8 @@ balances, decision 231), `/accounting/opening-balances` (needs new backend -- no
 the rule-authoring UI on `/tax/rules` (**OWNER QUESTION, deferred**, decision 239), `/planning/forecasts`
 (blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
 `supersedes_document_id` has no reading RPC), `/activity`,
-`/admin/users`, `/admin/security` (both pending the OWNER's nav-permission choice, decision 242), and four `/reports/*` nav sub-items:
-`sales-purchase` and `saved` (no backend), `tax` and `assets-loans` (**OWNER choice of destination**,
-decision 240).
+`/admin/users`, `/admin/security` (nav gating settled by decision 244, screens next), and two `/reports/*` nav sub-items:
+`sales-purchase` and `saved` (no backend).
 
 `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46
 pending migrations to this non-production Preview/dev project directly. Applied via the Supabase management

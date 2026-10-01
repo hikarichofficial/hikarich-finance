@@ -6,7 +6,7 @@ import {
   CASH_FLOW_BUCKET_LABELS,
   CASH_FLOW_BUCKET_ORDER,
   PNL_SECTION_ORDER,
-  REPORT_SUBROUTE_STATEMENTS,
+  REPORT_SUBROUTE_TARGETS,
   balanceSheetTotals,
   cashFlowTotals,
   consolidatedCashPositionTotals,
@@ -843,11 +843,19 @@ describe("reportSubrouteHref", () => {
     );
   });
 
-  it("maps exactly the three unambiguous sub-routes", () => {
-    expect(Object.keys(REPORT_SUBROUTE_STATEMENTS).sort()).toEqual([
+  it("forwards assets-loans to Kontrol Aset Tetap and tax to the Tax Ledger (decision 244)", () => {
+    expect(reportSubrouteHref("assets-loans", undefined)).toBe("/reports?statement=asset_control");
+    expect(reportSubrouteHref("tax", undefined)).toBe("/tax/ledger");
+    expect(reportSubrouteHref("tax", "HKR 01")).toBe("/tax/ledger?entity=HKR+01");
+  });
+
+  it("maps exactly the five sub-routes with an existing destination", () => {
+    expect(Object.keys(REPORT_SUBROUTE_TARGETS).sort()).toEqual([
+      "assets-loans",
       "cashflow",
       "custom",
       "payroll",
+      "tax",
     ]);
   });
 });

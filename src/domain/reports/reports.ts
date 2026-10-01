@@ -105,27 +105,33 @@ export function isFiscalYearClosureActive(closure: { reversed_at: string | null 
   return closure.reversed_at === null;
 }
 
-// ================================================================ /reports/* nav sub-item routing (decision 240)
+// ================================================================ /reports/* nav sub-item routing (decisions 240, 244)
 
-/** The `/reports/*` nav sub-items (`src/domain/shell/navigation.ts`) whose content already ships as a
- * `/reports?statement=` tab, mapped to that tab. Only the unambiguous ones are listed: Sales/Purchase,
- * Tax, Assets/Loans and Saved Reports have no single matching tab (or no backend at all) and keep falling
- * through to the `[...slug]` placeholder rather than guessing (decision 240). */
-export const REPORT_SUBROUTE_STATEMENTS = {
-  cashflow: "cashflow",
-  payroll: "payroll_summary",
-  custom: "custom",
-} as const;
+/** The `/reports/*` nav sub-items (`src/domain/shell/navigation.ts`) that forward to a screen which already
+ * exists: most to a `/reports?statement=` tab, `tax` to the Tax Ledger screen (OWNER choice, decision 244).
+ * `assets-loans` goes to Kontrol Aset Tetap (OWNER choice, decision 244). Sales/Purchase and Saved Reports
+ * have no backend and keep falling through to the `[...slug]` placeholder. */
+export const REPORT_SUBROUTE_TARGETS = {
+  cashflow: { statement: "cashflow" },
+  payroll: { statement: "payroll_summary" },
+  custom: { statement: "custom" },
+  "assets-loans": { statement: "asset_control" },
+  tax: { path: "/tax/ledger" },
+} as const satisfies Record<string, { statement: string } | { path: string }>;
 
-export type ReportSubroute = keyof typeof REPORT_SUBROUTE_STATEMENTS;
+export type ReportSubroute = keyof typeof REPORT_SUBROUTE_TARGETS;
 
-/** The `/reports?statement=` href a `/reports/*` sub-route forwards to, carrying the active Entity code
- * forward exactly as every other screen's own links do (`?entity=`), so switching via the nav never drops
- * the person's Entity context. */
+/** The href a `/reports/*` sub-route forwards to, carrying the active Entity code forward exactly as every
+ * other screen's own links do (`?entity=`), so switching via the nav never drops the person's Entity
+ * context. */
 export function reportSubrouteHref(subroute: ReportSubroute, entity: string | undefined): string {
-  const params = new URLSearchParams({ statement: REPORT_SUBROUTE_STATEMENTS[subroute] });
+  const target: { statement: string } | { path: string } = REPORT_SUBROUTE_TARGETS[subroute];
+  const params = new URLSearchParams();
+  if ("statement" in target) params.set("statement", target.statement);
   if (entity) params.set("entity", entity);
-  return `/reports?${params.toString()}`;
+  const base = "path" in target ? target.path : "/reports";
+  const qs = params.toString();
+  return qs ? `${base}?${qs}` : base;
 }
 
 // ================================================================ statement viewer screens (P13 Part 4)
