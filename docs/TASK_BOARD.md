@@ -22,7 +22,7 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | P11   | Documents / Imports / Search      | P10          | Step 15 (P11) / Step 16                                            | Verified    |
 | P12   | Reports                           | P11          | Statement equations and reconciliations pass                       | In Progress |
 | P13   | Dashboard / UX Completion         | P12          | KPI equals its source report                                       | In Progress |
-| P14   | Security / Performance / Recovery | P13          | Step 15 / Step 16 incl. backup export and restore drill            | Not Started |
+| P14   | Security / Performance / Recovery | P13          | Step 15 / Step 16 incl. backup export and restore drill            | In Progress |
 | P15   | Production Launch                 | P14          | Step 15 / Step 16; taxpayer facts and OWNER sign-off               | Not Started |
 
 ## P0 checklist (Step 15 §4)
@@ -1613,6 +1613,12 @@ enable/disable and permission overrides through the step-up-gated P2 RPCs), Secu
 (`/admin/security`, read-only) and Recent Activity (`/activity`). No migration. Full detail in
 `docs/DECISIONS.md` decision 246.
 
+Decision 247, P14: Backup & Restore Center Part 2 -- restore into an empty Entity (OWNER decision)
+with database-side validation, impact preview, step-up, typed Entity-code confirmation, one-transaction
+write with integrity verification and restore history -- plus trusted-device revocation on
+`/admin/security`. Fixes Part 1's export precision defect. The automated restore drill runs in
+`pnpm db:test`. Full detail in `docs/DECISIONS.md` decision 247.
+
 Still on the catch-all after these eighteen increments (tracked so nothing is silently dropped):
 the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
@@ -1620,7 +1626,7 @@ balances, decision 231), per-payment evidence on `/tax/filing` (deferred, decisi
 the rule-authoring UI on `/tax/rules` (**OWNER QUESTION, deferred**, decision 239), `/planning/forecasts`
 (blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
 `supersedes_document_id` has no reading RPC),
-trusted-device revocation on `/admin/security` (no RPC yet), and two `/reports/*` nav sub-items:
+and two `/reports/*` nav sub-items:
 `sales-purchase` and `saved` (no backend).
 
 `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46

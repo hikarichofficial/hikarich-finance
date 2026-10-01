@@ -198,3 +198,16 @@ export async function setPermissionOverride(input: {
     p_reason: reasonSchema.parse(input.reason),
   });
 }
+
+/** Revokes a trusted device (decision 247, Step 07 §21). The RPC allows a person's own device always;
+ * someone else's needs `security.manage` on a shared Entity plus a recent step-up, and is recorded as a
+ * `trusted_device.revoked` security event. Revocation is final. */
+export async function revokeTrustedDevice(input: {
+  deviceId: string;
+  reason: string;
+}): Promise<void> {
+  await rpc("revoke_trusted_device", {
+    p_device: z.uuid().parse(input.deviceId),
+    p_reason: reasonSchema.parse(input.reason),
+  });
+}

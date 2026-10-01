@@ -2,23 +2,32 @@
 
 import { revalidatePath } from "next/cache";
 import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
-import { exportBackupSnapshot, validateBackupPayload } from "@/services/backup/backup";
-import type { BackupKind, BackupSnapshot, BackupValidationResult } from "@/schemas/backup";
+import {
+  exportBackupFile,
+  previewBackupRestore,
+  restoreBackupSnapshot,
+} from "@/services/backup/backup";
+import type { BackupKind, RestorePreview, RestoreResult } from "@/schemas/backup";
 
 /**
- * Server Actions behind the Backup & Restore Center screen (P14, Step 01 #36, decision 224), called
- * directly from client code the same way `searchRecordsAction` already is (`src/features/shell/
- * searchActions.ts`) -- a plain async function, not `useActionState`, since neither action here
- * submits a mutating `<form>`: Export fetches a payload the client then turns into a file download, and
- * Validate fetches a report over a file the person picked locally. Both still map a thrown `AuthzError`
- * to the same user-safe Indonesian copy every other module's actions already use.
+ * Server Actions behind the Backup & Restore Center screen (P14, Step 01 #36, decisions 224 and 247),
+ * called directly from client code the same way `searchRecordsAction` already is -- plain async
+ * functions, since Export returns a file the client saves, and Preview/Restore carry the text of a file
+ * the person picked locally. Each maps a thrown `AuthzError` to the same user-safe Indonesian copy every
+ * other module's actions use; the database re-checks every rule on its own.
  */
 
 export type BackupExportResult =
-  { status: "ok"; snapshot: BackupSnapshot } | { status: "error"; message: string };
+  | { status: "ok"; file: string; kind: BackupKind }
+  | { status: "error"; message: string };
 
-export type BackupValidateResult =
-  { status: "ok"; result: BackupValidationResult } | { status: "error"; message: string };
+export type RestorePreviewActionResult =
+  | { status: "ok"; preview: RestorePreview }
+  | { status: "error"; message: string };
+
+export type RestoreActionResult =
+  | { status: "ok"; result: RestoreResult }
+  | { status: "error"; message: string; code?: AuthzError["code"] };
 
 function errorMessage(error: unknown, fallback: string): string {
   if (error instanceof AuthzError) return authzErrorMessage(error.code);
@@ -30,22 +39,39 @@ export async function exportBackupAction(
   kind: BackupKind,
 ): Promise<BackupExportResult> {
   try {
-    const snapshot = await exportBackupSnapshot(entityId, kind);
+    const file = await exportBackupFile(entityId, kind);
     revalidatePath("/admin/backup");
-    return { status: "ok", snapshot };
+    return { status: "ok", file, kind };
   } catch (error) {
     return { status: "error", message: errorMessage(error, "Ekspor backup gagal diproses.") };
   }
 }
 
-export async function validateBackupAction(
+export async function previewRestoreAction(
   entityId: string,
-  payload: unknown,
-): Promise<BackupValidateResult> {
+  file: string,
+): Promise<RestorePreviewActionResult> {
   try {
-    const result = await validateBackupPayload(entityId, payload);
+    const preview = await previewBackupRestore(entityId, file);
+    return { status: "ok", preview };
+  } catch (error) {
+    return { status: "error", message: errorMessage(error, "Pemeriksaan berkas backup gagal.") };
+  }
+}
+
+export async function restoreBackupAction(
+  entityId: string,
+  file: string,
+  confirmCode: string,
+): Promise<RestoreActionResult> {
+  try {
+    const result = await restoreBackupSnapshot(entityId, file, confirmCode);
+    revalidatePath("/admin/backup");
     return { status: "ok", result };
   } catch (error) {
-    return { status: "error", message: errorMessage(error, "Validasi backup gagal diproses.") };
+    if (error instanceof AuthzError) {
+      return { status: "error", message: authzErrorMessage(error.code), code: error.code };
+    }
+    return { status: "error", message: "Pemulihan gagal diproses." };
   }
 }

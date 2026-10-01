@@ -11,6 +11,13 @@ if (process.env.SKIP_ENV_VALIDATION !== "1") {
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  experimental: {
+    serverActions: {
+      // Backup restore sends the backup file's text through a Server Action (decision 247). The browser
+      // refuses files over 4 MB first (RESTORE_FILE_MAX_BYTES); Vercel's own request ceiling is 4.5 MB.
+      bodySizeLimit: "5mb",
+    },
+  },
 };
 
 export default nextConfig;

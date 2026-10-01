@@ -1,6 +1,6 @@
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import { listBackupHistory } from "@/services/backup/backup";
+import { listBackupHistory, listRestoreHistory } from "@/services/backup/backup";
 import { backupReminderMessage, daysSinceLastBackup } from "@/domain/backup/backup";
 import { BackupRestoreScreen } from "@/features/backup/BackupRestoreScreen";
 
@@ -10,7 +10,8 @@ import { BackupRestoreScreen } from "@/features/backup/BackupRestoreScreen";
  * `/new` page already establishes -- since export is this screen's primary action; `backup.restore`
  * (checked separately below, via `can`, the same precedent `NewTransferPage`'s own `canConfirmOnCreate`
  * already set for a second permission beyond the page's own gate) only reveals the read-only
- * validate-before-restore section. Today only OWNER holds either permission (the P2 catalog's own
+ * restore section (decision 247: restore into an empty Entity, with preview, step-up and a typed
+ * Entity-code confirmation) and its history. Today only OWNER holds either permission (the P2 catalog's own
  * `backup.create`/`backup.restore` keys were never granted to any other role template), via
  * `app_authz.has_permission`'s owner-bypass rule -- no migration change was needed to reach that.
  */
@@ -23,7 +24,12 @@ export default async function BackupRestorePage({
   const { access, membership } = await requirePermission("backup.create", { entityCode: entity });
   const entityId = membership.entity_id;
 
-  const history = await listBackupHistory(entityId);
+  const canRestore = can(access, entityId, "backup.restore");
+  const [history, restoreHistory] = await Promise.all([
+    listBackupHistory(entityId),
+    canRestore ? listRestoreHistory(entityId) : Promise.resolve([]),
+  ]);
+  const here = entity ? `/admin/backup?entity=${encodeURIComponent(entity)}` : "/admin/backup";
   const reminder = backupReminderMessage(
     daysSinceLastBackup(history[0]?.created_at ?? null, new Date()),
   );
@@ -31,9 +37,12 @@ export default async function BackupRestorePage({
   return (
     <BackupRestoreScreen
       entityId={entityId}
+      entityCode={membership.entity_code}
       history={history}
+      restoreHistory={restoreHistory}
       reminder={reminder}
-      canRestore={can(access, entityId, "backup.restore")}
+      canRestore={canRestore}
+      stepUpHref={`/auth/step-up?next=${encodeURIComponent(here)}`}
     />
   );
 }

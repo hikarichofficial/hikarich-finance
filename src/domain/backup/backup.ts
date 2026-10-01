@@ -63,3 +63,47 @@ export function backupReminderMessage(daysSince: number | null): string | null {
   }
   return null;
 }
+
+// ------------------------------------------------------------ Part 2: restore (decision 247)
+
+export const RESTORE_STATUS_LABELS: Readonly<Record<"completed" | "failed", string>> = {
+  completed: "Berhasil",
+  failed: "Gagal (tidak ada data yang ditulis)",
+};
+
+export const RESTORE_STATUS_TONES: Readonly<Record<"completed" | "failed", "success" | "critical">> = {
+  completed: "success",
+  failed: "critical",
+};
+
+/** The typed confirmation must equal the Entity code exactly (the database applies the same rule; this is
+ * only so the Restore button stays disabled until it matches). Surrounding whitespace is ignored. */
+export function restoreConfirmMatches(typed: string, entityCode: string): boolean {
+  return typed.trim() === entityCode;
+}
+
+/** Sum of a `{table: rows}` count record. */
+export function totalRows(counts: Readonly<Record<string, number>>): number {
+  return Object.values(counts).reduce((sum, n) => sum + n, 0);
+}
+
+/** Tables with at least one row, largest first, for a compact impact list. */
+export function nonEmptyTables(
+  counts: Readonly<Record<string, number>>,
+): Array<{ table: string; rows: number }> {
+  return Object.entries(counts)
+    .filter(([, rows]) => rows > 0)
+    .map(([table, rows]) => ({ table, rows }))
+    .sort((a, b) => b.rows - a.rows || a.table.localeCompare(b.table));
+}
+
+/** Whether a restore may be started from a preview: the file is valid and the target is empty (both
+ * reported by the database) and the step-up window is satisfied. */
+export function restoreReady(preview: {
+  ok: boolean;
+  step_up_ok: boolean;
+}): "ready" | "invalid" | "step_up" {
+  if (!preview.ok) return "invalid";
+  if (!preview.step_up_ok) return "step_up";
+  return "ready";
+}

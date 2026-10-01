@@ -45,11 +45,37 @@ workflow: no mandatory reviewer count; OWNER bypass is exceptional (Step 14 §11
 - `NEXT_PUBLIC_` variables are browser-visible: URL and publishable key only.
 - If a secret is exposed: rotate/revoke it first; deleting the line is not enough.
 
-## Recovery (Step 14, Step 16 §34) — not yet implemented (P14)
+## Recovery (Step 14, Step 16 §34)
 
 No paid managed backups are used (OWNER decision, see `DECISIONS.md`). Recovery comes from the
-in-app Backup & Restore Center with export to external storage and a restore drill on a
-non-production project before real financial data is entered.
+in-app Backup & Restore Center (`/admin/backup`) with export to external storage, and a restore
+drill before real financial data is entered (decision 247).
+
+Backups:
+
+- OWNER downloads a Full backup regularly (the screen reminds after 30 days) and keeps the file
+  outside Supabase and Vercel (for example an encrypted personal drive). The file is the database's
+  own serialisation with an MD5 checksum over its data; do not edit it.
+- Current limit: a backup file travels through a Vercel function, so it must stay under 4 MB
+  (Vercel's 4.5 MB request/response ceiling). Re-assess before the data grows near that size.
+
+Restore (OWNER decision 247: only into an empty Entity):
+
+1. The target Entity must exist with the same id as the backup and hold no data yet. To recover a
+   lost project: create a fresh Supabase project, apply every migration in order
+   (`supabase/migrations`), create the Entity row with the original id and code, and add the OWNER
+   membership. User accounts and memberships are not restored from the file; re-invite people
+   through Users & Roles afterwards.
+2. On `/admin/backup`, pick the backup file. The database checks the checksum, the Entity id,
+   unknown tables and that the target is empty, and shows the rows per table it will write.
+3. Re-verify (step-up, 10 minutes), type the Entity code, and press **Pulihkan sekarang**.
+4. The restore runs as one transaction: rows are written in foreign-key order, then row counts,
+   balanced posted journals and a zero trial-balance difference are verified. Any failure writes
+   nothing and is recorded as a Failed restore in the history and the Audit Log.
+
+Restore drill: `supabase/tests/99_p14_2_restore.sql` (run by `pnpm db:test`) exports an Entity with
+data, empties it, restores it and requires the re-export to equal the original table by table,
+including exact money amounts. Run a manual drill on the non-production project before go-live.
 
 ## Vercel (not yet configured — after code is pushed)
 

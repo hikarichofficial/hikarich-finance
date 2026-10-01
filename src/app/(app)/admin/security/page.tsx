@@ -14,12 +14,15 @@ import {
   parsePageOffset,
 } from "@/domain/admin/users";
 import { formatAuditTimestamp } from "@/features/audit/format";
+import { RevokeDeviceForm } from "@/features/admin/UserAccessForms";
+import { can } from "@/domain/authz/access";
 
 /**
  * Security Center (Step 09 §21 Security, decision 246), read-only, gated `security.view` -- the RLS
  * permission on `security_events`/`trusted_devices` and the nav item's gate since decision 244. Shows the
- * Entity's MFA requirement, its security events (paged) and its members' trusted devices. No RPC revokes a
- * trusted device yet, so devices are listed, not managed; that is recorded as a remaining item.
+ * Entity's MFA requirement, its security events (paged) and its members' trusted devices. An active device
+ * can be revoked (decision 247, `revoke_trusted_device`): one's own always, another member's with
+ * `security.manage` and a recent step-up -- the RPC enforces both and records a security event.
  */
 export default async function SecurityPage({
   searchParams,
@@ -27,7 +30,9 @@ export default async function SecurityPage({
   searchParams: Promise<{ entity?: string; offset?: string }>;
 }) {
   const { entity, offset: offsetParam } = await searchParams;
-  const { membership } = await requirePermission("security.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("security.view", {
+    entityCode: entity,
+  });
   const entityId = membership.entity_id;
   const offset = parsePageOffset(offsetParam, SECURITY_PAGE_SIZE);
 
@@ -39,6 +44,8 @@ export default async function SecurityPage({
     listProfiles(userIds),
     getEntitySettingsOverview(entityId).catch(() => null),
   ]);
+  const canManage = can(access, entityId, "security.manage");
+  const here = entity ? `/admin/security?entity=${encodeURIComponent(entity)}` : "/admin/security";
   const nameOf = new Map(profiles.map((p) => [p.id, p.display_name]));
   const mfa = settings?.settings.find((s) => s.setting_key === "security.require_mfa");
   const pageHref = (o: number) => {
@@ -124,6 +131,12 @@ export default async function SecurityPage({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Perangkat Tepercaya</h2>
         </div>
+        {canManage ? (
+          <p className="hint">
+            Mencabut perangkat pengguna lain memerlukan verifikasi ulang dalam 10 menit terakhir.{" "}
+            <Link href={`/auth/step-up?next=${encodeURIComponent(here)}`}>Verifikasi sekarang</Link>.
+          </p>
+        ) : null}
         {devices.length === 0 ? (
           <p>Belum ada perangkat tepercaya yang tercatat.</p>
         ) : (
@@ -134,6 +147,7 @@ export default async function SecurityPage({
                 <th scope="col">Pengguna</th>
                 <th scope="col">Terakhir Terlihat</th>
                 <th scope="col">Status</th>
+                <th scope="col">Tindakan</th>
               </tr>
             </thead>
             <tbody>
@@ -148,6 +162,13 @@ export default async function SecurityPage({
                     >
                       {d.revoked_at ? "Dicabut" : "Tepercaya"}
                     </span>
+                  </td>
+                  <td data-label="Tindakan">
+                    {!d.revoked_at && (canManage || d.user_id === access.user_id) ? (
+                      <RevokeDeviceForm deviceId={d.id} entity={entity} />
+                    ) : (
+                      "—"
+                    )}
                   </td>
                 </tr>
               ))}
