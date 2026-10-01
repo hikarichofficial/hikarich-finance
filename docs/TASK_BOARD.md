@@ -1548,3 +1548,17 @@ end to end with zero console errors and correctly-labeled form fields. Going fur
 which this session's standing safety rules prohibit on any non-local host -- a hard stop, not a scope
 choice. Authenticated E2E/accessibility testing stays open pending either the OWNER doing a signed-in
 walkthrough with this session, or a dedicated non-production test login.
+
+Security hotfix (decision 236): `pnpm audit --prod --audit-level=high` newly reported a critical RCE
+advisory (GHSA-vcvr-r3jv-pc5j) affecting `next` `16.3.5` (vulnerable range `>=16.2.0 <16.3.6`), discovered
+while verifying CI for decision 235's PR -- not caused by any code change here, the public advisory
+database simply picked up a new disclosure. Bumped `next` and `eslint-config-next` to the latest patched
+`16.3.8` (patch-only, no API change). Built as a standalone branch off `main` directly, not stacked on the
+Tax family chain, so it can merge immediately -- every other open PR in the stack will start failing this
+same audit check on its next CI re-run until this lands and each branch picks it up. Also investigated
+decision 235's PR's own "Migration clean-rebuild and invariants" CI failure alongside this: reproduced
+`pnpm db:test` locally against the identical migration set and it passed cleanly, so that failure is
+treated as a transient CI-runner flake, not a real defect (decision 235 touches zero migrations). `pnpm
+audit` now clean, `pnpm check` (673 tests, unchanged), `pnpm build` (no routes added/removed), `pnpm
+db:test` not re-run (JS-only change), `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md`
+decision 236.
