@@ -355,6 +355,18 @@ export const differenceSchema = z.object({
 });
 export type TaxDifference = z.infer<typeof differenceSchema>;
 
+export const taxReconciliationSchema = z
+  .object({
+    id: z.uuid(),
+    outcome: z.enum(["reconciled", "differences_noted"]),
+    note: z.string().nullable(),
+    at: z.string(),
+    /** What was compared no longer equals what the books hold now. */
+    stale: z.boolean(),
+  })
+  .nullable();
+export type TaxReconciliation = z.infer<typeof taxReconciliationSchema>;
+
 export const periodPositionSchema = z.looseObject({
   tax_type: taxTypeSchema,
   tax_period: isoDateSchema,
@@ -372,6 +384,7 @@ export const periodPositionSchema = z.looseObject({
   filed_reference: z.string().nullable(),
   differences: z.array(differenceSchema),
   evidence_count: z.number().int().nonnegative(),
+  reconciliation: taxReconciliationSchema,
 });
 export type TaxPeriodPosition = z.infer<typeof periodPositionSchema>;
 

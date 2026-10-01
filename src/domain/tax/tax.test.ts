@@ -9,8 +9,10 @@ import {
   TAX_TYPE_LABELS,
   blocksRecognition,
   checkTaxPayment,
+  eligibleTaxPaymentAccounts,
   isTaxPeriodStart,
   outstandingTax,
+  resolveFilingTaxType,
   resolveTaxPeriod,
   taxPaymentCash,
   taxPeriodLabel,
@@ -65,6 +67,39 @@ describe("resolveTaxPeriod", () => {
   it("crosses a year boundary correctly", () => {
     const jan = new Date("2026-01-10T00:00:00Z");
     expect(resolveTaxPeriod(undefined, jan)).toBe("2025-12-01");
+  });
+});
+
+describe("resolveFilingTaxType", () => {
+  it("accepts any of the three types the write RPCs accept", () => {
+    expect(resolveFilingTaxType("vat")).toBe("vat");
+    expect(resolveFilingTaxType("wht_pph23")).toBe("wht_pph23");
+    expect(resolveFilingTaxType("final_umkm")).toBe("final_umkm");
+  });
+
+  it("falls back to vat for wht_pph21 (settled through Payroll's own tax ledger instead)", () => {
+    expect(resolveFilingTaxType("wht_pph21")).toBe("vat");
+  });
+
+  it("falls back to vat for anything absent or unrecognised", () => {
+    expect(resolveFilingTaxType(undefined)).toBe("vat");
+    expect(resolveFilingTaxType("not-a-type")).toBe("vat");
+  });
+});
+
+describe("eligibleTaxPaymentAccounts", () => {
+  const accounts = [
+    { id: "a", currency: "IDR" },
+    { id: "b", currency: "USD" },
+    { id: "c", currency: "IDR" },
+  ];
+
+  it("keeps only accounts in the Entity's own base currency", () => {
+    expect(eligibleTaxPaymentAccounts(accounts, "IDR").map((a) => a.id)).toEqual(["a", "c"]);
+  });
+
+  it("is empty when no account matches", () => {
+    expect(eligibleTaxPaymentAccounts(accounts, "EUR")).toEqual([]);
   });
 });
 

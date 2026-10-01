@@ -236,11 +236,43 @@ describe("tax results", () => {
         { code: "overpaid", text: "20000 more was paid", amount: "-20000.0000" },
       ],
       evidence_count: 0,
+      reconciliation: null,
     });
     expect(parsed.differences).toHaveLength(2);
+    expect(parsed.reconciliation).toBeNull();
     expect(differenceSchema.safeParse({ code: "other", text: "x", amount: null }).success).toBe(
       false,
     );
+  });
+
+  it("reads a period position that has been reconciled with differences noted", () => {
+    const parsed = periodPositionSchema.parse({
+      tax_type: "vat",
+      tax_period: "2026-09-01",
+      as_of: "2026-09-21",
+      base: "0",
+      accrued_payable: "0",
+      paid_payable: "0",
+      outstanding_payable: "0",
+      accrued_asset: "0",
+      applied_asset: "0",
+      asset_available: "0",
+      penalty_paid: "0",
+      cash_paid: "0",
+      filing_id: null,
+      filed_reference: null,
+      differences: [],
+      evidence_count: 0,
+      reconciliation: {
+        id: ID,
+        outcome: "differences_noted",
+        note: "Explained in the meeting notes",
+        at: "2026-09-21T10:00:00Z",
+        stale: true,
+      },
+    });
+    expect(parsed.reconciliation?.outcome).toBe("differences_noted");
+    expect(parsed.reconciliation?.stale).toBe(true);
   });
 
   it("lists payments, the tax ledger and the calendar", () => {
