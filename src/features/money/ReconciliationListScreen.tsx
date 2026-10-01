@@ -155,7 +155,9 @@ export function ReconciliationListScreen({
                     )}
                   </td>
                   <td data-label="Status">
-                    <span className={`status-badge status-badge-${RECON_SESSION_STATUS_TONES[s.status]}`}>
+                    <span
+                      className={`status-badge status-badge-${RECON_SESSION_STATUS_TONES[s.status]}`}
+                    >
                       {RECON_SESSION_STATUS_LABELS[s.status]}
                     </span>
                   </td>

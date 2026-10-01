@@ -202,7 +202,12 @@ export default async function ReconciliationSessionPage({
                     {!actions.work ? (
                       "—"
                     ) : l.display_status === "matched" ? (
-                      <LineReasonForm sessionId={id} entity={entity} lineId={l.line_id} kind="unmatch" />
+                      <LineReasonForm
+                        sessionId={id}
+                        entity={entity}
+                        lineId={l.line_id}
+                        kind="unmatch"
+                      />
                     ) : l.display_status === "excluded" ? (
                       <IncludeLineForm sessionId={id} entity={entity} lineId={l.line_id} />
                     ) : (
@@ -224,7 +229,9 @@ export default async function ReconciliationSessionPage({
         )}
       </section>
 
-      {selected && selected.display_status !== "matched" && selected.display_status !== "excluded" ? (
+      {selected &&
+      selected.display_status !== "matched" &&
+      selected.display_status !== "excluded" ? (
         <section className="dashboard-section" id="cocokkan">
           <div className="dashboard-section-header">
             <h2 className="dashboard-section-title">

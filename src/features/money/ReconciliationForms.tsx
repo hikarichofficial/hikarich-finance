@@ -61,7 +61,8 @@ export function NewSessionForm({
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="account_id" value={accountId} />
       <p className="hint">
-        Akun: <strong>{accountName}</strong> ({currency}). Isi periode dan saldo sesuai rekening koran.
+        Akun: <strong>{accountName}</strong> ({currency}). Isi periode dan saldo sesuai rekening
+        koran.
       </p>
       <label>
         Periode mulai
@@ -83,7 +84,12 @@ export function NewSessionForm({
       </label>
       <label>
         Saldo akhir rekening koran
-        <input name="statement_closing" inputMode="decimal" placeholder="contoh 1750000.00" required />
+        <input
+          name="statement_closing"
+          inputMode="decimal"
+          placeholder="contoh 1750000.00"
+          required
+        />
       </label>
       <label>
         Catatan
@@ -121,8 +127,9 @@ export function AddLinesForm({
         />
       </label>
       <p className="hint">
-        Format: tanggal;jumlah;keterangan;referensi (pemisah titik koma atau tab). Uang masuk positif,
-        uang keluar negatif, titik sebagai desimal. Baris yang sudah pernah ditambahkan dilewati.
+        Format: tanggal;jumlah;keterangan;referensi (pemisah titik koma atau tab). Uang masuk
+        positif, uang keluar negatif, titik sebagai desimal. Baris yang sudah pernah ditambahkan
+        dilewati.
       </p>
       <div>
         <button type="submit" className="btn-primary" disabled={pending}>

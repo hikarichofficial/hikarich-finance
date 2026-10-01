@@ -121,7 +121,9 @@ export async function matchLineAction(
 ): Promise<ReconActionState> {
   const sessionId = text(formData, "session_id");
   const entity = text(formData, "entity");
-  const movementIds = formData.getAll("movement_id").filter((v): v is string => typeof v === "string");
+  const movementIds = formData
+    .getAll("movement_id")
+    .filter((v): v is string => typeof v === "string");
   if (movementIds.length === 0)
     return { status: "error", message: "Pilih minimal satu pergerakan kas untuk dicocokkan." };
   try {
@@ -143,7 +145,10 @@ export async function unmatchLineAction(
 ): Promise<ReconActionState> {
   const sessionId = text(formData, "session_id");
   try {
-    await unmatchStatementLine({ line_id: text(formData, "line_id"), reason: text(formData, "reason") });
+    await unmatchStatementLine({
+      line_id: text(formData, "line_id"),
+      reason: text(formData, "reason"),
+    });
   } catch (error) {
     return fail(error, "Pencocokan tidak dapat dibatalkan. Alasan minimal 5 karakter.");
   }
@@ -157,7 +162,10 @@ export async function excludeLineAction(
 ): Promise<ReconActionState> {
   const sessionId = text(formData, "session_id");
   try {
-    await excludeStatementLine({ line_id: text(formData, "line_id"), reason: text(formData, "reason") });
+    await excludeStatementLine({
+      line_id: text(formData, "line_id"),
+      reason: text(formData, "reason"),
+    });
   } catch (error) {
     return fail(error, "Baris tidak dapat dikecualikan. Alasan minimal 5 karakter.");
   }
@@ -225,5 +233,7 @@ export async function discardSessionAction(
     return fail(error, "Sesi tidak dapat dibuang.");
   }
   revalidatePath("/money/reconciliation");
-  redirect(entity ? `/money/reconciliation?entity=${encodeURIComponent(entity)}` : "/money/reconciliation");
+  redirect(
+    entity ? `/money/reconciliation?entity=${encodeURIComponent(entity)}` : "/money/reconciliation",
+  );
 }
