@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { backupReminderMessage, daysSinceLastBackup, formatByteSize } from "./backup";
+import {
+  backupReminderMessage,
+  daysSinceLastBackup,
+  formatByteSize,
+  nonEmptyTables,
+  restoreConfirmMatches,
+  restoreReady,
+  totalRows,
+} from "./backup";
 
 describe("formatByteSize", () => {
   it("shows plain bytes under 1024", () => {
@@ -67,5 +75,45 @@ describe("backupReminderMessage", () => {
 
   it("stays quiet for a fresh backup", () => {
     expect(backupReminderMessage(0)).toBeNull();
+  });
+});
+
+describe("restoreConfirmMatches", () => {
+  it("requires the exact Entity code", () => {
+    expect(restoreConfirmMatches("HKR", "HKR")).toBe(true);
+    expect(restoreConfirmMatches("  HKR ", "HKR")).toBe(true);
+    expect(restoreConfirmMatches("hkr", "HKR")).toBe(false);
+    expect(restoreConfirmMatches("", "HKR")).toBe(false);
+  });
+});
+
+describe("totalRows / nonEmptyTables", () => {
+  const counts = { contacts: 2, journal_lines: 10, products: 0, accounting_periods: 2 };
+
+  it("sums every table", () => {
+    expect(totalRows(counts)).toBe(14);
+    expect(totalRows({})).toBe(0);
+  });
+
+  it("lists non-empty tables, largest first then by name", () => {
+    expect(nonEmptyTables(counts)).toEqual([
+      { table: "journal_lines", rows: 10 },
+      { table: "accounting_periods", rows: 2 },
+      { table: "contacts", rows: 2 },
+    ]);
+  });
+});
+
+describe("restoreReady", () => {
+  it("blocks an invalid file before anything else", () => {
+    expect(restoreReady({ ok: false, step_up_ok: false })).toBe("invalid");
+  });
+
+  it("asks for step-up when the file is valid but the window lapsed", () => {
+    expect(restoreReady({ ok: true, step_up_ok: false })).toBe("step_up");
+  });
+
+  it("is ready when both hold", () => {
+    expect(restoreReady({ ok: true, step_up_ok: true })).toBe("ready");
   });
 });

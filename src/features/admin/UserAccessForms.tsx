@@ -5,6 +5,7 @@ import type { PermissionRow, RoleRow } from "@/schemas/admin";
 import {
   changeRoleAction,
   idleUserActionState,
+  revokeDeviceAction,
   setOverrideAction,
   setStatusAction,
   type UserActionState,
@@ -132,5 +133,30 @@ export function PermissionOverrideForm({
         {pending ? "Menyimpan…" : "Simpan Pengecualian"}
       </button>
     </form>
+  );
+}
+
+export function RevokeDeviceForm({
+  deviceId,
+  entity,
+}: {
+  deviceId: string;
+  entity: string | undefined;
+}) {
+  const [state, action, pending] = useActionState(revokeDeviceAction, idleUserActionState);
+  if (state.status === "ok") return <Result state={state} />;
+  return (
+    <details>
+      <summary>Cabut</summary>
+      <form action={action} className="record-form">
+        <input type="hidden" name="device_id" value={deviceId} />
+        <input type="hidden" name="entity" value={entity ?? ""} />
+        <ReasonField />
+        <button type="submit" className="btn-danger" disabled={pending}>
+          {pending ? "Mencabut…" : "Cabut perangkat"}
+        </button>
+        <Result state={state} />
+      </form>
+    </details>
   );
 }

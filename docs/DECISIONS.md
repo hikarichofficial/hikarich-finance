@@ -12,6 +12,7 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 | 2026-09-19 | Working rule (first version): do not improvise beyond the specs; ask the OWNER first.                                                                                                                                                                                                                                                                     |
 | 2026-09-19 | Working rule (updated): improvising is acceptable when it is the best option. Decide and act without asking, except for crucial decisions only the OWNER can make (cost, exposure of data or code, changes to a locked specification). The OWNER clicks confirmations and types passwords personally.                                                     |
 | 2026-09-19 | The GitHub repository `hikarichofficial/hikarich-finance` is **public**, chosen over paying for a plan that enforces rulesets on private repositories. Consequence: never commit secrets, real data, real invoices or receipts, real business figures, or the full Step specification files. The secret scan stays mandatory and Actions logs are public. |
+| 2026-10-01 | Backup restore is allowed only into an **empty** Entity (decision 247). No merge or overwrite of existing data.                                                                                                                                                                                                                                           |
 
 ## Resolved by authority (no OWNER decision needed)
 
@@ -1096,6 +1097,43 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
 
   No migration. Checked in a Vercel Sandbox before the PR (format, typecheck, lint, tests, build), then by
   CI.
+
+- Backup & Restore Center Part 2 and trusted-device revocation (decision 247, P14).
+
+  OWNER decision: a backup may be restored only into an **empty** Entity (no merge, no overwrite).
+  Migration `20261001100000_p14_restore_and_device_revoke.sql`:
+
+  1. `export_backup_file(entity, kind)` returns the snapshot as the database's own JSON text. Part 1's
+     screen parsed and re-stringified the JSON in the browser, which turns NUMERIC money values into
+     JavaScript doubles (precision loss above 15 significant digits, and changed formatting that breaks
+     the checksum). The download now saves the database's text byte-for-byte.
+  2. `preview_backup_restore(entity, file)` (`backup.restore`, read-only): checksum over `data`, kind
+     full or data-only, Entity id match, no rows for another Entity, no unknown tables, target empty;
+     returns errors, warnings, rows per table in the file, rows already in the target and whether the
+     step-up window is satisfied.
+  3. `restore_backup_snapshot(entity, file, confirm)`: `backup.restore`, a recent step-up and the typed
+     Entity code; one restore per Entity at a time (advisory lock). Supabase does not allow
+     `session_replication_role`, so user triggers on the target tables are disabled inside the
+     transaction and rows are inserted in foreign-key order (nullable self/cyclic references are filled in
+     a second pass), keeping identity values. Then integrity is verified: exact row counts, every posted
+     journal balanced, trial-balance difference zero. Any failure rolls the writes back and records a
+     Failed job. Every attempt is stored in the append-only `restore_jobs` (excluded from backups, like
+     `backup_jobs`) and in the Audit Log. `entity_memberships` are never restored (accounts are
+     re-invited); the preview warns about it.
+  4. `revoke_trusted_device(device, reason)`: own device always; another person's device needs
+     `security.manage` on a shared Entity plus step-up. Records a `trusted_device.revoked` security event.
+
+  Screens: `/admin/backup` gains Pulihkan dari Berkas (pick file, preview, step-up link, typed Entity
+  code, result with integrity outcome) and Riwayat Pemulihan; `/admin/security` gains a revoke action per
+  active device. A backup file goes through a Server Action, so `next.config.ts` raises
+  `serverActions.bodySizeLimit` to 5 MB and the browser refuses files over 4 MB (Vercel's 4.5 MB ceiling);
+  recorded in `docs/RELEASE.md` as a limit to re-assess as data grows.
+
+  Restore drill: `supabase/tests/99_p14_2_restore.sql` exports an Entity with data (including a
+  14-digit amount), checks every refusal (permission, step-up, wrong code, tampered checksum, non-JSON,
+  non-empty target), proves a failing restore writes nothing, restores, and requires the re-export to
+  equal the original per table. Device revocation is tested in the same file. `pnpm db:test` passes
+  (62 migrations, upgrade-from-seeded-data check included).
 
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory

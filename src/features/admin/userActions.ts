@@ -6,6 +6,7 @@ import { requirePermission } from "@/services/identity/access";
 import {
   assignMembershipRole,
   setMembershipStatus,
+  revokeTrustedDevice,
   setPermissionOverride,
 } from "@/services/admin/users";
 
@@ -94,4 +95,21 @@ export async function setOverrideAction(
     return fail(error, "Pengecualian izin tidak dapat disimpan. Alasan minimal 5 karakter.");
   }
   return done(membershipId, "Pengecualian izin disimpan.");
+}
+
+export async function revokeDeviceAction(
+  _previous: UserActionState,
+  formData: FormData,
+): Promise<UserActionState> {
+  try {
+    await requirePermission("security.view", { entityCode: text(formData, "entity") });
+    await revokeTrustedDevice({
+      deviceId: text(formData, "device_id"),
+      reason: text(formData, "reason"),
+    });
+  } catch (error) {
+    return fail(error, "Perangkat tidak dapat dicabut. Alasan minimal 5 karakter.");
+  }
+  revalidatePath("/admin/security");
+  return { status: "ok", message: "Perangkat dicabut." };
 }

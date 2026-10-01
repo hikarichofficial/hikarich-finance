@@ -1,9 +1,16 @@
 import "server-only";
-import { type ZodType } from "zod";
+import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import {
   backupJobListSchema,
+  restoreFileInputSchema,
+  restoreJobListSchema,
+  restorePreviewSchema,
+  restoreResultSchema,
+  type RestoreJobRow,
+  type RestorePreview,
+  type RestoreResult,
   exportBackupSnapshotInputSchema,
   exportBackupSnapshotResultSchema,
   validateBackupPayloadInputSchema,
@@ -81,5 +88,66 @@ export async function listBackupHistory(entityId: string, limit = 20): Promise<B
   if (error) throw new Error("Gagal memuat riwayat backup.");
   const parsed = backupJobListSchema.safeParse(data);
   if (!parsed.success) throw new Error("Respons riwayat backup tidak dikenali.");
+  return parsed.data;
+}
+
+// ------------------------------------------------------------ Part 2: restore (decision 247)
+
+/** The backup file exactly as the database serialised it (`export_backup_file`), so the browser saves it
+ * byte-for-byte: no JSON round-trip in JavaScript, which would turn exact NUMERIC money values into
+ * doubles. Also records the export in `backup_jobs`, like `export_backup_snapshot`. */
+export async function exportBackupFile(entityId: string, kind: BackupKind): Promise<string> {
+  const v = exportBackupSnapshotInputSchema.parse({ entity_id: entityId, kind });
+  return callRpc(
+    "export_backup_file",
+    { p_entity: v.entity_id, p_kind: v.kind },
+    z.string().min(1),
+  );
+}
+
+/** Read-only impact preview: validation errors/warnings, rows per table in the file, rows already in the
+ * target Entity, and whether the caller's step-up window is currently satisfied. */
+export async function previewBackupRestore(
+  entityId: string,
+  file: string,
+): Promise<RestorePreview> {
+  const v = restoreFileInputSchema.parse({ entity_id: entityId, file });
+  return callRpc(
+    "preview_backup_restore",
+    { p_entity: v.entity_id, p_file: v.file },
+    restorePreviewSchema,
+  );
+}
+
+/** Runs the restore. The database re-checks everything (permission, step-up, typed Entity code,
+ * empty target, checksum) and either commits a verified restore or records a Failed job with nothing
+ * written. */
+export async function restoreBackupSnapshot(
+  entityId: string,
+  file: string,
+  confirmCode: string,
+): Promise<RestoreResult> {
+  const v = restoreFileInputSchema.parse({ entity_id: entityId, file });
+  return callRpc(
+    "restore_backup_snapshot",
+    { p_entity: v.entity_id, p_file: v.file, p_confirm: confirmCode },
+    restoreResultSchema,
+  );
+}
+
+/** Direct RLS-scoped read (`restore_jobs_select`, `backup.restore`), same shape as `listBackupHistory`. */
+export async function listRestoreHistory(entityId: string, limit = 20): Promise<RestoreJobRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("restore_jobs")
+    .select(
+      "id, entity_id, requested_by, source_kind, source_checksum, status, table_counts, skipped, integrity, error, created_at",
+    )
+    .eq("entity_id", entityId)
+    .order("created_at", { ascending: false })
+    .limit(limit);
+  if (error) throw new Error("Gagal memuat riwayat pemulihan.");
+  const parsed = restoreJobListSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons riwayat pemulihan tidak dikenali.");
   return parsed.data;
 }
