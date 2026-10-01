@@ -695,6 +695,52 @@ batches` has **no reading RPC at all** -- so a List/Detail for it would have exa
   Recent Activity, the Administration module, and every remaining action-form item decisions 165/167 still
   carry.
 
+- Tax Calendar (decision 233, unbuilt-screens backlog): `/tax/calendar` -- the first of the six remaining
+  Tax nav items (`/tax/pph`, `/tax/withholding`, `/tax/ppn`, `/tax/calendar`, `/tax/filing`, `/tax/rules`).
+  Before building anything, re-ran the same exhaustive RPC-inventory discipline decisions 231/232 just
+  established -- grepped every `create function public.` across all six P7 tax migrations
+  (`20260925100000_p7_tax_facts_rules.sql` through `20260925100500_p7_final_calendar.sql`) -- and found
+  this family is **not** the same class of gap as Reconciliation/Products/Expenses/Opening-Balances: every
+  read and write RPC the family needs is already service-wrapped in `src/services/tax/tax.ts` (built during
+  P7 itself, confirmed by decision "3e"'s own note), including reads for every remaining screen --
+  `getTaxCalendar`/`tax_calendar`, `previewFinalTax`/`computeFinalTax` (PPh Final), `getTaxPeriodPosition`,
+  `listTaxPayments`, `listTaxLedger` (all three already accept a `tax_type` filter covering PPh Final/
+  Withholding/PPN), `listRulesInForce`/`tax_rule_in_force` (Rules), and `listTaxEvidence`/`recordTaxFiling`
+  (Filing & Evidence). Two tables also carry their own direct-read RLS policy gated on `tax.view`
+  (`call app_private.expose_select(...)`, the same direct-table-read pattern decisions 161/167/170/171/172
+  established and decision 231's own `listTaxDeterminations` already used for `tax_determinations`):
+  `tax_rule_versions` (`tax_rule_versions_select`, `20260925100000_p7_tax_facts_rules.sql`) and
+  `tax_filings` (`tax_filings_select`, `20260925100400_p7_payments_filings.sql`) -- so a "list every rule"
+  view for `/tax/rules` and a "list every filing" view for `/tax/filing` are both buildable without a new
+  RPC too, the same way `/sales/products`/`/purchases/expenses`/the Reconciliation workspace/Opening
+  Balances are **not**. This finding is recorded in full here so the remaining five Tax items can each be
+  picked up as their own increment without re-doing this inventory.
+
+  Built the simplest of the six first: Tax Calendar is a pure List screen over `getTaxCalendar` (`tax_type`,
+  `tax_period`, `step`, `due_date`, `state`, `outstanding`, `rule_code`, `detail` -- already fully typed in
+  `src/schemas/tax.ts`, and every label it needs -- `CALENDAR_STEP_LABELS`/`CALENDAR_STATE_LABELS` -- already
+  exists in `src/domain/tax/tax.ts`, left over unused from `TaxOverviewScreen`'s own "Tenggat Terdekat"
+  section). `tax_calendar` itself defaults to a backward-looking window (the past three months through
+  today) when `p_from`/`p_to` are omitted -- a ledger-style default, not a calendar-style one -- so
+  `resolveTaxCalendarRange` (new, `src/domain/tax/taxCalendarList.ts`) widens and re-centres the page's own
+  default to one month back through two months ahead of today instead, the same `from`/`to` date-input
+  toolbar shape `CashActivityScreen` already uses (decision 203) rather than Tax Ledger's four-select
+  toolbar, since a calendar is read a window at a time, not filtered by family/source/status. Whatever the
+  user actually requests is passed through unchanged, `tax_calendar`'s own 36-month span limit left for the
+  database to enforce (no stricter than the RPC, decision 232's own precedent). Gated `tax.view` directly --
+  `tax_calendar`'s own exact check -- which happens to already be the Tax nav section's own parent-item
+  permission, so no gate-mismatch exists here the way decision 229's `/sales/refunds`/decision 232's
+  `/accounting/adjustments` observations found elsewhere.
+
+  `pnpm check` passes (689 tests, up from 684 -- `taxCalendarList.test.ts` is new). `pnpm build` passes
+  (`/tax/calendar` registers as a real route). `pnpm db:test` does not apply (no migration touched). `npx
+prettier --check .` clean. Still on the catch-all: `/sales/products` (needs new backend), `/purchases/
+expenses` (needs new backend), `/accounting/opening-balances` (needs new backend), the Money Reconciliation
+  session/workspace (needs new backend), `/tax/pph`, `/tax/withholding`, `/tax/ppn`, `/tax/filing`,
+  `/tax/rules` (all five newly confirmed buildable, no backend gap, this decision), Planning Forecasts,
+  Documents Archive (needs new backend), Recent Activity, the Administration module, and every remaining
+  action-form item decisions 165/167 still carry.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions
