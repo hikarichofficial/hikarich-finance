@@ -6,7 +6,7 @@
 -- leaves next_occurrence_date untouched, and the scheduled service_role path with no signed-in user at
 -- all, authorized structurally rather than by any table grant); budgets and revenue targets (create/edit/
 -- activate/close, the computed Budget/Actual/Committed and Target/Actual/AR reports, forecast_amount
--- always null per docs/DECISIONS.md); and that browser roles have no direct write access to any P10
+-- (the 3-month baseline since decision 250; zero here, as nothing happened before this month)); and that browser roles have no direct write access to any P10
 -- table. All data is synthetic; dates are relative to the Entity's today. The whole file runs in one
 -- transaction that is rolled back.
 
@@ -534,12 +534,12 @@ begin
     v_seen := v_seen + 1;
     if rep.category_id = v_cat_rev then
       perform test_helpers.assert(rep.budgeted_amount = 2500000 and rep.actual_amount = 2000000 and rep.committed_amount = 300000
-        and rep.remaining_amount = 200000 and rep.pct_used = 80.00 and rep.variance_amount = -500000 and rep.forecast_amount is null,
-        'revenue category: Budget 2.5jt, Actual 2jt (issued), Committed 300rb (draft), Remaining 200rb, 80% used, forecast is null');
+        and rep.remaining_amount = 200000 and rep.pct_used = 80.00 and rep.variance_amount = -500000 and rep.forecast_amount = 0,
+        'revenue category: Budget 2.5jt, Actual 2jt (issued), Committed 300rb (draft), Remaining 200rb, 80% used, forecast 0 (decision 250: no activity in the 3 months before)');
     elsif rep.category_id = v_cat_exp then
       perform test_helpers.assert(rep.budgeted_amount = 1000000 and rep.actual_amount = 800000 and rep.committed_amount = 150000
-        and rep.remaining_amount = 50000 and rep.pct_used = 80.00 and rep.variance_amount = -200000 and rep.forecast_amount is null,
-        'expense category: Budget 1jt, Actual 800rb (approved), Committed 150rb (submitted), Remaining 50rb, 80% used, forecast is null');
+        and rep.remaining_amount = 50000 and rep.pct_used = 80.00 and rep.variance_amount = -200000 and rep.forecast_amount = 0,
+        'expense category: Budget 1jt, Actual 800rb (approved), Committed 150rb (submitted), Remaining 50rb, 80% used, forecast 0 (decision 250: no activity in the 3 months before)');
     else
       perform test_helpers.assert(false, format('unexpected category %s in the budget report', rep.category_id));
     end if;
@@ -601,8 +601,8 @@ begin
   perform test_helpers.assert(v_rows = 1, 'one monthly line is reported');
   select * into rep from public.get_revenue_target_report(v_target) limit 1;
   perform test_helpers.assert(rep.target_amount = 1500000 and rep.actual_amount = 2000000 and rep.ar_outstanding_amount = 800000
-    and rep.variance_amount = 500000 and rep.forecast_amount is null,
-    'Target 1.5jt, Actual 2jt (issued), AR outstanding 800rb after a 1.2jt payment, Variance +500rb, forecast is null');
+    and rep.variance_amount = 500000 and rep.forecast_amount = 0,
+    'Target 1.5jt, Actual 2jt (issued), AR outstanding 800rb after a 1.2jt payment, Variance +500rb, forecast 0 (decision 250)');
 
   perform public.close_revenue_target(v_target);
   perform test_helpers.expect_msg(format('select public.close_revenue_target(%L)', v_target), 'INVALID', 'the revenue target is already closed');

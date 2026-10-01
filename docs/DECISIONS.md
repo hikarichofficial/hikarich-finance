@@ -304,7 +304,7 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 - OWNER's tax adviser to verify the payroll baseline before P15: the TER tables and categories, PTKP values, the occupational-cost cap, the treatment of employer Kesehatan/JKK/JKM as taxable benefits, PTKP proration for part-year employees, rounding, the JP cap dates and the treatment of over-withheld tax (decisions 121-123, 132).
 - OWNER to decide who holds the `payroll` role and whether payroll approval and payment should be OWNER-only (decisions 120, 125, 127); OWNER to decide the approval rules for `payroll`/`approve` and `payroll`/`pay`.
 - Payroll screens still remaining after Part 3g's first four increments -- Employee Register/Detail (decision 179), Payroll Run Register/Detail (decision 180), Payslip Register/Detail (decision 181), Payroll Tax & Liabilities (decision 182): every payroll action form (employee create/edit/end/record-employment/set-compensation/set-tax-profile/set-bpjs/set-tax-opening; run calculate/adjust/submit/approve/return/post/pay/close/reopen/correct -- all already service-wrapped, none yet given a UI), the payslip PDF/document export, and THR/severance and e-bupot export (decisions 132-133). `payroll_summary_report`/`payroll_control_report` (decision 182's own deferred list) shipped as the Payroll Summary/Payroll Control reports (decision 196).
-- OWNER to decide the Budget/Revenue-Target Forecast projection methodology (decision 139); confirm the "Committed" reading for budgets (decision 138) is what was intended.
+- Forecast projection methodology decided by the OWNER (decision 250, answers decision 139). Confirm the "Committed" reading for budgets (decision 138) is what was intended.
 - Recurring rule / budget / revenue target screens (decisions 134-139) are now fully shipped (decisions 183-188), including Recurring Rule's own create/edit template builder (decision 188). The template builder's v1 line editor deliberately leaves every optional tax/discount/product-linkage field (`vat_treatment`, `discount_type`, `wht_object`, `tax_amount`, `product_id`, an account-linked line) unexposed in the UI (decision 188); OWNER to confirm whether a future increment should expose them or whether the defaulted-at-generation behavior is acceptable long-term.
 - Documents Center, Import Wizard and Command Menu screens (decisions 140-146) are a later slice (P13), like every other phase's screens; the download route's signed-URL generation needs Supabase Storage configured, which is an infrastructure step outside this repository's migrations.
 - OWNER to confirm the `legacy_open_items` rollback rule (decision 144: contacts archive only when unreferenced, everything else is a normal correction) and the `finance_admin` grant for `system.import`/`system.rollback_import` (decision 146) match intent before real opening-balance data is imported at P15 cutover.
@@ -890,7 +890,7 @@ expenses` (needs new backend), `/accounting/opening-balances` (needs new backend
   **material act** by design -- it needs `tax.manage_rules`, a recent step-up (`app_authz.recent_step_up()`),
   and a verified source, and a mistake here changes real tax output for every document evaluated afterwards,
   squarely inside this project's own standing rule that anything changing tax/economic meaning goes to the
-  OWNER as a question rather than being decided solo. This is therefore filed as an **OWNER QUESTION** below,
+  OWNER as a question rather than being decided solo. This is therefore filed as an **OWNER QUESTION** (resolved by decision 249) below,
   not built blind: what should the rule-authoring UI look like (raw JSON `params` entry with server-side
   validation surfacing `tax_rule_params_problem`'s own message, or a structured sub-form per family), and
   should a second person's review be expected before publish beyond the step-up MFA the database already
@@ -924,7 +924,7 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   reason. Still on the catch-all: `/sales/products` (needs new backend), `/purchases/expenses` (needs new
   backend), `/accounting/opening-balances` (needs new backend), the Money Reconciliation session/workspace
   (needs new backend), per-payment evidence on `/tax/filing` (deferred, decision 238), the rule-authoring UI
-  on `/tax/rules` (**OWNER QUESTION above, deferred**), Planning Forecasts, Documents Archive (needs new
+  on `/tax/rules` (**OWNER QUESTION above, resolved by decision 249**), Planning Forecasts, Documents Archive (needs new
   backend), Recent Activity, the Administration module, and every remaining action-form item decisions
   165/167 still carry.
 
@@ -1048,6 +1048,29 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   `pnpm check` (740 tests, up from 738), `pnpm build` (2 new real routes replacing the catch-all),
   `pnpm db:test` N/A (no migration), prettier clean; verified via CI on the PR.
 
+- Forecasts (decision 250, OWNER answer to decision 139).
+
+  OWNER answer: forecasts are based on the last 3 months and must be adjustable through the budget.
+  Migration `20261001300000_p14_planning_forecast.sql`:
+
+  1. Baseline: per category, the average actual of the 3 complete months before the Entity's current
+     month (Entity timezone), months without activity counting as zero, rounded half-up to the base
+     currency's scale. "Actual" is the budget report's existing definition (issued invoice lines,
+     approved bill lines, confirmed expense lines, base currency). Only the current and future months get
+     a forecast.
+  2. `get_budget_report` and `get_revenue_target_report` now return that baseline in `forecast_amount`
+     (null for past months; for revenue targets the baseline is the average issued revenue). All other
+     columns are unchanged; the P10 test now expects 0 instead of null for the current month.
+  3. `get_planning_forecast(entity, months 1-24, budget)` (`planning.view`): per active revenue/expense
+     category with activity or budget lines, per month from the current month, the baseline, the chosen
+     budget's amount and the forecast, which is the budget where it plans that category-month and the
+     baseline otherwise (source `budget` or `average_3m`). A budget of another Entity is refused.
+  4. `/planning/forecasts`: a category x month grid for 3, 6 or 12 months with group totals and revenue
+     minus expense, labelled as a planning estimate; choosing a budget marks budget-sourced figures and
+     links to that budget, which is where the forecast is adjusted.
+
+  Tests: `supabase/tests/99_p14_4_forecast.sql`, `src/domain/planning/forecast.test.ts`.
+
 - Products & Services, Direct Expenses and Opening Balances (decision 245, unbuilt-screens backlog): three
   Step 09 sitemap items the backlog had marked "needs new backend". Re-reading the migrations showed all
   three already exist in the database, so none needs a migration.
@@ -1076,6 +1099,27 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   `pnpm check`, `pnpm build` and `pnpm format:check` were run in a Vercel Sandbox before the PR was
   opened (this session cannot install npm packages locally), then again by CI. `pnpm db:test` N/A (no
   migration).
+
+- Tax rule authoring (decision 249, OWNER answer to decision 239).
+
+  OWNER answer: build the rule-authoring UI; the engine keeps following the rules already in the master,
+  and the OWNER can adjust them later. Built on the existing P7 RPCs `tax_rule_draft_save`,
+  `tax_rule_publish` and `tax_rule_discard` (no migration):
+
+  1. A published rule is never edited. On its Detail screen, "Buat versi baru" opens a draft prefilled
+     with that rule's family, code, parameters and source (effective date and verification date default
+     to today, verification status to "Perlu ditinjau"), so a new version follows the existing rule
+     until a value is changed. "Aturan baru" on the list starts an empty rule.
+  2. Parameters are edited as JSON (prefilled, monospace). The browser only checks it is a JSON object;
+     the database validates the shape per family (`app_private.tax_rule_params_problem`) and the form
+     shows its explanation next to the error.
+  3. A draft can be edited, discarded with a reason, or published. Publishing keeps the database's
+     rules: `tax.manage_rules`, a recent step-up (the form links to step-up), status "Terverifikasi"
+     against the official source, and no other published version of the same code on the same date.
+  4. `src/services/tax/tax.ts` now keeps the database message inside `AuthzError` so the form can show
+     that explanation; the user-facing text stays the generic Indonesian copy plus the detail.
+
+  No second-person review before publish: the OWNER's step-up is the control, as the RPC already defines.
 
 - Users & Roles, Security Center and Recent Activity (decision 246, unbuilt-screens backlog).
 
@@ -1155,6 +1199,28 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   equal the original per table. Device revocation is tested in the same file. `pnpm db:test` passes
   (62 migrations, upgrade-from-seeded-data check included).
 
+- Money Reconciliation workspace (decision 251, closes the gap decision 231 recorded).
+
+  Decision 231 kept the workspace on the catch-all because no RPC returns a session's own row. The
+  table `reconciliation_sessions` has had a `money.view` RLS select policy since P4, so the session header
+  (period, statement balances, status, completion figures) and the session history are read directly,
+  the same direct-table-read precedent as decisions 170/239/245; numeric columns are cast to text in the
+  select so exact decimals survive. No migration.
+
+  1. `/money/reconciliation`: each account links to its session in progress ("Lanjutkan sesi") or, with
+     `money.reconcile`, to "Mulai rekonsiliasi"; a "Riwayat Sesi" table lists every session.
+  2. `/money/reconciliation/new?account=`: period and opening balance default to continuing from the
+     account's last reconciled statement (the database requires that continuity).
+  3. `/money/reconciliation/[id]`: header and figures, "Tambah Mutasi" (pasted rows
+     `tanggal;jumlah;keterangan;referensi`, semicolon or tab, signed amounts with a dot decimal, parsed
+     and validated row by row before anything is sent; duplicates are skipped by the RPC), the line
+     table with match (candidates from `reconciliation_candidates`, optional manual reason),
+     unmatch/exclude with a reason, include, then complete (reason required for a non-zero difference),
+     reopen with a reason, or discard.
+  4. Every action is the unmodified P4 RPC; errors show the database's own explanation. The money
+     service now keeps the database message inside `AuthzError` for that purpose.
+
+  Tests: `src/domain/money/reconciliationSession.test.ts`; the RPCs are covered by the existing P4 tests.
 - Documents Archive, Sales/Purchase report and Saved Reports (decision 252, the last Step 09 screens
   without a backend). Migration `20261001400000_p14_archive_sales_purchase_saved.sql`:
 

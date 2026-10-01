@@ -1,3 +1,4 @@
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { listTaxRuleVersions } from "@/services/tax/tax";
 import {
@@ -19,7 +20,7 @@ export default async function TaxRulesPage({
   searchParams: Promise<{ entity?: string; family?: string; status?: string; q?: string }>;
 }) {
   const { entity, family, status, q } = await searchParams;
-  await requirePermission("tax.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("tax.view", { entityCode: entity });
 
   const ruleFamily = parseRuleFamilyFilter(family) ?? null;
   const ruleStatus = parseRuleStatusFilter(status) ?? null;
@@ -35,6 +36,7 @@ export default async function TaxRulesPage({
       status={ruleStatus}
       query={query}
       entity={entity}
+      canManage={can(access, membership.entity_id, "tax.manage_rules")}
     />
   );
 }

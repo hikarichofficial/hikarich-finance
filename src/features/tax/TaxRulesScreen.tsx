@@ -19,9 +19,8 @@ import { formatShortDate } from "./format";
  * is threaded through only to keep the nav's own Entity switcher and the `?entity=` query param intact across
  * navigation, exactly as `TaxLedgerScreen` already does for a screen a caller reaches through the Tax section.
  *
- * Read-only by design this increment: creating a draft, publishing it (`tax.manage_rules`, plus a recent
- * step-up) and discarding a draft are all already-built RPCs (`saveRuleDraft`/`publishRule`/`discardRule`,
- * `src/services/tax/tax.ts`) with no UI yet -- deliberately deferred, see `docs/DECISIONS.md` decision 239.
+ * With `tax.manage_rules`, "Aturan baru" starts a new rule; existing rules are adjusted from their Detail
+ * screen by a new version (decision 249, OWNER answer to decision 239).
  */
 export function TaxRulesScreen({
   rows,
@@ -29,12 +28,14 @@ export function TaxRulesScreen({
   status,
   query,
   entity,
+  canManage = false,
 }: {
   rows: readonly TaxRuleVersionRow[];
   family: RuleFamily | null;
   status: RuleStatus | null;
   query: string;
   entity: string | undefined;
+  canManage?: boolean;
 }) {
   return (
     <div className="list-screen">
@@ -43,6 +44,14 @@ export function TaxRulesScreen({
           <h1>Aturan Pajak / Konfigurasi</h1>
           <p className="list-screen-summary">{rows.length} versi aturan ditampilkan.</p>
         </div>
+        {canManage ? (
+          <Link
+            href={entity ? `/tax/rules/new?entity=${encodeURIComponent(entity)}` : "/tax/rules/new"}
+            className="btn-primary"
+          >
+            Aturan baru
+          </Link>
+        ) : null}
       </header>
 
       <div className="list-screen-toolbar">

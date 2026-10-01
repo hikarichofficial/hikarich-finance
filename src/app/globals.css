@@ -2385,3 +2385,10 @@ a.kpi-card:hover {
     color: var(--text-secondary);
   }
 }
+
+/* Tax rule parameters editor (decision 249). */
+.code-input {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}

@@ -194,6 +194,8 @@ declare
                                          'delete_saved_report',
                                          -- Entity timezone / fiscal-year start in Settings (decision 248)
                                          'update_entity_time_settings',
+                                         -- Forecasts (decision 250)
+                                         'get_planning_forecast',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];

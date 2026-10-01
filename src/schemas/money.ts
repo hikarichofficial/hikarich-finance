@@ -291,3 +291,32 @@ export const candidateSchema = z.object({
   day_difference: z.number().int().nonnegative(),
 });
 export const candidatesSchema = z.array(candidateSchema);
+
+// ---- reconciliation session row (decision 251, direct RLS read)
+export const reconciliationSessionStatusSchema = z.enum(["open", "reconciled", "reopened"]);
+export type ReconciliationSessionStatus = z.infer<typeof reconciliationSessionStatusSchema>;
+
+export const reconciliationSessionRowSchema = z.object({
+  id: z.uuid(),
+  entity_id: z.uuid(),
+  financial_account_id: z.uuid(),
+  period_start: isoDateSchema,
+  period_end: isoDateSchema,
+  statement_opening: signedDecimalTextSchema,
+  statement_closing: signedDecimalTextSchema,
+  status: reconciliationSessionStatusSchema,
+  note: z.string().nullable(),
+  system_book_balance: signedDecimalTextSchema.nullable(),
+  system_cleared_balance: signedDecimalTextSchema.nullable(),
+  outstanding_balance: signedDecimalTextSchema.nullable(),
+  difference: signedDecimalTextSchema.nullable(),
+  accepted_difference_reason: z.string().nullable(),
+  excluded_lines: z.number().int().nullable(),
+  outstanding_items: z.number().int().nullable(),
+  reconciled_at: z.string().nullable(),
+  reopen_reason: z.string().nullable(),
+  reopened_at: z.string().nullable(),
+  created_at: z.string(),
+});
+export const reconciliationSessionListSchema = z.array(reconciliationSessionRowSchema);
+export type ReconciliationSessionRow = z.infer<typeof reconciliationSessionRowSchema>;
