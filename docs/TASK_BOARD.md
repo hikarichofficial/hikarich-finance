@@ -1515,16 +1515,27 @@ of today, `CashActivityScreen`'s own `from`/`to` toolbar shape. Gated `tax.view`
 here). `pnpm check` (689 tests, up from 684), `pnpm build` (1 new real route), `pnpm db:test` N/A, `npx
 prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 233.
 
-Still on the catch-all after these seven increments (tracked so nothing is silently dropped):
+Decision 234, eighth increment (PPh Final UMKM): `/tax/pph` -- the second Tax family item, the one with
+its own compute step (`tax_final_compute`) since the UMKM final-tax regime recognises a flat rate on
+turnover once a month rather than line by line. New `resolveTaxPeriod` resolves a native
+`<input type="month">` value into a tax period. Shows `tax_final_preview`'s live evaluation alongside
+`tax_period_position`'s recorded figures, both already service-wrapped. Gated `tax.view`, matching the
+read RPCs; `tax_final_compute` itself needs the narrower `tax.confirm_facts` (only the `tax` role template
+holds both), so the Compute button's own server action lets that `AuthzError` surface on submit rather than
+gating the whole page, and is disabled client-side whenever the live preview's status is not
+`auto_determined`. `pnpm check` (695 tests, up from 689), `pnpm build` (1 new real route), `pnpm db:test`
+N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 234.
+
+Still on the catch-all after these eight increments (tracked so nothing is silently dropped):
 `/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
 `/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
 balances, decision 231), `/accounting/opening-balances` (needs new backend -- no reading RPC over
-`opening_balance_batches`, decision 232), `/tax/pph`, `/tax/withholding`, `/tax/ppn`, `/tax/filing`,
-`/tax/rules` (all five confirmed buildable with no backend gap, decision 233), `/planning/forecasts`
-(blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
-`supersedes_document_id` has no reading RPC), `/activity`, `/admin/imports`, `/admin/audit`,
-`/admin/users`, `/admin/settings`, `/admin/security`, and the `/reports/*` nav sub-items
+`opening_balance_batches`, decision 232), `/tax/withholding`, `/tax/ppn`, `/tax/filing`, `/tax/rules` (all
+four confirmed buildable with no backend gap, decision 233), `/planning/forecasts` (blocked on decision
+139's own open methodology question), `/documents/archive` (needs new backend -- `supersedes_document_id`
+has no reading RPC), `/activity`, `/admin/imports`, `/admin/audit`, `/admin/users`, `/admin/settings`,
+`/admin/security`, and the `/reports/*` nav sub-items
 (`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`) which largely duplicate
 functionality already shipped as `/reports?statement=*` tabs (Part 4) under separate hrefs that were never
 wired to them -- worth a routing-only fix rather than new screens, taken up in a later increment.
