@@ -62,9 +62,7 @@ export function TimeSettingsForm({
         </select>
       </label>
       {fiscalYearLocked ? (
-        <p className="hint">
-          Awal tahun buku terkunci karena periode akuntansi sudah dibuat.
-        </p>
+        <p className="hint">Awal tahun buku terkunci karena periode akuntansi sudah dibuat.</p>
       ) : null}
       <label>
         Alasan perubahan (minimal 5 karakter)

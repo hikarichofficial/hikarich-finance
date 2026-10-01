@@ -1109,9 +1109,9 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   `supabase/tests/95_p7_determination.sql` now picks the current month with `test_helpers.today` (the
   Entity's date) instead of the session's `current_date`, which removes the month-end flake.
 
-  New RPC `update_entity_time_settings(entity, timezone, fiscal_year_start_month, expected_version,
-  reason)` (`20261001200000_p14_entity_time_settings.sql`): `system.entity_config` (OWNER by default),
-  recent step-up, a 5-500 character reason, a valid IANA timezone, month 1-12 and the current
+  New RPC `update_entity_time_settings` (`20261001200000_p14_entity_time_settings.sql`), taking the
+  Entity, timezone, fiscal-year start month, expected version and reason. It requires
+  `system.entity_config` (OWNER by default), a recent step-up, a 5-500 character reason, a valid IANA timezone, month 1-12 and the current
   `entities.version`. The fiscal-year start is refused once the Entity has any accounting period, since
   every period's fiscal-year label is derived from it; the timezone may change at any time (stored dates
   never move). Each change is audited as `entities.time_settings_changed` with the reason and

@@ -86,7 +86,9 @@ describe("timezoneOptions / timezoneLabel (decision 248)", () => {
         "CONFLICT: the fiscal year start cannot change once accounting periods exist",
       ),
     ).toBe(true);
-    expect(isFiscalYearLockedMessage("CONFLICT: the Entity changed since it was loaded")).toBe(false);
+    expect(isFiscalYearLockedMessage("CONFLICT: the Entity changed since it was loaded")).toBe(
+      false,
+    );
     expect(isFiscalYearLockedMessage(null)).toBe(false);
   });
 });
