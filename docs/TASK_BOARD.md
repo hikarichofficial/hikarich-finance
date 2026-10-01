@@ -1480,16 +1480,78 @@ narrower pattern Transfer Detail already uses). Only Reverse is wired, gated `bi
 tests, unchanged), `pnpm build` (2 new real routes), `pnpm db:test` N/A, `npx prettier --check .` clean.
 Full detail in `docs/DECISIONS.md` decision 230.
 
-Still on the catch-all after these four increments (tracked so nothing is silently dropped): `/sales/products`,
-`/purchases/expenses`,
-`/accounting/opening-balances`, `/accounting/adjustments`, `/money/reconciliation`, `/tax/pph`,
-`/tax/withholding`, `/tax/ppn`, `/tax/calendar`, `/tax/filing`, `/tax/rules`, `/planning/forecasts`
-(blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
-`supersedes_document_id` has no reading RPC), `/activity`, `/admin/imports`, `/admin/audit`,
-`/admin/users`, `/admin/settings`, `/admin/security`, and the `/reports/*` nav sub-items
-(`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`) which largely duplicate
-functionality already shipped as `/reports?statement=*` tabs (Part 4) under separate hrefs that were never
-wired to them -- worth a routing-only fix rather than new screens, taken up in a later increment.
+Decision 231, fifth increment (Reconciliation List, read-only): `/money/reconciliation` -- reads
+`reconciliation_status` joined against `money_control` for currency, gated `money.view`. Starting a
+session and the full matching workspace were drafted and then cut back out: no RPC anywhere returns a
+`reconciliation_sessions` row's own fields (status/period/statement balances), so a workspace page could
+not honestly render its own header or gate its own actions -- needs a new read RPC, flagged for the OWNER.
+The same audit confirmed `/sales/products` (no RPC of any kind exists over `public.products`) and
+`/purchases/expenses` (full write lifecycle exists, but no `list_expenses` RPC) are backend gaps too, not
+just missing UI. `pnpm check` (678 tests, up from 673), `pnpm build` (1 new real route), `pnpm db:test`
+N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 231.
+
+Decision 232, sixth increment (Advanced Adjustments): `/accounting/adjustments` -- a single form (no
+List+New split), posting immediately via `record_balance_adjustment` (already wrapped as
+`recordBalanceAdjustment`, just never given a UI). Gated `money.adjust` matching the RPC exactly, not the
+nav section's `accounting.view`. Counter-account picker uses new `eligibleCounterAccounts` domain helper,
+matching the RPC's own validation exactly (active, non-group, non-control, not the opening-balance
+clearing account). Redirects to the affected account's own Detail page on success, since there is no
+adjustment record of its own to show. Reached after finding `/accounting/opening-balances` (next on the
+catch-all) is the same class of gap as Reconciliation's workspace: `post_opening_balances`/
+`complete_opening_balances` post immediately but `opening_balance_batches` has no reading RPC at all, so
+Advanced Adjustments was built instead. `pnpm check` (684 tests, up from 678), `pnpm build` (1 new real
+route), `pnpm db:test` N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 232.
+
+Decision 233, seventh increment (Tax Calendar): `/tax/calendar` -- the first of the Tax family's six
+remaining nav items. Before building, ran the same exhaustive RPC-inventory discipline decisions 231/232
+established across all six P7 tax migrations, and found the whole Tax family is backend-ready: every
+read/write RPC it needs is already wrapped in `src/services/tax/tax.ts`, and `tax_rule_versions`/
+`tax_filings` both carry their own direct-select RLS policy (`tax.view`), so `/tax/rules` and
+`/tax/filing` need no new RPC either -- unlike `/sales/products`/`/purchases/expenses`/Reconciliation's
+workspace/Opening Balances. Built as a pure List over `getTaxCalendar`; new `resolveTaxCalendarRange`
+widens the RPC's own backward-looking default (past 3 months) to one month back through two months ahead
+of today, `CashActivityScreen`'s own `from`/`to` toolbar shape. Gated `tax.view` directly, matching
+`tax_calendar`'s own check exactly (already the Tax nav section's own parent permission, no gate mismatch
+here). `pnpm check` (689 tests, up from 684), `pnpm build` (1 new real route), `pnpm db:test` N/A, `npx
+prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 233.
+
+Decision 234, eighth increment (PPh Final UMKM): `/tax/pph` -- the second Tax family item, the one with
+its own compute step (`tax_final_compute`) since the UMKM final-tax regime recognises a flat rate on
+turnover once a month rather than line by line. New `resolveTaxPeriod` resolves a native
+`<input type="month">` value into a tax period. Shows `tax_final_preview`'s live evaluation alongside
+`tax_period_position`'s recorded figures, both already service-wrapped. Gated `tax.view`, matching the
+read RPCs; `tax_final_compute` itself needs the narrower `tax.confirm_facts` (only the `tax` role template
+holds both), so the Compute button's own server action lets that `AuthzError` surface on submit rather than
+gating the whole page, and is disabled client-side whenever the live preview's status is not
+`auto_determined`. `pnpm check` (695 tests, up from 689), `pnpm build` (1 new real route), `pnpm db:test`
+N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 234.
+
+Decision 235, ninth increment (Withholding PPh 23 and PPN): `/tax/withholding` and `/tax/ppn` -- the third
+and fourth Tax family items, shipped together since both are pure period-position reports with no compute
+step, unlike PPh Final UMKM (withholding and VAT are determined per document at invoice/bill/expense time,
+Step 05). New shared `TaxPositionScreen` (`taxType`/`title` prop) serves both routes, the same
+shared-screen-via-a-prop pattern decisions 198/176/225/229 already established; reuses decision 234's own
+`resolveTaxPeriod` unchanged. The input-VAT-credit fields (`accrued_asset`/`applied_asset`/
+`asset_available`) render only when `taxType === "vat"`. Gated `tax.view` on both, matching
+`tax_period_position` exactly. `recordTaxPayment`/`recordTaxFiling`/`tax_reconcile_period` (needs the
+narrower `tax.mark_filed`) are deliberately left out of both screens -- paying, filing, reconciling and
+evidence belong together in a future `/tax/filing` increment, not scattered across the position reports.
+`pnpm check` (695 tests, unchanged -- no new domain logic needed), `pnpm build` (2 new real routes), `pnpm
+db:test` N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 235.
+
+Still on the catch-all after these nine increments (tracked so nothing is silently dropped):
+`/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
+`/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
+Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
+balances, decision 231), `/accounting/opening-balances` (needs new backend -- no reading RPC over
+`opening_balance_batches`, decision 232), `/tax/filing`, `/tax/rules` (both confirmed buildable with no
+backend gap, decision 233), `/planning/forecasts` (blocked on decision 139's own open methodology
+question), `/documents/archive` (needs new backend -- `supersedes_document_id` has no reading RPC),
+`/activity`, `/admin/imports`, `/admin/audit`, `/admin/users`, `/admin/settings`, `/admin/security`, and the
+`/reports/*` nav sub-items (`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`)
+which largely duplicate functionality already shipped as `/reports?statement=*` tabs (Part 4) under
+separate hrefs that were never wired to them -- worth a routing-only fix rather than new screens, taken up
+in a later increment.
 
 `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46
 pending migrations to this non-production Preview/dev project directly. Applied via the Supabase management
@@ -1510,6 +1572,20 @@ end to end with zero console errors and correctly-labeled form fields. Going fur
 which this session's standing safety rules prohibit on any non-local host -- a hard stop, not a scope
 choice. Authenticated E2E/accessibility testing stays open pending either the OWNER doing a signed-in
 walkthrough with this session, or a dedicated non-production test login.
+
+Security hotfix (decision 236): `pnpm audit --prod --audit-level=high` newly reported a critical RCE
+advisory (GHSA-vcvr-r3jv-pc5j) affecting `next` `16.3.5` (vulnerable range `>=16.2.0 <16.3.6`), discovered
+while verifying CI for decision 235's PR -- not caused by any code change here, the public advisory
+database simply picked up a new disclosure. Bumped `next` and `eslint-config-next` to the latest patched
+`16.3.8` (patch-only, no API change). Built as a standalone branch off `main` directly, not stacked on the
+Tax family chain, so it can merge immediately -- every other open PR in the stack will start failing this
+same audit check on its next CI re-run until this lands and each branch picks it up. Also investigated
+decision 235's PR's own "Migration clean-rebuild and invariants" CI failure alongside this: reproduced
+`pnpm db:test` locally against the identical migration set and it passed cleanly, so that failure is
+treated as a transient CI-runner flake, not a real defect (decision 235 touches zero migrations). `pnpm
+audit` now clean, `pnpm check` (673 tests, unchanged), `pnpm build` (no routes added/removed), `pnpm
+db:test` not re-run (JS-only change), `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md`
+decision 236.
 
 **OWNER QUESTION -- unresolved** (decision 237): the "Migration clean-rebuild and invariants" CI job
 started failing on decisions 235/236's PRs (`95_p7_determination.sql` test 9.5), reproducibly on CI but

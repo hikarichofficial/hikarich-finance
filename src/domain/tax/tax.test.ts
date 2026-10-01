@@ -11,6 +11,7 @@ import {
   checkTaxPayment,
   isTaxPeriodStart,
   outstandingTax,
+  resolveTaxPeriod,
   taxPaymentCash,
   taxPeriodLabel,
   taxPeriodStart,
@@ -34,6 +35,36 @@ describe("tax periods", () => {
     expect(() => taxPeriodStart("2026-9-1")).toThrow(RangeError);
     expect(() => taxPeriodLabel("2026-13-01")).toThrow(RangeError);
     expect(() => taxPeriodLabel("nope")).toThrow(RangeError);
+  });
+});
+
+describe("resolveTaxPeriod", () => {
+  const reference = new Date("2026-09-23T12:00:00Z");
+
+  it('accepts a native month-input value ("YYYY-MM") and appends the day', () => {
+    expect(resolveTaxPeriod("2026-07", reference)).toBe("2026-07-01");
+  });
+
+  it('accepts a full period ("YYYY-MM-01") as given', () => {
+    expect(resolveTaxPeriod("2026-07-01", reference)).toBe("2026-07-01");
+  });
+
+  it("falls back to the most recently completed month when absent", () => {
+    expect(resolveTaxPeriod(undefined, reference)).toBe("2026-08-01");
+  });
+
+  it("falls back when the month input is malformed", () => {
+    expect(resolveTaxPeriod("2026-13", reference)).toBe("2026-08-01");
+    expect(resolveTaxPeriod("not-a-period", reference)).toBe("2026-08-01");
+  });
+
+  it("falls back when a full date is not the 1st of its month", () => {
+    expect(resolveTaxPeriod("2026-07-15", reference)).toBe("2026-08-01");
+  });
+
+  it("crosses a year boundary correctly", () => {
+    const jan = new Date("2026-01-10T00:00:00Z");
+    expect(resolveTaxPeriod(undefined, jan)).toBe("2025-12-01");
   });
 });
 

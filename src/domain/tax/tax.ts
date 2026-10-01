@@ -218,6 +218,34 @@ export function taxPeriodLabel(period: string): string {
   return `${MONTHS_ID[month - 1]} ${m[1]}`;
 }
 
+const MONTH_INPUT = /^(\d{4})-(\d{2})$/;
+
+/** The period a period-based Tax screen (PPh Final, Withholding, PPN) opens to when no valid `?period=` is
+ * given: the most recently completed calendar month, since that is the period most likely to already be
+ * ready to compute, pay or file. Accepts a native `<input type="month">`'s own "YYYY-MM" value directly (its
+ * GET submission needs no client-side JavaScript to become a period), as well as a full "YYYY-MM-01" period;
+ * anything else -- absent, malformed, or a date that is not the 1st -- falls back to the default. */
+export function resolveTaxPeriod(
+  requested: string | undefined,
+  reference: Date = new Date(),
+): string {
+  if (requested) {
+    const monthMatch = MONTH_INPUT.exec(requested);
+    if (monthMatch) {
+      const month = Number(monthMatch[2]);
+      if (month >= 1 && month <= 12) return `${requested}-01`;
+    } else if (isTaxPeriodStart(requested)) {
+      return requested;
+    }
+  }
+  const previousMonth = new Date(
+    Date.UTC(reference.getUTCFullYear(), reference.getUTCMonth() - 1, 1),
+  );
+  const year = previousMonth.getUTCFullYear();
+  const month = String(previousMonth.getUTCMonth() + 1).padStart(2, "0");
+  return `${year}-${month}-01`;
+}
+
 // ---- payment arithmetic (early feedback only; the database recomputes and enforces everything)
 export interface TaxPaymentParts {
   /** Tax paid against the liability of the period. */
