@@ -18,6 +18,8 @@ import {
   matchStatementLineInputSchema,
   moneyControlSchema,
   reasonInputSchema,
+  reconciliationSessionListSchema,
+  reconciliationSessionRowSchema,
   reconciliationStatusSchema,
   reopenReconciliationInputSchema,
   reverseTransferInputSchema,
@@ -31,6 +33,7 @@ import {
   type AccountActivityRow,
   type MoneyControlRow,
   type MoneyMovementRow,
+  type ReconciliationSessionRow,
   type ReconciliationStatusRow,
   type TransferRow,
   type WorkspaceLine,
@@ -53,7 +56,7 @@ async function callRpc<T>(
   const { data, error } = await supabase.rpc(name, args);
   if (error) {
     const code = parseAuthzCode(error.message);
-    if (code) throw new AuthzError(code);
+    if (code) throw new AuthzError(code, error.message);
     throw new Error("Operasi keuangan gagal diproses.");
   }
   const parsed = schema.safeParse(data);
@@ -439,4 +442,45 @@ export async function getReconciliationStatus(
     { p_entity: uuidResultSchema.parse(entityId) },
     reconciliationStatusSchema,
   );
+}
+
+// ---- reconciliation sessions (decision 251)
+const RECONCILIATION_SESSION_COLUMNS =
+  // Numeric columns are cast to text so exact decimals survive (PostgREST would send JSON numbers).
+  "id, entity_id, financial_account_id, period_start, period_end, statement_opening::text, statement_closing::text, status, note, system_book_balance::text, system_cleared_balance::text, outstanding_balance::text, difference::text, accepted_difference_reason, excluded_lines, outstanding_items, reconciled_at, reopen_reason, reopened_at, created_at";
+
+/** Reconciliation sessions of the Entity, newest period first. No RPC returns a session's own row, so this
+ * reads `reconciliation_sessions` directly under its `money.view` RLS policy (decision 251; the
+ * direct-table-read precedent of decisions 170/239/245). */
+export async function listReconciliationSessions(
+  entityId: string,
+  accountId?: string,
+): Promise<ReconciliationSessionRow[]> {
+  const supabase = await createSupabaseServerClient();
+  let query = supabase
+    .from("reconciliation_sessions")
+    .select(RECONCILIATION_SESSION_COLUMNS)
+    .eq("entity_id", uuidResultSchema.parse(entityId));
+  if (accountId) query = query.eq("financial_account_id", uuidResultSchema.parse(accountId));
+  const { data, error } = await query.order("period_end", { ascending: false }).limit(200);
+  if (error) throw new Error("Gagal memuat sesi rekonsiliasi.");
+  const parsed = reconciliationSessionListSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons sesi rekonsiliasi tidak dikenali.");
+  return parsed.data;
+}
+
+export async function getReconciliationSession(
+  sessionId: string,
+): Promise<ReconciliationSessionRow | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("reconciliation_sessions")
+    .select(RECONCILIATION_SESSION_COLUMNS)
+    .eq("id", uuidResultSchema.parse(sessionId))
+    .maybeSingle();
+  if (error) throw new Error("Gagal memuat sesi rekonsiliasi.");
+  if (!data) return null;
+  const parsed = reconciliationSessionRowSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons sesi rekonsiliasi tidak dikenali.");
+  return parsed.data;
 }
