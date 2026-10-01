@@ -87,8 +87,8 @@ export function ForecastScreen({
       {empty ? (
         <div className="list-empty">
           <p>
-            Belum ada aktivitas dalam 3 bulan terakhir untuk dijadikan dasar perkiraan. Pilih anggaran
-            untuk memakai angka anggaran.
+            Belum ada aktivitas dalam 3 bulan terakhir untuk dijadikan dasar perkiraan. Pilih
+            anggaran untuk memakai angka anggaran.
           </p>
         </div>
       ) : (

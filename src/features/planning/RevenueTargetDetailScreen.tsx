@@ -152,7 +152,9 @@ export function RevenueTargetDetailScreen({
                   <td className="num">{formatMoney(line.ar_outstanding_amount, currency)}</td>
                   <td className="num">{formatMoney(line.variance_amount, currency)}</td>
                   <td className="num">
-                    {line.forecast_amount === null ? "—" : formatMoney(line.forecast_amount, currency)}
+                    {line.forecast_amount === null
+                      ? "—"
+                      : formatMoney(line.forecast_amount, currency)}
                   </td>
                 </tr>
               ))}
