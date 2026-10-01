@@ -42,7 +42,7 @@ begin
   perform public.post_opening_balances(
     r1, gen_random_uuid()::text, date '2026-09-15',
     jsonb_build_array(jsonb_build_object(
-      'account_id', test_helpers.acct(r1, 'BANK_OPERATING'), 'debit', '123456789012.3456')), 'drill');
+      'account_id', test_helpers.acct(r1, 'BANK_OPERATING'), 'debit', '12345678901234.56')), 'drill');
   insert into test_helpers.p14f values ('orig', public.export_backup_file(r1, 'full'));
   perform test_helpers.logout();
 end
@@ -55,7 +55,7 @@ declare
   v_file text := (select f from test_helpers.p14f where k = 'orig');
   v jsonb;
 begin
-  perform test_helpers.assert(v_file like '%123456789012.3456%', 'exported file keeps the exact amount text');
+  perform test_helpers.assert(v_file like '%12345678901234.56%', 'exported file keeps the exact amount text');
   perform test_helpers.login((select v from test_helpers.p14r where k = 'owner'));
   v := public.preview_backup_restore(r1, v_file);
   perform test_helpers.assert(not (v ->> 'ok')::boolean, 'non-empty target is not restorable');
@@ -171,7 +171,7 @@ begin
     (select default_unit_price from public.products where entity_id = r1 and sku = 'DRILL-1') = 1234567.8900,
     'product price restored exactly');
   perform test_helpers.assert(
-    (select sum(debit) from public.journal_lines where entity_id = r1) = 123456789012.3456,
+    (select sum(debit) from public.journal_lines where entity_id = r1) = 12345678901234.56,
     'large journal amount restored exactly');
   perform test_helpers.assert(
     exists (select 1 from public.audit_events where entity_id = r1 and action = 'restore_jobs.completed'),
