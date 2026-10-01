@@ -976,6 +976,33 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   routes replacing the catch-all), `pnpm db:test` N/A (no migration touched), prettier clean. Verified via
   CI on the PR (this session cannot install npm dependencies locally).
 
+- Audit Log, read-only (decision 242, unbuilt-screens backlog): `/admin/audit` -- the active Entity's
+  audit trail from `public.audit_events` (P1), newest first. No RPC lists audit events, so
+  `listAuditEvents` (`src/services/audit/audit.ts`, new) reads the table directly under its own
+  `audit_events_select` RLS policy (`audit.view` on the row's Entity) -- the direct-table-read precedent of
+  decisions 161/167/170-173/239. Gated on `audit.view`, matching that policy and `navigation.ts`. Filter
+  tabs by operation (`?op=insert|update|delete`, matched against the trigger's own `<table>.<op>` action
+  shape); paged server-side 50 at a time (`?offset=`), fetching one extra row to know whether a next page
+  exists. Actor names come from `profiles` under `profiles_select` RLS; an actor the viewer may not read is
+  shown by a shortened id rather than hidden.
+
+  **Field names, never values.** For an update the screen lists which fields changed
+  (`changedFieldNames`, bookkeeping columns excluded), not their before/after values. The trigger already
+  strips sensitive keys, but a bulk trail of raw financial values is more than a reviewer of "who changed
+  what, when" needs, and per-record history with values belongs on each record's own Activity tab.
+  Timestamps are shown to the second in UTC, labelled, rather than in one Entity's timezone (decision
+  237's finding that "today" differs between timezones applies equally to a trail).
+
+  New pure helpers in `src/domain/audit/audit.ts` (`parseAuditOperation`, `parseAuditOffset`,
+  `auditOperationOf`, `changedFieldNames`, `shortId`), unit-tested. `pnpm check` (731 tests, up from 720),
+  `pnpm build` (1 new real route replacing the catch-all), `pnpm db:test` N/A (no migration), prettier
+  clean; verified via CI on the PR.
+
+  **OWNER-relevant observation, not changed here:** `navigation.ts` gates "Users & Roles" and "Security" on
+  `settings.view`, while the tables behind them are RLS-gated on `users.view` (`entity_memberships`,
+  `profiles`) and `security.view` (`security_events`, `trusted_devices`). Whoever builds those screens
+  must choose which permission the page itself requires; recorded so it is decided deliberately.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions

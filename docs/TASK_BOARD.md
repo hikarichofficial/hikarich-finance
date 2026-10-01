@@ -1584,7 +1584,14 @@ row-status filters passed through as the RPCs' own arguments. Row payloads are d
 staging stay with the Import Wizard. `pnpm check` (720 tests, up from 716), `pnpm build` (2 new real
 routes), `pnpm db:test` N/A. Full detail in `docs/DECISIONS.md` decision 241.
 
-Still on the catch-all after these thirteen increments (tracked so nothing is silently dropped):
+Decision 242, fourteenth increment (Audit Log, read-only): `/admin/audit` -- `public.audit_events` read
+directly under its `audit.view` RLS policy, filter by operation, server-side paging (50), changed field
+names shown but never their values, timestamps in labelled UTC. Also records that "Users & Roles" and
+"Security" are nav-gated on `settings.view` while their tables use `users.view`/`security.view`.
+`pnpm check` (731 tests, up from 720), `pnpm build` (1 new real route), `pnpm db:test` N/A. Full detail
+in `docs/DECISIONS.md` decision 242.
+
+Still on the catch-all after these fourteen increments (tracked so nothing is silently dropped):
 `/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
 `/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
@@ -1592,7 +1599,7 @@ balances, decision 231), `/accounting/opening-balances` (needs new backend -- no
 `opening_balance_batches`, decision 232), per-payment evidence on `/tax/filing` (deferred, decision 238),
 the rule-authoring UI on `/tax/rules` (**OWNER QUESTION, deferred**, decision 239), `/planning/forecasts`
 (blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
-`supersedes_document_id` has no reading RPC), `/activity`, `/admin/audit`,
+`supersedes_document_id` has no reading RPC), `/activity`,
 `/admin/users`, `/admin/settings`, `/admin/security`, and four `/reports/*` nav sub-items:
 `sales-purchase` and `saved` (no backend), `tax` and `assets-loans` (**OWNER choice of destination**,
 decision 240).
