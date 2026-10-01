@@ -1602,12 +1602,16 @@ Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now na
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
 real routes). Full detail in `docs/DECISIONS.md` decision 244.
 
-Still on the catch-all after these sixteen increments (tracked so nothing is silently dropped):
-`/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
-`/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
+Decision 245, seventeenth increment: Products & Services (`/sales/products` list, create, detail and
+edit), Direct Expenses (`/purchases/expenses` list, create, detail with submit, recall, reject, confirm,
+cancel, reverse and correct) and Opening Balances (`/accounting/opening-balances` history, posting grid
+and completion). No migration: the tables, RLS policies and RPCs already existed. Full detail in
+`docs/DECISIONS.md` decision 245.
+
+Still on the catch-all after these seventeen increments (tracked so nothing is silently dropped):
+the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
-balances, decision 231), `/accounting/opening-balances` (needs new backend -- no reading RPC over
-`opening_balance_batches`, decision 232), per-payment evidence on `/tax/filing` (deferred, decision 238),
+balances, decision 231), per-payment evidence on `/tax/filing` (deferred, decision 238),
 the rule-authoring UI on `/tax/rules` (**OWNER QUESTION, deferred**, decision 239), `/planning/forecasts`
 (blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
 `supersedes_document_id` has no reading RPC), `/activity`,

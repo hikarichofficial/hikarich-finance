@@ -3,6 +3,7 @@ import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import { entityCurrencyRowSchema } from "@/schemas/dashboard";
+import { openingBatchListSchema, type OpeningBatchRow } from "@/schemas/openingBalances";
 import {
   accountingPeriodRowsSchema,
   createJournalInputSchema,
@@ -317,5 +318,22 @@ export async function listAccountingPeriods(entityId: string): Promise<Accountin
   if (error) throw new Error("Gagal memuat periode akuntansi.");
   const parsed = accountingPeriodRowsSchema.safeParse(data);
   if (!parsed.success) throw new Error("Respons periode akuntansi tidak dikenali.");
+  return parsed.data;
+}
+
+/** Opening balance batches of the Entity, newest first (decision 245) -- a direct read under
+ * `opening_balance_batches_select` RLS (`accounting.view`), the same precedent as the reads above. */
+export async function listOpeningBatches(entityId: string): Promise<OpeningBatchRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("opening_balance_batches")
+    .select(
+      "id, cutover_date, status, note, clearing_residual, completion_note, completed_at, created_at",
+    )
+    .eq("entity_id", uuidResultSchema.parse(entityId))
+    .order("created_at", { ascending: false });
+  if (error) throw new Error("Gagal memuat saldo awal.");
+  const parsed = openingBatchListSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons saldo awal tidak dikenali.");
   return parsed.data;
 }

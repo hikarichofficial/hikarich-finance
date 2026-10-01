@@ -1046,6 +1046,35 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   `pnpm check` (740 tests, up from 738), `pnpm build` (2 new real routes replacing the catch-all),
   `pnpm db:test` N/A (no migration), prettier clean; verified via CI on the PR.
 
+- Products & Services, Direct Expenses and Opening Balances (decision 245, unbuilt-screens backlog): three
+  Step 09 sitemap items the backlog had marked "needs new backend". Re-reading the migrations showed all
+  three already exist in the database, so none needs a migration.
+
+  1. Products & Services (`/sales/products`, `/new`, `/[id]`): `public.products` has had RLS policies for
+     select, insert and update since P2 (`products.view`, `products.create`, `products.edit`) and is
+     granted for direct writes (`expose_write`), because a product is master data with no posting side
+     effect. `src/services/products/products.ts` therefore reads and writes the table directly, the first
+     direct write in this codebase, guarded by those policies; updates match on `version`, so two people
+     cannot overwrite each other silently. Delete (`products.archive`) is deliberately not offered: a
+     product may be referenced by invoice lines, so it is deactivated instead.
+  2. Direct Expenses (`/purchases/expenses`, `/new`, `/[id]`): `public.expenses` and `expense_lines` are
+     read directly under their `bills.view` policies; every write is an unmodified P6 RPC
+     (`create_expense_draft`, `submit_expense`, `recall_expense`, `reject_expense`, `confirm_expense`,
+     `cancel_expense`, `reverse_expense`, `correct_expense`). `expenseActions` mirrors each RPC's own
+     status and permission guard, unit-tested. The create form reuses `RecurringLinesEditor` with kind
+     `expense`, whose category/treatment pairing is exactly what `purchase_prepare_lines` validates. A
+     new expense is saved as a draft; confirming (posting) is a separate step on its Detail page.
+  3. Opening Balances (`/accounting/opening-balances`): batches are read directly under
+     `opening_balance_batches_select` (`accounting.view`); posting and completing use the P3 RPCs
+     `post_opening_balances` and `complete_opening_balances` (`system.import`). The grid offers only
+     active, postable balance-sheet accounts other than the clearing account (`openingEligibleAccounts`),
+     and `checkOpeningLines` previews the database's own rules and the difference it will book to the
+     clearing account, unit-tested.
+
+  `pnpm check`, `pnpm build` and `pnpm format:check` were run in a Vercel Sandbox before the PR was
+  opened (this session cannot install npm packages locally), then again by CI. `pnpm db:test` N/A (no
+  migration).
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions
