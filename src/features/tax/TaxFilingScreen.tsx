@@ -845,7 +845,9 @@ function AttachEvidenceForm({
             onChange={(event) => {
               const index = Number(event.target.value);
               setTargetKey(index);
-              setPurpose(targets[index]?.type === "tax_payment" ? "payment_proof" : "filing_receipt");
+              setPurpose(
+                targets[index]?.type === "tax_payment" ? "payment_proof" : "filing_receipt",
+              );
             }}
           >
             {targets.map((t, i) => (
