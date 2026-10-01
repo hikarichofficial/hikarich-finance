@@ -110,7 +110,7 @@ export function isFiscalYearClosureActive(closure: { reversed_at: string | null 
 /** The `/reports/*` nav sub-items (`src/domain/shell/navigation.ts`) that forward to a screen which already
  * exists: most to a `/reports?statement=` tab, `tax` to the Tax Ledger screen (OWNER choice, decision 244).
  * `assets-loans` goes to Kontrol Aset Tetap (OWNER choice, decision 244). Sales/Purchase and Saved Reports
- * have no backend and keep falling through to the `[...slug]` placeholder. */
+ * have their own routes since decision 252. */
 export const REPORT_SUBROUTE_TARGETS = {
   cashflow: { statement: "cashflow" },
   payroll: { statement: "payroll_summary" },

@@ -26,6 +26,8 @@ import {
   resolveReportRange,
 } from "@/domain/reports/reports";
 import type { ReportDatasetKey } from "@/schemas/reports";
+import { reportQueryToSave } from "@/domain/reports/salesPurchase";
+import { SaveReportForm } from "@/features/reports/SavedReportForms";
 import {
   ReportsScreen,
   type ReportStatement,
@@ -116,6 +118,7 @@ export default async function ReportsPage({
     asset?: string;
   }>;
 }) {
+  const rawParams = await searchParams;
   const {
     entity,
     statement: statementParam,
@@ -129,7 +132,7 @@ export default async function ReportsPage({
     entities,
     through: throughParam,
     asset: assetParam,
-  } = await searchParams;
+  } = rawParams;
   const { access, membership } = await requirePermission("reports.view", { entityCode: entity });
   const statement = resolveStatement(statementParam);
   const range = resolveReportRange(from, to);
@@ -255,5 +258,14 @@ export default async function ReportsPage({
     data = { statement, range, compareRange, rows };
   }
 
-  return <ReportsScreen data={data} entity={entity} currency={currency} />;
+  return (
+    <>
+      <ReportsScreen data={data} entity={entity} currency={currency} />
+      <SaveReportForm
+        entity={entity}
+        path="/reports"
+        query={reportQueryToSave({ ...rawParams, statement })}
+      />
+    </>
+  );
 }
