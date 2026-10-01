@@ -152,8 +152,8 @@ begin
     'CONFLICT', '3.2 names are unique per person');
   perform test_helpers.expect_msg(format('select public.save_report(%L, %L, %L, %L)', e, 'Luar', 'https://evil.example', ''),
     'INVALID', '3.3 only report pages can be saved');
-  perform test_helpers.assert(test_helpers.affected(format('delete from public.saved_reports where id = %L', v_id)) = 0,
-    '3.4 no direct writes');
+  perform test_helpers.expect_error(format('delete from public.saved_reports where id = %L', v_id), '42501',
+    '3.4 no direct writes (only the RPCs write)');
   perform test_helpers.logout();
 
   perform test_helpers.login(v_admin);
