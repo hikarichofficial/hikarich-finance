@@ -20,6 +20,15 @@ import {
  * decisions 161/167/170-173/239/242. Read-only: nothing here writes.
  */
 
+const ENTITY_COLUMNS =
+  "id, code, entity_type, legal_name, brand_name, base_currency, timezone, fiscal_year_start_month, status";
+const PROFILE_COLUMNS =
+  "address_line, city, province, postal_code, country_code, contact_email, contact_phone, website";
+const NUMBERING_COLUMNS =
+  "id, scope, prefix, separator, include_year, padding, reset_policy, is_active";
+const APPROVAL_RULE_COLUMNS =
+  "id, module, action, min_amount, requires_approval, approver_role_id, allow_self_approval, effective_from, effective_to";
+
 export interface EntitySettingsOverview {
   entity: EntitySummaryRow;
   profile: EntityProfileRow | null;
@@ -36,30 +45,20 @@ function fail(what: string): never {
 export async function getEntitySettingsOverview(entityId: string): Promise<EntitySettingsOverview> {
   const supabase = await createSupabaseServerClient();
   const [entityRes, profileRes, numberingRes, rulesRes, settingsRes] = await Promise.all([
-    supabase
-      .from("entities")
-      .select(
-        "id, code, entity_type, legal_name, brand_name, base_currency, timezone, fiscal_year_start_month, status",
-      )
-      .eq("id", entityId)
-      .maybeSingle(),
+    supabase.from("entities").select(ENTITY_COLUMNS).eq("id", entityId).maybeSingle(),
     supabase
       .from("entity_profiles")
-      .select(
-        "address_line, city, province, postal_code, country_code, contact_email, contact_phone, website",
-      )
+      .select(PROFILE_COLUMNS)
       .eq("entity_id", entityId)
       .maybeSingle(),
     supabase
       .from("numbering_sequences")
-      .select("id, scope, prefix, separator, include_year, padding, reset_policy, is_active")
+      .select(NUMBERING_COLUMNS)
       .eq("entity_id", entityId)
       .order("scope", { ascending: true }),
     supabase
       .from("approval_rules")
-      .select(
-        "id, module, action, min_amount, requires_approval, approver_role_id, allow_self_approval, effective_from, effective_to",
-      )
+      .select(APPROVAL_RULE_COLUMNS)
       .eq("entity_id", entityId)
       .order("module", { ascending: true })
       .order("action", { ascending: true })

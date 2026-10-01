@@ -17,6 +17,15 @@ import type { EntitySettingsOverview } from "@/services/settings/settings";
  * separately-scoped increment rather than something added alongside a viewer.
  */
 
+function activeTone(active: boolean): "success" | "neutral" {
+  return active ? "success" : "neutral";
+}
+
+function approverLabel(roleId: string | null, roleNames: ReadonlyMap<string, string>): string {
+  if (!roleId) return "Peran mana pun yang berwenang";
+  return roleNames.get(roleId) ?? "—";
+}
+
 function Field({ label, value }: { label: string; value: string | null | undefined }) {
   return (
     <div>
@@ -54,9 +63,7 @@ export function SettingsScreen({
           <h1>{entity.brand_name ?? entity.legal_name}</h1>
         </div>
         <div className="record-detail-header-end">
-          <span
-            className={`status-badge status-badge-${entity.status === "active" ? "success" : "neutral"}`}
-          >
+          <span className={`status-badge status-badge-${activeTone(entity.status === "active")}`}>
             {entity.status === "active" ? "Aktif" : "Nonaktif"}
           </span>
         </div>
@@ -106,9 +113,7 @@ export function SettingsScreen({
                   </td>
                   <td data-label="Reset">{RESET_POLICY_LABELS[sequence.reset_policy]}</td>
                   <td data-label="Status">
-                    <span
-                      className={`status-badge status-badge-${sequence.is_active ? "success" : "neutral"}`}
-                    >
+                    <span className={`status-badge status-badge-${activeTone(sequence.is_active)}`}>
                       {sequence.is_active ? "Aktif" : "Nonaktif"}
                     </span>
                   </td>
@@ -158,11 +163,7 @@ export function SettingsScreen({
                         : "Wajib"
                       : "Tidak wajib"}
                   </td>
-                  <td data-label="Penyetuju">
-                    {rule.approver_role_id
-                      ? (roleNames.get(rule.approver_role_id) ?? "—")
-                      : "Peran mana pun yang berwenang"}
-                  </td>
+                  <td data-label="Penyetuju">{approverLabel(rule.approver_role_id, roleNames)}</td>
                   <td data-label="Berlaku">
                     {rule.effective_from}
                     {rule.effective_to ? ` s.d. ${rule.effective_to}` : " dan seterusnya"}
