@@ -35,8 +35,9 @@ export function TaxRuleDraftActions({
           <input type="hidden" name="rule_id" value={ruleId} />
           <input type="hidden" name="entity" value={entity ?? ""} />
           <p className="hint">
-            Menerbitkan membuat versi ini berlaku untuk dokumen bertanggal sejak tanggal berlakunya dan
-            tidak dapat diubah lagi. Memerlukan verifikasi ulang dan status &quot;Terverifikasi&quot;.
+            Menerbitkan membuat versi ini berlaku untuk dokumen bertanggal sejak tanggal berlakunya
+            dan tidak dapat diubah lagi. Memerlukan verifikasi ulang dan status
+            &quot;Terverifikasi&quot;.
           </p>
           <button type="submit" className="btn-primary" disabled={publishing || discarding}>
             {publishing ? "Menerbitkan…" : "Terbitkan aturan"}

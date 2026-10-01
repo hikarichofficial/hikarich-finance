@@ -101,6 +101,6 @@ export function ruleAuthoringActions(
 /** The database's own explanation after its `INVALID:`/`CONFLICT:` prefix, for showing next to the form. */
 export function ruleProblemDetail(message: string | null | undefined): string | null {
   if (!message) return null;
-  const match = /^(?:INVALID|CONFLICT):\s*(.+)$/s.exec(message.trim());
+  const match = /^(?:INVALID|CONFLICT):\s*([\s\S]+)$/.exec(message.trim());
   return match ? match[1] : null;
 }

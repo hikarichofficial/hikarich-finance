@@ -99,7 +99,13 @@ export function TaxRuleForm({
       </p>
       <label>
         Judul sumber hukum
-        <input name="source_title" defaultValue={defaults.sourceTitle} required minLength={3} maxLength={300} />
+        <input
+          name="source_title"
+          defaultValue={defaults.sourceTitle}
+          required
+          minLength={3}
+          maxLength={300}
+        />
       </label>
       <label>
         Nomor/pasal referensi

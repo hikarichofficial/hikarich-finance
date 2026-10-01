@@ -65,7 +65,8 @@ export async function saveRuleDraftAction(
       source_ref: text(formData, "source_ref") || undefined,
       source_url: text(formData, "source_url") || undefined,
       verified_on: text(formData, "verified_on") || null,
-      verification_status: text(formData, "verification_status") === "verified" ? "verified" : "needs_review",
+      verification_status:
+        text(formData, "verification_status") === "verified" ? "verified" : "needs_review",
       notes: text(formData, "notes") || undefined,
     });
   } catch (error) {
