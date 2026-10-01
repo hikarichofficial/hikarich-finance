@@ -1075,6 +1075,28 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   opened (this session cannot install npm packages locally), then again by CI. `pnpm db:test` N/A (no
   migration).
 
+- Users & Roles, Security Center and Recent Activity (decision 246, unbuilt-screens backlog).
+
+  1. Users & Roles (`/admin/users`, `/admin/users/[id]`), gated `users.view`: members of the active
+     Entity with their role and status, and per member the effective permissions (role permissions plus
+     `grant` overrides, minus `deny` overrides, `effectivePermissions`, unit-tested) and the overrides
+     themselves. Changing a role, enabling/disabling a membership and setting a permission override use
+     the P2 RPCs `assign_membership`, `set_membership_status` and `set_permission_override`, which check
+     their own permissions, refuse a change to the caller's own access, protect OWNER memberships and
+     require a recent step-up; the page links to `/auth/step-up` when one is needed. Every change asks
+     for a written reason (5 to 500 characters), recorded by the RPC. Adding a brand-new person needs an
+     account created through Supabase Auth first, so this screen manages existing members.
+  2. Security Center (`/admin/security`), gated `security.view`, read-only: the Entity's MFA requirement,
+     its security events (paged 50, labelled UTC timestamps) and its members' trusted devices.
+     `fingerprint_hash` is never selected (the column grant excludes it). No RPC revokes a trusted device,
+     so devices are listed, not managed; recorded as a remaining item.
+  3. Recent Activity (`/activity`): the full version of the Dashboard's own feed, built by the same
+     `mergeRecentActivity` from the same permission-gated sources, limit 100. The raw trail stays in the
+     Audit Log (decision 242).
+
+  No migration. Checked in a Vercel Sandbox before the PR (format, typecheck, lint, tests, build), then by
+  CI.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions
