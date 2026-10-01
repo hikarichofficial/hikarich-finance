@@ -152,6 +152,34 @@ export const publishRuleInputSchema = z.object({
 
 export const discardRuleInputSchema = z.object({ rule_id: z.uuid(), reason: reasonSchema });
 
+/** Every column of one `public.tax_rule_versions` row (decision 239, Tax Rules / Configuration List/Detail),
+ * for the direct-table read `listTaxRuleVersions` (no RPC lists every version of every rule -- only
+ * `tax_rule_in_force` returns the single version in force for one code on one date). The rule master is
+ * global statutory reference data, not Entity-scoped: this table carries no `entity_id`. */
+export const taxRuleVersionRowSchema = z.object({
+  id: z.uuid(),
+  family: z.string(),
+  code: z.string(),
+  rule_version: z.number().int(),
+  effective_from: isoDateSchema,
+  is_repeal: z.boolean(),
+  params: z.record(z.string(), z.unknown()),
+  source_title: z.string(),
+  source_ref: z.string(),
+  source_url: z.string().nullable(),
+  verified_on: isoDateSchema,
+  verification_status: z.enum(["verified", "needs_review"]),
+  status: z.enum(["draft", "published", "discarded"]),
+  notes: z.string().nullable(),
+  published_at: z.string().nullable(),
+  discarded_at: z.string().nullable(),
+  discard_reason: z.string().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+});
+export const taxRuleVersionListSchema = z.array(taxRuleVersionRowSchema);
+export type TaxRuleVersionRow = z.infer<typeof taxRuleVersionRowSchema>;
+
 // ---- determination, confirmation and override of a document
 export const previewDocumentInputSchema = z.object({
   source_type: taxSourceTypeSchema,

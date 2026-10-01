@@ -858,6 +858,74 @@ expenses` (needs new backend), `/accounting/opening-balances` (needs new backend
   (deferred above), Planning Forecasts, Documents Archive (needs new backend), Recent Activity, the
   Administration module, and every remaining action-form item decisions 165/167 still carry.
 
+- Tax Rules / Configuration, read-only (decision 239, unbuilt-screens backlog): `/tax/rules` -- the sixth and
+  last Tax family item, a List/Detail over the global statutory rule master (`public.tax_rule_versions`, Step
+  05 §13). No RPC lists every version of every rule -- only `tax_rule_in_force(code, date)` returns the
+  single version in force for one code on one date -- so both screens read the table directly
+  (`listTaxRuleVersions`, new, `src/services/tax/tax.ts`), covered by that table's own pre-existing
+  `tax.view`-gated RLS policy (`tax_rule_versions_select`), the exact `listActiveCategories`/
+  `listTaxDeterminations`/`getEntityBaseCurrency` direct-table-read precedent decisions 161/167/170/171/
+  172/173 and this file's own Filing & Evidence groundwork already established. The rule master carries no
+  `entity_id` -- it is the same for every Entity -- so the List screen has no per-row Entity column, and the
+  page gate uses the current Entity's `tax.view` only to keep this item consistent with the rest of the Tax
+  nav section (the same reasoning `tax_rule_in_force`'s own `app_authz.has_any_permission` check already
+  applies at the database layer).
+
+  **Deliberately read-only this increment.** `saveRuleDraft`/`publishRule`/`discardRule` (and their RPCs,
+  `tax_rule_draft_save`/`tax_rule_publish`/`tax_rule_discard`) were already fully built in the service and
+  schema layers from earlier P7 work, with no UI -- unlike every other "unused helper" this backlog has found
+  (decision 233's calendar labels, decision 238's payment-check helpers), building a UI on top of these three
+  is **not** exercised here, and this is a deliberate scope decision, not an oversight. Reasons: (1)
+  `tax_rule_draft_save`'s own params shape is validated per rule family by
+  `app_private.tax_rule_params_problem` (`20260925100000_p7_tax_facts_rules.sql`) with materially different,
+  deeply nested JSON per family -- a `rounding` object and a decimal `rate` for `ppn`/`pph23`/`pph_final_umkm`,
+  plus a `dpp_numerator`/`dpp_denominator` pair for `ppn` alone, a `non_npwp_multiplier` and an `objects` array
+  cross-checked against `tax_treatment_catalog` for `pph23`, an `annual_ceiling`/`eligible_kinds`/`exempt_band`
+  shape for `pph_final_umkm`, and presumably more for the families this migration's excerpt did not show --
+  designing a guided, family-aware editing form for all of this without the Step 05 spec text in hand (kept
+  by the OWNER outside this repository, `docs/SPEC_INDEX.md`) risks guessing at a UX the spec may already
+  prescribe, or silently narrowing what a future rule family needs. (2) Publishing a rule version is a
+  **material act** by design -- it needs `tax.manage_rules`, a recent step-up (`app_authz.recent_step_up()`),
+  and a verified source, and a mistake here changes real tax output for every document evaluated afterwards,
+  squarely inside this project's own standing rule that anything changing tax/economic meaning goes to the
+  OWNER as a question rather than being decided solo. This is therefore filed as an **OWNER QUESTION** below,
+  not built blind: what should the rule-authoring UI look like (raw JSON `params` entry with server-side
+  validation surfacing `tax_rule_params_problem`'s own message, or a structured sub-form per family), and
+  should a second person's review be expected before publish beyond the step-up MFA the database already
+  requires? Read-only List/Detail delivers the actual near-term need (seeing what the system currently
+  asserts as law, and its source) without that open design question blocking it.
+
+  The List screen follows `TaxLedgerScreen`'s own Standard List Screen Pattern (a GET-form toolbar of
+  family/status `<select>` filters plus a free-text search over the code and source title/reference, new
+  `src/domain/tax/taxRulesList.ts` mirroring `taxLedgerList.ts` function-for-function). New vocabulary in
+  `src/domain/tax/tax.ts`: `RuleFamily`/`RULE_FAMILY_LABELS` (the rule master's `family` column, widened
+  since the P7 baseline by the P8 fiscal-depreciation and P9 payroll-rules migrations to include
+  `fiscal_depreciation`/`bpjs`), `RuleStatus`/`RULE_STATUS_LABELS`/`RULE_STATUS_TONE`
+  (`draft`/`published`/`discarded`), `RuleVerificationStatus`/`RULE_VERIFICATION_LABELS`
+  (`verified`/`needs_review`). The Detail screen shows one version's full source/verification/params (raw
+  JSON, pretty-printed in a new `.record-raw-block` style, `globals.css`) plus every other version of the
+  same code, each linking to its own Detail page, since the rule master's own point is showing how a value
+  changed over time.
+
+  This module deliberately does **not** compute "which version is in force right now" client-side --
+  `app_private.tax_rule_at`/`tax_rule_in_force` already do this in the database, and decision 237 just found
+  that "today" itself is ambiguous between an Entity's timezone and the caller's; re-deriving that comparison
+  here, for a screen whose whole point is to be trustworthy reference data, risks the same class of bug for
+  no real benefit -- a viewer comparing `effective_from`/`status` against a date they already know answers
+  the same question.
+
+  `pnpm check` passes (713 tests, up from 701 -- `taxRulesList.test.ts`, new, mirroring
+  `taxLedgerList.test.ts`'s own coverage shape, plus one new `taxRuleVersionListSchema` schema test). `pnpm
+build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes). `pnpm db:test` does not
+  apply (no migration touched). `npx prettier --check .` clean. This closes the Tax family: every item
+  `docs/TRACEABILITY.md`'s Step 09 §9-§15/Step 05 §13 audit named is now built or explicitly deferred with a
+  reason. Still on the catch-all: `/sales/products` (needs new backend), `/purchases/expenses` (needs new
+  backend), `/accounting/opening-balances` (needs new backend), the Money Reconciliation session/workspace
+  (needs new backend), per-payment evidence on `/tax/filing` (deferred, decision 238), the rule-authoring UI
+  on `/tax/rules` (**OWNER QUESTION above, deferred**), Planning Forecasts, Documents Archive (needs new
+  backend), Recent Activity, the Administration module, and every remaining action-form item decisions
+  165/167 still carry.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions

@@ -340,3 +340,57 @@ export function eligibleTaxPaymentAccounts<T extends { currency: string }>(
 ): T[] {
   return accounts.filter((a) => a.currency === baseCurrency);
 }
+
+// ---- Tax Rules / Configuration (P13 unbuilt-screens backlog, decision 239): vocabulary for the global rule
+// master's own `family`/`status`/`verification_status` columns (`public.tax_rule_versions`,
+// `20260925100000_p7_tax_facts_rules.sql`, later widened by the P8 fiscal-depreciation and P9 payroll-rules
+// migrations) -- not a tax rate or threshold itself, only labels for what the row already says.
+export type RuleFamily =
+  | "ppn"
+  | "pph23"
+  | "pph_final_umkm"
+  | "pph4_2"
+  | "pph26"
+  | "pph21"
+  | "corporate_income"
+  | "personal_income"
+  | "deadline"
+  | "fiscal_depreciation"
+  | "bpjs"
+  | "other";
+
+export const RULE_FAMILY_LABELS: Readonly<Record<RuleFamily, string>> = {
+  ppn: "PPN",
+  pph23: "PPh 23",
+  pph_final_umkm: "PPh Final UMKM",
+  pph4_2: "PPh Pasal 4(2)",
+  pph26: "PPh 26",
+  pph21: "PPh 21",
+  corporate_income: "PPh Badan",
+  personal_income: "PPh Orang Pribadi",
+  deadline: "Tenggat",
+  fiscal_depreciation: "Penyusutan Fiskal",
+  bpjs: "BPJS",
+  other: "Lainnya",
+};
+
+export type RuleStatus = "draft" | "published" | "discarded";
+
+export const RULE_STATUS_LABELS: Readonly<Record<RuleStatus, string>> = {
+  draft: "Draf",
+  published: "Diterbitkan",
+  discarded: "Dibatalkan",
+};
+
+export const RULE_STATUS_TONE: Readonly<Record<RuleStatus, DeterminationTone>> = {
+  draft: "neutral",
+  published: "success",
+  discarded: "attention",
+};
+
+export type RuleVerificationStatus = "verified" | "needs_review";
+
+export const RULE_VERIFICATION_LABELS: Readonly<Record<RuleVerificationStatus, string>> = {
+  verified: "Terverifikasi",
+  needs_review: "Perlu Ditinjau",
+};
