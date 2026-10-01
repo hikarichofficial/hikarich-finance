@@ -828,3 +828,44 @@ expenses` (needs new backend), `/accounting/opening-balances` (needs new backend
   `pnpm audit --prod --audit-level=high` now reports no known vulnerabilities. `pnpm check` passes (673
   tests, unchanged). `pnpm build` passes (no routes added or removed). `pnpm db:test` not re-run (a JS
   dependency bump touches no migration). `npx prettier --check .` clean.
+
+- **OWNER QUESTION -- unresolved.** CI invariant test flake traced to a real timezone-boundary defect in
+  already-shipped P7 tax logic (decision 237). While verifying CI for decisions 235/236's PRs, the
+  "Migration clean-rebuild and invariants" job started failing on `supabase/tests/95_p7_determination.sql`
+  assertion "9.5 a period that is not over is not computed" -- reproducibly on GitHub's CI runner, but not
+  locally (ran `pnpm db:test` three times locally with the identical migration set: all three passed).
+
+  Root cause traced by reading the actual functions, not guessed: `app_private.tax_final_evaluate`
+  (`20260925100500_p7_final_calendar.sql`) decides whether a period is "over" by comparing the period's
+  last day (`v_end`) against `app_private.entity_today(p_entity)`, which is `(now() at time zone
+e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's own configured timezone**.
+  Test 9.5 instead picks the period it queries with plain `date_trunc('month', current_date)::date` -- the
+  **Postgres session's own timezone** (`current_date`, no entity involved). On any ordinary day these
+  agree. On the **last day of a calendar month**, in the hours where the Entity's timezone has already
+  rolled over past midnight into the next month while the Postgres session's timezone has not yet, the two
+  disagree: the test still asks about the (session-timezone) current month, but `entity_today()` already
+  reads as the 1st of next month, so `v_end >= v_today` (the "not over yet" guard) is now false, evaluation
+  falls through past the guard, and -- because the synthetic fixture's taxpayer profile was confirmed
+  effective 2026-05-01 onward with no end date (test 9.2/9.3) -- it resolves to a real status instead of
+  the `not_configured` the test still expects. This is a genuine defect in the interaction between two
+  already-shipped, already-tested P7 pieces (the entity-timezone-aware "period over" guard and a
+  session-timezone-naive test assertion), not anything introduced by decisions 235 or 236 -- both branches
+  touch zero P7 files -- and it will recur on the last day of every month during the same UTC window until
+  resolved.
+
+  Not fixed here. `tax_final_evaluate`'s "period is not over yet" guard and `supabase/tests/
+95_p7_determination.sql` are both Step 05 §9 / Step 07 locked-spec territory (tax-computation business
+  logic and its own invariant suite) -- changing either without sign-off risks quietly altering when the
+  final-tax engine considers a period computable, which the standing rule requires routing to the OWNER
+  as a question, not deciding solo. Two shapes of fix are visible from the code read above (not chosen
+  between here): (a) make the test period-select entity-timezone-aware instead of session-timezone-naive,
+  matching what `entity_today()` already does; or (b) decide what "the period is over" should mean when an
+  Entity's timezone differs from the Postgres session's -- UTC-normalize `entity_today()`, or accept the
+  boundary-hour disagreement as expected and make the test tolerant of it. Left as an open OWNER question;
+  no repo file behavior changed by this decision, only this documentation entry.
+
+  Practical effect on decisions 235/236: their own PRs' code is unaffected and independently verified
+  (`pnpm check`/`pnpm build`/`npx prettier --check .` all pass on both; decision 236 additionally confirms
+  `pnpm audit` clean) -- only the shared, pre-existing "Migration clean-rebuild and invariants" CI job is
+  affected, by this unrelated pre-existing defect, and it should stop failing once UTC time moves past the
+  boundary window for today (and will recur again at next month's end until resolved).
