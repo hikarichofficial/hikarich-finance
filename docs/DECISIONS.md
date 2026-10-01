@@ -596,3 +596,27 @@ db:test` does not apply (no migration touched). `npx prettier --check .` clean. 
   `/purchases/expenses`, Opening Balances, Advanced Adjustments, Money Reconciliation, the Tax family
   screens, Planning Forecasts, Documents Archive, Recent Activity, the Administration module, and every
   remaining action-form item decisions 165/167 still carry.
+
+- Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
+  `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
+  (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions
+  `>=16.2.0 <16.3.6` -- the repo was pinned to `16.3.5`, inside the vulnerable range. This was not caused
+  by any code change in this repo; it surfaced because the public advisory database picked up a
+  newly-disclosed vulnerability, and the project's CI runs `pnpm audit` on every build. Patched at
+  `>=16.3.6`; bumped straight to the latest `16.3.x` patch, `16.3.8` (and `eslint-config-next` to the
+  matching `16.3.8` in lockstep, since the two are always kept in sync in this repo), a patch-only bump
+  with no API surface change. Built as its own standalone hotfix branched directly off `main` (not stacked
+  on the Tax family chain) so it can be merged immediately without waiting on or entangling the in-flight
+  feature PRs -- every other open PR in the stack will also start failing this same audit check on its
+  next CI re-run (e.g. whenever its base auto-retargets after the PR below it merges) until this lands on
+  `main` and each branch picks it up.
+
+  While investigating, the "Migration clean-rebuild and invariants" CI job on decision 235's own PR also
+  failed; reproduced `pnpm db:test` locally against the identical 61-migration set decision 235's branch
+  carries and it passed cleanly (clean rebuild reproducible, invariants pass, upgrade-from-seeded-data
+  check passes) -- decision 235 touches zero migration files, so this is treated as a transient CI-runner
+  flake, not a real defect, and is not otherwise addressed here.
+
+  `pnpm audit --prod --audit-level=high` now reports no known vulnerabilities. `pnpm check` passes (673
+  tests, unchanged). `pnpm build` passes (no routes added or removed). `pnpm db:test` not re-run (a JS
+  dependency bump touches no migration). `npx prettier --check .` clean.
