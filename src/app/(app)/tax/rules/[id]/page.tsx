@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { listTaxRuleVersions } from "@/services/tax/tax";
 import { TaxRuleDetailScreen } from "@/features/tax/TaxRuleDetailScreen";
@@ -16,7 +17,7 @@ export default async function TaxRuleDetailPage({
 }) {
   const { id } = await params;
   const { entity } = await searchParams;
-  await requirePermission("tax.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("tax.view", { entityCode: entity });
 
   const allRows = await listTaxRuleVersions();
   const rule = allRows.find((row) => row.id === id);
@@ -26,6 +27,12 @@ export default async function TaxRuleDetailPage({
   const backHref = entity ? `/tax/rules?entity=${encodeURIComponent(entity)}` : "/tax/rules";
 
   return (
-    <TaxRuleDetailScreen rule={rule} siblings={siblings} backHref={backHref} entity={entity} />
+    <TaxRuleDetailScreen
+      rule={rule}
+      siblings={siblings}
+      backHref={backHref}
+      entity={entity}
+      canManage={can(access, membership.entity_id, "tax.manage_rules")}
+    />
   );
 }

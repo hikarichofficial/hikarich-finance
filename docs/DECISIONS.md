@@ -889,7 +889,7 @@ expenses` (needs new backend), `/accounting/opening-balances` (needs new backend
   **material act** by design -- it needs `tax.manage_rules`, a recent step-up (`app_authz.recent_step_up()`),
   and a verified source, and a mistake here changes real tax output for every document evaluated afterwards,
   squarely inside this project's own standing rule that anything changing tax/economic meaning goes to the
-  OWNER as a question rather than being decided solo. This is therefore filed as an **OWNER QUESTION** below,
+  OWNER as a question rather than being decided solo. This is therefore filed as an **OWNER QUESTION** (resolved by decision 249) below,
   not built blind: what should the rule-authoring UI look like (raw JSON `params` entry with server-side
   validation surfacing `tax_rule_params_problem`'s own message, or a structured sub-form per family), and
   should a second person's review be expected before publish beyond the step-up MFA the database already
@@ -923,7 +923,7 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   reason. Still on the catch-all: `/sales/products` (needs new backend), `/purchases/expenses` (needs new
   backend), `/accounting/opening-balances` (needs new backend), the Money Reconciliation session/workspace
   (needs new backend), per-payment evidence on `/tax/filing` (deferred, decision 238), the rule-authoring UI
-  on `/tax/rules` (**OWNER QUESTION above, deferred**), Planning Forecasts, Documents Archive (needs new
+  on `/tax/rules` (**OWNER QUESTION above, resolved by decision 249**), Planning Forecasts, Documents Archive (needs new
   backend), Recent Activity, the Administration module, and every remaining action-form item decisions
   165/167 still carry.
 
@@ -1075,6 +1075,27 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   `pnpm check`, `pnpm build` and `pnpm format:check` were run in a Vercel Sandbox before the PR was
   opened (this session cannot install npm packages locally), then again by CI. `pnpm db:test` N/A (no
   migration).
+
+- Tax rule authoring (decision 249, OWNER answer to decision 239).
+
+  OWNER answer: build the rule-authoring UI; the engine keeps following the rules already in the master,
+  and the OWNER can adjust them later. Built on the existing P7 RPCs `tax_rule_draft_save`,
+  `tax_rule_publish` and `tax_rule_discard` (no migration):
+
+  1. A published rule is never edited. On its Detail screen, "Buat versi baru" opens a draft prefilled
+     with that rule's family, code, parameters and source (effective date and verification date default
+     to today, verification status to "Perlu ditinjau"), so a new version follows the existing rule
+     until a value is changed. "Aturan baru" on the list starts an empty rule.
+  2. Parameters are edited as JSON (prefilled, monospace). The browser only checks it is a JSON object;
+     the database validates the shape per family (`app_private.tax_rule_params_problem`) and the form
+     shows its explanation next to the error.
+  3. A draft can be edited, discarded with a reason, or published. Publishing keeps the database's
+     rules: `tax.manage_rules`, a recent step-up (the form links to step-up), status "Terverifikasi"
+     against the official source, and no other published version of the same code on the same date.
+  4. `src/services/tax/tax.ts` now keeps the database message inside `AuthzError` so the form can show
+     that explanation; the user-facing text stays the generic Indonesian copy plus the detail.
+
+  No second-person review before publish: the OWNER's step-up is the control, as the RPC already defines.
 
 - Users & Roles, Security Center and Recent Activity (decision 246, unbuilt-screens backlog).
 
