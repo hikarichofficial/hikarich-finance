@@ -1591,7 +1591,13 @@ names shown but never their values, timestamps in labelled UTC. Also records tha
 `pnpm check` (731 tests, up from 720), `pnpm build` (1 new real route), `pnpm db:test` N/A. Full detail
 in `docs/DECISIONS.md` decision 242.
 
-Still on the catch-all after these fourteen increments (tracked so nothing is silently dropped):
+Decision 243, fifteenth increment (Settings, read-only): `/admin/settings` -- Entity profile, document
+numbering (with an example number built exactly like `allocate_document_number`), approval rules and
+stored key/value settings, each read directly under its own RLS policy, gated `settings.view`. Editing is a
+separate, later increment. `pnpm check` (738 tests, up from 731), `pnpm build` (1 new real route), `pnpm
+db:test` N/A. Full detail in `docs/DECISIONS.md` decision 243.
+
+Still on the catch-all after these fifteen increments (tracked so nothing is silently dropped):
 `/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
 `/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
@@ -1600,7 +1606,7 @@ balances, decision 231), `/accounting/opening-balances` (needs new backend -- no
 the rule-authoring UI on `/tax/rules` (**OWNER QUESTION, deferred**, decision 239), `/planning/forecasts`
 (blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
 `supersedes_document_id` has no reading RPC), `/activity`,
-`/admin/users`, `/admin/settings`, `/admin/security`, and four `/reports/*` nav sub-items:
+`/admin/users`, `/admin/security` (both pending the OWNER's nav-permission choice, decision 242), and four `/reports/*` nav sub-items:
 `sales-purchase` and `saved` (no backend), `tax` and `assets-loans` (**OWNER choice of destination**,
 decision 240).
 
