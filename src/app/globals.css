@@ -2082,6 +2082,18 @@ a.kpi-card:hover {
   font-variant-numeric: tabular-nums;
 }
 
+.record-raw-block {
+  margin: 0;
+  padding: var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre;
+}
+
 .record-activity-list {
   display: flex;
   flex-direction: column;

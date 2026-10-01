@@ -16,6 +16,7 @@ import {
   taxPaymentListSchema,
   taxPreviewSchema,
   taxPeriodSchema,
+  taxRuleVersionListSchema,
 } from "./tax";
 
 const ID = "11111111-1111-4111-8111-111111111111";
@@ -243,6 +244,37 @@ describe("tax results", () => {
     expect(differenceSchema.safeParse({ code: "other", text: "x", amount: null }).success).toBe(
       false,
     );
+  });
+
+  it("reads a list of rule master versions (decision 239)", () => {
+    const parsed = taxRuleVersionListSchema.parse([
+      {
+        id: ID,
+        family: "ppn",
+        code: "PPN_STANDARD",
+        rule_version: 1,
+        effective_from: "2026-04-01",
+        is_repeal: false,
+        params: { rate: "0.11" },
+        source_title: "PP 49 Tahun 2022",
+        source_ref: "PP 49/2022 Pasal 2",
+        source_url: "https://peraturan.bpk.go.id/Details/227560",
+        verified_on: "2026-09-01",
+        verification_status: "verified",
+        status: "published",
+        notes: null,
+        published_at: "2026-09-02T00:00:00Z",
+        discarded_at: null,
+        discard_reason: null,
+        created_at: "2026-09-01T00:00:00Z",
+        updated_at: "2026-09-02T00:00:00Z",
+      },
+    ]);
+    expect(parsed[0]?.params).toEqual({ rate: "0.11" });
+    expect(
+      taxRuleVersionListSchema.safeParse([{ id: ID, family: "ppn", status: "unknown_status" }])
+        .success,
+    ).toBe(false);
   });
 
   it("reads a period position that has been reconciled with differences noted", () => {

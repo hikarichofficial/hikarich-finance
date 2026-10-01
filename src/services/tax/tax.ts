@@ -39,6 +39,7 @@ import {
   taxOverviewSchema,
   taxPaymentListSchema,
   taxPreviewSchema,
+  taxRuleVersionListSchema,
   taxSourceTypeSchema,
   withdrawOverrideInputSchema,
   type FinalPreview,
@@ -53,6 +54,7 @@ import {
   type TaxPaymentRow,
   type TaxPeriodPosition,
   type TaxPreview,
+  type TaxRuleVersionRow,
 } from "@/schemas/tax";
 
 /**
@@ -205,6 +207,30 @@ export async function listRulesInForce(code: string, date: string): Promise<Rule
     .object({ code: z.string().trim().min(2).max(80), date: isoDateSchema })
     .parse({ code, date });
   return callRpc("tax_rule_in_force", { p_code: v.code, p_date: v.date }, ruleInForceSchema);
+}
+
+const TAX_RULE_VERSION_COLUMNS =
+  "id, family, code, rule_version, effective_from, is_repeal, params, source_title, source_ref, source_url, verified_on, verification_status, status, notes, published_at, discarded_at, discard_reason, created_at, updated_at";
+
+/** Every version of every rule in the master, for the Tax Rules / Configuration List/Detail screen (decision
+ * 239, Step 05 §13). No RPC lists them all -- `tax_rule_in_force` returns only the single version in force
+ * for one code on one date -- so this is a direct read of `public.tax_rule_versions`, covered by that table's
+ * own pre-existing `tax.view`-gated RLS policy (`tax_rule_versions_select`), the same direct-table-read
+ * pattern `listTaxDeterminations`/`getEntityBaseCurrency` above and `listActiveCategories`
+ * (`src/services/accounting/categories.ts`, decisions 161/167/170/171/172/173) already established. The rule
+ * master is global statutory data, not Entity-scoped -- there is no `entity_id` to filter by, and every caller
+ * with `tax.view` on any Entity sees the same rows (`app_authz.has_any_permission`, not `has_permission`). */
+export async function listTaxRuleVersions(): Promise<TaxRuleVersionRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("tax_rule_versions")
+    .select(TAX_RULE_VERSION_COLUMNS)
+    .order("code", { ascending: true })
+    .order("rule_version", { ascending: false });
+  if (error) throw new Error("Gagal memuat aturan pajak.");
+  const parsed = taxRuleVersionListSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons aturan pajak tidak dikenali.");
+  return parsed.data;
 }
 
 // ---- determination of a document

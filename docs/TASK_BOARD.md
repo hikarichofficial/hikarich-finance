@@ -1553,14 +1553,30 @@ filing only in this increment (not per-payment) -- documented as a deliberate sc
 submit rather than gating the page. `pnpm check` (701 tests, up from 695), `pnpm build` (1 new real route),
 `pnpm db:test` N/A, `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md` decision 238.
 
-Still on the catch-all after these ten increments (tracked so nothing is silently dropped):
+Decision 239, eleventh increment (Tax Rules / Configuration, read-only): `/tax/rules` -- the sixth and last
+Tax family item, a List/Detail over the global statutory rule master (`public.tax_rule_versions`). No RPC
+lists every version of every rule, so both screens read the table directly (new `listTaxRuleVersions`),
+covered by its own pre-existing `tax.view`-gated RLS policy -- the same direct-table-read precedent
+decisions 161/167/170/171/172/173 established. Deliberately **read-only**: `saveRuleDraft`/`publishRule`/
+`discardRule` were already fully built with no UI, but the rule-authoring workflow is filed as an **OWNER
+QUESTION** rather than built blind -- the params shape is deeply family-specific JSON the Step 05 spec text
+(kept outside this repo) may already prescribe a UX for, and publishing changes real tax output for every
+document evaluated afterwards, squarely inside the "tax/economic meaning goes to the OWNER" rule. New
+vocabulary: `RuleFamily`/`RULE_FAMILY_LABELS`, `RuleStatus`/`RULE_STATUS_LABELS`/`RULE_STATUS_TONE`,
+`RuleVerificationStatus`/`RULE_VERIFICATION_LABELS`, and `taxRulesList.ts` mirroring `taxLedgerList.ts`'s
+own filter/search pattern. Deliberately does not compute "in force right now" client-side, given decision
+237's own finding that "today" is ambiguous between an Entity's and a caller's timezone. `pnpm check` (713
+tests, up from 701), `pnpm build` (2 new real routes), `pnpm db:test` N/A, `npx prettier --check .` clean.
+Full detail in `docs/DECISIONS.md` decision 239. This closes the Tax family.
+
+Still on the catch-all after these eleven increments (tracked so nothing is silently dropped):
 `/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
 `/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
 balances, decision 231), `/accounting/opening-balances` (needs new backend -- no reading RPC over
-`opening_balance_batches`, decision 232), `/tax/rules` (confirmed buildable with no backend gap, decision
-233), per-payment evidence on `/tax/filing` (deferred, decision 238), `/planning/forecasts` (blocked on
-decision 139's own open methodology question), `/documents/archive` (needs new backend --
+`opening_balance_batches`, decision 232), per-payment evidence on `/tax/filing` (deferred, decision 238),
+the rule-authoring UI on `/tax/rules` (**OWNER QUESTION, deferred**, decision 239), `/planning/forecasts`
+(blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
 `supersedes_document_id` has no reading RPC), `/activity`, `/admin/imports`, `/admin/audit`,
 `/admin/users`, `/admin/settings`, `/admin/security`, and the `/reports/*` nav sub-items
 (`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`) which largely duplicate
