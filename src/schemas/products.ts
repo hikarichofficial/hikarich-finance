@@ -1,0 +1,52 @@
+import { z } from "zod";
+import { moneyTextSchema } from "@/schemas/accounting";
+
+/**
+ * Products & Services master (decision 245), read and written directly on `public.products` under its own
+ * P2 RLS policies (`products.view` / `products.create` / `products.edit`). A product is master data with
+ * no posting side effect, which is why P2 exposed it to direct, policy-guarded writes instead of an RPC.
+ */
+export const productKindSchema = z.enum(["product", "service"]);
+export type ProductKind = z.infer<typeof productKindSchema>;
+
+export const productRowSchema = z.object({
+  id: z.uuid(),
+  entity_id: z.uuid(),
+  kind: productKindSchema,
+  sku: z.string().nullable(),
+  name: z.string(),
+  description: z.string().nullable(),
+  unit: z.string(),
+  default_unit_price: z.union([z.string(), z.number()]).nullable(),
+  default_currency: z.string().nullable(),
+  default_category_id: z.uuid().nullable(),
+  is_active: z.boolean(),
+  version: z.number().int(),
+});
+export const productListSchema = z.array(productRowSchema);
+export type ProductRow = z.infer<typeof productRowSchema>;
+
+const optionalTrimmed = (max: number) =>
+  z
+    .string()
+    .trim()
+    .max(max)
+    .transform((v) => (v === "" ? null : v));
+
+/** The editable fields, shared by create and update. Empty strings become `null`. */
+export const productInputSchema = z.object({
+  kind: productKindSchema,
+  name: z.string().trim().min(1, "Nama wajib diisi").max(200),
+  sku: optionalTrimmed(64),
+  description: optionalTrimmed(2000),
+  unit: z.string().trim().min(1, "Satuan wajib diisi").max(32),
+  default_unit_price: z
+    .union([z.literal(""), moneyTextSchema])
+    .transform((v) => (v === "" ? null : v)),
+  default_currency: z
+    .union([z.literal(""), z.string().regex(/^[A-Z]{3}$/, "Kode mata uang 3 huruf, mis. IDR")])
+    .transform((v) => (v === "" ? null : v)),
+  default_category_id: z.union([z.literal(""), z.uuid()]).transform((v) => (v === "" ? null : v)),
+  is_active: z.boolean(),
+});
+export type ProductInput = z.infer<typeof productInputSchema>;
