@@ -6,6 +6,7 @@ import {
   CASH_FLOW_BUCKET_LABELS,
   CASH_FLOW_BUCKET_ORDER,
   PNL_SECTION_ORDER,
+  REPORT_SUBROUTE_STATEMENTS,
   balanceSheetTotals,
   cashFlowTotals,
   consolidatedCashPositionTotals,
@@ -39,6 +40,7 @@ import {
   assetControlAccountLabel,
   assetControlRowBalanced,
   assetControlSummary,
+  reportSubrouteHref,
   type AccountClass,
 } from "./reports";
 
@@ -825,5 +827,27 @@ describe("assetControlRowBalanced", () => {
 
   it("is false for a nonzero difference", () => {
     expect(assetControlRowBalanced({ difference: "42.0000" })).toBe(false);
+  });
+});
+
+describe("reportSubrouteHref", () => {
+  it("forwards each sub-route to its statement tab", () => {
+    expect(reportSubrouteHref("cashflow", undefined)).toBe("/reports?statement=cashflow");
+    expect(reportSubrouteHref("payroll", undefined)).toBe("/reports?statement=payroll_summary");
+    expect(reportSubrouteHref("custom", undefined)).toBe("/reports?statement=custom");
+  });
+
+  it("carries the active Entity code forward, URL-encoded", () => {
+    expect(reportSubrouteHref("cashflow", "HKR 01")).toBe(
+      "/reports?statement=cashflow&entity=HKR+01",
+    );
+  });
+
+  it("maps exactly the three unambiguous sub-routes", () => {
+    expect(Object.keys(REPORT_SUBROUTE_STATEMENTS).sort()).toEqual([
+      "cashflow",
+      "custom",
+      "payroll",
+    ]);
   });
 });

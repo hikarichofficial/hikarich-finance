@@ -105,6 +105,29 @@ export function isFiscalYearClosureActive(closure: { reversed_at: string | null 
   return closure.reversed_at === null;
 }
 
+// ================================================================ /reports/* nav sub-item routing (decision 240)
+
+/** The `/reports/*` nav sub-items (`src/domain/shell/navigation.ts`) whose content already ships as a
+ * `/reports?statement=` tab, mapped to that tab. Only the unambiguous ones are listed: Sales/Purchase,
+ * Tax, Assets/Loans and Saved Reports have no single matching tab (or no backend at all) and keep falling
+ * through to the `[...slug]` placeholder rather than guessing (decision 240). */
+export const REPORT_SUBROUTE_STATEMENTS = {
+  cashflow: "cashflow",
+  payroll: "payroll_summary",
+  custom: "custom",
+} as const;
+
+export type ReportSubroute = keyof typeof REPORT_SUBROUTE_STATEMENTS;
+
+/** The `/reports?statement=` href a `/reports/*` sub-route forwards to, carrying the active Entity code
+ * forward exactly as every other screen's own links do (`?entity=`), so switching via the nav never drops
+ * the person's Entity context. */
+export function reportSubrouteHref(subroute: ReportSubroute, entity: string | undefined): string {
+  const params = new URLSearchParams({ statement: REPORT_SUBROUTE_STATEMENTS[subroute] });
+  if (entity) params.set("entity", entity);
+  return `/reports?${params.toString()}`;
+}
+
 // ================================================================ statement viewer screens (P13 Part 4)
 
 const ISO_DATE_PATTERN = /^\d{4}-\d{2}-\d{2}$/;

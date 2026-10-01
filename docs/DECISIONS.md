@@ -926,6 +926,31 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   backend), Recent Activity, the Administration module, and every remaining action-form item decisions
   165/167 still carry.
 
+- `/reports/*` nav sub-item routing (decision 240, unbuilt-screens backlog): the routing-only fix the
+  backlog note has carried since decision 225 for the seven `/reports/*` nav sub-items
+  (`src/domain/shell/navigation.ts`) that never got a page of their own. Three of them name content that
+  already ships as a `/reports?statement=` tab (P13 Part 4) with exactly one matching tab, so each now gets a
+  tiny server page that only `redirect()`s there, carrying `?entity=` forward: `/reports/cashflow` ->
+  `statement=cashflow`, `/reports/payroll` -> `statement=payroll_summary`, `/reports/custom` ->
+  `statement=custom`. The mapping lives in one place, `REPORT_SUBROUTE_STATEMENTS`/`reportSubrouteHref`
+  (`src/domain/reports/reports.ts`, unit-tested), not repeated per page. No permission check is duplicated
+  in the redirect pages -- the target `/reports` page's own `requirePermission` still decides access, so a
+  person who could not open the tab directly cannot open it through the sub-route either.
+
+  **Deliberately not mapped** (they keep falling through to the `[...slug]` placeholder, decision 157,
+  rather than guessing): `/reports/sales-purchase` (no Sales/Purchase report tab or RPC exists),
+  `/reports/tax` (no Tax report tab; whether it should point at `/tax/ledger`, one of the period-position
+  screens, or a future combined report is a product choice, not a routing one), `/reports/assets-loans`
+  (four candidate tabs -- Pinjaman Jatuh Tempo, Ringkasan Pinjaman, Jadwal Penyusutan Fiskal, Kontrol Aset
+  Tetap -- and none is obviously "the" one), and `/reports/saved` (no saved-report backend at all). Both
+  `/reports/tax` and `/reports/assets-loans` can become one-line additions to `REPORT_SUBROUTE_STATEMENTS`
+  once the OWNER says which destination they mean.
+
+  `pnpm check` (716 tests, up from 713 -- three new `reportSubrouteHref` tests), `pnpm build` (3 new real
+  routes replacing the catch-all), `pnpm db:test` N/A (no migration touched), prettier clean. Verified via
+  CI on the PR rather than locally: this session's network policy blocks the npm registry, so dependencies
+  could not be installed here.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions

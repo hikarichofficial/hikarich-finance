@@ -1569,7 +1569,15 @@ own filter/search pattern. Deliberately does not compute "in force right now" cl
 tests, up from 701), `pnpm build` (2 new real routes), `pnpm db:test` N/A, `npx prettier --check .` clean.
 Full detail in `docs/DECISIONS.md` decision 239. This closes the Tax family.
 
-Still on the catch-all after these eleven increments (tracked so nothing is silently dropped):
+Decision 240, twelfth increment (`/reports/*` routing): `/reports/cashflow`, `/reports/payroll` and
+`/reports/custom` now redirect to their existing `/reports?statement=` tab (`cashflow`/`payroll_summary`/
+`custom`), keeping `?entity=`; one shared mapping (`REPORT_SUBROUTE_STATEMENTS`/`reportSubrouteHref`).
+`/reports/sales-purchase` and `/reports/saved` have no backend; `/reports/tax` and `/reports/assets-loans`
+have no single obvious destination and stay on the catch-all pending the OWNER's choice. `pnpm check` (716
+tests, up from 713), `pnpm build` (3 new real routes), `pnpm db:test` N/A. Full detail in
+`docs/DECISIONS.md` decision 240.
+
+Still on the catch-all after these twelve increments (tracked so nothing is silently dropped):
 `/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
 `/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
@@ -1578,11 +1586,9 @@ balances, decision 231), `/accounting/opening-balances` (needs new backend -- no
 the rule-authoring UI on `/tax/rules` (**OWNER QUESTION, deferred**, decision 239), `/planning/forecasts`
 (blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
 `supersedes_document_id` has no reading RPC), `/activity`, `/admin/imports`, `/admin/audit`,
-`/admin/users`, `/admin/settings`, `/admin/security`, and the `/reports/*` nav sub-items
-(`sales-purchase`/`cashflow`/`tax`/`payroll`/`assets-loans`/`custom`/`saved`) which largely duplicate
-functionality already shipped as `/reports?statement=*` tabs (Part 4) under separate hrefs that were never
-wired to them -- worth a routing-only fix rather than new screens, taken up
-in a later increment.
+`/admin/users`, `/admin/settings`, `/admin/security`, and four `/reports/*` nav sub-items:
+`sales-purchase` and `saved` (no backend), `tax` and `assets-loans` (**OWNER choice of destination**,
+decision 240).
 
 `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46
 pending migrations to this non-production Preview/dev project directly. Applied via the Supabase management
