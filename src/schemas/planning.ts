@@ -265,8 +265,8 @@ export const budgetLineRowSchema = z.object({
 export const budgetLineListSchema = z.array(budgetLineRowSchema);
 export type BudgetLineRow = z.infer<typeof budgetLineRowSchema>;
 
-/** `forecast_amount` is always null (DECISIONS 139): no locked spec defines a projection methodology, so
- * this is filed as an open OWNER question rather than guessed. */
+/** `forecast_amount` is the 3-month average actual for the current and future months, null for past months
+ * (decision 250, OWNER answer to decision 139). */
 export const budgetReportRowSchema = z.object({
   category_id: z.uuid(),
   category_name: z.string(),
@@ -352,3 +352,26 @@ export const revenueTargetReportRowSchema = z.object({
 });
 export const revenueTargetReportSchema = z.array(revenueTargetReportRowSchema);
 export type RevenueTargetReportRow = z.infer<typeof revenueTargetReportRowSchema>;
+
+// ================================================================ forecasts (decision 250)
+export const forecastSourceSchema = z.enum(["average_3m", "budget"]);
+export type ForecastSource = z.infer<typeof forecastSourceSchema>;
+
+export const planningForecastInputSchema = z.object({
+  entity_id: z.uuid(),
+  months: z.number().int().min(1).max(24),
+  budget_id: z.uuid().nullable(),
+});
+
+export const planningForecastRowSchema = z.object({
+  category_id: z.uuid(),
+  category_name: z.string(),
+  category_kind: z.enum(["revenue", "expense"]),
+  period_month: isoDateSchema,
+  baseline_amount: signedDecimalTextSchema,
+  budget_amount: signedDecimalTextSchema.nullable(),
+  forecast_amount: signedDecimalTextSchema,
+  source: forecastSourceSchema,
+});
+export const planningForecastSchema = z.array(planningForecastRowSchema);
+export type PlanningForecastRow = z.infer<typeof planningForecastRowSchema>;
