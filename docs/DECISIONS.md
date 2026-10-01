@@ -651,6 +651,50 @@ expenses` (needs new backend), the Money Reconciliation session/workspace (needs
   Archive (needs new backend, decision 223's own finding), Recent Activity, the Administration module, and
   every remaining action-form item decisions 165/167 still carry.
 
+- Advanced Adjustments (decision 232, unbuilt-screens backlog): `/accounting/adjustments` -- a single
+  form, not a List+New split, since `record_balance_adjustment` (P4, already wrapped as
+  `recordBalanceAdjustment` in `services/money/money.ts` since an earlier increment, just never given a
+  UI) posts its journal and money movement immediately and has no draft, list or detail RPC of its own.
+  Step 01 §28/Step 15 §8's own principle is what this form exists for: a reconciliation difference is
+  "corrected through an explicit balance adjustment," the counterpart the Reconciliation session workspace
+  above would eventually call into once its own backend gap is closed.
+
+  This item was reached after `/accounting/opening-balances` (next on the catch-all) turned out to be the
+  same class of gap decision 231 just documented: `post_opening_balances`/`complete_opening_balances`
+  (P3, already wrapped in `services/accounting/ledger.ts`) post immediately, but `public.opening_balance_
+batches` has **no reading RPC at all** -- so a List/Detail for it would have exactly the same "cannot
+  honestly show what already exists" problem as the Reconciliation workspace, not merely a missing form.
+  Recorded here rather than acted on solo, and Advanced Adjustments was built instead since it has no such
+  gap (`record_balance_adjustment` needs nothing read back, only ledger accounts and financial accounts
+  already served by existing RPCs).
+
+  Gated `money.adjust`, matching the RPC's own check exactly -- `navigation.ts` nests this item under the
+  Accounting section (parent-gated `accounting.view` only, no item-level permission declared for this
+  href), so gating by the RPC's real permission rather than the section's is this codebase's own established
+  discipline whenever the two could diverge (the `/sales/refunds` observation, decision 229). Confirmed this
+  never locks out anyone who could otherwise reach the item from the nav: `accountant` is the only role
+  template holding `money.adjust`, and it also holds `accounting.view` and `money.view`
+  (`20260920100100_p2_permission_catalog.sql`).
+
+  The counter (ledger) account picker uses `eligibleCounterAccounts` (new,
+  `src/domain/money/balanceAdjustment.ts`), filtering to active, non-group, non-control accounts other than
+  the opening-balance clearing account -- exactly `record_balance_adjustment`'s own validation, deliberately
+  not also requiring `allows_manual_posting` since the RPC itself does not check that flag either (tested
+  explicitly in `balanceAdjustment.test.ts` so a future "obviously it should filter on this too" edit does
+  not silently add a restriction the database disagrees with). On success there is nothing of its own to
+  redirect to (no adjustment record, no detail page) -- the form redirects to the affected account's own
+  Detail page instead, where the new movement already shows up in its ledger, the same "go see the result
+  where it actually lives" shape `TransferForm`'s create action already uses.
+
+  `pnpm check` passes (684 tests, up from 678 -- `balanceAdjustment.test.ts` is new). `pnpm build` passes
+  (`/accounting/adjustments` registers as a real route). `pnpm db:test` does not apply (no migration
+  touched). `npx prettier --check .` clean. Still on the catch-all: `/sales/products` (needs new backend),
+  `/purchases/expenses` (needs new backend), `/accounting/opening-balances` (needs new backend -- no
+  reading RPC over `opening_balance_batches`, this decision), the Money Reconciliation session/workspace
+  (needs new backend), the Tax family screens, Planning Forecasts, Documents Archive (needs new backend),
+  Recent Activity, the Administration module, and every remaining action-form item decisions 165/167 still
+  carry.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions
