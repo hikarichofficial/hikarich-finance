@@ -1024,8 +1024,8 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   increment with its own scope and, where it changes a user workflow, an OWNER question -- not something to
   add alongside a viewer.
 
-  `pnpm check` (738 tests, up from 731), `pnpm build` (1 new real route replacing the catch-all), `pnpm
-  db:test` N/A (no migration), prettier clean; verified via CI on the PR.
+  `pnpm check` (738 tests, up from 731), `pnpm build` (1 new real route replacing the catch-all),
+  `pnpm db:test` N/A (no migration), prettier clean; verified via CI on the PR.
 
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
