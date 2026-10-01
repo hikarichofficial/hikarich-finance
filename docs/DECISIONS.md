@@ -12,7 +12,7 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 | 2026-09-19 | Working rule (first version): do not improvise beyond the specs; ask the OWNER first.                                                                                                                                                                                                                                                                     |
 | 2026-09-19 | Working rule (updated): improvising is acceptable when it is the best option. Decide and act without asking, except for crucial decisions only the OWNER can make (cost, exposure of data or code, changes to a locked specification). The OWNER clicks confirmations and types passwords personally.                                                     |
 | 2026-09-19 | The GitHub repository `hikarichofficial/hikarich-finance` is **public**, chosen over paying for a plan that enforces rulesets on private repositories. Consequence: never commit secrets, real data, real invoices or receipts, real business figures, or the full Step specification files. The secret scan stays mandatory and Actions logs are public. |
-| 2026-10-01 | Backup restore is allowed only into an **empty** Entity (decision 247). No merge or overwrite of existing data.|
+| 2026-10-01 | Backup restore is allowed only into an **empty** Entity (decision 247). No merge or overwrite of existing data.                                                                                                                                                                                                                                           |
 
 ## Resolved by authority (no OWNER decision needed)
 

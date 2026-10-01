@@ -98,12 +98,19 @@ export async function listBackupHistory(entityId: string, limit = 20): Promise<B
  * doubles. Also records the export in `backup_jobs`, like `export_backup_snapshot`. */
 export async function exportBackupFile(entityId: string, kind: BackupKind): Promise<string> {
   const v = exportBackupSnapshotInputSchema.parse({ entity_id: entityId, kind });
-  return callRpc("export_backup_file", { p_entity: v.entity_id, p_kind: v.kind }, z.string().min(1));
+  return callRpc(
+    "export_backup_file",
+    { p_entity: v.entity_id, p_kind: v.kind },
+    z.string().min(1),
+  );
 }
 
 /** Read-only impact preview: validation errors/warnings, rows per table in the file, rows already in the
  * target Entity, and whether the caller's step-up window is currently satisfied. */
-export async function previewBackupRestore(entityId: string, file: string): Promise<RestorePreview> {
+export async function previewBackupRestore(
+  entityId: string,
+  file: string,
+): Promise<RestorePreview> {
   const v = restoreFileInputSchema.parse({ entity_id: entityId, file });
   return callRpc(
     "preview_backup_restore",

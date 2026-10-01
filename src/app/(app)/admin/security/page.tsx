@@ -134,7 +134,8 @@ export default async function SecurityPage({
         {canManage ? (
           <p className="hint">
             Mencabut perangkat pengguna lain memerlukan verifikasi ulang dalam 10 menit terakhir.{" "}
-            <Link href={`/auth/step-up?next=${encodeURIComponent(here)}`}>Verifikasi sekarang</Link>.
+            <Link href={`/auth/step-up?next=${encodeURIComponent(here)}`}>Verifikasi sekarang</Link>
+            .
           </p>
         ) : null}
         {devices.length === 0 ? (

@@ -71,7 +71,9 @@ export const RESTORE_STATUS_LABELS: Readonly<Record<"completed" | "failed", stri
   failed: "Gagal (tidak ada data yang ditulis)",
 };
 
-export const RESTORE_STATUS_TONES: Readonly<Record<"completed" | "failed", "success" | "critical">> = {
+export const RESTORE_STATUS_TONES: Readonly<
+  Record<"completed" | "failed", "success" | "critical">
+> = {
   completed: "success",
   failed: "critical",
 };
