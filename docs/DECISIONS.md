@@ -650,6 +650,7 @@ expenses` (needs new backend), the Money Reconciliation session/workspace (needs
   decision), Opening Balances, Advanced Adjustments, the Tax family screens, Planning Forecasts, Documents
   Archive (needs new backend, decision 223's own finding), Recent Activity, the Administration module, and
   every remaining action-form item decisions 165/167 still carry.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions
