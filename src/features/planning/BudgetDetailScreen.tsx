@@ -14,10 +14,9 @@ import { formatShortDate } from "./format";
  * Entity-scoped -- so the page fetches the register and finds the row by id, the same precedent decisions
  * 169/179/183 already established. `get_budget_report` is a strict superset of `get_budget_lines` (it already
  * carries every budgeted-line's own category/month/amount, plus Actual/Committed/Remaining/%Used/Variance
- * computed live) so this screen fetches only the report, not the raw lines separately. `forecast_amount` is
- * never rendered as its own column -- the RPC always returns it `null` (decision 139: "no locked spec defines
- * a projection methodology, filed as an open OWNER question"), so a column that could only ever show "—"
- * would be pure noise rather than information. The report is already ordered by the RPC itself
+ * computed live) so this screen fetches only the report, not the raw lines separately. "Perkiraan" is
+ * `forecast_amount`: the 3-month average actual for the current and future months, "—" for past months
+ * (decision 250, OWNER answer to decision 139). The report is already ordered by the RPC itself
  * (`period_month`, then category `sort_order`/`name`) -- rendered in that order rather than re-grouped, the
  * same "trust the RPC's own order" choice every other flat report table in this codebase makes. Activate/
  * Close are rendered as actual buttons by `BudgetActions` (P13 Part 3h, fourth increment). "Atur Baris
@@ -147,6 +146,9 @@ export function BudgetDetailScreen({
                 <th scope="col" className="num">
                   Varians
                 </th>
+                <th scope="col" className="num">
+                  Perkiraan
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -160,6 +162,9 @@ export function BudgetDetailScreen({
                   <td className="num">{formatMoney(line.remaining_amount, currency)}</td>
                   <td className="num">{line.pct_used === null ? "—" : `${line.pct_used}%`}</td>
                   <td className="num">{formatMoney(line.variance_amount, currency)}</td>
+                  <td className="num">
+                    {line.forecast_amount === null ? "—" : formatMoney(line.forecast_amount, currency)}
+                  </td>
                 </tr>
               ))}
             </tbody>

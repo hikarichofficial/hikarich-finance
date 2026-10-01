@@ -18,10 +18,8 @@ import { formatShortDate } from "./format";
  * same precedent decisions 169/179/183/184 already established. Unlike Budgets, a revenue target has no
  * category breakdown (Step 01 #23 names no "Category -> Subcategory" the way #22 does for Budgets) and no
  * Committed/Remaining/%Used columns -- `get_revenue_target_report` returns only Target, Actual (issued
- * invoice revenue) and AR Outstanding per month, entity-wide. `forecast_amount` is never rendered as its own
- * column for the same reason as Budget Detail: the RPC always returns it `null` (decision 139's own "no
- * locked projection methodology" ruling), so a column that could only ever show "—" would be noise, not
- * information. The report is already ordered by the RPC itself (`period_month`) -- rendered in that order.
+ * invoice revenue) and AR Outstanding per month, entity-wide. "Perkiraan" is `forecast_amount`: the
+ * 3-month average issued revenue for the current and future months, "—" for past months (decision 250). The report is already ordered by the RPC itself (`period_month`) -- rendered in that order.
  * Activate/Close are rendered as actual buttons by `RevenueTargetActions` (P13 Part 3h, fourth increment).
  * "Atur Baris Target Pendapatan" (P13 Part 3h, fifth increment) renders `RevenueTargetLinesEditor` -- gated
  * and keyed exactly like Budget Detail's own `BudgetLinesEditor` (`permissions.canManage`, not while
@@ -140,6 +138,9 @@ export function RevenueTargetDetailScreen({
                 <th scope="col" className="num">
                   Varians
                 </th>
+                <th scope="col" className="num">
+                  Perkiraan
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -150,6 +151,9 @@ export function RevenueTargetDetailScreen({
                   <td className="num">{formatMoney(line.actual_amount, currency)}</td>
                   <td className="num">{formatMoney(line.ar_outstanding_amount, currency)}</td>
                   <td className="num">{formatMoney(line.variance_amount, currency)}</td>
+                  <td className="num">
+                    {line.forecast_amount === null ? "—" : formatMoney(line.forecast_amount, currency)}
+                  </td>
                 </tr>
               ))}
             </tbody>

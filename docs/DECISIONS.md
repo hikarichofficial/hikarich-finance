@@ -303,7 +303,7 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 - OWNER's tax adviser to verify the payroll baseline before P15: the TER tables and categories, PTKP values, the occupational-cost cap, the treatment of employer Kesehatan/JKK/JKM as taxable benefits, PTKP proration for part-year employees, rounding, the JP cap dates and the treatment of over-withheld tax (decisions 121-123, 132).
 - OWNER to decide who holds the `payroll` role and whether payroll approval and payment should be OWNER-only (decisions 120, 125, 127); OWNER to decide the approval rules for `payroll`/`approve` and `payroll`/`pay`.
 - Payroll screens still remaining after Part 3g's first four increments -- Employee Register/Detail (decision 179), Payroll Run Register/Detail (decision 180), Payslip Register/Detail (decision 181), Payroll Tax & Liabilities (decision 182): every payroll action form (employee create/edit/end/record-employment/set-compensation/set-tax-profile/set-bpjs/set-tax-opening; run calculate/adjust/submit/approve/return/post/pay/close/reopen/correct -- all already service-wrapped, none yet given a UI), the payslip PDF/document export, and THR/severance and e-bupot export (decisions 132-133). `payroll_summary_report`/`payroll_control_report` (decision 182's own deferred list) shipped as the Payroll Summary/Payroll Control reports (decision 196).
-- OWNER to decide the Budget/Revenue-Target Forecast projection methodology (decision 139); confirm the "Committed" reading for budgets (decision 138) is what was intended.
+- Forecast projection methodology decided by the OWNER (decision 250, answers decision 139). Confirm the "Committed" reading for budgets (decision 138) is what was intended.
 - Recurring rule / budget / revenue target screens (decisions 134-139) are now fully shipped (decisions 183-188), including Recurring Rule's own create/edit template builder (decision 188). The template builder's v1 line editor deliberately leaves every optional tax/discount/product-linkage field (`vat_treatment`, `discount_type`, `wht_object`, `tax_amount`, `product_id`, an account-linked line) unexposed in the UI (decision 188); OWNER to confirm whether a future increment should expose them or whether the defaulted-at-generation behavior is acceptable long-term.
 - Documents Center, Import Wizard and Command Menu screens (decisions 140-146) are a later slice (P13), like every other phase's screens; the download route's signed-URL generation needs Supabase Storage configured, which is an infrastructure step outside this repository's migrations.
 - OWNER to confirm the `legacy_open_items` rollback rule (decision 144: contacts archive only when unreferenced, everything else is a normal correction) and the `finance_admin` grant for `system.import`/`system.rollback_import` (decision 146) match intent before real opening-balance data is imported at P15 cutover.
@@ -1046,6 +1046,29 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
 
   `pnpm check` (740 tests, up from 738), `pnpm build` (2 new real routes replacing the catch-all),
   `pnpm db:test` N/A (no migration), prettier clean; verified via CI on the PR.
+
+- Forecasts (decision 250, OWNER answer to decision 139).
+
+  OWNER answer: forecasts are based on the last 3 months and must be adjustable through the budget.
+  Migration `20261001300000_p14_planning_forecast.sql`:
+
+  1. Baseline: per category, the average actual of the 3 complete months before the Entity's current
+     month (Entity timezone), months without activity counting as zero, rounded half-up to the base
+     currency's scale. "Actual" is the budget report's existing definition (issued invoice lines,
+     approved bill lines, confirmed expense lines, base currency). Only the current and future months get
+     a forecast.
+  2. `get_budget_report` and `get_revenue_target_report` now return that baseline in `forecast_amount`
+     (null for past months; for revenue targets the baseline is the average issued revenue). All other
+     columns are unchanged; the P10 test now expects 0 instead of null for the current month.
+  3. `get_planning_forecast(entity, months 1-24, budget)` (`planning.view`): per active revenue/expense
+     category with activity or budget lines, per month from the current month, the baseline, the chosen
+     budget's amount and the forecast, which is the budget where it plans that category-month and the
+     baseline otherwise (source `budget` or `average_3m`). A budget of another Entity is refused.
+  4. `/planning/forecasts`: a category x month grid for 3, 6 or 12 months with group totals and revenue
+     minus expense, labelled as a planning estimate; choosing a budget marks budget-sourced figures and
+     links to that budget, which is where the forecast is adjusted.
+
+  Tests: `supabase/tests/99_p14_4_forecast.sql`, `src/domain/planning/forecast.test.ts`.
 
 - Products & Services, Direct Expenses and Opening Balances (decision 245, unbuilt-screens backlog): three
   Step 09 sitemap items the backlog had marked "needs new backend". Re-reading the migrations showed all

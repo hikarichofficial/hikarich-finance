@@ -1602,6 +1602,11 @@ Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now na
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
 real routes). Full detail in `docs/DECISIONS.md` decision 244.
 
+Decision 250: Forecasts (OWNER answer to decision 139). `/planning/forecasts` shows, per category and
+month, the 3-month average actual, replaced by a chosen budget's amount where the budget plans; the
+Budget and Revenue Target reports now fill their Forecast column. Full detail in `docs/DECISIONS.md`
+decision 250.
+
 Decision 245, seventeenth increment: Products & Services (`/sales/products` list, create, detail and
 edit), Direct Expenses (`/purchases/expenses` list, create, detail with submit, recall, reject, confirm,
 cancel, reverse and correct) and Opening Balances (`/accounting/opening-balances` history, posting grid
@@ -1623,8 +1628,7 @@ Still on the catch-all after these eighteen increments (tracked so nothing is si
 the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
 balances, decision 231), per-payment evidence on `/tax/filing` (deferred, decision 238),
-the rule-authoring UI on `/tax/rules` (**OWNER QUESTION, deferred**, decision 239), `/planning/forecasts`
-(blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
+the rule-authoring UI on `/tax/rules` (**OWNER QUESTION, deferred**, decision 239), `/documents/archive` (needs new backend --
 `supersedes_document_id` has no reading RPC),
 and two `/reports/*` nav sub-items:
 `sales-purchase` and `saved` (no backend).
