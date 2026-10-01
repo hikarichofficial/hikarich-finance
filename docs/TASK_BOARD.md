@@ -1597,6 +1597,11 @@ stored key/value settings, each read directly under its own RLS policy, gated `s
 separate, later increment. `pnpm check` (738 tests, up from 731), `pnpm build` (1 new real route), `pnpm
 db:test` N/A. Full detail in `docs/DECISIONS.md` decision 243.
 
+Decision 251: Money Reconciliation workspace (`/money/reconciliation/new`, `/money/reconciliation/[id]`):
+start a session, paste statement lines, match/unmatch/exclude/include, complete (with an accepted reason
+for a difference), reopen and discard, all through the P4 RPCs; the session header and history are a
+direct RLS read of `reconciliation_sessions`. No migration. Full detail in `docs/DECISIONS.md` decision 251.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
@@ -1634,9 +1639,7 @@ accounting period exists). Test 9.5's month-end flake is fixed. Full detail in `
 decision 248.
 
 Still on the catch-all after these eighteen increments (tracked so nothing is silently dropped):
-the Money
-Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
-balances, decision 231), per-payment evidence on `/tax/filing` (deferred, decision 238),
+per-payment evidence on `/tax/filing` (deferred, decision 238),
 `/documents/archive` (needs new backend --
 `supersedes_document_id` has no reading RPC),
 and two `/reports/*` nav sub-items:

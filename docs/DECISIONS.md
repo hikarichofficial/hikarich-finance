@@ -1199,6 +1199,29 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   equal the original per table. Device revocation is tested in the same file. `pnpm db:test` passes
   (62 migrations, upgrade-from-seeded-data check included).
 
+- Money Reconciliation workspace (decision 251, closes the gap decision 231 recorded).
+
+  Decision 231 kept the workspace on the catch-all because no RPC returns a session's own row. The
+  table `reconciliation_sessions` has had a `money.view` RLS select policy since P4, so the session header
+  (period, statement balances, status, completion figures) and the session history are read directly,
+  the same direct-table-read precedent as decisions 170/239/245; numeric columns are cast to text in the
+  select so exact decimals survive. No migration.
+
+  1. `/money/reconciliation`: each account links to its session in progress ("Lanjutkan sesi") or, with
+     `money.reconcile`, to "Mulai rekonsiliasi"; a "Riwayat Sesi" table lists every session.
+  2. `/money/reconciliation/new?account=`: period and opening balance default to continuing from the
+     account's last reconciled statement (the database requires that continuity).
+  3. `/money/reconciliation/[id]`: header and figures, "Tambah Mutasi" (pasted rows
+     `tanggal;jumlah;keterangan;referensi`, semicolon or tab, signed amounts with a dot decimal, parsed
+     and validated row by row before anything is sent; duplicates are skipped by the RPC), the line
+     table with match (candidates from `reconciliation_candidates`, optional manual reason),
+     unmatch/exclude with a reason, include, then complete (reason required for a non-zero difference),
+     reopen with a reason, or discard.
+  4. Every action is the unmodified P4 RPC; errors show the database's own explanation. The money
+     service now keeps the database message inside `AuthzError` for that purpose.
+
+  Tests: `src/domain/money/reconciliationSession.test.ts`; the RPCs are covered by the existing P4 tests.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions
