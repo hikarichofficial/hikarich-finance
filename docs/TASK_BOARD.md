@@ -1577,7 +1577,14 @@ have no single obvious destination and stay on the catch-all pending the OWNER's
 tests, up from 713), `pnpm build` (3 new real routes), `pnpm db:test` N/A. Full detail in
 `docs/DECISIONS.md` decision 240.
 
-Still on the catch-all after these twelve increments (tracked so nothing is silently dropped):
+Decision 241, thirteenth increment (Import history, read-only): `/admin/imports`, `/admin/imports/[id]`
+-- `list_import_batches`/`get_import_batch_rows` (P11) given a screen, gated `system.import`, domain and
+row-status filters passed through as the RPCs' own arguments. Row payloads are deliberately not rendered
+(a contacts import can carry a tax identifier decision 225 keeps hidden); Validate/Commit/Rollback and
+staging stay with the Import Wizard. `pnpm check` (720 tests, up from 716), `pnpm build` (2 new real
+routes), `pnpm db:test` N/A. Full detail in `docs/DECISIONS.md` decision 241.
+
+Still on the catch-all after these thirteen increments (tracked so nothing is silently dropped):
 `/sales/products` (needs new backend -- no RPC exists over `public.products`, decision 231),
 `/purchases/expenses` (needs new backend -- no `list_expenses` RPC, decision 231), the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
@@ -1585,7 +1592,7 @@ balances, decision 231), `/accounting/opening-balances` (needs new backend -- no
 `opening_balance_batches`, decision 232), per-payment evidence on `/tax/filing` (deferred, decision 238),
 the rule-authoring UI on `/tax/rules` (**OWNER QUESTION, deferred**, decision 239), `/planning/forecasts`
 (blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
-`supersedes_document_id` has no reading RPC), `/activity`, `/admin/imports`, `/admin/audit`,
+`supersedes_document_id` has no reading RPC), `/activity`, `/admin/audit`,
 `/admin/users`, `/admin/settings`, `/admin/security`, and four `/reports/*` nav sub-items:
 `sales-purchase` and `saved` (no backend), `tax` and `assets-loans` (**OWNER choice of destination**,
 decision 240).

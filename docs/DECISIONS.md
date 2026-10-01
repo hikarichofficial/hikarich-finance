@@ -951,6 +951,31 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   CI on the PR rather than locally: this session's network policy blocks the npm registry, so dependencies
   could not be installed here.
 
+- Import history, read-only (decision 241, unbuilt-screens backlog): `/admin/imports` and
+  `/admin/imports/[id]` -- the Administration item whose backend has existed since P11 (decisions 140-146)
+  with no screen. `list_import_batches` and `get_import_batch_rows` (and their service wrappers
+  `listImportBatches`/`getImportBatchRows`) were already built and unused; both are gated on
+  `system.import` inside the database, which is also this page's gate and `navigation.ts`'s own declared
+  permission. The List filters by domain via the RPC's own `p_domain` (`?domain=`), the Detail filters rows
+  by status via `p_status` (`?status=`); both parsers (`parseImportDomainFilter`/
+  `parseImportRowStatusFilter`, `src/domain/imports/imports.ts`, unit-tested) fall back to unfiltered on an
+  unknown value and use `Object.hasOwn` so a prototype key such as `toString` is never passed to the
+  database. No single-batch read RPC exists, so the Detail header is looked up from the active Entity's own
+  list by id (decision 226/230's precedent), which also guarantees another Entity's batch never renders
+  under this one.
+
+  **Deliberately not shown:** a row's `raw_payload`/`mapped_payload`. A contacts import can carry a tax
+  identifier, which decision 225 keeps off every screen behind a column-level grant; echoing the raw upload
+  here would quietly route around that. Each row shows its number, status, validation messages and result
+  type, which is what Step 08 §19's "one bad row is left inspectable" needs. **Deliberately not built:**
+  Validate/Commit/Rollback actions and staging a new batch -- those belong to the Import Wizard (decision
+  140), still a later slice, and Rollback in particular is an irreversible workflow action this read-only
+  history screen should not introduce on its own.
+
+  `pnpm check` (720 tests, up from 716 -- four new tests in `imports.test.ts`), `pnpm build` (2 new real
+  routes replacing the catch-all), `pnpm db:test` N/A (no migration touched), prettier clean. Verified via
+  CI on the PR (this session cannot install npm dependencies locally).
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions

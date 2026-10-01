@@ -8,6 +8,12 @@ import {
 } from "@/schemas/imports";
 import {
   IMPORT_BATCH_STATUS_LABELS,
+  IMPORT_BATCH_STATUS_TONE,
+  IMPORT_DOMAIN_FILTER_OPTIONS,
+  IMPORT_ROW_STATUS_FILTER_OPTIONS,
+  IMPORT_ROW_STATUS_TONE,
+  parseImportDomainFilter,
+  parseImportRowStatusFilter,
   IMPORT_DOMAIN_LABELS,
   IMPORT_ROW_STATUS_LABELS,
   LEGACY_OPEN_ITEM_KIND_LABELS,
@@ -78,5 +84,41 @@ describe("importBatchActions", () => {
       canCommit: false,
       canRollback: false,
     });
+  });
+});
+
+describe("import history screen helpers (decision 241)", () => {
+  it("has a tone for every batch and row status", () => {
+    for (const status of importBatchStatusSchema.options) {
+      expect(IMPORT_BATCH_STATUS_TONE[status]).toBeDefined();
+    }
+    for (const status of importRowStatusSchema.options) {
+      expect(IMPORT_ROW_STATUS_TONE[status]).toBeDefined();
+    }
+  });
+
+  it("lists every domain and row status as a filter tab, after an unfiltered first tab", () => {
+    expect(IMPORT_DOMAIN_FILTER_OPTIONS[0]).toEqual({ value: undefined, label: "Semua" });
+    expect(IMPORT_DOMAIN_FILTER_OPTIONS.slice(1).map((o) => o.value)).toEqual(
+      importDomainSchema.options,
+    );
+    expect(IMPORT_ROW_STATUS_FILTER_OPTIONS[0]).toEqual({ value: undefined, label: "Semua" });
+    expect(IMPORT_ROW_STATUS_FILTER_OPTIONS.slice(1).map((o) => o.value)).toEqual(
+      importRowStatusSchema.options,
+    );
+  });
+
+  it("parses a known domain filter and falls back to unfiltered otherwise", () => {
+    expect(parseImportDomainFilter("contacts")).toBe("contacts");
+    expect(parseImportDomainFilter("bogus")).toBeUndefined();
+    expect(parseImportDomainFilter("toString")).toBeUndefined();
+    expect(parseImportDomainFilter(undefined)).toBeUndefined();
+  });
+
+  it("parses a known row status filter and falls back to unfiltered otherwise", () => {
+    expect(parseImportRowStatusFilter("invalid")).toBe("invalid");
+    expect(parseImportRowStatusFilter("bogus")).toBeUndefined();
+    expect(parseImportRowStatusFilter("constructor")).toBeUndefined();
+    expect(parseImportRowStatusFilter(undefined)).toBeUndefined();
   });
 });
