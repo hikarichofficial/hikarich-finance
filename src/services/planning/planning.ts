@@ -10,6 +10,9 @@ import {
   budgetListSchema,
   budgetLineListSchema,
   budgetReportSchema,
+  planningForecastInputSchema,
+  planningForecastSchema,
+  type PlanningForecastRow,
   closeBudgetInputSchema,
   closeRevenueTargetInputSchema,
   contactPickerListSchema,
@@ -364,4 +367,18 @@ export async function getRevenueTargetLines(targetId: string) {
 /** Target vs Actual (issued revenue) vs open AR, computed live (never stored). */
 export async function getRevenueTargetReport(targetId: string): Promise<RevenueTargetReportRow[]> {
   return callRpc("get_revenue_target_report", { p_target: targetId }, revenueTargetReportSchema);
+}
+
+// ================================================================ forecasts (decision 250)
+/** Per category and month from the Entity's current month: the 3-month average baseline, the chosen
+ * budget's amount where it plans that category-month, and the resulting forecast. */
+export async function getPlanningForecast(
+  input: z.input<typeof planningForecastInputSchema>,
+): Promise<PlanningForecastRow[]> {
+  const v = planningForecastInputSchema.parse(input);
+  return callRpc(
+    "get_planning_forecast",
+    { p_entity: v.entity_id, p_months: v.months, p_budget: v.budget_id },
+    planningForecastSchema,
+  );
 }

@@ -1083,7 +1083,7 @@ begin
     and (e ->> 'exempt_band')::numeric = 0 and e -> 'rules' -> 0 ->> 'code' = 'PPH_FINAL_UMKM',
     '9.3 0.5% of 120,000,000 = 600,000; the individual exempt band is never applied to a Perseroan Perorangan');
   perform test_helpers.assert(public.tax_final_preview(pf, date '2026-04-01') ->> 'status' = 'not_configured', '9.4 a period before the engine start is not computed');
-  perform test_helpers.assert(public.tax_final_preview(pf, date_trunc('month', current_date)::date) ->> 'status' = 'not_configured', '9.5 a period that is not over is not computed');
+  perform test_helpers.assert(public.tax_final_preview(pf, date_trunc('month', test_helpers.today(pf))::date) ->> 'status' = 'not_configured', '9.5 a period that is not over is not computed');
   perform test_helpers.logout();
 
   -- 9.6 who may compute

@@ -77,3 +77,27 @@ export function entitySettingValueText(value: unknown): string {
   if (typeof value === "number") return String(value);
   return JSON.stringify(value) ?? "—";
 }
+
+/** Indonesia's three time zones (decision 248). Any other valid IANA zone already stored is still shown
+ * and kept; these are the choices offered. */
+export const INDONESIA_TIMEZONES: ReadonlyArray<{ value: string; label: string }> = [
+  { value: "Asia/Jakarta", label: "WIB (UTC+7) — Asia/Jakarta" },
+  { value: "Asia/Makassar", label: "WITA (UTC+8) — Asia/Makassar" },
+  { value: "Asia/Jayapura", label: "WIT (UTC+9) — Asia/Jayapura" },
+];
+
+/** The timezone choices for the form: the Indonesian zones, plus the stored one when it is another. */
+export function timezoneOptions(current: string): ReadonlyArray<{ value: string; label: string }> {
+  return INDONESIA_TIMEZONES.some((z) => z.value === current)
+    ? INDONESIA_TIMEZONES
+    : [...INDONESIA_TIMEZONES, { value: current, label: current }];
+}
+
+export function timezoneLabel(value: string): string {
+  return INDONESIA_TIMEZONES.find((z) => z.value === value)?.label ?? value;
+}
+
+/** A conflict message from `update_entity_time_settings` that names the fiscal-year lock. */
+export function isFiscalYearLockedMessage(message: string | null | undefined): boolean {
+  return !!message && message.includes("fiscal year start cannot change");
+}
