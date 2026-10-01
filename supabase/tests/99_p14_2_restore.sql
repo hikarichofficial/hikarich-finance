@@ -53,13 +53,13 @@ do $$
 declare
   r1 uuid := (select v from test_helpers.p14r where k = 'r1');
   v_file text := (select f from test_helpers.p14f where k = 'orig');
-  v jsonb;
+  res jsonb;
 begin
   perform test_helpers.assert(v_file like '%12345678901234.56%', 'exported file keeps the exact amount text');
   perform test_helpers.login((select v from test_helpers.p14r where k = 'owner'));
-  v := public.preview_backup_restore(r1, v_file);
-  perform test_helpers.assert(not (v ->> 'ok')::boolean, 'non-empty target is not restorable');
-  perform test_helpers.assert(v ->> 'errors' like '%tidak kosong%', 'non-empty target error is explained');
+  res := public.preview_backup_restore(r1, v_file);
+  perform test_helpers.assert(not (res ->> 'ok')::boolean, 'non-empty target is not restorable');
+  perform test_helpers.assert(res ->> 'errors' like '%tidak kosong%', 'non-empty target error is explained');
   perform test_helpers.logout();
 end
 $$;
@@ -86,7 +86,7 @@ declare
   r1 uuid := (select v from test_helpers.p14r where k = 'r1');
   v_file text := (select f from test_helpers.p14f where k = 'orig');
   v_tampered text := replace(v_file, '"Drill Customer"', '"Someone Else"');
-  v jsonb;
+  res jsonb;
 begin
   perform test_helpers.login((select v from test_helpers.p14r where k = 'admin'));
   perform test_helpers.expect_msg(format('select public.preview_backup_restore(%L, %L)', r1, v_file),
@@ -103,13 +103,13 @@ begin
   perform test_helpers.login((select v from test_helpers.p14r where k = 'owner'));
   perform test_helpers.expect_msg(format('select public.restore_backup_snapshot(%L, %L, %L)', r1, v_file, 'wrong'),
     'INVALID', 'restore needs the typed Entity code');
-  v := public.preview_backup_restore(r1, v_tampered);
-  perform test_helpers.assert(not (v ->> 'ok')::boolean and v ->> 'errors' like '%Checksum%', 'tampering is detected');
-  v := public.preview_backup_restore(r1, 'not json');
-  perform test_helpers.assert(not (v ->> 'ok')::boolean, 'a non-JSON file is rejected');
-  v := public.preview_backup_restore(r1, v_file);
-  perform test_helpers.assert((v ->> 'ok')::boolean, 'the genuine file previews clean on an empty target');
-  perform test_helpers.assert((v -> 'table_counts' ->> 'journal_lines')::int >= 2, 'preview reports row counts');
+  res := public.preview_backup_restore(r1, v_tampered);
+  perform test_helpers.assert(not (res ->> 'ok')::boolean and res ->> 'errors' like '%Checksum%', 'tampering is detected');
+  res := public.preview_backup_restore(r1, 'not json');
+  perform test_helpers.assert(not (res ->> 'ok')::boolean, 'a non-JSON file is rejected');
+  res := public.preview_backup_restore(r1, v_file);
+  perform test_helpers.assert((res ->> 'ok')::boolean, 'the genuine file previews clean on an empty target');
+  perform test_helpers.assert((res -> 'table_counts' ->> 'journal_lines')::int >= 2, 'preview reports row counts');
   perform test_helpers.logout();
 end
 $$;
@@ -120,14 +120,14 @@ declare
   r1 uuid := (select v from test_helpers.p14r where k = 'r1');
   v_payload jsonb := (select f from test_helpers.p14f where k = 'orig')::jsonb;
   v_data jsonb;
-  v jsonb;
+  res jsonb;
 begin
   -- A journal line pointing at a journal that does not exist, re-checksummed so it passes validation.
   v_data := jsonb_set(v_payload -> 'data', '{journal_lines,0,journal_id}', to_jsonb(gen_random_uuid()));
   v_payload := jsonb_set(jsonb_set(v_payload, '{data}', v_data), '{checksum}', to_jsonb(md5(v_data::text)));
   perform test_helpers.login((select v from test_helpers.p14r where k = 'owner'));
-  v := public.restore_backup_snapshot(r1, v_payload::text, 'p14_r1');
-  perform test_helpers.assert(v ->> 'status' = 'failed', 'broken reference fails the restore');
+  res := public.restore_backup_snapshot(r1, v_payload::text, 'p14_r1');
+  perform test_helpers.assert(res ->> 'status' = 'failed', 'broken reference fails the restore');
   perform test_helpers.logout();
   perform test_helpers.assert(app_private.restore_target_rows(r1) = '{}'::jsonb, 'failed restore wrote nothing');
   perform test_helpers.assert(
@@ -145,16 +145,16 @@ declare
   r1 uuid := (select v from test_helpers.p14r where k = 'r1');
   v_orig jsonb := ((select f from test_helpers.p14f where k = 'orig')::jsonb) -> 'data';
   v_after jsonb;
-  v jsonb;
+  res jsonb;
   t text;
   n bigint;
 begin
   perform test_helpers.login((select v from test_helpers.p14r where k = 'owner'));
-  v := public.restore_backup_snapshot(r1, (select f from test_helpers.p14f where k = 'orig'), 'p14_r1');
-  perform test_helpers.assert(v ->> 'status' = 'completed', 'restore completes: ' || coalesce(v ->> 'error', ''));
-  perform test_helpers.assert((v -> 'integrity' ->> 'ok')::boolean, 'integrity check passes');
-  perform test_helpers.assert((v -> 'integrity' ->> 'trial_balance_difference')::numeric = 0, 'trial balance balances');
-  perform test_helpers.assert((v -> 'skipped' ->> 'entity_memberships')::int = 2, 'memberships are reported, not restored');
+  res := public.restore_backup_snapshot(r1, (select f from test_helpers.p14f where k = 'orig'), 'p14_r1');
+  perform test_helpers.assert(res ->> 'status' = 'completed', 'restore completes: ' || coalesce(res ->> 'error', ''));
+  perform test_helpers.assert((res -> 'integrity' ->> 'ok')::boolean, 'integrity check passes');
+  perform test_helpers.assert((res -> 'integrity' ->> 'trial_balance_difference')::numeric = 0, 'trial balance balances');
+  perform test_helpers.assert((res -> 'skipped' ->> 'entity_memberships')::int = 2, 'memberships are reported, not restored');
   v_after := (public.export_backup_file(r1, 'full')::jsonb) -> 'data';
   perform test_helpers.logout();
 
