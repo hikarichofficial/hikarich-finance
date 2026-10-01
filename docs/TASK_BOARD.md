@@ -1608,14 +1608,19 @@ cancel, reverse and correct) and Opening Balances (`/accounting/opening-balances
 and completion). No migration: the tables, RLS policies and RPCs already existed. Full detail in
 `docs/DECISIONS.md` decision 245.
 
-Still on the catch-all after these seventeen increments (tracked so nothing is silently dropped):
+Decision 246, eighteenth increment: Users & Roles (`/admin/users`, member detail with role change,
+enable/disable and permission overrides through the step-up-gated P2 RPCs), Security Center
+(`/admin/security`, read-only) and Recent Activity (`/activity`). No migration. Full detail in
+`docs/DECISIONS.md` decision 246.
+
+Still on the catch-all after these eighteen increments (tracked so nothing is silently dropped):
 the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
 balances, decision 231), per-payment evidence on `/tax/filing` (deferred, decision 238),
 the rule-authoring UI on `/tax/rules` (**OWNER QUESTION, deferred**, decision 239), `/planning/forecasts`
 (blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
-`supersedes_document_id` has no reading RPC), `/activity`,
-`/admin/users`, `/admin/security` (nav gating settled by decision 244, screens next), and two `/reports/*` nav sub-items:
+`supersedes_document_id` has no reading RPC),
+trusted-device revocation on `/admin/security` (no RPC yet), and two `/reports/*` nav sub-items:
 `sales-purchase` and `saved` (no backend).
 
 `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46

@@ -11,14 +11,22 @@ const KIND_HREF: Readonly<Record<RecentActivityKind, string>> = {
 
 /** Recent Activity (Step 09 §8, Step 10 §10): a short, meaningful-events-only feed -- confirmed customer
  * and vendor payments and issued invoices -- never a raw log of every write. */
-export function RecentActivity({ items }: { items: readonly RecentActivityItem[] }) {
+export function RecentActivity({
+  items,
+  showAllLink = true,
+}: {
+  items: readonly RecentActivityItem[];
+  showAllLink?: boolean;
+}) {
   return (
     <section className="dashboard-section">
       <div className="dashboard-section-header">
         <h2 className="dashboard-section-title">Aktivitas Terbaru</h2>
-        <Link className="dashboard-section-link" href="/activity">
-          Lihat semua
-        </Link>
+        {showAllLink ? (
+          <Link className="dashboard-section-link" href="/activity">
+            Lihat semua
+          </Link>
+        ) : null}
       </div>
       {items.length === 0 ? (
         <p className="dashboard-empty">Belum ada aktivitas untuk periode ini.</p>
