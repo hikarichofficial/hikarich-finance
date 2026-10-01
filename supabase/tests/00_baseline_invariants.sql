@@ -189,6 +189,8 @@ declare
                                          'export_backup_snapshot', 'validate_backup_payload',
                                          'export_backup_file', 'preview_backup_restore',
                                          'restore_backup_snapshot', 'revoke_trusted_device',
+                                         -- Entity timezone / fiscal-year start in Settings (decision 248)
+                                         'update_entity_time_settings',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];
