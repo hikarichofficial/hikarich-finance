@@ -13,6 +13,7 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 | 2026-09-19 | Working rule (updated): improvising is acceptable when it is the best option. Decide and act without asking, except for crucial decisions only the OWNER can make (cost, exposure of data or code, changes to a locked specification). The OWNER clicks confirmations and types passwords personally.                                                     |
 | 2026-09-19 | The GitHub repository `hikarichofficial/hikarich-finance` is **public**, chosen over paying for a plan that enforces rulesets on private repositories. Consequence: never commit secrets, real data, real invoices or receipts, real business figures, or the full Step specification files. The secret scan stays mandatory and Actions logs are public. |
 | 2026-10-01 | Backup restore is allowed only into an **empty** Entity (decision 247). No merge or overwrite of existing data.                                                                                                                                                                                                                                           |
+| 2026-10-01 | Tax periods follow the Entity's own timezone and fiscal year (Indonesian defaults WIB, January); OWNER can change both in Settings (decision 248, answers decision 237).                                                                                                                                                                                  |
 
 ## Resolved by authority (no OWNER decision needed)
 
@@ -889,7 +890,7 @@ expenses` (needs new backend), `/accounting/opening-balances` (needs new backend
   **material act** by design -- it needs `tax.manage_rules`, a recent step-up (`app_authz.recent_step_up()`),
   and a verified source, and a mistake here changes real tax output for every document evaluated afterwards,
   squarely inside this project's own standing rule that anything changing tax/economic meaning goes to the
-  OWNER as a question rather than being decided solo. This is therefore filed as an **OWNER QUESTION** below,
+  OWNER as a question rather than being decided solo. This is therefore filed as an **OWNER QUESTION** (resolved by decision 249) below,
   not built blind: what should the rule-authoring UI look like (raw JSON `params` entry with server-side
   validation surfacing `tax_rule_params_problem`'s own message, or a structured sub-form per family), and
   should a second person's review be expected before publish beyond the step-up MFA the database already
@@ -923,7 +924,7 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   reason. Still on the catch-all: `/sales/products` (needs new backend), `/purchases/expenses` (needs new
   backend), `/accounting/opening-balances` (needs new backend), the Money Reconciliation session/workspace
   (needs new backend), per-payment evidence on `/tax/filing` (deferred, decision 238), the rule-authoring UI
-  on `/tax/rules` (**OWNER QUESTION above, deferred**), Planning Forecasts, Documents Archive (needs new
+  on `/tax/rules` (**OWNER QUESTION above, resolved by decision 249**), Planning Forecasts, Documents Archive (needs new
   backend), Recent Activity, the Administration module, and every remaining action-form item decisions
   165/167 still carry.
 
@@ -1099,6 +1100,27 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   opened (this session cannot install npm packages locally), then again by CI. `pnpm db:test` N/A (no
   migration).
 
+- Tax rule authoring (decision 249, OWNER answer to decision 239).
+
+  OWNER answer: build the rule-authoring UI; the engine keeps following the rules already in the master,
+  and the OWNER can adjust them later. Built on the existing P7 RPCs `tax_rule_draft_save`,
+  `tax_rule_publish` and `tax_rule_discard` (no migration):
+
+  1. A published rule is never edited. On its Detail screen, "Buat versi baru" opens a draft prefilled
+     with that rule's family, code, parameters and source (effective date and verification date default
+     to today, verification status to "Perlu ditinjau"), so a new version follows the existing rule
+     until a value is changed. "Aturan baru" on the list starts an empty rule.
+  2. Parameters are edited as JSON (prefilled, monospace). The browser only checks it is a JSON object;
+     the database validates the shape per family (`app_private.tax_rule_params_problem`) and the form
+     shows its explanation next to the error.
+  3. A draft can be edited, discarded with a reason, or published. Publishing keeps the database's
+     rules: `tax.manage_rules`, a recent step-up (the form links to step-up), status "Terverifikasi"
+     against the official source, and no other published version of the same code on the same date.
+  4. `src/services/tax/tax.ts` now keeps the database message inside `AuthzError` so the form can show
+     that explanation; the user-facing text stays the generic Indonesian copy plus the detail.
+
+  No second-person review before publish: the OWNER's step-up is the control, as the RPC already defines.
+
 - Users & Roles, Security Center and Recent Activity (decision 246, unbuilt-screens backlog).
 
   1. Users & Roles (`/admin/users`, `/admin/users/[id]`), gated `users.view`: members of the active
@@ -1120,6 +1142,25 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
 
   No migration. Checked in a Vercel Sandbox before the PR (format, typecheck, lint, tests, build), then by
   CI.
+
+- Entity timezone and fiscal year in Settings; decision 237 resolved (decision 248, P14).
+
+  OWNER answer to decision 237: tax periods follow Indonesian rules for the Entity, and the OWNER can
+  change the settings later. Taken as option (a): "today" for every Entity rule is already
+  `app_private.entity_today` (the Entity's own timezone) and fiscal years already follow
+  `entities.fiscal_year_start_month`; the defaults stay WIB (`Asia/Jakarta`) and January, i.e. the tax
+  year is the calendar year unless the books use another year. Test 9.5 in
+  `supabase/tests/95_p7_determination.sql` now picks the current month with `test_helpers.today` (the
+  Entity's date) instead of the session's `current_date`, which removes the month-end flake.
+
+  New RPC `update_entity_time_settings` (`20261001200000_p14_entity_time_settings.sql`), taking the
+  Entity, timezone, fiscal-year start month, expected version and reason. It requires
+  `system.entity_config` (OWNER by default), a recent step-up, a 5-500 character reason, a valid IANA timezone, month 1-12 and the current
+  `entities.version`. The fiscal-year start is refused once the Entity has any accounting period, since
+  every period's fiscal-year label is derived from it; the timezone may change at any time (stored dates
+  never move). Each change is audited as `entities.time_settings_changed` with the reason and
+  before/after values. Settings (`/admin/settings`) gains a "Zona Waktu & Tahun Buku" form offering WIB,
+  WITA and WIT. Tests: `supabase/tests/99_p14_3_entity_time.sql`.
 
 - Backup & Restore Center Part 2 and trusted-device revocation (decision 247, P14).
 
@@ -1182,7 +1223,7 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   tests, unchanged). `pnpm build` passes (no routes added or removed). `pnpm db:test` not re-run (a JS
   dependency bump touches no migration). `npx prettier --check .` clean.
 
-- **OWNER QUESTION -- unresolved.** CI invariant test flake traced to a real timezone-boundary defect in
+- **OWNER QUESTION -- resolved by decision 248.** CI invariant test flake traced to a real timezone-boundary defect in
   already-shipped P7 tax logic (decision 237). While verifying CI for decisions 235/236's PRs, the
   "Migration clean-rebuild and invariants" job started failing on `supabase/tests/95_p7_determination.sql`
   assertion "9.5 a period that is not over is not computed" -- reproducibly on GitHub's CI runner, but not

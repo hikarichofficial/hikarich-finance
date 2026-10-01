@@ -1,7 +1,10 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import {
   approvalRuleListSchema,
+  entityTimeSettingsInputSchema,
+  type EntityTimeSettingsInput,
   entityProfileRowSchema,
   entitySettingListSchema,
   entitySummaryRowSchema,
@@ -21,7 +24,7 @@ import {
  */
 
 const ENTITY_COLUMNS =
-  "id, code, entity_type, legal_name, brand_name, base_currency, timezone, fiscal_year_start_month, status";
+  "id, code, entity_type, legal_name, brand_name, base_currency, timezone, fiscal_year_start_month, status, version";
 const PROFILE_COLUMNS =
   "address_line, city, province, postal_code, country_code, contact_email, contact_phone, website";
 const NUMBERING_COLUMNS =
@@ -114,4 +117,38 @@ export async function getEntitySettingsOverview(entityId: string): Promise<Entit
     roleNames,
     settings: settings.data,
   };
+}
+
+/** Whether the Entity already has an accounting period (the fiscal-year start is then locked, decision
+ * 248). `null` when the caller cannot read periods (`accounting.view`); the database still enforces it. */
+export async function entityHasAccountingPeriods(entityId: string): Promise<boolean | null> {
+  const supabase = await createSupabaseServerClient();
+  const { count, error } = await supabase
+    .from("accounting_periods")
+    .select("id", { count: "exact", head: true })
+    .eq("entity_id", entityId);
+  if (error) return null;
+  return (count ?? 0) > 0;
+}
+
+/** Changes the Entity's timezone and fiscal-year start (decision 248) through
+ * `update_entity_time_settings`, which checks `system.entity_config`, a recent step-up, the reason and
+ * the version, and audits the change. Returns the new version. */
+export async function updateEntityTimeSettings(input: EntityTimeSettingsInput): Promise<number> {
+  const v = entityTimeSettingsInputSchema.parse(input);
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("update_entity_time_settings", {
+    p_entity: v.entity_id,
+    p_timezone: v.timezone,
+    p_fiscal_year_start_month: v.fiscal_year_start_month,
+    p_expected_version: v.expected_version,
+    p_reason: v.reason,
+  });
+  if (error) {
+    const code = parseAuthzCode(error.message);
+    if (code) throw new AuthzError(code, error.message);
+    throw new Error("Pengaturan tidak dapat disimpan.");
+  }
+  if (typeof data !== "number") throw new Error("Respons pengaturan tidak dikenali.");
+  return data;
 }

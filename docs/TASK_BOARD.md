@@ -1613,6 +1613,10 @@ cancel, reverse and correct) and Opening Balances (`/accounting/opening-balances
 and completion). No migration: the tables, RLS policies and RPCs already existed. Full detail in
 `docs/DECISIONS.md` decision 245.
 
+Decision 249: tax rule authoring on `/tax/rules` (OWNER answer to decision 239). New version prefilled
+from a published rule, edit/publish/discard of drafts through the P7 RPCs, step-up and verified source
+required to publish. No migration. Full detail in `docs/DECISIONS.md` decision 249.
+
 Decision 246, eighteenth increment: Users & Roles (`/admin/users`, member detail with role change,
 enable/disable and permission overrides through the step-up-gated P2 RPCs), Security Center
 (`/admin/security`, read-only) and Recent Activity (`/activity`). No migration. Full detail in
@@ -1624,11 +1628,16 @@ write with integrity verification and restore history -- plus trusted-device rev
 `/admin/security`. Fixes Part 1's export precision defect. The automated restore drill runs in
 `pnpm db:test`. Full detail in `docs/DECISIONS.md` decision 247.
 
+Decision 248, P14: OWNER answered decision 237. Tax periods follow the Entity's own timezone and fiscal
+year (defaults WIB and January); the OWNER can change both in Settings (fiscal-year start only before any
+accounting period exists). Test 9.5's month-end flake is fixed. Full detail in `docs/DECISIONS.md`
+decision 248.
+
 Still on the catch-all after these eighteen increments (tracked so nothing is silently dropped):
 the Money
 Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
 balances, decision 231), per-payment evidence on `/tax/filing` (deferred, decision 238),
-the rule-authoring UI on `/tax/rules` (**OWNER QUESTION, deferred**, decision 239), `/documents/archive` (needs new backend --
+`/documents/archive` (needs new backend --
 `supersedes_document_id` has no reading RPC),
 and two `/reports/*` nav sub-items:
 `sales-purchase` and `saved` (no backend).
@@ -1667,7 +1676,7 @@ audit` now clean, `pnpm check` (673 tests, unchanged), `pnpm build` (no routes a
 db:test` not re-run (JS-only change), `npx prettier --check .` clean. Full detail in `docs/DECISIONS.md`
 decision 236.
 
-**OWNER QUESTION -- unresolved** (decision 237): the "Migration clean-rebuild and invariants" CI job
+**OWNER QUESTION -- resolved by decision 248** (decision 237): the "Migration clean-rebuild and invariants" CI job
 started failing on decisions 235/236's PRs (`95_p7_determination.sql` test 9.5), reproducibly on CI but
 not locally. Traced to a real timezone-boundary defect in already-shipped P7 code, not anything in 235/236
 (both touch zero P7 files): `tax_final_evaluate`'s "period is over" guard compares against
