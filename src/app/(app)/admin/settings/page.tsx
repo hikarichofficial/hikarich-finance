@@ -5,6 +5,7 @@ import {
   getEntitySettingsOverview,
 } from "@/services/settings/settings";
 import { SettingsScreen } from "@/features/settings/SettingsScreen";
+import { EntityIdentityForm } from "@/features/settings/EntityIdentityForm";
 import { TimeSettingsForm } from "@/features/settings/TimeSettingsForm";
 
 /** Settings (unbuilt-screens backlog, decision 243). Gated on `settings.view`, the permission
@@ -31,6 +32,18 @@ export default async function SettingsPage({
     <SettingsScreen
       overview={overview}
       exampleYear={new Date().getUTCFullYear()}
+      identityEditor={
+        canEdit ? (
+          <EntityIdentityForm
+            entity={entity}
+            legalName={overview.entity.legal_name}
+            brandName={overview.entity.brand_name}
+            profile={overview.profile}
+            version={overview.entity.version}
+            stepUpHref={`/auth/step-up?next=${encodeURIComponent(here)}`}
+          />
+        ) : null
+      }
       timeSettingsEditor={
         canEdit ? (
           <TimeSettingsForm
