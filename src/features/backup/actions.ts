@@ -18,12 +18,10 @@ import type { BackupKind, RestorePreview, RestoreResult } from "@/schemas/backup
  */
 
 export type BackupExportResult =
-  | { status: "ok"; file: string; kind: BackupKind }
-  | { status: "error"; message: string };
+  { status: "ok"; file: string; kind: BackupKind } | { status: "error"; message: string };
 
 export type RestorePreviewActionResult =
-  | { status: "ok"; preview: RestorePreview }
-  | { status: "error"; message: string };
+  { status: "ok"; preview: RestorePreview } | { status: "error"; message: string };
 
 export type RestoreActionResult =
   | { status: "ok"; result: RestoreResult }

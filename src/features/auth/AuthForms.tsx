@@ -1,6 +1,5 @@
 "use client";
 
-import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState, useTransition } from "react";
 import {
   loginAction,
@@ -15,9 +14,8 @@ const initial: FormState = {};
 
 export function LoginForm({ next, notice }: { next: string; notice?: string }) {
   const [state, action, pending] = useActionState(loginAction, initial);
-  const actionForm = usePreservingForm(action, state);
   return (
-    <form {...actionForm} className="form" noValidate>
+    <form action={action} className="form" noValidate>
       <input type="hidden" name="next" value={next} />
       {notice ? <p className="notice">{notice}</p> : null}
       <label>
@@ -43,9 +41,8 @@ export function LoginForm({ next, notice }: { next: string; notice?: string }) {
 /** Six-digit authenticator code, used for the sign-in challenge and for step-up re-verification. */
 export function CodeForm({ next, submitLabel }: { next: string; submitLabel: string }) {
   const [state, action, pending] = useActionState(verifyTotpAction, initial);
-  const actionForm = usePreservingForm(action, state);
   return (
-    <form {...actionForm} className="form" noValidate>
+    <form action={action} className="form" noValidate>
       <input type="hidden" name="next" value={next} />
       <label>
         Kode autentikator (6 digit)
@@ -75,7 +72,6 @@ export function EnrollForm({ next }: { next: string }) {
   const [start, setStart] = useState<EnrollmentStart | null>(null);
   const [starting, startTransition] = useTransition();
   const [state, action, pending] = useActionState(verifyTotpEnrollment, initial);
-  const actionForm = usePreservingForm(action, state);
 
   if (!start?.factorId) {
     return (
@@ -100,7 +96,7 @@ export function EnrollForm({ next }: { next: string }) {
   }
 
   return (
-    <form {...actionForm} className="form" noValidate>
+    <form action={action} className="form" noValidate>
       <input type="hidden" name="next" value={next} />
       <input type="hidden" name="factorId" value={start.factorId} />
       {start.qrCode ? (
