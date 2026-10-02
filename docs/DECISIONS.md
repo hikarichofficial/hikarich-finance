@@ -1280,6 +1280,17 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Category to ledger account mapping (decision 265, Step 03 §6). `category_account_mappings` has been
+  read by invoices, bills and expenses since P5/P6 but no command wrote it, so every category posted to
+  the Entity's default account. New `set_category_account(entity, category, account, effective_from)`
+  (`categories.manage` and `coa.manage`): a revenue category maps the credited account in the "sales"
+  context, an expense category the debited account in the "purchases" context, each restricted to an
+  active, non-group account of the matching class. It is effective-dated and never rewrites the past: the
+  mapping in force ends the day before the new one starts, the same start date corrects it in place, an
+  earlier date than an existing later mapping is refused, and passing no account ends the mapping. The
+  Categories screen shows the account in force and sets it. Migration
+  `20261002300000_p14_category_account_mapping.sql`; test `99_p14_7_category_account.sql`.
+
 - Remaining write screens in one slice (decision 264, OWNER: "semua itu kamu kerjakan dalam 1 merge").
   Every command below already existed and was tested at the database level; this adds only screens, each
   gated on the permission its RPC checks and shown only in the statuses the RPC accepts. No migration.

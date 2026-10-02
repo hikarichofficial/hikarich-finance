@@ -2,7 +2,11 @@
 
 import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/services/identity/access";
-import { createCategory, updateCategory } from "@/services/accounting/categories";
+import {
+  createCategory,
+  setCategoryAccount,
+  updateCategory,
+} from "@/services/accounting/categories";
 
 /** Server actions behind the Categories screen (decision 262). `categories` takes browser writes under RLS
  * (`categories.manage`); the tax key is one of the database's catalog keys or empty. */
@@ -62,6 +66,35 @@ export async function updateCategoryAction(
     });
   } catch {
     return { status: "error", message: "Perubahan tidak dapat disimpan." };
+  }
+  revalidatePath("/accounting/categories");
+  return { status: "ok", message: "Tersimpan." };
+}
+
+/** Map a category to the ledger account it posts to from a date on (decision 265). */
+export async function setCategoryAccountAction(
+  _previous: CategoryActionState,
+  formData: FormData,
+): Promise<CategoryActionState> {
+  try {
+    const { membership } = await requirePermission("categories.manage", {
+      entityCode: text(formData, "entity"),
+    });
+    await setCategoryAccount({
+      entity_id: membership.entity_id,
+      category_id: text(formData, "category_id"),
+      account_id: text(formData, "account_id") || null,
+      effective_from: text(formData, "effective_from"),
+    });
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "";
+    const match = /(?:INVALID|CONFLICT|FORBIDDEN):\s*([\s\S]+)$/.exec(message);
+    return {
+      status: "error",
+      message: match?.[1]
+        ? `Akun tidak dapat disimpan (${match[1].trim()})`
+        : "Akun tidak dapat disimpan.",
+    };
   }
   revalidatePath("/accounting/categories");
   return { status: "ok", message: "Tersimpan." };

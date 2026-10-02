@@ -77,3 +77,50 @@ export async function updateCategory(input: {
     .eq("id", uuidResultSchema.parse(input.id));
   if (error) throw new Error(error.message);
 }
+
+/** The account each category posts to today (context "sales" for revenue, "purchases" for expense), by a
+ * direct RLS-governed read (`accounting.view`); empty when the caller cannot see mappings. Decision 265. */
+export async function listCurrentCategoryAccounts(
+  entityId: string,
+  today: string,
+): Promise<Map<string, string>> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("category_account_mappings")
+    .select(
+      "category_id, context, debit_ledger_account_id, credit_ledger_account_id, effective_from, effective_to",
+    )
+    .eq("entity_id", uuidResultSchema.parse(entityId))
+    .in("context", ["sales", "purchases"])
+    .lte("effective_from", today);
+  const map = new Map<string, string>();
+  if (error || !data) return map;
+  for (const row of data as {
+    category_id: string;
+    debit_ledger_account_id: string | null;
+    credit_ledger_account_id: string | null;
+    effective_to: string | null;
+  }[]) {
+    if (row.effective_to !== null && row.effective_to < today) continue;
+    const account = row.credit_ledger_account_id ?? row.debit_ledger_account_id;
+    if (account) map.set(row.category_id, account);
+  }
+  return map;
+}
+
+/** `set_category_account`: the mapping starts on the given date; `null` ends it (decision 265). */
+export async function setCategoryAccount(input: {
+  entity_id: string;
+  category_id: string;
+  account_id: string | null;
+  effective_from: string;
+}): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("set_category_account", {
+    p_entity: uuidResultSchema.parse(input.entity_id),
+    p_category: uuidResultSchema.parse(input.category_id),
+    p_account: input.account_id ? uuidResultSchema.parse(input.account_id) : null,
+    p_effective_from: input.effective_from,
+  });
+  if (error) throw new Error(error.message);
+}

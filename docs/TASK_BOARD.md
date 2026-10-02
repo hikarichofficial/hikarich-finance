@@ -1651,6 +1651,9 @@ migration. Still open: Import Wizard, document attachments (file storage, P15), 
 mapping (backend), a browser walkthrough of every new screen. Full detail in `docs/DECISIONS.md`
 decision 264.
 
+Decision 265: `set_category_account` and the account column on the Categories screen. Full detail in
+`docs/DECISIONS.md` decision 265.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
