@@ -1606,6 +1606,9 @@ Decision 252: Documents Archive (`/documents/archive`), Sales/Purchase report (`
 and Saved Reports (`/reports/saved`, plus "Simpan laporan ini" on report pages), each on a new RPC. Full
 detail in `docs/DECISIONS.md` decision 252.
 
+Decision 253: per-payment evidence on `/tax/filing` (filing or any confirmed payment as the target).
+No migration. Full detail in `docs/DECISIONS.md` decision 253.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
@@ -1643,8 +1646,8 @@ accounting period exists). Test 9.5's month-end flake is fixed. Full detail in `
 decision 248.
 
 Still on the catch-all after these eighteen increments (tracked so nothing is silently dropped):
-per-payment evidence on `/tax/filing` (deferred, decision 238); `/documents/archive`, `/reports/sales-purchase`
-and `/reports/saved` were built by decision 252.
+nothing: per-payment evidence on `/tax/filing` was built by decision 253, and `/documents/archive`,
+`/reports/sales-purchase` and `/reports/saved` by decision 252. Every Step 09 nav item now has a screen.
 
 `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46
 pending migrations to this non-production Preview/dev project directly. Applied via the Supabase management

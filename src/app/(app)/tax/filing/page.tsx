@@ -54,6 +54,20 @@ export default async function TaxFilingPage({
         target_id: position.filing_id,
       })
     : [];
+  // Evidence of each confirmed payment (decision 253): one read per payment, at most a few per period.
+  const paymentEvidence = await Promise.all(
+    payments
+      .filter((p) => p.status === "confirmed")
+      .map(async (p) => ({
+        paymentId: p.payment_id,
+        paymentNumber: p.payment_number,
+        rows: await listTaxEvidence({
+          entity_id: entityId,
+          target_type: "tax_payment",
+          target_id: p.payment_id,
+        }),
+      })),
+  );
 
   let documentResults: Awaited<ReturnType<typeof listDocuments>> | undefined;
   let documentSearchError: string | undefined;
@@ -79,6 +93,7 @@ export default async function TaxFilingPage({
       entity={entity}
       paymentAccounts={eligibleTaxPaymentAccounts(accounts, currency)}
       evidence={evidence}
+      paymentEvidence={paymentEvidence}
       documentQuery={docQuery}
       documentResults={documentResults}
       documentSearchError={documentSearchError}

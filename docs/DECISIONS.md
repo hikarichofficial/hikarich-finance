@@ -1245,6 +1245,13 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
 
   Tests: `supabase/tests/99_p14_5_archive_reports.sql`, `src/domain/reports/salesPurchase.test.ts`.
 
+- Per-payment evidence on `/tax/filing` (decision 253, the refinement decision 238 deferred). The
+  evidence section now also appears once a confirmed payment exists, lists the evidence of the filing and
+  of each confirmed payment (`tax_list_evidence` per target), and each found document gets a "Lampirkan
+  ke" picker (the filing, or a payment by number); the purpose defaults to "Bukti lapor" for the filing
+  and "Bukti bayar" for a payment. Uses the existing `tax_link_evidence`, which already accepts
+  `tax_payment`. No migration.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions

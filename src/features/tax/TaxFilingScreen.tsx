@@ -34,13 +34,10 @@ import { formatShortDate } from "./format";
  * period, and attaching evidence. One screen serves all three eligible tax types (`FILING_TAX_TYPES`)
  * through its own type selector, rather than three near-identical pages.
  *
- * Evidence in this increment targets **the period's own filing only** (`target_type: "tax_filing"`) --
- * `tax_link_evidence` also accepts `"tax_payment"` as a target (each payment has its own transfer-receipt
- * evidence too), but attaching evidence per payment needs a target picker per payment row on top of the
- * document search already here; the primary real-world need -- attaching the filing receipt itself -- does
- * not, so per-payment evidence is left for a later refinement of this same screen. The evidence section
- * only renders once a filing exists (`position.filing_id`); `?doc_q=` drives the document search (a plain
- * GET, no client JavaScript needed for the search itself).
+ * Evidence attaches to the period's filing or to any confirmed payment (decision 253): each found document
+ * carries a "Lampirkan ke" picker (the filing, or a payment by number) and the purpose defaults to the
+ * target's natural one (filing receipt / payment proof). The section renders once a filing or a confirmed
+ * payment exists; `?doc_q=` drives the document search (a plain GET).
  *
  * Every write action here needs `tax.mark_filed` -- narrower than this page's own `tax.view` gate -- so
  * each form lets its own action's `AuthzError` surface on submit rather than pre-checking the permission,
@@ -56,6 +53,7 @@ export function TaxFilingScreen({
   entity,
   paymentAccounts,
   evidence,
+  paymentEvidence = [],
   documentQuery,
   documentResults,
   documentSearchError,
@@ -69,6 +67,11 @@ export function TaxFilingScreen({
   entity: string | undefined;
   paymentAccounts: readonly FinancialAccountPickerRow[];
   evidence: readonly TaxEvidenceRow[];
+  paymentEvidence?: ReadonlyArray<{
+    paymentId: string;
+    paymentNumber: string;
+    rows: readonly TaxEvidenceRow[];
+  }>;
   documentQuery: string | undefined;
   documentResults: readonly DocumentRow[] | undefined;
   documentSearchError: string | undefined;
@@ -147,6 +150,7 @@ export function TaxFilingScreen({
         filingId={position.filing_id}
         filedReference={position.filed_reference}
         evidence={evidence}
+        paymentEvidence={paymentEvidence}
         documentQuery={documentQuery}
         documentResults={documentResults}
         documentSearchError={documentSearchError}
@@ -681,6 +685,7 @@ function EvidenceSection({
   filingId,
   filedReference,
   evidence,
+  paymentEvidence,
   documentQuery,
   documentResults,
   documentSearchError,
@@ -691,37 +696,45 @@ function EvidenceSection({
   filingId: string | null;
   filedReference: string | null;
   evidence: readonly TaxEvidenceRow[];
+  paymentEvidence: ReadonlyArray<{
+    paymentId: string;
+    paymentNumber: string;
+    rows: readonly TaxEvidenceRow[];
+  }>;
   documentQuery: string | undefined;
   documentResults: readonly DocumentRow[] | undefined;
   documentSearchError: string | undefined;
 }) {
+  const targets: EvidenceTarget[] = [
+    ...(filingId
+      ? [{ type: "tax_filing" as const, id: filingId, label: "Pelaporan periode ini" }]
+      : []),
+    ...paymentEvidence.map((p) => ({
+      type: "tax_payment" as const,
+      id: p.paymentId,
+      label: `Pembayaran ${p.paymentNumber}`,
+    })),
+  ];
   return (
     <section className="dashboard-section">
       <div className="dashboard-section-header">
         <h2 className="dashboard-section-title">Bukti Pendukung</h2>
       </div>
-      {!filingId ? (
-        <p className="hint">Lampirkan bukti setelah pelaporan periode ini dicatat.</p>
+      {!filingId && paymentEvidence.length === 0 ? (
+        <p className="hint">
+          Lampirkan bukti setelah pembayaran atau pelaporan periode ini dicatat.
+        </p>
       ) : (
         <>
-          <p className="hint">
-            Bukti untuk pelaporan {filedReference ? `(${filedReference})` : "periode ini"}.
-          </p>
-          {evidence.length === 0 ? (
-            <p className="hint">Belum ada bukti terlampir.</p>
-          ) : (
-            <ul className="dashboard-list">
-              {evidence.map((e) => (
-                <li key={e.link_id} className="dashboard-list-item">
-                  <p className="dashboard-list-item-title">{e.file_name}</p>
-                  <p className="dashboard-list-item-detail">
-                    {EVIDENCE_PURPOSE_LABELS[e.purpose]} &middot; {formatDocumentSize(e.size_bytes)}{" "}
-                    &middot; {formatShortDate(e.created_at.slice(0, 10))}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
+          {filingId ? (
+            <EvidenceList
+              title={`Pelaporan ${filedReference ? `(${filedReference})` : "periode ini"}`}
+              rows={evidence}
+            />
+          ) : null}
+          {paymentEvidence.map((p) => (
+            <EvidenceList key={p.paymentId} title={`Pembayaran ${p.paymentNumber}`} rows={p.rows} />
+          ))}
 
           <form method="get" className="list-search-form">
             <input type="hidden" name="type" value={taxType} />
@@ -754,7 +767,7 @@ function EvidenceSection({
                   <p className="dashboard-list-item-detail">{formatDocumentSize(doc.size_bytes)}</p>
                   <AttachEvidenceForm
                     documentId={doc.document_id}
-                    filingId={filingId}
+                    targets={targets}
                     taxType={taxType}
                     period={period}
                     entity={entity}
@@ -769,27 +782,82 @@ function EvidenceSection({
   );
 }
 
+interface EvidenceTarget {
+  type: "tax_filing" | "tax_payment";
+  id: string;
+  label: string;
+}
+
+function EvidenceList({ title, rows }: { title: string; rows: readonly TaxEvidenceRow[] }) {
+  return (
+    <>
+      <p className="hint">Bukti untuk {title}.</p>
+      {rows.length === 0 ? (
+        <p className="hint">Belum ada bukti terlampir.</p>
+      ) : (
+        <ul className="dashboard-list">
+          {rows.map((e) => (
+            <li key={e.link_id} className="dashboard-list-item">
+              <p className="dashboard-list-item-title">{e.file_name}</p>
+              <p className="dashboard-list-item-detail">
+                {EVIDENCE_PURPOSE_LABELS[e.purpose]} &middot; {formatDocumentSize(e.size_bytes)}{" "}
+                &middot; {formatShortDate(e.created_at.slice(0, 10))}
+              </p>
+            </li>
+          ))}
+        </ul>
+      )}
+    </>
+  );
+}
+
 function AttachEvidenceForm({
   documentId,
-  filingId,
+  targets,
   taxType,
   period,
   entity,
 }: {
   documentId: string;
-  filingId: string;
+  targets: readonly EvidenceTarget[];
   taxType: FilingTaxType;
   period: string;
   entity: string | undefined;
 }) {
   const [state, action, pending] = useActionState(linkTaxEvidenceAction, idleTaxFilingActionState);
-  const [purpose, setPurpose] = useState<EvidencePurpose>("filing_receipt");
+  const [targetKey, setTargetKey] = useState(0);
+  const target = targets[targetKey] ?? targets[0];
+  const [purpose, setPurpose] = useState<EvidencePurpose>(
+    target?.type === "tax_payment" ? "payment_proof" : "filing_receipt",
+  );
+  if (!target) return null;
 
   return (
     <form action={action} className="invoice-action-form">
       <input type="hidden" name="document_id" value={documentId} />
-      <input type="hidden" name="target_type" value="tax_filing" />
-      <input type="hidden" name="target_id" value={filingId} />
+      <input type="hidden" name="target_type" value={target.type} />
+      <input type="hidden" name="target_id" value={target.id} />
+      {targets.length > 1 ? (
+        <label>
+          Lampirkan ke
+          <select
+            value={targetKey}
+            onChange={(event) => {
+              const index = Number(event.target.value);
+              setTargetKey(index);
+              setPurpose(
+                targets[index]?.type === "tax_payment" ? "payment_proof" : "filing_receipt",
+              );
+            }}
+          >
+            {targets.map((t, i) => (
+              <option key={t.id} value={i}>
+                {t.label}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
       <input type="hidden" name="tax_type" value={taxType} />
       <input type="hidden" name="period" value={period} />
       {entity ? <input type="hidden" name="entity" value={entity} /> : null}
