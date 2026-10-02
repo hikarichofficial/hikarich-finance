@@ -1,3 +1,4 @@
+import { trimDecimalText } from "@/domain/money/format";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
@@ -136,7 +137,7 @@ export function LoanDetailScreen({
               </div>
               <div>
                 <dt>Bunga</dt>
-                <dd>{activeVersion.rate}% / tahun</dd>
+                <dd>{trimDecimalText(activeVersion.rate ?? "0")}% / tahun</dd>
               </div>
             </>
           ) : null}
