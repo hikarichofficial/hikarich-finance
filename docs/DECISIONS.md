@@ -1293,6 +1293,7 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
      form help only; the database still validates the key and computes the plan.
   2. `/assets/opening` ("Aset yang Sudah Dimiliki", `system.import`): the screen for `asset_load_opening`,
      which decision 264 had left without one.
+
   Verified in the browser: an asset bill line registered itself on approval, activation with Kelompok 1
   planned 48 months, Rp 12.000.000 gave Rp 250.000 a month. Payroll post was also exercised (posted);
   payroll payment asks for the authenticator code.
