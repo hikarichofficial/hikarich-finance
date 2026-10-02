@@ -117,7 +117,7 @@ begin
     'FORBIDDEN', 'a viewer (no periods.reopen) cannot reverse a closing');
   perform test_helpers.logout();
 
-  perform test_helpers.login(v_owner, 'aal2', interval '20 minutes');
+  perform test_helpers.login(v_owner, 'aal2', interval '40 minutes');
   perform test_helpers.expect_msg(format('select public.reverse_fiscal_year_closing(%L, 2024, ''undo the FY2024 close for testing'')', v_pt),
     'STEP_UP_REQUIRED', 'a stale authentication cannot reverse a closing');
   perform test_helpers.logout();

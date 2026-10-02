@@ -34,7 +34,7 @@ export function TimeSettingsForm({
       <input type="hidden" name="expected_version" value={version} />
       <p className="hint">
         Masa dan tahun pajak dihitung dengan zona waktu dan tahun buku Entity ini (bawaan: WIB,
-        Januari–Desember, sesuai tahun takwim). Perubahan memerlukan verifikasi ulang dalam 10 menit
+        Januari–Desember, sesuai tahun takwim). Perubahan memerlukan verifikasi ulang dalam 30 menit
         terakhir. <Link href={stepUpHref}>Verifikasi sekarang</Link>.
       </p>
       <label>

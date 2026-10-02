@@ -133,7 +133,7 @@ export default async function SecurityPage({
         </div>
         {canManage ? (
           <p className="hint">
-            Mencabut perangkat pengguna lain memerlukan verifikasi ulang dalam 10 menit terakhir.{" "}
+            Mencabut perangkat pengguna lain memerlukan verifikasi ulang dalam 30 menit terakhir.{" "}
             <Link href={`/auth/step-up?next=${encodeURIComponent(here)}`}>Verifikasi sekarang</Link>
             .
           </p>

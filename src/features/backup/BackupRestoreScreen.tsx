@@ -319,7 +319,7 @@ function RestoreFromFile({
           ) : null}
           {readiness === "step_up" ? (
             <p role="alert" className="error">
-              Pemulihan memerlukan verifikasi ulang (10 menit terakhir).{" "}
+              Pemulihan memerlukan verifikasi ulang (30 menit terakhir).{" "}
               <Link href={stepUpHref}>Verifikasi sekarang</Link>, lalu pilih berkas lagi.
             </p>
           ) : null}

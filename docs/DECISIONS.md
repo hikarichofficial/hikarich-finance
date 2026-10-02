@@ -1280,6 +1280,19 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Step-up window 30 minutes, and the personal business as a business-type Entity (decision 270).
+  1. OWNER: "verifikasinya diubah menjadi 30 menit. karena 10 menit terlalu cepat". The recent
+     re-authentication window of Step 06 §8 goes from 10 to 30 minutes: the default of
+     `app_authz.recent_step_up()` (migration `20261003110000_p14_step_up_30_minutes.sql`) and the
+     application's `STEP_UP_WINDOW_MINUTES`. Which commands need a step-up and who may run them is
+     unchanged. This is an OWNER override of a locked value; a longer window means an unattended, unlocked
+     session stays able to run sensitive commands for longer.
+  2. OWNER agreed ("saya setuju dengan yang di atas") that the personal business is kept as a
+     business-type Entity with taxpayer kind "Orang pribadi", so every feature equals the PT and only the
+     tax rules differ; the household "personal" ledger of Step 03 is unchanged. To be set up at P15.
+  3. Verified in the browser after decision 269's migration: a payroll net-pay payment now saves (run
+     "Dibayar penuh").
+
 - Automatic fiscal grouping, automatic month-end depreciation, and a payroll payment that could not be
   saved (decision 269, OWNER: "harusnya ada mesin sistem otomatis dalam pengelompokannya", "penyusutan
   harus dalam bentuk otomatis setiap akhir bulan", "bila ada perubahan manual juga harus bisa").
