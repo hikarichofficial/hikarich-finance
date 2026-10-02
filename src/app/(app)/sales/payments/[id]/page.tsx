@@ -1,11 +1,7 @@
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import {
-  getPaymentReceipt,
-  getPaymentRefundOptions,
-  listPayments,
-} from "@/services/sales/sales";
+import { getPaymentReceipt, getPaymentRefundOptions, listPayments } from "@/services/sales/sales";
 import { getMoneyControl } from "@/services/money/money";
 import { RefundForm } from "@/features/sales/RefundForm";
 import { PaymentDetailScreen } from "@/features/sales/PaymentDetailScreen";
