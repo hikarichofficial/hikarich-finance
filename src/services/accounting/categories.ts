@@ -25,3 +25,55 @@ export async function listActiveCategories(entityId: string): Promise<CategoryRo
   if (!parsed.success) throw new Error("Respons daftar kategori tidak dikenali.");
   return parsed.data;
 }
+
+export interface CategoryAdminRow {
+  id: string;
+  name: string;
+  kind: string;
+  tax_category_key: string | null;
+  is_active: boolean;
+  version: number;
+}
+
+/** Every category of the Entity with its tax mapping, for the Categories screen (decision 262). */
+export async function listCategoriesForAdmin(entityId: string): Promise<CategoryAdminRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("categories")
+    .select("id, name, kind, tax_category_key, is_active, version")
+    .eq("entity_id", uuidResultSchema.parse(entityId))
+    .order("kind")
+    .order("name");
+  if (error) throw new Error("Gagal memuat daftar kategori.");
+  return (data ?? []) as CategoryAdminRow[];
+}
+
+/** `categories` allows browser writes under RLS (`categories.manage`, P2): a plain insert, no RPC. */
+export async function createCategory(input: {
+  entity_id: string;
+  name: string;
+  kind: string;
+  tax_category_key: string | null;
+}): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.from("categories").insert({
+    entity_id: uuidResultSchema.parse(input.entity_id),
+    name: input.name,
+    kind: input.kind,
+    tax_category_key: input.tax_category_key,
+  });
+  if (error) throw new Error(error.message);
+}
+
+export async function updateCategory(input: {
+  id: string;
+  tax_category_key: string | null;
+  is_active: boolean;
+}): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase
+    .from("categories")
+    .update({ tax_category_key: input.tax_category_key, is_active: input.is_active })
+    .eq("id", uuidResultSchema.parse(input.id));
+  if (error) throw new Error(error.message);
+}

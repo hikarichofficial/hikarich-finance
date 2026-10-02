@@ -1280,6 +1280,19 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Tax preview before recognition, manual override, and Categories (decision 262, Step 05 §10-§11, §14-§15,
+  Step 03 §6). (1) Bill Detail (draft, submitted) and Invoice Detail (draft) now show what the engine would
+  recognise (`tax_preview_document`): each result with its amount and consequence, and the reasons that
+  block recognition when a review is needed. Until now a blocked document gave no explanation on screen.
+  (2) With `tax.override` the panel offers the manual correction (`tax_override_set`: amount, reason,
+  evidence note; the database requires a recent step-up). Withdrawing an override and the per-line
+  "confirm treatment" command still have no screen. (3) `/accounting/categories`: categories could not be
+  created or mapped from the app. `categories` already takes browser writes under RLS
+  (`categories.manage`, P2), so the screen inserts a category and updates its tax mapping
+  (`tax_category_key`) or active flag directly, without a new RPC. The category-to-account mapping
+  (`category_account_mappings`) is select-only and has no command yet, so a new category posts to the
+  Entity's default revenue/expense account until that backend exists. No migration.
+
 - Editing a draft invoice or bill (decision 261, Step 09 §11-§12). `/sales/invoices/[id]/edit` and
   `/purchases/bills/[id]/edit` reuse the create forms with the draft's values and save through the
   unmodified `update_invoice_draft` / `update_bill_draft` (`invoices.edit` / `bills.edit`, with the row

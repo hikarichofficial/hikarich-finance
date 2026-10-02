@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { formatMoney } from "@/domain/money/format";
 import { Decimal } from "@/domain/money/decimal";
 import { invoiceActivityTimeline, invoiceDocumentStatus } from "@/domain/sales/invoiceList";
@@ -24,6 +25,7 @@ export function InvoiceDetailScreen({
   permissions,
   backHref,
   payment,
+  taxPanel,
   canEdit = false,
 }: {
   invoiceId: string;
@@ -32,6 +34,8 @@ export function InvoiceDetailScreen({
   backHref: string;
   /** Record Payment / Pay Bill (decision 258); absent when not allowed or nothing is outstanding. */
   payment?: { accounts: readonly SettlementAccountOption[]; today: string };
+  /** The tax the engine would recognise, shown while the document is not recognised yet (decision 262). */
+  taxPanel?: ReactNode;
   /** A draft may be edited with `invoices.edit` (decision 261). */
   canEdit?: boolean;
 }) {
@@ -64,6 +68,7 @@ export function InvoiceDetailScreen({
       </header>
 
       <InvoiceActions invoiceId={invoiceId} status={doc.status} permissions={permissions} />
+      {taxPanel}
       {doc.status === "draft" && canEdit ? (
         <p>
           <Link

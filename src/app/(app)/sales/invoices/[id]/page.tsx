@@ -3,6 +3,8 @@ import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { getInvoiceDocument } from "@/services/sales/sales";
 import { getMoneyControl } from "@/services/money/money";
+import { previewDocumentTax } from "@/services/tax/tax";
+import { TaxPreviewPanel } from "@/features/tax/TaxPreviewPanel";
 import { InvoiceDetailScreen } from "@/features/sales/InvoiceDetailScreen";
 
 /** Invoice Detail (P13 Part 3a, Step 09 §10, §11). Permission to act is read off the currently active
@@ -32,11 +34,31 @@ export default async function InvoiceDetailPage({
     ? `/sales/invoices?entity=${encodeURIComponent(entity)}`
     : "/sales/invoices";
 
+  const taxPreview =
+    doc.status === "draft"
+      ? await previewDocumentTax({ source_type: "invoice", source_id: id }).catch(() => null)
+      : null;
+  const selfHref = entity
+    ? `/sales/invoices/${id}?entity=${encodeURIComponent(entity)}`
+    : `/sales/invoices/${id}`;
+
   return (
     <InvoiceDetailScreen
       invoiceId={id}
       doc={doc}
       backHref={backHref}
+      taxPanel={
+        taxPreview ? (
+          <TaxPreviewPanel
+            preview={taxPreview}
+            currency={doc.currency}
+            sourceType="invoice"
+            sourceId={id}
+            canOverride={can(access, entityId, "tax.override")}
+            next={selfHref}
+          />
+        ) : null
+      }
       canEdit={can(access, entityId, "invoices.edit")}
       payment={
         canRecordPayment

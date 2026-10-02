@@ -1,0 +1,67 @@
+"use server";
+
+import { revalidatePath } from "next/cache";
+import { requirePermission } from "@/services/identity/access";
+import { createCategory, updateCategory } from "@/services/accounting/categories";
+
+/** Server actions behind the Categories screen (decision 262). `categories` takes browser writes under RLS
+ * (`categories.manage`); the tax key is one of the database's catalog keys or empty. */
+
+export interface CategoryActionState {
+  status: "idle" | "ok" | "error";
+  message?: string;
+}
+
+const KINDS = ["revenue", "expense", "asset", "liability", "equity", "other"];
+
+function text(formData: FormData, name: string): string {
+  const value = formData.get(name);
+  return typeof value === "string" ? value.trim() : "";
+}
+
+export async function createCategoryAction(
+  _previous: CategoryActionState,
+  formData: FormData,
+): Promise<CategoryActionState> {
+  const name = text(formData, "name");
+  const kind = text(formData, "kind");
+  if (name.length < 1 || name.length > 120 || !KINDS.includes(kind)) {
+    return { status: "error", message: "Isi nama kategori (maksimal 120 karakter) dan jenisnya." };
+  }
+  try {
+    const { membership } = await requirePermission("categories.manage", {
+      entityCode: text(formData, "entity"),
+    });
+    await createCategory({
+      entity_id: membership.entity_id,
+      name,
+      kind,
+      tax_category_key: text(formData, "tax_category_key") || null,
+    });
+  } catch {
+    return {
+      status: "error",
+      message: "Kategori tidak dapat disimpan. Mungkin namanya sudah dipakai, atau Anda tidak berwenang.",
+    };
+  }
+  revalidatePath("/accounting/categories");
+  return { status: "ok", message: "Kategori tersimpan." };
+}
+
+export async function updateCategoryAction(
+  _previous: CategoryActionState,
+  formData: FormData,
+): Promise<CategoryActionState> {
+  try {
+    await requirePermission("categories.manage", { entityCode: text(formData, "entity") });
+    await updateCategory({
+      id: text(formData, "id"),
+      tax_category_key: text(formData, "tax_category_key") || null,
+      is_active: text(formData, "is_active") === "on",
+    });
+  } catch {
+    return { status: "error", message: "Perubahan tidak dapat disimpan." };
+  }
+  revalidatePath("/accounting/categories");
+  return { status: "ok", message: "Tersimpan." };
+}
