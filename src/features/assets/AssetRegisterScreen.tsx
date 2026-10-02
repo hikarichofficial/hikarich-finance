@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import {
   ASSET_SOURCE_LABELS,
@@ -17,8 +18,8 @@ import { formatShortDate } from "./format";
  * Pattern with a table view (the spec's own "card/table" choice is left for a later increment -- no other List
  * screen in this codebase has a card view yet either) and a status `<select>` sent straight to `asset_register`'s
  * own `p_status` argument, unlike the Tax Ledger's client-side filters: this RPC already filters server-side.
- * No Create button: an asset is registered from an approved purchase/expense line (Step 08 §5) or loaded at the
- * cut-over, never created directly here.
+ * An asset is registered from an approved purchase/expense line (Step 08 §5) or loaded at the cut-over, never
+ * typed in directly: "Daftarkan Aset" (`newHref`, shown with `assets.manage`) opens the list of waiting lines.
  *
  * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5,
  * fifth increment; Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- Kode as
@@ -30,12 +31,14 @@ export function AssetRegisterScreen({
   query,
   currency,
   entity,
+  newHref,
 }: {
   rows: readonly AssetRow[];
   status: AssetStatus | null;
   query: string;
   currency: string;
   entity: string | undefined;
+  newHref?: string;
 }) {
   return (
     <div className="list-screen">
@@ -44,6 +47,11 @@ export function AssetRegisterScreen({
           <h1>Daftar Aset</h1>
           <p className="list-screen-summary">{rows.length} aset ditampilkan.</p>
         </div>
+        {newHref ? (
+          <Link href={newHref} className="btn-primary">
+            Daftarkan Aset
+          </Link>
+        ) : null}
       </header>
 
       <div className="list-screen-toolbar">
