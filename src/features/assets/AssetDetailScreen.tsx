@@ -9,6 +9,7 @@ import {
   depreciationLineStatusBadge,
 } from "@/domain/assets/assetList";
 import { DEPRECIATION_METHOD_LABELS, DISPOSAL_TYPE_LABELS } from "@/domain/assets/assets";
+import { fiscalClassLabel } from "@/domain/assets/fiscalClasses";
 import type { AssetDetail } from "@/schemas/assets";
 import { formatMonth, formatShortDate } from "./format";
 
@@ -122,7 +123,7 @@ export function AssetDetailScreen({
           {asset.fiscal_class_key ? (
             <div>
               <dt>Golongan Fiskal</dt>
-              <dd>{asset.fiscal_class_key}</dd>
+              <dd>{fiscalClassLabel(asset.fiscal_class_key)}</dd>
             </div>
           ) : null}
           {asset.serial_number ? (

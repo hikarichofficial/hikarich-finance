@@ -2,6 +2,12 @@
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import Link from "next/link";
+import {
+  FISCAL_CLASSES,
+  findFiscalClass,
+  monthlyStraightLine,
+} from "@/domain/assets/fiscalClasses";
+import { formatMoney } from "@/domain/money/format";
 import { useActionState, useState, type ReactNode } from "react";
 import {
   activateAssetAction,
@@ -38,17 +44,6 @@ export interface AssetLineOption {
   id: string;
   label: string;
 }
-
-/** The fiscal groups of the rule master (`FISCAL_DEP_CLASSES`); the database validates the key. */
-const FISCAL_CLASS_OPTIONS: readonly { value: string; label: string }[] = [
-  { value: "group_1", label: "Kelompok 1 (4 tahun)" },
-  { value: "group_2", label: "Kelompok 2 (8 tahun)" },
-  { value: "group_3", label: "Kelompok 3 (16 tahun)" },
-  { value: "group_4", label: "Kelompok 4 (20 tahun)" },
-  { value: "building_permanent", label: "Bangunan permanen (20 tahun)" },
-  { value: "building_non_permanent", label: "Bangunan tidak permanen (10 tahun)" },
-  { value: "land", label: "Tanah (tidak disusutkan)" },
-];
 
 function Feedback({ state, next }: { state: AssetActionState; next: string }) {
   if (state.status === "ok") return <p className="hint">{state.message}</p>;
@@ -109,20 +104,28 @@ function ActionForm({
   );
 }
 
-function FiscalFields({
+export function FiscalFields({
   fiscalClass,
   fiscalMethod,
   optional,
+  onClassChange,
 }: {
   fiscalClass: string | null;
   fiscalMethod: string | null;
   optional: boolean;
+  /** Told the chosen group, so a form can suggest the useful life that goes with it. */
+  onClassChange?: (key: string) => void;
 }) {
   return (
     <>
       <label>
         Golongan Fiskal (untuk pajak){optional ? " (opsional)" : ""}
-        <select name="fiscal_class" defaultValue={fiscalClass ?? ""} required={!optional}>
+        <select
+          name="fiscal_class"
+          defaultValue={fiscalClass ?? ""}
+          required={!optional}
+          onChange={(event) => onClassChange?.(event.target.value)}
+        >
           {optional ? (
             <option value="">Belum ditentukan</option>
           ) : (
@@ -130,9 +133,9 @@ function FiscalFields({
               Pilih golongan
             </option>
           )}
-          {FISCAL_CLASS_OPTIONS.map((option) => (
-            <option key={option.value} value={option.value}>
-              {option.label}
+          {FISCAL_CLASSES.map((option) => (
+            <option key={option.key} value={option.key}>
+              {option.label} — {option.examples}
             </option>
           ))}
         </select>
@@ -148,33 +151,39 @@ function FiscalFields({
   );
 }
 
-/** Activate a draft asset: in-service date, method and life; the database writes the monthly plan. */
-export function ActivateAssetForm({
-  assetId,
-  next,
-  today,
+/**
+ * Method, useful life and residual value, with the fiscal group. Choosing a group fills in the useful life
+ * that goes with it (the person can still change it), and the hint shows the monthly amount straight line
+ * gives: (cost − residual) ÷ months. The database computes the plan that is actually posted.
+ */
+export function DepreciationFields({
   depreciable,
+  cost,
+  currency,
 }: {
-  assetId: string;
-  next: string;
-  today: string;
   /** False for a Personal ledger, whose assets are tracked at cost. */
   depreciable: boolean;
+  /** The asset's cost when it is already known (activation); the opening form passes what was typed. */
+  cost?: string;
+  currency?: string;
 }) {
   const [method, setMethod] = useState(depreciable ? "straight_line" : "none");
+  const [life, setLife] = useState("");
+  const [residual, setResidual] = useState("");
+  const monthly =
+    method === "straight_line" && cost ? monthlyStraightLine(cost, residual, life) : null;
 
   return (
-    <ActionForm
-      action={activateAssetAction}
-      assetId={assetId}
-      next={next}
-      openLabel="Aktifkan Aset"
-      submitLabel="Aktifkan Aset"
-    >
-      <label>
-        Mulai Dipakai
-        <input type="date" name="in_service_date" required defaultValue={today} max={today} />
-      </label>
+    <>
+      <FiscalFields
+        fiscalClass={null}
+        fiscalMethod={null}
+        optional
+        onClassChange={(key) => {
+          const months = findFiscalClass(key)?.lifeMonths;
+          if (months) setLife(String(months));
+        }}
+      />
       <label>
         Metode Penyusutan
         <select name="method" value={method} onChange={(event) => setMethod(event.target.value)}>
@@ -193,15 +202,62 @@ export function ActivateAssetForm({
               required
               placeholder="mis. 48"
               maxLength={4}
+              value={life}
+              onChange={(event) => setLife(event.target.value)}
             />
           </label>
           <label>
             Nilai Sisa (opsional)
-            <input name="residual" inputMode="decimal" placeholder="0" />
+            <input
+              name="residual"
+              inputMode="decimal"
+              placeholder="0"
+              value={residual}
+              onChange={(event) => setResidual(event.target.value)}
+            />
           </label>
+          <p className="hint">
+            {monthly !== null && currency
+              ? `Penyusutan per bulan: ${formatMoney(monthly.toFixed(2), currency)} = (harga perolehan − nilai sisa) ÷ umur manfaat.`
+              : "Garis lurus: (harga perolehan − nilai sisa) ÷ umur manfaat, sama tiap bulan. Saldo menurun: tarif tetap dari nilai buku, makin kecil tiap tahun."}{" "}
+            Pilih golongan fiskal agar umur manfaat terisi otomatis.
+          </p>
         </>
       ) : null}
-      <FiscalFields fiscalClass={null} fiscalMethod={null} optional />
+    </>
+  );
+}
+
+/** Activate a draft asset: in-service date, method and life; the database writes the monthly plan. */
+export function ActivateAssetForm({
+  assetId,
+  next,
+  today,
+  depreciable,
+  cost,
+  currency,
+}: {
+  assetId: string;
+  next: string;
+  today: string;
+  /** False for a Personal ledger, whose assets are tracked at cost. */
+  depreciable: boolean;
+  cost?: string;
+  currency?: string;
+}) {
+  return (
+    <ActionForm
+      action={activateAssetAction}
+      assetId={assetId}
+      next={next}
+      openLabel="Aktifkan Aset"
+      submitLabel="Aktifkan Aset"
+    >
+      <label>
+        Mulai Dipakai
+        <input type="date" name="in_service_date" required defaultValue={today} max={today} />
+      </label>
+      <DepreciationFields depreciable={depreciable} cost={cost} currency={currency} />
     </ActionForm>
   );
 }

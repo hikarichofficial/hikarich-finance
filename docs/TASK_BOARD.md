@@ -1664,6 +1664,10 @@ Decision 267: forms keep what was typed after an error (`usePreservingForm`), ev
 database's reason for a refused request (`describeAuthzError`), and the step-up actions were exercised.
 Still open: database reasons are English. Full detail in `docs/DECISIONS.md` decision 267.
 
+Decision 268: fiscal groups fill in the useful life and the form shows the monthly depreciation;
+`/assets/opening` for assets owned before the app. Open for the OWNER: depreciation on a Personal ledger.
+Full detail in `docs/DECISIONS.md` decision 268.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
