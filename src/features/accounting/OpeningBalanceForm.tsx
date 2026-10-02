@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import { checkOpeningLines, type OpeningLineDraft } from "@/domain/accounting/openingBalances";
 import { formatMoney } from "@/domain/money/format";
@@ -30,6 +31,7 @@ export function OpeningBalanceForm({
     postOpeningBalancesAction,
     idleOpeningActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   const [rows, setRows] = useState<OpeningLineDraft[]>([emptyRow(1), emptyRow(2)]);
   const [seq, setSeq] = useState(3);
   const check = checkOpeningLines(rows);
@@ -39,7 +41,7 @@ export function OpeningBalanceForm({
   }
 
   return (
-    <form action={action} className="record-form record-form-wide">
+    <form {...actionForm} className="record-form record-form-wide">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="lines" value={JSON.stringify(check.lines)} />
       <label>

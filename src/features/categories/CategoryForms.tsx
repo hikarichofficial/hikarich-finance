@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { VAT_TREATMENT_LABELS, WHT_OBJECT_LABELS } from "@/domain/tax/tax";
 import {
@@ -55,8 +56,9 @@ function Feedback({ state }: { state: CategoryActionState }) {
 /** Add a category (decision 262). The tax mapping is what a line uses when it names no tax fact itself. */
 export function CategoryCreateForm({ entity }: { entity: string | undefined }) {
   const [state, action, pending] = useActionState(createCategoryAction, IDLE);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <label>
         Nama Kategori
@@ -99,8 +101,9 @@ export function CategoryRowForm({
   isActive: boolean;
 }) {
   const [state, action, pending] = useActionState(updateCategoryAction, IDLE);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="id" value={id} />
       <select name="tax_category_key" defaultValue={taxKey ?? ""} aria-label="Pemetaan pajak">
@@ -133,8 +136,9 @@ export function CategoryAccountForm({
   today: string;
 }) {
   const [state, action, pending] = useActionState(setCategoryAccountAction, IDLE);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="category_id" value={categoryId} />
       <select name="account_id" defaultValue={currentAccountId ?? ""} aria-label="Akun">

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import { trimDecimalText } from "@/domain/money/format";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
@@ -36,14 +37,17 @@ export function PaymentClaimForms({
     confirmClaimAction,
     idleInvoiceActionState,
   );
+  const confirmActionForm = usePreservingForm(confirmAction, confirmState);
   const [rejectState, rejectAction, rejecting] = useActionState(
     rejectClaimAction,
     idleInvoiceActionState,
   );
+  const rejectActionForm = usePreservingForm(rejectAction, rejectState);
   const [duplicateState, duplicateAction, markingDuplicate] = useActionState(
     markClaimDuplicateAction,
     idleInvoiceActionState,
   );
+  const duplicateActionForm = usePreservingForm(duplicateAction, duplicateState);
   const [mode, setMode] = useState<"closed" | "confirm" | "reject" | "duplicate">("closed");
 
   if (mode === "closed") {
@@ -66,7 +70,7 @@ export function PaymentClaimForms({
 
   if (mode === "duplicate") {
     return (
-      <form action={duplicateAction} className="record-form">
+      <form {...duplicateActionForm} className="record-form">
         <input type="hidden" name="submission_id" value={submissionId} />
         <label>
           Klaim Ini Sama dengan
@@ -99,7 +103,7 @@ export function PaymentClaimForms({
 
   if (mode === "reject") {
     return (
-      <form action={rejectAction} className="record-form">
+      <form {...rejectActionForm} className="record-form">
         <input type="hidden" name="submission_id" value={submissionId} />
         <label>
           Alasan Penolakan (minimal 5 karakter)
@@ -118,7 +122,7 @@ export function PaymentClaimForms({
   }
 
   return (
-    <form action={confirmAction} className="record-form">
+    <form {...confirmActionForm} className="record-form">
       <input type="hidden" name="submission_id" value={submissionId} />
       <label>
         Diterima di Rekening

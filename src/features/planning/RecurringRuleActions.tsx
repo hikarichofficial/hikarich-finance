@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState, type ReactNode } from "react";
 import { recurringRuleActions, type RecurringStatus } from "@/domain/planning/planning";
 import {
@@ -27,8 +28,9 @@ function ResumeForm({ ruleId }: { ruleId: string }) {
     resumeRecurringRuleAction,
     idlePlanningActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="rule_id" value={ruleId} />
       {state.status === "error" ? (
         <p role="alert" className="error">
@@ -61,6 +63,7 @@ function ReasonGatedForm({
   pendingLabel: string;
 }) {
   const [state, formAction, pending] = useActionState(action, idlePlanningActionState);
+  const formActionForm = usePreservingForm(formAction, state);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
 
@@ -73,7 +76,7 @@ function ReasonGatedForm({
   }
 
   return (
-    <form action={formAction} className="invoice-action-form">
+    <form {...formActionForm} className="invoice-action-form">
       <input type="hidden" name="rule_id" value={ruleId} />
       <p className="hint">{hint}</p>
       <label>
@@ -171,9 +174,10 @@ export function RunDueRecurringOccurrencesButton({
     runDueRecurringOccurrencesAction,
     idleRunDueActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   if (!canRun) return null;
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="entity_id" value={entityId} />
       {state.status === "error" ? (
         <p role="alert" className="error">

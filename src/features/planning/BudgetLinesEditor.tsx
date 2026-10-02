@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useRef, useState } from "react";
 import type { CategoryRow } from "@/schemas/categories";
 import type { BudgetLineRow } from "@/schemas/planning";
@@ -71,6 +72,7 @@ export function BudgetLinesEditor({
   currency: string;
 }) {
   const [state, action, pending] = useActionState(setBudgetLinesAction, idlePlanningActionState);
+  const actionForm = usePreservingForm(action, state);
   const [rows, setRows] = useState<GridRow[]>(() => buildInitialRows(existingLines));
   const nextRowSeq = useRef(0);
 
@@ -106,7 +108,7 @@ export function BudgetLinesEditor({
   const canAddRow = categories.some((category) => !usedCategoryIds.has(category.id));
 
   return (
-    <form action={action} className="plan-lines-editor">
+    <form {...actionForm} className="plan-lines-editor">
       <input type="hidden" name="budget_id" value={budgetId} />
       <input type="hidden" name="expected_version" value={expectedVersion} />
       <input type="hidden" name="lines" value={buildLinesJson(rows, months)} />

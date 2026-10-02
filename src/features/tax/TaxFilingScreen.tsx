@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import { formatMoney } from "@/domain/money/format";
 import { formatDocumentSize } from "@/domain/documents/documents";
@@ -323,6 +324,7 @@ function ReversePaymentForm({
     reverseTaxPaymentAction,
     idleTaxFilingActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const today = new Date().toISOString().slice(0, 10);
@@ -336,7 +338,7 @@ function ReversePaymentForm({
   }
 
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="payment_id" value={paymentId} />
       <input type="hidden" name="entity_id" value={entityId} />
       <input type="hidden" name="tax_type" value={taxType} />
@@ -397,6 +399,7 @@ function RecordPaymentForm({
   assetAvailable: string;
 }) {
   const [state, action, pending] = useActionState(recordTaxPaymentAction, idleTaxFilingActionState);
+  const actionForm = usePreservingForm(action, state);
   const today = new Date().toISOString().slice(0, 10);
   const [payable, setPayable] = useState("");
   const [assetOffset, setAssetOffset] = useState("");
@@ -422,7 +425,7 @@ function RecordPaymentForm({
         Sisa kekurangan saat ini: {outstanding}
         {taxType === "vat" ? ` -- PPN Masukan tersedia untuk kompensasi: ${assetAvailable}` : ""}
       </p>
-      <form action={action} className="record-form">
+      <form {...actionForm} className="record-form">
         <input type="hidden" name="entity_id" value={entityId} />
         <input type="hidden" name="tax_type" value={taxType} />
         <input type="hidden" name="period" value={period} />
@@ -537,6 +540,7 @@ function RecordFilingForm({
   filedReference: string | null;
 }) {
   const [state, action, pending] = useActionState(recordTaxFilingAction, idleTaxFilingActionState);
+  const actionForm = usePreservingForm(action, state);
   const today = new Date().toISOString().slice(0, 10);
   const [note, setNote] = useState("");
 
@@ -551,7 +555,7 @@ function RecordFilingForm({
           amendemen.
         </p>
       ) : null}
-      <form action={action} className="record-form">
+      <form {...actionForm} className="record-form">
         <input type="hidden" name="entity_id" value={entityId} />
         <input type="hidden" name="tax_type" value={taxType} />
         <input type="hidden" name="period" value={period} />
@@ -629,6 +633,7 @@ function ReconcilePeriodForm({
     reconcileTaxPeriodAction,
     idleTaxFilingActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   const [note, setNote] = useState("");
   const needsNote = differenceCount > 0;
 
@@ -642,7 +647,7 @@ function ReconcilePeriodForm({
           ? `Terakhir direkonsiliasi ${formatShortDate(reconciliation.at.slice(0, 10))}${reconciliation.stale ? " -- catatan buku sudah berubah sejak itu" : ""}.`
           : "Periode ini belum pernah direkonsiliasi."}
       </p>
-      <form action={action} className="record-form">
+      <form {...actionForm} className="record-form">
         <input type="hidden" name="entity_id" value={entityId} />
         <input type="hidden" name="tax_type" value={taxType} />
         <input type="hidden" name="period" value={period} />
@@ -825,6 +830,7 @@ function AttachEvidenceForm({
   entity: string | undefined;
 }) {
   const [state, action, pending] = useActionState(linkTaxEvidenceAction, idleTaxFilingActionState);
+  const actionForm = usePreservingForm(action, state);
   const [targetKey, setTargetKey] = useState(0);
   const target = targets[targetKey] ?? targets[0];
   const [purpose, setPurpose] = useState<EvidencePurpose>(
@@ -833,7 +839,7 @@ function AttachEvidenceForm({
   if (!target) return null;
 
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="document_id" value={documentId} />
       <input type="hidden" name="target_type" value={target.type} />
       <input type="hidden" name="target_id" value={target.id} />

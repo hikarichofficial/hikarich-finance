@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import Link from "next/link";
 import { useActionState, useState, type ReactNode } from "react";
 import {
@@ -75,6 +76,7 @@ function CommandForm({
   children: ReactNode;
 }) {
   const [state, formAction, pending] = useActionState(action, idleFinancingActionState);
+  const formActionForm = usePreservingForm(formAction, state);
   const [open, setOpen] = useState(false);
 
   if (!open) {
@@ -90,7 +92,7 @@ function CommandForm({
   }
 
   return (
-    <form action={formAction} className="record-form">
+    <form {...formActionForm} className="record-form">
       <input type="hidden" name={idName} value={id} />
       {children}
       <Feedback state={state} next={next} />
@@ -207,10 +209,11 @@ export function LoanCreateForm({
   today: string;
 }) {
   const [state, action, pending] = useActionState(createLoanAction, idleFinancingActionState);
+  const actionForm = usePreservingForm(action, state);
   const [direction, setDirection] = useState("borrowed");
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <label>
         Jenis Pinjaman
@@ -298,10 +301,11 @@ export function ObligationCreateForm({
   today: string;
 }) {
   const [state, action, pending] = useActionState(createObligationAction, idleFinancingActionState);
+  const actionForm = usePreservingForm(action, state);
   const receivable = kind === "receivable";
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="kind" value={kind} />
       <label>
@@ -343,12 +347,13 @@ export function EquityCreateForm({
     createEquityEventAction,
     idleFinancingActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   const [kind, setKind] = useState(kinds[0]?.id ?? "");
   const hasClass = kind === "contribution" || kind === "capital_return";
   const needsResolution = kind === "capital_return" || kind === "dividend";
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <label>
         Jenis

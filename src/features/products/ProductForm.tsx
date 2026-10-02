@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import type { CategoryRow } from "@/schemas/categories";
 import type { ProductRow } from "@/schemas/products";
@@ -19,10 +20,11 @@ export function ProductForm({
   entity: string | undefined;
 }) {
   const [state, action, pending] = useActionState(saveProductAction, idleProductFormState);
+  const actionForm = usePreservingForm(action, state);
   const price = product?.default_unit_price;
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="product_id" value={product?.id ?? ""} />
       <input type="hidden" name="version" value={product?.version ?? ""} />

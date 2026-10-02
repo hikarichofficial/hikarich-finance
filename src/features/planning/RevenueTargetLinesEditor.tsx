@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import type { RevenueTargetLineRow } from "@/schemas/planning";
 import { setRevenueTargetLinesAction } from "./actions";
@@ -32,6 +33,7 @@ export function RevenueTargetLinesEditor({
     setRevenueTargetLinesAction,
     idlePlanningActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   const [amounts, setAmounts] = useState<Record<string, string>>(() =>
     Object.fromEntries(existingLines.map((line) => [line.period_month, line.target_amount])),
   );
@@ -44,7 +46,7 @@ export function RevenueTargetLinesEditor({
   );
 
   return (
-    <form action={action} className="plan-lines-editor">
+    <form {...actionForm} className="plan-lines-editor">
       <input type="hidden" name="target_id" value={targetId} />
       <input type="hidden" name="expected_version" value={expectedVersion} />
       <input type="hidden" name="lines" value={linesJson} />

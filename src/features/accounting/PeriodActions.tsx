@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import type { PeriodStatus } from "@/schemas/accounting";
 import {
@@ -29,8 +30,9 @@ function SimpleActionForm({
   className?: string;
 }) {
   const [state, formAction, pending] = useActionState(action, idlePeriodActionState);
+  const formActionForm = usePreservingForm(formAction, state);
   return (
-    <form action={formAction} className="invoice-action-form">
+    <form {...formActionForm} className="invoice-action-form">
       <input type="hidden" name="period_id" value={periodId} />
       {state.status === "error" ? (
         <p role="alert" className="error">
@@ -46,6 +48,7 @@ function SimpleActionForm({
 
 function ReopenForm({ periodId }: { periodId: string }) {
   const [state, action, pending] = useActionState(reopenPeriodAction, idlePeriodActionState);
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
 
@@ -58,7 +61,7 @@ function ReopenForm({ periodId }: { periodId: string }) {
   }
 
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="period_id" value={periodId} />
       <p className="hint">
         Membuka kembali periode yang sudah ditutup memerlukan verifikasi ulang (step-up) dan alasan

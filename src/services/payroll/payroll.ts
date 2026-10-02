@@ -88,7 +88,7 @@ async function callRpc<T>(
   const { data, error } = await supabase.rpc(name, args);
   if (error) {
     const code = parseAuthzCode(error.message);
-    if (code) throw new AuthzError(code);
+    if (code) throw new AuthzError(code, error.message);
     throw new Error("Operasi penggajian gagal diproses.");
   }
   const parsed = schema.safeParse(data);

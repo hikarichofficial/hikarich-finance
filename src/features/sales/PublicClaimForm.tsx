@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { submitClaimAction, type ClaimState, type ClaimStatus } from "./publicActions";
 
@@ -29,6 +30,7 @@ export function PublicClaimForm({
   outstanding: string;
 }) {
   const [state, action, pending] = useActionState(submitClaimAction, initial);
+  const actionForm = usePreservingForm(action, state);
   const done = state.status === "received" || state.status === "already_received";
   const message = MESSAGES[state.status];
 
@@ -41,7 +43,7 @@ export function PublicClaimForm({
   }
 
   return (
-    <form action={action} className="form claim" noValidate>
+    <form {...actionForm} className="form claim" noValidate>
       <input type="hidden" name="token" value={token} />
       <p className="hint">
         Sudah membayar? Beri tahu kami. Ini hanya konfirmasi; kami tetap memeriksa pembayaran yang

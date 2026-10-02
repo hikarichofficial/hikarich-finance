@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { recordContactFactsAction } from "./contactActions";
 import { idleContactActionState } from "./contactActionsState";
@@ -28,9 +29,10 @@ export function ContactTaxFactsForm({
   today: string;
 }) {
   const [state, action, pending] = useActionState(recordContactFactsAction, idleContactActionState);
+  const actionForm = usePreservingForm(action, state);
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="contact_id" value={contactId} />
       <label>
         Berlaku Sejak

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import type { ExpenseActionSet } from "@/domain/purchases/expenseList";
@@ -44,8 +45,9 @@ function SimpleAction({
   variant?: "primary" | "secondary";
 }) {
   const [state, action, pending] = useActionState(serverAction, idleExpenseActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="expense_id" value={expenseId} />
       <ErrorLine state={state} />
       <button
@@ -75,6 +77,7 @@ function ReasonAction({
   minLength?: number;
 }) {
   const [state, action, pending] = useActionState(serverAction, idleExpenseActionState);
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   if (!open) {
@@ -85,7 +88,7 @@ function ReasonAction({
     );
   }
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="expense_id" value={expenseId} />
       <p className="hint">{hint}</p>
       <label>
@@ -123,9 +126,10 @@ function ReasonAction({
 
 function ConfirmAction({ expenseId }: { expenseId: string }) {
   const [state, action, pending] = useActionState(confirmExpenseAction, idleExpenseActionState);
+  const actionForm = usePreservingForm(action, state);
   const [showDuplicate, setShowDuplicate] = useState(false);
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="expense_id" value={expenseId} />
       <ErrorLine state={state} />
       {showDuplicate ? (
@@ -147,6 +151,7 @@ function ConfirmAction({ expenseId }: { expenseId: string }) {
 
 function CorrectAction({ expenseId, entity }: { expenseId: string; entity: string | undefined }) {
   const [state, action, pending] = useActionState(correctExpenseAction, idleExpenseActionState);
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const router = useRouter();
@@ -164,7 +169,7 @@ function CorrectAction({ expenseId, entity }: { expenseId: string; entity: strin
     );
   }
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="expense_id" value={expenseId} />
       <p className="hint">
         Pengeluaran ini dibalik dan dibuat draf pengganti berisi sama untuk Anda perbaiki.

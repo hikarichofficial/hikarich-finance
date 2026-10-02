@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import type { PermissionRow, RoleRow } from "@/schemas/admin";
 import {
@@ -49,8 +50,9 @@ export function ChangeRoleForm({
   entity: string | undefined;
 }) {
   const [state, action, pending] = useActionState(changeRoleAction, idleUserActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="membership_id" value={membershipId} />
       <input type="hidden" name="user_id" value={userId} />
       <input type="hidden" name="entity" value={entity ?? ""} />
@@ -81,8 +83,9 @@ export function MembershipStatusForm({
   active: boolean;
 }) {
   const [state, action, pending] = useActionState(setStatusAction, idleUserActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="membership_id" value={membershipId} />
       <input type="hidden" name="active" value={active ? "false" : "true"} />
       <ReasonField />
@@ -102,8 +105,9 @@ export function PermissionOverrideForm({
   permissions: readonly PermissionRow[];
 }) {
   const [state, action, pending] = useActionState(setOverrideAction, idleUserActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="membership_id" value={membershipId} />
       <label>
         Izin
@@ -144,11 +148,12 @@ export function RevokeDeviceForm({
   entity: string | undefined;
 }) {
   const [state, action, pending] = useActionState(revokeDeviceAction, idleUserActionState);
+  const actionForm = usePreservingForm(action, state);
   if (state.status === "ok") return <Result state={state} />;
   return (
     <details>
       <summary>Cabut</summary>
-      <form action={action} className="record-form">
+      <form {...actionForm} className="record-form">
         <input type="hidden" name="device_id" value={deviceId} />
         <input type="hidden" name="entity" value={entity ?? ""} />
         <ReasonField />

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import type { LedgerAccountRow } from "@/schemas/accounting";
 import type { MoneyControlRow } from "@/schemas/money";
@@ -31,12 +32,13 @@ export function BalanceAdjustmentForm({
     recordBalanceAdjustmentAction,
     idleBalanceAdjustmentFormState,
   );
+  const actionForm = usePreservingForm(action, state);
   const today = new Date().toISOString().slice(0, 10);
   const activeAccounts = accounts.filter((a) => a.is_active);
   const counterAccounts = eligibleCounterAccounts(ledgerAccounts);
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity_id" value={entityId} />
       {entity ? <input type="hidden" name="entity" value={entity} /> : null}
 

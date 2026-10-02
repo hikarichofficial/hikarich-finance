@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
 import {
@@ -40,8 +41,9 @@ export function MarketplaceStoreForm({
   accounts: readonly SettlementAccountOption[];
 }) {
   const [state, action, pending] = useActionState(createStoreAction, IDLE);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <label>
         Marketplace
@@ -100,11 +102,12 @@ export function MarketplaceSettlementForm({
   today: string;
 }) {
   const [state, action, pending] = useActionState(recordSettlementAction, IDLE);
+  const actionForm = usePreservingForm(action, state);
   const [storeId, setStoreId] = useState(stores[0]?.id ?? "");
   const defaultAccount = stores.find((s) => s.id === storeId)?.accountId ?? "";
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <label>
         Toko
@@ -183,6 +186,7 @@ export function ReverseSettlementForm({
   today: string;
 }) {
   const [state, action, pending] = useActionState(reverseSettlementAction, IDLE);
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   if (!open) {
     return (
@@ -192,7 +196,7 @@ export function ReverseSettlementForm({
     );
   }
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="settlement_id" value={settlementId} />
       <input type="hidden" name="date" value={today} />
       <label>

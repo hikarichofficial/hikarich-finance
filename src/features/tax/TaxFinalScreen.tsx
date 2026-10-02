@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { formatMoney } from "@/domain/money/format";
 import {
@@ -43,6 +44,7 @@ export function TaxFinalScreen({
     computeFinalTaxAction,
     idleComputeFinalTaxFormState,
   );
+  const actionForm = usePreservingForm(action, state);
   const previewStatus = preview.status as DeterminationStatus;
   const previewTone = DETERMINATION_STATUS_TONE[previewStatus];
   const canCompute = preview.status === "auto_determined";
@@ -161,7 +163,7 @@ export function TaxFinalScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Hitung Pajak Final</h2>
         </div>
-        <form action={action} className="invoice-action-form">
+        <form {...actionForm} className="invoice-action-form">
           <input type="hidden" name="entity_id" value={entityId} />
           <input type="hidden" name="period" value={period} />
           {entity ? <input type="hidden" name="entity" value={entity} /> : null}

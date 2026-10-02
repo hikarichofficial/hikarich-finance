@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { completeOpeningBalancesAction } from "./openingBalanceActions";
 import { idleOpeningActionState } from "./openingBalanceActionsState";
@@ -11,8 +12,9 @@ export function CompleteOpeningForm({ entity }: { entity: string | undefined }) 
     completeOpeningBalancesAction,
     idleOpeningActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <p className="hint">
         Selesaikan setelah semua saldo awal (termasuk piutang, utang, aset, pinjaman) diposting.

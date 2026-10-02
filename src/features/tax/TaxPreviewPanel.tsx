@@ -68,7 +68,11 @@ export function TaxPreviewPanel({
                   {DETERMINATION_STATUS_LABELS[result.status]}
                 </dt>
                 <dd>{formatMoney(result.tax, currency)}</dd>
-                {text(result.consequence) ? (
+                {result.status === "overridden" ? (
+                  <p className="hint">
+                    Angka ini hasil koreksi manual; hitungan otomatis sebelumnya tidak dipakai.
+                  </p>
+                ) : text(result.consequence) ? (
                   <p className="hint">{text(result.consequence)}</p>
                 ) : null}
                 {canOverride && result.status === "overridden" && overrideIdOf(result) ? (

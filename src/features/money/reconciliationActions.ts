@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { parseStatementText } from "@/domain/money/reconciliationSession";
 import { requirePermission } from "@/services/identity/access";
 import {
@@ -53,7 +53,7 @@ function fail(error: unknown, fallback: string): ReconActionState {
     const detail = detailOf(error.message);
     return {
       status: "error",
-      message: authzErrorMessage(error.code),
+      message: describeAuthzError(error),
       errors: detail ? [`Detail dari sistem: ${detail}`] : undefined,
     };
   }

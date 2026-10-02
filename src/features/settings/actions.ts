@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { isFiscalYearLockedMessage } from "@/domain/settings/settings";
 import { requirePermission } from "@/services/identity/access";
 import { updateEntityTimeSettings } from "@/services/settings/settings";
@@ -45,7 +45,7 @@ export async function updateTimeSettingsAction(
       }
       return {
         status: "error",
-        message: authzErrorMessage(error.code),
+        message: describeAuthzError(error),
         stepUp: error.code === "STEP_UP_REQUIRED",
       };
     }

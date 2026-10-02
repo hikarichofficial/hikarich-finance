@@ -1280,6 +1280,20 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Second walkthrough with the OWNER's authenticator code, and form behaviour (decision 267). Exercised on
+  `demo_pt`: tax engine activation (refused for a start date on which documents already exist, accepted
+  for the next day), automatic PPh 4(2) 10% on a rent bill, tax override and its withdrawal, fiscal-year
+  close (correctly refused while periods are open), posting a manual journal, payroll submit and approve.
+  Fixed, none changing economic meaning, tax treatment or authorization:
+  1. A form that answered with an error lost everything typed, because React clears an uncontrolled form
+     when its action finishes. New `usePreservingForm` submits the same action from `onSubmit` and clears
+     the form only after `status: "ok"`; applied to every form bound to `useActionState`.
+  2. Ten services threw `AuthzError` without the database message, and most forms showed only "Permintaan
+     tidak valid." New `describeAuthzError` adds the database's reason for `INVALID` and `CONFLICT` (never
+     for other codes), used by every form. The reasons are still English.
+  3. An overridden tax result still showed the engine's sentence quoting the computed amount; it now says
+     the figure is a manual correction.
+
 - Browser walkthrough of the write screens on the preview, and what it fixed (decision 266, OWNER: "kamu
   saja yang uji"). Exercised on `demo_pt` against the development database: add customer and vendor with
   tax facts, bank/e-wallet account, category (add, tax mapping, account mapping, deactivate), invoice

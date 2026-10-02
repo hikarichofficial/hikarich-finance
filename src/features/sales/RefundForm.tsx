@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import { trimDecimalText } from "@/domain/money/format";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
@@ -32,6 +33,7 @@ export function RefundForm({
   today: string;
 }) {
   const [state, action, pending] = useActionState(createRefundAction, idleInvoiceActionState);
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
 
   if (!open) {
@@ -43,7 +45,7 @@ export function RefundForm({
   }
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="payment_id" value={paymentId} />
       <input type="hidden" name="option_count" value={options.length} />
       {options.map((option, index) => (

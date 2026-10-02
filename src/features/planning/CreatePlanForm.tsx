@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { PLAN_PERIOD_TYPE_LABELS, type PlanPeriodType } from "@/domain/planning/planning";
 import { createBudgetAction, createRevenueTargetAction } from "./actions";
@@ -29,11 +30,12 @@ export function CreatePlanForm({
     kind === "budget" ? createBudgetAction : createRevenueTargetAction,
     idlePlanningActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   const today = new Date().toISOString().slice(0, 10);
   const submitLabel = kind === "budget" ? "Simpan Anggaran" : "Simpan Target Pendapatan";
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity_id" value={entityId} />
       {entity ? <input type="hidden" name="entity" value={entity} /> : null}
 

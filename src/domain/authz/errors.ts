@@ -52,3 +52,17 @@ export function authzErrorMessage(code: AuthzErrorCode): string {
       return "Data sudah berubah atau tidak dapat diproses dalam keadaan saat ini. Muat ulang lalu coba lagi.";
   }
 }
+
+/**
+ * The copy a form shows for a failed command. For a refused request (`INVALID`) or a state conflict
+ * (`CONFLICT`) the database's own reason is added: those messages are written as business explanations
+ * ("a bill dated in the future stays a draft until its date") and without them the person cannot tell what
+ * to change. Every other code stays generic, and nothing but the text after the prefix is ever shown.
+ */
+export function describeAuthzError(error: AuthzError): string {
+  const base = authzErrorMessage(error.code);
+  if (error.code !== "INVALID" && error.code !== "CONFLICT") return base;
+  const match = /^(?:INVALID|CONFLICT):\s*([\s\S]+)$/.exec(error.message);
+  const reason = match?.[1]?.trim();
+  return reason ? `${base} (${reason})` : base;
+}

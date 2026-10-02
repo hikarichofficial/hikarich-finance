@@ -2,7 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
-import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { computeFinalTax } from "@/services/tax/tax";
 
 /**
@@ -40,7 +40,7 @@ export async function computeFinalTaxAction(
     });
   } catch (error) {
     if (error instanceof AuthzError) {
-      return { status: "error", message: authzErrorMessage(error.code) };
+      return { status: "error", message: describeAuthzError(error) };
     }
     return {
       status: "error",

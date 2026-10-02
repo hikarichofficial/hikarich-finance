@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import { Decimal, sumDecimals } from "@/domain/money/decimal";
 import { createJournalDraftAction, type JournalDraftState } from "./journalDraftActions";
@@ -63,6 +64,7 @@ export function JournalDraftForm({
   canOverride: boolean;
 }) {
   const [state, action, pending] = useActionState(createJournalDraftAction, IDLE);
+  const actionForm = usePreservingForm(action, state);
   const [rows, setRows] = useState<JournalLineRowState[]>([newRow(1), newRow(2)]);
   const [seq, setSeq] = useState(3);
 
@@ -80,7 +82,7 @@ export function JournalDraftForm({
   const balanced = totalDebit.eq(totalCredit) && !totalDebit.isZero();
 
   return (
-    <form action={action} className="record-form record-form-wide">
+    <form {...actionForm} className="record-form record-form-wide">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="lines" value={buildLinesJson(rows)} />
       <label>

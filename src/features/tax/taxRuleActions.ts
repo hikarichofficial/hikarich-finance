@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { parseRuleParams, ruleProblemDetail } from "@/domain/tax/ruleAuthoring";
 import { discardRule, publishRule, saveRuleDraft } from "@/services/tax/tax";
 
@@ -34,7 +34,7 @@ function fail(error: unknown, fallback: string): RuleActionState {
   if (error instanceof AuthzError) {
     return {
       status: "error",
-      message: authzErrorMessage(error.code),
+      message: describeAuthzError(error),
       detail: ruleProblemDetail(error.message) ?? undefined,
       stepUp: error.code === "STEP_UP_REQUIRED",
     };

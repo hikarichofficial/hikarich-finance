@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import Link from "next/link";
 import { useActionState } from "react";
 import { monthName, timezoneOptions } from "@/domain/settings/settings";
@@ -26,8 +27,9 @@ export function TimeSettingsForm({
   stepUpHref: string;
 }) {
   const [state, action, pending] = useActionState(updateTimeSettingsAction, idleTimeSettingsState);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="expected_version" value={version} />
       <p className="hint">
