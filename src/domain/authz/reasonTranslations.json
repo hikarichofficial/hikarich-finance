@@ -1,0 +1,2645 @@
+[
+  ["% cannot be changed on a financial account", "{1} tidak bisa diubah pada rekening keuangan"],
+  [
+    "% for % has % outstanding; the payment of % exceeds it",
+    "{1} untuk {2} masih punya sisa {3}; pembayaran {4} melebihi sisa itu"
+  ],
+  [
+    "% from % is already recorded; record the change from a later date",
+    "{1} mulai {2} sudah tercatat; catat perubahan mulai tanggal yang lebih baru"
+  ],
+  ["% has more than % decimals", "{1} punya lebih dari {2} angka desimal"],
+  [
+    "% is already recognised on or after that date; choose a later start date",
+    "{1} sudah diakui pada atau setelah tanggal itu; pilih tanggal mulai yang lebih baru"
+  ],
+  ["% is not a valid number", "{1} bukan angka yang benar"],
+  [
+    "% is not depreciated, so it has no life, residual or accumulated depreciation",
+    "{1} tidak disusutkan, jadi tidak punya masa manfaat, nilai sisa, atau akumulasi penyusutan"
+  ],
+  ["% is outside the budget's date range", "{1} berada di luar rentang tanggal anggaran"],
+  [
+    "% is outside the revenue target's date range",
+    "{1} berada di luar rentang tanggal target pendapatan"
+  ],
+  [
+    "% is outstanding; the principal settled cannot exceed it",
+    "Sisa yang belum lunas {1}; pokok yang dilunasi tidak boleh melebihinya"
+  ],
+  [
+    "% is outstanding; the write-off cannot exceed it",
+    "Sisa yang belum lunas {1}; penghapusan tidak boleh melebihinya"
+  ],
+  ["% is required", "{1} wajib diisi"],
+  [
+    "% lies before a closed accounting period; earlier months are sealed",
+    "{1} berada sebelum periode akuntansi yang sudah ditutup; bulan-bulan sebelumnya sudah dikunci"
+  ],
+  [
+    "% line(s) need review (missing tax facts, rules or history); resolve them and calculate again",
+    "{1} baris perlu diperiksa (data pajak, aturan, atau riwayat belum lengkap); lengkapi lalu hitung ulang"
+  ],
+  [
+    "% movement(s) lie more than % days from the statement date; confirm manually with a reason",
+    "{1} mutasi berjarak lebih dari {2} hari dari tanggal rekening koran; konfirmasi manual dengan alasan"
+  ],
+  ["% must be %", "{1} harus {2}"],
+  ["% must be a finite number", "{1} harus berupa angka yang terhingga"],
+  [
+    "% must be a percentage between 0 and 100 with up to 6 decimals",
+    "{1} harus berupa persentase antara 0 dan 100 dengan paling banyak 6 angka desimal"
+  ],
+  [
+    "% needs acquisition <= in-service <= cut-over <= today",
+    "{1} memerlukan urutan tanggal: perolehan <= mulai dipakai <= tanggal mulai pencatatan <= hari ini"
+  ],
+  [
+    "% needs agreement <= cut-over <= today",
+    "{1} memerlukan urutan tanggal: perjanjian <= tanggal mulai pencatatan <= hari ini"
+  ],
+  [
+    "% of BPJS is still owed; the payment of % exceeds it",
+    "BPJS yang masih terutang {1}; pembayaran {2} melebihinya"
+  ],
+  [
+    "% of principal is outstanding; the principal repaid cannot exceed it",
+    "Pokok yang belum lunas {1}; pokok yang dibayar tidak boleh melebihinya"
+  ],
+  [
+    "% of the % periods in fiscal year % are not closed yet",
+    "{1} dari {2} periode di tahun buku {3} belum ditutup"
+  ],
+  [
+    "% of the dividend is unpaid; the payment cannot exceed it",
+    "Dividen yang belum dibayar {1}; pembayaran tidak boleh melebihinya"
+  ],
+  [
+    "% statement line(s) are neither matched nor excluded",
+    "{1} baris rekening koran belum dicocokkan dan belum dikecualikan"
+  ],
+  [
+    "BPJS enrolment needs a date that is not before the join date",
+    "Pendaftaran BPJS memerlukan tanggal yang tidak lebih awal dari tanggal masuk kerja"
+  ],
+  [
+    "BPJS paid would exceed the BPJS liability of the payroll run",
+    "BPJS yang dibayar akan melebihi utang BPJS pada proses Payroll ini"
+  ],
+  ["OWNER permissions are not overridden", "Hak akses OWNER tidak bisa diubah"],
+  [
+    "PPh 22 collected by a marketplace is only handled for a taxpayer on the final regime; record the tax profile first or enter 0",
+    "PPh 22 yang dipungut marketplace hanya ditangani untuk wajib pajak dengan skema PPh final; isi profil pajak dulu atau masukkan 0"
+  ],
+  ["a % % takes no more documents", "{2} berstatus {1} tidak bisa ditambah dokumen lagi"],
+  ["a % asset cannot be transferred", "Aset berstatus {1} tidak bisa dipindahkan"],
+  ["a % asset cannot change condition", "Aset berstatus {1} tidak bisa diubah kondisinya"],
+  ["a BPJS payment has no employee lines", "Pembayaran BPJS tidak memiliki baris karyawan"],
+  [
+    "a Cash Flow Statement needs a valid start and end date",
+    "Laporan Arus Kas memerlukan tanggal mulai dan tanggal akhir yang benar"
+  ],
+  [
+    "a Profit & Loss needs a valid start and end date",
+    "Laporan Laba Rugi memerlukan tanggal mulai dan tanggal akhir yang benar"
+  ],
+  [
+    "a Statement of Changes in Equity needs a valid start and end date",
+    "Laporan Perubahan Ekuitas memerlukan tanggal mulai dan tanggal akhir yang benar"
+  ],
+  [
+    "a base-currency account takes no exchange rate",
+    "Rekening dengan mata uang dasar tidak memakai kurs"
+  ],
+  [
+    "a base-currency bill has no exchange rate",
+    "Tagihan dengan mata uang dasar tidak memakai kurs"
+  ],
+  [
+    "a base-currency expense has no exchange rate",
+    "Pengeluaran dengan mata uang dasar tidak memakai kurs"
+  ],
+  [
+    "a base-currency invoice has no exchange rate",
+    "Invoice dengan mata uang dasar tidak memakai kurs"
+  ],
+  [
+    "a base-currency movement has no rate and its base amount equals its amount",
+    "Mutasi dengan mata uang dasar tidak memakai kurs, dan nilai dasarnya sama dengan jumlahnya"
+  ],
+  [
+    "a bill can appear only once in the allocations",
+    "Satu tagihan hanya boleh muncul sekali dalam alokasi"
+  ],
+  [
+    "a bill dated in the future stays a draft until its date (Step 08 §14)",
+    "Tagihan bertanggal di masa depan tetap menjadi draf sampai tanggalnya tiba"
+  ],
+  [
+    "a bill in the allocations does not exist in this Entity",
+    "Ada tagihan dalam alokasi yang tidak ada di Entity ini"
+  ],
+  ["a bill needs at least one line", "Tagihan harus punya minimal satu baris"],
+  [
+    "a bill needs at least one line with an amount",
+    "Tagihan harus punya minimal satu baris yang ada jumlahnya"
+  ],
+  [
+    "a bill that is not approved is cancelled, not voided",
+    "Tagihan yang belum disetujui cukup dibatalkan biasa, bukan dibatalkan (void)"
+  ],
+  ["a budget can have at most 2000 lines", "Anggaran paling banyak 2000 baris"],
+  ["a budgeted amount cannot be negative", "Jumlah anggaran tidak boleh negatif"],
+  ["a cancellation needs a reason", "Pembatalan memerlukan alasan"],
+  [
+    "a cancellation needs a reason of 5 to 1000 characters",
+    "Pembatalan memerlukan alasan 5 sampai 1000 karakter"
+  ],
+  [
+    "a cancellation needs a reason of at least 5 characters",
+    "Pembatalan memerlukan alasan minimal 5 karakter"
+  ],
+  ["a cancelled asset cannot change", "Aset yang sudah dibatalkan tidak bisa diubah"],
+  [
+    "a capital return or a dividend needs its resolution reference (3 to 200 characters)",
+    "Pengembalian modal atau dividen memerlukan nomor referensi keputusannya (3 sampai 200 karakter)"
+  ],
+  ["a cash obligation takes no counter account", "Kewajiban kas tidak memakai akun lawan"],
+  [
+    "a change of estimate needs a reason of 5 to 1000 characters",
+    "Perubahan estimasi memerlukan alasan 5 sampai 1000 karakter"
+  ],
+  [
+    "a chosen movement is already matched to another statement line",
+    "Mutasi yang dipilih sudah dicocokkan dengan baris rekening koran lain"
+  ],
+  ["a closed budget cannot be edited", "Anggaran yang sudah ditutup tidak bisa diubah"],
+  [
+    "a closed revenue target cannot be edited",
+    "Target pendapatan yang sudah ditutup tidak bisa diubah"
+  ],
+  [
+    "a completed reconciliation cannot be discarded; reopen it first",
+    "Rekonsiliasi yang sudah selesai tidak bisa dibuang; buka kembali dulu"
+  ],
+  [
+    "a confirmed expense is reversed, not cancelled",
+    "Pengeluaran yang sudah dikonfirmasi harus dibalik, bukan dibatalkan"
+  ],
+  [
+    "a contact needs a name of up to 200 characters",
+    "Kontak memerlukan nama, paling banyak 200 karakter"
+  ],
+  [
+    "a correction needs a date (not in the future) and a reason of 5 to 1000 characters",
+    "Koreksi memerlukan tanggal (bukan di masa depan) dan alasan 5 sampai 1000 karakter"
+  ],
+  [
+    "a correction needs a reason of 5 to 1000 characters",
+    "Koreksi memerlukan alasan 5 sampai 1000 karakter"
+  ],
+  [
+    "a correction needs a reason of at least 5 characters",
+    "Koreksi memerlukan alasan minimal 5 karakter"
+  ],
+  [
+    "a date range of at most 10 years is required",
+    "Rentang tanggal wajib diisi, paling lama 10 tahun"
+  ],
+  [
+    "a depreciation plan needs at least one month and a value not below the residual",
+    "Rencana penyusutan memerlukan minimal satu bulan dan nilai yang tidak di bawah nilai sisa"
+  ],
+  [
+    "a dividend declaration moves no cash; name the account when it is paid",
+    "Penetapan dividen tidak memindahkan uang; pilih rekening saat dividen dibayar"
+  ],
+  [
+    "a dividend with payments cannot be reversed; reverse the payments first",
+    "Dividen yang sudah ada pembayarannya tidak bisa dibalik; balik pembayarannya dulu"
+  ],
+  ["a document can have at most 200 lines", "Satu dokumen paling banyak 200 baris"],
+  [
+    "a draft invoice is cancelled, not voided",
+    "Invoice draf cukup dibatalkan biasa, bukan dibatalkan (void)"
+  ],
+  [
+    "a financial account with this name already exists",
+    "Rekening keuangan dengan nama ini sudah ada"
+  ],
+  ["a fiscal method needs a fiscal class", "Metode fiskal memerlukan kelompok fiskal"],
+  [
+    "a foreign-currency account needs a positive exchange rate",
+    "Rekening mata uang asing memerlukan kurs yang lebih dari nol"
+  ],
+  [
+    "a foreign-currency bill needs a positive exchange rate with at most 10 decimals",
+    "Tagihan mata uang asing memerlukan kurs lebih dari nol dengan paling banyak 10 angka desimal"
+  ],
+  [
+    "a foreign-currency bill needs an exchange rate and a base-currency bill has none",
+    "Tagihan mata uang asing harus punya kurs, dan tagihan mata uang dasar tidak memakai kurs"
+  ],
+  [
+    "a foreign-currency expense needs a positive exchange rate with at most 10 decimals",
+    "Pengeluaran mata uang asing memerlukan kurs lebih dari nol dengan paling banyak 10 angka desimal"
+  ],
+  [
+    "a foreign-currency expense needs an exchange rate and a base-currency expense has none",
+    "Pengeluaran mata uang asing harus punya kurs, dan pengeluaran mata uang dasar tidak memakai kurs"
+  ],
+  [
+    "a foreign-currency invoice needs a positive exchange rate with at most 10 decimals",
+    "Invoice mata uang asing memerlukan kurs lebih dari nol dengan paling banyak 10 angka desimal"
+  ],
+  [
+    "a foreign-currency invoice needs an exchange rate and a base-currency invoice has none",
+    "Invoice mata uang asing harus punya kurs, dan Invoice mata uang dasar tidak memakai kurs"
+  ],
+  [
+    "a generated schedule needs the installments (1 to 600), a step of 1, 3, 6 or 12 months and the first due date",
+    "Jadwal otomatis memerlukan jumlah angsuran (1 sampai 600), jarak 1, 3, 6, atau 12 bulan, dan tanggal jatuh tempo pertama"
+  ],
+  ["a journal needs at least two lines", "Jurnal harus punya minimal dua baris"],
+  [
+    "a later fiscal year is already closed; close fiscal years in order",
+    "Tahun buku yang lebih baru sudah ditutup; tutup tahun buku secara berurutan"
+  ],
+  [
+    "a later fiscal year is still closed; reverse fiscal years in reverse order",
+    "Tahun buku yang lebih baru masih ditutup; balik penutupan tahun buku mulai dari yang paling baru"
+  ],
+  [
+    "a later mapping already exists; choose a date after it",
+    "Sudah ada pemetaan yang lebih baru; pilih tanggal setelahnya"
+  ],
+  [
+    "a later month of the same tax year is posted; correct the latest month first",
+    "Bulan yang lebih baru di tahun pajak yang sama sudah diposting; koreksi bulan terakhir dulu"
+  ],
+  [
+    "a later reconciliation of this account is completed; reopen that one first",
+    "Rekonsiliasi yang lebih baru untuk rekening ini sudah selesai; buka kembali yang itu dulu"
+  ],
+  [
+    "a legacy open item's identity cannot change",
+    "Identitas pos lama yang belum lunas tidak bisa diubah"
+  ],
+  [
+    "a line of this bill is registered as a fixed asset; deal with the asset first",
+    "Ada baris tagihan ini yang terdaftar sebagai aset tetap; urus asetnya dulu"
+  ],
+  [
+    "a line of this expense is registered as a fixed asset; deal with the asset first",
+    "Ada baris pengeluaran ini yang terdaftar sebagai aset tetap; urus asetnya dulu"
+  ],
+  [
+    "a loan given has no short or long term class",
+    "Pinjaman yang diberikan tidak punya kelompok jangka pendek atau jangka panjang"
+  ],
+  [
+    "a loan has an unreadable date, count or asset",
+    "Ada pinjaman dengan tanggal, jumlah, atau aset yang tidak terbaca"
+  ],
+  [
+    "a loan is borrowed or lent",
+    "Pinjaman harus berupa pinjaman yang diterima atau pinjaman yang diberikan"
+  ],
+  [
+    "a loan received is short-term or long-term",
+    "Pinjaman yang diterima harus jangka pendek atau jangka panjang"
+  ],
+  [
+    "a manual schedule lists 1 to 600 installments",
+    "Jadwal manual harus berisi 1 sampai 600 angsuran"
+  ],
+  [
+    "a money movement needs a posted journal of the same Entity",
+    "Mutasi uang memerlukan jurnal yang sudah diposting dari Entity yang sama"
+  ],
+  [
+    "a month before the latest posted depreciation of % is still unposted; post it first",
+    "Ada bulan sebelum penyusutan terakhir yang diposting untuk {1} yang belum diposting; posting bulan itu dulu"
+  ],
+  [
+    "a movement needs a direction and a positive amount",
+    "Mutasi memerlukan arah dan jumlah lebih dari nol"
+  ],
+  [
+    "a name (up to 200 characters), a description (2000) and a serial number (100)",
+    "Isi nama (paling banyak 200 karakter), keterangan (2000), dan nomor seri (100)"
+  ],
+  ["a name is required", "Nama wajib diisi"],
+  [
+    "a name of 2 to 120 characters and a report page are required",
+    "Nama 2 sampai 120 karakter dan halaman laporan wajib diisi"
+  ],
+  ["a new due date and a reason are required", "Tanggal jatuh tempo baru dan alasan wajib diisi"],
+  [
+    "a payment can be allocated to at most 100 bills",
+    "Satu pembayaran bisa dialokasikan ke paling banyak 100 tagihan"
+  ],
+  [
+    "a payment can be allocated to at most 100 invoices",
+    "Satu pembayaran bisa dialokasikan ke paling banyak 100 Invoice"
+  ],
+  [
+    "a payment cannot be dated before its tax period starts",
+    "Tanggal pembayaran tidak boleh sebelum masa pajaknya dimulai"
+  ],
+  [
+    "a payment cannot be dated before the declaration (%)",
+    "Tanggal pembayaran tidak boleh sebelum tanggal penetapan ({1})"
+  ],
+  [
+    "a payment cannot be dated before the payroll was posted (%)",
+    "Tanggal pembayaran tidak boleh sebelum Payroll diposting ({1})"
+  ],
+  [
+    "a payment cannot be dated before the proceeds (%)",
+    "Tanggal pembayaran tidak boleh sebelum dana diterima ({1})"
+  ],
+  ["a payment cannot be dated in the future", "Tanggal pembayaran tidak boleh di masa depan"],
+  [
+    "a payment needs a kind (net_pay or bpjs), a date, a reference up to 200 and a note up to 1000 characters",
+    "Pembayaran memerlukan jenis (net_pay atau bpjs), tanggal, referensi paling banyak 200 karakter, dan catatan paling banyak 1000 karakter"
+  ],
+  ["a payment needs an amount", "Pembayaran memerlukan jumlah"],
+  [
+    "a payment of a closed or corrected run cannot be reversed; reopen the run first (now %)",
+    "Pembayaran dari proses Payroll yang sudah ditutup atau dikoreksi tidak bisa dibalik; buka kembali prosesnya dulu (status sekarang: {1})"
+  ],
+  ["a payroll run cannot move from % to %", "Proses Payroll tidak bisa berpindah dari {1} ke {2}"],
+  [
+    "a payroll run needs a payroll month and a pay date",
+    "Proses Payroll memerlukan bulan Payroll dan tanggal bayar"
+  ],
+  [
+    "a payroll run with nothing to book cannot be posted",
+    "Proses Payroll yang tidak punya apa pun untuk dicatat tidak bisa diposting"
+  ],
+  [
+    "a penalty needs a note that explains it (for example the assessment number)",
+    "Denda memerlukan catatan yang menjelaskannya (misalnya nomor surat ketetapan)"
+  ],
+  [
+    "a period that has not started cannot be reconciled",
+    "Periode yang belum dimulai tidak bisa direkonsiliasi"
+  ],
+  [
+    "a profile value is not one of the allowed choices, the tax identifier is 5 to 40 characters and the note up to 1000",
+    "Ada nilai profil yang bukan pilihan yang diizinkan; nomor identitas pajak harus 5 sampai 40 karakter dan catatan paling banyak 1000 karakter"
+  ],
+  ["a reason is required", "Alasan wajib diisi"],
+  ["a reason of 5 to 500 characters is required", "Alasan wajib diisi, 5 sampai 500 karakter"],
+  ["a reason of at least 5 characters is required", "Alasan wajib diisi, minimal 5 karakter"],
+  [
+    "a reason of at least 5 characters is required to disable an account",
+    "Untuk menonaktifkan akun, alasan wajib diisi, minimal 5 karakter"
+  ],
+  [
+    "a reason of at least 5 characters is required to exclude a statement line",
+    "Untuk mengecualikan baris rekening koran, alasan wajib diisi, minimal 5 karakter"
+  ],
+  [
+    "a recognised document keeps its classification; correct it instead (now %)",
+    "Dokumen yang sudah diakui tidak bisa diubah klasifikasinya; buat koreksi saja (status sekarang: {1})"
+  ],
+  [
+    "a refund item does not belong to an active allocation of this payment",
+    "Ada item refund yang bukan bagian dari alokasi aktif pembayaran ini"
+  ],
+  ["a refund needs a reason", "Refund memerlukan alasan"],
+  ["a refund needs between 1 and 100 items", "Refund memerlukan 1 sampai 100 item"],
+  [
+    "a refund receipt exists only for a confirmed refund (now %)",
+    "Bukti refund hanya tersedia untuk refund yang sudah dikonfirmasi (status sekarang: {1})"
+  ],
+  [
+    "a refund was made from this application; reverse the refund first",
+    "Sudah ada refund dari alokasi pembayaran ini; balik refundnya dulu"
+  ],
+  ["a rejection needs a reason", "Penolakan memerlukan alasan"],
+  [
+    "a relationship basis needs the related Entity",
+    "Dasar hubungan memerlukan Entity yang terkait"
+  ],
+  [
+    "a reopen reason of at least 10 characters is mandatory",
+    "Alasan membuka kembali wajib diisi, minimal 10 karakter"
+  ],
+  [
+    "a restructuring cannot take effect in the future",
+    "Restrukturisasi tidak boleh berlaku di masa depan"
+  ],
+  [
+    "a restructuring needs a reason of 5 to 1000 characters",
+    "Restrukturisasi memerlukan alasan 5 sampai 1000 karakter"
+  ],
+  [
+    "a revenue category maps to an active, non-group revenue account",
+    "Kategori pendapatan harus terhubung ke akun pendapatan yang aktif dan bukan akun grup"
+  ],
+  [
+    "a revenue target can have at most 120 monthly lines",
+    "Target pendapatan paling banyak 120 baris bulanan"
+  ],
+  [
+    "a reversal cannot be dated before the disposal",
+    "Tanggal pembalikan tidak boleh sebelum tanggal pelepasan"
+  ],
+  [
+    "a reversal cannot be dated before the event (%)",
+    "Tanggal pembalikan tidak boleh sebelum tanggal peristiwanya ({1})"
+  ],
+  [
+    "a reversal cannot be dated before the expense",
+    "Tanggal pembalikan tidak boleh sebelum tanggal pengeluaran"
+  ],
+  [
+    "a reversal cannot be dated before the month it reverses",
+    "Tanggal pembalikan tidak boleh sebelum bulan yang dibalik"
+  ],
+  [
+    "a reversal cannot be dated before the original entry",
+    "Tanggal pembalikan tidak boleh sebelum tanggal catatan aslinya"
+  ],
+  [
+    "a reversal cannot be dated before the payment",
+    "Tanggal pembalikan tidak boleh sebelum tanggal pembayaran"
+  ],
+  [
+    "a reversal cannot be dated before the refund",
+    "Tanggal pembalikan tidak boleh sebelum tanggal refund"
+  ],
+  [
+    "a reversal cannot be dated before the settlement",
+    "Tanggal pembalikan tidak boleh sebelum tanggal pelunasan"
+  ],
+  [
+    "a reversal movement belongs to the reversal journal of the original",
+    "Mutasi pembalikan harus berada di jurnal pembalikan dari jurnal aslinya"
+  ],
+  [
+    "a reversal movement mirrors the movement it reverses",
+    "Mutasi pembalikan harus mencerminkan mutasi yang dibalik"
+  ],
+  [
+    "a reversal needs a date (not in the future) and a reason of 5 to 1000 characters",
+    "Pembalikan memerlukan tanggal (bukan di masa depan) dan alasan 5 sampai 1000 karakter"
+  ],
+  [
+    "a reversal needs a date (not in the future) and a reason of at least 5 characters",
+    "Pembalikan memerlukan tanggal (bukan di masa depan) dan alasan minimal 5 karakter"
+  ],
+  [
+    "a reversal needs a date and a reason of at least 5 characters",
+    "Pembalikan memerlukan tanggal dan alasan minimal 5 karakter"
+  ],
+  [
+    "a reversal needs a reason of 5 to 1000 characters",
+    "Pembalikan memerlukan alasan 5 sampai 1000 karakter"
+  ],
+  [
+    "a reversal reason of at least 10 characters is mandatory",
+    "Alasan pembalikan wajib diisi, minimal 10 karakter"
+  ],
+  [
+    "a reversed movement, or the reversal itself, is a correction inside the books and cannot be matched to a bank line",
+    "Mutasi yang dibalik, atau pembaliknya, adalah koreksi di dalam pembukuan dan tidak bisa dicocokkan dengan baris bank"
+  ],
+  [
+    "a rollback reason of 3 to 1000 characters is required",
+    "Alasan pengembalian ke versi sebelumnya wajib diisi, 3 sampai 1000 karakter"
+  ],
+  [
+    "a rule needs an effective date and the date it was verified",
+    "Aturan memerlukan tanggal berlaku dan tanggal verifikasinya"
+  ],
+  [
+    "a run is closed once its net pay is fully paid (now %)",
+    "Proses Payroll ditutup setelah gaji bersihnya dibayar penuh (status sekarang: {1})"
+  ],
+  [
+    "a run that is posted can only be corrected, not discarded (now %)",
+    "Proses Payroll yang sudah diposting hanya bisa dikoreksi, tidak bisa dibuang (status sekarang: {1})"
+  ],
+  ["a sale on credit needs the name of the buyer", "Penjualan kredit memerlukan nama pembeli"],
+  ["a saved report with this name already exists", "Laporan tersimpan dengan nama ini sudah ada"],
+  [
+    "a schedule needs a principal, 1 to 600 installments and a step of 1, 3, 6 or 12 months",
+    "Jadwal memerlukan pokok, 1 sampai 600 angsuran, dan jarak 1, 3, 6, atau 12 bulan"
+  ],
+  ["a search query is required", "Kata pencarian wajib diisi"],
+  [
+    "a settlement cannot be dated before the obligation (%)",
+    "Tanggal pelunasan tidak boleh sebelum tanggal kewajibannya ({1})"
+  ],
+  ["a settlement cannot be dated in the future", "Tanggal pelunasan tidak boleh di masa depan"],
+  [
+    "a settlement is received in the Entity's base currency (%)",
+    "Pelunasan diterima dalam mata uang dasar Entity ({1})"
+  ],
+  ["a storage path is required", "Lokasi penyimpanan wajib diisi"],
+  ["a store with this name already exists", "Toko dengan nama ini sudah ada"],
+  ["a target amount cannot be negative", "Jumlah target tidak boleh negatif."],
+  [
+    "a tax fact is not one of the allowed choices, or the note is longer than 1000 characters",
+    "Ada data pajak yang bukan salah satu pilihan yang tersedia, atau catatannya lebih dari 1000 karakter."
+  ],
+  [
+    "a tax type and the first day of a month are required",
+    "Jenis pajak dan tanggal pertama suatu bulan wajib diisi."
+  ],
+  ["a tax year is required", "Tahun pajak wajib diisi."],
+  ["a text field is too long", "Ada isian teks yang terlalu panjang."],
+  [
+    "a transfer needs two different financial accounts",
+    "Transfer memerlukan dua rekening yang berbeda."
+  ],
+  [
+    "a vendor payment needs at least one bill to pay",
+    "Pembayaran ke Vendor harus memiliki minimal satu tagihan yang dibayar."
+  ],
+  [
+    "a version of % is already published for %; choose a later effective date",
+    "Versi {1} sudah diterbitkan untuk {2}; pilih tanggal berlaku yang lebih baru."
+  ],
+  [
+    "a void needs a date (not in the future) and a reason of 5 to 1000 characters",
+    "Pembatalan (void) memerlukan tanggal (tidak boleh di masa depan) dan alasan 5 sampai 1000 karakter."
+  ],
+  [
+    "a void or unknown obligation cannot be settled",
+    "Kewajiban yang sudah dibatalkan (void) atau tidak dikenal tidak bisa dilunasi."
+  ],
+  [
+    "a write-off needs a reason of 5 to 1000 characters",
+    "Penghapusan piutang memerlukan alasan 5 sampai 1000 karakter."
+  ],
+  [
+    "a zero-value bill cannot be approved (Step 08 §8)",
+    "Tagihan bernilai nol tidak bisa disetujui."
+  ],
+  [
+    "a zero-value expense cannot be confirmed (Step 08 §8)",
+    "Pengeluaran bernilai nol tidak bisa dikonfirmasi."
+  ],
+  [
+    "a zero-value invoice cannot be issued (Step 08 §5)",
+    "Invoice bernilai nol tidak bisa diterbitkan."
+  ],
+  [
+    "account % is protected; a manual journal needs an authorized override reason",
+    "Akun {1} dilindungi; jurnal manual memerlukan alasan koreksi manual dari pihak yang berwenang."
+  ],
+  [
+    "activate the tax engine for this Entity before posting payroll; PPh 21 must reach the tax ledger",
+    "Aktifkan mesin pajak untuk Entity ini sebelum memposting Payroll; PPh 21 harus tercatat di buku pajak."
+  ],
+  ["active or inactive is required", "Pilih aktif atau nonaktif."],
+  [
+    "adjustments change only while a run is a draft or calculated (now %)",
+    "Penyesuaian hanya bisa diubah selama proses Payroll masih draf atau sudah dihitung (sekarang {1})."
+  ],
+  [
+    "adjustments change only while a run is a draft or calculated; return a submitted run first (now %)",
+    "Penyesuaian hanya bisa diubah selama proses Payroll masih draf atau sudah dihitung; kembalikan dulu proses yang sudah diajukan (sekarang {1})."
+  ],
+  ["allocation % has an invalid bill", "Alokasi {1} memiliki tagihan yang tidak valid."],
+  ["allocation % has an invalid invoice", "Alokasi {1} memiliki Invoice yang tidak valid."],
+  ["allocation % is not an object", "Alokasi {1} formatnya tidak valid."],
+  [
+    "allocation % must be positive and allows % decimals for %",
+    "Alokasi {1} harus lebih dari nol dan paling banyak {2} angka desimal untuk {3}."
+  ],
+  ["allocation % needs a bill", "Alokasi {1} harus memiliki tagihan."],
+  ["allocation % needs an invoice", "Alokasi {1} harus memiliki Invoice."],
+  ["allocations must be a list", "Alokasi harus berupa daftar."],
+  [
+    "amount and fee allow % decimals for %",
+    "Jumlah dan biaya paling banyak {1} angka desimal untuk {2}."
+  ],
+  ["amount must be a finite number", "Jumlah harus berupa angka yang valid."],
+  [
+    "an account is given only for cash proceeds",
+    "Rekening hanya diisi jika hasil penjualannya diterima tunai."
+  ],
+  [
+    "an adjustment belongs to an employee who is not part of this payroll month; remove it first",
+    "Ada penyesuaian milik karyawan yang tidak termasuk dalam Payroll bulan ini; hapus dulu penyesuaian itu."
+  ],
+  [
+    "an adjustment needs a kind (earning or deduction), a label and a taxable flag",
+    "Penyesuaian memerlukan jenis (pendapatan atau potongan), nama, dan keterangan kena pajak atau tidak."
+  ],
+  [
+    "an adjustment needs a reason of at least 10 characters",
+    "Penyesuaian memerlukan alasan minimal 10 karakter."
+  ],
+  [
+    "an amendment cannot be dated before the filing it amends",
+    "Tanggal pembetulan tidak boleh sebelum tanggal pelaporan yang dibetulkan."
+  ],
+  [
+    "an amendment needs a note that says what changed",
+    "Pembetulan memerlukan catatan yang menjelaskan apa yang berubah."
+  ],
+  [
+    "an approved bill is voided, not cancelled",
+    "Tagihan yang sudah disetujui harus dibatalkan (void), bukan dibatalkan biasa."
+  ],
+  [
+    "an asset has an unreadable account, date or life",
+    "Ada aset dengan akun, tanggal, atau masa manfaat yang tidak terbaca."
+  ],
+  [
+    "an asset line needs a booked account and a positive cost",
+    "Baris aset memerlukan akun pencatatan dan harga perolehan lebih dari nol."
+  ],
+  [
+    "an asset that is not depreciated has no useful life and no residual value",
+    "Aset yang tidak disusutkan tidak memiliki masa manfaat dan nilai sisa."
+  ],
+  [
+    "an employee appears twice in the payment",
+    "Ada karyawan yang tercantum dua kali dalam pembayaran."
+  ],
+  [
+    "an employee in the payment is not part of this payroll run",
+    "Ada karyawan dalam pembayaran yang tidak termasuk dalam proses Payroll ini."
+  ],
+  [
+    "an employee is owed % but the payment is %",
+    "Ada karyawan yang seharusnya menerima {1}, tetapi pembayarannya {2}."
+  ],
+  [
+    "an employee needs a name, a join date, a position and an employment type",
+    "Karyawan memerlukan nama, tanggal bergabung, jabatan, dan jenis hubungan kerja."
+  ],
+  [
+    "an employment record needs a date (not before the join date), a type and a position",
+    "Catatan kepegawaian memerlukan tanggal (tidak sebelum tanggal bergabung), jenis, dan jabatan."
+  ],
+  [
+    "an ended recurring rule cannot be edited",
+    "Aturan transaksi berulang yang sudah berakhir tidak bisa diubah."
+  ],
+  [
+    "an equity event cannot be dated in the future",
+    "Tanggal transaksi modal tidak boleh di masa depan."
+  ],
+  [
+    "an exchange rate is required for a foreign-currency account, and only then",
+    "Kurs wajib diisi untuk rekening mata uang asing, dan hanya untuk rekening seperti itu."
+  ],
+  [
+    "an exchange rate is required for a foreign-currency destination account, and only then",
+    "Kurs wajib diisi untuk rekening tujuan mata uang asing, dan hanya untuk rekening seperti itu."
+  ],
+  [
+    "an exchange rate is required for a foreign-currency refund, and only then",
+    "Kurs wajib diisi untuk refund mata uang asing, dan hanya untuk refund seperti itu."
+  ],
+  [
+    "an exchange rate is required for a foreign-currency source account, and only then",
+    "Kurs wajib diisi untuk rekening sumber mata uang asing, dan hanya untuk rekening seperti itu."
+  ],
+  [
+    "an expense category maps to an active, non-group expense account",
+    "Kategori pengeluaran harus terhubung ke akun beban yang aktif dan bukan akun induk."
+  ],
+  [
+    "an expense dated in the future stays a draft until its date (Step 08 §14)",
+    "Pengeluaran bertanggal di masa depan tetap menjadi draf sampai tanggalnya tiba."
+  ],
+  ["an expense needs at least one line", "Pengeluaran harus memiliki minimal satu baris."],
+  [
+    "an expense needs at least one line with an amount",
+    "Pengeluaran harus memiliki minimal satu baris yang berisi jumlah."
+  ],
+  [
+    "an expense that is not confirmed is cancelled, not reversed",
+    "Pengeluaran yang belum dikonfirmasi cukup dibatalkan, tidak perlu dibalik."
+  ],
+  ["an import batch is limited to 5000 rows", "Satu kali impor paling banyak 5000 baris."],
+  [
+    "an import row cannot move from % to % once its batch leaves staging",
+    "Baris impor tidak bisa pindah dari {1} ke {2} setelah impornya melewati tahap persiapan."
+  ],
+  [
+    "an import row is frozen once its batch leaves staging",
+    "Baris impor tidak bisa diubah lagi setelah impornya melewati tahap persiapan."
+  ],
+  [
+    "an inactive contact cannot be used for a new bill",
+    "Kontak yang nonaktif tidak bisa dipakai untuk tagihan baru."
+  ],
+  [
+    "an inactive contact cannot be used for a new expense",
+    "Kontak yang nonaktif tidak bisa dipakai untuk pengeluaran baru."
+  ],
+  [
+    "an inactive contact cannot be used for a new invoice",
+    "Kontak yang nonaktif tidak bisa dipakai untuk Invoice baru."
+  ],
+  [
+    "an inactive financial account cannot be used in a transfer",
+    "Rekening yang nonaktif tidak bisa dipakai untuk transfer."
+  ],
+  [
+    "an installment has an unreadable due date",
+    "Ada angsuran dengan tanggal jatuh tempo yang tidak terbaca."
+  ],
+  ["an installment needs an amount", "Angsuran harus memiliki jumlah."],
+  [
+    "an interest-only schedule needs a rate",
+    "Jadwal yang hanya membayar bunga memerlukan suku bunga."
+  ],
+  [
+    "an invoice can appear only once in the allocations",
+    "Satu Invoice hanya boleh muncul sekali dalam alokasi."
+  ],
+  ["an invoice can have at most 200 lines", "Satu Invoice paling banyak 200 baris."],
+  [
+    "an invoice dated in the future stays a draft until its date (Step 08 §14)",
+    "Invoice bertanggal di masa depan tetap menjadi draf sampai tanggalnya tiba."
+  ],
+  [
+    "an invoice in the allocations does not exist in this Entity",
+    "Ada Invoice dalam alokasi yang tidak ada di Entity ini."
+  ],
+  ["an invoice needs at least one line", "Invoice harus memiliki minimal satu baris."],
+  ["an obligation cannot be dated in the future", "Tanggal kewajiban tidak boleh di masa depan."],
+  [
+    "an obligation with settlements cannot be voided; reverse them first",
+    "Kewajiban yang sudah memiliki pelunasan tidak bisa dibatalkan (void); balik dulu pelunasannya."
+  ],
+  [
+    "an override applies before the document is recognised; a recognised document is corrected instead (now %)",
+    "Koreksi manual hanya berlaku sebelum dokumen diakui; dokumen yang sudah diakui harus dikoreksi (sekarang {1})."
+  ],
+  [
+    "an override needs a reason (10-1000 characters) and an evidence note (5-1000 characters)",
+    "Koreksi manual memerlukan alasan (10-1000 karakter) dan catatan bukti (5-1000 karakter)."
+  ],
+  [
+    "another reconciliation of this account is in progress",
+    "Rekonsiliasi lain untuk rekening ini sedang berjalan."
+  ],
+  [
+    "asset % carries depreciation or a disposal and cannot be cancelled",
+    "Aset {1} sudah memiliki penyusutan atau pelepasan sehingga tidak bisa dibatalkan."
+  ],
+  [
+    "asset % of this document already carries depreciation or a disposal; deal with the asset first",
+    "Aset {1} dari dokumen ini sudah memiliki penyusutan atau pelepasan; selesaikan dulu asetnya."
+  ],
+  ["at least one Entity is required", "Minimal satu Entity wajib dipilih."],
+  ["at least one row is required", "Minimal satu baris wajib diisi."],
+  ["at least one weight is required", "Minimal satu bobot wajib diisi."],
+  ["at most 100 saved reports per person", "Setiap orang paling banyak menyimpan 100 laporan."],
+  ["balances allow % decimals for %", "Saldo paling banyak {1} angka desimal untuk {2}."],
+  [
+    "between 1 and 1000 statement lines are expected per call",
+    "Setiap kali kirim harus berisi 1 sampai 1000 baris mutasi rekening."
+  ],
+  ["bill % belongs to a different vendor", "Tagihan {1} milik Vendor lain."],
+  [
+    "bill % had a payment reversed on %; a new payment cannot be dated before that",
+    "Tagihan {1} memiliki pembayaran yang dibalik pada {2}; pembayaran baru tidak boleh bertanggal sebelum itu."
+  ],
+  ["bill % is % and cannot be paid", "Tagihan {1} berstatus {2} dan tidak bisa dibayar."],
+  [
+    "bill % is in % but the paying account is in %",
+    "Tagihan {1} dalam {2}, tetapi rekening pembayarnya dalam {3}."
+  ],
+  [
+    "both accounts must belong to this Entity; money between PT and Personal needs its real economic basis (Step 03 §8)",
+    "Kedua rekening harus milik Entity ini; perpindahan uang antara PT dan Pribadi harus dicatat sesuai dasar ekonominya yang sebenarnya."
+  ],
+  [
+    "both financial accounts must be active to confirm a transfer",
+    "Kedua rekening harus aktif untuk mengonfirmasi transfer."
+  ],
+  [
+    "cancelling an asset needs a reason of 5 to 1000 characters",
+    "Pembatalan aset memerlukan alasan 5 sampai 1000 karakter."
+  ],
+  [
+    "choose a concrete classification of the % family",
+    "Pilih klasifikasi yang spesifik dari kelompok {1}."
+  ],
+  ["choose a customer", "Pilih pelanggan."],
+  ["choose a vendor", "Pilih Vendor."],
+  [
+    "choose an active paying account of this Entity",
+    "Pilih rekening pembayar yang aktif milik Entity ini."
+  ],
+  ["choose the account that received the money", "Pilih rekening yang menerima uangnya."],
+  ["choose the date the tax engine starts", "Pilih tanggal mesin pajak mulai berlaku."],
+  ["closing is blocked: %", "Tutup buku tidak bisa dilakukan: {1}"],
+  [
+    "compensation needs a date that is not before the join date",
+    "Kompensasi memerlukan tanggal yang tidak sebelum tanggal bergabung."
+  ],
+  ["country must be a two-letter code", "Negara harus berupa kode dua huruf."],
+  [
+    "damage or loss needs a note that describes what happened",
+    "Kerusakan atau kehilangan memerlukan catatan yang menjelaskan apa yang terjadi."
+  ],
+  [
+    "date and an explanation are required (adjusting journals need at least 10 characters)",
+    "Tanggal dan penjelasan wajib diisi (jurnal penyesuaian memerlukan minimal 10 karakter)."
+  ],
+  [
+    "depreciation is already posted for the month of the disposal or later; reverse it first",
+    "Penyusutan sudah diposting untuk bulan pelepasan atau sesudahnya; balik dulu penyusutan itu."
+  ],
+  [
+    "depreciation is posted for an active asset only (% is %)",
+    "Penyusutan hanya diposting untuk aset yang aktif ({1} berstatus {2})."
+  ],
+  ["direction and a positive amount are required", "Arah dan jumlah lebih dari nol wajib diisi."],
+  [
+    "documents attach to a bill or an expense",
+    "Dokumen hanya bisa dilampirkan pada tagihan atau pengeluaran."
+  ],
+  [
+    "each BPJS item needs a component (bpjs_kes, bpjs_jht, bpjs_jp, bpjs_jkk, bpjs_jkm) and enrolled true or false",
+    "Setiap item BPJS memerlukan komponen (bpjs_kes, bpjs_jht, bpjs_jp, bpjs_jkk, bpjs_jkm) dan keterangan terdaftar atau tidak."
+  ],
+  [
+    "each amount must be positive with at most % decimals",
+    "Setiap jumlah harus lebih dari nol dengan paling banyak {1} angka desimal."
+  ],
+  [
+    "each budget line needs a valid category_id and period_month",
+    "Setiap baris anggaran memerlukan kategori dan bulan periode yang valid."
+  ],
+  [
+    "each component needs a code, a kind (earning or deduction) and a label",
+    "Setiap komponen memerlukan kode, jenis (pendapatan atau potongan), dan nama."
+  ],
+  ["each line needs an employee and an amount", "Setiap baris memerlukan karyawan dan jumlah."],
+  [
+    "each revenue target line needs a valid period_month",
+    "Setiap baris target pendapatan memerlukan bulan periode yang valid."
+  ],
+  ["effect must be grant, deny or clear", "Pilihan izin harus beri, tolak, atau hapus."],
+  [
+    "enter the amount paid (at most % decimals)",
+    "Isi jumlah yang dibayar (paling banyak {1} angka desimal)."
+  ],
+  ["entry type must be manual or adjusting", "Jenis jurnal harus manual atau penyesuaian."],
+  [
+    "every asset needs a name of up to 200 characters",
+    "Setiap aset memerlukan nama paling banyak 200 karakter."
+  ],
+  [
+    "every installment is an object with a due date and amounts",
+    "Setiap angsuran harus berisi tanggal jatuh tempo dan jumlah."
+  ],
+  [
+    "every loan needs a counterparty of up to 200 characters",
+    "Setiap pinjaman memerlukan nama pihak lawan paling banyak 200 karakter."
+  ],
+  [
+    "every movement must belong to the same financial account as the statement line",
+    "Setiap mutasi harus berasal dari rekening yang sama dengan baris mutasi rekening."
+  ],
+  [
+    "every part needs a name of up to 200 characters",
+    "Setiap bagian memerlukan nama paling banyak 200 karakter."
+  ],
+  [
+    "evidence of a % % is part of the record and cannot be removed",
+    "Bukti {1} {2} adalah bagian dari catatan dan tidak bisa dihapus."
+  ],
+  [
+    "evidence of a tax payment or filing is part of the record and cannot be removed",
+    "Bukti pembayaran atau pelaporan pajak adalah bagian dari catatan dan tidak bisa dihapus."
+  ],
+  [
+    "exchange rate must be a positive finite number",
+    "Kurs harus berupa angka yang valid dan lebih dari nol."
+  ],
+  ["exchange rates allow 10 decimals", "Kurs paling banyak 10 angka desimal."],
+  [
+    "fees and tax (%) exceed the sales (%); the payout cannot be negative",
+    "Biaya dan pajak ({1}) melebihi penjualan ({2}); jumlah pencairan tidak boleh negatif."
+  ],
+  ["field % cannot be edited on a draft bill", "Isian {1} tidak bisa diubah pada tagihan draf."],
+  [
+    "field % cannot be edited on a draft expense",
+    "Isian {1} tidak bisa diubah pada pengeluaran draf."
+  ],
+  ["field % cannot be edited on a draft invoice", "Isian {1} tidak bisa diubah pada Invoice draf."],
+  [
+    "financial account % is inactive and cannot receive an opening balance",
+    "Rekening {1} nonaktif dan tidak bisa diberi saldo awal."
+  ],
+  [
+    "financial account % is inactive and cannot receive new movements",
+    "Rekening {1} nonaktif dan tidak bisa menerima mutasi baru."
+  ],
+  [
+    "fiscal year % has no posted profit-and-loss activity to close",
+    "Tahun buku {1} tidak memiliki transaksi laba rugi yang sudah diposting untuk ditutup."
+  ],
+  ["fiscal year % is already closed", "Tahun buku {1} sudah ditutup."],
+  ["fiscal year must be between 2000 and 2999", "Tahun buku harus antara 2000 dan 2999."],
+  ["fiscal year start month must be 1 to 12", "Bulan awal tahun buku harus 1 sampai 12."],
+  ["give 1 to 10 BPJS items", "Isi 1 sampai 10 item BPJS."],
+  ["give 1 to 200 loans", "Isi 1 sampai 200 pinjaman."],
+  ["give 1 to 30 compensation components", "Isi 1 sampai 30 komponen kompensasi."],
+  ["give 1 to 500 assets", "Isi 1 sampai 500 aset."],
+  [
+    "give 2 to 50 parts, each with a name and a cost",
+    "Isi 2 sampai 50 bagian, masing-masing dengan nama dan harga perolehan."
+  ],
+  [
+    "give a 15 or 16 digit tax number exactly when the status is has_tax_id",
+    "Isi nomor pajak 15 atau 16 digit hanya jika statusnya memiliki nomor pajak."
+  ],
+  ["give a period (from, to)", "Isi periode (dari, sampai)."],
+  ["give a reason of 5 to 500 characters", "Isi alasan 5 sampai 500 karakter."],
+  ["give between 1 and 50 distinct movements", "Pilih 1 sampai 50 mutasi yang berbeda."],
+  [
+    "give the new location or custodian (up to 200 characters each)",
+    "Isi lokasi atau penanggung jawab yang baru (masing-masing paling banyak 200 karakter)."
+  ],
+  [
+    "gross sales must be positive and fees not negative, with at most % decimals",
+    "Penjualan kotor harus lebih dari nol dan biaya tidak boleh negatif, dengan paling banyak {1} angka desimal."
+  ],
+  ["idempotency key must be 8-200 characters", "Kunci permintaan harus 8-200 karakter."],
+  [
+    "idempotency key was already used for a different request",
+    "Kunci permintaan sudah dipakai untuk permintaan lain."
+  ],
+  [
+    "installments are dated in order, none before %",
+    "Angsuran harus berurutan tanggalnya, dan tidak ada yang sebelum {1}."
+  ],
+  [
+    "interest or a fee needs a note that explains it",
+    "Bunga atau biaya memerlukan catatan yang menjelaskannya."
+  ],
+  ["invoice % belongs to a different customer", "Invoice {1} milik pelanggan lain."],
+  [
+    "invoice % is % and cannot receive a payment",
+    "Invoice {1} berstatus {2} dan tidak bisa menerima pembayaran."
+  ],
+  [
+    "invoice % is in % but the receiving account is in %",
+    "Invoice {1} dalam {2}, tetapi rekening penerimanya dalam {3}."
+  ],
+  ["item % has an invalid allocation", "Item {1} memiliki alokasi yang tidak valid."],
+  ["item % is not an object", "Item {1} formatnya tidak valid."],
+  [
+    "item % must be positive and allows % decimals for %",
+    "Item {1} harus lebih dari nol dan paling banyak {2} angka desimal untuk {3}."
+  ],
+  [
+    "item % needs its own allocation or source \"advance\"",
+    "Item {1} memerlukan alokasi sendiri atau sumber \"uang muka\"."
+  ],
+  ["journal is already posted", "Jurnal sudah diposting."],
+  [
+    "journal is not balanced (debit % <> credit %)",
+    "Jurnal tidak seimbang (debit {1} <> kredit {2})."
+  ],
+  [
+    "kind must be bank, cash or ewallet and a name is required",
+    "Jenis harus bank, kas, atau dompet digital, dan nama wajib diisi."
+  ],
+  ["kind must be customer, vendor or both", "Jenis harus pelanggan, Vendor, atau keduanya."],
+  ["kind must be receivable or payable", "Jenis harus piutang atau utang."],
+  [
+    "leaving needs an exit date (not before the join date) and a reason",
+    "Karyawan keluar memerlukan tanggal keluar (tidak sebelum tanggal bergabung) dan alasan."
+  ],
+  ["limit must be between 1 and 100", "Batas jumlah data harus antara 1 dan 100."],
+  ["limit must be between 1 and 1000", "Batas jumlah data harus antara 1 dan 1000."],
+  ["limit must be between 1 and 200", "Batas jumlah data harus antara 1 dan 200."],
+  [
+    "line % VAT amount must not be negative and must fit the currency decimals",
+    "Baris {1}: jumlah PPN tidak boleh negatif dan harus sesuai jumlah angka desimal mata uangnya."
+  ],
+  ["line % account % cannot receive postings", "Baris {1}: akun {2} tidak bisa menerima posting."],
+  ["line % account does not belong to this Entity", "Baris {1}: akun bukan milik Entity ini."],
+  [
+    "line % account does not fit the % treatment (or is inactive or not of this Entity)",
+    "Baris {1}: akun tidak cocok dengan perlakuan {2} (atau nonaktif, atau bukan milik Entity ini)."
+  ],
+  ["line % account is not a valid identifier", "Baris {1}: akun tidak valid."],
+  ["line % account_id is not a valid identifier", "Baris {1}: akun tidak valid."],
+  [
+    "line % amount is not a finite number below 10^16",
+    "Baris {1}: jumlah harus berupa angka yang valid di bawah 10^16."
+  ],
+  ["line % amount is too large", "Baris {1}: jumlah terlalu besar."],
+  ["line % amount must be greater than zero", "Baris {1}: jumlah harus lebih dari nol."],
+  [
+    "line % base amount does not equal original amount x rate",
+    "Baris {1}: jumlah dasar tidak sama dengan jumlah asli x kurs."
+  ],
+  ["line % category is not a valid identifier", "Baris {1}: kategori tidak valid."],
+  [
+    "line % category must be an active % category of this Entity",
+    "Baris {1}: kategori harus kategori {2} yang aktif milik Entity ini."
+  ],
+  [
+    "line % category must be an active revenue category of this Entity",
+    "Baris {1}: kategori harus kategori pendapatan yang aktif milik Entity ini."
+  ],
+  ["line % discount exceeds the line amount", "Diskon baris {1} melebihi jumlah baris"],
+  [
+    "line % discount must not be negative and has at most 4 decimals",
+    "Diskon baris {1} tidak boleh negatif dan paling banyak 4 angka desimal"
+  ],
+  [
+    "line % discount type must be none, percent or fixed",
+    "Jenis diskon baris {1} harus tanpa diskon, persen, atau nominal tetap"
+  ],
+  [
+    "line % fixed discount allows % decimals for %",
+    "Diskon nominal baris {1} hanya boleh {2} angka desimal untuk {3}"
+  ],
+  [
+    "line % has a date or amount that cannot be read",
+    "Baris {1} memiliki tanggal atau jumlah yang tidak bisa dibaca"
+  ],
+  [
+    "line % has a discount value but no discount type",
+    "Baris {1} memiliki nilai diskon tetapi jenis diskonnya belum dipilih"
+  ],
+  [
+    "line % has an amount that is not a valid number",
+    "Jumlah pada baris {1} bukan angka yang valid"
+  ],
+  ["line % has an unknown VAT treatment", "Perlakuan PPN pada baris {1} tidak dikenal"],
+  ["line % has an unknown withholding object", "Objek pemotongan PPh pada baris {1} tidak dikenal"],
+  [
+    "line % has more decimals than the base currency allows (%)",
+    "Baris {1} memiliki angka desimal lebih banyak dari yang diizinkan mata uang dasar ({2})"
+  ],
+  [
+    "line % has no usable % account; choose a category with a mapping or an account",
+    "Baris {1} tidak memiliki akun {2} yang bisa dipakai; pilih kategori yang sudah dipetakan atau pilih akun"
+  ],
+  ["line % is not an object", "Baris {1} tidak berbentuk objek"],
+  [
+    "line % is outside the statement period % to %",
+    "Baris {1} berada di luar periode rekening koran {2} sampai {3}"
+  ],
+  [
+    "line % must have exactly one positive side",
+    "Baris {1} harus memiliki tepat satu sisi yang bernilai positif"
+  ],
+  [
+    "line % needs a description of up to 500 characters",
+    "Baris {1} perlu keterangan paling banyak 500 karakter"
+  ],
+  [
+    "line % needs a known account_id or account_key of this Entity",
+    "Baris {1} perlu account_id atau account_key yang dikenal di Entity ini"
+  ],
+  [
+    "line % needs a non-zero amount with at most % decimals",
+    "Baris {1} perlu jumlah yang bukan nol dengan paling banyak {2} angka desimal"
+  ],
+  ["line % needs a unit price", "Baris {1} perlu harga satuan"],
+  [
+    "line % original amount allows 4 decimals and the rate 10",
+    "Jumlah asli baris {1} paling banyak 4 angka desimal dan kursnya 10"
+  ],
+  [
+    "line % original amount and rate must be positive, finite and within range",
+    "Jumlah asli dan kurs baris {1} harus positif, berupa angka yang wajar, dan dalam batas yang diizinkan"
+  ],
+  [
+    "line % original currency, amount and rate go together",
+    "Mata uang asli, jumlah, dan kurs baris {1} harus diisi bersamaan"
+  ],
+  [
+    "line % percentage discount cannot exceed 100",
+    "Diskon persen baris {1} tidak boleh lebih dari 100"
+  ],
+  ["line % product does not belong to this Entity", "Produk pada baris {1} bukan milik Entity ini"],
+  [
+    "line % product is inactive and cannot be sold",
+    "Produk pada baris {1} tidak aktif dan tidak bisa dijual"
+  ],
+  ["line % product is not a valid identifier", "Produk pada baris {1} bukan pengenal yang valid"],
+  [
+    "line % quantity must be positive with at most 4 decimals",
+    "Kuantitas baris {1} harus positif dengan paling banyak 4 angka desimal"
+  ],
+  [
+    "line % tax-invoice reference is limited to 100 characters",
+    "Nomor faktur pajak baris {1} paling banyak 100 karakter"
+  ],
+  [
+    "line % treatment must be expense, asset or prepaid",
+    "Perlakuan baris {1} harus pengeluaran, aset, atau dibayar di muka"
+  ],
+  [
+    "line % unit price must not be negative and has at most 4 decimals",
+    "Harga satuan baris {1} tidak boleh negatif dan paling banyak 4 angka desimal"
+  ],
+  ["line % unknown currency", "Mata uang pada baris {1} tidak dikenal"],
+  ["lines must be a list", "Baris-baris harus berupa daftar"],
+  [
+    "lines must list the employees paid (up to 1000)",
+    "Baris harus memuat daftar karyawan yang dibayar (paling banyak 1000)"
+  ],
+  ["months must be 1 to 24", "Jumlah bulan harus 1 sampai 24"],
+  ["name a vendor or a payee", "Isi Vendor atau penerima pembayaran"],
+  [
+    "name the counterparty (up to 200 characters) and the purpose (3 to 500)",
+    "Isi nama pihak lawan (paling banyak 200 karakter) dan tujuannya (3 sampai 500 karakter)"
+  ],
+  ["name the other claim and give a reason", "Sebutkan klaim lainnya dan berikan alasannya"],
+  ["name the vendor or the payee", "Isi Vendor atau penerima pembayaran"],
+  [
+    "net pay is paid per employee (or everything still owed) and BPJS as one amount; do not mix them",
+    "Gaji bersih dibayar per karyawan (atau seluruh yang masih terutang) dan BPJS sebagai satu jumlah; jangan dicampur"
+  ],
+  [
+    "net pay paid would exceed the net pay of an employee",
+    "Gaji bersih yang dibayar akan melebihi gaji bersih seorang karyawan"
+  ],
+  [
+    "no account is needed when the whole payment is offset against input VAT",
+    "Rekening tidak perlu diisi jika seluruh pembayaran dikompensasikan dengan PPN masukan"
+  ],
+  [
+    "no free ledger account code is left for this kind of account",
+    "Tidak ada lagi kode akun buku besar yang tersedia untuk jenis rekening ini"
+  ],
+  ["nothing is owed on this payroll run", "Tidak ada yang terutang pada proses Payroll ini"],
+  ["nothing to change", "Tidak ada yang perlu diubah"],
+  [
+    "only % can still be refunded from this allocation",
+    "Hanya {1} yang masih bisa di-refund dari alokasi ini"
+  ],
+  [
+    "only % of input VAT is available to offset",
+    "Hanya {1} PPN masukan yang tersedia untuk dikompensasikan"
+  ],
+  [
+    "only % of the customer advance can still be refunded",
+    "Hanya {1} dari uang muka pelanggan yang masih bisa di-refund"
+  ],
+  [
+    "only % of this payment is still available as a customer advance",
+    "Hanya {1} dari pembayaran ini yang masih tersedia sebagai uang muka pelanggan"
+  ],
+  ["only VAT can be settled against input VAT", "Hanya PPN yang bisa dilunasi dengan PPN masukan"],
+  [
+    "only a batch that is still staging can be (re)validated",
+    "Hanya batch yang masih dalam tahap persiapan yang bisa divalidasi (ulang)"
+  ],
+  [
+    "only a calculated run can be submitted (now %)",
+    "Hanya proses Payroll yang sudah dihitung yang bisa diajukan (sekarang: {1})"
+  ],
+  [
+    "only a closed period can be reopened (now %)",
+    "Hanya periode yang sudah ditutup yang bisa dibuka kembali (sekarang: {1})"
+  ],
+  [
+    "only a closed run can be reopened (now %)",
+    "Hanya proses Payroll yang sudah ditutup yang bisa dibuka kembali (sekarang: {1})"
+  ],
+  [
+    "only a committed batch can be rolled back",
+    "Hanya batch yang sudah diterapkan yang bisa dibatalkan"
+  ],
+  [
+    "only a completed reconciliation can be reopened (now %)",
+    "Hanya rekonsiliasi yang sudah selesai yang bisa dibuka kembali (sekarang: {1})"
+  ],
+  [
+    "only a confirmed dividend can be paid",
+    "Hanya dividen yang sudah dikonfirmasi yang bisa dibayar"
+  ],
+  [
+    "only a confirmed equity event can be reversed (now %)",
+    "Hanya transaksi modal yang sudah dikonfirmasi yang bisa dibalik (sekarang: {1})"
+  ],
+  [
+    "only a confirmed expense can be corrected (now %)",
+    "Hanya pengeluaran yang sudah dikonfirmasi yang bisa dikoreksi (sekarang: {1})"
+  ],
+  [
+    "only a confirmed expense can be reversed (now %)",
+    "Hanya pengeluaran yang sudah dikonfirmasi yang bisa dibalik (sekarang: {1})"
+  ],
+  [
+    "only a confirmed payment can be applied (now %)",
+    "Hanya pembayaran yang sudah dikonfirmasi yang bisa dialokasikan (sekarang: {1})"
+  ],
+  [
+    "only a confirmed payment can be refunded (now %)",
+    "Hanya pembayaran yang sudah dikonfirmasi yang bisa di-refund (sekarang: {1})"
+  ],
+  [
+    "only a confirmed payment can be reversed (now %)",
+    "Hanya pembayaran yang sudah dikonfirmasi yang bisa dibalik (sekarang: {1})"
+  ],
+  [
+    "only a confirmed refund can be reversed (now %)",
+    "Hanya refund yang sudah dikonfirmasi yang bisa dibalik (sekarang: {1})"
+  ],
+  [
+    "only a confirmed transfer can be reversed (now %)",
+    "Hanya transfer yang sudah dikonfirmasi yang bisa dibalik (sekarang: {1})"
+  ],
+  [
+    "only a contribution or a capital return has an equity class",
+    "Hanya setoran modal atau pengembalian modal yang memiliki kelas modal"
+  ],
+  [
+    "only a draft asset can be activated (now %)",
+    "Hanya aset berstatus draf yang bisa diaktifkan (sekarang: {1})"
+  ],
+  [
+    "only a draft asset that came from a purchase line can be split",
+    "Hanya aset berstatus draf yang berasal dari baris pembelian yang bisa dipecah"
+  ],
+  [
+    "only a draft bill can be edited (now %); correct an approved bill through a replacement",
+    "Hanya tagihan berstatus draf yang bisa diubah (sekarang: {1}); koreksi tagihan yang sudah disetujui dengan membuat penggantinya"
+  ],
+  [
+    "only a draft bill can be submitted (now %)",
+    "Hanya tagihan berstatus draf yang bisa diajukan (sekarang: {1})"
+  ],
+  ["only a draft budget can be activated", "Hanya anggaran berstatus draf yang bisa diaktifkan"],
+  ["only a draft can be discarded", "Hanya draf yang bisa dibuang"],
+  [
+    "only a draft can be edited; a published rule is never changed, publish a new version",
+    "Hanya draf yang bisa diubah; aturan yang sudah diterbitkan tidak pernah diubah, terbitkan versi baru"
+  ],
+  ["only a draft can be published (now %)", "Hanya draf yang bisa diterbitkan (sekarang: {1})"],
+  [
+    "only a draft equity event can be cancelled; a confirmed one is reversed (now %)",
+    "Hanya transaksi modal berstatus draf yang bisa dibatalkan; yang sudah dikonfirmasi harus dibalik (sekarang: {1})"
+  ],
+  [
+    "only a draft equity event can be confirmed (now %)",
+    "Hanya transaksi modal berstatus draf yang bisa dikonfirmasi (sekarang: {1})"
+  ],
+  [
+    "only a draft expense can be edited (now %); correct a confirmed expense through a replacement",
+    "Hanya pengeluaran berstatus draf yang bisa diubah (sekarang: {1}); koreksi pengeluaran yang sudah dikonfirmasi dengan membuat penggantinya"
+  ],
+  [
+    "only a draft expense can be submitted (now %)",
+    "Hanya pengeluaran berstatus draf yang bisa diajukan (sekarang: {1})"
+  ],
+  [
+    "only a draft invoice can be edited (now %); correct an issued invoice through a replacement",
+    "Hanya Invoice berstatus draf yang bisa diubah (sekarang: {1}); koreksi Invoice yang sudah diterbitkan dengan membuat penggantinya"
+  ],
+  [
+    "only a draft invoice can be issued (now %)",
+    "Hanya Invoice berstatus draf yang bisa diterbitkan (sekarang: {1})"
+  ],
+  [
+    "only a draft loan can be activated (now %)",
+    "Hanya pinjaman berstatus draf yang bisa diaktifkan (sekarang: {1})"
+  ],
+  [
+    "only a draft loan can be cancelled; an active loan is repaid or written off (now %)",
+    "Hanya pinjaman berstatus draf yang bisa dibatalkan; pinjaman aktif harus dilunasi atau dihapusbukukan (sekarang: {1})"
+  ],
+  [
+    "only a draft or calculated run can be calculated (now %)",
+    "Hanya proses Payroll berstatus draf atau sudah dihitung yang bisa dihitung (sekarang: {1})"
+  ],
+  [
+    "only a draft or submitted bill can be approved (now %)",
+    "Hanya tagihan berstatus draf atau diajukan yang bisa disetujui (sekarang: {1})"
+  ],
+  [
+    "only a draft or submitted bill can be cancelled (now %); void an approved bill instead",
+    "Hanya tagihan berstatus draf atau diajukan yang bisa dibatalkan (sekarang: {1}); untuk tagihan yang sudah disetujui, gunakan pembatalan (void)"
+  ],
+  [
+    "only a draft or submitted expense can be cancelled (now %); reverse a confirmed expense instead",
+    "Hanya pengeluaran berstatus draf atau diajukan yang bisa dibatalkan (sekarang: {1}); pengeluaran yang sudah dikonfirmasi harus dibalik"
+  ],
+  [
+    "only a draft or submitted expense can be confirmed (now %)",
+    "Hanya pengeluaran berstatus draf atau diajukan yang bisa dikonfirmasi (sekarang: {1})"
+  ],
+  [
+    "only a draft refund can be cancelled (now %)",
+    "Hanya refund berstatus draf yang bisa dibatalkan (sekarang: {1})"
+  ],
+  [
+    "only a draft refund can be confirmed (now %)",
+    "Hanya refund berstatus draf yang bisa dikonfirmasi (sekarang: {1})"
+  ],
+  [
+    "only a draft refund can be rejected (now %)",
+    "Hanya refund berstatus draf yang bisa ditolak (sekarang: {1})"
+  ],
+  [
+    "only a draft revenue target can be activated",
+    "Hanya target pendapatan berstatus draf yang bisa diaktifkan"
+  ],
+  [
+    "only a draft transfer can be cancelled; reverse a confirmed one (now %)",
+    "Hanya transfer berstatus draf yang bisa dibatalkan; yang sudah dikonfirmasi harus dibalik (sekarang: {1})"
+  ],
+  [
+    "only a draft transfer can be confirmed (now %)",
+    "Hanya transfer berstatus draf yang bisa dikonfirmasi (sekarang: {1})"
+  ],
+  [
+    "only a loan received can finance an asset",
+    "Hanya pinjaman yang diterima yang bisa membiayai aset"
+  ],
+  [
+    "only a loan received, and not a cancelled one, can be linked to an asset",
+    "Hanya pinjaman yang diterima, dan bukan yang dibatalkan, yang bisa dikaitkan dengan aset"
+  ],
+  [
+    "only a paused recurring rule can be resumed",
+    "Hanya aturan transaksi berulang yang sedang dijeda yang bisa dilanjutkan"
+  ],
+  [
+    "only a pending asset line can be registered (now %)",
+    "Hanya baris aset yang masih menunggu yang bisa didaftarkan (sekarang: {1})"
+  ],
+  [
+    "only a posted disposal can be reversed (now %)",
+    "Hanya pelepasan aset yang sudah diposting yang bisa dibalik (sekarang: {1})"
+  ],
+  ["only a posted journal can be reversed", "Hanya jurnal yang sudah diposting yang bisa dibalik"],
+  [
+    "only a posted month can be reversed (now %)",
+    "Hanya bulan yang sudah diposting yang bisa dibalik (sekarang: {1})"
+  ],
+  [
+    "only a posted run can be corrected; reopen a closed run first (now %)",
+    "Hanya proses Payroll yang sudah diposting yang bisa dikoreksi; buka kembali dulu proses yang sudah ditutup (sekarang: {1})"
+  ],
+  ["only a sale has proceeds", "Hanya penjualan yang memiliki hasil penjualan"],
+  [
+    "only a scheduled month can be posted (now %)",
+    "Hanya bulan yang masih terjadwal yang bisa diposting (sekarang: {1})"
+  ],
+  [
+    "only a submitted bill can be recalled (now %)",
+    "Hanya tagihan yang sudah diajukan yang bisa ditarik kembali (sekarang: {1})"
+  ],
+  [
+    "only a submitted bill can be rejected (now %)",
+    "Hanya tagihan yang sudah diajukan yang bisa ditolak (sekarang: {1})"
+  ],
+  [
+    "only a submitted expense can be recalled (now %)",
+    "Hanya pengeluaran yang sudah diajukan yang bisa ditarik kembali (sekarang: {1})"
+  ],
+  [
+    "only a submitted expense can be rejected (now %)",
+    "Hanya pengeluaran yang sudah diajukan yang bisa ditolak (sekarang: {1})"
+  ],
+  [
+    "only a submitted or approved run can be returned (now %)",
+    "Hanya proses Payroll yang sudah diajukan atau disetujui yang bisa dikembalikan (sekarang: {1})"
+  ],
+  [
+    "only a submitted run can be approved (now %)",
+    "Hanya proses Payroll yang sudah diajukan yang bisa disetujui (sekarang: {1})"
+  ],
+  [
+    "only a validated batch can be committed",
+    "Hanya batch yang sudah divalidasi yang bisa diterapkan"
+  ],
+  [
+    "only an active asset can be sold or disposed of (now %)",
+    "Hanya aset aktif yang bisa dijual atau dilepas (sekarang: {1})"
+  ],
+  ["only an active loan can be repaid", "Hanya pinjaman aktif yang bisa dilunasi"],
+  [
+    "only an active loan can be repaid (now %)",
+    "Hanya pinjaman aktif yang bisa dilunasi (sekarang: {1})"
+  ],
+  [
+    "only an active loan can be restructured (now %)",
+    "Hanya pinjaman aktif yang bisa direstrukturisasi (sekarang: {1})"
+  ],
+  [
+    "only an active loan can be written off (now %)",
+    "Hanya pinjaman aktif yang bisa dihapusbukukan (sekarang: {1})"
+  ],
+  [
+    "only an active payment can be reversed (now %)",
+    "Hanya pembayaran aktif yang bisa dibalik (sekarang: {1})"
+  ],
+  [
+    "only an active recurring rule can be paused",
+    "Hanya aturan transaksi berulang yang aktif yang bisa dijeda"
+  ],
+  [
+    "only an active settlement can be reversed (now %)",
+    "Hanya pelunasan aktif yang bisa dibalik (sekarang: {1})"
+  ],
+  [
+    "only an active, depreciated asset can be re-planned",
+    "Hanya aset aktif yang disusutkan yang bisa dijadwalkan ulang penyusutannya"
+  ],
+  [
+    "only an approved bill can be corrected (now %)",
+    "Hanya tagihan yang sudah disetujui yang bisa dikoreksi (sekarang: {1})"
+  ],
+  [
+    "only an approved bill can be voided (now %)",
+    "Hanya tagihan yang sudah disetujui yang bisa dibatalkan (void) (sekarang: {1})"
+  ],
+  [
+    "only an approved bill can receive an allocation",
+    "Hanya tagihan yang sudah disetujui yang bisa menerima alokasi pembayaran"
+  ],
+  [
+    "only an approved bill has a due date to change here (now %)",
+    "Hanya tagihan yang sudah disetujui yang tanggal jatuh temponya bisa diubah di sini (sekarang: {1})"
+  ],
+  [
+    "only an approved run can be posted (now %)",
+    "Hanya proses Payroll yang sudah disetujui yang bisa diposting (sekarang: {1})"
+  ],
+  [
+    "only an earning can count towards the BPJS wage base",
+    "Hanya komponen pendapatan yang bisa dihitung sebagai dasar upah BPJS"
+  ],
+  [
+    "only an issued invoice can be corrected (now %)",
+    "Hanya Invoice yang sudah diterbitkan yang bisa dikoreksi (sekarang: {1})"
+  ],
+  [
+    "only an issued invoice can be voided (now %)",
+    "Hanya Invoice yang sudah diterbitkan yang bisa dibatalkan (void) (sekarang: {1})"
+  ],
+  [
+    "only an issued invoice can receive an allocation",
+    "Hanya Invoice yang sudah diterbitkan yang bisa menerima alokasi pembayaran"
+  ],
+  [
+    "only an issued invoice has a due date to change (now %)",
+    "Hanya Invoice yang sudah diterbitkan yang tanggal jatuh temponya bisa diubah (sekarang: {1})"
+  ],
+  [
+    "only an issued invoice has a public link (now %)",
+    "Hanya Invoice yang sudah diterbitkan yang memiliki tautan publik (sekarang: {1})"
+  ],
+  [
+    "only an open obligation can be settled (now %)",
+    "Hanya kewajiban yang masih terbuka yang bisa dilunasi (sekarang: {1})"
+  ],
+  [
+    "only an open obligation can be written off (now %)",
+    "Hanya kewajiban yang masih terbuka yang bisa dihapusbukukan (sekarang: {1})"
+  ],
+  [
+    "only an open or reopened period can enter closing review (now %)",
+    "Hanya periode yang terbuka atau dibuka kembali yang bisa masuk ke pemeriksaan penutupan (sekarang: {1})"
+  ],
+  [
+    "only an override that no posted document has used yet can be withdrawn",
+    "Hanya koreksi manual yang belum dipakai oleh dokumen yang sudah diposting yang bisa ditarik"
+  ],
+  [
+    "only manual or adjusting drafts can be discarded",
+    "Hanya draf jurnal manual atau jurnal penyesuaian yang bisa dibuang"
+  ],
+  [
+    "only revenue and expense categories are mapped to an account here",
+    "Di sini hanya kategori pendapatan dan pengeluaran yang dipetakan ke akun"
+  ],
+  [
+    "opening balances may only use balance-sheet accounts (not %)",
+    "Saldo awal hanya boleh memakai akun neraca (bukan {1})"
+  ],
+  [
+    "opening line amounts must be plain numbers",
+    "Jumlah pada baris saldo awal harus berupa angka biasa"
+  ],
+  ["opening lines are required", "Baris saldo awal wajib diisi"],
+  [
+    "opening tax figures need a tax year, a month from 1 to 11 and non-negative amounts",
+    "Angka pajak saldo awal perlu tahun pajak, bulan dari 1 sampai 11, dan jumlah yang tidak negatif"
+  ],
+  [
+    "payroll can be paid once it is posted and until it is closed (now %)",
+    "Payroll bisa dibayar setelah diposting dan sebelum ditutup (sekarang: {1})"
+  ],
+  [
+    "payroll cannot be run for a month that has not started",
+    "Payroll tidak bisa diproses untuk bulan yang belum dimulai"
+  ],
+  [
+    "payroll exists for a company Entity only",
+    "Payroll hanya tersedia untuk Entity berbentuk perusahaan"
+  ],
+  [
+    "payroll for a month after the exit month already includes this employee; correct that run first",
+    "Payroll untuk bulan setelah bulan keluar sudah memuat karyawan ini; koreksi proses Payroll itu dulu"
+  ],
+  [
+    "payroll has already counted this employee; the join date cannot change",
+    "Payroll sudah menghitung karyawan ini; tanggal bergabung tidak bisa diubah"
+  ],
+  [
+    "payroll is paid from an account in the Entity's base currency",
+    "Payroll dibayar dari rekening dengan mata uang dasar Entity"
+  ],
+  [
+    "payroll of that tax year is already posted for this employee; the opening figures cannot change",
+    "Payroll tahun pajak itu sudah diposting untuk karyawan ini; angka saldo awal tidak bisa diubah"
+  ],
+  [
+    "personal assets are tracked at cost; they are not depreciated",
+    "Aset pribadi dicatat sebesar harga perolehan; tidak disusutkan"
+  ],
+  [
+    "post through the last day of a month that is not in the future",
+    "Posting hanya bisa sampai hari terakhir suatu bulan yang tidak berada di masa depan"
+  ],
+  [
+    "posting key % already exists with different content",
+    "Kunci posting {1} sudah ada dengan isi yang berbeda"
+  ],
+  [
+    "proceeds need a method (cash or receivable) and no method means no proceeds",
+    "Hasil penjualan perlu cara penerimaan (tunai atau piutang); tanpa cara penerimaan berarti tanpa hasil penjualan"
+  ],
+  [
+    "record the taxpayer profile effective on or before % first",
+    "Catat dulu profil wajib pajak yang berlaku pada atau sebelum {1}"
+  ],
+  [
+    "reported amounts cannot be negative, and only a VAT return has a credit",
+    "Jumlah yang dilaporkan tidak boleh negatif, dan hanya SPT PPN yang memiliki lebih bayar"
+  ],
+  [
+    "reverse the disposal of % before its depreciation",
+    "Balik dulu pelepasan aset {1} sebelum membalik penyusutannya"
+  ],
+  ["reverse the payments of this run first", "Balik dulu pembayaran untuk proses Payroll ini"],
+  ["revoking a link needs a reason", "Mencabut tautan perlu alasan"],
+  ["rounding scale must be between 0 and 10", "Skala pembulatan harus antara 0 dan 10"],
+  ["row % is not an object", "Baris {1} tidak berbentuk objek"],
+  ["rule parameters: %", "Parameter aturan: {1}"],
+  ["side is sales or purchases", "Sisi harus penjualan atau pembelian"],
+  [
+    "source type, source id and rule key are required",
+    "Jenis sumber, id sumber, dan kunci aturan wajib diisi"
+  ],
+  [
+    "state the basis of the relationship (3 to 300 characters)",
+    "Sebutkan dasar hubungannya (3 sampai 300 karakter)"
+  ],
+  ["state the reason (3 to 1000 characters)", "Sebutkan alasannya (3 sampai 1000 karakter)"],
+  [
+    "status must be settled or written_off",
+    "Status harus settled (lunas) atau written_off (dihapusbukukan)"
+  ],
+  [
+    "statutory values are published only after they are verified against the official source",
+    "Nilai ketentuan resmi hanya diterbitkan setelah dicocokkan dengan sumber resmi"
+  ],
+  [
+    "tables cannot be ordered for restore (non-nullable FK cycle)",
+    "Tabel tidak bisa diurutkan untuk pemulihan (ada siklus FK yang tidak boleh kosong)"
+  ],
+  ["target user is unknown or disabled", "Pengguna yang dituju tidak dikenal atau dinonaktifkan"],
+  [
+    "tax evidence attaches to a tax filing or a tax payment",
+    "Bukti pajak dilampirkan pada pelaporan pajak atau pembayaran pajak"
+  ],
+  [
+    "tax facts from % are already recorded; record the change from a later date",
+    "Data pajak mulai {1} sudah dicatat; catat perubahan mulai tanggal yang lebih baru"
+  ],
+  [
+    "tax facts need a date (not before the join date), a tax-number status, a PTKP status and a method",
+    "Data pajak perlu tanggal (tidak sebelum tanggal bergabung), status NPWP, status PTKP, dan metode"
+  ],
+  [
+    "tax is paid from an account in the Entity's base currency (%)",
+    "Pajak dibayar dari rekening dengan mata uang dasar Entity ({1})"
+  ],
+  [
+    "tax is recognised only from the Entity's tax-engine start date; nothing is guessed",
+    "Pajak hanya diakui sejak tanggal mulai mesin pajak Entity; tidak ada yang diperkirakan"
+  ],
+  [
+    "tax lines are produced by the tax engine, which is not active yet; nothing is guessed",
+    "Baris pajak dibuat oleh mesin pajak, yang belum aktif; tidak ada yang diperkirakan"
+  ],
+  [
+    "that fiscal class allows straight-line only",
+    "Kelompok fiskal itu hanya mengizinkan metode garis lurus"
+  ],
+  [
+    "that ledger account already backs another financial account",
+    "Akun buku besar itu sudah dipakai oleh rekening lain"
+  ],
+  [
+    "that ledger account already carries postings and cannot be mapped to a financial account",
+    "Akun buku besar itu sudah memiliki posting dan tidak bisa dipetakan ke rekening"
+  ],
+  [
+    "that reconciliation was discarded; start it again with a new key",
+    "rekonsiliasi itu sudah dibuang; mulai lagi dengan kunci permintaan baru"
+  ],
+  ["the % does not exist in this Entity", "{1} tidak ada di Entity ini"],
+  [
+    "the BPJS paid must be positive with at most % decimals",
+    "BPJS yang dibayar harus lebih dari nol dengan paling banyak {1} angka desimal"
+  ],
+  ["the Entity changed since it was loaded", "Entity sudah berubah sejak dimuat"],
+  [
+    "the Entity is PKP but no VAT rule is in force on %; the rate is never guessed",
+    "Entity berstatus PKP tetapi belum ada aturan PPN yang berlaku pada {1}; tarif tidak pernah ditebak"
+  ],
+  ["the Entity is disabled", "Entity dinonaktifkan"],
+  [
+    "the FX difference exceeds 20%% of the amount; check the exchange rates",
+    "selisih kurs melebihi 20% dari jumlah; periksa kursnya"
+  ],
+  [
+    "the PPh 22 collected cannot be negative and has at most % decimals",
+    "PPh 22 yang dipungut tidak boleh negatif dan paling banyak {1} angka desimal"
+  ],
+  [
+    "the account still holds a balance; move it out before disabling",
+    "akun masih memiliki saldo; pindahkan saldonya sebelum dinonaktifkan"
+  ],
+  [
+    "the account was changed by someone else (stale version)",
+    "akun sudah diubah oleh orang lain (versi lama)"
+  ],
+  [
+    "the accounting period of % is % and does not accept postings",
+    "periode akuntansi {1} berstatus {2} dan tidak menerima posting"
+  ],
+  [
+    "the adjustment must be positive with at most the currency's decimals",
+    "penyesuaian harus lebih dari nol dengan angka desimal paling banyak sesuai mata uangnya"
+  ],
+  ["the advance is too small to book in %", "uang muka terlalu kecil untuk dicatat dalam {1}"],
+  [
+    "the agreement cannot be dated in the future",
+    "perjanjian tidak boleh bertanggal di masa depan"
+  ],
+  [
+    "the allocation does not match its payment (vendor, currency or date)",
+    "alokasi tidak cocok dengan pembayarannya (Vendor, mata uang, atau tanggal)"
+  ],
+  [
+    "the allocation exceeds what is outstanding on bill %",
+    "alokasi melebihi sisa yang belum dibayar pada tagihan {1}"
+  ],
+  [
+    "the allocation exceeds what is outstanding on invoice %",
+    "alokasi melebihi sisa yang belum dibayar pada Invoice {1}"
+  ],
+  [
+    "the allocation of % exceeds what is outstanding (%) on bill %",
+    "alokasi sebesar {1} melebihi sisa yang belum dibayar ({2}) pada tagihan {3}"
+  ],
+  [
+    "the allocation of % exceeds what is outstanding (%) on invoice %",
+    "alokasi sebesar {1} melebihi sisa yang belum dibayar ({2}) pada Invoice {3}"
+  ],
+  ["the allocations (%) exceed the payment (%)", "total alokasi ({1}) melebihi pembayaran ({2})"],
+  ["the amount allows % decimals for %", "jumlah boleh memiliki {1} angka desimal untuk {2}"],
+  [
+    "the amount exceeds what is outstanding (%) on invoice %",
+    "jumlah melebihi sisa yang belum dibayar ({1}) pada Invoice {2}"
+  ],
+  ["the amount exceeds what remains", "jumlah melebihi sisa yang ada"],
+  [
+    "the amount is more than what is outstanding on this invoice",
+    "jumlah lebih besar dari sisa yang belum dibayar pada Invoice ini"
+  ],
+  ["the amount is too small to book in %", "jumlah terlalu kecil untuk dicatat dalam {1}"],
+  [
+    "the amount must be positive and allows % decimals for %",
+    "jumlah harus lebih dari nol dan boleh memiliki {1} angka desimal untuk {2}"
+  ],
+  [
+    "the amount or fee is too small to book in %",
+    "jumlah atau biaya terlalu kecil untuk dicatat dalam {1}"
+  ],
+  [
+    "the amount received allows % decimals for %",
+    "jumlah yang diterima boleh memiliki {1} angka desimal untuk {2}"
+  ],
+  [
+    "the amount received is required when the accounts use different currencies",
+    "jumlah yang diterima wajib diisi jika rekening-rekeningnya memakai mata uang berbeda"
+  ],
+  [
+    "the application date must be between the payment and invoice dates and today",
+    "tanggal penerapan tidak boleh sebelum tanggal pembayaran dan tanggal Invoice, dan tidak boleh setelah hari ini"
+  ],
+  [
+    "the asset of % is unknown or the loan is not a loan received",
+    "aset untuk {1} tidak dikenal atau pinjaman ini bukan pinjaman yang diterima"
+  ],
+  [
+    "the base amount allows % decimals for %",
+    "jumlah dasar boleh memiliki {1} angka desimal untuk {2}"
+  ],
+  [
+    "the base amount must equal amount x rate for a foreign-currency movement",
+    "jumlah dasar harus sama dengan jumlah x kurs untuk mutasi dalam mata uang asing"
+  ],
+  ["the bill date is required", "tanggal tagihan wajib diisi"],
+  ["the bill is already %", "tagihan sudah berstatus {1}"],
+  ["the bill is too small to book in %", "tagihan terlalu kecil untuk dicatat dalam {1}"],
+  ["the budget belongs to another Entity", "anggaran ini milik Entity lain"],
+  ["the budget changed since it was loaded", "anggaran sudah berubah sejak dimuat"],
+  ["the budget is already closed", "anggaran sudah ditutup"],
+  [
+    "the buyer has paid part of this sale; reverse those settlements first",
+    "pembeli sudah membayar sebagian penjualan ini; balik dulu pelunasan tersebut"
+  ],
+  ["the calendar covers at most 36 months", "kalender mencakup paling lama 36 bulan"],
+  [
+    "the capital returned exceeds the balance of that equity account",
+    "modal yang dikembalikan melebihi saldo akun ekuitas tersebut"
+  ],
+  [
+    "the clearing account is maintained by the workflow and cannot be entered directly",
+    "akun kliring dikelola oleh alur kerja sistem dan tidak bisa diisi langsung"
+  ],
+  [
+    "the clearing account is not zero (%); reconcile it or document the migration adjustment (at least 10 characters)",
+    "akun kliring belum nol ({1}); rekonsiliasikan atau jelaskan penyesuaian migrasinya (minimal 10 karakter)"
+  ],
+  ["the code % belongs to another rule family", "kode {1} milik kelompok aturan lain"],
+  [
+    "the comparison period needs both a valid start and end date",
+    "periode pembanding memerlukan tanggal mulai dan tanggal akhir yang valid"
+  ],
+  [
+    "the compensation, tax facts, BPJS enrolment, adjustments, employees or rules changed since this run was calculated; calculate it again",
+    "kompensasi, data pajak, kepesertaan BPJS, penyesuaian, karyawan, atau aturan sudah berubah sejak Payroll ini dihitung; hitung ulang"
+  ],
+  [
+    "the condition is in_use, in_storage, under_repair, damaged or lost",
+    "kondisi harus in_use, in_storage, under_repair, damaged, atau lost"
+  ],
+  [
+    "the cost account of % is not a fixed-asset account of this Entity",
+    "akun biaya perolehan untuk {1} bukan akun aset tetap milik Entity ini"
+  ],
+  [
+    "the counter account must be an active, non-control account of this Entity",
+    "akun lawan harus akun aktif milik Entity ini dan bukan akun kontrol"
+  ],
+  [
+    "the counter account must be an active, postable, non-control account and not a cash account",
+    "akun lawan harus akun aktif yang bisa diposting, bukan akun kontrol, dan bukan akun kas"
+  ],
+  ["the customer advance can appear only once", "uang muka pelanggan hanya boleh muncul satu kali"],
+  [
+    "the customer is unknown or is not a customer of this Entity",
+    "pelanggan tidak dikenal atau bukan pelanggan Entity ini"
+  ],
+  [
+    "the date cannot be before the last activity on this dividend (%)",
+    "tanggal tidak boleh sebelum aktivitas terakhir pada dividen ini ({1})"
+  ],
+  [
+    "the date cannot be before the last activity on this loan (%)",
+    "tanggal tidak boleh sebelum aktivitas terakhir pada pinjaman ini ({1})"
+  ],
+  [
+    "the date cannot be before the last activity on this obligation (%)",
+    "tanggal tidak boleh sebelum aktivitas terakhir pada kewajiban ini ({1})"
+  ],
+  [
+    "the date cannot be before the last payment activity on this bill (%)",
+    "tanggal tidak boleh sebelum aktivitas pembayaran terakhir pada tagihan ini ({1})"
+  ],
+  [
+    "the date cannot be before the last payment activity on this invoice (%)",
+    "tanggal tidak boleh sebelum aktivitas pembayaran terakhir pada Invoice ini ({1})"
+  ],
+  [
+    "the date cannot be before the last settlement activity on the sale (%)",
+    "tanggal tidak boleh sebelum aktivitas pelunasan terakhir pada penjualan ini ({1})"
+  ],
+  [
+    "the date cannot be before the last settlement activity on this obligation (%)",
+    "tanggal tidak boleh sebelum aktivitas pelunasan terakhir pada kewajiban ini ({1})"
+  ],
+  ["the date cannot be in the future", "tanggal tidak boleh di masa depan"],
+  [
+    "the date is missing or outside the accepted range (2000-01-01 up to one year ahead)",
+    "tanggal belum diisi atau di luar rentang yang diterima (2000-01-01 sampai satu tahun ke depan)"
+  ],
+  ["the date the mapping starts is required", "tanggal mulai pemetaan wajib diisi"],
+  ["the direction of % is borrowed or lent", "arah untuk {1} harus borrowed atau lent"],
+  [
+    "the disposal date is not in the future and not before the in-service date (%)",
+    "tanggal pelepasan tidak boleh di masa depan dan tidak boleh sebelum tanggal mulai dipakai ({1})"
+  ],
+  ["the document needs a file type and a size", "dokumen memerlukan jenis file dan ukuran"],
+  [
+    "the document needs a plain file name, a PDF or image type, a size up to 25 MB and a SHA-256 hash",
+    "dokumen memerlukan nama file biasa, jenis PDF atau gambar, ukuran paling besar 25 MB, dan hash SHA-256"
+  ],
+  [
+    "the document needs a plain file name, an accepted file type, a size up to 25 MB and a SHA-256 hash",
+    "dokumen memerlukan nama file biasa, jenis file yang diterima, ukuran paling besar 25 MB, dan hash SHA-256"
+  ],
+  [
+    "the draft of this request was discarded; use a new idempotency key",
+    "draf permintaan ini sudah dibuang; gunakan kunci permintaan baru"
+  ],
+  [
+    "the draft was changed by someone else (stale version)",
+    "draf sudah diubah oleh orang lain (versi lama)"
+  ],
+  [
+    "the due date cannot be before the bill date",
+    "tanggal jatuh tempo tidak boleh sebelum tanggal tagihan"
+  ],
+  [
+    "the due date cannot be before the disposal",
+    "tanggal jatuh tempo tidak boleh sebelum tanggal pelepasan"
+  ],
+  [
+    "the due date cannot be before the issue date",
+    "tanggal jatuh tempo tidak boleh sebelum tanggal terbit"
+  ],
+  [
+    "the due date cannot be before the obligation date",
+    "tanggal jatuh tempo tidak boleh sebelum tanggal kewajiban"
+  ],
+  [
+    "the employee is not part of this payroll month",
+    "karyawan ini tidak termasuk dalam Payroll bulan ini"
+  ],
+  [
+    "the employment terms from % are already recorded; record the change from a later date",
+    "ketentuan kerja mulai {1} sudah tercatat; catat perubahannya mulai tanggal yang lebih baru"
+  ],
+  [
+    "the end date cannot be before the next occurrence (%)",
+    "tanggal akhir tidak boleh sebelum kejadian berikutnya ({1})"
+  ],
+  [
+    "the end date cannot be before the start date",
+    "tanggal akhir tidak boleh sebelum tanggal mulai"
+  ],
+  ["the equity class is capital or additional", "kelas ekuitas harus capital atau additional"],
+  [
+    "the exchange difference exceeds 20%% of the amount; check the exchange rate",
+    "selisih kurs melebihi 20% dari jumlah; periksa kursnya"
+  ],
+  [
+    "the exchange rate must be positive with at most 10 decimals",
+    "kurs harus lebih dari nol dengan paling banyak 10 angka desimal"
+  ],
+  ["the expense date is required", "tanggal pengeluaran wajib diisi"],
+  ["the expense is already %", "pengeluaran sudah berstatus {1}"],
+  ["the expense is too small to book in %", "pengeluaran terlalu kecil untuk dicatat dalam {1}"],
+  [
+    "the expiry must be in the future and within 5 years",
+    "masa berlaku harus berakhir di masa depan dan paling lama 5 tahun lagi"
+  ],
+  [
+    "the fee category must be an expense category of this Entity",
+    "kategori biaya harus kategori pengeluaran milik Entity ini"
+  ],
+  ["the fee must be zero or a positive number", "biaya harus nol atau angka positif"],
+  [
+    "the filing date cannot be in the future or before its tax period",
+    "tanggal pelaporan tidak boleh di masa depan atau sebelum masa pajaknya"
+  ],
+  [
+    "the filing reference (receipt number) is required, 3 to 200 characters",
+    "referensi pelaporan (nomor tanda terima) wajib diisi, 3 sampai 200 karakter"
+  ],
+  [
+    "the final tax of % cannot be computed now (%): %",
+    "pajak final {1} belum bisa dihitung sekarang ({2}): {3}"
+  ],
+  [
+    "the financial account is unknown or inactive",
+    "rekening keuangan tidak dikenal atau tidak aktif"
+  ],
+  [
+    "the first installment (%) falls before the proceeds date",
+    "angsuran pertama ({1}) jatuh sebelum tanggal pencairan"
+  ],
+  ["the first installment cannot fall before %", "angsuran pertama tidak boleh jatuh sebelum {1}"],
+  [
+    "the fiscal class is set when the asset is activated",
+    "kelas fiskal ditetapkan saat aset diaktifkan"
+  ],
+  [
+    "the fiscal class of % is unknown or does not allow that method",
+    "kelas fiskal untuk {1} tidak dikenal atau tidak mengizinkan metode tersebut"
+  ],
+  [
+    "the fiscal year start cannot change once accounting periods exist",
+    "awal tahun buku tidak bisa diubah setelah periode akuntansi dibuat"
+  ],
+  [
+    "the in-service date is not before the acquisition (%) and not in the future",
+    "tanggal mulai dipakai tidak boleh sebelum tanggal perolehan ({1}) dan tidak boleh di masa depan"
+  ],
+  [
+    "the input VAT offset cannot exceed the VAT paid against; excess input VAT stays as a credit",
+    "pengurangan PPN masukan tidak boleh melebihi PPN yang dibayar; kelebihan PPN masukan tetap menjadi kredit"
+  ],
+  [
+    "the input VAT offset would exceed the input VAT credited",
+    "pengurangan PPN masukan akan melebihi PPN masukan yang dikreditkan"
+  ],
+  [
+    "the installments schedule % of principal, not the % to be scheduled",
+    "jadwal angsuran mencakup pokok sebesar {1}, bukan {2} yang harus dijadwalkan"
+  ],
+  [
+    "the invoice is % and cannot receive a payment",
+    "Invoice berstatus {1} dan tidak bisa menerima pembayaran"
+  ],
+  ["the invoice is already %", "Invoice sudah berstatus {1}"],
+  ["the invoice is too small to book in %", "Invoice terlalu kecil untuk dicatat dalam {1}"],
+  ["the invoice is unknown in this Entity", "Invoice tidak dikenal di Entity ini"],
+  [
+    "the invoice must be an issued invoice of the same customer in %",
+    "Invoice harus berupa Invoice yang sudah diterbitkan untuk pelanggan yang sama dalam {1}"
+  ],
+  [
+    "the join date cannot be after the exit date",
+    "tanggal masuk tidak boleh setelah tanggal keluar"
+  ],
+  [
+    "the journal did not book % on this financial account for the movement(s)",
+    "jurnal tidak mencatat {1} pada rekening keuangan ini untuk mutasi tersebut"
+  ],
+  [
+    "the kind is receivable or payable and the method cash or offset",
+    "jenis harus receivable atau payable dan metode harus cash atau offset"
+  ],
+  [
+    "the ledger account must be an active cash/bank account of this Entity",
+    "akun buku besar harus akun kas/bank aktif milik Entity ini"
+  ],
+  [
+    "the life, residual or accumulated depreciation of % does not fit its cost",
+    "umur manfaat, nilai sisa, atau akumulasi penyusutan untuk {1} tidak sesuai dengan biaya perolehannya"
+  ],
+  ["the line kind is bill_line or expense_line", "jenis baris harus bill_line atau expense_line"],
+  [
+    "the lines of a net pay payment must add up to the payment",
+    "baris-baris pembayaran gaji bersih harus berjumlah sama dengan pembayarannya"
+  ],
+  [
+    "the loan of % is short-term or long-term",
+    "pinjaman untuk {1} harus short-term atau long-term"
+  ],
+  [
+    "the mapping starts on this date; choose a later date to end it",
+    "pemetaan dimulai pada tanggal ini; pilih tanggal yang lebih baru untuk mengakhirinya"
+  ],
+  [
+    "the marketplace store is unknown or inactive",
+    "toko marketplace tidak dikenal atau tidak aktif"
+  ],
+  [
+    "the method is none, straight_line or declining_balance",
+    "metode harus none, straight_line, atau declining_balance"
+  ],
+  [
+    "the method is straight_line or declining_balance and 1 to 1200 months remain",
+    "metode harus straight_line atau declining_balance dan sisa umur harus 1 sampai 1200 bulan"
+  ],
+  [
+    "the method of % is not allowed for this Entity",
+    "metode untuk {1} tidak diizinkan untuk Entity ini"
+  ],
+  [
+    "the movement date must equal the date of its journal",
+    "tanggal mutasi harus sama dengan tanggal jurnalnya"
+  ],
+  [
+    "the movement is matched to a bank statement line; unmatch it first",
+    "mutasi ini sudah dicocokkan dengan baris rekening koran; lepaskan pencocokannya dulu"
+  ],
+  [
+    "the movements add up to % but the statement line is %; a difference is never absorbed by a match",
+    "total mutasi adalah {1} tetapi baris rekening koran {2}; selisih tidak pernah diserap oleh pencocokan"
+  ],
+  ["the name needs 2 to 200 characters", "nama harus 2 sampai 200 karakter"],
+  ["the notes are limited to 2000 characters", "catatan paling banyak 2000 karakter"],
+  [
+    "the opening balance must equal the closing balance of the previous reconciliation (%)",
+    "saldo awal harus sama dengan saldo akhir rekonsiliasi sebelumnya ({1})"
+  ],
+  [
+    "the opening balances of this Entity are already completed",
+    "saldo awal Entity ini sudah selesai diisi"
+  ],
+  [
+    "the opening line of % must state its original % amount and rate",
+    "baris saldo awal untuk {1} harus mencantumkan jumlah asli dalam {2} dan kursnya"
+  ],
+  [
+    "the other claim must belong to the same invoice",
+    "klaim lainnya harus berasal dari Invoice yang sama"
+  ],
+  [
+    "the outstanding principal of % exceeds the original",
+    "sisa pokok untuk {1} melebihi pokok awalnya"
+  ],
+  ["the override amount cannot be negative", "jumlah koreksi manual tidak boleh negatif"],
+  ["the override cannot exceed %", "koreksi manual tidak boleh melebihi {1}"],
+  [
+    "the parts add up to % but the asset cost is %; they must be equal",
+    "total bagian-bagiannya {1} tetapi biaya perolehan aset {2}; keduanya harus sama"
+  ],
+  ["the patch must be an object", "data perubahan harus berupa objek"],
+  [
+    "the pay date cannot be before the payroll month",
+    "tanggal bayar tidak boleh sebelum bulan Payroll"
+  ],
+  [
+    "the payee is limited to 200 and the receipt reference to 100 characters",
+    "nama penerima paling banyak 200 karakter dan referensi kuitansi paling banyak 100 karakter"
+  ],
+  [
+    "the payee is unknown or is not a vendor of this Entity",
+    "penerima pembayaran tidak dikenal atau bukan Vendor Entity ini"
+  ],
+  [
+    "the payer is unknown or is not a customer of this Entity",
+    "pembayar tidak dikenal atau bukan pelanggan Entity ini"
+  ],
+  ["the paying account is unknown or inactive", "rekening pembayar tidak dikenal atau tidak aktif"],
+  ["the paying-out account is inactive", "rekening pengeluaran dana tidak aktif"],
+  [
+    "the paying-out account must be an active account in % of this Entity",
+    "rekening pengeluaran dana harus rekening aktif dalam {1} milik Entity ini"
+  ],
+  [
+    "the payment (%) must equal the sum of its allocations (%); vendor advances are not supported",
+    "pembayaran ({1}) harus sama dengan total alokasinya ({2}); uang muka ke Vendor tidak didukung"
+  ],
+  [
+    "the payment amount must be positive and allows % decimals for %",
+    "jumlah pembayaran harus lebih dari nol dan boleh memiliki {1} angka desimal untuk {2}"
+  ],
+  [
+    "the payment channel is unknown or inactive",
+    "saluran pembayaran tidak dikenal atau tidak aktif"
+  ],
+  [
+    "the payment channel is unknown, inactive or does not settle into the chosen account",
+    "saluran pembayaran tidak dikenal, tidak aktif, atau tidak masuk ke rekening yang dipilih"
+  ],
+  [
+    "the payment date is before the date of bill %",
+    "tanggal pembayaran lebih awal dari tanggal tagihan {1}"
+  ],
+  [
+    "the payment date is before the issue date of invoice %",
+    "tanggal pembayaran lebih awal dari tanggal terbit Invoice {1}"
+  ],
+  [
+    "the payment date must be between the invoice date and today",
+    "tanggal pembayaran harus di antara tanggal Invoice dan hari ini"
+  ],
+  [
+    "the payment destination is unknown or inactive",
+    "tujuan pembayaran tidak dikenal atau tidak aktif"
+  ],
+  [
+    "the payment destination must be an account in the invoice currency (%)",
+    "tujuan pembayaran harus rekening dalam mata uang Invoice ({1})"
+  ],
+  [
+    "the payment exceeds the selected invoices by %; allocate it or explicitly keep the rest as a customer advance",
+    "pembayaran melebihi Invoice yang dipilih sebesar {1}; alokasikan atau pilih secara tegas untuk menyimpan sisanya sebagai uang muka pelanggan"
+  ],
+  ["the payment is % and cannot be refunded", "pembayaran berstatus {1} dan tidak bisa di-refund"],
+  ["the payment is too small to book in %", "pembayaran terlalu kecil untuk dicatat dalam {1}"],
+  [
+    "the payments of % for % would exceed the tax recognised for that period",
+    "pembayaran {1} untuk {2} akan melebihi pajak yang diakui untuk masa tersebut"
+  ],
+  [
+    "the payments would exceed the dividend declared",
+    "pembayaran akan melebihi dividen yang diumumkan"
+  ],
+  [
+    "the payments would take the principal below zero",
+    "pembayaran akan membuat pokok menjadi di bawah nol"
+  ],
+  [
+    "the payout date cannot be in the future or before the sales span starts",
+    "tanggal pencairan tidak boleh di masa depan atau sebelum rentang penjualan dimulai"
+  ],
+  [
+    "the period has % difference(s) (first: %); a note of at least 10 characters explains them",
+    "periode ini memiliki {1} selisih (pertama: {2}); jelaskan dengan catatan minimal 10 karakter"
+  ],
+  [
+    "the period is not in closing review (now %)",
+    "periode tidak sedang dalam tinjauan penutupan (sekarang {1})"
+  ],
+  [
+    "the period must be in closing review before it can be closed (now %)",
+    "periode harus dalam tinjauan penutupan sebelum bisa ditutup (sekarang {1})"
+  ],
+  [
+    "the period of % no longer accepts postings; choose an in-service date from an open period",
+    "Periode {1} sudah tidak menerima pencatatan; pilih tanggal mulai dipakai dari periode yang masih terbuka"
+  ],
+  [
+    "the period overlaps an existing reconciliation of this account",
+    "Periode ini bertumpang tindih dengan rekonsiliasi yang sudah ada untuk rekening ini"
+  ],
+  [
+    "the posting service creates system, opening or closing journals only",
+    "Layanan posting hanya membuat jurnal sistem, jurnal saldo awal, atau jurnal penutup"
+  ],
+  [
+    "the proceeds cannot be dated before the agreement (%)",
+    "Tanggal penerimaan dana tidak boleh sebelum tanggal perjanjian ({1})"
+  ],
+  [
+    "the proceeds cannot be dated in the future",
+    "Tanggal penerimaan dana tidak boleh di masa depan"
+  ],
+  [
+    "the profile changed at the same time; reload and try again",
+    "Profil diubah pada saat yang sama; muat ulang lalu coba lagi"
+  ],
+  ["the profile needs an effective date", "Profil perlu tanggal berlaku"],
+  [
+    "the purpose is filing_receipt, payment_proof, withholding_slip, tax_invoice or other",
+    "Tujuan harus salah satu dari: filing_receipt, payment_proof, withholding_slip, tax_invoice, atau other"
+  ],
+  [
+    "the purpose is vendor_invoice, receipt, contract or other",
+    "Tujuan harus salah satu dari: vendor_invoice, receipt, contract, atau other"
+  ],
+  [
+    "the rate option is a short lower-case key",
+    "Opsi tarif harus berupa kunci pendek dengan huruf kecil"
+  ],
+  [
+    "the receiving account is unknown or inactive",
+    "Rekening penerima tidak dikenal atau tidak aktif"
+  ],
+  [
+    "the reconciliation is already completed; reopen it to change matches",
+    "Rekonsiliasi sudah selesai; buka kembali untuk mengubah pencocokan"
+  ],
+  ["the record changed, try again", "Data sudah berubah, coba lagi"],
+  [
+    "the recurring bill template needs a known vendor",
+    "Templat tagihan berulang perlu Vendor yang dikenal"
+  ],
+  [
+    "the recurring expense payment account is unknown or inactive",
+    "Rekening pembayaran untuk pengeluaran berulang tidak dikenal atau tidak aktif"
+  ],
+  [
+    "the recurring expense template needs a payee",
+    "Templat pengeluaran berulang perlu penerima pembayaran"
+  ],
+  [
+    "the recurring expense template needs a payment account",
+    "Templat pengeluaran berulang perlu rekening pembayaran"
+  ],
+  [
+    "the recurring invoice template needs a known customer",
+    "Templat Invoice berulang perlu pelanggan yang dikenal"
+  ],
+  ["the recurring rule already ended", "Aturan berulang ini sudah berakhir"],
+  ["the recurring rule changed since it was loaded", "Aturan berulang sudah berubah sejak dimuat"],
+  ["the recurring template lines must be a list", "Baris templat berulang harus berupa daftar"],
+  ["the recurring template must be an object", "Templat berulang harus berupa objek"],
+  [
+    "the reference is limited to 200 and the note to 1000 characters",
+    "Referensi maksimal 200 karakter dan catatan maksimal 1000 karakter"
+  ],
+  [
+    "the refund date cannot be before the allocation it refunds (%)",
+    "Tanggal refund tidak boleh sebelum alokasi yang direfund ({1})"
+  ],
+  [
+    "the refund date must be between the payment date and today",
+    "Tanggal refund harus di antara tanggal pembayaran dan hari ini"
+  ],
+  ["the refund is too small to book in %", "Refund terlalu kecil untuk dicatat dalam {1}"],
+  [
+    "the related Entity is unknown or not one you can access",
+    "Entity terkait tidak dikenal atau tidak dapat Anda akses"
+  ],
+  [
+    "the replacement document must be registered in the same Entity",
+    "Dokumen pengganti harus terdaftar di Entity yang sama"
+  ],
+  ["the request could not be verified", "Permintaan tidak dapat diverifikasi"],
+  ["the residual value cannot exceed the cost", "Nilai sisa tidak boleh melebihi harga perolehan"],
+  [
+    "the residual value cannot exceed the current book value (%)",
+    "Nilai sisa tidak boleh melebihi nilai buku saat ini ({1})"
+  ],
+  [
+    "the restructuring cannot take effect before the last activity on this loan (%)",
+    "Restrukturisasi tidak boleh berlaku sebelum aktivitas terakhir pada pinjaman ini ({1})"
+  ],
+  [
+    "the return exceeds the investment recorded; record a gain as a distribution received",
+    "Pengembalian melebihi investasi yang tercatat; catat keuntungannya sebagai distribusi yang diterima"
+  ],
+  [
+    "the revenue target changed since it was loaded",
+    "Target pendapatan sudah berubah sejak dimuat"
+  ],
+  ["the revenue target is already closed", "Target pendapatan sudah ditutup"],
+  [
+    "the reversal date cannot be before the settlement or in the future",
+    "Tanggal pembalikan tidak boleh sebelum pelunasan atau di masa depan"
+  ],
+  [
+    "the rule needs a family, a code, a source title and reference, an https source link and notes up to 2000 characters",
+    "Aturan perlu kelompok, kode, judul dan referensi sumber, tautan sumber https, serta catatan maksimal 2000 karakter"
+  ],
+  ["the run does not reconcile (%)", "Proses Payroll tidak cocok jumlahnya ({1})"],
+  [
+    "the run does not reconcile and cannot be closed (%)",
+    "Proses Payroll tidak cocok jumlahnya dan tidak bisa ditutup ({1})"
+  ],
+  ["the run has no employees", "Proses Payroll tidak punya karyawan"],
+  [
+    "the run has no lines or a line still needs review",
+    "Proses Payroll tidak punya baris atau masih ada baris yang perlu ditinjau"
+  ],
+  [
+    "the sales category must be a revenue category of this Entity",
+    "Kategori penjualan harus kategori pendapatan milik Entity ini"
+  ],
+  [
+    "the sales span needs a start and an end, the end not before the start",
+    "Rentang penjualan perlu tanggal awal dan tanggal akhir, dan tanggal akhir tidak boleh sebelum tanggal awal"
+  ],
+  [
+    "the schedule method is annuity, flat, interest_only or manual",
+    "Metode jadwal harus annuity, flat, interest_only, atau manual"
+  ],
+  ["the schedule method of % is unknown", "Metode jadwal {1} tidak dikenal"],
+  ["the settlement is already reversed", "Pelunasan ini sudah dibalik"],
+  [
+    "the settlements would exceed the principal of this obligation",
+    "Pelunasan akan melebihi pokok kewajiban ini"
+  ],
+  [
+    "the statement closing balance differs from the cleared system balance by %; correct it through an explicit adjustment, or accept the difference with a reason of at least 10 characters",
+    "Saldo akhir rekening koran berbeda {1} dari saldo sistem yang sudah dicocokkan; perbaiki lewat penyesuaian tersendiri, atau terima selisihnya dengan alasan minimal 10 karakter"
+  ],
+  ["the statement line has no match", "Baris rekening koran ini belum punya pasangan"],
+  [
+    "the statement line is already matched; unmatch it first",
+    "Baris rekening koran sudah dicocokkan; lepaskan pencocokannya dulu"
+  ],
+  [
+    "the statement line is excluded; include it again first",
+    "Baris rekening koran dikecualikan; sertakan kembali dulu"
+  ],
+  [
+    "the statement line is matched; unmatch it first",
+    "Baris rekening koran sudah dicocokkan; lepaskan pencocokannya dulu"
+  ],
+  [
+    "the statement lines add up to % but the statement moved from % to %; add the missing lines or exclude with a reason",
+    "Jumlah baris rekening koran adalah {1}, tetapi saldo rekening koran berubah dari {2} ke {3}; tambahkan baris yang kurang atau kecualikan dengan alasan"
+  ],
+  [
+    "the statement opening and closing balances are required",
+    "Saldo awal dan saldo akhir rekening koran wajib diisi"
+  ],
+  ["the statement period ends before it starts", "Periode rekening koran berakhir sebelum dimulai"],
+  ["the store name needs 2 to 120 characters", "Nama toko harus 2 sampai 120 karakter"],
+  [
+    "the superseded document does not exist in this Entity",
+    "Dokumen yang digantikan tidak ada di Entity ini"
+  ],
+  [
+    "the tax determination needs review; nothing is posted until it is resolved",
+    "Penentuan pajak perlu ditinjau; tidak ada yang diposting sampai hal ini diselesaikan"
+  ],
+  [
+    "the tax determination of this bill needs review before it can be approved: %",
+    "Penentuan pajak tagihan ini perlu ditinjau sebelum bisa disetujui: {1}"
+  ],
+  [
+    "the tax determination of this expense needs review before it can be confirmed: %",
+    "Penentuan pajak pengeluaran ini perlu ditinjau sebelum bisa dikonfirmasi: {1}"
+  ],
+  [
+    "the tax determination of this invoice needs review before it can be issued: %",
+    "Penentuan pajak Invoice ini perlu ditinjau sebelum bisa diterbitkan: {1}"
+  ],
+  [
+    "the tax engine is not active for this document date, so there is nothing to override",
+    "Mesin pajak belum aktif untuk tanggal dokumen ini, jadi tidak ada yang bisa dikoreksi manual"
+  ],
+  ["the tax engine of this Entity is already active", "Mesin pajak Entity ini sudah aktif"],
+  [
+    "the tax facts changed at the same time; reload and try again",
+    "Data pajak diubah pada saat yang sama; muat ulang lalu coba lagi"
+  ],
+  ["the tax facts need an effective date", "Data pajak perlu tanggal berlaku"],
+  [
+    "the tax paid must be positive, the offset and penalty not negative, all with at most % decimals",
+    "Pajak yang dibayar harus positif, kompensasi dan denda tidak boleh negatif, semuanya dengan paling banyak {1} angka desimal"
+  ],
+  [
+    "the tax period is the first day of a month",
+    "Masa pajak harus diisi dengan tanggal pertama suatu bulan"
+  ],
+  [
+    "the tax type is vat, wht_pph23 or final_umkm",
+    "Jenis pajak harus vat, wht_pph23, atau final_umkm"
+  ],
+  [
+    "the tax type is vat, wht_pph23, wht_pph21 or final_umkm",
+    "Jenis pajak harus vat, wht_pph23, wht_pph21, atau final_umkm"
+  ],
+  ["the tax year is before the employee joined", "Tahun pajak ini sebelum karyawan bergabung"],
+  [
+    "the tax year, a non-negative amount and a description of 3 to 300 characters are required",
+    "Tahun pajak, jumlah yang tidak negatif, dan keterangan 3 sampai 300 karakter wajib diisi"
+  ],
+  ["the taxpayer profile is incomplete: %", "Profil wajib pajak belum lengkap: {1}"],
+  ["the transfer amount must be a positive number", "Jumlah transfer harus angka positif"],
+  [
+    "the type is sale, scrapped, lost, damaged or donated; the proceeds are cash, receivable or none",
+    "Jenis harus sale, scrapped, lost, damaged, atau donated; hasilnya harus cash, receivable, atau none"
+  ],
+  ["the useful life is 1 to 1200 months", "Masa manfaat harus 1 sampai 1200 bulan"],
+  [
+    "the useful life of % is used up but a value above the residual remains; give more remaining months",
+    "Masa manfaat {1} sudah habis tetapi masih ada nilai di atas nilai sisa; tambah sisa bulannya"
+  ],
+  [
+    "the vendor is unknown or is not a vendor of this Entity",
+    "Vendor tidak dikenal atau bukan Vendor Entity ini"
+  ],
+  ["the vendor reference is limited to 100 characters", "Referensi Vendor maksimal 100 karakter"],
+  ["the verification date cannot be in the future", "Tanggal verifikasi tidak boleh di masa depan"],
+  ["the write-off cannot be dated in the future", "Tanggal penghapusan tidak boleh di masa depan"],
+  [
+    "the write-off date is not in the future and not before the obligation (%)",
+    "Tanggal penghapusan tidak boleh di masa depan dan tidak boleh sebelum tanggal kewajiban ({1})"
+  ],
+  [
+    "there are no opening balances waiting to be completed",
+    "Tidak ada saldo awal yang menunggu untuk dilengkapi"
+  ],
+  [
+    "there is no filing of this period to amend",
+    "Tidak ada pelaporan pajak periode ini yang bisa dibetulkan"
+  ],
+  [
+    "there is nothing to reconcile for this period",
+    "Tidak ada yang perlu direkonsiliasi untuk periode ini"
+  ],
+  ["this Entity has no Accounts Payable account", "Entity ini belum punya akun Utang Usaha"],
+  ["this Entity has no FX gain/loss account", "Entity ini belum punya akun laba/rugi selisih kurs"],
+  [
+    "this Entity has no account for \"%\"; check its chart of accounts",
+    "Entity ini belum punya akun untuk \"{1}\"; periksa daftar akunnya"
+  ],
+  [
+    "this Entity has no account to book refunds of sales on",
+    "Entity ini belum punya akun untuk mencatat refund penjualan"
+  ],
+  [
+    "this Entity has no bank fee expense account to book the fee on",
+    "Entity ini belum punya akun beban biaya bank untuk mencatat biaya tersebut"
+  ],
+  [
+    "this Entity has no cash account group to place the new account in",
+    "Entity ini belum punya kelompok akun kas untuk menempatkan rekening baru"
+  ],
+  [
+    "this Entity has no customer-advance account",
+    "Entity ini belum punya akun uang muka pelanggan"
+  ],
+  [
+    "this Entity has no customer-advance account, so an overpayment cannot be kept",
+    "Entity ini belum punya akun uang muka pelanggan, jadi kelebihan pembayaran tidak bisa disimpan"
+  ],
+  [
+    "this Entity records contributions, capital returns and dividends (company) or investment contributions, investment returns and distributions received (Personal)",
+    "Entity ini mencatat setoran modal, pengembalian modal, dan dividen (perusahaan) atau setoran investasi, pengembalian investasi, dan distribusi yang diterima (Pribadi)"
+  ],
+  [
+    "this account already has a reconciliation in progress",
+    "Rekening ini sudah punya rekonsiliasi yang sedang berjalan"
+  ],
+  ["this application was already reversed", "Penerapan ini sudah dibalik"],
+  [
+    "this bill has % active payment allocation(s); reverse those payments first",
+    "Tagihan ini punya {1} alokasi pembayaran aktif; balik pembayaran tersebut dulu"
+  ],
+  [
+    "this bill has active payment allocations; reverse those payments first",
+    "Tagihan ini punya alokasi pembayaran aktif; balik pembayaran tersebut dulu"
+  ],
+  [
+    "this bill was changed by someone else; reload it (version % vs %)",
+    "Tagihan ini sudah diubah orang lain; muat ulang (versi {1} vs {2})"
+  ],
+  ["this claim was already reviewed (%)", "Klaim ini sudah ditinjau ({1})"],
+  ["this document already has a storage location", "Dokumen ini sudah punya lokasi penyimpanan"],
+  [
+    "this document has no % result to override",
+    "Dokumen ini tidak punya hasil {1} untuk dikoreksi manual"
+  ],
+  ["this document link is already removed", "Tautan dokumen ini sudah dihapus"],
+  ["this employee has already left", "Karyawan ini sudah keluar"],
+  [
+    "this expense was changed by someone else; reload it (version % vs %)",
+    "Pengeluaran ini sudah diubah orang lain; muat ulang (versi {1} vs {2})"
+  ],
+  ["this invoice does not accept payments", "Invoice ini tidak menerima pembayaran"],
+  [
+    "this invoice has % active payment allocation(s); reverse those payments first",
+    "Invoice ini punya {1} alokasi pembayaran aktif; balik pembayaran tersebut dulu"
+  ],
+  ["this invoice has no active public link", "Invoice ini tidak punya tautan publik yang aktif"],
+  ["this invoice is already paid", "Invoice ini sudah lunas"],
+  [
+    "this invoice was changed by someone else; reload it (version % vs %)",
+    "Invoice ini sudah diubah orang lain; muat ulang (versi {1} vs {2})"
+  ],
+  ["this journal has already been reversed", "Jurnal ini sudah dibalik"],
+  ["this legacy open item is already %", "Pos terbuka lama ini sudah {1}"],
+  [
+    "this legacy open item is already %, and cannot be changed further",
+    "Pos terbuka lama ini sudah {1}, dan tidak bisa diubah lagi"
+  ],
+  ["this linker does not take % records", "Penaut ini tidak menerima data {1}"],
+  [
+    "this looks like a duplicate of % % (%); approve again with a reason if it is a different document",
+    "Ini tampak seperti duplikat dari {1} {2} ({3}); setujui lagi dengan alasan jika memang dokumen yang berbeda"
+  ],
+  [
+    "this looks like a duplicate of % % (%); confirm again with a reason if it is a different document",
+    "Ini tampak seperti duplikat dari {1} {2} ({3}); konfirmasi lagi dengan alasan jika memang dokumen yang berbeda"
+  ],
+  [
+    "this looks like an existing contact \"%\" (%); use it, or confirm it is a different party",
+    "Ini mirip dengan kontak yang sudah ada \"{1}\" ({2}); gunakan kontak itu, atau konfirmasi bahwa ini pihak yang berbeda"
+  ],
+  [
+    "this obligation was created by an asset sale; reverse the disposal instead",
+    "Kewajiban ini dibuat dari penjualan aset; balik pelepasan asetnya saja"
+  ],
+  [
+    "this override was used by a posted determination and is part of its history",
+    "Koreksi manual ini sudah dipakai oleh penentuan pajak yang diposting dan menjadi bagian dari riwayatnya"
+  ],
+  [
+    "this payment belongs to a schedule that was restructured; it is part of the history now",
+    "Pembayaran ini termasuk jadwal yang sudah direstrukturisasi; sekarang menjadi bagian dari riwayat"
+  ],
+  [
+    "this payment has confirmed refunds; reverse them first",
+    "Pembayaran ini punya refund yang sudah dikonfirmasi; balik refund tersebut dulu"
+  ],
+  [
+    "this payroll month already has a live run (Step 08 §13: no duplicate final run)",
+    "Bulan Payroll ini sudah punya proses yang aktif (tidak boleh ada proses final ganda)"
+  ],
+  [
+    "this period is already filed (%); record an amendment to change it",
+    "Periode ini sudah dilaporkan ({1}); catat pembetulan untuk mengubahnya"
+  ],
+  [
+    "this rate and term leave an installment without an amount; change the term or use a manual schedule",
+    "Bunga dan jangka waktu ini membuat ada angsuran tanpa jumlah; ubah jangka waktunya atau gunakan jadwal manual"
+  ],
+  [
+    "this record has no tax review pending (%)",
+    "Data ini tidak punya tinjauan pajak yang tertunda ({1})"
+  ],
+  ["this request is still in progress", "Permintaan ini masih diproses"],
+  [
+    "this workflow uses an account in the Entity's base currency (%)",
+    "Alur ini memakai rekening dalam mata uang dasar Entity ({1})"
+  ],
+  [
+    "this would take % below zero, which is blocked for % accounts",
+    "Ini akan membuat {1} di bawah nol, dan itu tidak diizinkan untuk rekening {2}"
+  ],
+  [
+    "total has more decimals than the allocation scale",
+    "Total punya angka desimal lebih banyak daripada skala alokasi"
+  ],
+  [
+    "total must be finite and the scale between 0 and 10",
+    "Total harus berupa angka terhingga dan skala harus antara 0 dan 10"
+  ],
+  [
+    "type the Entity code to confirm the restore",
+    "Ketik kode Entity untuk mengonfirmasi pemulihan"
+  ],
+  ["unknown Entity", "Entity tidak dikenal"],
+  ["unknown accounting period", "Periode akuntansi tidak dikenal"],
+  ["unknown asset line", "Baris aset tidak dikenal"],
+  ["unknown backup kind %", "Jenis cadangan {1} tidak dikenal"],
+  ["unknown budget period type", "Jenis periode anggaran tidak dikenal"],
+  ["unknown category of this Entity", "Kategori tidak dikenal di Entity ini"],
+  ["unknown contact", "Kontak tidak dikenal"],
+  ["unknown currency", "Mata uang tidak dikenal"],
+  ["unknown depreciation method %", "Metode penyusutan {1} tidak dikenal"],
+  ["unknown document", "Dokumen tidak dikenal"],
+  ["unknown document link", "Tautan dokumen tidak dikenal"],
+  ["unknown document target type %", "Jenis sasaran dokumen {1} tidak dikenal"],
+  ["unknown document type", "Jenis dokumen tidak dikenal"],
+  ["unknown document type or tax kind", "Jenis dokumen atau jenis pajak tidak dikenal"],
+  ["unknown evidence document of this Entity", "Dokumen bukti tidak dikenal di Entity ini"],
+  ["unknown filter", "Filter tidak dikenal"],
+  ["unknown financial account of this Entity", "Rekening keuangan tidak dikenal di Entity ini"],
+  [
+    "unknown fiscal class % for that date",
+    "Kelompok fiskal {1} tidak dikenal untuk tanggal tersebut"
+  ],
+  [
+    "unknown fiscal class % for the in-service date",
+    "Kelompok fiskal {1} tidak dikenal untuk tanggal mulai dipakai"
+  ],
+  ["unknown import domain %", "Domain impor {1} tidak dikenal"],
+  ["unknown journal", "Jurnal tidak dikenal"],
+  ["unknown line %", "Baris {1} tidak dikenal"],
+  ["unknown marketplace", "Marketplace tidak dikenal"],
+  ["unknown marketplace store", "Toko marketplace tidak dikenal"],
+  ["unknown or cancelled asset", "Aset tidak dikenal atau sudah dibatalkan"],
+  ["unknown or disabled Entity", "Entity tidak dikenal atau dinonaktifkan"],
+  ["unknown or inactive category", "Kategori tidak dikenal atau tidak aktif"],
+  ["unknown payment channel", "Saluran pembayaran tidak dikenal"],
+  ["unknown permission", "Izin tidak dikenal"],
+  ["unknown record", "Data tidak dikenal"],
+  ["unknown recurring frequency %", "Frekuensi berulang {1} tidak dikenal"],
+  ["unknown recurring kind", "Jenis transaksi berulang tidak dikenal"],
+  ["unknown revenue target period type", "Jenis periode target pendapatan tidak dikenal"],
+  ["unknown role", "Peran tidak dikenal"],
+  ["unknown rounding mode %", "Mode pembulatan {1} tidak dikenal"],
+  ["unknown rule version", "Versi aturan tidak dikenal"],
+  ["unknown schedule method %", "Metode jadwal {1} tidak dikenal"],
+  ["unknown sensitive kind", "Jenis data sensitif tidak dikenal"],
+  ["unknown source", "Sumber tidak dikenal"],
+  ["unknown timezone", "Zona waktu tidak dikenal"],
+  ["unsupported dimension for this side", "Dimensi ini tidak didukung untuk sisi ini"],
+  [
+    "verification status is verified or needs_review",
+    "Status verifikasi harus verified atau needs_review"
+  ],
+  [
+    "voiding needs a reason of 5 to 1000 characters",
+    "Pembatalan (void) perlu alasan 5 sampai 1000 karakter"
+  ],
+  [
+    "voiding needs a reason of at least 5 characters",
+    "Pembatalan (void) perlu alasan minimal 5 karakter"
+  ],
+  ["weights must be non-negative", "Bobot tidak boleh negatif"],
+  ["weights must not all be zero", "Bobot tidak boleh semuanya nol"],
+  [
+    "with the same currency on both sides the amount received equals the amount sent",
+    "Jika mata uang di kedua sisi sama, jumlah yang diterima harus sama dengan jumlah yang dikirim"
+  ],
+  [
+    "with the same foreign currency on both sides one exchange rate applies (a transfer creates no exchange gain)",
+    "Jika kedua sisi memakai mata uang asing yang sama, hanya satu kurs yang berlaku (transfer tidak menimbulkan laba selisih kurs)"
+  ],
+  [
+    "write what was concluded (5 to 1000 characters)",
+    "Tuliskan kesimpulannya (5 sampai 1000 karakter)"
+  ]
+]

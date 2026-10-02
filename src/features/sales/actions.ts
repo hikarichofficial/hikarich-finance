@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { AuthzError, authzErrorMessage, describeAuthzError } from "@/domain/authz/errors";
+import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
   cancelInvoice,
@@ -70,9 +70,7 @@ function errorState(error: unknown, fallback: string): InvoiceActionState {
 /** The database's own explanation after an `INVALID:`/`CONFLICT:` prefix (English, but specific). */
 function draftErrorState(error: unknown, fallback: string): InvoiceActionState {
   if (error instanceof AuthzError) {
-    const match = /^(?:INVALID|CONFLICT):\s*([\s\S]+)$/.exec(error.message);
-    const base = authzErrorMessage(error.code);
-    return { status: "error", message: match?.[1] ? `${base} (${match[1].trim()})` : base };
+    return { status: "error", message: describeAuthzError(error) };
   }
   return { status: "error", message: fallback };
 }

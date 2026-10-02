@@ -2,7 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { setTaxOverride, withdrawTaxOverride } from "@/services/tax/tax";
 
 /** Server action behind the tax override form (decision 262): the unmodified `tax_override_set`
@@ -35,11 +35,9 @@ export async function setTaxOverrideAction(
     });
   } catch (error) {
     if (error instanceof AuthzError) {
-      const match = /^(?:INVALID|CONFLICT|STEP_UP_REQUIRED):\s*([\s\S]+)$/.exec(error.message);
-      const base = authzErrorMessage(error.code);
       return {
         status: "error",
-        message: match?.[1] ? `${base} (${match[1].trim()})` : base,
+        message: describeAuthzError(error),
         stepUp: error.code === "STEP_UP_REQUIRED",
       };
     }
@@ -65,11 +63,9 @@ export async function withdrawTaxOverrideAction(
     });
   } catch (error) {
     if (error instanceof AuthzError) {
-      const match = /^(?:INVALID|CONFLICT):\s*([\s\S]+)$/.exec(error.message);
-      const base = authzErrorMessage(error.code);
       return {
         status: "error",
-        message: match?.[1] ? `${base} (${match[1].trim()})` : base,
+        message: describeAuthzError(error),
         stepUp: error.code === "STEP_UP_REQUIRED",
       };
     }

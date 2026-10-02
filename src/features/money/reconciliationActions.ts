@@ -1,5 +1,6 @@
 "use server";
 
+import { translateReason } from "@/domain/authz/translateReason";
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
@@ -45,7 +46,8 @@ function sessionHref(id: string, entity: string, extra = ""): string {
 /** The database's own explanation after an `INVALID:`/`CONFLICT:` prefix. */
 function detailOf(message: string): string | undefined {
   const match = /^(?:INVALID|CONFLICT):\s*([\s\S]+)$/.exec(message.trim());
-  return match ? match[1] : undefined;
+  if (!match?.[1]) return undefined;
+  return translateReason(match[1]) ?? match[1];
 }
 
 function fail(error: unknown, fallback: string): ReconActionState {
