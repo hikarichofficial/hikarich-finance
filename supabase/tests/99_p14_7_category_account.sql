@@ -48,28 +48,39 @@ begin
     'INVALID', '1.4 other kinds are not mapped here');
 
   v_m1 := public.set_category_account(e1, v_rev, v_a_rev, date '2026-01-01');
+  perform test_helpers.logout();
   perform test_helpers.assert(app_private.resolve_revenue_account(e1, v_rev, date '2026-03-01') = v_a_rev,
     '1.5 invoices of the category post to the mapped revenue account');
+  perform test_helpers.login(v_owner);
   v_m2 := public.set_category_account(e1, v_rev, v_a_rev2, date '2026-06-01');
+  perform test_helpers.logout();
   perform test_helpers.assert(v_m2 <> v_m1
     and (select effective_to from public.category_account_mappings where id = v_m1) = date '2026-05-31'
     and app_private.resolve_revenue_account(e1, v_rev, date '2026-03-01') = v_a_rev
     and app_private.resolve_revenue_account(e1, v_rev, date '2026-07-01') = v_a_rev2,
     '1.6 a change starts on its date; earlier dates keep the account they had');
+  perform test_helpers.login(v_owner);
   perform test_helpers.expect_msg(format('select public.set_category_account(%L, %L, %L, %L)', e1, v_rev, v_a_rev, date '2026-02-01'),
     'CONFLICT', '1.7 a mapping cannot be inserted before a later one');
-  perform test_helpers.assert(public.set_category_account(e1, v_rev, v_a_rev, date '2026-06-01') = v_m2
-    and app_private.resolve_revenue_account(e1, v_rev, date '2026-07-01') = v_a_rev,
+  perform test_helpers.assert(public.set_category_account(e1, v_rev, v_a_rev, date '2026-06-01') = v_m2,
     '1.8 the same start date corrects the mapping in place');
+  perform test_helpers.logout();
+  perform test_helpers.assert(app_private.resolve_revenue_account(e1, v_rev, date '2026-07-01') = v_a_rev,
+    '1.8b and the corrected account is the one in force');
+  perform test_helpers.login(v_owner);
 
   perform public.set_category_account(e1, v_exp, v_a_exp, date '2026-01-01');
+  perform test_helpers.logout();
   perform test_helpers.assert(app_private.resolve_purchase_account(e1, v_exp, 'expense', null, date '2026-02-01') = v_a_exp,
     '1.9 bills and expenses of the category post to the mapped expense account');
+  perform test_helpers.login(v_owner);
   perform public.set_category_account(e1, v_exp, null, date '2026-09-01');
+  perform test_helpers.logout();
   perform test_helpers.assert((select effective_to from public.category_account_mappings
       where category_id = v_exp and context = 'purchases') = date '2026-08-31'
     and app_private.resolve_purchase_account(e1, v_exp, 'expense', null, date '2026-02-01') = v_a_exp,
     '1.10 ending a mapping keeps its history');
+  perform test_helpers.login(v_owner);
   perform test_helpers.logout();
 end
 $$;
