@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { createContactAction } from "./contactActions";
 import { idleContactActionState } from "./contactActionsState";
@@ -16,10 +17,11 @@ export function ContactForm({
   entity: string | undefined;
 }) {
   const [state, action, pending] = useActionState(createContactAction, idleContactActionState);
+  const actionForm = usePreservingForm(action, state);
   const otherRole = contactRole === "customer" ? "vendor" : "pelanggan";
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="role" value={contactRole} />
       <label>

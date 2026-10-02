@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import type { PlanPeriodType, RecurringFrequency, RecurringKind } from "@/domain/planning/planning";
 import {
   activateBudget,
@@ -87,7 +87,7 @@ function parseLinesJson(formData: FormData, name: string): unknown[] | null {
 
 function errorState(error: unknown, fallback: string): PlanningActionState {
   if (error instanceof AuthzError) {
-    return { status: "error", message: authzErrorMessage(error.code) };
+    return { status: "error", message: describeAuthzError(error) };
   }
   return { status: "error", message: fallback };
 }

@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { AuthzError, authzErrorMessage, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
   approveBill,
@@ -47,7 +47,7 @@ function revalidateBill(billId: string): void {
 
 function errorState(error: unknown, fallback: string): BillActionState {
   if (error instanceof AuthzError) {
-    return { status: "error", message: authzErrorMessage(error.code) };
+    return { status: "error", message: describeAuthzError(error) };
   }
   return { status: "error", message: fallback };
 }

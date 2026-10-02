@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState, type ReactNode } from "react";
 import type { PayrollActionState } from "./payrollActions";
 
@@ -25,6 +26,7 @@ export function PayrollToggleForm({
   children: ReactNode;
 }) {
   const [state, formAction, pending] = useActionState(action, IDLE);
+  const formActionForm = usePreservingForm(formAction, state);
   const [open, setOpen] = useState(false);
 
   if (!open) {
@@ -40,7 +42,7 @@ export function PayrollToggleForm({
   }
 
   return (
-    <form action={formAction} className="record-form">
+    <form {...formActionForm} className="record-form">
       <strong>{openLabel}</strong>
       {children}
       {state.status === "error" ? (

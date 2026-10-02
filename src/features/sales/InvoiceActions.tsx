@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
@@ -25,8 +26,9 @@ import {
 
 function IssueForm({ invoiceId }: { invoiceId: string }) {
   const [state, action, pending] = useActionState(issueInvoiceAction, idleInvoiceActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="invoice_id" value={invoiceId} />
       {state.status === "error" ? (
         <p role="alert" className="error">
@@ -162,6 +164,7 @@ function LinkExpiryForm({ invoiceId }: { invoiceId: string }) {
     setInvoiceLinkExpiryAction,
     idleInvoiceActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   const [localTime, setLocalTime] = useState("");
   const parsed = localTime === "" ? null : new Date(localTime);
@@ -176,7 +179,7 @@ function LinkExpiryForm({ invoiceId }: { invoiceId: string }) {
   }
 
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="invoice_id" value={invoiceId} />
       <input type="hidden" name="expires_at" value={expiresAt} />
       <label>
@@ -233,6 +236,7 @@ function CorrectForm({ invoiceId }: { invoiceId: string }) {
 
 function CopyLinkForm({ invoiceId }: { invoiceId: string }) {
   const [state, action, pending] = useActionState(ensureInvoiceLinkAction, idleInvoiceLinkState);
+  const actionForm = usePreservingForm(action, state);
   const [copied, setCopied] = useState(false);
   const url =
     state.token && typeof window !== "undefined"
@@ -250,7 +254,7 @@ function CopyLinkForm({ invoiceId }: { invoiceId: string }) {
   }
 
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="invoice_id" value={invoiceId} />
       {state.status === "error" ? (
         <p role="alert" className="error">

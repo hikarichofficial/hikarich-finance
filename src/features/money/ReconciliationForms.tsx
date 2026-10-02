@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import {
   addLinesAction,
@@ -56,8 +57,9 @@ export function NewSessionForm({
   defaults: { periodStart: string; periodEnd: string; opening: string };
 }) {
   const [state, action, pending] = useActionState(createSessionAction, idleReconActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="account_id" value={accountId} />
       <p className="hint">
@@ -113,8 +115,9 @@ export function AddLinesForm({
   entity: string | undefined;
 }) {
   const [state, action, pending] = useActionState(addLinesAction, idleReconActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <Hidden sessionId={sessionId} entity={entity} />
       <label>
         Tempel mutasi rekening koran (satu baris per transaksi)
@@ -153,8 +156,9 @@ export function MatchForm({
   candidates: ReadonlyArray<{ id: string; label: string }>;
 }) {
   const [state, action, pending] = useActionState(matchLineAction, idleReconActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <Hidden sessionId={sessionId} entity={entity} />
       <input type="hidden" name="line_id" value={lineId} />
       {candidates.length === 0 ? (
@@ -199,11 +203,12 @@ export function LineReasonForm({
     kind === "exclude" ? excludeLineAction : unmatchLineAction,
     idleReconActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   if (state.status === "ok") return <Result state={state} />;
   return (
     <details>
       <summary>{kind === "exclude" ? "Kecualikan" : "Batalkan cocok"}</summary>
-      <form action={action} className="record-form">
+      <form {...actionForm} className="record-form">
         <Hidden sessionId={sessionId} entity={entity} />
         <input type="hidden" name="line_id" value={lineId} />
         <label>
@@ -229,9 +234,10 @@ export function IncludeLineForm({
   lineId: string;
 }) {
   const [state, action, pending] = useActionState(includeLineAction, idleReconActionState);
+  const actionForm = usePreservingForm(action, state);
   if (state.status === "ok") return <Result state={state} />;
   return (
-    <form action={action}>
+    <form {...actionForm}>
       <Hidden sessionId={sessionId} entity={entity} />
       <input type="hidden" name="line_id" value={lineId} />
       <button type="submit" disabled={pending}>
@@ -250,8 +256,9 @@ export function CompleteSessionForm({
   entity: string | undefined;
 }) {
   const [state, action, pending] = useActionState(completeSessionAction, idleReconActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <Hidden sessionId={sessionId} entity={entity} />
       <label>
         Alasan menerima selisih (wajib bila ada selisih, minimal 10 karakter)
@@ -275,10 +282,11 @@ export function ReopenSessionForm({
   entity: string | undefined;
 }) {
   const [state, action, pending] = useActionState(reopenSessionAction, idleReconActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
     <details>
       <summary>Buka kembali</summary>
-      <form action={action} className="record-form">
+      <form {...actionForm} className="record-form">
         <Hidden sessionId={sessionId} entity={entity} />
         <label>
           Alasan (minimal 10 karakter)
@@ -301,10 +309,11 @@ export function DiscardSessionForm({
   entity: string | undefined;
 }) {
   const [state, action, pending] = useActionState(discardSessionAction, idleReconActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
     <details>
       <summary>Buang sesi</summary>
-      <form action={action} className="record-form">
+      <form {...actionForm} className="record-form">
         <Hidden sessionId={sessionId} entity={entity} />
         <p className="hint">
           Sesi beserta baris mutasi dan pencocokannya dihapus. Pergerakan kas tidak berubah.

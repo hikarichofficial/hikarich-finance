@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import { reversePaymentAction } from "./actions";
 import { idleReversePaymentState } from "./actionsState";
@@ -17,6 +18,7 @@ import { idleReversePaymentState } from "./actionsState";
 
 function ReverseForm({ paymentId }: { paymentId: string }) {
   const [state, action, pending] = useActionState(reversePaymentAction, idleReversePaymentState);
+  const actionForm = usePreservingForm(action, state);
   const [reason, setReason] = useState("");
   const [open, setOpen] = useState(false);
   const today = new Date().toISOString().slice(0, 10);
@@ -30,7 +32,7 @@ function ReverseForm({ paymentId }: { paymentId: string }) {
   }
 
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="payment_id" value={paymentId} />
       <p className="hint">
         Pembayaran ini akan dibalik (reverse) dan jurnal pembaliknya dibuat. Tindakan ini tidak

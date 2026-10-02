@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import Link from "next/link";
 import { useActionState } from "react";
 import {
@@ -33,8 +34,9 @@ function CloseYearForm({
   next: string;
 }) {
   const [state, action, pending] = useActionState(closeFiscalYearAction, IDLE);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <p className="hint">
         Menutup tahun buku memindahkan laba/rugi tahun itu ke saldo laba dengan satu jurnal penutup.
@@ -68,8 +70,9 @@ function ReverseYearForm({
   next: string;
 }) {
   const [state, action, pending] = useActionState(reverseFiscalYearClosingAction, IDLE);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <p className="hint">
         Membatalkan penutupan membuat jurnal pembalik untuk jurnal penutup tahun itu. Perlu

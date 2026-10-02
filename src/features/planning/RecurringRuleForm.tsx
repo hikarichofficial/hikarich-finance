@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import {
   RECURRING_FREQUENCY_LABELS,
@@ -85,6 +86,7 @@ export function RecurringRuleForm({
     mode === "create" ? createRecurringRuleAction : updateRecurringRuleAction,
     idlePlanningActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   const [kind, setKind] = useState<RecurringKind>(rule?.kind ?? "invoice");
   const [frequency, setFrequency] = useState<RecurringFrequency | "">(rule?.frequency ?? "");
   const [rows, setRows] = useState<RecurringLineRow[]>(() =>
@@ -104,7 +106,7 @@ export function RecurringRuleForm({
           : "kelipatan sesuai frekuensi";
 
   return (
-    <form action={action} className="record-form-wide">
+    <form {...actionForm} className="record-form-wide">
       <input type="hidden" name="entity_id" value={entityId} />
       {entity ? <input type="hidden" name="entity" value={entity} /> : null}
       {mode === "edit" && rule ? (

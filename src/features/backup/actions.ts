@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import {
   exportBackupFile,
   previewBackupRestore,
@@ -18,17 +18,19 @@ import type { BackupKind, RestorePreview, RestoreResult } from "@/schemas/backup
  */
 
 export type BackupExportResult =
-  { status: "ok"; file: string; kind: BackupKind } | { status: "error"; message: string };
+  | { status: "ok"; file: string; kind: BackupKind }
+  | { status: "error"; message: string };
 
 export type RestorePreviewActionResult =
-  { status: "ok"; preview: RestorePreview } | { status: "error"; message: string };
+  | { status: "ok"; preview: RestorePreview }
+  | { status: "error"; message: string };
 
 export type RestoreActionResult =
   | { status: "ok"; result: RestoreResult }
   | { status: "error"; message: string; code?: AuthzError["code"] };
 
 function errorMessage(error: unknown, fallback: string): string {
-  if (error instanceof AuthzError) return authzErrorMessage(error.code);
+  if (error instanceof AuthzError) return describeAuthzError(error);
   return fallback;
 }
 
@@ -68,7 +70,7 @@ export async function restoreBackupAction(
     return { status: "ok", result };
   } catch (error) {
     if (error instanceof AuthzError) {
-      return { status: "error", message: authzErrorMessage(error.code), code: error.code };
+      return { status: "error", message: describeAuthzError(error), code: error.code };
     }
     return { status: "error", message: "Pemulihan gagal diproses." };
   }

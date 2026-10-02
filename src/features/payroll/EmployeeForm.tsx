@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { createEmployeeAction, type PayrollActionState } from "./payrollActions";
 
@@ -8,9 +9,10 @@ const IDLE: PayrollActionState = { status: "idle" };
 /** Add Employee through `employee_create` (`payroll.employee_edit`). */
 export function EmployeeForm({ entity, today }: { entity: string | undefined; today: string }) {
   const [state, action, pending] = useActionState(createEmployeeAction, IDLE);
+  const actionForm = usePreservingForm(action, state);
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <label>
         Nama Lengkap

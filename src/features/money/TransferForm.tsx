@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import type { MoneyControlRow } from "@/schemas/money";
 import { createTransferAction } from "./transferActions";
@@ -27,11 +28,12 @@ export function TransferForm({
   canConfirmOnCreate: boolean;
 }) {
   const [state, action, pending] = useActionState(createTransferAction, idleTransferFormState);
+  const actionForm = usePreservingForm(action, state);
   const today = new Date().toISOString().slice(0, 10);
   const active = accounts.filter((a) => a.is_active);
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity_id" value={entityId} />
       {entity ? <input type="hidden" name="entity" value={entity} /> : null}
 

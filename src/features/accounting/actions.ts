@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
-import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import {
   beginPeriodClose,
   cancelPeriodClose,
@@ -34,7 +34,7 @@ function text(formData: FormData, name: string): string {
 
 function errorState(error: unknown, fallback: string): JournalActionState {
   if (error instanceof AuthzError) {
-    return { status: "error", message: authzErrorMessage(error.code) };
+    return { status: "error", message: describeAuthzError(error) };
   }
   return { status: "error", message: fallback };
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { createAccountAction } from "./accountActions";
 import { idleAccountActionState } from "./accountActionsState";
@@ -17,9 +18,10 @@ export function AccountForm({
   baseCurrency: string;
 }) {
   const [state, action, pending] = useActionState(createAccountAction, idleAccountActionState);
+  const actionForm = usePreservingForm(action, state);
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <label>
         Jenis

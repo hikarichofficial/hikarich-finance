@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import Link from "next/link";
 import { useActionState, useState, type ReactNode } from "react";
 import {
@@ -79,6 +80,7 @@ function ActionForm({
   children: ReactNode;
 }) {
   const [state, formAction, pending] = useActionState(action, idleAssetActionState);
+  const formActionForm = usePreservingForm(formAction, state);
   const [open, setOpen] = useState(false);
 
   if (!open) {
@@ -93,7 +95,7 @@ function ActionForm({
   }
 
   return (
-    <form action={formAction} className="record-form">
+    <form {...formActionForm} className="record-form">
       <input type="hidden" name="asset_id" value={assetId} />
       {children}
       <Feedback state={state} next={next} />
@@ -595,9 +597,10 @@ export function PostDepreciationForm({
   through: string;
 }) {
   const [state, action, pending] = useActionState(postDepreciationAction, idleAssetActionState);
+  const actionForm = usePreservingForm(action, state);
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <label>
         Posting Sampai Akhir Bulan
@@ -625,9 +628,10 @@ export function RegisterPendingAssetForm({
   lineId: string;
 }) {
   const [state, action, pending] = useActionState(registerPendingAssetAction, idleAssetActionState);
+  const actionForm = usePreservingForm(action, state);
 
   return (
-    <form action={action}>
+    <form {...actionForm}>
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="kind" value={kind} />
       <input type="hidden" name="line_id" value={lineId} />

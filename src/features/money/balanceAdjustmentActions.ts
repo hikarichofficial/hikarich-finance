@@ -2,7 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
-import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { recordBalanceAdjustment } from "@/services/money/money";
 
 /**
@@ -48,7 +48,7 @@ export async function recordBalanceAdjustmentAction(
     });
   } catch (error) {
     if (error instanceof AuthzError) {
-      return { status: "error", message: authzErrorMessage(error.code) };
+      return { status: "error", message: describeAuthzError(error) };
     }
     return { status: "error", message: "Penyesuaian saldo tidak dapat dicatat." };
   }

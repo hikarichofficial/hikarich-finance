@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { RuleActionResult } from "./TaxRuleForm";
 import { discardRuleAction, publishRuleAction } from "./taxRuleActions";
@@ -24,15 +25,17 @@ export function TaxRuleDraftActions({
     publishRuleAction,
     idleRuleActionState,
   );
+  const publishFormActionForm = usePreservingForm(publishFormAction, publishState);
   const [discardState, discardFormAction, discarding] = useActionState(
     discardRuleAction,
     idleRuleActionState,
   );
+  const discardFormActionForm = usePreservingForm(discardFormAction, discardState);
   if (!publish && !discard) return null;
   return (
     <div className="record-form">
       {publish ? (
-        <form action={publishFormAction}>
+        <form {...publishFormActionForm}>
           <input type="hidden" name="rule_id" value={ruleId} />
           <input type="hidden" name="entity" value={entity ?? ""} />
           <p className="hint">
@@ -49,7 +52,7 @@ export function TaxRuleDraftActions({
       {discard ? (
         <details>
           <summary>Batalkan draf</summary>
-          <form action={discardFormAction} className="record-form">
+          <form {...discardFormActionForm} className="record-form">
             <input type="hidden" name="rule_id" value={ruleId} />
             <input type="hidden" name="entity" value={entity ?? ""} />
             <label>

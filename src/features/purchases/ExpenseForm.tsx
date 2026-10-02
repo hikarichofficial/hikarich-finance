@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import type { CategoryRow } from "@/schemas/categories";
 import type { ContactRow } from "@/schemas/contacts";
@@ -47,6 +48,7 @@ export function ExpenseForm({
   };
 }) {
   const [state, action, pending] = useActionState(createExpenseAction, idleExpenseActionState);
+  const actionForm = usePreservingForm(action, state);
   const [rows, setRows] = useState<RecurringLineRow[]>(
     initial && initial.lines.length > 0
       ? buildInitialRecurringLines(initial.lines)
@@ -55,7 +57,7 @@ export function ExpenseForm({
   const [payeeId, setPayeeId] = useState(initial?.payee_id ?? "");
 
   return (
-    <form action={action} className="record-form record-form-wide">
+    <form {...actionForm} className="record-form record-form-wide">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="lines" value={buildRecurringLinesJson(rows, "expense")} />
       {initial ? (

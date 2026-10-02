@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState, type ReactNode } from "react";
 import {
   cancelTransferAction,
@@ -60,6 +61,7 @@ function ConfirmForm({ transferId }: { transferId: string }) {
 
 function CancelForm({ transferId }: { transferId: string }) {
   const [state, action, pending] = useActionState(cancelTransferAction, idleTransferActionState);
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
 
@@ -72,7 +74,7 @@ function CancelForm({ transferId }: { transferId: string }) {
   }
 
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="transfer_id" value={transferId} />
       <p className="hint">Draf transfer ini dibatalkan tanpa dampak akuntansi.</p>
       <label>
@@ -108,6 +110,7 @@ function CancelForm({ transferId }: { transferId: string }) {
 
 function ReverseForm({ transferId }: { transferId: string }) {
   const [state, action, pending] = useActionState(reverseTransferAction, idleTransferActionState);
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const today = new Date().toISOString().slice(0, 10);
@@ -121,7 +124,7 @@ function ReverseForm({ transferId }: { transferId: string }) {
   }
 
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="transfer_id" value={transferId} />
       <p className="hint">
         Transfer yang sudah dikonfirmasi akan dibalik dengan jurnal pembalik dan pergerakan kas

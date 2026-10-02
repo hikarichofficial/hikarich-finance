@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import {
   deleteSavedReportAction,
@@ -31,10 +32,11 @@ export function SaveReportForm({
   query: string;
 }) {
   const [state, action, pending] = useActionState(saveReportAction, idleSavedReportState);
+  const actionForm = usePreservingForm(action, state);
   return (
     <details className="dashboard-section">
       <summary>Simpan laporan ini</summary>
-      <form action={action} className="record-form">
+      <form {...actionForm} className="record-form">
         <input type="hidden" name="entity" value={entity ?? ""} />
         <input type="hidden" name="path" value={path} />
         <input type="hidden" name="query" value={query} />
@@ -53,9 +55,10 @@ export function SaveReportForm({
 
 export function DeleteSavedReportForm({ id }: { id: string }) {
   const [state, action, pending] = useActionState(deleteSavedReportAction, idleSavedReportState);
+  const actionForm = usePreservingForm(action, state);
   if (state.status === "ok") return <Result state={state} />;
   return (
-    <form action={action}>
+    <form {...actionForm}>
       <input type="hidden" name="id" value={id} />
       <button type="submit" disabled={pending}>
         Hapus

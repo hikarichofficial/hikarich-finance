@@ -2,7 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import { completeOpeningBalances, postOpeningBalances } from "@/services/accounting/ledger";
 
@@ -23,8 +23,7 @@ function text(formData: FormData, name: string): string {
 }
 
 function errorState(error: unknown, fallback: string): OpeningActionState {
-  if (error instanceof AuthzError)
-    return { status: "error", message: authzErrorMessage(error.code) };
+  if (error instanceof AuthzError) return { status: "error", message: describeAuthzError(error) };
   return { status: "error", message: fallback };
 }
 

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState, type ReactNode } from "react";
 import { discardJournalAction, postJournalAction, reverseJournalAction } from "./actions";
 import { idleJournalActionState } from "./actionsState";
@@ -15,8 +16,9 @@ import { idleJournalActionState } from "./actionsState";
 
 function PostForm({ journalId }: { journalId: string }) {
   const [state, action, pending] = useActionState(postJournalAction, idleJournalActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="journal_id" value={journalId} />
       {state.status === "error" ? (
         <p role="alert" className="error">
@@ -32,6 +34,7 @@ function PostForm({ journalId }: { journalId: string }) {
 
 function DiscardForm({ journalId, entity }: { journalId: string; entity: string | undefined }) {
   const [state, action, pending] = useActionState(discardJournalAction, idleJournalActionState);
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
 
   if (!open) {
@@ -43,7 +46,7 @@ function DiscardForm({ journalId, entity }: { journalId: string; entity: string 
   }
 
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="journal_id" value={journalId} />
       {entity ? <input type="hidden" name="entity" value={entity} /> : null}
       <p className="hint">
@@ -73,6 +76,7 @@ function DiscardForm({ journalId, entity }: { journalId: string; entity: string 
 
 function ReverseForm({ journalId }: { journalId: string }) {
   const [state, action, pending] = useActionState(reverseJournalAction, idleJournalActionState);
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
   const today = new Date().toISOString().slice(0, 10);
@@ -86,7 +90,7 @@ function ReverseForm({ journalId }: { journalId: string }) {
   }
 
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="journal_id" value={journalId} />
       <p className="hint">
         Jurnal yang sudah diposting akan dibalik dengan jurnal pembalik. Tidak dapat diurungkan.

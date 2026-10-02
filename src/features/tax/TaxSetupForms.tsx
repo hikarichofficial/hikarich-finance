@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import Link from "next/link";
 import { useActionState } from "react";
 import type { TaxOverview } from "@/schemas/tax";
@@ -40,9 +41,10 @@ export function TaxProfileForm({
   next: string;
 }) {
   const [state, action, pending] = useActionState(recordTaxProfileAction, idleTaxSetupState);
+  const actionForm = usePreservingForm(action, state);
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <label>
         Berlaku Sejak
@@ -129,9 +131,10 @@ export function TaxEngineForm({
   next: string;
 }) {
   const [state, action, pending] = useActionState(activateTaxEngineAction, idleTaxSetupState);
+  const actionForm = usePreservingForm(action, state);
 
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <label>
         Hitung Pajak Otomatis Mulai Tanggal

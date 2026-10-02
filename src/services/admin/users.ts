@@ -149,7 +149,7 @@ async function rpc(name: string, args: Record<string, unknown>): Promise<void> {
   const { error } = await supabase.rpc(name, args);
   if (error) {
     const code = parseAuthzCode(error.message);
-    if (code) throw new AuthzError(code);
+    if (code) throw new AuthzError(code, error.message);
     throw new Error("Perubahan akses tidak dapat diproses.");
   }
 }

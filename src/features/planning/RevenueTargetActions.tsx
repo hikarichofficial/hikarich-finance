@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState, type ReactNode } from "react";
 import { budgetActions } from "@/domain/planning/budgetList";
 import type { PlanStatus } from "@/domain/planning/planning";
@@ -19,8 +20,9 @@ function ActivateForm({ targetId }: { targetId: string }) {
     activateRevenueTargetAction,
     idlePlanningActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="target_id" value={targetId} />
       {state.status === "error" ? (
         <p role="alert" className="error">
@@ -39,6 +41,7 @@ function CloseForm({ targetId }: { targetId: string }) {
     closeRevenueTargetAction,
     idlePlanningActionState,
   );
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
 
   if (!open) {
@@ -50,7 +53,7 @@ function CloseForm({ targetId }: { targetId: string }) {
   }
 
   return (
-    <form action={action} className="invoice-action-form">
+    <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="target_id" value={targetId} />
       <p className="hint">Target pendapatan yang ditutup tidak dapat dibuka atau diedit lagi.</p>
       {state.status === "error" ? (

@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import Link from "next/link";
 import { useActionState, useState } from "react";
 import {
@@ -23,6 +24,7 @@ export function TaxOverrideForm({
   next: string;
 }) {
   const [state, action, pending] = useActionState(setTaxOverrideAction, IDLE);
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   if (kinds.length === 0) return null;
   if (!open) {
@@ -33,7 +35,7 @@ export function TaxOverrideForm({
     );
   }
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="source_type" value={sourceType} />
       <input type="hidden" name="source_id" value={sourceId} />
       <input type="hidden" name="path" value={next.split("?")[0]} />
@@ -86,6 +88,7 @@ export function TaxOverrideWithdrawForm({
   next: string;
 }) {
   const [state, action, pending] = useActionState(withdrawTaxOverrideAction, IDLE);
+  const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   if (!open) {
     return (
@@ -95,7 +98,7 @@ export function TaxOverrideWithdrawForm({
     );
   }
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="override_id" value={overrideId} />
       <input type="hidden" name="path" value={next.split("?")[0]} />
       <p className="hint">

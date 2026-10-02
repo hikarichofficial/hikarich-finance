@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import Link from "next/link";
 import { useActionState } from "react";
 import { RULE_FAMILY_LABELS } from "@/domain/tax/tax";
@@ -46,8 +47,9 @@ export function TaxRuleForm({
   cancelHref: string;
 }) {
   const [state, action, pending] = useActionState(saveRuleDraftAction, idleRuleActionState);
+  const actionForm = usePreservingForm(action, state);
   return (
-    <form action={action} className="record-form">
+    <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="rule_id" value={defaults.ruleId ?? ""} />
       {defaults.lockedIdentity ? (

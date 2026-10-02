@@ -1660,6 +1660,10 @@ and wording. Still open: the step-up actions (tax engine activation, override, f
 OWNER's code to be exercised; forms lose typed values after an error. Full detail in `docs/DECISIONS.md`
 decision 266.
 
+Decision 267: forms keep what was typed after an error (`usePreservingForm`), every form shows the
+database's reason for a refused request (`describeAuthzError`), and the step-up actions were exercised.
+Still open: database reasons are English. Full detail in `docs/DECISIONS.md` decision 267.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

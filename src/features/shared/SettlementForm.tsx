@@ -1,5 +1,6 @@
 "use client";
 
+import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import { trimDecimalText } from "@/domain/money/format";
 
@@ -40,6 +41,7 @@ export function SettlementForm({
   accountLabel: string;
 }) {
   const [state, formAction, pending] = useActionState(action, { status: "idle" });
+  const formActionForm = usePreservingForm(formAction, state);
   const [open, setOpen] = useState(false);
 
   if (!open) {
@@ -51,7 +53,7 @@ export function SettlementForm({
   }
 
   return (
-    <form action={formAction} className="record-form">
+    <form {...formActionForm} className="record-form">
       <input type="hidden" name={idName} value={id} />
       <label>
         {accountLabel}
