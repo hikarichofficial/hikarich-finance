@@ -1280,6 +1280,28 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Marketplace sales per settlement, with PPh 22 collected by the marketplace (decision 260, OWNER:
+  "rekap per pencairan", "biaya admin otomatis", "PPh marketplace saya setuju", "akun marketplace ...
+  sudah kita rancang dari sekarang"). (1) `marketplace_stores` (Shopee, Tokopedia, Lazada, Blibli, TikTok
+  Shop, Bukalapak, other; receiving account; an exemption flag) and `marketplace_settlements`: one row is
+  one payout report -- gross sales before VAT, fees, PPh 22 collected, payout. Recording posts ONE journal
+  (Dr receiving account, Dr fee expense, Dr income-tax expense for the PPh 22; Cr revenue, Cr Tax Payable
+  for VAT) and the cash movement; a settlement is never edited, it is reversed. (2) New published rule
+  `PPH22_MARKETPLACE` (PMK 37/2025, 0.5% of gross excluding VAT, the four designated marketplaces,
+  collection from 1 October 2026 per pajak.go.id). The rule computes the amount; when the payout report
+  states another amount, the stated amount is the fact that is booked and both are kept. (3) Because the
+  amount collected is part of the settlement of the final tax for a taxpayer on the final regime, the
+  monthly PPh Final UMKM computation now adds marketplace turnover of the month (and of the year, for
+  the ceiling and band) and deducts the PPh 22 collected in the month; it never goes below zero and an
+  excess is reported in the trace, not carried. For a taxpayer not on the final regime a settlement with
+  PPh 22 is refused (the credit of the tax year is not modelled). (4) While the Entity is PKP the output
+  VAT of a settlement is computed from `PPN_STANDARD`, credited to Tax Payable and recorded in the tax
+  ledger with its own determination (`source_type = marketplace_settlement`); while it is not PKP no VAT
+  is computed. (5) Stated simplifications: base currency only; turnover is recognised on the payout date;
+  refunds/returns inside a payout are netted by the person in the gross figure; per-order detail is not
+  kept. Permissions reuse the sales ones (`invoices.view/create/issue/confirm_payment/void`). Not tax
+  advice; the OWNER's tax consultant confirms before production.
+
 - Payment Confirmation queue and link revocation (decision 259, Step 07 §4, Step 09 §11). A customer
   could already submit "Saya Sudah Bayar" on the public invoice page, but no screen let staff act on it.
   `/sales/claims` lists the Entity's pending claims (direct RLS read; the requester hash is never

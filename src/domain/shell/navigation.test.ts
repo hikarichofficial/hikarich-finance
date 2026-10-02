@@ -84,6 +84,7 @@ describe("visibleNavigation", () => {
       "/sales/invoices",
       "/sales/payments",
       "/sales/claims",
+      "/sales/marketplace",
     ]);
   });
 

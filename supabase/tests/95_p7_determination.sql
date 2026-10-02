@@ -1566,4 +1566,94 @@ begin
 end
 $$;
 
+-- ================================================================ 12. marketplace settlements (decision 260)
+do $$
+declare
+  pt uuid := test_helpers.entity('p7e_pt');
+  v_owner uuid := 'e0000000-0000-0000-0000-000000000001';
+  v_staff uuid := 'e0000000-0000-0000-0000-000000000005';
+  v_taxer uuid := 'e0000000-0000-0000-0000-000000000003';
+  v_today date := test_helpers.today(pt);
+  v_prev date := (date_trunc('month', test_helpers.today(pt)) - interval '1 day')::date;
+  v_store uuid;
+  v_id uuid;
+  v_id2 uuid;
+  s public.marketplace_settlements%rowtype;
+  e jsonb;
+  v_before numeric;
+begin
+  perform test_helpers.login(v_staff);
+  perform test_helpers.expect_msg(format($q$select public.create_marketplace_store(%L, 'key-mp-st-0', 'shopee', 'Toko Staff')$q$, pt),
+    'FORBIDDEN', '12.0 a store is added with invoices.create only');
+  perform test_helpers.logout();
+  perform test_helpers.login(v_owner);
+  v_store := public.create_marketplace_store(pt, 'key-mp-st-1', 'shopee', 'Hikarich Shopee (synthetic)', test_helpers.eg('bca'),
+    test_helpers.eg('cat_rev'), null, false);
+  perform test_helpers.assert(public.create_marketplace_store(pt, 'key-mp-st-1', 'shopee', 'Hikarich Shopee (synthetic)', test_helpers.eg('bca'),
+    test_helpers.eg('cat_rev'), null, false) = v_store, '12.1 a store is created once per key');
+  perform test_helpers.expect_msg(format($q$select public.create_marketplace_store(%L, 'key-mp-st-2', 'shopee', 'hikarich shopee (synthetic)')$q$, pt),
+    'CONFLICT', '12.2 a second store with the same name is refused');
+  perform test_helpers.expect_msg(format($q$select public.create_marketplace_store(%L, 'key-mp-st-3', 'amazon', 'Other Store')$q$, pt),
+    'INVALID', '12.3 an unknown marketplace is refused');
+
+  -- 12.4 a settlement while the Entity is PKP: revenue gross, output VAT from the rule, fees, the stated PPh 22
+  v_id := public.record_marketplace_settlement(pt, 'key-mp-se-1', v_store, v_today - 16, v_today - 10, v_today - 10,
+    test_helpers.eg('bca'), '1000000', '50000', '5000', 'PAYOUT-001', 'synthetic');
+  perform test_helpers.assert(public.record_marketplace_settlement(pt, 'key-mp-se-1', v_store, v_today - 16, v_today - 10, v_today - 10,
+    test_helpers.eg('bca'), '1000000', '50000', '5000', 'PAYOUT-001', 'synthetic') = v_id, '12.4 a settlement replays on the same key');
+  select * into s from public.marketplace_settlements where id = v_id;
+  perform test_helpers.assert(s.gross_sales = 1000000 and s.vat_amount = 110000 and s.fee_amount = 50000 and s.pph22_amount = 5000
+    and s.payout_amount = 1055000 and s.status = 'confirmed'
+    and s.pph22_computed = case when v_today - 10 >= date '2026-10-01' then 5000 else 0 end,
+    '12.5 payout = gross + VAT - fees - PPh 22; the VAT comes from the rule because the Entity is PKP');
+  perform test_helpers.assert(test_helpers.jc7(s.journal_id, 'TAX_PAYABLE') = 110000
+    and test_helpers.jd7(s.journal_id, 'INCOME_TAX_EXPENSE') = 5000
+    and (select sum(debit) from public.journal_lines where journal_id = s.journal_id) = 1110000
+    and (select sum(credit) from public.journal_lines where journal_id = s.journal_id) = 1110000,
+    '12.6 one balanced journal: Dr bank, fees, tax expense; Cr revenue and Tax Payable');
+  perform test_helpers.assert((select amount = 1055000 and direction = 'in' from public.money_movements
+      where source_type = 'marketplace_settlement' and source_id = v_id),
+    '12.7 the payout is a cash movement into the receiving account');
+  perform test_helpers.assert((select tax_kind = 'vat_output' and tax_amount = 110000 from public.tax_determinations
+      where source_type = 'marketplace_settlement' and source_id = v_id and superseded_at is null)
+    and (select sum(amount) from public.tax_ledger_entries where journal_id = s.journal_id) = 110000,
+    '12.8 the output VAT has its determination and its tax-ledger entry');
+  perform test_helpers.assert((select sub_ledger = ledger_workflow from test_helpers.tctl(pt) where account_key = 'TAX_PAYABLE'),
+    '12.9 the tax ledger still agrees with the General Ledger');
+
+  perform test_helpers.expect_msg(format($q$select public.record_marketplace_settlement(%L, 'key-mp-se-2', %L, %L, %L, %L, %L, '100000', '200000', '0')$q$,
+    pt, v_store, v_today - 5, v_today - 5, v_today - 5, test_helpers.eg('bca')), 'INVALID', '12.10 fees above the sales are refused');
+  perform test_helpers.expect_msg(format($q$select public.record_marketplace_settlement(%L, 'key-mp-se-3', %L, %L, %L, %L, %L, '100000')$q$,
+    pt, v_store, v_today, v_today + 1, v_today + 1, test_helpers.eg('bca')), 'INVALID', '12.11 a payout dated in the future is refused');
+  perform test_helpers.expect_error(format($q$update public.marketplace_settlements set gross_sales = 1 where id = %L$q$, v_id), '23000',
+    '12.12 a recorded settlement cannot be edited');
+
+  -- 12.13 reversal: the journal, the cash movement and the VAT are all undone
+  perform public.reverse_marketplace_settlement(v_id, 'key-mp-rv-1', v_today, 'Recorded twice (synthetic)');
+  perform test_helpers.assert((select status = 'reversed' from public.marketplace_settlements where id = v_id)
+    and (select coalesce(sum(case direction when 'in' then amount else -amount end), 0) from public.money_movements
+         where source_type = 'marketplace_settlement' and source_id = v_id) = 0
+    and (select coalesce(sum(amount), 0) from public.tax_ledger_entries e2 join public.tax_determinations d on d.id = e2.determination_id
+         where d.source_type = 'marketplace_settlement' and d.source_id = v_id) = 0,
+    '12.13 a reversal undoes the cash, the journal and the VAT');
+  perform test_helpers.expect_msg(format($q$select public.reverse_marketplace_settlement(%L, 'key-mp-rv-2', %L, 'Again (synthetic)')$q$, v_id, v_today),
+    'CONFLICT', '12.14 a settlement is reversed once');
+
+  -- 12.15 the final tax of the month counts marketplace turnover and deducts what was collected
+  select coalesce((public.tax_final_preview(pt, date_trunc('month', v_prev)::date) ->> 'gross_tax')::numeric, 0) into v_before;
+  v_id2 := public.record_marketplace_settlement(pt, 'key-mp-se-4', v_store, v_prev, v_prev, v_prev,
+    test_helpers.eg('bca'), '2000000', '0', '10000');
+  perform test_helpers.logout();
+  perform test_helpers.login(v_taxer);
+  e := public.tax_final_preview(pt, date_trunc('month', v_prev)::date);
+  if e ->> 'status' = 'auto_determined' then
+    perform test_helpers.assert((e ->> 'turnover_marketplace')::numeric = 2000000 and (e ->> 'collected_credit')::numeric = 10000
+      and (e ->> 'gross_tax')::numeric = v_before + 10000
+      and (e ->> 'tax')::numeric = greatest(0, (e ->> 'gross_tax')::numeric - 10000),
+      '12.15 marketplace turnover is in the base; PPh 22 already collected reduces what remains to pay');
+  end if;
+  perform test_helpers.logout();
+end
+$$;
+
 rollback;

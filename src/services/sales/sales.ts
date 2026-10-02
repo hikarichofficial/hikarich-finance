@@ -589,3 +589,143 @@ export async function listPendingPaymentClaims(entityId: string): Promise<Paymen
   );
   return rows.map((r) => ({ ...r, invoice_number: numbers.get(r.invoice_id) ?? null }));
 }
+
+// ---- marketplace stores and settlements (decision 260)
+export interface MarketplaceStoreRow {
+  id: string;
+  platform: string;
+  name: string;
+  settlement_financial_account_id: string | null;
+  pph22_exempt: boolean;
+  is_active: boolean;
+}
+
+export interface MarketplaceSettlementRow {
+  id: string;
+  store_id: string;
+  status: "confirmed" | "reversed";
+  period_start: string;
+  period_end: string;
+  settlement_date: string;
+  currency: string;
+  gross_sales: string;
+  vat_amount: string;
+  fee_amount: string;
+  pph22_amount: string;
+  payout_amount: string;
+  reference: string | null;
+}
+
+export async function listMarketplaceStores(entityId: string): Promise<MarketplaceStoreRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("marketplace_stores")
+    .select("id, platform, name, settlement_financial_account_id, pph22_exempt, is_active")
+    .eq("entity_id", uuid(entityId))
+    .order("name", { ascending: true });
+  if (error) throw new Error("Gagal memuat toko marketplace.");
+  return (data ?? []) as MarketplaceStoreRow[];
+}
+
+export async function listMarketplaceSettlements(
+  entityId: string,
+): Promise<MarketplaceSettlementRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("marketplace_settlements")
+    .select(
+      "id, store_id, status, period_start, period_end, settlement_date, currency, gross_sales::text, vat_amount::text, fee_amount::text, pph22_amount::text, payout_amount::text, reference",
+    )
+    .eq("entity_id", uuid(entityId))
+    .order("settlement_date", { ascending: false })
+    .limit(100);
+  if (error) throw new Error("Gagal memuat pencairan marketplace.");
+  return (data ?? []) as unknown as MarketplaceSettlementRow[];
+}
+
+const marketplacePlatformSchema = z.enum([
+  "shopee",
+  "tokopedia",
+  "lazada",
+  "blibli",
+  "tiktok_shop",
+  "bukalapak",
+  "other",
+]);
+const marketplaceMoney = z.string().regex(/^\d{1,16}(\.\d{1,4})?$/);
+
+export async function createMarketplaceStore(input: {
+  entity_id: string;
+  idempotency_key: string;
+  platform: string;
+  name: string;
+  account_id?: string;
+  pph22_exempt?: boolean;
+}): Promise<string> {
+  return callRpc(
+    "create_marketplace_store",
+    {
+      p_entity: uuid(input.entity_id),
+      p_key: input.idempotency_key,
+      p_platform: marketplacePlatformSchema.parse(input.platform),
+      p_name: z.string().trim().min(2).max(120).parse(input.name),
+      p_account: input.account_id ? uuid(input.account_id) : null,
+      p_revenue_category: null,
+      p_fee_category: null,
+      p_pph22_exempt: input.pph22_exempt ?? false,
+    },
+    uuidResultSchema,
+  );
+}
+
+export async function recordMarketplaceSettlement(input: {
+  entity_id: string;
+  idempotency_key: string;
+  store_id: string;
+  period_start: string;
+  period_end: string;
+  settlement_date: string;
+  account_id: string;
+  gross: string;
+  fees?: string;
+  pph22?: string;
+  reference?: string;
+  note?: string;
+}): Promise<string> {
+  return callRpc(
+    "record_marketplace_settlement",
+    {
+      p_entity: uuid(input.entity_id),
+      p_key: input.idempotency_key,
+      p_store: uuid(input.store_id),
+      p_period_start: isoDateSchema.parse(input.period_start),
+      p_period_end: isoDateSchema.parse(input.period_end),
+      p_settlement_date: isoDateSchema.parse(input.settlement_date),
+      p_account: uuid(input.account_id),
+      p_gross: marketplaceMoney.parse(input.gross),
+      p_fees: input.fees ? marketplaceMoney.parse(input.fees) : "0",
+      p_pph22: input.pph22 ? marketplaceMoney.parse(input.pph22) : null,
+      p_reference: input.reference ?? null,
+      p_note: input.note ?? null,
+    },
+    uuidResultSchema,
+  );
+}
+
+export async function reverseMarketplaceSettlement(input: {
+  settlement_id: string;
+  idempotency_key: string;
+  date: string;
+  reason: string;
+}): Promise<string> {
+  return callRpc(
+    "reverse_marketplace_settlement",
+    {
+      p_settlement: uuid(input.settlement_id),
+      p_key: input.idempotency_key,
+      p_date: isoDateSchema.parse(input.date),
+      p_reason: z.string().trim().min(5).max(500).parse(input.reason),
+    },
+    uuidResultSchema,
+  );
+}

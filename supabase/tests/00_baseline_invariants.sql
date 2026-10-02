@@ -192,6 +192,9 @@ declare
                                          -- Documents Archive, Sales/Purchase report, Saved Reports (decision 252)
                                          'list_document_archive', 'sales_purchase_report', 'save_report',
                                          'delete_saved_report',
+                                         -- Marketplace stores and settlements (decision 260)
+                                         'create_marketplace_store', 'record_marketplace_settlement',
+                                         'reverse_marketplace_settlement', 'preview_marketplace_settlement',
                                          -- Entity timezone / fiscal-year start in Settings (decision 248)
                                          'update_entity_time_settings',
                                          -- Forecasts (decision 250)
