@@ -33,8 +33,8 @@ export default async function PaymentClaimsPage({
         <div>
           <h1>Klaim Pembayaran</h1>
           <p className="list-screen-summary">
-            {claims.length} klaim menunggu konfirmasi. Klaim belum dihitung sebagai pembayaran sampai
-            dikonfirmasi.
+            {claims.length} klaim menunggu konfirmasi. Klaim belum dihitung sebagai pembayaran
+            sampai dikonfirmasi.
           </p>
         </div>
       </header>
