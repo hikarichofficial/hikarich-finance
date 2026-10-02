@@ -49,12 +49,12 @@ export function InvoiceDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar faktur</Link>
+        <Link href={backHref}>← Kembali ke daftar invoice</Link>
       </p>
 
       <header className="record-detail-header">
         <div>
-          <p className="record-detail-eyebrow">Faktur Penjualan</p>
+          <p className="record-detail-eyebrow">Invoice Penjualan</p>
           <h1>{doc.invoice_number ?? "Draf"}</h1>
           <p className="record-detail-counterparty">{customerName}</p>
         </div>
@@ -94,7 +94,7 @@ export function InvoiceDetailScreen({
         </div>
         <dl className="record-summary-grid">
           <div>
-            <dt>Total Faktur</dt>
+            <dt>Total Invoice</dt>
             <dd>{formatMoney(doc.total, doc.currency)}</dd>
           </div>
           <div>
@@ -145,7 +145,7 @@ export function InvoiceDetailScreen({
           <h2 className="dashboard-section-title">Akuntansi</h2>
         </div>
         <p className="dashboard-empty">
-          Rincian jurnal per faktur belum tersedia di tahap ini; lihat Buku Besar pada modul
+          Rincian jurnal per invoice belum tersedia di tahap ini; lihat Buku Besar pada modul
           Akuntansi untuk dampak akuntansi Entitas secara keseluruhan.
         </p>
       </section>
@@ -154,7 +154,7 @@ export function InvoiceDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Pajak</h2>
         </div>
-        <p className="dashboard-empty">Penentuan pajak per faktur belum tersedia di tahap ini.</p>
+        <p className="dashboard-empty">Penentuan pajak per invoice belum tersedia di tahap ini.</p>
       </section>
 
       <section className="dashboard-section">

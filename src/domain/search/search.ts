@@ -8,7 +8,7 @@ import type { SearchTargetType } from "@/schemas/search";
 
 export const SEARCH_TARGET_TYPE_LABELS: Readonly<Record<SearchTargetType, string>> = {
   contact: "Kontak",
-  invoice: "Faktur",
+  invoice: "Invoice",
   bill: "Tagihan",
   expense: "Pengeluaran",
   fixed_asset: "Aset Tetap",

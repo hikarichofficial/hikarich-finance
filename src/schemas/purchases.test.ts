@@ -65,7 +65,7 @@ describe("purchase contracts", () => {
       false,
     );
     expect(
-      approveBillInputSchema.safeParse({ ...base, duplicate_reason: "Faktur berbeda, nomor sama" })
+      approveBillInputSchema.safeParse({ ...base, duplicate_reason: "Invoice berbeda, nomor sama" })
         .success,
     ).toBe(true);
   });
@@ -111,14 +111,14 @@ describe("purchase contracts", () => {
     const base = {
       entity_id: ID,
       idempotency_key: "key-doc-00001",
-      file_name: "faktur-001.pdf",
+      file_name: "invoice-001.pdf",
       mime_type: "application/pdf",
       size_bytes: 120_000,
       sha256: HASH,
     };
     expect(registerDocumentInputSchema.safeParse(base).success).toBe(true);
     expect(
-      registerDocumentInputSchema.safeParse({ ...base, file_name: "../faktur.pdf" }).success,
+      registerDocumentInputSchema.safeParse({ ...base, file_name: "../invoice.pdf" }).success,
     ).toBe(false);
     expect(registerDocumentInputSchema.safeParse({ ...base, file_name: "a\\b.pdf" }).success).toBe(
       false,

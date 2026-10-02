@@ -14,7 +14,7 @@ import { formatShortDate } from "./format";
  * zero-network, every field shown is already in `row`; saved views, export and bulk actions stay deferred.
  * "Create" already routes through the catch-all placeholder (DECISIONS 157) since the invoice builder
  * itself is a later increment. The empty state carries one CTA (Step 09 §9/§25, Step 10 §24, decision 218):
- * "Hapus Saringan" when a search/filter produced zero rows, else the same "Buat Faktur" action the header
+ * "Hapus Saringan" when a search/filter produced zero rows, else the same "Buat Invoice" action the header
  * already offers when `canCreate` -- never both, and never a guessed-at action neither the header nor the
  * URL already provides.
  *
@@ -56,21 +56,21 @@ export function InvoicesListScreen({
     <div className="list-screen">
       <header className="list-screen-header">
         <div>
-          <h1>Faktur Penjualan</h1>
+          <h1>Invoice Penjualan</h1>
           <p className="list-screen-summary">
-            {rows.length} faktur{" "}
+            {rows.length} invoice{" "}
             {activeFilter ? `pada tampilan "${filterLabel(activeFilter)}"` : "ditampilkan"}.
           </p>
         </div>
         {canCreate ? (
           <Link href={newHref} className="btn-primary">
-            Buat Faktur
+            Buat Invoice
           </Link>
         ) : null}
       </header>
 
       <div className="list-screen-toolbar">
-        <nav className="list-filter-tabs" aria-label="Saring status faktur">
+        <nav className="list-filter-tabs" aria-label="Saring status invoice">
           {INVOICE_FILTER_OPTIONS.map((option) => (
             <Link
               key={option.label}
@@ -92,8 +92,8 @@ export function InvoicesListScreen({
             type="search"
             name="q"
             defaultValue={query}
-            placeholder="Cari nomor faktur atau nama pelanggan…"
-            aria-label="Cari faktur"
+            placeholder="Cari nomor invoice atau nama pelanggan…"
+            aria-label="Cari invoice"
           />
           <button type="submit" className="btn-secondary">
             Cari
@@ -105,8 +105,8 @@ export function InvoicesListScreen({
         <div className="list-empty">
           <p>
             {query.trim()
-              ? "Tidak ada faktur yang cocok dengan pencarian ini."
-              : "Belum ada faktur pada tampilan ini."}
+              ? "Tidak ada invoice yang cocok dengan pencarian ini."
+              : "Belum ada invoice pada tampilan ini."}
           </p>
           {query.trim() || activeFilter ? (
             <Link href={buildHref(entity, null, "")} className="btn-secondary list-empty-action">
@@ -114,7 +114,7 @@ export function InvoicesListScreen({
             </Link>
           ) : canCreate ? (
             <Link href={newHref} className="btn-primary list-empty-action">
-              Buat Faktur
+              Buat Invoice
             </Link>
           ) : null}
         </div>
@@ -122,7 +122,7 @@ export function InvoicesListScreen({
         <table className="record-table record-table-stacked">
           <thead>
             <tr>
-              <th scope="col">No. Faktur</th>
+              <th scope="col">No. Invoice</th>
               <th scope="col">Pelanggan</th>
               <th scope="col">Tanggal</th>
               <th scope="col">Jatuh Tempo</th>
@@ -147,7 +147,7 @@ export function InvoicesListScreen({
                     <RecordPreviewLink
                       href={href}
                       label={row.invoice_number ?? "Draf"}
-                      eyebrow="Faktur Penjualan"
+                      eyebrow="Invoice Penjualan"
                       title={row.invoice_number ?? "Draf"}
                       badges={[{ tone: status.tone, text: status.text }]}
                       fields={[

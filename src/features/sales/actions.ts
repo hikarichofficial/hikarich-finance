@@ -147,7 +147,7 @@ export async function issueInvoiceAction(
   try {
     await issueInvoice({ invoice_id: invoiceId, idempotency_key: randomUUID() });
   } catch (error) {
-    return errorState(error, "Faktur tidak dapat diterbitkan.");
+    return errorState(error, "Invoice tidak dapat diterbitkan.");
   }
   revalidateInvoice(invoiceId);
   return { status: "ok" };
@@ -163,7 +163,7 @@ export async function voidInvoiceAction(
   try {
     await voidInvoice({ invoice_id: invoiceId, idempotency_key: randomUUID(), reason });
   } catch (error) {
-    return errorState(error, "Faktur tidak dapat dibatalkan.");
+    return errorState(error, "Invoice tidak dapat dibatalkan.");
   }
   revalidateInvoice(invoiceId);
   return { status: "ok" };
@@ -188,7 +188,7 @@ export async function correctInvoiceAction(
       reason,
     });
   } catch (error) {
-    return errorState(error, "Faktur tidak dapat dikoreksi.");
+    return errorState(error, "Invoice tidak dapat dikoreksi.");
   }
   revalidateInvoice(invoiceId);
   revalidatePath(`/sales/invoices/${newInvoiceId}`);

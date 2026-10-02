@@ -13,7 +13,7 @@ export type PlanPeriodType = "annual" | "monthly" | "custom";
 export type PlanStatus = "draft" | "active" | "closed";
 
 export const RECURRING_KIND_LABELS: Readonly<Record<RecurringKind, string>> = {
-  invoice: "Faktur berulang (pendapatan)",
+  invoice: "Invoice berulang (pendapatan)",
   bill: "Tagihan berulang (pembelian)",
   expense: "Pengeluaran berulang",
 };

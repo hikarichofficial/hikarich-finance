@@ -12,7 +12,7 @@ export const ENTITY_TYPE_LABELS: Readonly<Record<"company" | "personal" | "other
 };
 
 export const NUMBERING_SCOPE_LABELS: Readonly<Record<NumberingScope, string>> = {
-  invoice: "Faktur Penjualan",
+  invoice: "Invoice Penjualan",
   payment_receipt: "Kuitansi Pembayaran",
   refund_receipt: "Kuitansi Refund",
   bill: "Tagihan Pembelian",

@@ -41,7 +41,7 @@ export default async function ActivityPage({
         <div>
           <h1>Aktivitas Terbaru</h1>
           <p className="list-screen-summary">
-            Kejadian penting terakhir: pembayaran terkonfirmasi dan faktur yang diterbitkan.
+            Kejadian penting terakhir: pembayaran terkonfirmasi dan invoice yang diterbitkan.
           </p>
         </div>
       </header>

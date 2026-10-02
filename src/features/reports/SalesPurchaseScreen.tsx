@@ -44,7 +44,7 @@ export function SalesPurchaseScreen({
           <h1>Laporan Penjualan &amp; Pembelian</h1>
           <p className="list-screen-summary">
             {SIDE_LABELS[side]} per {DIMENSION_LABELS[dimension].toLowerCase()},{" "}
-            {formatShortDate(from)} – {formatShortDate(to)}. Penjualan: faktur terbit. Pembelian:
+            {formatShortDate(from)} – {formatShortDate(to)}. Penjualan: invoice terbit. Pembelian:
             tagihan disetujui dan beban dikonfirmasi.
           </p>
         </div>

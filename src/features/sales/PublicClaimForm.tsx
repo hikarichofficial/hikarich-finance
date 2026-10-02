@@ -7,14 +7,14 @@ const initial: ClaimState = { status: "idle" };
 
 const MESSAGES: Partial<Record<ClaimStatus, string>> = {
   received:
-    "Terima kasih. Konfirmasi Anda sudah kami terima dan akan diperiksa. Faktur baru dinyatakan lunas setelah pembayaran kami verifikasi.",
+    "Terima kasih. Konfirmasi Anda sudah kami terima dan akan diperiksa. Invoice baru dinyatakan lunas setelah pembayaran kami verifikasi.",
   already_received:
     "Konfirmasi yang sama sudah kami terima sebelumnya dan sedang diperiksa. Anda tidak perlu mengirim ulang.",
   unavailable: "Tautan ini tidak lagi berlaku.",
   throttled: "Terlalu banyak permintaan. Silakan coba lagi nanti.",
-  conflict: "Faktur ini sudah lunas atau tidak lagi menerima pembayaran.",
+  conflict: "Invoice ini sudah lunas atau tidak lagi menerima pembayaran.",
   invalid:
-    "Data belum sesuai. Periksa jumlah (tidak boleh melebihi sisa tagihan) dan tanggal pembayaran (antara tanggal faktur dan hari ini).",
+    "Data belum sesuai. Periksa jumlah (tidak boleh melebihi sisa tagihan) dan tanggal pembayaran (antara tanggal invoice dan hari ini).",
 };
 
 export function PublicClaimForm({
@@ -45,7 +45,7 @@ export function PublicClaimForm({
       <input type="hidden" name="token" value={token} />
       <p className="hint">
         Sudah membayar? Beri tahu kami. Ini hanya konfirmasi; kami tetap memeriksa pembayaran yang
-        masuk sebelum faktur dinyatakan lunas.
+        masuk sebelum invoice dinyatakan lunas.
       </p>
       <label>
         Jumlah yang dibayar

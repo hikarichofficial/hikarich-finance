@@ -289,7 +289,7 @@ export function RecurringRuleForm({
               />
             </label>
             <label>
-              Catatan Faktur (opsional)
+              Catatan Invoice (opsional)
               <textarea
                 name="notes"
                 maxLength={2000}

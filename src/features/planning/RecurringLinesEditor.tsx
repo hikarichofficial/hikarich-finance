@@ -1,5 +1,6 @@
 "use client";
 
+import { trimDecimalText } from "@/domain/money/format";
 import { Fragment } from "react";
 import type { CategoryRow } from "@/schemas/categories";
 import type { RecurringKind } from "@/domain/planning/planning";
@@ -88,8 +89,8 @@ export function buildInitialRecurringLines(
     const extra = extraFieldsOf(line);
     return makeRow(`existing-${index}`, {
       description: typeof line.description === "string" ? line.description : "",
-      quantity: line.quantity != null ? String(line.quantity) : "",
-      unit_price: line.unit_price != null ? String(line.unit_price) : "",
+      quantity: line.quantity != null ? trimDecimalText(String(line.quantity)) : "",
+      unit_price: line.unit_price != null ? trimDecimalText(String(line.unit_price)) : "",
       category_id: typeof line.category_id === "string" ? line.category_id : "",
       treatment:
         line.treatment === "asset" || line.treatment === "prepaid" ? line.treatment : "expense",

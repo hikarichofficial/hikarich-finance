@@ -62,7 +62,7 @@ export function ReceiptDocumentView({ receipt }: { receipt: ReceiptDocument }) {
 
       {receipt.allocations.length > 0 ? (
         <section className="doc-block">
-          <h2>Untuk pembayaran faktur</h2>
+          <h2>Untuk pembayaran invoice</h2>
           <ul>
             {receipt.allocations.map((item, index) => (
               <li key={index}>

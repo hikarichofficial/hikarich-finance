@@ -97,7 +97,7 @@ export function ProductsListScreen({
           <p>
             {activeFilter || query.trim()
               ? "Tidak ada produk yang cocok."
-              : "Belum ada produk atau jasa. Tambahkan yang Anda jual agar faktur lebih cepat dibuat."}
+              : "Belum ada produk atau jasa. Tambahkan yang Anda jual agar invoice lebih cepat dibuat."}
           </p>
           {canCreate && !activeFilter && !query.trim() ? (
             <Link href={newHref} className="btn-primary list-empty-action">

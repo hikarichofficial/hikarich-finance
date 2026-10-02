@@ -25,7 +25,7 @@ export default async function PublicReceiptPage({
   return (
     <main className="doc-page">
       <div className="doc-actions no-print">
-        <a href={`/i/${token}`}>← Kembali ke faktur</a>
+        <a href={`/i/${token}`}>← Kembali ke invoice</a>
         <PrintButton />
       </div>
       <ReceiptDocumentView receipt={view.receipt} />

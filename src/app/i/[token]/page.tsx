@@ -8,7 +8,7 @@ import { PublicClaimForm } from "@/features/sales/PublicClaimForm";
 import { getPublicInvoice } from "@/services/sales/public";
 
 export const metadata: Metadata = {
-  title: "Faktur",
+  title: "Invoice",
   robots: { index: false, follow: false },
   referrer: "no-referrer",
 };

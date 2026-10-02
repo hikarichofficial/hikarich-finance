@@ -81,7 +81,7 @@ export function ProductForm({
       </label>
       <label className="checkbox-field">
         <input type="checkbox" name="is_active" defaultChecked={product?.is_active ?? true} />
-        Aktif (dapat dipilih saat membuat faktur)
+        Aktif (dapat dipilih saat membuat invoice)
       </label>
 
       {state.status === "error" ? (

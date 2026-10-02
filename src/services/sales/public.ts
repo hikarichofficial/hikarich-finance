@@ -25,9 +25,9 @@ export async function getPublicInvoice(token: string): Promise<PublicInvoiceView
   if (!publicTokenSchema.safeParse(token).success) return UNAVAILABLE;
   const supabase = createSupabaseAnonClient();
   const { data, error } = await supabase.rpc("public_invoice_view", { p_token: token });
-  if (error) throw new Error("Faktur tidak dapat dimuat.");
+  if (error) throw new Error("Invoice tidak dapat dimuat.");
   const parsed = publicInvoiceViewSchema.safeParse(data);
-  if (!parsed.success) throw new Error("Respons faktur tidak dikenali.");
+  if (!parsed.success) throw new Error("Respons invoice tidak dikenali.");
   return parsed.data;
 }
 
