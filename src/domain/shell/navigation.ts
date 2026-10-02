@@ -1,5 +1,6 @@
 /**
- * The primary sitemap (Step 09 §3, Table "Primary Sitemap"), as pure data: one entry per primary menu
+ * The primary sitemap (Step 09 §3, Table "Primary Sitemap"), as pure data (labels in Indonesian since
+ * OWNER decision 254; the structure, order, routes and permissions are the sitemap's own): one entry per primary menu
  * item, each carrying the permission that must be held in the active Entity before it is shown at all
  * (Step 09 §4: "unavailable by permission are omitted rather than shown as dead controls"), and its
  * submenu destinations. This is the single source of truth for both the Sidebar (P13 Part 1) and the
@@ -49,114 +50,114 @@ export const NAVIGATION: readonly NavGroup[] = [
   {
     key: "overview",
     icon: "LayoutDashboard",
-    label: "Overview",
+    label: "Ringkasan",
     href: "/",
     items: [
-      { label: "Dashboard", href: "/" },
-      { label: "Cash & Bank Snapshot", href: "/money/accounts", permission: ["money.view"] },
-      { label: "Recent Activity", href: "/activity" },
+      { label: "Dasbor", href: "/" },
+      { label: "Saldo Kas & Bank", href: "/money/accounts", permission: ["money.view"] },
+      { label: "Aktivitas Terbaru", href: "/activity" },
     ],
   },
   {
     key: "sales",
     icon: "ShoppingCart",
-    label: "Sales",
+    label: "Penjualan",
     href: "/sales/invoices",
     permission: ["invoices.view"],
     items: [
-      { label: "Invoices", href: "/sales/invoices", permission: ["invoices.view"] },
-      { label: "Payments Received", href: "/sales/payments", permission: ["invoices.view"] },
-      { label: "Refunds", href: "/sales/refunds", permission: ["refunds.view"] },
-      { label: "Customers", href: "/sales/customers", permission: ["contacts.view"] },
-      { label: "Products & Services", href: "/sales/products", permission: ["products.view"] },
+      { label: "Faktur", href: "/sales/invoices", permission: ["invoices.view"] },
+      { label: "Pembayaran Diterima", href: "/sales/payments", permission: ["invoices.view"] },
+      { label: "Pengembalian Dana", href: "/sales/refunds", permission: ["refunds.view"] },
+      { label: "Pelanggan", href: "/sales/customers", permission: ["contacts.view"] },
+      { label: "Produk & Jasa", href: "/sales/products", permission: ["products.view"] },
     ],
   },
   {
     key: "purchases",
     icon: "Receipt",
-    label: "Purchases",
+    label: "Pembelian",
     href: "/purchases/bills",
     permission: ["bills.view"],
     items: [
-      { label: "Bills", href: "/purchases/bills", permission: ["bills.view"] },
-      { label: "Expenses", href: "/purchases/expenses", permission: ["bills.view"] },
-      { label: "Payments Made", href: "/purchases/payments", permission: ["bills.view"] },
-      { label: "Vendors", href: "/purchases/vendors", permission: ["contacts.view"] },
+      { label: "Tagihan", href: "/purchases/bills", permission: ["bills.view"] },
+      { label: "Beban", href: "/purchases/expenses", permission: ["bills.view"] },
+      { label: "Pembayaran Keluar", href: "/purchases/payments", permission: ["bills.view"] },
+      { label: "Pemasok", href: "/purchases/vendors", permission: ["contacts.view"] },
     ],
   },
   {
     key: "money",
     icon: "Wallet",
-    label: "Money",
+    label: "Kas & Bank",
     href: "/money/accounts",
     permission: ["money.view"],
     items: [
-      { label: "Accounts", href: "/money/accounts" },
-      { label: "Transfers", href: "/money/transfers" },
-      { label: "Reconciliation", href: "/money/reconciliation" },
-      { label: "Cash/Bank Activity", href: "/money/activity" },
+      { label: "Rekening", href: "/money/accounts" },
+      { label: "Transfer", href: "/money/transfers" },
+      { label: "Rekonsiliasi Bank", href: "/money/reconciliation" },
+      { label: "Mutasi Kas & Bank", href: "/money/activity" },
     ],
   },
   {
     key: "accounting",
     icon: "BookOpen",
-    label: "Accounting",
+    label: "Akuntansi",
     href: "/accounting/journal",
     permission: ["accounting.view"],
     items: [
-      { label: "Journal", href: "/accounting/journal" },
-      { label: "Chart of Accounts", href: "/accounting/coa" },
-      { label: "Accounting Periods", href: "/accounting/periods" },
-      { label: "Opening Balances", href: "/accounting/opening-balances" },
-      { label: "Advanced Adjustments", href: "/accounting/adjustments" },
+      { label: "Jurnal", href: "/accounting/journal" },
+      { label: "Daftar Akun", href: "/accounting/coa" },
+      { label: "Periode Akuntansi", href: "/accounting/periods" },
+      { label: "Saldo Awal", href: "/accounting/opening-balances" },
+      { label: "Penyesuaian Lanjutan", href: "/accounting/adjustments" },
     ],
   },
   {
     key: "tax",
     icon: "Landmark",
-    label: "Tax",
+    label: "Pajak",
     href: "/tax",
     permission: ["tax.view"],
     items: [
-      { label: "Tax Overview", href: "/tax" },
-      { label: "Tax Ledger", href: "/tax/ledger" },
-      { label: "PPh Final / Income Tax", href: "/tax/pph" },
-      { label: "Withholding", href: "/tax/withholding" },
+      { label: "Ringkasan Pajak", href: "/tax" },
+      { label: "Buku Pajak", href: "/tax/ledger" },
+      { label: "PPh Final", href: "/tax/pph" },
+      { label: "Pemotongan PPh", href: "/tax/withholding" },
       { label: "PPN", href: "/tax/ppn" },
-      { label: "Tax Calendar", href: "/tax/calendar" },
-      { label: "Filing & Evidence", href: "/tax/filing" },
-      { label: "Tax Rules / Configuration", href: "/tax/rules" },
+      { label: "Kalender Pajak", href: "/tax/calendar" },
+      { label: "Pelaporan & Bukti", href: "/tax/filing" },
+      { label: "Aturan Pajak", href: "/tax/rules" },
     ],
   },
   {
     key: "assets-financing",
     icon: "Building2",
-    label: "Assets & Financing",
+    label: "Aset & Pendanaan",
     href: "/assets",
     permission: ["assets.view", "loans.view", "equity.view"],
     items: [
-      { label: "Assets", href: "/assets", permission: ["assets.view"] },
-      { label: "Depreciation", href: "/assets/depreciation", permission: ["assets.view"] },
-      { label: "Loans", href: "/assets/loans", permission: ["loans.view"] },
+      { label: "Aset Tetap", href: "/assets", permission: ["assets.view"] },
+      { label: "Penyusutan", href: "/assets/depreciation", permission: ["assets.view"] },
+      { label: "Pinjaman", href: "/assets/loans", permission: ["loans.view"] },
       {
-        label: "Other Receivables",
+        label: "Piutang Lain",
         href: "/assets/other-receivables",
         permission: ["loans.view"],
       },
-      { label: "Other Payables", href: "/assets/other-payables", permission: ["loans.view"] },
-      { label: "Capital & Equity", href: "/assets/equity", permission: ["equity.view"] },
+      { label: "Utang Lain", href: "/assets/other-payables", permission: ["loans.view"] },
+      { label: "Modal & Ekuitas", href: "/assets/equity", permission: ["equity.view"] },
     ],
   },
   {
     key: "payroll",
     icon: "Users",
-    label: "Payroll",
+    label: "Gaji",
     href: "/payroll/employees",
     permission: ["payroll.employee_view"],
     items: [
-      { label: "Employees", href: "/payroll/employees" },
+      { label: "Karyawan", href: "/payroll/employees" },
       {
-        label: "Payroll Runs",
+        label: "Proses Gaji",
         href: "/payroll/runs",
         // `payroll_run_list`/`payroll_run_get` need `payroll.compensation_view` AND (`payroll.run` OR
         // `payroll.approve` OR `payroll.pay`) -- a compound rule this OR-only permission array cannot fully
@@ -166,14 +167,14 @@ export const NAVIGATION: readonly NavGroup[] = [
         permission: ["payroll.compensation_view"],
       },
       {
-        label: "Payslips",
+        label: "Slip Gaji",
         href: "/payroll/payslips",
         // `payroll_payslip_list`/`payroll_payslip_get` share the exact same compound rule as Payroll Runs
         // above -- same fix, same residual imperfection (decision 181).
         permission: ["payroll.compensation_view"],
       },
       {
-        label: "Payroll Tax & Liabilities",
+        label: "Pajak & Kewajiban Gaji",
         href: "/payroll/tax",
         // Was `payroll.tax_view` -- wrong on its own: `payroll_liability_report` (the screen's own "always
         // visible" section) needs only the base compound rule (`payroll.compensation_view` AND run/approve/
@@ -190,50 +191,50 @@ export const NAVIGATION: readonly NavGroup[] = [
   {
     key: "planning",
     icon: "Target",
-    label: "Planning",
+    label: "Perencanaan",
     href: "/planning/budgets",
     permission: ["planning.view"],
     items: [
-      { label: "Budgets", href: "/planning/budgets" },
-      { label: "Targets", href: "/planning/targets" },
-      { label: "Forecasts", href: "/planning/forecasts" },
-      { label: "Recurring Rules", href: "/planning/recurring" },
+      { label: "Anggaran", href: "/planning/budgets" },
+      { label: "Target Pendapatan", href: "/planning/targets" },
+      { label: "Perkiraan", href: "/planning/forecasts" },
+      { label: "Transaksi Berulang", href: "/planning/recurring" },
     ],
   },
   {
     key: "reports",
     icon: "BarChart3",
-    label: "Reports",
+    label: "Laporan",
     href: "/reports",
     permission: ["reports.view"],
     items: [
-      { label: "Financial Reports", href: "/reports" },
-      { label: "Sales / Purchase", href: "/reports/sales-purchase" },
-      { label: "Cashflow", href: "/reports/cashflow" },
-      { label: "Tax", href: "/reports/tax" },
-      { label: "Payroll", href: "/reports/payroll" },
-      { label: "Assets / Loans", href: "/reports/assets-loans" },
-      { label: "Custom Reports", href: "/reports/custom" },
-      { label: "Saved Reports", href: "/reports/saved" },
+      { label: "Laporan Keuangan", href: "/reports" },
+      { label: "Penjualan & Pembelian", href: "/reports/sales-purchase" },
+      { label: "Arus Kas", href: "/reports/cashflow" },
+      { label: "Pajak", href: "/reports/tax" },
+      { label: "Gaji", href: "/reports/payroll" },
+      { label: "Aset & Pinjaman", href: "/reports/assets-loans" },
+      { label: "Laporan Kustom", href: "/reports/custom" },
+      { label: "Laporan Tersimpan", href: "/reports/saved" },
     ],
   },
   {
     key: "documents",
     icon: "FolderOpen",
-    label: "Documents",
+    label: "Dokumen",
     href: "/documents",
     permission: ["documents.view"],
     items: [
-      { label: "Documents Center", href: "/documents" },
-      { label: "Uploads", href: "/documents/uploads" },
-      { label: "Linked Evidence", href: "/documents/evidence" },
-      { label: "Archive", href: "/documents/archive" },
+      { label: "Pusat Dokumen", href: "/documents" },
+      { label: "Unggahan", href: "/documents/uploads" },
+      { label: "Bukti Terkait", href: "/documents/evidence" },
+      { label: "Arsip", href: "/documents/archive" },
     ],
   },
   {
     key: "administration",
     icon: "Settings",
-    label: "Administration",
+    label: "Administrasi",
     href: "/admin/settings",
     permission: [
       "settings.view",
@@ -245,13 +246,13 @@ export const NAVIGATION: readonly NavGroup[] = [
       "backup.restore",
     ],
     items: [
-      { label: "Imports", href: "/admin/imports", permission: ["system.import"] },
-      { label: "Audit Log", href: "/admin/audit", permission: ["audit.view"] },
-      { label: "Users & Roles", href: "/admin/users", permission: ["users.view"] },
-      { label: "Settings", href: "/admin/settings", permission: ["settings.view"] },
-      { label: "Security", href: "/admin/security", permission: ["security.view"] },
+      { label: "Impor Data", href: "/admin/imports", permission: ["system.import"] },
+      { label: "Jejak Audit", href: "/admin/audit", permission: ["audit.view"] },
+      { label: "Pengguna & Peran", href: "/admin/users", permission: ["users.view"] },
+      { label: "Pengaturan", href: "/admin/settings", permission: ["settings.view"] },
+      { label: "Keamanan", href: "/admin/security", permission: ["security.view"] },
       {
-        label: "Backup & Restore",
+        label: "Backup & Pemulihan",
         href: "/admin/backup",
         permission: ["backup.create", "backup.restore"],
       },
@@ -265,18 +266,46 @@ function hasAny(granted: readonly string[], required: readonly string[] | undefi
 }
 
 /**
- * Filters the fixed sitemap down to what this membership may see (Step 09 §4). A group survives if
- * its own gate passes OR at least one of its items' gates passes; each surviving group keeps only its
- * visible items. Order is preserved -- the sitemap's order IS the product hierarchy (Step 09 §29).
+ * Filters the fixed sitemap down to what this membership may see (Step 09 §4). An item is visible when
+ * its own gate passes (or, having none, its menu's gate); a menu survives when at least one of its items
+ * is visible, and keeps only those. Order is preserved -- the sitemap's order IS the product hierarchy (Step 09 §29).
  */
 export function visibleNavigation(permissions: readonly string[]): NavGroup[] {
   const result: NavGroup[] = [];
   for (const group of NAVIGATION) {
+    // An item without its own gate inherits its menu's gate (decision 254: before this, such items made
+    // their menu appear for people who could not open any of its pages).
     const items: readonly NavItem[] | undefined = group.items?.filter((item) =>
-      hasAny(permissions, item.permission),
+      hasAny(permissions, item.permission ?? group.permission),
     );
-    const groupVisible = hasAny(permissions, group.permission) || (items?.length ?? 0) > 0;
+    const groupVisible = group.items
+      ? (items?.length ?? 0) > 0
+      : hasAny(permissions, group.permission);
     if (groupVisible) result.push({ ...group, items });
   }
   return result;
+}
+
+/**
+ * The nav item the current path belongs to: the item whose `href` is the path itself or its longest
+ * path-segment prefix (so `/sales/invoices/123` marks "Faktur" and its group, decision 254). `/` only
+ * matches itself. When two groups list the same page, the later (its home group) wins.
+ */
+export function activeNavItem(
+  groups: readonly NavGroup[],
+  pathname: string,
+): { groupKey: string; href: string } | null {
+  let best: { groupKey: string; href: string } | null = null;
+  for (const group of groups) {
+    for (const item of group.items ?? [{ label: group.label, href: group.href }]) {
+      const matches =
+        item.href === "/"
+          ? pathname === "/"
+          : pathname === item.href || pathname.startsWith(`${item.href}/`);
+      if (matches && (!best || item.href.length >= best.href.length)) {
+        best = { groupKey: group.key, href: item.href };
+      }
+    }
+  }
+  return best;
 }

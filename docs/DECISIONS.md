@@ -14,6 +14,7 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 | 2026-09-19 | The GitHub repository `hikarichofficial/hikarich-finance` is **public**, chosen over paying for a plan that enforces rulesets on private repositories. Consequence: never commit secrets, real data, real invoices or receipts, real business figures, or the full Step specification files. The secret scan stays mandatory and Actions logs are public. |
 | 2026-10-01 | Backup restore is allowed only into an **empty** Entity (decision 247). No merge or overwrite of existing data.                                                                                                                                                                                                                                           |
 | 2026-10-01 | Tax periods follow the Entity's own timezone and fiscal year (Indonesian defaults WIB, January); OWNER can change both in Settings (decision 248, answers decision 237).                                                                                                                                                                                  |
+| 2026-10-02 | Menu names are in simple Indonesian, and each menu reveals its submenu when pressed so the sidebar stays short (decision 254).                                                                                                                                                                                                                            |
 
 ## Resolved by authority (no OWNER decision needed)
 
@@ -1251,6 +1252,18 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   ke" picker (the filing, or a payment by number); the purpose defaults to "Bukti lapor" for the filing
   and "Bukti bayar" for a payment. Uses the existing `tax_link_evidence`, which already accepts
   `tax_payment`. No migration.
+
+- Indonesian menu names and reveal submenus (decision 254, OWNER request after the first signed-in
+  walkthrough). Every label in `src/domain/shell/navigation.ts` is now simple Indonesian (for example
+  Penjualan, Faktur, Kas & Bank, Rekonsiliasi Bank, Perencanaan, Perkiraan, Laporan, Administrasi); the
+  sitemap's structure, order, routes and permissions are unchanged, so this is wording only. The Sidebar
+  shows one row per menu; pressing it reveals its submenu (short fade/slide, none with reduced motion)
+  and closes the one opened before, and the menu of the current page is open by default
+  (`activeNavItem`, longest path prefix, so detail pages keep their list highlighted). In the collapsed
+  icon sidebar, a menu icon expands the sidebar and opens that menu. The Command Menu reads the same
+  labels. Found while testing: a submenu item without its own permission made its menu appear for
+  people who could not open any of its pages (the pages themselves still refused); such items now
+  inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
