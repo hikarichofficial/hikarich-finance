@@ -316,14 +316,9 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
     billion test aggregates the turnover of husband, wife, minor children and every Perseroan Perorangan
     they founded; the engine has no such aggregation yet beyond `aggregation_status`.
   - Not in the master and not computed by the engine: corporate income tax (Pasal 17/31E, PPh 25/29),
-<<<<<<< HEAD
     PPh 21 for non-employees, marketplace PPh 22 (PMK 37/2025), annual SPT deadlines. PPh 4(2) on rent
     and PPh 26 were added and the deadline correction published in decision 256; marketplace PPh 22 is
     approved by the OWNER and is the next engine slice.
-=======
-    PPh 4(2), PPh 26, PPh 21 for non-employees, marketplace PPh 22 (from 1 Nov 2026), annual SPT
-    deadlines. Adding any of these is new engine scope and an OWNER decision.
->>>>>>> origin/main
 - Forecast projection methodology decided by the OWNER (decision 250, answers decision 139). Confirm the "Committed" reading for budgets (decision 138) is what was intended.
 - Recurring rule / budget / revenue target screens (decisions 134-139) are now fully shipped (decisions 183-188), including Recurring Rule's own create/edit template builder (decision 188). The template builder's v1 line editor deliberately leaves every optional tax/discount/product-linkage field (`vat_treatment`, `discount_type`, `wht_object`, `tax_amount`, `product_id`, an account-linked line) unexposed in the UI (decision 188); OWNER to confirm whether a future increment should expose them or whether the defaulted-at-generation behavior is acceptable long-term.
 - Documents Center, Import Wizard and Command Menu screens (decisions 140-146) are a later slice (P13), like every other phase's screens; the download route's signed-URL generation needs Supabase Storage configured, which is an infrastructure step outside this repository's migrations.
@@ -1285,7 +1280,6 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
-<<<<<<< HEAD
 - PPh 4(2), PPh 26 and the deadline correction (decision 256, OWNER instruction "kerjakan sekarang" and
   "langsung saja ubah dan buatkan terverifikasinya"). (1) Two more withholdings run through the same P7
   machinery as PPh 23 (determination, tax ledger, payment, filing, reconciliation, calendar) as the tax
@@ -1308,8 +1302,6 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   cannot be chosen from the screen today; this is the next slice. Not tax advice; the OWNER's tax
   consultant confirms the baseline before production (P15).
 
-=======
->>>>>>> origin/main
 - Sidebar follow-ups (decision 255, OWNER walkthrough feedback). (1) "Saldo Kas & Bank" under
   Ringkasan now has its own page, `/cash-snapshot` (total active balance, each active account's balance
   and reconciliation freshness, read-only, `money.view`, the Dashboard's own Account Snapshot data),
