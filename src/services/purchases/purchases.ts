@@ -760,7 +760,9 @@ export async function getBillDraftForEdit(billId: string): Promise<BillDraftForE
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("bills")
-    .select("id, entity_id, version, status, vendor_id, vendor_reference, bill_date, due_date, notes")
+    .select(
+      "id, entity_id, version, status, vendor_id, vendor_reference, bill_date, due_date, notes",
+    )
     .eq("id", uuid(billId))
     .maybeSingle();
   if (error || !data || data.status !== "draft") return null;
