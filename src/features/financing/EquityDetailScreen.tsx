@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import { EQUITY_CLASS_LABELS, EQUITY_KIND_LABELS } from "@/domain/financing/financing";
@@ -27,11 +28,14 @@ export function EquityDetailScreen({
   currency,
   backHref,
   qs,
+  actionsPanel,
 }: {
   detail: EquityDetail;
   currency: string;
   backHref: string;
   qs: string;
+  /** The command forms (client components) the page built for this record's status and the person's rights. */
+  actionsPanel?: ReactNode;
 }) {
   const statusBadge = equityStatusBadge(detail.status);
   const retainedBadge = equityRetainedEarningsBadge(detail.exceeds_retained_earnings);
@@ -59,6 +63,15 @@ export function EquityDetailScreen({
           ) : null}
         </div>
       </header>
+
+      {actionsPanel ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Tindakan</h2>
+          </div>
+          {actionsPanel}
+        </section>
+      ) : null}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">

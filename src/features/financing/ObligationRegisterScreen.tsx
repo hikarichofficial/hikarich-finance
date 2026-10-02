@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import type { ObligationKind, ObligationStatus } from "@/domain/financing/financing";
 import {
@@ -30,6 +31,7 @@ export function ObligationRegisterScreen({
   query,
   currency,
   entity,
+  createHref,
 }: {
   rows: readonly ObligationRow[];
   kind: ObligationKind;
@@ -37,6 +39,8 @@ export function ObligationRegisterScreen({
   query: string;
   currency: string;
   entity: string | undefined;
+  /** Set by the page when the person may create one (`loans.manage`). */
+  createHref?: string;
 }) {
   const title = obligationKindTitle(kind);
   return (
@@ -46,6 +50,11 @@ export function ObligationRegisterScreen({
           <h1>Daftar {title}</h1>
           <p className="list-screen-summary">{rows.length} pos ditampilkan.</p>
         </div>
+        {createHref ? (
+          <Link href={createHref} className="btn-primary">
+            Tambah {title}
+          </Link>
+        ) : null}
       </header>
 
       <div className="list-screen-toolbar">

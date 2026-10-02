@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import {
@@ -42,12 +43,15 @@ export function LoanDetailScreen({
   currency,
   entity,
   backHref,
+  actionsPanel,
 }: {
   detail: LoanDetail;
   schedule: readonly LoanScheduleRow[];
   currency: string;
   entity: string | undefined;
   backHref: string;
+  /** The command forms (client components) the page built for this loan's status and the person's rights. */
+  actionsPanel?: ReactNode;
 }) {
   const statusBadge = loanStatusBadge(detail.status);
   const activeVersion =
@@ -75,6 +79,15 @@ export function LoanDetailScreen({
           </span>
         </div>
       </header>
+
+      {actionsPanel ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Tindakan</h2>
+          </div>
+          {actionsPanel}
+        </section>
+      ) : null}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">

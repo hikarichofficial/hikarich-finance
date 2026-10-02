@@ -1,3 +1,4 @@
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { getEntityBaseCurrency, listObligations } from "@/services/financing/financing";
 import {
@@ -17,7 +18,7 @@ export default async function OtherReceivablesPage({
   searchParams: Promise<{ entity?: string; status?: string; q?: string }>;
 }) {
   const { entity, status, q } = await searchParams;
-  const { membership } = await requirePermission("loans.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("loans.view", { entityCode: entity });
   const obligationStatus = parseObligationStatusFilter(status) ?? null;
   const query = q ?? "";
 
@@ -39,6 +40,11 @@ export default async function OtherReceivablesPage({
       query={query}
       currency={currency}
       entity={entity}
+      createHref={
+        can(access, membership.entity_id, "loans.manage")
+          ? `/assets/obligations/new?kind=receivable${entity ? `&entity=${encodeURIComponent(entity)}` : ""}`
+          : undefined
+      }
     />
   );
 }
