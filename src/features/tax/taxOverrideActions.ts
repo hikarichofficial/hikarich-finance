@@ -3,7 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
-import { setTaxOverride } from "@/services/tax/tax";
+import { setTaxOverride, withdrawTaxOverride } from "@/services/tax/tax";
 
 /** Server action behind the tax override form (decision 262): the unmodified `tax_override_set`
  * (`tax.override`, recent step-up, reason and evidence note). */
@@ -50,4 +50,31 @@ export async function setTaxOverrideAction(
   }
   revalidatePath(text(formData, "path") || "/");
   return { status: "ok", message: "Koreksi pajak tersimpan." };
+}
+
+/** Withdraw an override no posted document has used yet: the unmodified `tax_override_withdraw`
+ * (`tax.override`, recent step-up, a reason of 5 to 500 characters). */
+export async function withdrawTaxOverrideAction(
+  _previous: TaxOverrideState,
+  formData: FormData,
+): Promise<TaxOverrideState> {
+  try {
+    await withdrawTaxOverride({
+      override_id: text(formData, "override_id"),
+      reason: text(formData, "reason"),
+    });
+  } catch (error) {
+    if (error instanceof AuthzError) {
+      const match = /^(?:INVALID|CONFLICT):\s*([\s\S]+)$/.exec(error.message);
+      const base = authzErrorMessage(error.code);
+      return {
+        status: "error",
+        message: match?.[1] ? `${base} (${match[1].trim()})` : base,
+        stepUp: error.code === "STEP_UP_REQUIRED",
+      };
+    }
+    return { status: "error", message: "Koreksi tidak dapat ditarik. Alasan minimal 5 karakter." };
+  }
+  revalidatePath(text(formData, "path") || "/");
+  return { status: "ok", message: "Koreksi pajak ditarik." };
 }

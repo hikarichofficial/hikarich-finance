@@ -2,23 +2,38 @@
 
 import { useActionState, useState } from "react";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
-import { confirmClaimAction, idleInvoiceActionState, rejectClaimAction } from "./actions";
+import {
+  confirmClaimAction,
+  idleInvoiceActionState,
+  markClaimDuplicateAction,
+  rejectClaimAction,
+} from "./actions";
+
+export interface DuplicateClaimOption {
+  id: string;
+  label: string;
+}
 
 /**
  * Confirm or reject one pending payment claim (decision 259, Step 07 §4). Confirming is where the money is
  * actually recognised: the person picks the account it arrived in and may correct the date or amount to
- * what the bank shows. Rejecting needs a reason and has no financial effect.
+ * what the bank shows. Rejecting needs a reason and has no financial effect. "Tandai Duplikat" is offered
+ * when the same invoice has another pending claim (`mark_submission_duplicate` only accepts a claim of the
+ * same invoice); it has no financial effect either.
  */
 export function PaymentClaimForms({
   submissionId,
   accounts,
   amount,
   paymentDate,
+  otherClaims = [],
 }: {
   submissionId: string;
   accounts: readonly SettlementAccountOption[];
   amount: string;
   paymentDate: string;
+  /** The other pending claims of the same invoice, for "Tandai Duplikat". */
+  otherClaims?: readonly DuplicateClaimOption[];
 }) {
   const [confirmState, confirmAction, confirming] = useActionState(
     confirmClaimAction,
@@ -28,7 +43,11 @@ export function PaymentClaimForms({
     rejectClaimAction,
     idleInvoiceActionState,
   );
-  const [mode, setMode] = useState<"closed" | "confirm" | "reject">("closed");
+  const [duplicateState, duplicateAction, markingDuplicate] = useActionState(
+    markClaimDuplicateAction,
+    idleInvoiceActionState,
+  );
+  const [mode, setMode] = useState<"closed" | "confirm" | "reject" | "duplicate">("closed");
 
   if (mode === "closed") {
     return (
@@ -39,7 +58,45 @@ export function PaymentClaimForms({
         <button type="button" className="btn-secondary" onClick={() => setMode("reject")}>
           Tolak
         </button>
+        {otherClaims.length > 0 ? (
+          <button type="button" className="btn-ghost" onClick={() => setMode("duplicate")}>
+            Tandai Duplikat
+          </button>
+        ) : null}
       </div>
+    );
+  }
+
+  if (mode === "duplicate") {
+    return (
+      <form action={duplicateAction} className="record-form">
+        <input type="hidden" name="submission_id" value={submissionId} />
+        <label>
+          Klaim Ini Sama dengan
+          <select name="duplicate_of_id" required defaultValue="">
+            <option value="" disabled>
+              Pilih klaim lain dari invoice yang sama
+            </option>
+            {otherClaims.map((claim) => (
+              <option key={claim.id} value={claim.id}>
+                {claim.label}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Alasan (minimal 5 karakter)
+          <input name="reason" required minLength={5} maxLength={500} />
+        </label>
+        {duplicateState.status === "error" ? (
+          <p role="alert" className="error">
+            {duplicateState.message}
+          </p>
+        ) : null}
+        <button type="submit" className="btn-secondary" disabled={markingDuplicate}>
+          {markingDuplicate ? "Menyimpan…" : "Tandai Duplikat"}
+        </button>
+      </form>
     );
   }
 

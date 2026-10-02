@@ -8,6 +8,7 @@ import {
   type JournalListFilter,
   type JournalStatusFilter,
 } from "@/domain/accounting/journalList";
+import Link from "next/link";
 import type { AccountingPeriodRow, JournalEntryRow } from "@/schemas/accounting";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
@@ -35,6 +36,7 @@ export function JournalsListScreen({
   periodId,
   query,
   entity,
+  canCreate = false,
 }: {
   rows: readonly JournalEntryRow[];
   periods: readonly AccountingPeriodRow[];
@@ -43,6 +45,8 @@ export function JournalsListScreen({
   periodId: string | null;
   query: string;
   entity: string | undefined;
+  /** Shows "Jurnal Manual" (`accounting.journal_create`, the permission `create_journal_draft` checks). */
+  canCreate?: boolean;
 }) {
   return (
     <div className="list-screen">
@@ -51,6 +55,18 @@ export function JournalsListScreen({
           <h1>Jurnal</h1>
           <p className="list-screen-summary">{rows.length} jurnal ditampilkan.</p>
         </div>
+        {canCreate ? (
+          <Link
+            href={
+              entity
+                ? `/accounting/journal/new?entity=${encodeURIComponent(entity)}`
+                : "/accounting/journal/new"
+            }
+            className="btn-primary"
+          >
+            Jurnal Manual
+          </Link>
+        ) : null}
       </header>
 
       <div className="list-screen-toolbar">

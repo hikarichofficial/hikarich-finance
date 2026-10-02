@@ -76,6 +76,7 @@ export default async function InvoiceDetailPage({
         canCorrect:
           can(access, entityId, "invoices.void") && can(access, entityId, "invoices.create"),
         canManageLink: can(access, entityId, "invoices.regenerate_link"),
+        canCancelDraft: can(access, entityId, "invoices.edit"),
       }}
     />
   );

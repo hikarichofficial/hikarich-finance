@@ -53,6 +53,7 @@ export default async function ExpenseDetailPage({
       })}
       entity={entity}
       backHref={backHref}
+      canEdit={can(access, entityId, "bills.edit")}
     />
   );
 }

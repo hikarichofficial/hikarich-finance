@@ -3,6 +3,7 @@
 import { useActionState, useEffect, useState, type ReactNode } from "react";
 import { useRouter } from "next/navigation";
 import {
+  cancelInvoiceDraftAction,
   correctInvoiceAction,
   ensureInvoiceLinkAction,
   idleCorrectInvoiceState,
@@ -10,6 +11,7 @@ import {
   idleInvoiceLinkState,
   issueInvoiceAction,
   revokeInvoiceLinkAction,
+  setInvoiceLinkExpiryAction,
   voidInvoiceAction,
 } from "./actions";
 
@@ -133,6 +135,79 @@ function RevokeLinkForm({ invoiceId }: { invoiceId: string }) {
   );
 }
 
+/** Cancel a draft (`cancel_invoice`, `invoices.edit` for a draft): nothing was posted, so there is no
+ * journal to reverse; the draft is kept as cancelled with its reason. */
+function CancelDraftForm({ invoiceId }: { invoiceId: string }) {
+  const [state, action, pending] = useActionState(cancelInvoiceDraftAction, idleInvoiceActionState);
+  return (
+    <ReasonForm
+      invoiceId={invoiceId}
+      action={action}
+      pending={pending}
+      state={state}
+      label="Batalkan Draf"
+      pendingLabel="Membatalkan…"
+      confirmHint="Draf ini akan dibatalkan dan tidak bisa diterbitkan lagi. Tidak ada dampak akuntansi."
+    />
+  );
+}
+
+/** Set when the public link stops working (`set_invoice_link_expiry`); an empty time means no expiry. The
+ * browser's local time is converted to an exact instant here, because the server does not know the
+ * person's time zone. */
+function LinkExpiryForm({ invoiceId }: { invoiceId: string }) {
+  const [state, action, pending] = useActionState(
+    setInvoiceLinkExpiryAction,
+    idleInvoiceActionState,
+  );
+  const [open, setOpen] = useState(false);
+  const [localTime, setLocalTime] = useState("");
+  const parsed = localTime === "" ? null : new Date(localTime);
+  const expiresAt = parsed && !Number.isNaN(parsed.getTime()) ? parsed.toISOString() : "";
+
+  if (!open) {
+    return (
+      <button type="button" className="btn-secondary" onClick={() => setOpen(true)}>
+        Atur Masa Berlaku Tautan
+      </button>
+    );
+  }
+
+  return (
+    <form action={action} className="invoice-action-form">
+      <input type="hidden" name="invoice_id" value={invoiceId} />
+      <input type="hidden" name="expires_at" value={expiresAt} />
+      <label>
+        Tautan Berlaku Sampai (kosongkan = tanpa batas waktu)
+        <input
+          type="datetime-local"
+          value={localTime}
+          onChange={(event) => setLocalTime(event.target.value)}
+        />
+      </label>
+      {state.status === "error" ? (
+        <p role="alert" className="error">
+          {state.message}
+        </p>
+      ) : null}
+      {state.status === "ok" ? <p className="hint">{state.message}</p> : null}
+      <div className="invoice-action-buttons">
+        <button type="submit" className="btn-primary" disabled={pending}>
+          {pending ? "Menyimpan…" : "Simpan Masa Berlaku"}
+        </button>
+        <button
+          type="button"
+          className="btn-ghost"
+          onClick={() => setOpen(false)}
+          disabled={pending}
+        >
+          Batal
+        </button>
+      </div>
+    </form>
+  );
+}
+
 function CorrectForm({ invoiceId }: { invoiceId: string }) {
   const router = useRouter();
   const [state, action, pending] = useActionState(correctInvoiceAction, idleCorrectInvoiceState);
@@ -206,6 +281,8 @@ export interface InvoiceActionPermissions {
   canVoid: boolean;
   canCorrect: boolean;
   canManageLink: boolean;
+  /** Cancelling a DRAFT needs `invoices.edit` (`cancel_invoice`'s own check for a draft). */
+  canCancelDraft?: boolean;
 }
 
 /**
@@ -229,6 +306,7 @@ export function InvoiceActions({
   }
   if (status === "issued" && permissions.canManageLink) {
     actions.push(<CopyLinkForm key="link" invoiceId={invoiceId} />);
+    actions.push(<LinkExpiryForm key="expiry" invoiceId={invoiceId} />);
     actions.push(<RevokeLinkForm key="revoke" invoiceId={invoiceId} />);
   }
   if (status === "issued" && permissions.canCorrect) {
@@ -236,6 +314,9 @@ export function InvoiceActions({
   }
   if (status === "issued" && permissions.canVoid) {
     actions.push(<VoidForm key="void" invoiceId={invoiceId} />);
+  }
+  if (status === "draft" && permissions.canCancelDraft) {
+    actions.push(<CancelDraftForm key="cancel-draft" invoiceId={invoiceId} />);
   }
   if (actions.length === 0) return null;
   return <div className="invoice-actions">{actions}</div>;
