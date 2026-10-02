@@ -1,3 +1,4 @@
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { getEntityBaseCurrency, listLoans } from "@/services/financing/financing";
 import {
@@ -17,7 +18,7 @@ export default async function LoanRegisterPage({
   searchParams: Promise<{ entity?: string; direction?: string; status?: string; q?: string }>;
 }) {
   const { entity, direction, status, q } = await searchParams;
-  const { membership } = await requirePermission("loans.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("loans.view", { entityCode: entity });
   const loanDirection = parseLoanDirectionFilter(direction) ?? null;
   const loanStatus = parseLoanStatusFilter(status) ?? null;
   const query = q ?? "";
@@ -40,6 +41,11 @@ export default async function LoanRegisterPage({
       query={query}
       currency={currency}
       entity={entity}
+      createHref={
+        can(access, membership.entity_id, "loans.manage")
+          ? `/assets/loans/new${entity ? `?entity=${encodeURIComponent(entity)}` : ""}`
+          : undefined
+      }
     />
   );
 }

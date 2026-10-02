@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import type { LoanDirection, LoanStatus } from "@/domain/financing/financing";
 import {
@@ -32,6 +33,7 @@ export function LoanRegisterScreen({
   query,
   currency,
   entity,
+  createHref,
 }: {
   rows: readonly LoanRow[];
   direction: LoanDirection | null;
@@ -39,6 +41,8 @@ export function LoanRegisterScreen({
   query: string;
   currency: string;
   entity: string | undefined;
+  /** Set by the page when the person may create a loan (`loans.manage`). */
+  createHref?: string;
 }) {
   return (
     <div className="list-screen">
@@ -47,6 +51,11 @@ export function LoanRegisterScreen({
           <h1>Daftar Pinjaman</h1>
           <p className="list-screen-summary">{rows.length} pinjaman ditampilkan.</p>
         </div>
+        {createHref ? (
+          <Link href={createHref} className="btn-primary">
+            Tambah Pinjaman
+          </Link>
+        ) : null}
       </header>
 
       <div className="list-screen-toolbar">

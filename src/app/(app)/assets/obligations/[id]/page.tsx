@@ -1,4 +1,8 @@
 import { notFound } from "next/navigation";
+import { can } from "@/domain/authz/access";
+import { formatMoney } from "@/domain/money/format";
+import { getMoneyControl } from "@/services/money/money";
+import { ObligationActionsPanel } from "@/features/financing/FinancingForms";
 import { requirePermission } from "@/services/identity/access";
 import { getEntityBaseCurrency, getObligation } from "@/services/financing/financing";
 import { ObligationDetailScreen } from "@/features/financing/ObligationDetailScreen";
@@ -22,7 +26,7 @@ export default async function ObligationDetailPage({
 }) {
   const { id } = await params;
   const { entity } = await searchParams;
-  const { membership } = await requirePermission("loans.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("loans.view", { entityCode: entity });
 
   const detail = await getObligation(id).catch(() => null);
   if (!detail) notFound();
@@ -30,6 +34,42 @@ export default async function ObligationDetailPage({
   const currency = await getEntityBaseCurrency(membership.entity_id);
   const qs = entity ? `?entity=${encodeURIComponent(entity)}` : "";
   const backHref = `${LIST_HREF[detail.kind]}${qs}`;
+  const canManage = can(access, membership.entity_id, "loans.manage");
+  const accounts = canManage
+    ? (await getMoneyControl(membership.entity_id).catch(() => []))
+        .filter((a) => a.is_active)
+        .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` }))
+    : [];
+  const today = new Date().toISOString().slice(0, 10);
+  const activeSettlements = detail.settlements
+    .filter((s) => s.status === "active")
+    .map((s) => ({
+      id: s.id,
+      label: `${s.number} · ${s.date} · ${formatMoney(s.principal, currency)}`,
+    }));
+  const isOpen = detail.status === "open";
 
-  return <ObligationDetailScreen detail={detail} currency={currency} backHref={backHref} qs={qs} />;
+  return (
+    <ObligationDetailScreen
+      detail={detail}
+      currency={currency}
+      backHref={backHref}
+      qs={qs}
+      actionsPanel={
+        canManage && detail.status !== "void" ? (
+          <ObligationActionsPanel
+            obligationId={detail.id}
+            receivable={detail.kind === "receivable"}
+            open={isOpen}
+            canVoid={isOpen && detail.source_type === "manual" && activeSettlements.length === 0}
+            outstanding={detail.outstanding}
+            settlements={activeSettlements}
+            accounts={accounts}
+            today={today}
+            next={`/assets/obligations/${detail.id}${qs}`}
+          />
+        ) : undefined
+      }
+    />
+  );
 }
