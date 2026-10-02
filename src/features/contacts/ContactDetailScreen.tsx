@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CONTACT_KIND_LABELS } from "@/domain/contacts/contactsList";
 import type { ContactRow } from "@/schemas/contacts";
 import { formatShortDate } from "./format";
+import { ContactTaxFactsForm, type ContactTaxFacts } from "./ContactTaxFactsForm";
 
 /**
  * Contact Detail, shared by Customer Detail (`/sales/customers/[id]`) and Vendor Detail
@@ -17,10 +18,13 @@ export function ContactDetailScreen({
   contact,
   backHref,
   backLabel,
+  tax,
 }: {
   contact: ContactRow;
   backHref: string;
   backLabel: string;
+  /** The contact's tax facts (decision 258); absent when the person cannot see tax data. */
+  tax?: { facts: ContactTaxFacts | null; canRecord: boolean; today: string };
 }) {
   const statusTone = contact.status === "active" ? "success" : "neutral";
   const statusText = contact.status === "active" ? "Aktif" : "Tidak Aktif";
@@ -86,6 +90,22 @@ export function ContactDetailScreen({
           </div>
         </dl>
       </section>
+
+      {tax ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Data Pajak</h2>
+          </div>
+          <p className="hint">
+            {tax.facts
+              ? `Tercatat berlaku sejak ${formatShortDate(tax.facts.effective_from)}. Dipakai untuk menghitung potongan PPh otomatis.`
+              : "Belum ada data pajak. Tanpa ini, potongan PPh untuk kontak ini akan minta ditinjau."}
+          </p>
+          {tax.canRecord ? (
+            <ContactTaxFactsForm contactId={contact.id} current={tax.facts} today={tax.today} />
+          ) : null}
+        </section>
+      ) : null}
     </div>
   );
 }

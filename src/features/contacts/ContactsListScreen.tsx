@@ -42,6 +42,7 @@ export function ContactsListScreen({
   title,
   searchPlaceholder,
   emptyLabel,
+  createLabel,
 }: {
   rows: readonly ContactRow[];
   activeFilter: ContactListFilter | null;
@@ -51,7 +52,11 @@ export function ContactsListScreen({
   title: string;
   searchPlaceholder: string;
   emptyLabel: string;
+  /** When set, the person may add a contact: the header shows this button (decision 258). */
+  createLabel?: string;
 }) {
+  const newHref = entity ? `${basePath}/new?entity=${encodeURIComponent(entity)}` : `${basePath}/new`;
+
   return (
     <div className="list-screen">
       <header className="list-screen-header">
@@ -62,6 +67,11 @@ export function ContactsListScreen({
             {activeFilter ? `pada tampilan "${filterLabel(activeFilter)}"` : "ditampilkan"}.
           </p>
         </div>
+        {createLabel ? (
+          <Link href={newHref} className="btn-primary">
+            {createLabel}
+          </Link>
+        ) : null}
       </header>
 
       <div className="list-screen-toolbar">

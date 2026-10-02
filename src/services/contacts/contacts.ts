@@ -42,3 +42,26 @@ export async function getContact(contactId: string): Promise<ContactRow | null> 
   if (!parsed.success) throw new Error("Respons kontak tidak dikenali.");
   return parsed.data;
 }
+
+/** The tax facts of a contact now in force (latest effective date, not superseded), or `null` when none is
+ * recorded or the caller lacks `tax.view` (RLS answers both the same way). Decision 258. */
+export async function getContactTaxFacts(contactId: string): Promise<{
+  effective_from: string;
+  party_kind: string;
+  residency: string;
+  tax_id_status: string;
+  pkp_status: string;
+  wht_exemption: string;
+} | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("tax_contact_facts")
+    .select("effective_from, party_kind, residency, tax_id_status, pkp_status, wht_exemption")
+    .eq("contact_id", uuidResultSchema.parse(contactId))
+    .is("superseded_at", null)
+    .order("effective_from", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error || !data) return null;
+  return data as never;
+}

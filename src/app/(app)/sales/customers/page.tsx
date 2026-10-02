@@ -1,3 +1,4 @@
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { listContacts } from "@/services/contacts/contacts";
 import {
@@ -16,7 +17,7 @@ export default async function CustomersListPage({
   searchParams: Promise<{ entity?: string; status?: string; q?: string }>;
 }) {
   const { entity, status, q } = await searchParams;
-  const { membership } = await requirePermission("contacts.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("contacts.view", { entityCode: entity });
   const filter = parseContactFilter(status) ?? null;
   const query = q ?? "";
 
@@ -34,6 +35,9 @@ export default async function CustomersListPage({
       title="Pelanggan"
       searchPlaceholder="Cari nama, email, atau telepon…"
       emptyLabel="Belum ada pelanggan pada tampilan ini."
+      createLabel={
+        can(access, membership.entity_id, "contacts.create") ? "Tambah Pelanggan" : undefined
+      }
     />
   );
 }

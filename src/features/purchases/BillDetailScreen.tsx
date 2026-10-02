@@ -9,6 +9,8 @@ import { PURCHASE_TREATMENT_LABELS } from "@/domain/purchases/bill";
 import { SETTLEMENT_LABELS } from "@/domain/purchases/settlement";
 import type { BillDetail } from "@/services/purchases/purchases";
 import { BillActions, type BillActionPermissions } from "./BillActions";
+import { SettlementForm, type SettlementAccountOption } from "@/features/shared/SettlementForm";
+import { payBillAction } from "./actions";
 import { formatShortDate } from "./format";
 
 /**
@@ -29,10 +31,13 @@ export function BillDetailScreen({
   bill,
   permissions,
   backHref,
+  payment,
 }: {
   bill: BillDetail;
   permissions: BillActionPermissions;
   backHref: string;
+  /** Record Payment / Pay Bill (decision 258); absent when not allowed or nothing is outstanding. */
+  payment?: { accounts: readonly SettlementAccountOption[]; today: string };
 }) {
   const statusRow: BillListRow = {
     bill_id: bill.id,
@@ -74,6 +79,19 @@ export function BillDetailScreen({
       </header>
 
       <BillActions billId={bill.id} status={bill.status} permissions={permissions} />
+      {payment && bill.outstanding !== null ? (
+        <SettlementForm
+          action={payBillAction}
+          idName="bill_id"
+          id={bill.id}
+          accounts={payment.accounts}
+          outstanding={bill.outstanding}
+          today={payment.today}
+          openLabel="Bayar Tagihan"
+          submitLabel="Simpan Pembayaran"
+          accountLabel="Dibayar dari Rekening"
+        />
+      ) : null}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">

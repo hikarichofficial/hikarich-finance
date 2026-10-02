@@ -1280,6 +1280,21 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Daily-use screens that had a backend but no screen (decision 258, OWNER: "silahkan dibuat ... sampai
+  selesai"). An audit of every write service against the screens found many commands no screen calls; this
+  slice adds the ones daily work and correct tax determination depend on, all through unmodified RPCs and
+  the permission each RPC itself checks: Add Customer / Add Vendor (`create_contact`, `contacts.create`;
+  the similar-name confirmation is a checkbox); Add Account (`create_financial_account`, `money.edit`; the
+  list already linked to the missing page); Record Payment on an issued invoice (`record_payment`,
+  `invoices.confirm_payment`) and Pay Bill on an approved bill (`record_vendor_payment`, `bills.pay`), each
+  as one allocation to that document, defaulting to the outstanding amount; the contact's tax facts on
+  Customer/Vendor Detail (`tax_record_contact_facts`, `tax.confirm_facts`); and Tax Setup (`/tax/setup`):
+  the Entity's effective-dated tax profile (`tax_record_entity_profile`) and the engine switch
+  (`tax_engine_activate`, OWNER + step-up). No migration. Still without a screen, in the order planned:
+  marketplace sales (new engine scope), editing drafts, payment claims and refunds, tax override and line
+  confirmation, category tax mapping (needs a backend), then payroll, assets, financing, imports, document
+  attachments, manual journals and the fiscal-year close.
+
 - Create Invoice and Record Bill screens, with the tax fields of a line (decision 257). The list screens
   already linked to `/sales/invoices/new` and `/purchases/bills/new`, but neither page existed (only the
   services), so an invoice or a bill could not be created from the app, and no screen could record the

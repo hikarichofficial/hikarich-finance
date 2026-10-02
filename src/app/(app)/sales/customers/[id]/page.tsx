@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import { getContact } from "@/services/contacts/contacts";
+import { getContact, getContactTaxFacts } from "@/services/contacts/contacts";
 import { matchesContactRole } from "@/domain/contacts/contactsList";
 import { ContactDetailScreen } from "@/features/contacts/ContactDetailScreen";
 
@@ -18,7 +19,7 @@ export default async function CustomerDetailPage({
 }) {
   const { id } = await params;
   const { entity } = await searchParams;
-  const { membership } = await requirePermission("contacts.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("contacts.view", { entityCode: entity });
 
   const contact = await getContact(id);
   if (
@@ -29,6 +30,9 @@ export default async function CustomerDetailPage({
     notFound();
   }
 
+  const canSeeTax = can(access, membership.entity_id, "tax.view");
+  const taxFacts = canSeeTax ? await getContactTaxFacts(id) : null;
+
   const backHref = entity
     ? `/sales/customers?entity=${encodeURIComponent(entity)}`
     : "/sales/customers";
@@ -38,6 +42,15 @@ export default async function CustomerDetailPage({
       contact={contact}
       backHref={backHref}
       backLabel="Kembali ke daftar pelanggan"
+      tax={
+        canSeeTax
+          ? {
+              facts: taxFacts,
+              canRecord: can(access, membership.entity_id, "tax.confirm_facts"),
+              today: new Date().toISOString().slice(0, 10),
+            }
+          : undefined
+      }
     />
   );
 }

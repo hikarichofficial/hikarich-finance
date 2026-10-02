@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { getBillDetail } from "@/services/purchases/purchases";
+import { getMoneyControl } from "@/services/money/money";
 import { BillDetailScreen } from "@/features/purchases/BillDetailScreen";
 
 /** Bill Detail (P13 Part 3b, Step 09 §10, §12). Permission to act is read off the currently active Entity
@@ -26,6 +27,12 @@ export default async function BillDetailPage({
   if (!bill) notFound();
 
   const entityId = membership.entity_id;
+  const canPay =
+    can(access, entityId, "bills.pay") &&
+    bill.status === "approved" &&
+    bill.outstanding !== null &&
+    Number(bill.outstanding) > 0;
+  const accounts = canPay ? await getMoneyControl(entityId).catch(() => []) : [];
   const backHref = entity
     ? `/purchases/bills?entity=${encodeURIComponent(entity)}`
     : "/purchases/bills";
@@ -34,6 +41,16 @@ export default async function BillDetailPage({
     <BillDetailScreen
       bill={bill}
       backHref={backHref}
+      payment={
+        canPay
+          ? {
+              accounts: accounts
+                .filter((a) => a.is_active)
+                .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` })),
+              today: new Date().toISOString().slice(0, 10),
+            }
+          : undefined
+      }
       permissions={{
         canSubmit: can(access, entityId, "bills.submit"),
         canEdit: can(access, entityId, "bills.edit"),

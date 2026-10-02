@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { getInvoiceDocument } from "@/services/sales/sales";
+import { getMoneyControl } from "@/services/money/money";
 import { InvoiceDetailScreen } from "@/features/sales/InvoiceDetailScreen";
 
 /** Invoice Detail (P13 Part 3a, Step 09 §10, §11). Permission to act is read off the currently active
@@ -22,6 +23,11 @@ export default async function InvoiceDetailPage({
   if (!doc) notFound();
 
   const entityId = membership.entity_id;
+  const canRecordPayment =
+    can(access, entityId, "invoices.confirm_payment") &&
+    doc.status === "issued" &&
+    Number(doc.outstanding) > 0;
+  const accounts = canRecordPayment ? await getMoneyControl(entityId).catch(() => []) : [];
   const backHref = entity
     ? `/sales/invoices?entity=${encodeURIComponent(entity)}`
     : "/sales/invoices";
@@ -31,6 +37,16 @@ export default async function InvoiceDetailPage({
       invoiceId={id}
       doc={doc}
       backHref={backHref}
+      payment={
+        canRecordPayment
+          ? {
+              accounts: accounts
+                .filter((a) => a.is_active)
+                .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` })),
+              today: new Date().toISOString().slice(0, 10),
+            }
+          : undefined
+      }
       permissions={{
         canIssue: can(access, entityId, "invoices.issue"),
         canVoid: can(access, entityId, "invoices.void"),

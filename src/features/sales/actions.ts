@@ -8,6 +8,8 @@ import { requirePermission } from "@/services/identity/access";
 import {
   correctInvoice,
   createInvoiceDraft,
+  getInvoiceOwner,
+  recordPayment,
   getInvoiceLink,
   issueInvoice,
   regenerateInvoiceLink,
@@ -229,4 +231,34 @@ export async function reversePaymentAction(
   }
   revalidatePayment(paymentId);
   return { status: "ok" };
+}
+
+/** Record Payment on one invoice (decision 258): `record_payment` with a single allocation to this invoice.
+ * The database checks the amount against what is outstanding and posts the receipt. */
+export async function recordInvoicePaymentAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  const invoiceId = text(formData, "invoice_id");
+  const amount = text(formData, "amount");
+  try {
+    const owner = await getInvoiceOwner(invoiceId);
+    if (!owner) return { status: "error", message: "Invoice tidak ditemukan." };
+    await recordPayment({
+      entity_id: owner.entity_id,
+      idempotency_key: randomUUID(),
+      customer_id: owner.customer_id,
+      account_id: text(formData, "account_id"),
+      payment_date: text(formData, "payment_date"),
+      amount,
+      allocations: [{ invoice_id: invoiceId, amount }],
+      reference: text(formData, "reference") || undefined,
+      note: text(formData, "note") || undefined,
+    });
+  } catch (error) {
+    return draftErrorState(error, "Pembayaran tidak dapat dicatat. Periksa rekening, tanggal dan jumlah.");
+  }
+  revalidateInvoice(invoiceId);
+  revalidatePath("/sales/payments");
+  return { status: "ok", message: "Pembayaran tercatat." };
 }

@@ -50,6 +50,10 @@ export function AccountsListScreen({
   entity: string | undefined;
   canCreate: boolean;
 }) {
+  const newHref = entity
+    ? `/money/accounts/new?entity=${encodeURIComponent(entity)}`
+    : "/money/accounts/new";
+
   return (
     <div className="list-screen">
       <header className="list-screen-header">

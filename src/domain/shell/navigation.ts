@@ -127,6 +127,7 @@ export const NAVIGATION: readonly NavGroup[] = [
       { label: "Kalender Pajak", href: "/tax/calendar" },
       { label: "Pelaporan & Bukti", href: "/tax/filing" },
       { label: "Aturan Pajak", href: "/tax/rules" },
+      { label: "Pengaturan Pajak", href: "/tax/setup" },
     ],
   },
   {
