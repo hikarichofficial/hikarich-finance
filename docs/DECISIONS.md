@@ -1221,6 +1221,7 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
      service now keeps the database message inside `AuthzError` for that purpose.
 
   Tests: `src/domain/money/reconciliationSession.test.ts`; the RPCs are covered by the existing P4 tests.
+
 - Documents Archive, Sales/Purchase report and Saved Reports (decision 252, the last Step 09 screens
   without a backend). Migration `20261001400000_p14_archive_sales_purchase_saved.sql`:
 
