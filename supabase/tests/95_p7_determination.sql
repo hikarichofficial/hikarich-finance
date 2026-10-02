@@ -1535,16 +1535,16 @@ begin
     '11.3 the journal line no longer names PPh 23 for every withholding');
 
   perform test_helpers.login(v_taxer);
-  perform test_helpers.assert(public.tax_period_position(pt, 'wht_pph4_2', v_period) ->> 'outstanding_payable' = '600000'
-    and public.tax_overview(pt) -> 'outstanding' ->> 'wht_pph4_2' = '600000'
-    and public.tax_overview(pt) -> 'outstanding' ->> 'wht_pph26' = '0',
+  perform test_helpers.assert((public.tax_period_position(pt, 'wht_pph4_2', v_period) ->> 'outstanding_payable')::numeric = 600000
+    and (public.tax_overview(pt) -> 'outstanding' ->> 'wht_pph4_2')::numeric = 600000
+    and (public.tax_overview(pt) -> 'outstanding' ->> 'wht_pph26')::numeric = 0,
     '11.4 the period position and the overview show the PPh 4(2) owed');
   perform test_helpers.assert(exists (select 1 from public.tax_calendar(pt, v_period, v_period) c
       where c.tax_type = 'wht_pph4_2' and c.step = 'pay' and c.rule_code = 'DEADLINE_PPH4_2'
-        and c.due_date = (v_period + interval '1 month' + interval '14 days')::date and c.outstanding = '600000'),
+        and c.due_date = (v_period + interval '1 month' + interval '14 days')::date and c.outstanding::numeric = 600000),
     '11.5 the calendar asks for the payment by the 15th of the following month (PMK 81/2024)');
   v_pay := public.tax_record_payment(pt, 'key-p7e-tp-d256', 'wht_pph4_2', v_period, v_today, test_helpers.eg('bca'), '600000', '0', '0', 'NTPN-0042', 'PPh 4(2) sewa kantor');
-  perform test_helpers.assert(public.tax_period_position(pt, 'wht_pph4_2', v_period) ->> 'outstanding_payable' = '0'
+  perform test_helpers.assert((public.tax_period_position(pt, 'wht_pph4_2', v_period) ->> 'outstanding_payable')::numeric = 0
     and (select j.description like '%PPh 4(2)%' from public.tax_payments p join public.journal_entries j on j.id = p.journal_id where p.id = v_pay),
     '11.6 the payment settles the period and is labelled PPh 4(2)');
   perform test_helpers.expect_msg(format($q$select public.tax_record_payment(%L, 'key-p7e-tp-d256x', 'wht_pph99', %L, %L, %L, '1', '0', '0', 'x', 'y')$q$,
