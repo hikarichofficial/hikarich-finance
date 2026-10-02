@@ -95,3 +95,115 @@ export function monthlyStraightLine(cost: string, residual: string, months: stri
   if (c <= 0 || r < 0 || r > c) return null;
   return (c - r) / m;
 }
+
+/**
+ * Words in an asset's name that point at a fiscal group, so the person does not have to know the
+ * regulation. Checked in order; the first rule with a matching word wins, which is why the more specific
+ * words (a metal cabinet, a building) come before the general ones (a cabinet). A suggestion only: the
+ * form shows it and the person can change it.
+ */
+const NAME_RULES: readonly { key: string; words: readonly string[] }[] = [
+  { key: "land", words: ["tanah", "lahan", "kavling"] },
+  {
+    key: "building_non_permanent",
+    words: ["bangunan sementara", "tidak permanen", "non permanen", "semi permanen", "bedeng"],
+  },
+  {
+    key: "building_permanent",
+    words: ["gedung", "bangunan", "ruko", "rukan", "kios"],
+  },
+  {
+    key: "group_2",
+    words: [
+      "mobil",
+      "truk",
+      "pickup",
+      "pick up",
+      "bus",
+      "minibus",
+      "ac ",
+      "air conditioner",
+      "pendingin",
+      "kipas",
+      "besi",
+      "logam",
+      "baja",
+      "stainless",
+      "aluminium",
+      "brankas",
+      "filing cabinet",
+      "genset",
+      "generator",
+      "kulkas",
+      "lemari es",
+    ],
+  },
+  {
+    key: "group_1",
+    words: [
+      "komputer",
+      "computer",
+      "pc ",
+      "laptop",
+      "notebook",
+      "macbook",
+      "imac",
+      "monitor",
+      "printer",
+      "scanner",
+      "pemindai",
+      "fotokopi",
+      "proyektor",
+      "projector",
+      "server",
+      "router",
+      "modem",
+      "ups",
+      "kamera",
+      "camera",
+      "televisi",
+      "tv ",
+      "speaker",
+      "mesin kasir",
+      "mesin hitung",
+      "mesin tik",
+      "kalkulator",
+      "meja",
+      "kursi",
+      "lemari",
+      "rak",
+      "sofa",
+      "kayu",
+      "rotan",
+      "motor",
+      "sepeda",
+      "dispenser",
+      "kompor",
+    ],
+  },
+];
+
+/**
+ * The fiscal group an asset's name suggests, or `null` when no word is recognised (the person then
+ * chooses). Matching is on whole words of the lower-cased name, so "motor" does not match "promotor".
+ */
+export function suggestFiscalClass(name: string): FiscalClass | null {
+  const text = ` ${name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, " ")
+    .trim()} `;
+  if (text.trim() === "") return null;
+  for (const rule of NAME_RULES) {
+    for (const word of rule.words) {
+      if (text.includes(` ${word.trim()} `)) return findFiscalClass(rule.key);
+    }
+  }
+  return null;
+}
+
+/** The last day of the month before `today` (`YYYY-MM-DD`), the cut-off automatic posting uses. */
+export function previousMonthEnd(today: string): string {
+  const [year, month] = today.split("-").map(Number);
+  const end = new Date(Date.UTC(year ?? 1970, (month ?? 1) - 1, 0));
+  return end.toISOString().slice(0, 10);
+}

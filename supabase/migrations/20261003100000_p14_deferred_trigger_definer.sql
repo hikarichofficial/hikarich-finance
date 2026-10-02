@@ -1,0 +1,12 @@
+-- P14 decision 269: a payroll payment could never be saved from the application.
+--
+-- `payroll_payments.tg_capacity` is a constraint trigger that is INITIALLY DEFERRED (the payment row is
+-- written before its lines, so the check has to wait). A deferred trigger runs at COMMIT, after the
+-- SECURITY DEFINER command `payroll_record_payment` has already returned -- so it ran as the signed-in
+-- person, who has no privilege on `payroll_runs`, and the whole payment was rolled back with "permission
+-- denied for table payroll_runs". The database tests never saw it: every test file runs in one transaction
+-- that is rolled back, so a deferred trigger never fires there.
+--
+-- The trigger function only reads, and only what `payroll_record_payment` itself already read as its
+-- owner; it now runs as its owner too. No rule, amount or authorization changes.
+alter function app_private.tg_payroll_payments_capacity() security definer set search_path = pg_catalog, public;

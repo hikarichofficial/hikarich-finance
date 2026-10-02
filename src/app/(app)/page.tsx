@@ -1,4 +1,6 @@
+import { can } from "@/domain/authz/access";
 import { requireAccess } from "@/services/identity/access";
+import { autoPostDepreciation } from "@/services/assets/assets";
 import { getDashboardSnapshot } from "@/services/dashboard/dashboard";
 import { DashboardScreen } from "@/features/dashboard/DashboardScreen";
 import { nextMonth, previousMonth } from "@/features/dashboard/format";
@@ -16,6 +18,10 @@ export default async function DashboardPage({
 }) {
   const { entity, month } = await searchParams;
   const { access, membership } = await requireAccess({ entityCode: entity });
+  // Month-end depreciation posts itself the first time someone who may post it opens the app (decision 269).
+  if (can(access, membership.entity_id, "assets.manage")) {
+    await autoPostDepreciation(membership.entity_id);
+  }
   const snapshot = await getDashboardSnapshot(membership.entity_id, access, { month });
 
   const entityQuery = entity ? `entity=${encodeURIComponent(entity)}&` : "";

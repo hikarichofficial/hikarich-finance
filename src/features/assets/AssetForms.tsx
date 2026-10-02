@@ -108,21 +108,25 @@ export function FiscalFields({
   fiscalClass,
   fiscalMethod,
   optional,
+  value,
   onClassChange,
 }: {
   fiscalClass: string | null;
   fiscalMethod: string | null;
   optional: boolean;
+  /** When given, the group is controlled by the caller (which suggests it from the asset's name). */
+  value?: string;
   /** Told the chosen group, so a form can suggest the useful life that goes with it. */
   onClassChange?: (key: string) => void;
 }) {
+  const selection = value === undefined ? { defaultValue: fiscalClass ?? "" } : { value };
   return (
     <>
       <label>
         Golongan Fiskal (untuk pajak){optional ? " (opsional)" : ""}
         <select
           name="fiscal_class"
-          defaultValue={fiscalClass ?? ""}
+          {...selection}
           required={!optional}
           onChange={(event) => onClassChange?.(event.target.value)}
         >
@@ -152,24 +156,34 @@ export function FiscalFields({
 }
 
 /**
- * Method, useful life and residual value, with the fiscal group. Choosing a group fills in the useful life
- * that goes with it (the person can still change it), and the hint shows the monthly amount straight line
- * gives: (cost − residual) ÷ months. The database computes the plan that is actually posted.
+ * Method, useful life and residual value, with the fiscal group. The group is suggested from the asset's
+ * name (`suggestFiscalClass`) and the useful life from the group, so in the common case the person types
+ * nothing; both can still be changed. The hint shows the monthly amount straight line gives:
+ * (cost − residual) ÷ months. The database computes the plan that is actually posted.
  */
 export function DepreciationFields({
   depreciable,
+  name,
   cost,
   currency,
 }: {
   /** False for a Personal ledger, whose assets are tracked at cost. */
   depreciable: boolean;
+  /** The asset's name, from which the fiscal group is suggested. */
+  name?: string;
   /** The asset's cost when it is already known (activation); the opening form passes what was typed. */
   cost?: string;
   currency?: string;
 }) {
+  const suggestion = suggestFiscalClass(name ?? "");
   const [method, setMethod] = useState(depreciable ? "straight_line" : "none");
-  const [life, setLife] = useState("");
+  // `null` means "not touched": the suggestion (and the life that goes with the group) is used.
+  const [pickedClass, setPickedClass] = useState<string | null>(null);
+  const [typedLife, setTypedLife] = useState<string | null>(null);
   const [residual, setResidual] = useState("");
+  const fiscalClass = pickedClass ?? suggestion?.key ?? "";
+  const classLife = findFiscalClass(fiscalClass)?.lifeMonths;
+  const life = typedLife ?? (classLife ? String(classLife) : "");
   const monthly =
     method === "straight_line" && cost ? monthlyStraightLine(cost, residual, life) : null;
 
@@ -179,11 +193,23 @@ export function DepreciationFields({
         fiscalClass={null}
         fiscalMethod={null}
         optional
+        value={fiscalClass}
         onClassChange={(key) => {
-          const months = findFiscalClass(key)?.lifeMonths;
-          if (months) setLife(String(months));
+          setPickedClass(key);
+          setTypedLife(null);
         }}
       />
+      {pickedClass === null && suggestion ? (
+        <p className="hint">
+          Golongan dipilih otomatis dari nama aset: {suggestion.label}. Ubah bila tidak sesuai.
+        </p>
+      ) : null}
+      {fiscalClass === "" ? (
+        <p className="hint">
+          Golongan belum dikenali dari nama aset. Pilih yang paling mirip; contoh barang ada di tiap
+          pilihan.
+        </p>
+      ) : null}
       <label>
         Metode Penyusutan
         <select name="method" value={method} onChange={(event) => setMethod(event.target.value)}>
@@ -203,7 +229,7 @@ export function DepreciationFields({
               placeholder="mis. 48"
               maxLength={4}
               value={life}
-              onChange={(event) => setLife(event.target.value)}
+              onChange={(event) => setTypedLife(event.target.value)}
             />
           </label>
           <label>
@@ -219,8 +245,7 @@ export function DepreciationFields({
           <p className="hint">
             {monthly !== null && currency
               ? `Penyusutan per bulan: ${formatMoney(monthly.toFixed(2), currency)} = (harga perolehan − nilai sisa) ÷ umur manfaat.`
-              : "Garis lurus: (harga perolehan − nilai sisa) ÷ umur manfaat, sama tiap bulan. Saldo menurun: tarif tetap dari nilai buku, makin kecil tiap tahun."}{" "}
-            Pilih golongan fiskal agar umur manfaat terisi otomatis.
+              : "Garis lurus: (harga perolehan − nilai sisa) ÷ umur manfaat, sama tiap bulan. Saldo menurun: tarif tetap dari nilai buku, makin kecil tiap tahun."}
           </p>
         </>
       ) : null}
@@ -234,6 +259,7 @@ export function ActivateAssetForm({
   next,
   today,
   depreciable,
+  name,
   cost,
   currency,
 }: {
@@ -242,6 +268,7 @@ export function ActivateAssetForm({
   today: string;
   /** False for a Personal ledger, whose assets are tracked at cost. */
   depreciable: boolean;
+  name?: string;
   cost?: string;
   currency?: string;
 }) {
@@ -257,7 +284,7 @@ export function ActivateAssetForm({
         Mulai Dipakai
         <input type="date" name="in_service_date" required defaultValue={today} max={today} />
       </label>
-      <DepreciationFields depreciable={depreciable} cost={cost} currency={currency} />
+      <DepreciationFields depreciable={depreciable} name={name} cost={cost} currency={currency} />
     </ActionForm>
   );
 }
@@ -662,7 +689,10 @@ export function PostDepreciationForm({
         Posting Sampai Akhir Bulan
         <input type="date" name="through" required defaultValue={through} />
       </label>
-      <p className="hint">Pilih tanggal terakhir suatu bulan yang sudah lewat.</p>
+      <p className="hint">
+        Bulan yang sudah lewat diposting otomatis saat aplikasi dibuka. Tombol ini untuk posting
+        manual, misalnya sampai akhir bulan berjalan. Pilih tanggal terakhir suatu bulan.
+      </p>
       <Feedback state={state} next={next} />
       <button type="submit" className="btn-primary" disabled={pending}>
         {pending ? "Memposting…" : "Posting Penyusutan"}

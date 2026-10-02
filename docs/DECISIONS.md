@@ -1280,6 +1280,36 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Automatic fiscal grouping, automatic month-end depreciation, and a payroll payment that could not be
+  saved (decision 269, OWNER: "harusnya ada mesin sistem otomatis dalam pengelompokannya", "penyusutan
+  harus dalam bentuk otomatis setiap akhir bulan", "bila ada perubahan manual juga harus bisa").
+  1. Grouping. `suggestFiscalClass` picks the fiscal group from words in the asset's name (laptop, printer,
+     meja, kursi: Kelompok 1; mobil, AC, mebel logam: Kelompok 2; gedung, ruko: permanent building; tanah:
+     land), the group fills the useful life, and the form says the group was chosen automatically. It is a
+     suggestion the person can change; an unrecognised name asks the person to choose. The word list is
+     from memory of the PMK 72/2023 attachment and should be checked against the primary text.
+  2. Month end. `autoPostDepreciation` calls the existing `asset_post_depreciation` through the last
+     completed month end when someone with `assets.manage` opens the Dashboard, the Asset register or the
+     Depreciation screen. The command is idempotent and serialised per Entity, so each month posts once; it
+     runs as that person, so the journal has a real actor and no scheduler or service key is needed. When
+     the database refuses (for example a closed period) nothing is posted and the manual screen remains.
+     Trade-off: posting happens at the first visit after month end, not at midnight; the journals are
+     dated month end either way.
+  3. Manual changes already exist and are unchanged: "Ubah Rencana Penyusutan" (method, life, residual for
+     the months still to come), reversing a posted month from the asset, and manual "Posting Penyusutan".
+  4. Defect found in the browser: no payroll payment could be saved. `payroll_payments.tg_capacity` is an
+     INITIALLY DEFERRED constraint trigger; it runs at COMMIT, after the SECURITY DEFINER command returned,
+     as the signed-in person, who has no privilege on `payroll_runs`. Migration
+     `20261003100000_p14_deferred_trigger_definer.sql` makes the trigger function SECURITY DEFINER. Test
+     `99_p14_8_deferred_triggers.sql` asserts it for every initially deferred trigger, since the test
+     files roll back and can never observe a commit.
+
+  Open, for the OWNER ("role PT dan Pribadi harus sama dalam segala hal kecuali pasal pajak"): the
+  "personal" ledger of Step 03 is a household ledger (housing, food, lifestyle accounts; no depreciation,
+  no sales). Nothing is changed there. The tax engine already separates the ledger type from the taxpayer
+  kind, so a personal business can be kept as a business-type Entity with taxpayer kind "Orang pribadi":
+  every feature is then the same as the PT and only the tax rules differ. To be confirmed at P15 setup.
+
 - Depreciation help and assets owned before the app (decision 268, OWNER: "rumus perhitungan otomatis
   penyusutan ... ketika dimasukkan nilai awal atau adanya pembelian barang"). The computation itself has
   existed since P8 and is unchanged: a purchase or expense line marked "Aset" becomes a draft asset when

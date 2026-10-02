@@ -1,6 +1,7 @@
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import {
+  autoPostDepreciation,
   depreciationDue,
   depreciationReport,
   getEntityBaseCurrency,
@@ -28,6 +29,9 @@ export default async function DepreciationReportPage({
 }) {
   const { entity, from, to, q } = await searchParams;
   const { access, membership } = await requirePermission("assets.view", { entityCode: entity });
+  if (can(access, membership.entity_id, "assets.manage")) {
+    await autoPostDepreciation(membership.entity_id);
+  }
   const range = resolveDepreciationRange(from, to);
   const query = q ?? "";
 

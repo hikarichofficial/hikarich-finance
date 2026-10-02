@@ -1,3 +1,4 @@
+import { previousMonthEnd } from "@/domain/assets/fiscalClasses";
 import "server-only";
 import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
@@ -204,6 +205,25 @@ export async function postDepreciation(
     { p_entity: v.entity_id, p_through: v.through },
     postDepreciationResultSchema,
   );
+}
+
+/**
+ * Automatic month-end depreciation (decision 269): posts every scheduled month up to the last completed
+ * month end, as the signed-in person (who must hold `assets.manage`; the caller checks, the database
+ * checks again). It is the very same command as the manual "Posting Penyusutan", which is idempotent and
+ * serialised per Entity, so calling it on every visit posts each month exactly once. It never throws: when
+ * the database refuses (a closed period, a date rule) nothing is posted and the manual screen, which
+ * shows the reason, remains.
+ */
+export async function autoPostDepreciation(
+  entityId: string,
+): Promise<PostDepreciationResult | null> {
+  try {
+    const today = new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Jakarta" }).format(new Date());
+    return await postDepreciation({ entity_id: entityId, through: previousMonthEnd(today) });
+  } catch {
+    return null;
+  }
 }
 
 export async function reverseDepreciation(

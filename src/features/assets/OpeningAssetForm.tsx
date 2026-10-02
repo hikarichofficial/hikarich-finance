@@ -31,13 +31,21 @@ export function OpeningAssetForm({
   const [state, action, pending] = useActionState(loadOpeningAssetAction, idleState);
   const actionForm = usePreservingForm(action, state);
   const [cost, setCost] = useState("");
+  const [name, setName] = useState("");
 
   return (
     <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <label>
         Nama Aset
-        <input name="name" required maxLength={200} placeholder="mis. Laptop kerja, Meja kantor" />
+        <input
+          name="name"
+          required
+          maxLength={200}
+          placeholder="mis. Laptop kerja, Meja kantor"
+          value={name}
+          onChange={(event) => setName(event.target.value)}
+        />
       </label>
       <label>
         Akun Aset Tetap
@@ -78,7 +86,7 @@ export function OpeningAssetForm({
         Penyusutan yang Sudah Dicatat sampai Tanggal Itu (opsional)
         <input name="accumulated" inputMode="decimal" placeholder="0" />
       </label>
-      <DepreciationFields depreciable={depreciable} cost={cost} currency={currency} />
+      <DepreciationFields depreciable={depreciable} name={name} cost={cost} currency={currency} />
       <label>
         Nomor Seri (opsional)
         <input name="serial_number" maxLength={100} />
