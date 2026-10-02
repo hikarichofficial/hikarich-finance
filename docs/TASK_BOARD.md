@@ -1631,6 +1631,10 @@ commands are listed in `docs/DECISIONS.md` decision 258.
 Decision 259: Payment Confirmation queue (`/sales/claims`: confirm or reject a pending customer claim) and
 "Cabut Tautan Publik" on Invoice Detail. No migration. Full detail in `docs/DECISIONS.md` decision 259.
 
+Decision 260: marketplace stores and settlements (`/sales/marketplace`), PPh 22 marketplace rule, the
+final-tax computation counts marketplace turnover and deducts the PPh 22 collected; output VAT while PKP.
+Migration `20261002200000_p14_marketplace_settlements.sql`. Full detail in `docs/DECISIONS.md` decision 260.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
