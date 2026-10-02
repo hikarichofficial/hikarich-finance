@@ -8,8 +8,7 @@ import { Decimal } from "@/domain/money/decimal";
  */
 
 // ---- vocabulary
-export type TaxType =
-  "vat" | "wht_pph23" | "wht_pph4_2" | "wht_pph26" | "wht_pph21" | "final_umkm";
+export type TaxType = "vat" | "wht_pph23" | "wht_pph4_2" | "wht_pph26" | "wht_pph21" | "final_umkm";
 export type TaxKind =
   | "vat_output"
   | "vat_input"
