@@ -24,6 +24,7 @@ export function InvoiceDetailScreen({
   permissions,
   backHref,
   payment,
+  canEdit = false,
 }: {
   invoiceId: string;
   doc: InvoiceDocument;
@@ -31,6 +32,8 @@ export function InvoiceDetailScreen({
   backHref: string;
   /** Record Payment / Pay Bill (decision 258); absent when not allowed or nothing is outstanding. */
   payment?: { accounts: readonly SettlementAccountOption[]; today: string };
+  /** A draft may be edited with `invoices.edit` (decision 261). */
+  canEdit?: boolean;
 }) {
   const status = invoiceDocumentStatus(doc);
   const timeline = invoiceActivityTimeline(doc);
@@ -61,6 +64,16 @@ export function InvoiceDetailScreen({
       </header>
 
       <InvoiceActions invoiceId={invoiceId} status={doc.status} permissions={permissions} />
+      {doc.status === "draft" && canEdit ? (
+        <p>
+          <Link
+            href={`${backHref.split("?")[0]}/${invoiceId}/edit${backHref.includes("?") ? backHref.slice(backHref.indexOf("?")) : ""}`}
+            className="btn-secondary"
+          >
+            Ubah Draf
+          </Link>
+        </p>
+      ) : null}
       {payment ? (
         <RecordPaymentForm
           invoiceId={invoiceId}
