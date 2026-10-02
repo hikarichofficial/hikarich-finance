@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { formatMoney } from "@/domain/money/format";
 import { paymentRowStatus, refundStatusDisplay } from "@/domain/sales/paymentsList";
 import type { PaymentListRow, ReceiptDocument } from "@/schemas/sales";
@@ -21,11 +22,14 @@ export function PaymentDetailScreen({
   receipt,
   permissions,
   backHref,
+  refundPanel,
 }: {
   row: PaymentListRow;
   receipt: ReceiptDocument;
   permissions: PaymentActionPermissions;
   backHref: string;
+  /** The refund form, when the person may refund and something is still refundable (decision 263). */
+  refundPanel?: ReactNode;
 }) {
   const status = paymentRowStatus(row);
   const refund = refundStatusDisplay(row.refund_status);
@@ -51,6 +55,7 @@ export function PaymentDetailScreen({
       </header>
 
       <PaymentActions paymentId={row.payment_id} status={row.status} permissions={permissions} />
+      {refundPanel}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">

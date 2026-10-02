@@ -1280,6 +1280,13 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Refund from Payment Detail (decision 263, Step 07 §3). A confirmed payment can be refunded in part or
+  in full: one amount per refundable part (`payment_refund_options`: what was applied to each invoice, and
+  an unapplied advance), the paying account, the date and a reason, through the unmodified `create_refund`
+  with immediate confirmation. The form appears only for a person who holds both `refunds.create` and
+  `refunds.confirm`, so there is no draft refund waiting without a screen to confirm it; the separate
+  draft/confirm/reject/cancel/reverse refund commands still have no screen. No migration.
+
 - Tax preview before recognition, manual override, and Categories (decision 262, Step 05 §10-§11, §14-§15,
   Step 03 §6). (1) Bill Detail (draft, submitted) and Invoice Detail (draft) now show what the engine would
   recognise (`tax_preview_document`): each result with its amount and consequence, and the reasons that

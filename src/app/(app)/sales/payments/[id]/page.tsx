@@ -1,7 +1,9 @@
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import { getPaymentReceipt, listPayments } from "@/services/sales/sales";
+import { getPaymentReceipt, getPaymentRefundOptions, listPayments } from "@/services/sales/sales";
+import { getMoneyControl } from "@/services/money/money";
+import { RefundForm } from "@/features/sales/RefundForm";
 import { PaymentDetailScreen } from "@/features/sales/PaymentDetailScreen";
 
 /** Payment Detail (unbuilt-screens backlog, Step 09 §10/§11), reached from either Payments Received or
@@ -27,6 +29,18 @@ export default async function PaymentDetailPage({
   const receipt = await getPaymentReceipt(id).catch(() => null);
   if (!receipt) notFound();
 
+  const canRefund =
+    row.status === "confirmed" &&
+    can(access, membership.entity_id, "refunds.create") &&
+    can(access, membership.entity_id, "refunds.confirm");
+  const [refundOptions, accounts] = canRefund
+    ? await Promise.all([
+        getPaymentRefundOptions(id).catch(() => []),
+        getMoneyControl(membership.entity_id).catch(() => []),
+      ])
+    : [[], []];
+  const refundable = refundOptions.filter((o) => Number(o.refundable) > 0);
+
   const backHref = entity
     ? `/sales/payments?entity=${encodeURIComponent(entity)}`
     : "/sales/payments";
@@ -36,6 +50,27 @@ export default async function PaymentDetailPage({
       row={row}
       receipt={receipt}
       backHref={backHref}
+      refundPanel={
+        canRefund && refundable.length > 0 ? (
+          <RefundForm
+            paymentId={id}
+            options={refundable.map((o, index) => ({
+              key: `${o.source}-${o.allocation_id ?? index}`,
+              source: o.source,
+              allocationId: o.allocation_id,
+              label:
+                o.source === "advance"
+                  ? "Uang muka yang belum dipakai"
+                  : `Invoice ${o.invoice_number ?? ""}`.trim(),
+              refundable: o.refundable,
+            }))}
+            accounts={accounts
+              .filter((a) => a.is_active)
+              .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` }))}
+            today={new Date().toISOString().slice(0, 10)}
+          />
+        ) : null
+      }
       permissions={{
         canReverse: can(access, membership.entity_id, "invoices.confirm_payment"),
       }}

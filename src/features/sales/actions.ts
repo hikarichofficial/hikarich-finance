@@ -9,6 +9,7 @@ import {
   confirmPaymentSubmission,
   correctInvoice,
   createInvoiceDraft,
+  createRefund,
   getInvoiceOwner,
   recordPayment,
   rejectPaymentSubmission,
@@ -345,4 +346,56 @@ export async function revokeInvoiceLinkAction(
   }
   revalidateInvoice(invoiceId);
   return { status: "ok", message: "Tautan publik dicabut." };
+}
+
+/** Refund to the customer (decision 263): `create_refund`, confirmed at once. Amounts left empty or zero
+ * are not part of the refund. */
+export async function createRefundAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  const paymentId = text(formData, "payment_id");
+  const count = Number(text(formData, "option_count")) || 0;
+  const items: (
+    | { source: "allocation"; allocation_id: string; amount: string }
+    | { source: "advance"; amount: string }
+  )[] = [];
+  for (let index = 0; index < Math.min(count, 100); index += 1) {
+    const amount = text(formData, `amount_${index}`);
+    if (amount === "" || Number(amount) === 0) continue;
+    if (text(formData, `source_${index}`) === "advance") {
+      items.push({ source: "advance", amount });
+    } else {
+      items.push({
+        source: "allocation",
+        allocation_id: text(formData, `allocation_${index}`),
+        amount,
+      });
+    }
+  }
+  if (items.length === 0) {
+    return { status: "error", message: "Isi jumlah refund minimal pada satu baris." };
+  }
+  try {
+    await createRefund({
+      payment_id: paymentId,
+      idempotency_key: randomUUID(),
+      account_id: text(formData, "account_id"),
+      refund_date: text(formData, "refund_date"),
+      items,
+      reason: text(formData, "reason") || undefined,
+      reference: text(formData, "reference") || undefined,
+      confirm: true,
+    });
+  } catch (error) {
+    return draftErrorState(
+      error,
+      "Refund tidak dapat disimpan. Periksa jumlah (tanpa titik ribuan), rekening dan tanggal.",
+    );
+  }
+  revalidatePath("/sales/payments");
+  revalidatePath(`/sales/payments/${paymentId}`);
+  revalidatePath("/sales/refunds");
+  revalidatePath("/sales/invoices");
+  return { status: "ok", message: "Refund tercatat." };
 }
