@@ -15,7 +15,7 @@ import {
  */
 
 const PRODUCT_COLUMNS =
-  "id, entity_id, kind, sku, name, description, unit, default_unit_price, default_currency, default_category_id, is_active, version";
+  "id, entity_id, kind, sku, name, description, unit, default_unit_price::text, default_currency, default_category_id, is_active, version";
 
 export class ProductConflictError extends Error {
   constructor() {

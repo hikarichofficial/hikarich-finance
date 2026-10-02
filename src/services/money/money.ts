@@ -230,7 +230,7 @@ export async function listTransfers(entityId: string): Promise<TransferRow[]> {
   const { data, error } = await supabase
     .from("transfers")
     .select(
-      "id, entity_id, transfer_number, status, transfer_date, from_account_id, to_account_id, amount_out, amount_in, fee_amount, rate_out, rate_in, base_out, base_in, base_fee, fx_difference, description, reference, journal_id, reversal_journal_id, confirmed_at, cancelled_at, reversed_at, reverse_reason, created_at",
+      "id, entity_id, transfer_number, status, transfer_date, from_account_id, to_account_id, amount_out::text, amount_in::text, fee_amount::text, rate_out::text, rate_in::text, base_out::text, base_in::text, base_fee::text, fx_difference::text, description, reference, journal_id, reversal_journal_id, confirmed_at, cancelled_at, reversed_at, reverse_reason, created_at",
     )
     .eq("entity_id", uuidResultSchema.parse(entityId))
     .order("transfer_date", { ascending: false });
@@ -247,7 +247,7 @@ export async function getTransfer(transferId: string): Promise<TransferRow | nul
   const { data, error } = await supabase
     .from("transfers")
     .select(
-      "id, entity_id, transfer_number, status, transfer_date, from_account_id, to_account_id, amount_out, amount_in, fee_amount, rate_out, rate_in, base_out, base_in, base_fee, fx_difference, description, reference, journal_id, reversal_journal_id, confirmed_at, cancelled_at, reversed_at, reverse_reason, created_at",
+      "id, entity_id, transfer_number, status, transfer_date, from_account_id, to_account_id, amount_out::text, amount_in::text, fee_amount::text, rate_out::text, rate_in::text, base_out::text, base_in::text, base_fee::text, fx_difference::text, description, reference, journal_id, reversal_journal_id, confirmed_at, cancelled_at, reversed_at, reverse_reason, created_at",
     )
     .eq("id", uuidResultSchema.parse(transferId))
     .maybeSingle();
@@ -270,7 +270,7 @@ export async function listCashActivity(
   const { data, error } = await supabase
     .from("money_movements")
     .select(
-      "id, financial_account_id, currency, direction, amount, base_amount, movement_date, source_type, source_id, component, journal_id, reverses_movement_id, description",
+      "id, financial_account_id, currency, direction, amount::text, base_amount::text, movement_date, source_type, source_id, component, journal_id, reverses_movement_id, description",
     )
     .eq("entity_id", uuidResultSchema.parse(entityId))
     .gte("movement_date", isoDateSchema.parse(range.from))

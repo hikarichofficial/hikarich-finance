@@ -30,7 +30,7 @@ const PROFILE_COLUMNS =
 const NUMBERING_COLUMNS =
   "id, scope, prefix, separator, include_year, padding, reset_policy, is_active";
 const APPROVAL_RULE_COLUMNS =
-  "id, module, action, min_amount, requires_approval, approver_role_id, allow_self_approval, effective_from, effective_to";
+  "id, module, action, min_amount::text, requires_approval, approver_role_id, allow_self_approval, effective_from, effective_to";
 
 export interface EntitySettingsOverview {
   entity: EntitySummaryRow;
