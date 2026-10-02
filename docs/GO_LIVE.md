@@ -13,9 +13,9 @@ workflow). The seed file is never applied to production.
 
 It needs two repository secrets (GitHub → Settings → Secrets and variables → Actions):
 
-| Secret                  | Where the OWNER gets it                                                       |
-| ----------------------- | ----------------------------------------------------------------------------- |
-| `SUPABASE_ACCESS_TOKEN` | Supabase → Account → Access Tokens → Generate new token                       |
+| Secret                  | Where the OWNER gets it                                                         |
+| ----------------------- | ------------------------------------------------------------------------------- |
+| `SUPABASE_ACCESS_TOKEN` | Supabase → Account → Access Tokens → Generate new token                         |
 | `SUPABASE_DB_PASSWORD`  | Supabase → project `hikarich-finance-prod` → Database → Reset database password |
 
 After both are saved, run the workflow once. The first run applies every migration to the empty
@@ -36,10 +36,10 @@ Production has its own users; the account used on Preview lives in the non-produ
 
 Created once by a database administrator, with the chart of accounts provisioned for each:
 
-| Code       | Type     | Legal name                 | Brand              | Taxpayer kind (set in the app) |
-| ---------- | -------- | -------------------------- | ------------------ | ------------------------------ |
-| `pt`       | company  | PT Hikarich Kitana Digital | Kamar Kajian Market | PT Perorangan                  |
-| `hikarich` | company  | Hikarich                   | —                  | Orang pribadi (dagang dan jasa) |
+| Code       | Type    | Legal name                 | Brand               | Taxpayer kind (set in the app)  |
+| ---------- | ------- | -------------------------- | ------------------- | ------------------------------- |
+| `pt`       | company | PT Hikarich Kitana Digital | Kamar Kajian Market | PT Perorangan                   |
+| `hikarich` | company | Hikarich                   | —                   | Orang pribadi (dagang dan jasa) |
 
 Both are business-type ledgers (decision 270): every feature is the same and only the tax rules differ.
 Names, brand, address and contact details can be changed later in Settings (decision 272); the code and
