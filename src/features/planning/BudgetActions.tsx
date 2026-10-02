@@ -3,7 +3,8 @@
 import { useActionState, useState, type ReactNode } from "react";
 import { budgetActions } from "@/domain/planning/budgetList";
 import type { PlanStatus } from "@/domain/planning/planning";
-import { activateBudgetAction, closeBudgetAction, idlePlanningActionState } from "./actions";
+import { activateBudgetAction, closeBudgetAction } from "./actions";
+import { idlePlanningActionState } from "./actionsState";
 
 /**
  * Budget Detail's status actions (P13 Part 3h, fourth increment, Step 09 §13, §18), following the exact

@@ -6,14 +6,16 @@ import {
   cancelInvoiceDraftAction,
   correctInvoiceAction,
   ensureInvoiceLinkAction,
-  idleCorrectInvoiceState,
-  idleInvoiceActionState,
-  idleInvoiceLinkState,
   issueInvoiceAction,
   revokeInvoiceLinkAction,
   setInvoiceLinkExpiryAction,
   voidInvoiceAction,
 } from "./actions";
+import {
+  idleCorrectInvoiceState,
+  idleInvoiceActionState,
+  idleInvoiceLinkState,
+} from "./actionsState";
 
 /**
  * Invoice Detail's status actions (Step 09 §11). Each action is its own small form so a mistaken click

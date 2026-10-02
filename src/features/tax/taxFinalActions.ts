@@ -21,9 +21,6 @@ export interface ComputeFinalTaxFormState {
   message?: string;
 }
 
-const IDLE: ComputeFinalTaxFormState = { status: "idle" };
-export const idleComputeFinalTaxFormState = IDLE;
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";

@@ -13,8 +13,6 @@ export interface SavedReportState {
   message?: string;
 }
 
-export const idleSavedReportState: SavedReportState = { status: "idle" };
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";

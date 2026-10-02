@@ -6,13 +6,12 @@ import {
   approveBillAction,
   cancelBillAction,
   correctBillAction,
-  idleBillActionState,
-  idleCorrectBillState,
   recallBillAction,
   rejectBillAction,
   submitBillAction,
   voidBillAction,
 } from "./actions";
+import { idleBillActionState, idleCorrectBillState } from "./actionsState";
 
 /**
  * Bill Detail's status actions (Step 09 §12), following the exact shape `src/features/sales/InvoiceActions.tsx`

@@ -27,9 +27,6 @@ export interface JournalActionState {
   message?: string;
 }
 
-const IDLE: JournalActionState = { status: "idle" };
-export const idleJournalActionState = IDLE;
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";
@@ -113,9 +110,6 @@ export interface PeriodActionState {
   status: "idle" | "ok" | "error";
   message?: string;
 }
-
-const PERIOD_IDLE: PeriodActionState = { status: "idle" };
-export const idlePeriodActionState = PERIOD_IDLE;
 
 function revalidatePeriod(periodId: string): void {
   revalidatePath("/accounting/periods");

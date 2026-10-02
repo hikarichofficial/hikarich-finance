@@ -28,9 +28,6 @@ export interface TaxFilingActionState {
   message?: string;
 }
 
-const IDLE: TaxFilingActionState = { status: "idle" };
-export const idleTaxFilingActionState = IDLE;
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";

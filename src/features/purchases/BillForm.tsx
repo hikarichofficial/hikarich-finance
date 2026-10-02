@@ -10,7 +10,8 @@ import {
   RecurringLinesEditor,
   type RecurringLineRow,
 } from "@/features/planning/RecurringLinesEditor";
-import { createBillAction, idleBillActionState } from "./actions";
+import { createBillAction } from "./actions";
+import { idleBillActionState } from "./actionsState";
 
 /**
  * Record Bill (Step 09 §12, decision 257): the vendor's invoice as a draft through `create_bill_draft`.

@@ -3,7 +3,8 @@
 import { useActionState } from "react";
 import type { CategoryRow } from "@/schemas/categories";
 import type { ProductRow } from "@/schemas/products";
-import { idleProductFormState, saveProductAction } from "./actions";
+import { saveProductAction } from "./actions";
+import { idleProductFormState } from "./actionsState";
 
 /** Product create/edit form (decision 245). The same form serves both: a `product_id` makes it an edit. */
 export function ProductForm({

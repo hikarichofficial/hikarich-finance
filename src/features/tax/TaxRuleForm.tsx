@@ -5,7 +5,8 @@ import { useActionState } from "react";
 import { RULE_FAMILY_LABELS } from "@/domain/tax/tax";
 import type { RuleFormDefaults } from "@/domain/tax/ruleAuthoring";
 import { ruleFamilyLabel } from "@/domain/tax/taxRulesList";
-import { idleRuleActionState, saveRuleDraftAction, type RuleActionState } from "./taxRuleActions";
+import { saveRuleDraftAction, type RuleActionState } from "./taxRuleActions";
+import { idleRuleActionState } from "./taxRuleActionsState";
 
 export function RuleActionResult({
   state,

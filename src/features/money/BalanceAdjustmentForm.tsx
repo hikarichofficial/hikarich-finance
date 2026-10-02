@@ -4,10 +4,8 @@ import { useActionState } from "react";
 import type { LedgerAccountRow } from "@/schemas/accounting";
 import type { MoneyControlRow } from "@/schemas/money";
 import { eligibleCounterAccounts } from "@/domain/money/balanceAdjustment";
-import {
-  idleBalanceAdjustmentFormState,
-  recordBalanceAdjustmentAction,
-} from "./balanceAdjustmentActions";
+import { recordBalanceAdjustmentAction } from "./balanceAdjustmentActions";
+import { idleBalanceAdjustmentFormState } from "./balanceAdjustmentActionsState";
 
 /**
  * Balance Adjustment form ("Advanced Adjustments", Step 09 §14, decision 232): the account's balance is

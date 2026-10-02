@@ -21,8 +21,6 @@ export interface RuleActionState {
   stepUp?: boolean;
 }
 
-export const idleRuleActionState: RuleActionState = { status: "idle" };
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";

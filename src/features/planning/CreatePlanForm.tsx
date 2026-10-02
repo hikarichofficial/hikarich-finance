@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 import { PLAN_PERIOD_TYPE_LABELS, type PlanPeriodType } from "@/domain/planning/planning";
-import { createBudgetAction, createRevenueTargetAction, idlePlanningActionState } from "./actions";
+import { createBudgetAction, createRevenueTargetAction } from "./actions";
+import { idlePlanningActionState } from "./actionsState";
 
 /**
  * Create-shell form for a Budget or Revenue Target (P13 Part 3h, fifth increment, Step 09 §18). The two

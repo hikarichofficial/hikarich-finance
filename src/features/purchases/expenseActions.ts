@@ -28,8 +28,6 @@ export interface ExpenseActionState {
   message?: string;
 }
 
-export const idleExpenseActionState: ExpenseActionState = { status: "idle" };
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";

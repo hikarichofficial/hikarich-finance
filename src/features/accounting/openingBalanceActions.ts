@@ -17,8 +17,6 @@ export interface OpeningActionState {
   message?: string;
 }
 
-export const idleOpeningActionState: OpeningActionState = { status: "idle" };
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";

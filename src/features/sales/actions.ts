@@ -50,9 +50,6 @@ export interface InvoiceActionState {
   message?: string;
 }
 
-const IDLE: InvoiceActionState = { status: "idle" };
-export const idleInvoiceActionState = IDLE;
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";
@@ -176,9 +173,6 @@ export interface CorrectInvoiceState extends InvoiceActionState {
   newInvoiceId?: string;
 }
 
-const CORRECT_IDLE: CorrectInvoiceState = { status: "idle" };
-export const idleCorrectInvoiceState = CORRECT_IDLE;
-
 /** Correct: voids the original and opens a same-content replacement draft; returns the new draft's id. */
 export async function correctInvoiceAction(
   _previous: CorrectInvoiceState,
@@ -207,9 +201,6 @@ export interface InvoiceLinkState {
   token?: string;
 }
 
-const LINK_IDLE: InvoiceLinkState = { status: "idle" };
-export const idleInvoiceLinkState = LINK_IDLE;
-
 /** Copy Link: reuses the active public link if one exists, otherwise issues a new one (finance admin/OWNER only, DECISIONS 75). */
 export async function ensureInvoiceLinkAction(
   _previous: InvoiceLinkState,
@@ -236,9 +227,6 @@ function revalidatePayment(paymentId: string): void {
   revalidatePath("/sales/refunds");
   revalidatePath(`/sales/payments/${paymentId}`);
 }
-
-const REVERSE_PAYMENT_IDLE: InvoiceActionState = { status: "idle" };
-export const idleReversePaymentState = REVERSE_PAYMENT_IDLE;
 
 /** Reverse Payment (Payment Detail, unbuilt-screens backlog): the RPC itself is gated on
  * `invoices.confirm_payment` (there is no separate `payments.reverse` key) and refuses a payment that

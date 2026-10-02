@@ -4,13 +4,12 @@ import { useActionState, useState, type ReactNode } from "react";
 import { recurringRuleActions, type RecurringStatus } from "@/domain/planning/planning";
 import {
   endRecurringRuleAction,
-  idlePlanningActionState,
-  idleRunDueActionState,
   pauseRecurringRuleAction,
   resumeRecurringRuleAction,
   runDueRecurringOccurrencesAction,
   type PlanningActionState,
 } from "./actions";
+import { idlePlanningActionState, idleRunDueActionState } from "./actionsState";
 
 /**
  * Recurring Rule status actions (P13 Part 3h, fourth increment, Step 09 §13, §18), following the exact shape

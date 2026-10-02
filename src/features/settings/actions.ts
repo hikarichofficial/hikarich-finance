@@ -15,8 +15,6 @@ export interface TimeSettingsState {
   stepUp?: boolean;
 }
 
-export const idleTimeSettingsState: TimeSettingsState = { status: "idle" };
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";

@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { idleReverseVendorPaymentState, reverseVendorPaymentAction } from "./actions";
+import { reverseVendorPaymentAction } from "./actions";
+import { idleReverseVendorPaymentState } from "./actionsState";
 
 /**
  * Payment Made Detail's only status action. Mirrors `PaymentActions.tsx`'s own Sales-side `ReverseForm`

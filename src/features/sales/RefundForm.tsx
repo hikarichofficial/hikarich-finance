@@ -2,7 +2,8 @@
 
 import { useActionState, useState } from "react";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
-import { createRefundAction, idleInvoiceActionState } from "./actions";
+import { createRefundAction } from "./actions";
+import { idleInvoiceActionState } from "./actionsState";
 
 export interface RefundOptionView {
   key: string;

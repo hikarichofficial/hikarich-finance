@@ -3,11 +3,8 @@
 import { useActionState, useState, type ReactNode } from "react";
 import { budgetActions } from "@/domain/planning/budgetList";
 import type { PlanStatus } from "@/domain/planning/planning";
-import {
-  activateRevenueTargetAction,
-  closeRevenueTargetAction,
-  idlePlanningActionState,
-} from "./actions";
+import { activateRevenueTargetAction, closeRevenueTargetAction } from "./actions";
+import { idlePlanningActionState } from "./actionsState";
 
 /**
  * Revenue Target Detail's status actions (P13 Part 3h, fourth increment, Step 09 §13, §18). Same shape as

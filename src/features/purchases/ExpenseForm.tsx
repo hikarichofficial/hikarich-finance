@@ -11,7 +11,8 @@ import {
   RecurringLinesEditor,
   type RecurringLineRow,
 } from "@/features/planning/RecurringLinesEditor";
-import { createExpenseAction, idleExpenseActionState } from "./expenseActions";
+import { createExpenseAction } from "./expenseActions";
+import { idleExpenseActionState } from "./expenseActionsState";
 
 /**
  * Record Expense (Step 09 §12/§22: "Amount → payee/category/account → receipt → confirm", decision 245).

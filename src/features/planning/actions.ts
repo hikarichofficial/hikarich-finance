@@ -48,9 +48,6 @@ export interface PlanningActionState {
   message?: string;
 }
 
-const IDLE: PlanningActionState = { status: "idle" };
-export const idlePlanningActionState = IDLE;
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";
@@ -159,9 +156,6 @@ export interface RunDueActionState {
   message?: string;
   count?: number;
 }
-
-const RUN_DUE_IDLE: RunDueActionState = { status: "idle" };
-export const idleRunDueActionState = RUN_DUE_IDLE;
 
 /** The manual "generate now" action (Step 13 §14) -- entity-wide, not per-rule, so it lives on the Register
  * screen rather than a Recurring Rule Detail screen. */

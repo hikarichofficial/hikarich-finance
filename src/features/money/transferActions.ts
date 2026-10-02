@@ -23,9 +23,6 @@ export interface TransferFormState {
   message?: string;
 }
 
-const IDLE: TransferFormState = { status: "idle" };
-export const idleTransferFormState = IDLE;
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";
@@ -83,9 +80,6 @@ export interface TransferActionState {
   status: "idle" | "ok" | "error";
   message?: string;
 }
-
-const ACTION_IDLE: TransferActionState = { status: "idle" };
-export const idleTransferActionState = ACTION_IDLE;
 
 function revalidateTransfer(transferId: string): void {
   revalidatePath("/money/transfers");

@@ -4,7 +4,8 @@ import { useActionState, useState } from "react";
 import { checkOpeningLines, type OpeningLineDraft } from "@/domain/accounting/openingBalances";
 import { formatMoney } from "@/domain/money/format";
 import type { LedgerAccountRow } from "@/schemas/accounting";
-import { idleOpeningActionState, postOpeningBalancesAction } from "./openingBalanceActions";
+import { postOpeningBalancesAction } from "./openingBalanceActions";
+import { idleOpeningActionState } from "./openingBalanceActionsState";
 
 /**
  * Post Opening Balances (Step 15 §24, decision 245): a cutover date plus a debit/credit grid over

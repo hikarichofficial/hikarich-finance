@@ -18,13 +18,13 @@ import type { DocumentRow } from "@/schemas/documents";
 import type { FinancialAccountPickerRow } from "@/schemas/planning";
 import type { TaxEvidenceRow, TaxPaymentRow, TaxPeriodPosition } from "@/schemas/tax";
 import {
-  idleTaxFilingActionState,
   linkTaxEvidenceAction,
   reconcileTaxPeriodAction,
   recordTaxFilingAction,
   recordTaxPaymentAction,
   reverseTaxPaymentAction,
 } from "./taxFilingActions";
+import { idleTaxFilingActionState } from "./taxFilingActionsState";
 import { formatShortDate } from "./format";
 
 /**

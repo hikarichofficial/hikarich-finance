@@ -7,13 +7,13 @@ import {
   cancelExpenseAction,
   confirmExpenseAction,
   correctExpenseAction,
-  idleExpenseActionState,
   recallExpenseAction,
   rejectExpenseAction,
   reverseExpenseAction,
   submitExpenseAction,
   type ExpenseActionState,
 } from "./expenseActions";
+import { idleExpenseActionState } from "./expenseActionsState";
 
 /**
  * Direct Expense status actions (Step 09 §12, decision 245), the same one-small-form-per-action shape

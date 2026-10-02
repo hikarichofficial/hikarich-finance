@@ -35,9 +35,6 @@ export interface BillActionState {
   message?: string;
 }
 
-const IDLE: BillActionState = { status: "idle" };
-export const idleBillActionState = IDLE;
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";
@@ -215,9 +212,6 @@ export interface CorrectBillState extends BillActionState {
   newBillId?: string;
 }
 
-const CORRECT_IDLE: CorrectBillState = { status: "idle" };
-export const idleCorrectBillState = CORRECT_IDLE;
-
 export async function correctBillAction(
   _previous: CorrectBillState,
   formData: FormData,
@@ -239,9 +233,6 @@ function revalidateVendorPayment(paymentId: string): void {
   revalidatePath("/purchases/payments");
   revalidatePath(`/purchases/payments/${paymentId}`);
 }
-
-const REVERSE_VENDOR_PAYMENT_IDLE: BillActionState = { status: "idle" };
-export const idleReverseVendorPaymentState = REVERSE_VENDOR_PAYMENT_IDLE;
 
 /** Reverse (Payment Made Detail, unbuilt-screens backlog): `reverse_vendor_payment` is gated on
  * `bills.pay` (there is no separate `payments.reverse` key), mirroring `reversePaymentAction`'s own
