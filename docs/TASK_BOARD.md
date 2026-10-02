@@ -1597,6 +1597,15 @@ stored key/value settings, each read directly under its own RLS policy, gated `s
 separate, later increment. `pnpm check` (738 tests, up from 731), `pnpm build` (1 new real route), `pnpm
 db:test` N/A. Full detail in `docs/DECISIONS.md` decision 243.
 
+Decision 251: Money Reconciliation workspace (`/money/reconciliation/new`, `/money/reconciliation/[id]`):
+start a session, paste statement lines, match/unmatch/exclude/include, complete (with an accepted reason
+for a difference), reopen and discard, all through the P4 RPCs; the session header and history are a
+direct RLS read of `reconciliation_sessions`. No migration. Full detail in `docs/DECISIONS.md` decision 251.
+
+Decision 252: Documents Archive (`/documents/archive`), Sales/Purchase report (`/reports/sales-purchase`)
+and Saved Reports (`/reports/saved`, plus "Simpan laporan ini" on report pages), each on a new RPC. Full
+detail in `docs/DECISIONS.md` decision 252.
+
 Decision 253: per-payment evidence on `/tax/filing` (filing or any confirmed payment as the target).
 No migration. Full detail in `docs/DECISIONS.md` decision 253.
 
@@ -1604,6 +1613,11 @@ Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now na
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
 real routes). Full detail in `docs/DECISIONS.md` decision 244.
+
+Decision 250: Forecasts (OWNER answer to decision 139). `/planning/forecasts` shows, per category and
+month, the 3-month average actual, replaced by a chosen budget's amount where the budget plans; the
+Budget and Revenue Target reports now fill their Forecast column. Full detail in `docs/DECISIONS.md`
+decision 250.
 
 Decision 245, seventeenth increment: Products & Services (`/sales/products` list, create, detail and
 edit), Direct Expenses (`/purchases/expenses` list, create, detail with submit, recall, reject, confirm,
@@ -1632,13 +1646,8 @@ accounting period exists). Test 9.5's month-end flake is fixed. Full detail in `
 decision 248.
 
 Still on the catch-all after these eighteen increments (tracked so nothing is silently dropped):
-the Money
-Reconciliation session/workspace (needs new backend -- no RPC returns a session's own status/period/
-balances, decision 231), `/planning/forecasts`
-(blocked on decision 139's own open methodology question), `/documents/archive` (needs new backend --
-`supersedes_document_id` has no reading RPC),
-and two `/reports/*` nav sub-items:
-`sales-purchase` and `saved` (no backend).
+nothing: per-payment evidence on `/tax/filing` was built by decision 253, and `/documents/archive`,
+`/reports/sales-purchase` and `/reports/saved` by decision 252. Every Step 09 nav item now has a screen.
 
 `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46
 pending migrations to this non-production Preview/dev project directly. Applied via the Supabase management

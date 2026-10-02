@@ -265,3 +265,51 @@ export const consolidatedCashPositionRowSchema = z.object({
 });
 export const consolidatedCashPositionSchema = z.array(consolidatedCashPositionRowSchema);
 export type ConsolidatedCashPositionRow = z.infer<typeof consolidatedCashPositionRowSchema>;
+
+// ================================================================ Sales/Purchase report (decision 252)
+export const salesPurchaseSideSchema = z.enum(["sales", "purchases"]);
+export type SalesPurchaseSide = z.infer<typeof salesPurchaseSideSchema>;
+export const salesPurchaseDimensionSchema = z.enum(["party", "category", "product", "month"]);
+export type SalesPurchaseDimension = z.infer<typeof salesPurchaseDimensionSchema>;
+
+export const salesPurchaseInputSchema = z
+  .object({
+    entity_id: z.uuid(),
+    side: salesPurchaseSideSchema,
+    dimension: salesPurchaseDimensionSchema,
+    start_date: isoDateSchema,
+    end_date: isoDateSchema,
+  })
+  .refine((v) => !(v.side === "purchases" && v.dimension === "product"), {
+    path: ["dimension"],
+    message: "Pembelian tidak memiliki dimensi produk",
+  });
+
+export const salesPurchaseRowSchema = z.object({
+  dimension_id: z.uuid().nullable(),
+  dimension_label: z.string(),
+  period_month: isoDateSchema.nullable(),
+  document_count: z.coerce.number().int().nonnegative(),
+  net_amount: z.string().regex(/^-?\d+(\.\d+)?$/),
+  gross_amount: z.string().regex(/^-?\d+(\.\d+)?$/),
+});
+export const salesPurchaseReportSchema = z.array(salesPurchaseRowSchema);
+export type SalesPurchaseRow = z.infer<typeof salesPurchaseRowSchema>;
+
+// ================================================================ Saved Reports (decision 252)
+export const saveReportInputSchema = z.object({
+  entity_id: z.uuid(),
+  name: z.string().trim().min(2).max(120),
+  path: z.string().regex(/^\/(reports|tax\/ledger)(\/[a-z0-9-]+)*$/),
+  query: z.string().max(1000),
+});
+
+export const savedReportRowSchema = z.object({
+  id: z.uuid(),
+  name: z.string(),
+  report_path: z.string(),
+  report_query: z.string(),
+  created_at: z.string(),
+});
+export const savedReportListSchema = z.array(savedReportRowSchema);
+export type SavedReportRow = z.infer<typeof savedReportRowSchema>;

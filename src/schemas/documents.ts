@@ -164,3 +164,20 @@ export const documentRowSchema = z.object({
 });
 export const documentListSchema = z.array(documentRowSchema);
 export type DocumentRow = z.infer<typeof documentRowSchema>;
+
+// ================================================================ Documents Archive (decision 252)
+export const documentArchiveRowSchema = z.object({
+  document_id: z.uuid(),
+  file_name: z.string(),
+  mime_type: z.string(),
+  size_bytes: z.coerce.number().int().nonnegative(),
+  created_at: z.string(),
+  archive_reason: z.enum(["superseded", "unlinked"]),
+  superseded_by: z.uuid().nullable(),
+  superseded_by_name: z.string().nullable(),
+  archived_at: z.string().nullable(),
+  removed_reason: z.string().nullable(),
+  former_target_types: z.array(z.string()),
+});
+export const documentArchiveListSchema = z.array(documentArchiveRowSchema);
+export type DocumentArchiveRow = z.infer<typeof documentArchiveRowSchema>;

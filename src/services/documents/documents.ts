@@ -18,6 +18,8 @@ import {
   type DocumentDownloadGrant,
   type DocumentLinkRow,
   type DocumentRow,
+  documentArchiveListSchema,
+  type DocumentArchiveRow,
 } from "@/schemas/documents";
 
 /**
@@ -171,5 +173,26 @@ export async function listDocuments(
       p_offset: v.offset ?? 0,
     },
     documentListSchema,
+  );
+}
+
+// ================================================================ Documents Archive (decision 252)
+/** Superseded documents and documents whose every link was removed, newest first; each shown only through
+ * a former target the caller may view (`list_document_archive`). */
+export async function listDocumentArchive(input: {
+  entity_id: string;
+  q?: string;
+  limit: number;
+  offset: number;
+}): Promise<DocumentArchiveRow[]> {
+  return callRpc(
+    "list_document_archive",
+    {
+      p_entity: uuidResultSchema.parse(input.entity_id),
+      p_q: input.q?.trim() ? input.q.trim().slice(0, 200) : null,
+      p_limit: input.limit,
+      p_offset: Math.max(0, input.offset),
+    },
+    documentArchiveListSchema,
   );
 }

@@ -32,6 +32,12 @@ import {
   type GeneralLedgerRow,
   type ProfitAndLossRow,
   type ReportDatasetCatalogRow,
+  salesPurchaseInputSchema,
+  salesPurchaseReportSchema,
+  saveReportInputSchema,
+  savedReportListSchema,
+  type SalesPurchaseRow,
+  type SavedReportRow,
 } from "@/schemas/reports";
 
 /**
@@ -53,7 +59,7 @@ async function callRpc<T>(
   const { data, error } = await supabase.rpc(name, args);
   if (error) {
     const code = parseAuthzCode(error.message);
-    if (code) throw new AuthzError(code);
+    if (code) throw new AuthzError(code, error.message);
     throw new Error("Operasi laporan gagal diproses.");
   }
   const parsed = schema.safeParse(data);
@@ -233,4 +239,52 @@ export async function getConsolidatedCashPosition(
     { p_entities: v.entity_ids, p_as_of: v.as_of ?? null },
     consolidatedCashPositionSchema,
   );
+}
+
+// ================================================================ Sales/Purchase report (decision 252)
+/** Issued invoices (sales) or approved bills plus confirmed expenses (purchases) in a date range, grouped by
+ * party, category, product (sales only) or month, in base currency; the database computes every figure. */
+export async function getSalesPurchaseReport(
+  input: z.input<typeof salesPurchaseInputSchema>,
+): Promise<SalesPurchaseRow[]> {
+  const v = salesPurchaseInputSchema.parse(input);
+  return callRpc(
+    "sales_purchase_report",
+    {
+      p_entity: v.entity_id,
+      p_side: v.side,
+      p_dimension: v.dimension,
+      p_start: v.start_date,
+      p_end: v.end_date,
+    },
+    salesPurchaseReportSchema,
+  );
+}
+
+// ================================================================ Saved Reports (decision 252)
+/** The caller's own saved reports in the Entity (RLS: own rows, `reports.view`). */
+export async function listSavedReports(entityId: string): Promise<SavedReportRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("saved_reports")
+    .select("id, name, report_path, report_query, created_at")
+    .eq("entity_id", uuidResultSchema.parse(entityId))
+    .order("created_at", { ascending: false });
+  if (error) throw new Error("Gagal memuat laporan tersimpan.");
+  const parsed = savedReportListSchema.safeParse(data);
+  if (!parsed.success) throw new Error("Respons laporan tersimpan tidak dikenali.");
+  return parsed.data;
+}
+
+export async function saveReport(input: z.input<typeof saveReportInputSchema>): Promise<string> {
+  const v = saveReportInputSchema.parse(input);
+  return callRpc(
+    "save_report",
+    { p_entity: v.entity_id, p_name: v.name, p_path: v.path, p_query: v.query },
+    uuidResultSchema,
+  );
+}
+
+export async function deleteSavedReport(id: string): Promise<void> {
+  await callRpc("delete_saved_report", { p_id: uuidResultSchema.parse(id) }, z.unknown());
 }
