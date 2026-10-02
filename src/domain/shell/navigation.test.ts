@@ -55,8 +55,14 @@ describe("activeNavItem", () => {
     expect(activeNavItem(NAVIGATION, "/unknown")).toBeNull();
   });
 
-  it("prefers a page's home menu when two menus list it", () => {
+  it("keeps Saldo Kas & Bank in Ringkasan and Rekening in Kas & Bank (decision 255)", () => {
+    expect(activeNavItem(NAVIGATION, "/cash-snapshot")?.groupKey).toBe("overview");
     expect(activeNavItem(NAVIGATION, "/money/accounts")?.groupKey).toBe("money");
+  });
+
+  it("gives every submenu its own route", () => {
+    const hrefs = NAVIGATION.flatMap((g) => (g.items ?? []).map((i) => i.href));
+    expect(new Set(hrefs).size).toBe(hrefs.length);
   });
 
   it("works on the permission-filtered menu", () => {

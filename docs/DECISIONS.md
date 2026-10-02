@@ -1266,6 +1266,14 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Sidebar follow-ups (decision 255, OWNER walkthrough feedback). (1) "Saldo Kas & Bank" under
+  Ringkasan now has its own page, `/cash-snapshot` (total active balance, each active account's balance
+  and reconciliation freshness, read-only, `money.view`, the Dashboard's own Account Snapshot data),
+  instead of sharing `/money/accounts` with Kas & Bank > Rekening, which made the highlight jump to the
+  other menu; every submenu now has a unique route (tested). (2) Menus the person opened stay open until
+  they close them, rather than closing when another menu is opened, so they need not remember where a
+  submenu lives; the menu of the current page still opens by itself.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions

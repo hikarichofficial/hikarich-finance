@@ -1612,6 +1612,9 @@ No migration. Full detail in `docs/DECISIONS.md` decision 253.
 Decision 254: menu names in Indonesian and reveal submenus in the Sidebar (OWNER request). Full detail in
 `docs/DECISIONS.md` decision 254.
 
+Decision 255: `/cash-snapshot` gives Ringkasan > Saldo Kas & Bank its own page; opened menus stay open.
+Full detail in `docs/DECISIONS.md` decision 255.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
