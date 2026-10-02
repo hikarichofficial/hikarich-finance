@@ -14,11 +14,14 @@ import {
   outstandingTax,
   resolveFilingTaxType,
   resolveWithholdingTaxType,
+  VAT_TREATMENT_LABELS,
+  WHT_OBJECT_LABELS,
   resolveTaxPeriod,
   taxPaymentCash,
   taxPeriodLabel,
   taxPeriodStart,
 } from "./tax";
+import { vatTreatmentSchema, whtObjectSchema } from "@/schemas/tax";
 
 describe("tax periods", () => {
   it("a period is identified by the first day of its month", () => {
@@ -88,6 +91,11 @@ describe("resolveFilingTaxType", () => {
     expect(resolveWithholdingTaxType("wht_pph26")).toBe("wht_pph26");
     expect(resolveWithholdingTaxType("vat")).toBe("wht_pph23");
     expect(resolveWithholdingTaxType(undefined)).toBe("wht_pph23");
+  });
+
+  it("words every withholding object and VAT treatment of the database catalog", () => {
+    expect(Object.keys(WHT_OBJECT_LABELS).sort()).toEqual([...whtObjectSchema.options].sort());
+    expect(Object.keys(VAT_TREATMENT_LABELS).sort()).toEqual([...vatTreatmentSchema.options].sort());
   });
 
   it("falls back to vat for wht_pph21 (settled through Payroll's own tax ledger instead)", () => {

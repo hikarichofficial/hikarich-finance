@@ -2,9 +2,12 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
+import { redirect } from "next/navigation";
 import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { requirePermission } from "@/services/identity/access";
 import {
   correctInvoice,
+  createInvoiceDraft,
   getInvoiceLink,
   issueInvoice,
   regenerateInvoiceLink,
@@ -55,6 +58,59 @@ function errorState(error: unknown, fallback: string): InvoiceActionState {
     return { status: "error", message: authzErrorMessage(error.code) };
   }
   return { status: "error", message: fallback };
+}
+
+/** The database's own explanation after an `INVALID:`/`CONFLICT:` prefix (English, but specific). */
+function draftErrorState(error: unknown, fallback: string): InvoiceActionState {
+  if (error instanceof AuthzError) {
+    const match = /^(?:INVALID|CONFLICT):\s*([\s\S]+)$/.exec(error.message);
+    const base = authzErrorMessage(error.code);
+    return { status: "error", message: match?.[1] ? `${base} (${match[1].trim()})` : base };
+  }
+  return { status: "error", message: fallback };
+}
+
+/** Create Invoice (decision 257): the draft is created, then the person lands on its Detail page. */
+export async function createInvoiceAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  const entity = text(formData, "entity");
+  let lines: unknown;
+  try {
+    lines = JSON.parse(text(formData, "lines") || "[]");
+  } catch {
+    return { status: "error", message: "Baris invoice tidak valid." };
+  }
+  if (!Array.isArray(lines) || lines.length === 0) {
+    return { status: "error", message: "Isi minimal satu baris dengan deskripsi dan harga." };
+  }
+  let invoiceId: string;
+  try {
+    const { membership } = await requirePermission("invoices.create", { entityCode: entity });
+    invoiceId = await createInvoiceDraft({
+      entity_id: membership.entity_id,
+      idempotency_key: randomUUID(),
+      customer_id: text(formData, "customer_id"),
+      issue_date: text(formData, "issue_date"),
+      due_date: text(formData, "due_date"),
+      payment_account_id: text(formData, "payment_account_id") || undefined,
+      notes: text(formData, "notes") || undefined,
+      terms: text(formData, "terms") || undefined,
+      lines: lines as never,
+    });
+  } catch (error) {
+    return draftErrorState(
+      error,
+      "Invoice tidak dapat disimpan. Periksa pelanggan, tanggal, jatuh tempo dan isian tiap baris.",
+    );
+  }
+  revalidatePath("/sales/invoices");
+  redirect(
+    entity
+      ? `/sales/invoices/${invoiceId}?entity=${encodeURIComponent(entity)}`
+      : `/sales/invoices/${invoiceId}`,
+  );
 }
 
 /** Issue: numbers the draft, freezes its snapshots and posts it. No input beyond the invoice itself. */

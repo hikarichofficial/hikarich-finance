@@ -48,6 +48,10 @@ export function InvoicesListScreen({
   entity: string | undefined;
   canCreate: boolean;
 }) {
+  const newHref = entity
+    ? `/sales/invoices/new?entity=${encodeURIComponent(entity)}`
+    : "/sales/invoices/new";
+
   return (
     <div className="list-screen">
       <header className="list-screen-header">
@@ -59,7 +63,7 @@ export function InvoicesListScreen({
           </p>
         </div>
         {canCreate ? (
-          <Link href="/sales/invoices/new" className="btn-primary">
+          <Link href={newHref} className="btn-primary">
             Buat Faktur
           </Link>
         ) : null}
@@ -109,7 +113,7 @@ export function InvoicesListScreen({
               Hapus Saringan
             </Link>
           ) : canCreate ? (
-            <Link href="/sales/invoices/new" className="btn-primary list-empty-action">
+            <Link href={newHref} className="btn-primary list-empty-action">
               Buat Faktur
             </Link>
           ) : null}

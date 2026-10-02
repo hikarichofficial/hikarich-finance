@@ -79,7 +79,13 @@ export function ExpenseForm({
         <input name="receipt_reference" maxLength={100} />
       </label>
 
-      <RecurringLinesEditor kind="expense" categories={categories} rows={rows} onChange={setRows} />
+      <RecurringLinesEditor
+        kind="expense"
+        categories={categories}
+        rows={rows}
+        onChange={setRows}
+        taxFields
+      />
 
       <label>
         Catatan (opsional)

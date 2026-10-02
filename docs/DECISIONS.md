@@ -1280,6 +1280,19 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Create Invoice and Record Bill screens, with the tax fields of a line (decision 257). The list screens
+  already linked to `/sales/invoices/new` and `/purchases/bills/new`, but neither page existed (only the
+  services), so an invoice or a bill could not be created from the app, and no screen could record the
+  tax facts of a line. Both pages now exist (`invoices.create` / `bills.create`, the permissions the draft
+  RPCs check) and save a DRAFT through the unmodified `create_invoice_draft` / `create_bill_draft`;
+  issuing or approving, which posts and recognises the tax, stays on the Detail page. The shared line
+  editor gained an optional tax row per line: for a bill or expense the withholding object, the VAT the
+  vendor charged and the tax-invoice number; for an invoice the VAT treatment. These are the facts the P7
+  engine already reads from a line; a blank value keeps today's behaviour (category mapping, or a tax
+  review). The Record Expense form shows the same row. Wording of the catalog keys is in
+  `src/domain/tax/tax.ts` and names no rate. The sales and purchases services now keep the database's
+  own message on an `AuthzError`, so a refused draft shows why. No migration.
+
 - PPh 4(2), PPh 26 and the deadline correction (decision 256, OWNER instruction "kerjakan sekarang" and
   "langsung saja ubah dan buatkan terverifikasinya"). (1) Two more withholdings run through the same P7
   machinery as PPh 23 (determination, tax ledger, payment, filing, reconciliation, calendar) as the tax

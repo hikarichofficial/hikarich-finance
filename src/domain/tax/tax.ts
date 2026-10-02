@@ -38,6 +38,56 @@ export const TAX_KIND_LABELS: Readonly<Record<TaxKind, string>> = {
   final_umkm: "PPh Final UMKM",
 };
 
+/** What a purchase line is paid for, when income tax is withheld from it (Step 05 §10). The catalog lives
+ * in the database (`tax_treatment_catalog`); this is only its Indonesian wording for the line editor. No
+ * rate is named here: the rule master decides which tax and rate apply. */
+export type WhtObject =
+  | "wht_none"
+  | "wht_rent_land_building"
+  | "wht_rent_movable"
+  | "wht_service_technical"
+  | "wht_service_management"
+  | "wht_service_construction"
+  | "wht_service_consulting"
+  | "wht_service_other_listed"
+  | "wht_royalty"
+  | "wht_interest"
+  | "wht_prize"
+  | "wht_review";
+
+export const WHT_OBJECT_LABELS: Readonly<Record<WhtObject, string>> = {
+  wht_none: "Bukan objek potongan PPh",
+  wht_rent_land_building: "Sewa tanah/bangunan (kantor, toko, gudang)",
+  wht_rent_movable: "Sewa selain tanah/bangunan (kendaraan, alat)",
+  wht_service_technical: "Jasa teknik",
+  wht_service_management: "Jasa manajemen",
+  wht_service_construction: "Jasa konstruksi",
+  wht_service_consulting: "Jasa konsultan",
+  wht_service_other_listed: "Jasa lain yang dipotong PPh",
+  wht_royalty: "Royalti",
+  wht_interest: "Bunga",
+  wht_prize: "Hadiah / penghargaan",
+  wht_review: "Belum yakin (minta ditinjau)",
+};
+
+/** How VAT applies to a sales line (Step 05 §11), in the same wording role as `WHT_OBJECT_LABELS`. */
+export type VatTreatment =
+  | "vat_taxable"
+  | "vat_taxable_full_dpp"
+  | "vat_exempt"
+  | "vat_not_object"
+  | "vat_special"
+  | "vat_digital_pmse";
+
+export const VAT_TREATMENT_LABELS: Readonly<Record<VatTreatment, string>> = {
+  vat_taxable: "Kena PPN",
+  vat_taxable_full_dpp: "Kena PPN (barang mewah, DPP penuh)",
+  vat_exempt: "PPN dibebaskan / tidak dipungut",
+  vat_not_object: "Bukan objek PPN",
+  vat_special: "Rumus PPN khusus (minta ditinjau)",
+  vat_digital_pmse: "Digital / PMSE (minta ditinjau)",
+};
+
 /** How firmly a tax result stands (Step 05 §14). `needs_review` blocks recognition until a person decides. */
 export type DeterminationStatus =
   | "auto_determined"
