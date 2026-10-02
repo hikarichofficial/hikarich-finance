@@ -786,3 +786,52 @@ export async function getBillDraftForEdit(billId: string): Promise<BillDraftForE
     lines: ((lines ?? []) as unknown as Record<string, unknown>[]).map(editableLine),
   };
 }
+
+export interface ExpenseDraftForEdit {
+  id: string;
+  entity_id: string;
+  version: number;
+  payee_id: string | null;
+  payee_name: string | null;
+  account_id: string;
+  expense_date: string;
+  receipt_reference: string | null;
+  notes: string | null;
+  lines: Record<string, unknown>[];
+}
+
+/** A DRAFT expense with the line facts the editor shows, by a direct RLS-governed read; `null` when it does
+ * not exist, is not visible, or is no longer a draft -- the same shape as `getBillDraftForEdit`. */
+export async function getExpenseDraftForEdit(
+  expenseId: string,
+): Promise<ExpenseDraftForEdit | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("expenses")
+    .select(
+      "id, entity_id, version, status, payee_id, payee_name, financial_account_id, expense_date, receipt_reference, notes",
+    )
+    .eq("id", uuid(expenseId))
+    .maybeSingle();
+  if (error || !data || data.status !== "draft") return null;
+  const { data: lines, error: linesError } = await supabase
+    .from("expense_lines")
+    .select(
+      "description, quantity::text, unit_price::text, treatment, category_id, wht_object, tax_amount::text, vat_invoice_ref, vat_not_creditable",
+    )
+    .eq("expense_id", data.id)
+    .order("line_no", { ascending: true });
+  if (linesError) return null;
+  return {
+    id: String(data.id),
+    entity_id: String(data.entity_id),
+    version: Number(data.version),
+    payee_id: (data.payee_id as string | null) ?? null,
+    payee_name: (data.payee_name as string | null) ?? null,
+    account_id: String(data.financial_account_id),
+    expense_date: String(data.expense_date),
+    receipt_reference: (data.receipt_reference as string | null) ?? null,
+    notes: (data.notes as string | null) ?? null,
+    lines: ((lines ?? []) as unknown as Record<string, unknown>[]).map(editableLine),
+  };
+}

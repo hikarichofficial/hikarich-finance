@@ -1,3 +1,4 @@
+import Link from "next/link";
 import {
   EMPLOYMENT_TYPE_LABELS,
   type EmployeeStatus,
@@ -21,9 +22,8 @@ import { formatShortDate } from "./format";
  * the database, not by this screen), so there is nothing here to gate. `status` and employment `type` are
  * both client-side filters -- `employee_list`'s own argument is `p_include_ended` (a boolean), not a status
  * enum, so both refine what the server already included rather than triggering a second round-trip; `?q=` is
- * a client-side code/name/position/department search. No Create button: employee creation is a dedicated
- * command flow, out of scope for this List/Detail increment, the same boundary every other Part 3 Register
- * screen's first increment drew.
+ * a client-side code/name/position/department search. "Tambah Karyawan" links to
+ * `/payroll/employees/new` when the page passes `newHref` (`payroll.employee_edit`).
  *
  * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
  * Step 09 §23), the same way `InvoicesListScreen` already does (decision 202) -- Kode as the unlabelled
@@ -35,12 +35,15 @@ export function EmployeeRegisterScreen({
   employmentType,
   query,
   entity,
+  newHref,
 }: {
   rows: readonly EmployeeRow[];
   status: EmployeeStatus | null;
   employmentType: EmploymentType | null;
   query: string;
   entity: string | undefined;
+  /** Set when the viewer may add an employee (`payroll.employee_edit`). */
+  newHref?: string;
 }) {
   return (
     <div className="list-screen">
@@ -49,6 +52,11 @@ export function EmployeeRegisterScreen({
           <h1>Karyawan</h1>
           <p className="list-screen-summary">{rows.length} karyawan ditampilkan.</p>
         </div>
+        {newHref ? (
+          <Link href={newHref} className="btn-primary">
+            Tambah Karyawan
+          </Link>
+        ) : null}
       </header>
 
       <div className="list-screen-toolbar">

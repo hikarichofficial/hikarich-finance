@@ -1,3 +1,4 @@
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { listEmployees } from "@/services/payroll/payroll";
 import {
@@ -17,7 +18,9 @@ export default async function EmployeeRegisterPage({
   searchParams: Promise<{ entity?: string; status?: string; type?: string; q?: string }>;
 }) {
   const { entity, status, type, q } = await searchParams;
-  const { membership } = await requirePermission("payroll.employee_view", { entityCode: entity });
+  const { access, membership } = await requirePermission("payroll.employee_view", {
+    entityCode: entity,
+  });
   const employeeStatus = parseEmployeeStatusFilter(status) ?? null;
   const employmentType = parseEmploymentTypeFilter(type) ?? null;
   const query = q ?? "";
@@ -32,6 +35,11 @@ export default async function EmployeeRegisterPage({
       employmentType={employmentType}
       query={query}
       entity={entity}
+      newHref={
+        can(access, membership.entity_id, "payroll.employee_edit")
+          ? `/payroll/employees/new${entity ? `?entity=${encodeURIComponent(entity)}` : ""}`
+          : undefined
+      }
     />
   );
 }

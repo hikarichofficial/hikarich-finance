@@ -1645,6 +1645,12 @@ Decision 262: tax preview and manual override on Bill/Invoice Detail; Categories
 Decision 263: refund a confirmed payment from Payment Detail (`create_refund`, confirmed at once). No
 migration. Full detail in `docs/DECISIONS.md` decision 263.
 
+Decision 264: the remaining write screens in one slice -- payroll, fixed assets, financing (loans,
+obligations, equity), manual journal, fiscal-year close, draft expense edit and small actions. No
+migration. Still open: Import Wizard, document attachments (file storage, P15), category-to-account
+mapping (backend), a browser walkthrough of every new screen. Full detail in `docs/DECISIONS.md`
+decision 264.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

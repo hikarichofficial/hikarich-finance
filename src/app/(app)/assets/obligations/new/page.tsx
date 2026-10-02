@@ -1,0 +1,52 @@
+import Link from "next/link";
+import { requirePermission } from "@/services/identity/access";
+import { getMoneyControl } from "@/services/money/money";
+import { obligationKindTitle } from "@/domain/financing/obligationList";
+import { ObligationCreateForm } from "@/features/financing/FinancingForms";
+
+const LIST_HREF: Readonly<Record<"receivable" | "payable", string>> = {
+  receivable: "/assets/other-receivables",
+  payable: "/assets/other-payables",
+};
+
+/** Tambah Piutang Lain / Utang Lain (`?kind=receivable|payable`), gated `loans.manage` -- the permission
+ * `obligation_create` itself checks. This form covers the cash origin only (money moved through a cash or
+ * bank account); the non-cash "offset" origin needs a ledger-account choice and is not offered here. */
+export default async function NewObligationPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ entity?: string; kind?: string }>;
+}) {
+  const { entity, kind: rawKind } = await searchParams;
+  const { membership } = await requirePermission("loans.manage", { entityCode: entity });
+  const kind = rawKind === "payable" ? "payable" : "receivable";
+  const title = obligationKindTitle(kind);
+  const backHref = entity
+    ? `${LIST_HREF[kind]}?entity=${encodeURIComponent(entity)}`
+    : LIST_HREF[kind];
+  const accounts = (await getMoneyControl(membership.entity_id).catch(() => []))
+    .filter((a) => a.is_active)
+    .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` }));
+
+  return (
+    <div className="record-detail">
+      <p className="record-detail-back">
+        <Link href={backHref}>← Kembali ke daftar {title.toLowerCase()}</Link>
+      </p>
+      <header className="record-detail-header">
+        <div>
+          <p className="record-detail-eyebrow">{title}</p>
+          <h1>Tambah {title}</h1>
+        </div>
+      </header>
+      <section className="dashboard-section">
+        <ObligationCreateForm
+          entity={entity}
+          kind={kind}
+          accounts={accounts}
+          today={new Date().toISOString().slice(0, 10)}
+        />
+      </section>
+    </div>
+  );
+}

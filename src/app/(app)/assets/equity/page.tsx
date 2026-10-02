@@ -1,3 +1,4 @@
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { getEntityBaseCurrency, listEquityEvents } from "@/services/financing/financing";
 import {
@@ -16,7 +17,7 @@ export default async function EquityRegisterPage({
   searchParams: Promise<{ entity?: string; kind?: string; status?: string; q?: string }>;
 }) {
   const { entity, kind, status, q } = await searchParams;
-  const { membership } = await requirePermission("equity.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("equity.view", { entityCode: entity });
   const equityKind = parseEquityKindFilter(kind) ?? null;
   const equityStatus = parseEquityStatusFilter(status) ?? null;
   const query = q ?? "";
@@ -39,6 +40,11 @@ export default async function EquityRegisterPage({
       query={query}
       currency={currency}
       entity={entity}
+      createHref={
+        can(access, membership.entity_id, "equity.manage")
+          ? `/assets/equity/new${entity ? `?entity=${encodeURIComponent(entity)}` : ""}`
+          : undefined
+      }
     />
   );
 }

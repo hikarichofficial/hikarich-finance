@@ -1,3 +1,4 @@
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import {
   depreciationDue,
@@ -10,6 +11,7 @@ import {
   filterDepreciationRows,
   resolveDepreciationRange,
 } from "@/domain/assets/depreciationReport";
+import { PostDepreciationForm } from "@/features/assets/AssetForms";
 import { DepreciationReportScreen } from "@/features/assets/DepreciationReportScreen";
 
 /** Depreciation report (P13 Part 3f, fifth and final increment, Step 09 §9, §16). `?from=`/`?to=` are sent
@@ -25,7 +27,7 @@ export default async function DepreciationReportPage({
   searchParams: Promise<{ entity?: string; from?: string; to?: string; q?: string }>;
 }) {
   const { entity, from, to, q } = await searchParams;
-  const { membership } = await requirePermission("assets.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("assets.view", { entityCode: entity });
   const range = resolveDepreciationRange(from, to);
   const query = q ?? "";
 
@@ -42,6 +44,15 @@ export default async function DepreciationReportPage({
     scheduled: totalsDecimal.scheduled.toString(),
   };
 
+  // The last day of the latest complete month (day 0 of this month), the usual "post through" date.
+  const now = new Date();
+  const through = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 0))
+    .toISOString()
+    .slice(0, 10);
+  const next = entity
+    ? `/assets/depreciation?entity=${encodeURIComponent(entity)}`
+    : "/assets/depreciation";
+
   return (
     <DepreciationReportScreen
       rows={rows}
@@ -51,6 +62,11 @@ export default async function DepreciationReportPage({
       query={query}
       currency={currency}
       entity={entity}
+      actionsPanel={
+        can(access, membership.entity_id, "assets.manage") ? (
+          <PostDepreciationForm entity={entity} next={next} through={through} />
+        ) : undefined
+      }
     />
   );
 }

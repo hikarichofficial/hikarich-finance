@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import {
@@ -20,11 +21,9 @@ function money(value: string | null, currency: string): string {
 
 /**
  * Payroll Run Detail (P13 Part 3g, second increment, Step 09 §17's own period -> employees -> calculation ->
- * review -> approval -> post/pay -> close wizard). Like Employee Detail (decision 179), this is a read surface
- * only: `calculatePayrollRun`/`addPayrollAdjustment`/`submitPayrollRun`/`approvePayrollRun`/`postPayrollRun`/
- * `recordPayrollPayment`/`closePayrollRun`/`reopenPayrollRun`/`correctPayrollRun` (all already service-wrapped
- * from P9) get no button here -- the wizard's action forms are a later increment, the same boundary every
- * other Part 3 Register/Detail's first increment drew against its own create/edit/approve forms. Follows the
+ * review -> approval -> post/pay -> close wizard). This component itself only reads; the
+ * run's commands (calculate, adjust, submit, approve, return, discard, post, pay, close, reopen, correct) are
+ * client forms the page builds by status and permission and passes in as `actionsPanel`. Follows the
  * same narrower "Standard Record Detail Pattern subset" as every other Part 3f/3g Detail screen: Header /
  * Ringkasan always render; Penyesuaian (adjustments) and Pembayaran (payments) sections only when the run has
  * any. `tax_allowance`/`pph21`/`tax_base`/`tax_calc` are null for a viewer without `payroll.tax_view` -- the
@@ -44,6 +43,7 @@ export function PayrollRunDetailScreen({
   currency,
   backHref,
   qs,
+  actionsPanel,
 }: {
   run: PayrollRunDetail;
   lines: readonly PayrollLine[];
@@ -52,6 +52,8 @@ export function PayrollRunDetailScreen({
   currency: string;
   backHref: string;
   qs: string;
+  /** The command forms (client components) the page built for this status and this viewer. */
+  actionsPanel?: ReactNode;
 }) {
   const statusBadge = payrollRunStatusBadge(run.status);
 
@@ -182,6 +184,15 @@ export function PayrollRunDetailScreen({
           </ul>
         ) : null}
       </section>
+
+      {actionsPanel ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Tindakan</h2>
+          </div>
+          {actionsPanel}
+        </section>
+      ) : null}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">

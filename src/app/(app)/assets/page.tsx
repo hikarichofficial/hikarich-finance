@@ -1,3 +1,4 @@
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { getEntityBaseCurrency, listAssets } from "@/services/assets/assets";
 import { filterAssetRows, parseAssetStatusFilter } from "@/domain/assets/assetList";
@@ -12,7 +13,7 @@ export default async function AssetRegisterPage({
   searchParams: Promise<{ entity?: string; status?: string; q?: string }>;
 }) {
   const { entity, status, q } = await searchParams;
-  const { membership } = await requirePermission("assets.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("assets.view", { entityCode: entity });
   const assetStatus = parseAssetStatusFilter(status) ?? null;
   const query = q ?? "";
 
@@ -29,6 +30,13 @@ export default async function AssetRegisterPage({
       query={query}
       currency={currency}
       entity={entity}
+      newHref={
+        can(access, membership.entity_id, "assets.manage")
+          ? entity
+            ? `/assets/new?entity=${encodeURIComponent(entity)}`
+            : "/assets/new"
+          : undefined
+      }
     />
   );
 }

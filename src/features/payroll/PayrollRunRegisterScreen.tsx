@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { formatMoney } from "@/domain/money/format";
 import { payrollPeriodName, type PayrollStatus } from "@/domain/payroll/payroll";
 import {
@@ -13,9 +14,8 @@ import { formatShortDate } from "./format";
  * Payroll Run Register (P13 Part 3g, second increment, Step 09 §17's own period -> employees -> calculation ->
  * review -> approval -> post/pay -> close wizard). This increment ships the read surface only: `?status=` is
  * sent straight to `payroll_run_list`'s own `p_status` argument (server-side filtering, matching the Loan
- * Register's own direction/status split, decision 175); `?q=` is a client-side run-number/period search. No
- * Create button: starting a new run (`createPayrollRun`) is a dedicated command flow, out of scope for this
- * List/Detail increment, the same boundary every other Part 3 Register screen's first increment drew.
+ * Register's own direction/status split, decision 175); `?q=` is a client-side run-number/period search. Starting
+ * a new run (`createPayrollRun`) is the page's `actionsPanel` (a client form), shown to `payroll.run` only.
  * `tax_allowance_total`/`pph21_total` are null for a viewer without `payroll.tax_view` (the RPC's own doing,
  * not this screen's) -- shown as "—" rather than 0, so a masked figure is never mistaken for an actual zero.
  *
@@ -29,12 +29,15 @@ export function PayrollRunRegisterScreen({
   query,
   currency,
   entity,
+  actionsPanel,
 }: {
   rows: readonly PayrollRunRow[];
   status: PayrollStatus | null;
   query: string;
   currency: string;
   entity: string | undefined;
+  /** The "create run" form (a client component), set when the viewer holds `payroll.run`. */
+  actionsPanel?: ReactNode;
 }) {
   return (
     <div className="list-screen">
@@ -43,6 +46,7 @@ export function PayrollRunRegisterScreen({
           <h1>Proses Penggajian</h1>
           <p className="list-screen-summary">{rows.length} proses ditampilkan.</p>
         </div>
+        {actionsPanel}
       </header>
 
       <div className="list-screen-toolbar">

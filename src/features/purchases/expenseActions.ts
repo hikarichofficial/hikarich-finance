@@ -14,6 +14,7 @@ import {
   rejectExpense,
   reverseExpense,
   submitExpense,
+  updateExpenseDraft,
 } from "@/services/purchases/purchases";
 
 /**
@@ -45,6 +46,16 @@ function errorState(error: unknown, fallback: string): ExpenseActionState {
   return { status: "error", message: fallback };
 }
 
+/** The database's own explanation after an `INVALID:`/`CONFLICT:` prefix (English, but specific). */
+function draftErrorState(error: unknown, fallback: string): ExpenseActionState {
+  if (error instanceof AuthzError) {
+    const match = /^(?:INVALID|CONFLICT):\s*([\s\S]+)$/.exec(error.message);
+    const base = authzErrorMessage(error.code);
+    return { status: "error", message: match?.[1] ? `${base} (${match[1].trim()})` : base };
+  }
+  return { status: "error", message: fallback };
+}
+
 function detailHref(expenseId: string, entity: string): string {
   return entity
     ? `/purchases/expenses/${expenseId}?entity=${encodeURIComponent(entity)}`
@@ -66,22 +77,41 @@ export async function createExpenseAction(
     return { status: "error", message: "Isi minimal satu baris dengan deskripsi dan harga." };
   }
   const payeeId = text(formData, "payee_id");
-  let expenseId: string;
+  let expenseId = text(formData, "expense_id");
   try {
-    const { membership } = await requirePermission("bills.create", { entityCode: entity });
-    expenseId = await createExpenseDraft({
-      entity_id: membership.entity_id,
-      idempotency_key: randomUUID(),
-      account_id: text(formData, "account_id"),
-      expense_date: text(formData, "expense_date"),
-      payee_id: payeeId || undefined,
-      payee_name: text(formData, "payee_name") || undefined,
-      receipt_reference: text(formData, "receipt_reference") || undefined,
-      notes: text(formData, "notes") || undefined,
-      lines: lines as never,
-    });
+    if (expenseId) {
+      // Editing an existing draft: `update_expense_draft` (`bills.edit`), with the version the form loaded.
+      const version = Number(text(formData, "version"));
+      await updateExpenseDraft({
+        expense_id: expenseId,
+        expected_version: Number.isInteger(version) && version > 0 ? version : undefined,
+        patch: {
+          payee_id: payeeId || null,
+          payee_name: payeeId ? null : text(formData, "payee_name") || null,
+          account_id: text(formData, "account_id"),
+          expense_date: text(formData, "expense_date"),
+          receipt_reference: text(formData, "receipt_reference") || null,
+          notes: text(formData, "notes") || null,
+          lines: lines as never,
+        },
+      });
+      revalidateExpense(expenseId);
+    } else {
+      const { membership } = await requirePermission("bills.create", { entityCode: entity });
+      expenseId = await createExpenseDraft({
+        entity_id: membership.entity_id,
+        idempotency_key: randomUUID(),
+        account_id: text(formData, "account_id"),
+        expense_date: text(formData, "expense_date"),
+        payee_id: payeeId || undefined,
+        payee_name: text(formData, "payee_name") || undefined,
+        receipt_reference: text(formData, "receipt_reference") || undefined,
+        notes: text(formData, "notes") || undefined,
+        lines: lines as never,
+      });
+    }
   } catch (error) {
-    return errorState(
+    return draftErrorState(
       error,
       "Pengeluaran tidak dapat disimpan. Periksa rekening, tanggal, penerima dan baris.",
     );

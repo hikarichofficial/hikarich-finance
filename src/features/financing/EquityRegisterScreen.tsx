@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import {
   EQUITY_KIND_LABELS,
@@ -36,6 +37,7 @@ export function EquityRegisterScreen({
   query,
   currency,
   entity,
+  createHref,
 }: {
   rows: readonly EquityRow[];
   kind: EquityKind | null;
@@ -43,6 +45,8 @@ export function EquityRegisterScreen({
   query: string;
   currency: string;
   entity: string | undefined;
+  /** Set by the page when the person may create an equity event (`equity.manage`). */
+  createHref?: string;
 }) {
   return (
     <div className="list-screen">
@@ -51,6 +55,11 @@ export function EquityRegisterScreen({
           <h1>Modal & Ekuitas</h1>
           <p className="list-screen-summary">{rows.length} peristiwa ditampilkan.</p>
         </div>
+        {createHref ? (
+          <Link href={createHref} className="btn-primary">
+            Tambah Modal / Ekuitas
+          </Link>
+        ) : null}
       </header>
 
       <div className="list-screen-toolbar">
