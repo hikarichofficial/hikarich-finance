@@ -26,8 +26,8 @@ export default async function CategoriesPage({
         <div>
           <h1>Kategori</h1>
           <p className="list-screen-summary">
-            {rows.length} kategori. Pemetaan pajak dipakai otomatis saat baris invoice/tagihan tidak diisi
-            pajaknya.
+            {rows.length} kategori. Pemetaan pajak dipakai otomatis saat baris invoice/tagihan tidak
+            diisi pajaknya.
           </p>
         </div>
       </header>

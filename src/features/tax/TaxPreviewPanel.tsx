@@ -37,8 +37,8 @@ export function TaxPreviewPanel({
       </div>
       {inactive ? (
         <p className="hint">
-          Mesin pajak belum aktif untuk tanggal dokumen ini, jadi tidak ada pajak yang dihitung. Aktifkan
-          di Pajak → Pengaturan Pajak.
+          Mesin pajak belum aktif untuk tanggal dokumen ini, jadi tidak ada pajak yang dihitung.
+          Aktifkan di Pajak → Pengaturan Pajak.
         </p>
       ) : (
         <>
@@ -61,7 +61,9 @@ export function TaxPreviewPanel({
                   {DETERMINATION_STATUS_LABELS[result.status]}
                 </dt>
                 <dd>{formatMoney(result.tax, currency)}</dd>
-                {text(result.consequence) ? <p className="hint">{text(result.consequence)}</p> : null}
+                {text(result.consequence) ? (
+                  <p className="hint">{text(result.consequence)}</p>
+                ) : null}
               </div>
             ))}
           </dl>

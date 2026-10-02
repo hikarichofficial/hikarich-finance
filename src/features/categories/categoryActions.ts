@@ -41,7 +41,8 @@ export async function createCategoryAction(
   } catch {
     return {
       status: "error",
-      message: "Kategori tidak dapat disimpan. Mungkin namanya sudah dipakai, atau Anda tidak berwenang.",
+      message:
+        "Kategori tidak dapat disimpan. Mungkin namanya sudah dipakai, atau Anda tidak berwenang.",
     };
   }
   revalidatePath("/accounting/categories");
