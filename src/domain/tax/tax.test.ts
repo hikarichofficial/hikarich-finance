@@ -95,7 +95,9 @@ describe("resolveFilingTaxType", () => {
 
   it("words every withholding object and VAT treatment of the database catalog", () => {
     expect(Object.keys(WHT_OBJECT_LABELS).sort()).toEqual([...whtObjectSchema.options].sort());
-    expect(Object.keys(VAT_TREATMENT_LABELS).sort()).toEqual([...vatTreatmentSchema.options].sort());
+    expect(Object.keys(VAT_TREATMENT_LABELS).sort()).toEqual(
+      [...vatTreatmentSchema.options].sort(),
+    );
   });
 
   it("falls back to vat for wht_pph21 (settled through Payroll's own tax ledger instead)", () => {

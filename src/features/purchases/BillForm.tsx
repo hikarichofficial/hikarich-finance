@@ -71,8 +71,8 @@ export function BillForm({
         taxFields
       />
       <p className="hint">
-        Potongan PPh dan PPN dihitung otomatis dari isian pajak tiap baris dan data pajak vendor. Hasilnya
-        terlihat di halaman tagihan sebelum disetujui.
+        Potongan PPh dan PPN dihitung otomatis dari isian pajak tiap baris dan data pajak vendor.
+        Hasilnya terlihat di halaman tagihan sebelum disetujui.
       </p>
 
       <label>
