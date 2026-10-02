@@ -39,6 +39,7 @@ export function BillDetailScreen({
   /** Record Payment / Pay Bill (decision 258); absent when not allowed or nothing is outstanding. */
   payment?: { accounts: readonly SettlementAccountOption[]; today: string };
 }) {
+  const editQuery = backHref.includes("?") ? backHref.slice(backHref.indexOf("?")) : "";
   const statusRow: BillListRow = {
     bill_id: bill.id,
     bill_number: bill.bill_number,
@@ -79,6 +80,13 @@ export function BillDetailScreen({
       </header>
 
       <BillActions billId={bill.id} status={bill.status} permissions={permissions} />
+      {bill.status === "draft" && permissions.canEdit ? (
+        <p>
+          <Link href={`${backHref.split("?")[0]}/${bill.id}/edit${editQuery}`} className="btn-secondary">
+            Ubah Draf
+          </Link>
+        </p>
+      ) : null}
       {payment && bill.outstanding !== null ? (
         <PayBillForm
           billId={bill.id}

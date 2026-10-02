@@ -13,6 +13,7 @@ import {
   recordPayment,
   rejectPaymentSubmission,
   revokeInvoiceLink,
+  updateInvoiceDraft,
   getInvoiceLink,
   issueInvoice,
   regenerateInvoiceLink,
@@ -90,8 +91,25 @@ export async function createInvoiceAction(
   if (!Array.isArray(lines) || lines.length === 0) {
     return { status: "error", message: "Isi minimal satu baris dengan deskripsi dan harga." };
   }
-  let invoiceId: string;
+  let invoiceId = text(formData, "invoice_id");
   try {
+    if (invoiceId) {
+      const version = Number(text(formData, "version"));
+      await updateInvoiceDraft({
+        invoice_id: invoiceId,
+        expected_version: Number.isInteger(version) && version > 0 ? version : undefined,
+        patch: {
+          customer_id: text(formData, "customer_id"),
+          issue_date: text(formData, "issue_date"),
+          due_date: text(formData, "due_date"),
+          payment_account_id: text(formData, "payment_account_id") || null,
+          notes: text(formData, "notes") || null,
+          terms: text(formData, "terms") || null,
+          lines: lines as never,
+        },
+      });
+      revalidateInvoice(invoiceId);
+    } else {
     const { membership } = await requirePermission("invoices.create", { entityCode: entity });
     invoiceId = await createInvoiceDraft({
       entity_id: membership.entity_id,
@@ -104,6 +122,7 @@ export async function createInvoiceAction(
       terms: text(formData, "terms") || undefined,
       lines: lines as never,
     });
+    }
   } catch (error) {
     return draftErrorState(
       error,

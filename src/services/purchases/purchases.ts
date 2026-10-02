@@ -728,3 +728,59 @@ export async function getBillOwner(
   if (error || !data) return null;
   return { entity_id: String(data.entity_id), vendor_id: String(data.vendor_id) };
 }
+
+function editableLine(row: Record<string, unknown>): Record<string, unknown> {
+  const line: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(row)) {
+    if (value === null || value === undefined || value === "") continue;
+    if (key === "tax_amount" && Number(value) === 0) continue;
+    if (key === "vat_not_creditable" && value === false) continue;
+    if (key === "discount_type" && value === "none") continue;
+    if (key === "discount_value" && Number(value) === 0) continue;
+    line[key] = typeof value === "number" ? String(value) : value;
+  }
+  return line;
+}
+
+export interface BillDraftForEdit {
+  id: string;
+  entity_id: string;
+  version: number;
+  vendor_id: string;
+  vendor_reference: string | null;
+  bill_date: string;
+  due_date: string;
+  notes: string | null;
+  lines: Record<string, unknown>[];
+}
+
+/** A DRAFT bill with the line facts the editor shows, by a direct RLS-governed read; `null` when it does
+ * not exist, is not visible, or is no longer a draft (decision 261). */
+export async function getBillDraftForEdit(billId: string): Promise<BillDraftForEdit | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("bills")
+    .select("id, entity_id, version, status, vendor_id, vendor_reference, bill_date, due_date, notes")
+    .eq("id", uuid(billId))
+    .maybeSingle();
+  if (error || !data || data.status !== "draft") return null;
+  const { data: lines, error: linesError } = await supabase
+    .from("bill_lines")
+    .select(
+      "description, quantity::text, unit_price::text, treatment, category_id, wht_object, tax_amount::text, vat_invoice_ref, vat_not_creditable",
+    )
+    .eq("bill_id", data.id)
+    .order("line_no", { ascending: true });
+  if (linesError) return null;
+  return {
+    id: String(data.id),
+    entity_id: String(data.entity_id),
+    version: Number(data.version),
+    vendor_id: String(data.vendor_id),
+    vendor_reference: (data.vendor_reference as string | null) ?? null,
+    bill_date: String(data.bill_date),
+    due_date: String(data.due_date),
+    notes: (data.notes as string | null) ?? null,
+    lines: ((lines ?? []) as unknown as Record<string, unknown>[]).map(editableLine),
+  };
+}

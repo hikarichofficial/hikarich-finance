@@ -12,6 +12,7 @@ import {
   createBillDraft,
   getBillOwner,
   recordVendorPayment,
+  updateBillDraft,
   recallBill,
   rejectBill,
   reverseVendorPayment,
@@ -79,8 +80,24 @@ export async function createBillAction(
   if (!Array.isArray(lines) || lines.length === 0) {
     return { status: "error", message: "Isi minimal satu baris dengan deskripsi dan harga." };
   }
-  let billId: string;
+  let billId = text(formData, "bill_id");
   try {
+    if (billId) {
+      const version = Number(text(formData, "version"));
+      await updateBillDraft({
+        bill_id: billId,
+        expected_version: Number.isInteger(version) && version > 0 ? version : undefined,
+        patch: {
+          vendor_id: text(formData, "vendor_id"),
+          vendor_reference: text(formData, "vendor_reference") || null,
+          bill_date: text(formData, "bill_date"),
+          due_date: text(formData, "due_date"),
+          notes: text(formData, "notes") || null,
+          lines: lines as never,
+        },
+      });
+      revalidateBill(billId);
+    } else {
     const { membership } = await requirePermission("bills.create", { entityCode: entity });
     billId = await createBillDraft({
       entity_id: membership.entity_id,
@@ -92,6 +109,7 @@ export async function createBillAction(
       notes: text(formData, "notes") || undefined,
       lines: lines as never,
     });
+    }
   } catch (error) {
     return draftErrorState(
       error,

@@ -4,6 +4,7 @@ import { useActionState, useState } from "react";
 import type { CategoryRow } from "@/schemas/categories";
 import type { ContactRow } from "@/schemas/contacts";
 import {
+  buildInitialRecurringLines,
   buildRecurringLinesJson,
   newRecurringLineRow,
   RecurringLinesEditor,
@@ -23,23 +24,45 @@ export function BillForm({
   categories,
   entity,
   today,
+  initial,
 }: {
   vendors: readonly ContactRow[];
   categories: readonly CategoryRow[];
   entity: string | undefined;
   today: string;
+  /** Present when editing an existing draft (decision 261): the same form saves through `update_bill_draft`. */
+  initial?: {
+    id: string;
+    version: number;
+    vendor_id: string;
+    vendor_reference: string | null;
+    bill_date: string;
+    due_date: string;
+    notes: string | null;
+    lines: readonly Record<string, unknown>[];
+  };
 }) {
   const [state, action, pending] = useActionState(createBillAction, idleBillActionState);
-  const [rows, setRows] = useState<RecurringLineRow[]>([newRecurringLineRow(1)]);
+  const [rows, setRows] = useState<RecurringLineRow[]>(
+    initial && initial.lines.length > 0
+      ? buildInitialRecurringLines(initial.lines)
+      : [newRecurringLineRow(1)],
+  );
 
   return (
     <form action={action} className="record-form record-form-wide">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="lines" value={buildRecurringLinesJson(rows, "bill")} />
+      {initial ? (
+        <>
+          <input type="hidden" name="bill_id" value={initial.id} />
+          <input type="hidden" name="version" value={initial.version} />
+        </>
+      ) : null}
 
       <label>
         Vendor
-        <select name="vendor_id" required defaultValue="">
+        <select name="vendor_id" required defaultValue={initial?.vendor_id ?? ""}>
           <option value="" disabled>
             Pilih vendor
           </option>
@@ -52,15 +75,19 @@ export function BillForm({
       </label>
       <label>
         Nomor Invoice dari Vendor (opsional)
-        <input name="vendor_reference" maxLength={100} />
+        <input
+          name="vendor_reference"
+          maxLength={100}
+          defaultValue={initial?.vendor_reference ?? ""}
+        />
       </label>
       <label>
         Tanggal Tagihan
-        <input type="date" name="bill_date" required defaultValue={today} />
+        <input type="date" name="bill_date" required defaultValue={initial?.bill_date ?? today} />
       </label>
       <label>
         Jatuh Tempo
-        <input type="date" name="due_date" required defaultValue={today} />
+        <input type="date" name="due_date" required defaultValue={initial?.due_date ?? today} />
       </label>
 
       <RecurringLinesEditor
@@ -77,7 +104,7 @@ export function BillForm({
 
       <label>
         Catatan (opsional)
-        <textarea name="notes" maxLength={2000} />
+        <textarea name="notes" maxLength={2000} defaultValue={initial?.notes ?? ""} />
       </label>
 
       {state.status === "error" ? (
@@ -86,7 +113,7 @@ export function BillForm({
         </p>
       ) : null}
       <button type="submit" className="btn-primary" disabled={pending}>
-        {pending ? "Menyimpan…" : "Simpan sebagai Draf"}
+        {pending ? "Menyimpan…" : initial ? "Simpan Perubahan" : "Simpan sebagai Draf"}
       </button>
     </form>
   );

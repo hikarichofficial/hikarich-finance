@@ -729,3 +729,65 @@ export async function reverseMarketplaceSettlement(input: {
     uuidResultSchema,
   );
 }
+
+function editableLine(row: Record<string, unknown>): Record<string, unknown> {
+  const line: Record<string, unknown> = {};
+  for (const [key, value] of Object.entries(row)) {
+    if (value === null || value === undefined || value === "") continue;
+    if (key === "tax_amount" && Number(value) === 0) continue;
+    if (key === "vat_not_creditable" && value === false) continue;
+    if (key === "discount_type" && value === "none") continue;
+    if (key === "discount_value" && Number(value) === 0) continue;
+    line[key] = typeof value === "number" ? String(value) : value;
+  }
+  return line;
+}
+
+export interface InvoiceDraftForEdit {
+  id: string;
+  entity_id: string;
+  version: number;
+  customer_id: string;
+  issue_date: string;
+  due_date: string;
+  payment_account_id: string | null;
+  notes: string | null;
+  terms: string | null;
+  lines: Record<string, unknown>[];
+}
+
+/** A DRAFT invoice with the line facts the editor shows, by a direct RLS-governed read; `null` when it does
+ * not exist, is not visible, or is no longer a draft (decision 261). */
+export async function getInvoiceDraftForEdit(
+  invoiceId: string,
+): Promise<InvoiceDraftForEdit | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("invoices")
+    .select(
+      "id, entity_id, version, status, customer_id, issue_date, due_date, payment_account_id, notes, terms",
+    )
+    .eq("id", uuid(invoiceId))
+    .maybeSingle();
+  if (error || !data || data.status !== "draft") return null;
+  const { data: lines, error: linesError } = await supabase
+    .from("invoice_lines")
+    .select(
+      "description, quantity::text, unit_price::text, category_id, vat_treatment, product_id, discount_type, discount_value::text",
+    )
+    .eq("invoice_id", data.id)
+    .order("line_no", { ascending: true });
+  if (linesError) return null;
+  return {
+    id: String(data.id),
+    entity_id: String(data.entity_id),
+    version: Number(data.version),
+    customer_id: String(data.customer_id),
+    issue_date: String(data.issue_date),
+    due_date: String(data.due_date),
+    payment_account_id: (data.payment_account_id as string | null) ?? null,
+    notes: (data.notes as string | null) ?? null,
+    terms: (data.terms as string | null) ?? null,
+    lines: ((lines ?? []) as unknown as Record<string, unknown>[]).map(editableLine),
+  };
+}

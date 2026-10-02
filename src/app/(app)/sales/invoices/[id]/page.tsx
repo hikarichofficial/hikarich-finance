@@ -37,6 +37,7 @@ export default async function InvoiceDetailPage({
       invoiceId={id}
       doc={doc}
       backHref={backHref}
+      canEdit={can(access, entityId, "invoices.edit")}
       payment={
         canRecordPayment
           ? {

@@ -1280,6 +1280,22 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Editing a draft invoice or bill (decision 261, Step 09 §11-§12). `/sales/invoices/[id]/edit` and
+  `/purchases/bills/[id]/edit` reuse the create forms with the draft's values and save through the
+  unmodified `update_invoice_draft` / `update_bill_draft` (`invoices.edit` / `bills.edit`, with the row
+  version for optimistic concurrency). Only a DRAFT opens there; anything recognised is corrected, never
+  edited. Line facts the editor does not show (product, discount) travel with the line untouched. Editing
+  a draft expense is not built yet: a draft expense is cancelled and recorded again. No migration.
+  The same day the tax baseline was re-checked against official sources in place of a consultant (the
+  OWNER has none): PMK 37/2025 marketplace collection (0.5% excluding VAT; four designated marketplaces;
+  DJP release SP-23/2026 says collection started 1 October 2026 after earlier statements said 1 November,
+  with an adjustment period to 31 October -- the rule date stays 2026-10-01 and the payout report is the
+  fact); for a final-regime taxpayer the collection is "bagian dari pelunasan PPh final" and a shortfall
+  is paid by the seller, which is what decision 260 models; no rule was found for an excess, so it is not
+  carried. PP 20/2026, PP 34/2017 (service charges are part of the rent base), PMK 81/2024 Pasal 94 and
+  the PPh 23 rates were confirmed. Not confirmed from a primary text: the 2026 status of PMK 131/2024
+  and the wording that a non-PKP may not charge VAT (the engine already charges none).
+
 - Marketplace sales per settlement, with PPh 22 collected by the marketplace (decision 260, OWNER:
   "rekap per pencairan", "biaya admin otomatis", "PPh marketplace saya setuju", "akun marketplace ...
   sudah kita rancang dari sekarang"). (1) `marketplace_stores` (Shopee, Tokopedia, Lazada, Blibli, TikTok
