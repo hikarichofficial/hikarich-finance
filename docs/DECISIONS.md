@@ -1280,6 +1280,25 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Remaining write screens in one slice (decision 264, OWNER: "semua itu kamu kerjakan dalam 1 merge").
+  Every command below already existed and was tested at the database level; this adds only screens, each
+  gated on the permission its RPC checks and shown only in the statuses the RPC accepts. No migration.
+  Payroll: add an employee; employment, compensation, tax profile, BPJS, tax opening, update, end; create
+  a payroll run and every run command (calculate, adjust, submit, approve, return, discard, post, close,
+  reopen, correct, pay, reverse payment). Fixed assets: register a pending purchase line as an asset
+  (`/assets/new`), activate, update, condition, fiscal class, replan, transfer, dispose, reverse disposal,
+  cancel, post and reverse depreciation. Financing: create a loan, activate, repay, cancel, write off,
+  reverse a payment; create an other receivable/payable, settle, void, write off, reverse a settlement;
+  create an equity event, confirm, cancel, reverse, pay a dividend, reverse a dividend payment.
+  Accounting: manual journal draft (`/accounting/journal/new`), close a fiscal year and reverse the
+  closing. Also: edit a draft expense, mark a payment claim as a duplicate, set a public link's expiry,
+  cancel a draft invoice, withdraw a tax override. Deliberately left without a screen: `splitAsset`,
+  `loadOpeningAssets`, `restructureLoan`, `loadOpeningLoans`, `setLoanAsset`, `recordFinancingTaxReview`
+  (inputs too large for a simple form), manual loan schedules and offset-origin obligations, the Import
+  Wizard commands and document attach/download (both wait for file storage, P15), and the
+  category-to-account mapping (no command exists yet). The screens were built by parallel workers and
+  verified together by typecheck, lint, unit tests and build; none was exercised in a browser.
+
 - Refund from Payment Detail (decision 263, Step 07 §3). A confirmed payment can be refunded in part or
   in full: one amount per refundable part (`payment_refund_options`: what was applied to each invoice, and
   an unapplied advance), the paying account, the date and a reason, through the unmodified `create_refund`
