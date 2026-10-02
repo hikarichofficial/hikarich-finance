@@ -1571,7 +1571,7 @@ do $$
 declare
   pt uuid := test_helpers.entity('p7e_pt');
   v_owner uuid := 'e0000000-0000-0000-0000-000000000001';
-  v_staff uuid := 'e0000000-0000-0000-0000-000000000005';
+  v_viewer uuid := 'e0000000-0000-0000-0000-000000000004';
   v_taxer uuid := 'e0000000-0000-0000-0000-000000000003';
   v_today date := test_helpers.today(pt);
   v_prev date := (date_trunc('month', test_helpers.today(pt)) - interval '1 day')::date;
@@ -1582,9 +1582,9 @@ declare
   e jsonb;
   v_before numeric;
 begin
-  perform test_helpers.login(v_staff);
-  perform test_helpers.expect_msg(format($q$select public.create_marketplace_store(%L, 'key-mp-st-0', 'shopee', 'Toko Staff')$q$, pt),
-    'FORBIDDEN', '12.0 a store is added with invoices.create only');
+  perform test_helpers.login(v_viewer);
+  perform test_helpers.expect_msg(format($q$select public.create_marketplace_store(%L, 'key-mp-st-0', 'shopee', 'Toko Viewer')$q$, pt),
+    'FORBIDDEN', '12.0 a viewer cannot add a store (invoices.create is needed)');
   perform test_helpers.logout();
   perform test_helpers.login(v_owner);
   v_store := public.create_marketplace_store(pt, 'key-mp-st-1', 'shopee', 'Hikarich Shopee (synthetic)', test_helpers.eg('bca'),
