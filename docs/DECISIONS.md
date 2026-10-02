@@ -1301,6 +1301,7 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   4. Forms that embed a line table were capped at 480px by `.record-form`; prefilled amounts showed
      padding zeros ("2500000.0000"); the sales screens said "Faktur" where the OWNER asked for "Invoice"
      ("Faktur Pajak" is unchanged).
+
   Not exercised because they need the OWNER's authenticator code: activating the tax engine (so tax on the
   test invoice/bill was not computed in the browser), tax override, fiscal-year close. Known and left: a
   form that returns an error clears what was typed (React resets an uncontrolled form after its action).
