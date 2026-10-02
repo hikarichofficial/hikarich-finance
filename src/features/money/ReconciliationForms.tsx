@@ -7,13 +7,13 @@ import {
   createSessionAction,
   discardSessionAction,
   excludeLineAction,
-  idleReconActionState,
   includeLineAction,
   matchLineAction,
   reopenSessionAction,
   unmatchLineAction,
   type ReconActionState,
 } from "./reconciliationActions";
+import { idleReconActionState } from "./reconciliationActionsState";
 
 /** Forms of the reconciliation workspace (decision 251). */
 

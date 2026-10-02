@@ -245,7 +245,7 @@ export async function getJournalLines(journalId: string): Promise<JournalLineRow
   const { data, error } = await supabase
     .from("journal_lines")
     .select(
-      "id, journal_id, line_no, ledger_account_id, debit, credit, description, original_currency, original_amount, exchange_rate",
+      "id, journal_id, line_no, ledger_account_id, debit::text, credit::text, description, original_currency, original_amount::text, exchange_rate::text",
     )
     .eq("journal_id", uuidResultSchema.parse(journalId))
     .order("line_no", { ascending: true });
@@ -328,7 +328,7 @@ export async function listOpeningBatches(entityId: string): Promise<OpeningBatch
   const { data, error } = await supabase
     .from("opening_balance_batches")
     .select(
-      "id, cutover_date, status, note, clearing_residual, completion_note, completed_at, created_at",
+      "id, cutover_date, status, note, clearing_residual::text, completion_note, completed_at, created_at",
     )
     .eq("entity_id", uuidResultSchema.parse(entityId))
     .order("created_at", { ascending: false });

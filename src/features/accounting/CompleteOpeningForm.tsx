@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import { completeOpeningBalancesAction, idleOpeningActionState } from "./openingBalanceActions";
+import { completeOpeningBalancesAction } from "./openingBalanceActions";
+import { idleOpeningActionState } from "./openingBalanceActionsState";
 
 /** Completes the opening balances (decision 245): `complete_opening_balances` records the clearing
  * account's residual and locks further opening postings for the Entity. */

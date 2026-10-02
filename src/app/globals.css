@@ -2365,6 +2365,12 @@ a.kpi-card:hover {
   gap: var(--space-4);
 }
 
+/* A form carrying both classes embeds a line table (invoice, bill, expense, journal, opening balance): the
+   480px cap of `.record-form` must not apply to the form itself, only to its labels. */
+.record-form.record-form-wide {
+  max-width: none;
+}
+
 .record-form-wide label {
   display: grid;
   gap: var(--space-2);

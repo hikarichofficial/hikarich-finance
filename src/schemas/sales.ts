@@ -110,7 +110,7 @@ export const createInvoiceDraftInputSchema = z
   })
   .refine((v) => v.due_date >= v.issue_date, {
     path: ["due_date"],
-    message: "Jatuh tempo sebelum tanggal faktur",
+    message: "Jatuh tempo sebelum tanggal invoice",
   });
 
 /** Only the named fields change; `lines`, when present, replaces all lines. */

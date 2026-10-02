@@ -575,7 +575,7 @@ export async function listBillsOverview(entityId: string): Promise<BillListRow[]
     supabase
       .from("bills")
       .select(
-        "id, bill_number, vendor_id, vendor_reference, currency, status, bill_date, due_date, total",
+        "id, bill_number, vendor_id, vendor_reference, currency, status, bill_date, due_date, total::text",
       )
       .eq("entity_id", uuid(entityId))
       .in("status", ["draft", "submitted", "cancelled"])
@@ -657,7 +657,7 @@ export async function getBillDetail(billId: string): Promise<BillDetail | null> 
   const { data, error } = await supabase
     .from("bills")
     .select(
-      "id, entity_id, bill_number, vendor_id, vendor_reference, currency, status, bill_date, due_date, notes, subtotal, tax_total, total, submitted_at, rejected_at, reject_reason, approved_at, closed_at, closed_date, closed_reason",
+      "id, entity_id, bill_number, vendor_id, vendor_reference, currency, status, bill_date, due_date, notes, subtotal::text, tax_total::text, total::text, submitted_at, rejected_at, reject_reason, approved_at, closed_at, closed_date, closed_reason",
     )
     .eq("id", uuid(billId))
     .maybeSingle();
@@ -671,7 +671,7 @@ export async function getBillDetail(billId: string): Promise<BillDetail | null> 
     supabase
       .from("bill_lines")
       .select(
-        "line_no, description, quantity, unit_price, line_subtotal, tax_amount, line_total, treatment",
+        "line_no, description, quantity::text, unit_price::text, line_subtotal::text, tax_amount::text, line_total::text, treatment",
       )
       .eq("bill_id", bill.id)
       .order("line_no", { ascending: true }),

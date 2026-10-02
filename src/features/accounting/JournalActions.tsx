@@ -1,12 +1,8 @@
 "use client";
 
 import { useActionState, useState, type ReactNode } from "react";
-import {
-  discardJournalAction,
-  idleJournalActionState,
-  postJournalAction,
-  reverseJournalAction,
-} from "./actions";
+import { discardJournalAction, postJournalAction, reverseJournalAction } from "./actions";
+import { idleJournalActionState } from "./actionsState";
 
 /**
  * Journal Detail's status actions (Step 09 §14), following the exact shape `TransferActions.tsx` already

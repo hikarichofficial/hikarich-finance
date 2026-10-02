@@ -363,14 +363,20 @@ export const planningForecastInputSchema = z.object({
   budget_id: z.uuid().nullable(),
 });
 
+/** `get_planning_forecast` returns a table with numeric columns, which PostgREST sends as JSON numbers. */
+const rpcAmountSchema = z
+  .union([z.string(), z.number()])
+  .transform((value) => String(value))
+  .pipe(signedDecimalTextSchema);
+
 export const planningForecastRowSchema = z.object({
   category_id: z.uuid(),
   category_name: z.string(),
   category_kind: z.enum(["revenue", "expense"]),
   period_month: isoDateSchema,
-  baseline_amount: signedDecimalTextSchema,
-  budget_amount: signedDecimalTextSchema.nullable(),
-  forecast_amount: signedDecimalTextSchema,
+  baseline_amount: rpcAmountSchema,
+  budget_amount: rpcAmountSchema.nullable(),
+  forecast_amount: rpcAmountSchema,
   source: forecastSourceSchema,
 });
 export const planningForecastSchema = z.array(planningForecastRowSchema);

@@ -18,9 +18,6 @@ export interface BalanceAdjustmentFormState {
   message?: string;
 }
 
-const IDLE: BalanceAdjustmentFormState = { status: "idle" };
-export const idleBalanceAdjustmentFormState = IDLE;
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";

@@ -67,7 +67,7 @@ export function PaymentDetailScreen({
             <dd>{formatMoney(row.amount, row.currency)}</dd>
           </div>
           <div>
-            <dt>Dialokasikan ke Faktur</dt>
+            <dt>Dialokasikan ke Invoice</dt>
             <dd>{formatMoney(row.allocated_amount, row.currency)}</dd>
           </div>
           {hasAdvance ? (

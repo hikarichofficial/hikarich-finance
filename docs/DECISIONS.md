@@ -1280,6 +1280,32 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Browser walkthrough of the write screens on the preview, and what it fixed (decision 266, OWNER: "kamu
+  saja yang uji"). Exercised on `demo_pt` against the development database: add customer and vendor with
+  tax facts, bank/e-wallet account, category (add, tax mapping, account mapping, deactivate), invoice
+  (add and remove lines, edit draft, issue, public link, customer claim, confirm, record payment, refund),
+  marketplace (store, payout, cancel), bill (create, submit, approve, pay), expense (create, edit,
+  confirm), taxpayer profile, employee (compensation, tax, BPJS), payroll run (create, calculate), equity
+  (create, confirm), loan (create, cancel), manual journal draft. Defects found and fixed, none changing
+  economic meaning, tax treatment or authorization:
+  1. Nineteen `"use server"` files exported their initial form-state objects. Next.js allows only async
+     functions there, so every action in those files failed at runtime ("found object"); the build and
+     tests did not catch it. The states moved to sibling `*State.ts` modules.
+  2. Direct reads of numeric columns without `::text` (bills, bill lines, expenses, transfers, money
+     movements, journal lines, tax determinations, products, approval rules, opening batches): PostgREST
+     sends JSON numbers, the row schemas expect exact decimal text. A single draft bill made the Bills
+     list and detail fail.
+  3. Four pages failed to load: Settings (the numbering-scope schema knew 6 of the database's 21 scopes),
+     PPh and Withholding (`asset_available` is null for tax types with no credit side), Forecast (numeric
+     table columns arrive as numbers).
+  4. Forms that embed a line table were capped at 480px by `.record-form`; prefilled amounts showed
+     padding zeros ("2500000.0000"); the sales screens said "Faktur" where the OWNER asked for "Invoice"
+     ("Faktur Pajak" is unchanged).
+
+  Not exercised because they need the OWNER's authenticator code: activating the tax engine (so tax on the
+  test invoice/bill was not computed in the browser), tax override, fiscal-year close. Known and left: a
+  form that returns an error clears what was typed (React resets an uncontrolled form after its action).
+
 - Category to ledger account mapping (decision 265, Step 03 §6). `category_account_mappings` has been
   read by invoices, bills and expenses since P5/P6 but no command wrote it, so every category posted to
   the Entity's default account. New `set_category_account(entity, category, account, effective_from)`

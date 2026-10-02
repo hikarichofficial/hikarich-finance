@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 import { RuleActionResult } from "./TaxRuleForm";
-import { discardRuleAction, idleRuleActionState, publishRuleAction } from "./taxRuleActions";
+import { discardRuleAction, publishRuleAction } from "./taxRuleActions";
+import { idleRuleActionState } from "./taxRuleActionsState";
 
 /** Publish or discard a tax rule draft (decision 249). Publishing needs a recent step-up and a verified
  * source; once published the version is final and applies to documents dated from its effective date. */

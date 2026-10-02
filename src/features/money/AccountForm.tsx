@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import { createAccountAction, idleAccountActionState } from "./accountActions";
+import { createAccountAction } from "./accountActions";
+import { idleAccountActionState } from "./accountActionsState";
 
 /**
  * Add Account (Step 09 §13, decision 258) through `create_financial_account`. The ledger account behind it

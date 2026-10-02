@@ -30,8 +30,6 @@ export interface ReconActionState {
   errors?: string[];
 }
 
-export const idleReconActionState: ReconActionState = { status: "idle" };
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";

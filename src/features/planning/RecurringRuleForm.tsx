@@ -14,11 +14,8 @@ import type {
   PaymentChannelPickerRow,
   RecurringRuleRow,
 } from "@/schemas/planning";
-import {
-  createRecurringRuleAction,
-  updateRecurringRuleAction,
-  idlePlanningActionState,
-} from "./actions";
+import { createRecurringRuleAction, updateRecurringRuleAction } from "./actions";
+import { idlePlanningActionState } from "./actionsState";
 import {
   RecurringLinesEditor,
   buildInitialRecurringLines,
@@ -292,7 +289,7 @@ export function RecurringRuleForm({
               />
             </label>
             <label>
-              Catatan Faktur (opsional)
+              Catatan Invoice (opsional)
               <textarea
                 name="notes"
                 maxLength={2000}

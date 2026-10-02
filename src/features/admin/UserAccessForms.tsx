@@ -4,12 +4,12 @@ import { useActionState } from "react";
 import type { PermissionRow, RoleRow } from "@/schemas/admin";
 import {
   changeRoleAction,
-  idleUserActionState,
   revokeDeviceAction,
   setOverrideAction,
   setStatusAction,
   type UserActionState,
 } from "./userActions";
+import { idleUserActionState } from "./userActionsState";
 
 /** Access-change forms on a membership (decision 246). Every change asks for a written reason, which the
  * RPC records in the audit trail. */

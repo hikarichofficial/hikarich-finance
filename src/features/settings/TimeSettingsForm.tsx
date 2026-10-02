@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { useActionState } from "react";
 import { monthName, timezoneOptions } from "@/domain/settings/settings";
-import { idleTimeSettingsState, updateTimeSettingsAction } from "./actions";
+import { updateTimeSettingsAction } from "./actions";
+import { idleTimeSettingsState } from "./actionsState";
 
 const MONTHS = Array.from({ length: 12 }, (_, i) => i + 1);
 

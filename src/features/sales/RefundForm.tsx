@@ -1,8 +1,10 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { trimDecimalText } from "@/domain/money/format";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
-import { createRefundAction, idleInvoiceActionState } from "./actions";
+import { createRefundAction } from "./actions";
+import { idleInvoiceActionState } from "./actionsState";
 
 export interface RefundOptionView {
   key: string;
@@ -46,7 +48,7 @@ export function RefundForm({
       <input type="hidden" name="option_count" value={options.length} />
       {options.map((option, index) => (
         <label key={option.key}>
-          {option.label} (maksimal {option.refundable})
+          {option.label} (maksimal {trimDecimalText(option.refundable)})
           <input type="hidden" name={`source_${index}`} value={option.source} />
           <input type="hidden" name={`allocation_${index}`} value={option.allocationId ?? ""} />
           <input name={`amount_${index}`} inputMode="decimal" placeholder="0" />

@@ -5,10 +5,10 @@ import { useActionState } from "react";
 import type { TaxOverview } from "@/schemas/tax";
 import {
   activateTaxEngineAction,
-  idleTaxSetupState,
   recordTaxProfileAction,
   type TaxSetupState,
 } from "./taxSetupActions";
+import { idleTaxSetupState } from "./taxSetupActionsState";
 
 function Feedback({ state, next }: { state: TaxSetupState; next: string }) {
   if (state.status === "ok") return <p className="hint">{state.message}</p>;

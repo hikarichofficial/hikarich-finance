@@ -10,7 +10,8 @@ import {
   type DeterminationStatus,
 } from "@/domain/tax/tax";
 import type { FinalPreview, TaxPeriodPosition } from "@/schemas/tax";
-import { computeFinalTaxAction, idleComputeFinalTaxFormState } from "./taxFinalActions";
+import { computeFinalTaxAction } from "./taxFinalActions";
+import { idleComputeFinalTaxFormState } from "./taxFinalActionsState";
 import { formatShortDate } from "./format";
 
 /**

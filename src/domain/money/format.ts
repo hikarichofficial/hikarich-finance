@@ -54,3 +54,10 @@ export function formatMoneyExact(text: string, currency: string): string {
   if (currency === "IDR") return body.startsWith("-") ? `-Rp ${body.slice(1)}` : `Rp ${body}`;
   return `${currency} ${body}`;
 }
+
+/** Exact decimal text without padding zeros, for pre-filling an input: "2500000.0000" -> "2500000",
+ * "1.5000" -> "1.5". Anything that is not plain decimal text is returned unchanged. */
+export function trimDecimalText(text: string): string {
+  if (!/^-?\d+\.\d+$/.test(text)) return text;
+  return text.replace(/0+$/, "").replace(/\.$/, "");
+}

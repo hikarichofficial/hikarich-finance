@@ -4,9 +4,9 @@ import { useActionState, useState, type ReactNode } from "react";
 import {
   cancelTransferAction,
   confirmTransferAction,
-  idleTransferActionState,
   reverseTransferAction,
 } from "./transferActions";
+import { idleTransferActionState } from "./transferActionsState";
 
 /**
  * Transfer Detail's status actions (Step 09 §13), following the exact shape `BillActions.tsx`/

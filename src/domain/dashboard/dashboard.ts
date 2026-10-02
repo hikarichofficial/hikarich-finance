@@ -281,7 +281,7 @@ export function mergeRecentActivity(
         kind: "invoice_issued" as const,
         id: i.invoice_id,
         date: i.issue_date,
-        title: `Faktur ${i.invoice_number ?? "-"}`,
+        title: `Invoice ${i.invoice_number ?? "-"}`,
         counterparty: i.customer_name,
         amount: i.total,
         currency: i.currency,

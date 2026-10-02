@@ -1,13 +1,10 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { trimDecimalText } from "@/domain/money/format";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
-import {
-  confirmClaimAction,
-  idleInvoiceActionState,
-  markClaimDuplicateAction,
-  rejectClaimAction,
-} from "./actions";
+import { confirmClaimAction, markClaimDuplicateAction, rejectClaimAction } from "./actions";
+import { idleInvoiceActionState } from "./actionsState";
 
 export interface DuplicateClaimOption {
   id: string;
@@ -142,7 +139,7 @@ export function PaymentClaimForms({
       </label>
       <label>
         Jumlah yang Benar-benar Masuk
-        <input name="amount" required inputMode="decimal" defaultValue={amount} />
+        <input name="amount" required inputMode="decimal" defaultValue={trimDecimalText(amount)} />
       </label>
       <label>
         Catatan (opsional)

@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import { idleContactActionState, recordContactFactsAction } from "./contactActions";
+import { recordContactFactsAction } from "./contactActions";
+import { idleContactActionState } from "./contactActionsState";
 
 export interface ContactTaxFacts {
   effective_from: string;

@@ -11,7 +11,8 @@ import {
   RecurringLinesEditor,
   type RecurringLineRow,
 } from "@/features/planning/RecurringLinesEditor";
-import { createInvoiceAction, idleInvoiceActionState } from "./actions";
+import { createInvoiceAction } from "./actions";
+import { idleInvoiceActionState } from "./actionsState";
 
 /**
  * Create Invoice (Step 09 §11, decision 257): a draft through `create_invoice_draft`. Issuing (which

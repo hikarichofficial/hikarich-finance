@@ -16,7 +16,7 @@ import { formatShortDate } from "./format";
  * plain GET form filtering the rows the page already fetched, same rationale as Sales (no server-side
  * free-text index yet; Global Search is Part 4, DECISIONS 145). "Record Bill" is deferred to a later
  * increment (DECISIONS, P13 Part 3b scope) and routes through the catch-all placeholder (DECISIONS 157) for
- * now, same as Sales' "Buat Faktur". The empty state carries one CTA (Step 09 §9/§25, Step 10 §24, decision
+ * now, same as Sales' "Buat Invoice". The empty state carries one CTA (Step 09 §9/§25, Step 10 §24, decision
  * 218), the same "clear filter or reuse the header's own action" pattern `InvoicesListScreen` established.
  *
  * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5,

@@ -515,7 +515,7 @@ export async function getTaxOverview(entityId: string): Promise<TaxOverview> {
 // (decisions 161/167/170/171/172) to `public.tax_determinations`.
 
 const TAX_DETERMINATION_COLUMNS =
-  "id, entity_id, tax_kind, tax_type, source_type, source_id, event_date, tax_period, status, currency, base_amount, rate, tax_amount, direction, rules, facts, trace, components, consequence, computed_tax_amount, override_id, journal_id, confirmed, revision, supersedes_id, superseded_at, superseded_reason, created_at, updated_at";
+  "id, entity_id, tax_kind, tax_type, source_type, source_id, event_date, tax_period, status, currency, base_amount::text, rate::text, tax_amount::text, direction, rules, facts, trace, components, consequence, computed_tax_amount::text, override_id, journal_id, confirmed, revision, supersedes_id, superseded_at, superseded_reason, created_at, updated_at";
 
 /** Every determination ever made for one document, newest first -- a document can carry more than one
  * `tax_kind` at once (a bill can owe both input VAT and PPh 23 withholding), and a superseded row stays as

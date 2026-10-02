@@ -6,9 +6,9 @@ import {
   beginPeriodCloseAction,
   cancelPeriodCloseAction,
   closePeriodAction,
-  idlePeriodActionState,
   reopenPeriodAction,
 } from "./actions";
+import { idlePeriodActionState } from "./actionsState";
 
 /**
  * Accounting Periods Detail's status actions (P13, Step 09 §14), the exact same shape `JournalActions`/

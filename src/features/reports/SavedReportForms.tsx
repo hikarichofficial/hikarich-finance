@@ -3,10 +3,10 @@
 import { useActionState } from "react";
 import {
   deleteSavedReportAction,
-  idleSavedReportState,
   saveReportAction,
   type SavedReportState,
 } from "./savedReportActions";
+import { idleSavedReportState } from "./savedReportActionsState";
 
 function Result({ state }: { state: SavedReportState }) {
   if (state.status === "idle") return null;

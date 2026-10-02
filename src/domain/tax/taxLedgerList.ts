@@ -80,7 +80,7 @@ export interface TaxSourceFilterOption {
 
 export const TAX_SOURCE_FILTER_OPTIONS: readonly TaxSourceFilterOption[] = [
   { value: null, label: "Semua Sumber" },
-  { value: "invoice", label: "Faktur Penjualan" },
+  { value: "invoice", label: "Invoice Penjualan" },
   { value: "bill", label: "Tagihan Pembelian" },
   { value: "expense", label: "Beban" },
   { value: "period", label: "Masa Pajak (PPh Final UMKM)" },

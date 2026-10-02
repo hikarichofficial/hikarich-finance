@@ -17,8 +17,6 @@ export interface ProductFormState {
   message?: string;
 }
 
-export const idleProductFormState: ProductFormState = { status: "idle" };
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value : "";

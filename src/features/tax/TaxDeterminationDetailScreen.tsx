@@ -6,7 +6,7 @@ import type { TaxDeterminationRow } from "@/schemas/tax";
 import { formatShortDate } from "./format";
 
 const SOURCE_TYPE_LABELS: Readonly<Record<string, string>> = {
-  invoice: "Faktur Penjualan",
+  invoice: "Invoice Penjualan",
   bill: "Tagihan Pembelian",
   expense: "Beban",
 };

@@ -6,14 +6,16 @@ import {
   cancelInvoiceDraftAction,
   correctInvoiceAction,
   ensureInvoiceLinkAction,
-  idleCorrectInvoiceState,
-  idleInvoiceActionState,
-  idleInvoiceLinkState,
   issueInvoiceAction,
   revokeInvoiceLinkAction,
   setInvoiceLinkExpiryAction,
   voidInvoiceAction,
 } from "./actions";
+import {
+  idleCorrectInvoiceState,
+  idleInvoiceActionState,
+  idleInvoiceLinkState,
+} from "./actionsState";
 
 /**
  * Invoice Detail's status actions (Step 09 §11). Each action is its own small form so a mistaken click
@@ -32,7 +34,7 @@ function IssueForm({ invoiceId }: { invoiceId: string }) {
         </p>
       ) : null}
       <button type="submit" className="btn-primary" disabled={pending}>
-        {pending ? "Menerbitkan…" : "Terbitkan Faktur"}
+        {pending ? "Menerbitkan…" : "Terbitkan Invoice"}
       </button>
     </form>
   );
@@ -111,9 +113,9 @@ function VoidForm({ invoiceId }: { invoiceId: string }) {
       action={action}
       pending={pending}
       state={state}
-      label="Batalkan Faktur"
+      label="Batalkan Invoice"
       pendingLabel="Membatalkan…"
-      confirmHint="Faktur yang diterbitkan akan dibatalkan (void) dan jurnal pembaliknya dibuat. Tindakan ini tidak dapat diurungkan."
+      confirmHint="Invoice yang diterbitkan akan dibatalkan (void) dan jurnal pembaliknya dibuat. Tindakan ini tidak dapat diurungkan."
     />
   );
 }
@@ -222,9 +224,9 @@ function CorrectForm({ invoiceId }: { invoiceId: string }) {
       action={action}
       pending={pending}
       state={state}
-      label="Koreksi Faktur"
+      label="Koreksi Invoice"
       pendingLabel="Mengoreksi…"
-      confirmHint="Faktur ini akan dibatalkan (void) dan draf pengganti dengan isi yang sama akan dibuka untuk diedit."
+      confirmHint="Invoice ini akan dibatalkan (void) dan draf pengganti dengan isi yang sama akan dibuka untuk diedit."
     />
   );
 }

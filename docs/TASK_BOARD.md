@@ -1654,6 +1654,12 @@ decision 264.
 Decision 265: `set_category_account` and the account column on the Categories screen. Full detail in
 `docs/DECISIONS.md` decision 265.
 
+Decision 266: browser walkthrough of the write screens on the preview; fixed the server-action exports
+that broke every form, numeric reads without a text cast, four pages that failed to load, and form width
+and wording. Still open: the step-up actions (tax engine activation, override, fiscal-year close) need the
+OWNER's code to be exercised; forms lose typed values after an error. Full detail in `docs/DECISIONS.md`
+decision 266.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

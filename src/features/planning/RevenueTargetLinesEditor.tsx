@@ -2,7 +2,8 @@
 
 import { useActionState, useState } from "react";
 import type { RevenueTargetLineRow } from "@/schemas/planning";
-import { setRevenueTargetLinesAction, idlePlanningActionState } from "./actions";
+import { setRevenueTargetLinesAction } from "./actions";
+import { idlePlanningActionState } from "./actionsState";
 import { formatMonthLabel } from "./format";
 
 /**

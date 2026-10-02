@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { trimDecimalText } from "@/domain/money/format";
 
 export interface SettlementAccountOption {
   id: string;
@@ -71,7 +72,12 @@ export function SettlementForm({
       </label>
       <label>
         Jumlah
-        <input name="amount" required inputMode="decimal" defaultValue={outstanding} />
+        <input
+          name="amount"
+          required
+          inputMode="decimal"
+          defaultValue={trimDecimalText(outstanding)}
+        />
       </label>
       <label>
         Nomor Referensi / Bukti Transfer (opsional)

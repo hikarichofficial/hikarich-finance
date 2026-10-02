@@ -179,7 +179,7 @@ export function prepareInvoiceLines(
 }
 
 const MESSAGES: Readonly<Record<InvoiceLineProblem, string>> = {
-  too_many_lines: "Satu faktur maksimal 200 baris.",
+  too_many_lines: "Satu invoice maksimal 200 baris.",
   description_required: "Deskripsi baris wajib diisi (maksimal 500 karakter).",
   quantity_invalid: "Kuantitas harus lebih dari nol dengan maksimal 4 desimal.",
   price_required: "Harga satuan wajib diisi.",
@@ -189,7 +189,7 @@ const MESSAGES: Readonly<Record<InvoiceLineProblem, string>> = {
   discount_without_type: "Nilai diskon diisi tetapi jenis diskon belum dipilih.",
   discount_invalid: "Diskon tidak boleh negatif dan maksimal 4 desimal.",
   percent_over_100: "Diskon persen tidak boleh lebih dari 100.",
-  fixed_too_precise: "Diskon nominal melebihi desimal yang diizinkan mata uang faktur.",
+  fixed_too_precise: "Diskon nominal melebihi desimal yang diizinkan mata uang invoice.",
   discount_exceeds_line: "Diskon melebihi jumlah baris.",
 };
 

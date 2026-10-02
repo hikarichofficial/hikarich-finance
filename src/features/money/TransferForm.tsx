@@ -2,7 +2,8 @@
 
 import { useActionState } from "react";
 import type { MoneyControlRow } from "@/schemas/money";
-import { createTransferAction, idleTransferFormState } from "./transferActions";
+import { createTransferAction } from "./transferActions";
+import { idleTransferFormState } from "./transferActionsState";
 
 /**
  * Transfer create form (P13 Part 3c, Step 09 §13: "Transfer form clearly distinguishes same-Entity transfer

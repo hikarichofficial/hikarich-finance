@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState, useState } from "react";
-import { idleReversePaymentState, reversePaymentAction } from "./actions";
+import { reversePaymentAction } from "./actions";
+import { idleReversePaymentState } from "./actionsState";
 
 /**
  * Payment Detail's status actions. `reverse_payment` is the only lifecycle action with anything to wire up

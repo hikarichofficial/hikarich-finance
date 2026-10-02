@@ -415,7 +415,8 @@ export const periodPositionSchema = z.looseObject({
   outstanding_payable: signedDecimalTextSchema,
   accrued_asset: signedDecimalTextSchema,
   applied_asset: signedDecimalTextSchema,
-  asset_available: signedDecimalTextSchema,
+  /** `null` for a tax type that has no prepaid/credit side (the withholding types); shown as zero. */
+  asset_available: signedDecimalTextSchema.nullable().transform((value) => value ?? "0"),
   penalty_paid: signedDecimalTextSchema,
   cash_paid: signedDecimalTextSchema,
   filing_id: z.uuid().nullable(),

@@ -50,9 +50,6 @@ export interface InvoiceActionState {
   message?: string;
 }
 
-const IDLE: InvoiceActionState = { status: "idle" };
-export const idleInvoiceActionState = IDLE;
-
 function text(formData: FormData, name: string): string {
   const value = formData.get(name);
   return typeof value === "string" ? value.trim() : "";
@@ -150,7 +147,7 @@ export async function issueInvoiceAction(
   try {
     await issueInvoice({ invoice_id: invoiceId, idempotency_key: randomUUID() });
   } catch (error) {
-    return errorState(error, "Faktur tidak dapat diterbitkan.");
+    return errorState(error, "Invoice tidak dapat diterbitkan.");
   }
   revalidateInvoice(invoiceId);
   return { status: "ok" };
@@ -166,7 +163,7 @@ export async function voidInvoiceAction(
   try {
     await voidInvoice({ invoice_id: invoiceId, idempotency_key: randomUUID(), reason });
   } catch (error) {
-    return errorState(error, "Faktur tidak dapat dibatalkan.");
+    return errorState(error, "Invoice tidak dapat dibatalkan.");
   }
   revalidateInvoice(invoiceId);
   return { status: "ok" };
@@ -175,9 +172,6 @@ export async function voidInvoiceAction(
 export interface CorrectInvoiceState extends InvoiceActionState {
   newInvoiceId?: string;
 }
-
-const CORRECT_IDLE: CorrectInvoiceState = { status: "idle" };
-export const idleCorrectInvoiceState = CORRECT_IDLE;
 
 /** Correct: voids the original and opens a same-content replacement draft; returns the new draft's id. */
 export async function correctInvoiceAction(
@@ -194,7 +188,7 @@ export async function correctInvoiceAction(
       reason,
     });
   } catch (error) {
-    return errorState(error, "Faktur tidak dapat dikoreksi.");
+    return errorState(error, "Invoice tidak dapat dikoreksi.");
   }
   revalidateInvoice(invoiceId);
   revalidatePath(`/sales/invoices/${newInvoiceId}`);
@@ -206,9 +200,6 @@ export interface InvoiceLinkState {
   message?: string;
   token?: string;
 }
-
-const LINK_IDLE: InvoiceLinkState = { status: "idle" };
-export const idleInvoiceLinkState = LINK_IDLE;
 
 /** Copy Link: reuses the active public link if one exists, otherwise issues a new one (finance admin/OWNER only, DECISIONS 75). */
 export async function ensureInvoiceLinkAction(
@@ -236,9 +227,6 @@ function revalidatePayment(paymentId: string): void {
   revalidatePath("/sales/refunds");
   revalidatePath(`/sales/payments/${paymentId}`);
 }
-
-const REVERSE_PAYMENT_IDLE: InvoiceActionState = { status: "idle" };
-export const idleReversePaymentState = REVERSE_PAYMENT_IDLE;
 
 /** Reverse Payment (Payment Detail, unbuilt-screens backlog): the RPC itself is gated on
  * `invoices.confirm_payment` (there is no separate `payments.reverse` key) and refuses a payment that

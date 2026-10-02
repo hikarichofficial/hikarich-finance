@@ -70,7 +70,7 @@ export function InvoiceDocumentView({
   return (
     <article
       className="doc"
-      aria-label={`Faktur ${doc.invoice_number ?? ""}`}
+      aria-label={`Invoice ${doc.invoice_number ?? ""}`}
       data-watermark={doc.status === "void" ? "void" : undefined}
     >
       <header className="doc-head">
@@ -87,7 +87,7 @@ export function InvoiceDocumentView({
             ))}
         </div>
         <div className="doc-title">
-          <p className="doc-kind">FAKTUR</p>
+          <p className="doc-kind">INVOICE</p>
           <p className="doc-number">{doc.invoice_number ?? "—"}</p>
           <span className={`doc-status doc-status-${status.tone}`}>{status.text}</span>
         </div>
@@ -108,7 +108,7 @@ export function InvoiceDocumentView({
           ))}
         </div>
         <dl>
-          <dt>Tanggal faktur</dt>
+          <dt>Tanggal invoice</dt>
           <dd>{formatDocumentDate(doc.issue_date)}</dd>
           <dt>Jatuh tempo</dt>
           <dd>{formatDocumentDate(doc.due_date)}</dd>

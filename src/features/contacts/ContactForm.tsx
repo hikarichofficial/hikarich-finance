@@ -1,7 +1,8 @@
 "use client";
 
 import { useActionState } from "react";
-import { createContactAction, idleContactActionState } from "./contactActions";
+import { createContactAction } from "./contactActions";
+import { idleContactActionState } from "./contactActionsState";
 
 /**
  * Add Customer / Add Vendor (Step 09 §11/§12, decision 258) through `create_contact`. The database refuses
