@@ -34,8 +34,8 @@ workflow: no mandatory reviewer count; OWNER bypass is exceptional (Step 14 §11
   (`YYYYMMDDHHMMSS_snake_case.sql`), forward-only, never edited after being applied to production.
 - Every migration is rebuilt from scratch twice in CI (`scripts/db-test.sh`) and must pass the
   invariants in `supabase/tests`.
-- Production migrations run through the controlled Git-connected/CI path, not casual local pushes
-  **(not yet implemented — P14/P15)**.
+- Production migrations run through the controlled Git-connected/CI path, not casual local pushes:
+  `.github/workflows/production-migrations.yml` (decision 272, `docs/GO_LIVE.md`).
 - Rollback: code rollback where safe; forward-fix migration for irreversible schema changes;
   restore only for genuine recovery.
 

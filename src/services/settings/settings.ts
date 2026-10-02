@@ -3,7 +3,9 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import {
   approvalRuleListSchema,
+  entityIdentityInputSchema,
   entityTimeSettingsInputSchema,
+  type EntityIdentityInput,
   type EntityTimeSettingsInput,
   entityProfileRowSchema,
   entitySettingListSchema,
@@ -148,6 +150,34 @@ export async function updateEntityTimeSettings(input: EntityTimeSettingsInput): 
     const code = parseAuthzCode(error.message);
     if (code) throw new AuthzError(code, error.message);
     throw new Error("Pengaturan tidak dapat disimpan.");
+  }
+  if (typeof data !== "number") throw new Error("Respons pengaturan tidak dikenali.");
+  return data;
+}
+
+/** Changes the Entity's names, address and contact details (decision 272) through
+ * `update_entity_identity`, which checks `system.entity_config`, a recent step-up and the version, and
+ * audits the change. Returns the Entity version afterwards. */
+export async function updateEntityIdentity(input: EntityIdentityInput): Promise<number> {
+  const v = entityIdentityInputSchema.parse(input);
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("update_entity_identity", {
+    p_entity: v.entity_id,
+    p_legal_name: v.legal_name,
+    p_brand_name: v.brand_name,
+    p_address_line: v.address_line,
+    p_city: v.city,
+    p_province: v.province,
+    p_postal_code: v.postal_code,
+    p_contact_email: v.contact_email,
+    p_contact_phone: v.contact_phone,
+    p_website: v.website,
+    p_expected_version: v.expected_version,
+  });
+  if (error) {
+    const code = parseAuthzCode(error.message);
+    if (code) throw new AuthzError(code, error.message);
+    throw new Error("Profil tidak dapat disimpan.");
   }
   if (typeof data !== "number") throw new Error("Respons pengaturan tidak dikenali.");
   return data;

@@ -1,0 +1,57 @@
+name: Production migrations
+
+# Applies supabase/migrations to the PRODUCTION database (Step 14 §6: only migrations change the
+# production schema, through the controlled Git-connected path). The files are sent byte for byte by the
+# Supabase CLI and recorded in the database's own migration history, so a migration is applied once, in
+# order, and never by hand.
+#
+# Runs when a merge to main changes a migration, and on demand ("Run workflow"). main is protected: a
+# migration reaches it only through a pull request whose CI rebuilt the whole database from scratch.
+#
+# Needs two repository secrets, typed by the OWNER in GitHub (never in code, chat or a file):
+#   SUPABASE_ACCESS_TOKEN  a personal access token of the Supabase account
+#   SUPABASE_DB_PASSWORD   the database password of the production project
+# The seed file is never applied here; it is synthetic data for non-production only.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - "supabase/migrations/**"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-migrations
+  cancel-in-progress: false
+
+jobs:
+  migrate:
+    name: Apply migrations to production
+    runs-on: ubuntu-latest
+    env:
+      SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      SUPABASE_DB_PASSWORD: ${{ secrets.SUPABASE_DB_PASSWORD }}
+      # Not a secret: the project reference is part of the public project URL.
+      PRODUCTION_PROJECT_REF: yvuakaxwgwfjyvjmvpbn
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check that the secrets are set
+        run: |
+          if [ -z "$SUPABASE_ACCESS_TOKEN" ] || [ -z "$SUPABASE_DB_PASSWORD" ]; then
+            echo "::error::SUPABASE_ACCESS_TOKEN and SUPABASE_DB_PASSWORD must be set as repository secrets (see docs/GO_LIVE.md)."
+            exit 1
+          fi
+      - uses: supabase/setup-cli@v1
+        with:
+          version: latest
+      - name: Link the production project
+        run: supabase link --project-ref "$PRODUCTION_PROJECT_REF"
+      - name: Show what would be applied
+        run: supabase db push --dry-run
+      - name: Apply
+        run: supabase db push --yes
+      - name: Migration history after the run
+        run: supabase migration list

@@ -23,7 +23,7 @@ Status values: Not Started / In Progress / Implemented / Verified.
 | P12   | Reports                           | P11          | Statement equations and reconciliations pass                       | In Progress |
 | P13   | Dashboard / UX Completion         | P12          | KPI equals its source report                                       | In Progress |
 | P14   | Security / Performance / Recovery | P13          | Step 15 / Step 16 incl. backup export and restore drill            | In Progress |
-| P15   | Production Launch                 | P14          | Step 15 / Step 16; taxpayer facts and OWNER sign-off               | Not Started |
+| P15   | Production Launch                 | P14          | Step 15 / Step 16; taxpayer facts and OWNER sign-off               | In Progress |
 
 ## P0 checklist (Step 15 §4)
 
@@ -1679,6 +1679,10 @@ decision 270.
 
 Decision 271: the database's refusal reasons are shown in Indonesian (`translateReason`, 852 templates).
 Full detail in `docs/DECISIONS.md` decision 271.
+
+Decision 272 (P15 started): production migrations workflow, `docs/GO_LIVE.md`, and `update_entity_identity`
+with its Settings form. Waiting on the OWNER: the two GitHub secrets and the production user. Full detail
+in `docs/DECISIONS.md` decision 272.
 
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`

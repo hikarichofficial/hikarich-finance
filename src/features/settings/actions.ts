@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { isFiscalYearLockedMessage } from "@/domain/settings/settings";
 import { requirePermission } from "@/services/identity/access";
-import { updateEntityTimeSettings } from "@/services/settings/settings";
+import { updateEntityIdentity, updateEntityTimeSettings } from "@/services/settings/settings";
 
 /** Settings write (decision 248): the Entity's timezone and fiscal-year start. The RPC re-checks the
  * permission, step-up, reason, version and the fiscal-year lock. */
@@ -56,4 +56,41 @@ export async function updateTimeSettingsAction(
   }
   revalidatePath("/admin/settings");
   return { status: "ok", message: "Zona waktu dan tahun buku disimpan." };
+}
+
+/** Settings write (decision 272): the Entity's names, address and contact details. The RPC re-checks the
+ * permission, step-up and version. Issued documents keep the name they were issued with. */
+export async function updateEntityIdentityAction(
+  _previous: TimeSettingsState,
+  formData: FormData,
+): Promise<TimeSettingsState> {
+  try {
+    const { membership } = await requirePermission("system.entity_config", {
+      entityCode: text(formData, "entity"),
+    });
+    await updateEntityIdentity({
+      entity_id: membership.entity_id,
+      legal_name: text(formData, "legal_name"),
+      brand_name: text(formData, "brand_name"),
+      address_line: text(formData, "address_line"),
+      city: text(formData, "city"),
+      province: text(formData, "province"),
+      postal_code: text(formData, "postal_code"),
+      contact_email: text(formData, "contact_email"),
+      contact_phone: text(formData, "contact_phone"),
+      website: text(formData, "website"),
+      expected_version: Number(text(formData, "expected_version")),
+    });
+  } catch (error) {
+    if (error instanceof AuthzError) {
+      return {
+        status: "error",
+        message: describeAuthzError(error),
+        stepUp: error.code === "STEP_UP_REQUIRED",
+      };
+    }
+    return { status: "error", message: "Profil tidak dapat disimpan. Periksa nama dan email." };
+  }
+  revalidatePath("/", "layout");
+  return { status: "ok", message: "Nama dan profil disimpan." };
 }

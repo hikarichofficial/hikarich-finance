@@ -1280,6 +1280,23 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- P15 start: production migrations through GitHub, and editable Entity names (decision 272).
+  1. OWNER: "buat otomatisasi itu". `.github/workflows/production-migrations.yml` applies
+     `supabase/migrations` to the production project with the Supabase CLI when a merge to `main` changes
+     a migration, and on demand. It needs two repository secrets the OWNER types in GitHub
+     (`SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`); the seed file is never applied. Chosen over
+     applying the SQL by hand because the files are sent byte for byte and the history is recorded.
+     State found before this: the production database had no migration at all, the production deployment
+     existed, no custom domain (the OWNER has not bought one; `hikarich-finance.vercel.app` is used).
+  2. OWNER: "pastikan bahwa semua bisa diubah dan diedit diganti namanya". New
+     `update_entity_identity` (`system.entity_config`, step-up, version check, audited) changes the legal
+     name, brand, address and contact details from Settings. Issued documents keep their own snapshot.
+     The Entity code and type stay fixed. Migration `20261003120000_p15_entity_identity.sql`; test
+     `99_p15_1_entity_identity.sql`. Creating a further Entity is still an administrator step.
+  3. Facts from the OWNER for P15: the PT (PT Hikarich Kitana Digital, brand Kamar Kajian Market) was
+     registered in September 2026; the personal business (Hikarich) is ordinary trade and services, not
+     "pekerjaan bebas". The procedure is in `docs/GO_LIVE.md`.
+
 - Refusal reasons in Indonesian (decision 271). The database raises `INVALID:` / `CONFLICT:` reasons in
   English; decision 267 made every form show them. `src/domain/authz/reasonTranslations.json` now holds
   the 852 distinct reason templates found in the migrations with an Indonesian text each (`{1}`, `{2}`

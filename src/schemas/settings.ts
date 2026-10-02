@@ -103,3 +103,20 @@ export const entityTimeSettingsInputSchema = z.object({
   reason: z.string().trim().min(5).max(500),
 });
 export type EntityTimeSettingsInput = z.infer<typeof entityTimeSettingsInputSchema>;
+
+/** Input of `update_entity_identity` (decision 272): the Entity's names, address and contact details.
+ * Empty text clears an optional field; the database validates lengths and the email again. */
+export const entityIdentityInputSchema = z.object({
+  entity_id: z.uuid(),
+  legal_name: z.string().trim().min(1).max(200),
+  brand_name: z.string().trim().max(200),
+  address_line: z.string().trim().max(300),
+  city: z.string().trim().max(100),
+  province: z.string().trim().max(100),
+  postal_code: z.string().trim().max(20),
+  contact_email: z.string().trim().max(200),
+  contact_phone: z.string().trim().max(40),
+  website: z.string().trim().max(200),
+  expected_version: z.coerce.number().int().positive(),
+});
+export type EntityIdentityInput = z.infer<typeof entityIdentityInputSchema>;

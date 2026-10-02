@@ -40,10 +40,13 @@ export function SettingsScreen({
   overview,
   exampleYear,
   timeSettingsEditor,
+  identityEditor,
 }: {
   overview: EntitySettingsOverview;
   exampleYear: number;
   timeSettingsEditor?: ReactNode;
+  /** The names/address form, for holders of `system.entity_config` (decision 272). */
+  identityEditor?: ReactNode;
 }) {
   const { entity, profile, numbering, approvalRules, roleNames, settings } = overview;
   const address = profile
@@ -90,6 +93,15 @@ export function SettingsScreen({
           <Field label="Situs Web" value={profile?.website} />
         </dl>
       </section>
+
+      {identityEditor ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Ubah Nama &amp; Profil</h2>
+          </div>
+          {identityEditor}
+        </section>
+      ) : null}
 
       {timeSettingsEditor ? (
         <section className="dashboard-section">
