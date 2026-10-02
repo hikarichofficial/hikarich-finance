@@ -82,7 +82,10 @@ export function BillDetailScreen({
       <BillActions billId={bill.id} status={bill.status} permissions={permissions} />
       {bill.status === "draft" && permissions.canEdit ? (
         <p>
-          <Link href={`${backHref.split("?")[0]}/${bill.id}/edit${editQuery}`} className="btn-secondary">
+          <Link
+            href={`${backHref.split("?")[0]}/${bill.id}/edit${editQuery}`}
+            className="btn-secondary"
+          >
             Ubah Draf
           </Link>
         </p>

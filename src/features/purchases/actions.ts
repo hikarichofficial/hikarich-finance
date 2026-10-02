@@ -98,17 +98,17 @@ export async function createBillAction(
       });
       revalidateBill(billId);
     } else {
-    const { membership } = await requirePermission("bills.create", { entityCode: entity });
-    billId = await createBillDraft({
-      entity_id: membership.entity_id,
-      idempotency_key: randomUUID(),
-      vendor_id: text(formData, "vendor_id"),
-      bill_date: text(formData, "bill_date"),
-      due_date: text(formData, "due_date"),
-      vendor_reference: text(formData, "vendor_reference") || undefined,
-      notes: text(formData, "notes") || undefined,
-      lines: lines as never,
-    });
+      const { membership } = await requirePermission("bills.create", { entityCode: entity });
+      billId = await createBillDraft({
+        entity_id: membership.entity_id,
+        idempotency_key: randomUUID(),
+        vendor_id: text(formData, "vendor_id"),
+        bill_date: text(formData, "bill_date"),
+        due_date: text(formData, "due_date"),
+        vendor_reference: text(formData, "vendor_reference") || undefined,
+        notes: text(formData, "notes") || undefined,
+        lines: lines as never,
+      });
     }
   } catch (error) {
     return draftErrorState(

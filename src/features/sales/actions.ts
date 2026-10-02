@@ -110,18 +110,18 @@ export async function createInvoiceAction(
       });
       revalidateInvoice(invoiceId);
     } else {
-    const { membership } = await requirePermission("invoices.create", { entityCode: entity });
-    invoiceId = await createInvoiceDraft({
-      entity_id: membership.entity_id,
-      idempotency_key: randomUUID(),
-      customer_id: text(formData, "customer_id"),
-      issue_date: text(formData, "issue_date"),
-      due_date: text(formData, "due_date"),
-      payment_account_id: text(formData, "payment_account_id") || undefined,
-      notes: text(formData, "notes") || undefined,
-      terms: text(formData, "terms") || undefined,
-      lines: lines as never,
-    });
+      const { membership } = await requirePermission("invoices.create", { entityCode: entity });
+      invoiceId = await createInvoiceDraft({
+        entity_id: membership.entity_id,
+        idempotency_key: randomUUID(),
+        customer_id: text(formData, "customer_id"),
+        issue_date: text(formData, "issue_date"),
+        due_date: text(formData, "due_date"),
+        payment_account_id: text(formData, "payment_account_id") || undefined,
+        notes: text(formData, "notes") || undefined,
+        terms: text(formData, "terms") || undefined,
+        lines: lines as never,
+      });
     }
   } catch (error) {
     return draftErrorState(
