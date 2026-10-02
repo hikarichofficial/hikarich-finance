@@ -229,7 +229,35 @@ begin
   v_id := public.create_bill_draft(pt, 'key-p7e-b-06', test_helpers.eg('vnres'), v_today - 20, v_today + 10,
     jsonb_build_array(jsonb_build_object('description', 'Rent', 'unit_price', '1000000', 'wht_object', 'wht_rent_movable')));
   e := public.tax_preview_document('bill', v_id);
-  perform test_helpers.assert(e ->> 'status' = 'needs_review' and e -> 'reasons' ->> 0 like '%non-resident%', '2.12 a non-resident payee: review');
+  perform test_helpers.assert(e ->> 'status' = 'auto_determined' and (test_helpers.res(e, 'wht_pph26') ->> 'tax')::numeric = 200000
+    and test_helpers.res(e, 'wht_pph26') -> 'rules' -> 0 ->> 'code' = 'PPH26_RATE_20' and test_helpers.res(e, 'wht_pph23') is null
+    and (e ->> 'withheld_total')::numeric = 200000,
+    '2.12 a non-resident payee: PPh 26 at 20% of the gross amount, whatever the object (decision 256)');
+  -- 2.12b-2.12e rent of land or a building is the final PPh 4(2), not PPh 23 (decision 256)
+  v_id := public.create_bill_draft(pt, 'key-p7e-b-06b', test_helpers.eg('vco'), v_today - 20, v_today + 10,
+    jsonb_build_array(jsonb_build_object('description', 'Office rent', 'unit_price', '12000000', 'wht_object', 'wht_rent_land_building'),
+                      jsonb_build_object('description', 'Consulting', 'unit_price', '5000000', 'wht_object', 'wht_service_consulting')));
+  e := public.tax_preview_document('bill', v_id);
+  perform test_helpers.assert(e ->> 'status' = 'auto_determined' and (test_helpers.res(e, 'wht_pph4_2') ->> 'tax')::numeric = 1200000
+    and (test_helpers.res(e, 'wht_pph4_2') ->> 'base')::numeric = 12000000
+    and test_helpers.res(e, 'wht_pph4_2') -> 'rules' -> 0 ->> 'code' = 'PPH4_2_RENT_LAND_BUILDING'
+    and (test_helpers.res(e, 'wht_pph23') ->> 'tax')::numeric = 100000 and (e ->> 'withheld_total')::numeric = 1300000,
+    '2.12b one bill, two withholdings: 10% PPh 4(2) on the office rent and 2% PPh 23 on the service');
+  v_id := public.create_bill_draft(pt, 'key-p7e-b-06c', test_helpers.eg('vnp'), v_today - 20, v_today + 10,
+    jsonb_build_array(jsonb_build_object('description', 'Shop rent', 'unit_price', '1000000', 'wht_object', 'wht_rent_land_building')));
+  e := public.tax_preview_document('bill', v_id);
+  perform test_helpers.assert((test_helpers.res(e, 'wht_pph4_2') ->> 'tax')::numeric = 100000 and test_helpers.res(e, 'wht_pph23') is null,
+    '2.12c PPh 4(2) is not doubled for a lessor without a tax number, and no empty PPh 23 result is added');
+  v_id := public.create_bill_draft(pt, 'key-p7e-b-06d', test_helpers.eg('vskb'), v_today - 20, v_today + 10,
+    jsonb_build_array(jsonb_build_object('description', 'Shop rent', 'unit_price', '1000000', 'wht_object', 'wht_rent_land_building')));
+  e := public.tax_preview_document('bill', v_id);
+  perform test_helpers.assert((test_helpers.res(e, 'wht_pph4_2') ->> 'tax')::numeric = 100000,
+    '2.12d a PPh 23 exemption certificate does not remove the final tax on rent of a building');
+  v_id := public.create_bill_draft(pt, 'key-p7e-b-06e', test_helpers.eg('vnof'), v_today - 20, v_today + 10,
+    jsonb_build_array(jsonb_build_object('description', 'Shop rent', 'unit_price', '1000000', 'wht_object', 'wht_rent_land_building')));
+  e := public.tax_preview_document('bill', v_id);
+  perform test_helpers.assert(e ->> 'status' = 'needs_review' and test_helpers.res(e, 'wht_pph4_2') ->> 'status' = 'needs_review'
+    and e -> 'reasons' ->> 0 like '%No tax facts%', '2.12e missing payee facts still go to review, on the PPh 4(2) result');
   v_id := public.create_bill_draft(pt, 'key-p7e-b-07', test_helpers.eg('vco'), v_today - 20, v_today + 10,
     jsonb_build_array(jsonb_build_object('description', 'Things', 'unit_price', '1000000')));
   e := public.tax_preview_document('bill', v_id);
@@ -1473,6 +1501,68 @@ begin
   perform test_helpers.assert(exists (select 1 from public.period_close_checks(v_period) where code = 'tax_ledger_mismatch' and severity = 'blocker'),
     '10.22 a difference between the tax ledger and the General Ledger blocks the period close');
   perform test_helpers.logout();
+end
+$$;
+
+-- ================================================================ 11. PPh 4(2) and PPh 26 run through the same machinery (decision 256)
+do $$
+declare
+  pt uuid := test_helpers.entity('p7e_pt');
+  v_owner uuid := 'e0000000-0000-0000-0000-000000000001';
+  v_taxer uuid := 'e0000000-0000-0000-0000-000000000003';
+  v_today date := test_helpers.today(pt);
+  v_period date;
+  v_id uuid;
+  v_pay uuid;
+  b public.bills%rowtype;
+begin
+  perform test_helpers.login(v_owner);
+  v_id := public.create_bill_draft(pt, 'key-p7e-b-42', test_helpers.eg('vco'), v_today - 20, v_today + 10,
+    jsonb_build_array(jsonb_build_object('description', 'Office rent', 'unit_price', '6000000', 'wht_object', 'wht_rent_land_building')));
+  perform public.submit_bill(v_id, 'key-p7e-sb-42');
+  perform public.approve_bill(v_id, 'key-p7e-ab-42');
+  perform test_helpers.logout();
+  select * into b from public.bills where id = v_id;
+  v_period := date_trunc('month', b.bill_date)::date;
+  perform test_helpers.assert(b.status = 'approved' and b.withheld_total = 600000 and b.base_total = 5400000
+    and test_helpers.jc7(b.journal_id, 'TAX_PAYABLE') = 600000 and test_helpers.jc7(b.journal_id, 'ACCOUNTS_PAYABLE') = 5400000,
+    '11.1 the office rent is booked gross; the lessor is owed the amount net of the 10% withheld');
+  perform test_helpers.assert((select count(*) from public.tax_determinations where source_id = b.id and superseded_at is null) = 1
+    and (select tax_type = 'wht_pph4_2' and tax_amount = 600000 and direction = 'payable' from public.tax_determinations where source_id = b.id)
+    and (select sum(amount) from public.tax_ledger_entries where journal_id = b.journal_id and tax_type = 'wht_pph4_2') = 600000,
+    '11.2 one determination and one tax-ledger entry, of the type PPh 4(2)');
+  perform test_helpers.assert((select description from public.journal_lines where journal_id = b.journal_id and description like 'Income tax withheld:%' limit 1) is not null,
+    '11.3 the journal line no longer names PPh 23 for every withholding');
+
+  perform test_helpers.login(v_taxer);
+  perform test_helpers.assert(public.tax_period_position(pt, 'wht_pph4_2', v_period) ->> 'outstanding_payable' = '600000'
+    and public.tax_overview(pt) -> 'outstanding' ->> 'wht_pph4_2' = '600000'
+    and public.tax_overview(pt) -> 'outstanding' ->> 'wht_pph26' = '0',
+    '11.4 the period position and the overview show the PPh 4(2) owed');
+  perform test_helpers.assert(exists (select 1 from public.tax_calendar(pt, v_period, v_period) c
+      where c.tax_type = 'wht_pph4_2' and c.step = 'pay' and c.rule_code = 'DEADLINE_PPH4_2'
+        and c.due_date = (v_period + interval '1 month' + interval '14 days')::date and c.outstanding = '600000'),
+    '11.5 the calendar asks for the payment by the 15th of the following month (PMK 81/2024)');
+  v_pay := public.tax_record_payment(pt, 'key-p7e-tp-42', 'wht_pph4_2', v_period, v_today, test_helpers.eg('bca'), '600000', '0', '0', 'NTPN-0042', 'PPh 4(2) sewa kantor');
+  perform test_helpers.assert(public.tax_period_position(pt, 'wht_pph4_2', v_period) ->> 'outstanding_payable' = '0'
+    and (select j.description like '%PPh 4(2)%' from public.tax_payments p join public.journal_entries j on j.id = p.journal_id where p.id = v_pay),
+    '11.6 the payment settles the period and is labelled PPh 4(2)');
+  perform test_helpers.expect_msg(format($q$select public.tax_record_payment(%L, 'key-p7e-tp-43', 'wht_pph99', %L, %L, %L, '1', '0', '0', 'x', 'y')$q$,
+    pt, v_period, v_today, test_helpers.eg('bca')), 'INVALID: unknown tax type', '11.7 an unknown tax type is refused');
+  perform test_helpers.logout();
+
+  -- 11.8 the deadline correction: PPh 21 and PPh 23 are paid by the 15th under the rule now in force
+  perform test_helpers.assert((app_private.tax_rule_at('DEADLINE_PPH21', date '2026-10-31')).params -> 'payment' ->> 'day' = '15'
+    and (app_private.tax_rule_at('DEADLINE_PPH23', date '2026-10-31')).params -> 'payment' ->> 'day' = '15'
+    and (app_private.tax_rule_at('DEADLINE_PPH23', date '2026-09-30')).params -> 'payment' ->> 'day' = '10',
+    '11.8 the corrected deadline versions apply from their effective date; earlier periods keep the version they had');
+  -- 11.9 the rule master accepts the two families and still refuses a rule without objects
+  perform test_helpers.assert(app_private.tax_rule_params_problem('pph4_2',
+      '{"rate":"0.10","objects":["wht_rent_land_building"],"rounding":{"mode":"half_up","scale":0}}'::jsonb) is null
+    and app_private.tax_rule_params_problem('pph26', '{"rate":"0.20","rounding":{"mode":"half_up","scale":0}}'::jsonb) like 'objects must%'
+    and app_private.tax_rule_params_problem('pph23',
+      '{"rate":"0.02","objects":["wht_rent_movable"],"rounding":{"mode":"half_up","scale":0}}'::jsonb) like 'non_npwp_multiplier%',
+    '11.9 rule validation: PPh 4(2) and PPh 26 need a rate and objects; only PPh 23 needs the no-tax-number multiplier');
 end
 $$;
 

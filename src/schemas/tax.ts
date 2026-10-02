@@ -20,11 +20,20 @@ export const taxPeriodSchema = isoDateSchema.refine((v) => v.endsWith("-01"), {
   message: "Masa pajak adalah tanggal 1 pada bulan yang bersangkutan",
 });
 
-export const taxTypeSchema = z.enum(["vat", "wht_pph23", "wht_pph21", "final_umkm"]);
+export const taxTypeSchema = z.enum([
+  "vat",
+  "wht_pph23",
+  "wht_pph4_2",
+  "wht_pph26",
+  "wht_pph21",
+  "final_umkm",
+]);
 export const taxKindSchema = z.enum([
   "vat_output",
   "vat_input",
   "wht_pph23",
+  "wht_pph4_2",
+  "wht_pph26",
   "wht_pph21",
   "final_umkm",
 ]);
@@ -42,6 +51,7 @@ export const vatTreatmentSchema = z.enum([
 export const whtObjectSchema = z.enum([
   "wht_none",
   "wht_rent_movable",
+  "wht_rent_land_building",
   "wht_service_technical",
   "wht_service_management",
   "wht_service_construction",

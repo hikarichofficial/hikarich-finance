@@ -13,6 +13,7 @@ import {
   isTaxPeriodStart,
   outstandingTax,
   resolveFilingTaxType,
+  resolveWithholdingTaxType,
   resolveTaxPeriod,
   taxPaymentCash,
   taxPeriodLabel,
@@ -75,6 +76,18 @@ describe("resolveFilingTaxType", () => {
     expect(resolveFilingTaxType("vat")).toBe("vat");
     expect(resolveFilingTaxType("wht_pph23")).toBe("wht_pph23");
     expect(resolveFilingTaxType("final_umkm")).toBe("final_umkm");
+  });
+
+  it("offers PPh 4(2) and PPh 26 for filing (decision 256)", () => {
+    expect(resolveFilingTaxType("wht_pph4_2")).toBe("wht_pph4_2");
+    expect(resolveFilingTaxType("wht_pph26")).toBe("wht_pph26");
+  });
+
+  it("resolves the withholding screen's tax type, defaulting to PPh 23", () => {
+    expect(resolveWithholdingTaxType("wht_pph4_2")).toBe("wht_pph4_2");
+    expect(resolveWithholdingTaxType("wht_pph26")).toBe("wht_pph26");
+    expect(resolveWithholdingTaxType("vat")).toBe("wht_pph23");
+    expect(resolveWithholdingTaxType(undefined)).toBe("wht_pph23");
   });
 
   it("falls back to vat for wht_pph21 (settled through Payroll's own tax ledger instead)", () => {
@@ -169,6 +182,8 @@ describe("tax vocabulary", () => {
       "vat",
       "wht_pph21",
       "wht_pph23",
+      "wht_pph26",
+      "wht_pph4_2",
     ]);
     expect(Object.keys(TAX_KIND_LABELS).sort()).toEqual([
       "final_umkm",
@@ -176,6 +191,8 @@ describe("tax vocabulary", () => {
       "vat_output",
       "wht_pph21",
       "wht_pph23",
+      "wht_pph26",
+      "wht_pph4_2",
     ]);
     expect(Object.keys(CALENDAR_STEP_LABELS).sort()).toEqual([
       "calculate",

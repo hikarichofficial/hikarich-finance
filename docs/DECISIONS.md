@@ -316,8 +316,9 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
     billion test aggregates the turnover of husband, wife, minor children and every Perseroan Perorangan
     they founded; the engine has no such aggregation yet beyond `aggregation_status`.
   - Not in the master and not computed by the engine: corporate income tax (Pasal 17/31E, PPh 25/29),
-    PPh 4(2), PPh 26, PPh 21 for non-employees, marketplace PPh 22 (from 1 Nov 2026), annual SPT
-    deadlines. Adding any of these is new engine scope and an OWNER decision.
+    PPh 21 for non-employees, marketplace PPh 22 (PMK 37/2025), annual SPT deadlines. PPh 4(2) on rent
+    and PPh 26 were added and the deadline correction published in decision 256; marketplace PPh 22 is
+    approved by the OWNER and is the next engine slice.
 - Forecast projection methodology decided by the OWNER (decision 250, answers decision 139). Confirm the "Committed" reading for budgets (decision 138) is what was intended.
 - Recurring rule / budget / revenue target screens (decisions 134-139) are now fully shipped (decisions 183-188), including Recurring Rule's own create/edit template builder (decision 188). The template builder's v1 line editor deliberately leaves every optional tax/discount/product-linkage field (`vat_treatment`, `discount_type`, `wht_object`, `tax_amount`, `product_id`, an account-linked line) unexposed in the UI (decision 188); OWNER to confirm whether a future increment should expose them or whether the defaulted-at-generation behavior is acceptable long-term.
 - Documents Center, Import Wizard and Command Menu screens (decisions 140-146) are a later slice (P13), like every other phase's screens; the download route's signed-URL generation needs Supabase Storage configured, which is an infrastructure step outside this repository's migrations.
@@ -1278,6 +1279,28 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   labels. Found while testing: a submenu item without its own permission made its menu appear for
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
+
+- PPh 4(2), PPh 26 and the deadline correction (decision 256, OWNER instruction "kerjakan sekarang" and
+  "langsung saja ubah dan buatkan terverifikasinya"). (1) Two more withholdings run through the same P7
+  machinery as PPh 23 (determination, tax ledger, payment, filing, reconciliation, calendar) as the tax
+  types `wht_pph4_2` and `wht_pph26`. Which tax applies is decided from facts, per Step 05 §10: a
+  non-resident payee means PPh 26 on every withholding object; a resident payee means PPh 4(2) when the
+  object is covered by a PPh 4(2) rule (the new object `wht_rent_land_building`), otherwise PPh 23. One
+  bill can carry several withholdings; `withheld_total` is their sum. (2) New published rules:
+  `PPH4_2_RENT_LAND_BUILDING` (10% of the gross rent, PP 34/2017; not doubled without a tax number; a
+  PPh 23 exemption certificate does not remove it), `PPH26_RATE_20` (20% of the gross amount, UU PPh
+  Pasal 26), `DEADLINE_PPH4_2` and `DEADLINE_PPH26` (pay by the 15th, report by the 20th). A tax-treaty
+  rate is never guessed: it is entered as an override of the PPh 26 result with the DGT form as evidence.
+  Foreign-currency documents still go to review. (3) `DEADLINE_PPH21` version 2 (from 2025-01-01) and
+  `DEADLINE_PPH23` version 2 (from 2026-10-01, because version 1 is already published for 2026-01-01)
+  move the payment deadline to the 15th (PMK 81/2024 Pasal 94); earlier periods keep the version they
+  had. On the non-production database the two drafts were marked verified and published through the rule
+  master commands; the migration carries the same versions to every other database. (4) The long P7/P9
+  commands are patched in place by the migration (one list or label each, exact-match or the migration
+  fails) instead of being restated. (5) Found while building: the app has no Create Bill and no Create
+  Invoice screen yet (only the services), and the expense form has no tax fields, so a withholding object
+  cannot be chosen from the screen today; this is the next slice. Not tax advice; the OWNER's tax
+  consultant confirms the baseline before production (P15).
 
 - Sidebar follow-ups (decision 255, OWNER walkthrough feedback). (1) "Saldo Kas & Bank" under
   Ringkasan now has its own page, `/cash-snapshot` (total active balance, each active account's balance

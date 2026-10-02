@@ -8,13 +8,23 @@ import { Decimal } from "@/domain/money/decimal";
  */
 
 // ---- vocabulary
-export type TaxType = "vat" | "wht_pph23" | "wht_pph21" | "final_umkm";
-export type TaxKind = "vat_output" | "vat_input" | "wht_pph23" | "wht_pph21" | "final_umkm";
+export type TaxType =
+  "vat" | "wht_pph23" | "wht_pph4_2" | "wht_pph26" | "wht_pph21" | "final_umkm";
+export type TaxKind =
+  | "vat_output"
+  | "vat_input"
+  | "wht_pph23"
+  | "wht_pph4_2"
+  | "wht_pph26"
+  | "wht_pph21"
+  | "final_umkm";
 export type TaxDirection = "payable" | "asset";
 
 export const TAX_TYPE_LABELS: Readonly<Record<TaxType, string>> = {
   vat: "PPN",
   wht_pph23: "PPh 23 (dipotong)",
+  wht_pph4_2: "PPh 4(2) sewa tanah/bangunan",
+  wht_pph26: "PPh 26 (luar negeri)",
   wht_pph21: "PPh 21 (karyawan)",
   final_umkm: "PPh Final UMKM",
 };
@@ -23,6 +33,8 @@ export const TAX_KIND_LABELS: Readonly<Record<TaxKind, string>> = {
   vat_output: "PPN keluaran",
   vat_input: "PPN masukan",
   wht_pph23: "PPh 23 dipotong",
+  wht_pph4_2: "PPh 4(2) dipotong",
+  wht_pph26: "PPh 26 dipotong",
   wht_pph21: "PPh 21 karyawan",
   final_umkm: "PPh Final UMKM",
 };
@@ -319,16 +331,39 @@ export function outstandingTax(accrued: string, paid: string): Decimal {
 }
 
 // ---- Filing & Evidence (P13 unbuilt-screens backlog, decision 238)
-/** The three types `tax_record_payment`/`tax_record_filing`/`tax_reconcile_period` accept -- `wht_pph21` (the
- * employee-withholding type) is settled through Payroll's own tax ledger instead, never through this screen. */
-export type FilingTaxType = "vat" | "wht_pph23" | "final_umkm";
-export const FILING_TAX_TYPES: readonly FilingTaxType[] = ["vat", "wht_pph23", "final_umkm"];
+/** The types the Filing & Evidence screen offers for `tax_record_payment`/`tax_record_filing`/
+ * `tax_reconcile_period` -- `wht_pph21` (the employee-withholding type) is settled through Payroll's own tax
+ * ledger instead, never through this screen. PPh 4(2) and PPh 26 joined in decision 256. */
+export type FilingTaxType = "vat" | "wht_pph23" | "wht_pph4_2" | "wht_pph26" | "final_umkm";
+export const FILING_TAX_TYPES: readonly FilingTaxType[] = [
+  "vat",
+  "wht_pph23",
+  "wht_pph4_2",
+  "wht_pph26",
+  "final_umkm",
+];
+
+/** The withholding taxes the Entity deducts from what it pays to vendors (Step 05 §10), in the order the
+ * Withholding screen offers them. */
+export type WithholdingTaxType = "wht_pph23" | "wht_pph4_2" | "wht_pph26";
+export const WITHHOLDING_TAX_TYPES: readonly WithholdingTaxType[] = [
+  "wht_pph23",
+  "wht_pph4_2",
+  "wht_pph26",
+];
+
+/** Falls back to PPh 23 for anything absent or not a vendor withholding. */
+export function resolveWithholdingTaxType(requested: string | undefined): WithholdingTaxType {
+  return requested && (WITHHOLDING_TAX_TYPES as readonly string[]).includes(requested)
+    ? (requested as WithholdingTaxType)
+    : "wht_pph23";
+}
 
 function isFilingTaxType(value: string): value is FilingTaxType {
   return (FILING_TAX_TYPES as readonly string[]).includes(value);
 }
 
-/** Falls back to `vat` for anything absent or outside the three types the write RPCs accept. */
+/** Falls back to `vat` for anything absent or outside the types this screen offers. */
 export function resolveFilingTaxType(requested: string | undefined): FilingTaxType {
   return requested && isFilingTaxType(requested) ? requested : "vat";
 }
