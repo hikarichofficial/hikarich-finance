@@ -63,11 +63,11 @@ describe("step-up window", () => {
     expect(latestAuthTimestamp([{ method: "password" }])).toBeNull();
   });
 
-  it("accepts a login inside the 10-minute window and rejects an older one", () => {
-    expect(STEP_UP_WINDOW_MINUTES).toBe(10);
-    expect(isRecentStepUp({ amr: [{ timestamp: at(9) }] }, now)).toBe(true);
-    expect(isRecentStepUp({ amr: [{ timestamp: at(11) }] }, now)).toBe(false);
-    expect(isRecentStepUp({ amr: [{ timestamp: at(30) }, { timestamp: at(2) }] }, now)).toBe(true);
+  it("accepts a login inside the 30-minute window and rejects an older one", () => {
+    expect(STEP_UP_WINDOW_MINUTES).toBe(30);
+    expect(isRecentStepUp({ amr: [{ timestamp: at(29) }] }, now)).toBe(true);
+    expect(isRecentStepUp({ amr: [{ timestamp: at(31) }] }, now)).toBe(false);
+    expect(isRecentStepUp({ amr: [{ timestamp: at(90) }, { timestamp: at(2) }] }, now)).toBe(true);
   });
 
   it("does not trust missing or far-future timestamps", () => {

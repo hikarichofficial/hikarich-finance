@@ -1673,6 +1673,10 @@ payroll payment fixed (deferred trigger now SECURITY DEFINER). Open for the OWNE
 business as a business-type Entity with taxpayer kind "Orang pribadi". Full detail in
 `docs/DECISIONS.md` decision 269.
 
+Decision 270: step-up window 30 minutes (OWNER override of Step 06 §8); personal business to be set up at
+P15 as a business-type Entity with taxpayer kind "Orang pribadi". Full detail in `docs/DECISIONS.md`
+decision 270.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

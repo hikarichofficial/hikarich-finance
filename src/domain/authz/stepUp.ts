@@ -7,7 +7,7 @@
  * the person to the step-up screen BEFORE attempting a sensitive action. The database remains the
  * authority: if this check is bypassed the database still refuses with STEP_UP_REQUIRED.
  */
-export const STEP_UP_WINDOW_MINUTES = 10;
+export const STEP_UP_WINDOW_MINUTES = 30;
 
 export interface AmrEntry {
   method?: string;

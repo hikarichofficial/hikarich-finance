@@ -29,7 +29,7 @@ export default async function StepUpPage({
         <h1>Verifikasi ulang</h1>
         {hasVerifiedFactor ? (
           <>
-            <p>Tindakan sensitif memerlukan kode autentikator terbaru (berlaku 10 menit).</p>
+            <p>Tindakan sensitif memerlukan kode autentikator terbaru (berlaku 30 menit).</p>
             <CodeForm next={destination} submitLabel="Lanjutkan" />
           </>
         ) : (

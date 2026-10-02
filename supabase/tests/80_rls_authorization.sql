@@ -374,7 +374,7 @@ begin
   perform test_helpers.expect_error(format('select public.assign_membership(%L,%L,%L)', pt, v_owner, 'viewer_auditor'), '42501', 'OWNER changes own membership');
   perform test_helpers.expect_error(format('select public.set_user_active(%L,false)', v_owner), '42501', 'OWNER disables self');
   perform test_helpers.logout();
-  perform test_helpers.login(v_owner, 'aal2', interval '11 minutes');
+  perform test_helpers.login(v_owner, 'aal2', interval '31 minutes');
   perform test_helpers.expect_error(format('select public.assign_membership(%L,%L,%L)', pt, v_target, 'finance_staff'), '42501', 'stale authentication is refused');
   perform test_helpers.assert(test_helpers.sqlerrm_of(format('select public.assign_membership(%L,%L,%L)', pt, v_target, 'finance_staff')) like 'STEP_UP_REQUIRED%', 'error says step-up required');
   perform test_helpers.assert((public.my_access() ->> 'recent_step_up')::boolean = false, 'my_access reports stale step-up');

@@ -59,7 +59,7 @@ export async function requirePermission(
 }
 
 /**
- * Requires a recent re-authentication (10 minutes) for sensitive actions. Redirects to the step-up
+ * Requires a recent re-authentication (30 minutes) for sensitive actions. Redirects to the step-up
  * screen and returns only when the window is satisfied. The database enforces the same rule on the
  * privileged RPCs, so a forged request that skips this call is still refused.
  */
