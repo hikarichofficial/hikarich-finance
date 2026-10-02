@@ -1625,8 +1625,8 @@ begin
     pt, v_store, v_today - 5, v_today - 5, v_today - 5, test_helpers.eg('bca')), 'INVALID', '12.10 fees above the sales are refused');
   perform test_helpers.expect_msg(format($q$select public.record_marketplace_settlement(%L, 'key-mp-se-3', %L, %L, %L, %L, %L, '100000')$q$,
     pt, v_store, v_today, v_today + 1, v_today + 1, test_helpers.eg('bca')), 'INVALID', '12.11 a payout dated in the future is refused');
-  perform test_helpers.expect_error(format($q$update public.marketplace_settlements set gross_sales = 1 where id = %L$q$, v_id), '23000',
-    '12.12 a recorded settlement cannot be edited');
+  perform test_helpers.expect_error(format($q$update public.marketplace_settlements set gross_sales = 1 where id = %L$q$, v_id), '42501',
+    '12.12 a recorded settlement cannot be edited directly; only the commands write it');
 
   -- 12.13 reversal: the journal, the cash movement and the VAT are all undone
   perform public.reverse_marketplace_settlement(v_id, 'key-mp-rv-1', v_today, 'Recorded twice (synthetic)');
