@@ -40,7 +40,7 @@ export const purchaseLineInputSchema = z.object({
   vat_invoice_ref: z.string().trim().max(100).optional(),
   /** The drafter's assertion that the input VAT is not creditable and stays a cost. */
   vat_not_creditable: z.boolean().optional(),
-  /** What the payment is for, when income tax is withheld from it (PPh 23). */
+  /** What the payment is for, when income tax is withheld from it (PPh 23, PPh 4(2) or PPh 26). */
   wht_object: whtObjectSchema.optional(),
 });
 export type PurchaseLineInput = z.infer<typeof purchaseLineInputSchema>;

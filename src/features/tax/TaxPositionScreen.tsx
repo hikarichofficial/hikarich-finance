@@ -18,6 +18,7 @@ import { formatShortDate } from "./format";
 export function TaxPositionScreen({
   taxType,
   title,
+  typeOptions,
   period,
   position,
   currency,
@@ -25,6 +26,8 @@ export function TaxPositionScreen({
 }: {
   taxType: TaxType;
   title: string;
+  /** When the nav item covers several tax types (Withholding), the ones the person can switch between. */
+  typeOptions?: readonly { value: TaxType; label: string }[];
   period: string;
   position: TaxPeriodPosition;
   currency: string;
@@ -44,6 +47,18 @@ export function TaxPositionScreen({
 
       <form method="get" className="list-search-form">
         {entity ? <input type="hidden" name="entity" value={entity} /> : null}
+        {typeOptions ? (
+          <label>
+            Jenis Pajak
+            <select name="type" defaultValue={taxType}>
+              {typeOptions.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
         <label>
           Masa Pajak
           <input type="month" name="period" defaultValue={period.slice(0, 7)} />
