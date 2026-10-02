@@ -1425,7 +1425,7 @@ begin
     jsonb_build_array(jsonb_build_object('description', 'Rent', 'unit_price', '1000000', 'wht_object', 'wht_rent_movable')));
   e := public.tax_preview_document('bill', v_id);
   perform test_helpers.assert((e ->> 'withheld_total')::numeric = 30000 and test_helpers.res(e, 'wht_pph23') -> 'rules' -> 0 ->> 'rule_version' = '2', '10.3 on the effective date: 3%, version 2');
-  v_id := public.create_bill_draft(pt, 'key-p7e-b-d256', test_helpers.eg('vco'), v_today - 9, v_today + 20,
+  v_id := public.create_bill_draft(pt, 'key-p7e-b-42', test_helpers.eg('vco'), v_today - 9, v_today + 20,
     jsonb_build_array(jsonb_build_object('description', 'Rent', 'unit_price', '1000000', 'wht_object', 'wht_rent_movable')));
   perform test_helpers.assert((public.tax_preview_document('bill', v_id) ->> 'withheld_total')::numeric = 30000, '10.4 the day after: 3%');
   perform test_helpers.logout();
