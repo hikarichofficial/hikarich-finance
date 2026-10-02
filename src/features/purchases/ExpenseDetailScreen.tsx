@@ -23,6 +23,7 @@ export function ExpenseDetailScreen({
   actions,
   entity,
   backHref,
+  canEdit = false,
 }: {
   expense: ExpenseRow;
   lines: readonly ExpenseLineRow[];
@@ -32,6 +33,8 @@ export function ExpenseDetailScreen({
   actions: ExpenseActionSet;
   entity: string | undefined;
   backHref: string;
+  /** Shows "Ubah Draf" on a draft (`bills.edit`, the permission `update_expense_draft` checks). */
+  canEdit?: boolean;
 }) {
   const suffix = entity ? `?entity=${encodeURIComponent(entity)}` : "";
   const money = (value: string) => formatMoney(value, expense.currency);
@@ -58,6 +61,13 @@ export function ExpenseDetailScreen({
       </header>
 
       <ExpenseActions expenseId={expense.id} actions={actions} entity={entity} />
+      {expense.status === "draft" && canEdit ? (
+        <p>
+          <Link href={`/purchases/expenses/${expense.id}/edit${suffix}`} className="btn-secondary">
+            Ubah Draf
+          </Link>
+        </p>
+      ) : null}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">

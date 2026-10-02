@@ -1,3 +1,4 @@
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { listAccountingPeriods, listJournals } from "@/services/accounting/ledger";
 import {
@@ -22,7 +23,7 @@ export default async function JournalListPage({
   }>;
 }) {
   const { entity, type, status, period, q } = await searchParams;
-  const { membership } = await requirePermission("accounting.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("accounting.view", { entityCode: entity });
   const entryType = parseJournalFilter(type) ?? null;
   const journalStatus = parseJournalStatusFilter(status) ?? null;
   const periodId = period ?? null;
@@ -43,6 +44,7 @@ export default async function JournalListPage({
       periodId={periodId}
       query={query}
       entity={entity}
+      canCreate={can(access, membership.entity_id, "accounting.journal_create")}
     />
   );
 }

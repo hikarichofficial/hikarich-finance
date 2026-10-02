@@ -1,10 +1,17 @@
 import { formatMoney } from "@/domain/money/format";
 import { DETERMINATION_STATUS_LABELS, TAX_KIND_LABELS, type TaxKind } from "@/domain/tax/tax";
 import type { TaxPreview } from "@/schemas/tax";
-import { TaxOverrideForm } from "./TaxOverrideForm";
+import { TaxOverrideForm, TaxOverrideWithdrawForm } from "./TaxOverrideForm";
 
 function text(value: unknown): string | null {
   return typeof value === "string" && value !== "" ? value : null;
+}
+
+/** The id of the override behind a result, when the engine reports one (`override.id`; results are loose). */
+function overrideIdOf(result: unknown): string | null {
+  const override = (result as Record<string, unknown>).override;
+  if (typeof override !== "object" || override === null) return null;
+  return text((override as Record<string, unknown>).id);
 }
 
 /**
@@ -63,6 +70,13 @@ export function TaxPreviewPanel({
                 <dd>{formatMoney(result.tax, currency)}</dd>
                 {text(result.consequence) ? (
                   <p className="hint">{text(result.consequence)}</p>
+                ) : null}
+                {canOverride && result.status === "overridden" && overrideIdOf(result) ? (
+                  <TaxOverrideWithdrawForm
+                    overrideId={overrideIdOf(result) ?? ""}
+                    label={TAX_KIND_LABELS[result.kind as TaxKind]}
+                    next={next}
+                  />
                 ) : null}
               </div>
             ))}

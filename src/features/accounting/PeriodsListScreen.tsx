@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { periodStatusDisplay } from "@/domain/accounting/periodsList";
 import type { AccountingPeriodRow } from "@/schemas/accounting";
 import { formatShortDate } from "./format";
@@ -12,9 +13,12 @@ import { formatShortDate } from "./format";
 export function PeriodsListScreen({
   rows,
   entity,
+  yearClose,
 }: {
   rows: readonly AccountingPeriodRow[];
   entity: string | undefined;
+  /** The fiscal-year close / reverse forms (client components), passed in by the page. */
+  yearClose?: ReactNode;
 }) {
   return (
     <div className="list-screen">
@@ -67,6 +71,7 @@ export function PeriodsListScreen({
           </tbody>
         </table>
       )}
+      {yearClose}
     </div>
   );
 }

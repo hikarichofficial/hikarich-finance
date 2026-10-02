@@ -6,7 +6,10 @@ import { redirect } from "next/navigation";
 import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
+  cancelInvoice,
   confirmPaymentSubmission,
+  markSubmissionDuplicate,
+  setInvoiceLinkExpiry,
   correctInvoice,
   createInvoiceDraft,
   createRefund,
@@ -398,4 +401,69 @@ export async function createRefundAction(
   revalidatePath("/sales/refunds");
   revalidatePath("/sales/invoices");
   return { status: "ok", message: "Refund tercatat." };
+}
+
+/** Mark a pending claim as a duplicate of another claim of the same invoice (`mark_submission_duplicate`,
+ * `invoices.confirm_payment`): no financial effect; the reason is kept. */
+export async function markClaimDuplicateAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  try {
+    await markSubmissionDuplicate({
+      submission_id: text(formData, "submission_id"),
+      duplicate_of_id: text(formData, "duplicate_of_id"),
+      reason: text(formData, "reason"),
+    });
+  } catch (error) {
+    return draftErrorState(
+      error,
+      "Klaim tidak dapat ditandai duplikat. Pilih klaim lain dan isi alasan minimal 5 karakter.",
+    );
+  }
+  revalidatePath("/sales/claims");
+  return { status: "ok", message: "Klaim ditandai sebagai duplikat." };
+}
+
+/** Set or clear the expiry of an invoice's active public link (`set_invoice_link_expiry`,
+ * `invoices.regenerate_link`). `expires_at` arrives as an ISO time with offset, or empty for "no expiry". */
+export async function setInvoiceLinkExpiryAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  const invoiceId = text(formData, "invoice_id");
+  const expiresAt = text(formData, "expires_at");
+  try {
+    await setInvoiceLinkExpiry({ invoice_id: invoiceId, expires_at: expiresAt || null });
+  } catch (error) {
+    return draftErrorState(
+      error,
+      "Masa berlaku tautan tidak dapat disimpan. Pilih waktu di masa depan, paling lama 5 tahun.",
+    );
+  }
+  revalidateInvoice(invoiceId);
+  return {
+    status: "ok",
+    message: expiresAt ? "Masa berlaku tautan tersimpan." : "Tautan kini tanpa batas waktu.",
+  };
+}
+
+/** Cancel a DRAFT invoice (`cancel_invoice`; a draft needs `invoices.edit`): no journal exists yet, the
+ * draft is only marked cancelled with the reason. */
+export async function cancelInvoiceDraftAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  const invoiceId = text(formData, "invoice_id");
+  try {
+    await cancelInvoice({
+      invoice_id: invoiceId,
+      idempotency_key: randomUUID(),
+      reason: text(formData, "reason"),
+    });
+  } catch (error) {
+    return draftErrorState(error, "Draf tidak dapat dibatalkan. Isi alasan minimal 5 karakter.");
+  }
+  revalidateInvoice(invoiceId);
+  return { status: "ok", message: "Draf dibatalkan." };
 }

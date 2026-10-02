@@ -2,7 +2,11 @@
 
 import Link from "next/link";
 import { useActionState, useState } from "react";
-import { setTaxOverrideAction, type TaxOverrideState } from "./taxOverrideActions";
+import {
+  setTaxOverrideAction,
+  withdrawTaxOverrideAction,
+  type TaxOverrideState,
+} from "./taxOverrideActions";
 
 const IDLE: TaxOverrideState = { status: "idle" };
 
@@ -66,6 +70,53 @@ export function TaxOverrideForm({
       {state.status === "ok" ? <p className="hint">{state.message}</p> : null}
       <button type="submit" className="btn-primary" disabled={pending}>
         {pending ? "Menyimpan…" : "Simpan Koreksi"}
+      </button>
+    </form>
+  );
+}
+
+/** Withdraw one active override (`tax_override_withdraw`): the engine's own result applies again. */
+export function TaxOverrideWithdrawForm({
+  overrideId,
+  label,
+  next,
+}: {
+  overrideId: string;
+  label: string;
+  next: string;
+}) {
+  const [state, action, pending] = useActionState(withdrawTaxOverrideAction, IDLE);
+  const [open, setOpen] = useState(false);
+  if (!open) {
+    return (
+      <button type="button" className="btn-ghost" onClick={() => setOpen(true)}>
+        Tarik Koreksi {label}
+      </button>
+    );
+  }
+  return (
+    <form action={action} className="record-form">
+      <input type="hidden" name="override_id" value={overrideId} />
+      <input type="hidden" name="path" value={next.split("?")[0]} />
+      <p className="hint">
+        Koreksi manual {label} dicabut dan perhitungan otomatis berlaku lagi. Perlu verifikasi
+        ulang.
+      </p>
+      <label>
+        Alasan (minimal 5 karakter)
+        <textarea name="reason" required minLength={5} maxLength={500} />
+      </label>
+      {state.status === "error" ? (
+        <p role="alert" className="error">
+          {state.message}{" "}
+          {state.stepUp ? (
+            <Link href={`/auth/step-up?next=${encodeURIComponent(next)}`}>Verifikasi ulang →</Link>
+          ) : null}
+        </p>
+      ) : null}
+      {state.status === "ok" ? <p className="hint">{state.message}</p> : null}
+      <button type="submit" className="btn-secondary" disabled={pending}>
+        {pending ? "Menarik…" : "Tarik Koreksi"}
       </button>
     </form>
   );

@@ -5,6 +5,7 @@ import type { CategoryRow } from "@/schemas/categories";
 import type { ContactRow } from "@/schemas/contacts";
 import type { MoneyControlRow } from "@/schemas/money";
 import {
+  buildInitialRecurringLines,
   buildRecurringLinesJson,
   newRecurringLineRow,
   RecurringLinesEditor,
@@ -24,25 +25,48 @@ export function ExpenseForm({
   categories,
   entity,
   today,
+  initial,
 }: {
   accounts: readonly MoneyControlRow[];
   vendors: readonly ContactRow[];
   categories: readonly CategoryRow[];
   entity: string | undefined;
   today: string;
+  /** Present when editing an existing draft: the same form saves through `update_expense_draft`. */
+  initial?: {
+    id: string;
+    version: number;
+    payee_id: string | null;
+    payee_name: string | null;
+    account_id: string;
+    expense_date: string;
+    receipt_reference: string | null;
+    notes: string | null;
+    lines: readonly Record<string, unknown>[];
+  };
 }) {
   const [state, action, pending] = useActionState(createExpenseAction, idleExpenseActionState);
-  const [rows, setRows] = useState<RecurringLineRow[]>([newRecurringLineRow(1)]);
-  const [payeeId, setPayeeId] = useState("");
+  const [rows, setRows] = useState<RecurringLineRow[]>(
+    initial && initial.lines.length > 0
+      ? buildInitialRecurringLines(initial.lines)
+      : [newRecurringLineRow(1)],
+  );
+  const [payeeId, setPayeeId] = useState(initial?.payee_id ?? "");
 
   return (
     <form action={action} className="record-form record-form-wide">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="lines" value={buildRecurringLinesJson(rows, "expense")} />
+      {initial ? (
+        <>
+          <input type="hidden" name="expense_id" value={initial.id} />
+          <input type="hidden" name="version" value={initial.version} />
+        </>
+      ) : null}
 
       <label>
         Dibayar dari Rekening
-        <select name="account_id" required defaultValue="">
+        <select name="account_id" required defaultValue={initial?.account_id ?? ""}>
           <option value="" disabled>
             Pilih rekening kas/bank
           </option>
@@ -55,7 +79,12 @@ export function ExpenseForm({
       </label>
       <label>
         Tanggal
-        <input type="date" name="expense_date" required defaultValue={today} />
+        <input
+          type="date"
+          name="expense_date"
+          required
+          defaultValue={initial?.expense_date ?? today}
+        />
       </label>
       <label>
         Vendor (opsional)
@@ -71,12 +100,22 @@ export function ExpenseForm({
       {payeeId === "" ? (
         <label>
           Nama Penerima
-          <input name="payee_name" required maxLength={200} placeholder="mis. Toko Bangunan Jaya" />
+          <input
+            name="payee_name"
+            required
+            maxLength={200}
+            placeholder="mis. Toko Bangunan Jaya"
+            defaultValue={initial?.payee_name ?? ""}
+          />
         </label>
       ) : null}
       <label>
         Nomor Struk / Nota (opsional)
-        <input name="receipt_reference" maxLength={100} />
+        <input
+          name="receipt_reference"
+          maxLength={100}
+          defaultValue={initial?.receipt_reference ?? ""}
+        />
       </label>
 
       <RecurringLinesEditor
@@ -89,7 +128,7 @@ export function ExpenseForm({
 
       <label>
         Catatan (opsional)
-        <textarea name="notes" maxLength={2000} />
+        <textarea name="notes" maxLength={2000} defaultValue={initial?.notes ?? ""} />
       </label>
 
       {state.status === "error" ? (
@@ -98,7 +137,7 @@ export function ExpenseForm({
         </p>
       ) : null}
       <button type="submit" className="btn-primary" disabled={pending}>
-        {pending ? "Menyimpan…" : "Simpan sebagai Draf"}
+        {pending ? "Menyimpan…" : initial ? "Simpan Perubahan" : "Simpan sebagai Draf"}
       </button>
     </form>
   );

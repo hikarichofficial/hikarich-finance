@@ -8,7 +8,7 @@ import { formatShortDate } from "@/features/sales/format";
 import { PaymentClaimForms } from "@/features/sales/PaymentClaimForms";
 
 /** Payment Confirmation queue (Step 09 §11, Step 07 §4, decision 259): the pending "Saya Sudah Bayar"
- * claims of the Entity. Viewing needs `invoices.view`; confirming or rejecting needs
+ * claims of the Entity. Viewing needs `invoices.view`; confirming, rejecting or marking a duplicate needs
  * `invoices.confirm_payment`, the permission the RPCs check. */
 export default async function PaymentClaimsPage({
   searchParams,
@@ -84,6 +84,12 @@ export default async function PaymentClaimsPage({
                 accounts={accountOptions}
                 amount={claim.amount}
                 paymentDate={claim.payment_date}
+                otherClaims={claims
+                  .filter((other) => other.id !== claim.id && other.invoice_id === claim.invoice_id)
+                  .map((other) => ({
+                    id: other.id,
+                    label: `${formatMoney(other.amount, other.currency)} · ${formatShortDate(other.payment_date)}${other.payer_name ? ` · ${other.payer_name}` : ""}`,
+                  }))}
               />
             ) : null}
           </section>
