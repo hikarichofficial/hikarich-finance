@@ -1425,7 +1425,7 @@ begin
     jsonb_build_array(jsonb_build_object('description', 'Rent', 'unit_price', '1000000', 'wht_object', 'wht_rent_movable')));
   e := public.tax_preview_document('bill', v_id);
   perform test_helpers.assert((e ->> 'withheld_total')::numeric = 30000 and test_helpers.res(e, 'wht_pph23') -> 'rules' -> 0 ->> 'rule_version' = '2', '10.3 on the effective date: 3%, version 2');
-  v_id := public.create_bill_draft(pt, 'key-p7e-b-42', test_helpers.eg('vco'), v_today - 9, v_today + 20,
+  v_id := public.create_bill_draft(pt, 'key-p7e-b-d256', test_helpers.eg('vco'), v_today - 9, v_today + 20,
     jsonb_build_array(jsonb_build_object('description', 'Rent', 'unit_price', '1000000', 'wht_object', 'wht_rent_movable')));
   perform test_helpers.assert((public.tax_preview_document('bill', v_id) ->> 'withheld_total')::numeric = 30000, '10.4 the day after: 3%');
   perform test_helpers.logout();
@@ -1517,10 +1517,10 @@ declare
   b public.bills%rowtype;
 begin
   perform test_helpers.login(v_owner);
-  v_id := public.create_bill_draft(pt, 'key-p7e-b-42', test_helpers.eg('vco'), v_today - 20, v_today + 10,
+  v_id := public.create_bill_draft(pt, 'key-p7e-b-d256', test_helpers.eg('vco'), v_today - 20, v_today + 10,
     jsonb_build_array(jsonb_build_object('description', 'Office rent', 'unit_price', '6000000', 'wht_object', 'wht_rent_land_building')));
-  perform public.submit_bill(v_id, 'key-p7e-sb-42');
-  perform public.approve_bill(v_id, 'key-p7e-ab-42');
+  perform public.submit_bill(v_id, 'key-p7e-sb-d256');
+  perform public.approve_bill(v_id, 'key-p7e-ab-d256');
   perform test_helpers.logout();
   select * into b from public.bills where id = v_id;
   v_period := date_trunc('month', b.bill_date)::date;
@@ -1543,11 +1543,11 @@ begin
       where c.tax_type = 'wht_pph4_2' and c.step = 'pay' and c.rule_code = 'DEADLINE_PPH4_2'
         and c.due_date = (v_period + interval '1 month' + interval '14 days')::date and c.outstanding = '600000'),
     '11.5 the calendar asks for the payment by the 15th of the following month (PMK 81/2024)');
-  v_pay := public.tax_record_payment(pt, 'key-p7e-tp-42', 'wht_pph4_2', v_period, v_today, test_helpers.eg('bca'), '600000', '0', '0', 'NTPN-0042', 'PPh 4(2) sewa kantor');
+  v_pay := public.tax_record_payment(pt, 'key-p7e-tp-d256', 'wht_pph4_2', v_period, v_today, test_helpers.eg('bca'), '600000', '0', '0', 'NTPN-0042', 'PPh 4(2) sewa kantor');
   perform test_helpers.assert(public.tax_period_position(pt, 'wht_pph4_2', v_period) ->> 'outstanding_payable' = '0'
     and (select j.description like '%PPh 4(2)%' from public.tax_payments p join public.journal_entries j on j.id = p.journal_id where p.id = v_pay),
     '11.6 the payment settles the period and is labelled PPh 4(2)');
-  perform test_helpers.expect_msg(format($q$select public.tax_record_payment(%L, 'key-p7e-tp-43', 'wht_pph99', %L, %L, %L, '1', '0', '0', 'x', 'y')$q$,
+  perform test_helpers.expect_msg(format($q$select public.tax_record_payment(%L, 'key-p7e-tp-d256x', 'wht_pph99', %L, %L, %L, '1', '0', '0', 'x', 'y')$q$,
     pt, v_period, v_today, test_helpers.eg('bca')), 'INVALID: unknown tax type', '11.7 an unknown tax type is refused');
   perform test_helpers.logout();
 
