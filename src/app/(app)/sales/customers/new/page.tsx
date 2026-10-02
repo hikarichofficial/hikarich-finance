@@ -10,7 +10,9 @@ export default async function NewContactPage({
 }) {
   const { entity } = await searchParams;
   await requirePermission("contacts.create", { entityCode: entity });
-  const backHref = entity ? `/sales/customers?entity=${encodeURIComponent(entity)}` : "/sales/customers";
+  const backHref = entity
+    ? `/sales/customers?entity=${encodeURIComponent(entity)}`
+    : "/sales/customers";
 
   return (
     <div className="record-detail">
@@ -24,7 +26,7 @@ export default async function NewContactPage({
         </div>
       </header>
       <section className="dashboard-section">
-        <ContactForm role="customer" entity={entity} />
+        <ContactForm contactRole="customer" entity={entity} />
       </section>
     </div>
   );

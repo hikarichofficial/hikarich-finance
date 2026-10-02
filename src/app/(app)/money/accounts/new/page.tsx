@@ -13,7 +13,9 @@ export default async function NewAccountPage({
   const { entity } = await searchParams;
   const { membership } = await requirePermission("money.edit", { entityCode: entity });
   const baseCurrency = await getEntityBaseCurrency(membership.entity_id);
-  const backHref = entity ? `/money/accounts?entity=${encodeURIComponent(entity)}` : "/money/accounts";
+  const backHref = entity
+    ? `/money/accounts?entity=${encodeURIComponent(entity)}`
+    : "/money/accounts";
 
   return (
     <div className="record-detail">

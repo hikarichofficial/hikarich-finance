@@ -5,8 +5,8 @@ import { invoiceActivityTimeline, invoiceDocumentStatus } from "@/domain/sales/i
 import { SETTLEMENT_LABELS } from "@/domain/sales/settlement";
 import type { InvoiceDocument } from "@/schemas/sales";
 import { InvoiceActions, type InvoiceActionPermissions } from "./InvoiceActions";
-import { SettlementForm, type SettlementAccountOption } from "@/features/shared/SettlementForm";
-import { recordInvoicePaymentAction } from "./actions";
+import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
+import { RecordPaymentForm } from "./RecordPaymentForm";
 import { InvoiceDocumentView, formatDocumentDate } from "./InvoiceDocumentView";
 import { formatShortDate } from "./format";
 
@@ -62,16 +62,11 @@ export function InvoiceDetailScreen({
 
       <InvoiceActions invoiceId={invoiceId} status={doc.status} permissions={permissions} />
       {payment ? (
-        <SettlementForm
-          action={recordInvoicePaymentAction}
-          idName="invoice_id"
-          id={invoiceId}
+        <RecordPaymentForm
+          invoiceId={invoiceId}
           accounts={payment.accounts}
           outstanding={doc.outstanding}
           today={payment.today}
-          openLabel="Catat Pembayaran"
-          submitLabel="Simpan Pembayaran"
-          accountLabel="Diterima di Rekening"
         />
       ) : null}
 

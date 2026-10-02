@@ -61,11 +61,16 @@ export async function createContactAction(
       allow_similar_name: text(formData, "allow_similar_name") === "on",
     });
   } catch (error) {
-    return errorState(error, "Kontak tidak dapat disimpan. Periksa nama, email, telepon dan kode negara.");
+    return errorState(
+      error,
+      "Kontak tidak dapat disimpan. Periksa nama, email, telepon dan kode negara.",
+    );
   }
   revalidatePath(basePath);
   redirect(
-    entity ? `${basePath}/${contactId}?entity=${encodeURIComponent(entity)}` : `${basePath}/${contactId}`,
+    entity
+      ? `${basePath}/${contactId}?entity=${encodeURIComponent(entity)}`
+      : `${basePath}/${contactId}`,
   );
 }
 

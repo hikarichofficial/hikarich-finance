@@ -9,8 +9,8 @@ import { PURCHASE_TREATMENT_LABELS } from "@/domain/purchases/bill";
 import { SETTLEMENT_LABELS } from "@/domain/purchases/settlement";
 import type { BillDetail } from "@/services/purchases/purchases";
 import { BillActions, type BillActionPermissions } from "./BillActions";
-import { SettlementForm, type SettlementAccountOption } from "@/features/shared/SettlementForm";
-import { payBillAction } from "./actions";
+import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
+import { PayBillForm } from "./PayBillForm";
 import { formatShortDate } from "./format";
 
 /**
@@ -80,16 +80,11 @@ export function BillDetailScreen({
 
       <BillActions billId={bill.id} status={bill.status} permissions={permissions} />
       {payment && bill.outstanding !== null ? (
-        <SettlementForm
-          action={payBillAction}
-          idName="bill_id"
-          id={bill.id}
+        <PayBillForm
+          billId={bill.id}
           accounts={payment.accounts}
           outstanding={bill.outstanding}
           today={payment.today}
-          openLabel="Bayar Tagihan"
-          submitLabel="Simpan Pembayaran"
-          accountLabel="Dibayar dari Rekening"
         />
       ) : null}
 

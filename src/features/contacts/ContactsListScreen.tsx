@@ -55,7 +55,9 @@ export function ContactsListScreen({
   /** When set, the person may add a contact: the header shows this button (decision 258). */
   createLabel?: string;
 }) {
-  const newHref = entity ? `${basePath}/new?entity=${encodeURIComponent(entity)}` : `${basePath}/new`;
+  const newHref = entity
+    ? `${basePath}/new?entity=${encodeURIComponent(entity)}`
+    : `${basePath}/new`;
 
   return (
     <div className="list-screen">

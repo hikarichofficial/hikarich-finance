@@ -45,7 +45,10 @@ export async function createAccountAction(
       const base = authzErrorMessage(error.code);
       return { status: "error", message: match?.[1] ? `${base} (${match[1].trim()})` : base };
     }
-    return { status: "error", message: "Rekening tidak dapat disimpan. Periksa nama dan mata uang." };
+    return {
+      status: "error",
+      message: "Rekening tidak dapat disimpan. Periksa nama dan mata uang.",
+    };
   }
   revalidatePath("/money/accounts");
   redirect(

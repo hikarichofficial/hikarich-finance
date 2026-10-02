@@ -50,7 +50,10 @@ export function TaxProfileForm({
       </label>
       <label>
         Jenis Wajib Pajak
-        <select name="taxpayer_kind" defaultValue={profile?.taxpayer_kind ?? "perseroan_perorangan"}>
+        <select
+          name="taxpayer_kind"
+          defaultValue={profile?.taxpayer_kind ?? "perseroan_perorangan"}
+        >
           <option value="perseroan_perorangan">PT Perorangan (Perseroan Perorangan)</option>
           <option value="individual">Orang pribadi</option>
           <option value="company">PT / CV / badan lain</option>

@@ -256,7 +256,10 @@ export async function recordInvoicePaymentAction(
       note: text(formData, "note") || undefined,
     });
   } catch (error) {
-    return draftErrorState(error, "Pembayaran tidak dapat dicatat. Periksa rekening, tanggal dan jumlah.");
+    return draftErrorState(
+      error,
+      "Pembayaran tidak dapat dicatat. Periksa rekening, tanggal dan jumlah.",
+    );
   }
   revalidateInvoice(invoiceId);
   revalidatePath("/sales/payments");

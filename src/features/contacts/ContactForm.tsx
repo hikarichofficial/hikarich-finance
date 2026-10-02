@@ -8,19 +8,19 @@ import { createContactAction, idleContactActionState } from "./contactActions";
  * an exact duplicate and asks for confirmation on a similar name; the checkbox is that confirmation.
  */
 export function ContactForm({
-  role,
+  contactRole,
   entity,
 }: {
-  role: "customer" | "vendor";
+  contactRole: "customer" | "vendor";
   entity: string | undefined;
 }) {
   const [state, action, pending] = useActionState(createContactAction, idleContactActionState);
-  const otherRole = role === "customer" ? "vendor" : "pelanggan";
+  const otherRole = contactRole === "customer" ? "vendor" : "pelanggan";
 
   return (
     <form action={action} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
-      <input type="hidden" name="role" value={role} />
+      <input type="hidden" name="role" value={contactRole} />
       <label>
         Nama
         <input name="display_name" required maxLength={200} />
