@@ -1,7 +1,6 @@
-import { trimDecimalText } from "@/domain/money/format";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { formatMoney } from "@/domain/money/format";
+import { formatMoney, trimDecimalText } from "@/domain/money/format";
 import {
   LOAN_DIRECTION_LABELS,
   LOAN_METHOD_LABELS,
