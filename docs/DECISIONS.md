@@ -1261,7 +1261,9 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   and closes the one opened before, and the menu of the current page is open by default
   (`activeNavItem`, longest path prefix, so detail pages keep their list highlighted). In the collapsed
   icon sidebar, a menu icon expands the sidebar and opens that menu. The Command Menu reads the same
-  labels. Tests: `src/domain/shell/navigation.test.ts`.
+  labels. Found while testing: a submenu item without its own permission made its menu appear for
+  people who could not open any of its pages (the pages themselves still refused); such items now
+  inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory

@@ -65,3 +65,20 @@ describe("activeNavItem", () => {
     expect(activeNavItem(groups, "/tax/ledger")).toBeNull();
   });
 });
+
+describe("visibleNavigation", () => {
+  it("hides a menu whose pages the person cannot open", () => {
+    const keys = visibleNavigation(["invoices.view"]).map((g) => g.key);
+    expect(keys).toEqual(["overview", "sales"]);
+  });
+
+  it("shows only the permitted items of a menu", () => {
+    const sales = visibleNavigation(["invoices.view"]).find((g) => g.key === "sales");
+    expect(sales?.items?.map((i) => i.href)).toEqual(["/sales/invoices", "/sales/payments"]);
+  });
+
+  it("shows a menu through one item's own permission", () => {
+    const admin = visibleNavigation(["audit.view"]).find((g) => g.key === "administration");
+    expect(admin?.items?.map((i) => i.href)).toEqual(["/admin/audit"]);
+  });
+});

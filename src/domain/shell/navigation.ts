@@ -266,17 +266,21 @@ function hasAny(granted: readonly string[], required: readonly string[] | undefi
 }
 
 /**
- * Filters the fixed sitemap down to what this membership may see (Step 09 §4). A group survives if
- * its own gate passes OR at least one of its items' gates passes; each surviving group keeps only its
- * visible items. Order is preserved -- the sitemap's order IS the product hierarchy (Step 09 §29).
+ * Filters the fixed sitemap down to what this membership may see (Step 09 §4). An item is visible when
+ * its own gate passes (or, having none, its menu's gate); a menu survives when at least one of its items
+ * is visible, and keeps only those. Order is preserved -- the sitemap's order IS the product hierarchy (Step 09 §29).
  */
 export function visibleNavigation(permissions: readonly string[]): NavGroup[] {
   const result: NavGroup[] = [];
   for (const group of NAVIGATION) {
+    // An item without its own gate inherits its menu's gate (decision 254: before this, such items made
+    // their menu appear for people who could not open any of its pages).
     const items: readonly NavItem[] | undefined = group.items?.filter((item) =>
-      hasAny(permissions, item.permission),
+      hasAny(permissions, item.permission ?? group.permission),
     );
-    const groupVisible = hasAny(permissions, group.permission) || (items?.length ?? 0) > 0;
+    const groupVisible = group.items
+      ? (items?.length ?? 0) > 0
+      : hasAny(permissions, group.permission);
     if (groupVisible) result.push({ ...group, items });
   }
   return result;
