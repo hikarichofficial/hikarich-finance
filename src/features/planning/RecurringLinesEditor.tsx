@@ -1,7 +1,9 @@
 "use client";
 
+import { Fragment } from "react";
 import type { CategoryRow } from "@/schemas/categories";
 import type { RecurringKind } from "@/domain/planning/planning";
+import { VAT_TREATMENT_LABELS, WHT_OBJECT_LABELS } from "@/domain/tax/tax";
 
 /**
  * The recurring template's own line items (P13 Part 3h, sixth increment, Step 09 §13, §18) -- the one piece
@@ -25,6 +27,11 @@ import type { RecurringKind } from "@/domain/planning/planning";
  * blank description or unit price is silently dropped at serialization time rather than blocking the
  * submit -- "a blank cell simply omits that line", the same choice `BudgetLinesEditor` made for an empty
  * amount cell.
+ *
+ * `taxFields` (decision 257) adds a second row under each line with the tax facts the P7 engine reads from
+ * the line: for a bill/expense the VAT the vendor charged, the tax-invoice number and the withholding
+ * object; for an invoice the VAT treatment. They live in `extra` under the RPC's own field names, so the
+ * serializer needs no second code path; a blank value removes the key ("the engine decides, or asks").
  *
  * On a narrow screen the table becomes stacked cards (`record-table-stacked`, `globals.css`; P13 Part 5;
  * Step 09 §23), reachable and safe to stack now that decision 204's own reachability question is answered:
@@ -120,16 +127,24 @@ function categoryKindFor(kind: RecurringKind, treatment: RecurringLineRow["treat
   return treatment === "expense" ? "expense" : "asset";
 }
 
+function extraText(row: RecurringLineRow, field: string): string {
+  const value = row.extra[field];
+  return typeof value === "string" ? value : "";
+}
+
 export function RecurringLinesEditor({
   kind,
   categories,
   rows,
   onChange,
+  taxFields = false,
 }: {
   kind: RecurringKind;
   categories: readonly CategoryRow[];
   rows: readonly RecurringLineRow[];
   onChange: (rows: RecurringLineRow[]) => void;
+  /** Show the per-line tax facts (VAT charged, tax-invoice number, withholding object / VAT treatment). */
+  taxFields?: boolean;
 }) {
   function addRow() {
     onChange([...rows, newRecurringLineRow(rows.length + 1)]);
@@ -143,7 +158,15 @@ export function RecurringLinesEditor({
     onChange(rows.map((row) => (row.key === key ? { ...row, ...patch } : row)));
   }
 
+  function updateExtra(row: RecurringLineRow, field: string, value: string) {
+    const extra = { ...row.extra };
+    if (value.trim() === "") delete extra[field];
+    else extra[field] = value.trim();
+    updateRow(row.key, { extra });
+  }
+
   const showTreatment = kind !== "invoice";
+  const columnCount = showTreatment ? 6 : 5;
 
   return (
     <div className="plan-lines-editor">
@@ -172,77 +195,149 @@ export function RecurringLinesEditor({
                 const kindFilter = categoryKindFor(kind, row.treatment);
                 const rowCategories = categories.filter((category) => category.kind === kindFilter);
                 return (
-                  <tr key={row.key}>
-                    <td>
-                      <input
-                        type="text"
-                        maxLength={500}
-                        value={row.description}
-                        onChange={(event) =>
-                          updateRow(row.key, { description: event.target.value })
-                        }
-                        placeholder="Deskripsi baris"
-                      />
-                    </td>
-                    <td className="num" data-label="Kuantitas">
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={row.quantity}
-                        onChange={(event) => updateRow(row.key, { quantity: event.target.value })}
-                        placeholder="1"
-                      />
-                    </td>
-                    <td className="num" data-label="Harga Satuan">
-                      <input
-                        type="text"
-                        inputMode="decimal"
-                        value={row.unit_price}
-                        onChange={(event) => updateRow(row.key, { unit_price: event.target.value })}
-                        placeholder="0"
-                      />
-                    </td>
-                    {showTreatment ? (
-                      <td data-label="Perlakuan">
-                        <select
-                          value={row.treatment}
+                  <Fragment key={row.key}>
+                    <tr>
+                      <td>
+                        <input
+                          type="text"
+                          maxLength={500}
+                          value={row.description}
                           onChange={(event) =>
-                            updateRow(row.key, {
-                              treatment: event.target.value as RecurringLineRow["treatment"],
-                            })
+                            updateRow(row.key, { description: event.target.value })
+                          }
+                          placeholder="Deskripsi baris"
+                        />
+                      </td>
+                      <td className="num" data-label="Kuantitas">
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={row.quantity}
+                          onChange={(event) => updateRow(row.key, { quantity: event.target.value })}
+                          placeholder="1"
+                        />
+                      </td>
+                      <td className="num" data-label="Harga Satuan">
+                        <input
+                          type="text"
+                          inputMode="decimal"
+                          value={row.unit_price}
+                          onChange={(event) =>
+                            updateRow(row.key, { unit_price: event.target.value })
+                          }
+                          placeholder="0"
+                        />
+                      </td>
+                      {showTreatment ? (
+                        <td data-label="Perlakuan">
+                          <select
+                            value={row.treatment}
+                            onChange={(event) =>
+                              updateRow(row.key, {
+                                treatment: event.target.value as RecurringLineRow["treatment"],
+                              })
+                            }
+                          >
+                            <option value="expense">Beban</option>
+                            <option value="asset">Aset</option>
+                            <option value="prepaid">Dibayar di Muka</option>
+                          </select>
+                        </td>
+                      ) : null}
+                      <td data-label="Kategori">
+                        <select
+                          value={row.category_id}
+                          onChange={(event) =>
+                            updateRow(row.key, { category_id: event.target.value })
                           }
                         >
-                          <option value="expense">Beban</option>
-                          <option value="asset">Aset</option>
-                          <option value="prepaid">Dibayar di Muka</option>
+                          <option value="">Tanpa kategori</option>
+                          {rowCategories.map((category) => (
+                            <option key={category.id} value={category.id}>
+                              {category.name}
+                            </option>
+                          ))}
                         </select>
                       </td>
+                      <td>
+                        <button
+                          type="button"
+                          className="btn-ghost"
+                          onClick={() => removeRow(row.key)}
+                        >
+                          Hapus
+                        </button>
+                      </td>
+                    </tr>
+                    {taxFields ? (
+                      <tr className="plan-lines-tax-row">
+                        <td colSpan={columnCount}>
+                          <div className="plan-lines-tax-fields">
+                            {kind === "invoice" ? (
+                              <label>
+                                Perlakuan PPN
+                                <select
+                                  value={extraText(row, "vat_treatment")}
+                                  onChange={(event) =>
+                                    updateExtra(row, "vat_treatment", event.target.value)
+                                  }
+                                >
+                                  <option value="">Ikut kategori / belum ditentukan</option>
+                                  {Object.entries(VAT_TREATMENT_LABELS).map(([value, label]) => (
+                                    <option key={value} value={value}>
+                                      {label}
+                                    </option>
+                                  ))}
+                                </select>
+                              </label>
+                            ) : (
+                              <>
+                                <label>
+                                  Objek potongan PPh
+                                  <select
+                                    value={extraText(row, "wht_object")}
+                                    onChange={(event) =>
+                                      updateExtra(row, "wht_object", event.target.value)
+                                    }
+                                  >
+                                    <option value="">Ikut kategori / belum ditentukan</option>
+                                    {Object.entries(WHT_OBJECT_LABELS).map(([value, label]) => (
+                                      <option key={value} value={value}>
+                                        {label}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </label>
+                                <label>
+                                  PPN ditagih vendor
+                                  <input
+                                    type="text"
+                                    inputMode="decimal"
+                                    value={extraText(row, "tax_amount")}
+                                    onChange={(event) =>
+                                      updateExtra(row, "tax_amount", event.target.value)
+                                    }
+                                    placeholder="0"
+                                  />
+                                </label>
+                                <label>
+                                  No. Faktur Pajak
+                                  <input
+                                    type="text"
+                                    maxLength={100}
+                                    value={extraText(row, "vat_invoice_ref")}
+                                    onChange={(event) =>
+                                      updateExtra(row, "vat_invoice_ref", event.target.value)
+                                    }
+                                  />
+                                </label>
+                              </>
+                            )}
+                          </div>
+                        </td>
+                      </tr>
                     ) : null}
-                    <td data-label="Kategori">
-                      <select
-                        value={row.category_id}
-                        onChange={(event) =>
-                          updateRow(row.key, { category_id: event.target.value })
-                        }
-                      >
-                        <option value="">Tanpa kategori</option>
-                        {rowCategories.map((category) => (
-                          <option key={category.id} value={category.id}>
-                            {category.name}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td>
-                      <button
-                        type="button"
-                        className="btn-ghost"
-                        onClick={() => removeRow(row.key)}
-                      >
-                        Hapus
-                      </button>
-                    </td>
-                  </tr>
+                  </Fragment>
                 );
               })}
             </tbody>

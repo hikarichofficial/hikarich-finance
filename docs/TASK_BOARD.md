@@ -1620,6 +1620,10 @@ engine (tax types `wht_pph4_2`, `wht_pph26`), and the PMK 81/2024 payment deadli
 and PPh 23. Next slice: Create Bill / Create Invoice screens with tax fields, then marketplace PPh 22.
 Full detail in `docs/DECISIONS.md` decision 256.
 
+Decision 257: Create Invoice (`/sales/invoices/new`) and Record Bill (`/purchases/bills/new`) screens;
+tax fields per line (withholding object, VAT charged, tax-invoice number, VAT treatment) in the shared
+line editor, also on Record Expense. No migration. Full detail in `docs/DECISIONS.md` decision 257.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

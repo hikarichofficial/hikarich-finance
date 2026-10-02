@@ -46,6 +46,10 @@ export function BillsListScreen({
   entity: string | undefined;
   canCreate: boolean;
 }) {
+  const newHref = entity
+    ? `/purchases/bills/new?entity=${encodeURIComponent(entity)}`
+    : "/purchases/bills/new";
+
   return (
     <div className="list-screen">
       <header className="list-screen-header">
@@ -57,7 +61,7 @@ export function BillsListScreen({
           </p>
         </div>
         {canCreate ? (
-          <Link href="/purchases/bills/new" className="btn-primary">
+          <Link href={newHref} className="btn-primary">
             Catat Tagihan
           </Link>
         ) : null}
@@ -107,7 +111,7 @@ export function BillsListScreen({
               Hapus Saringan
             </Link>
           ) : canCreate ? (
-            <Link href="/purchases/bills/new" className="btn-primary list-empty-action">
+            <Link href={newHref} className="btn-primary list-empty-action">
               Catat Tagihan
             </Link>
           ) : null}
