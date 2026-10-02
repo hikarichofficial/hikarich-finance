@@ -713,3 +713,18 @@ export async function getBillDetail(billId: string): Promise<BillDetail | null> 
     days_overdue: position?.days_overdue ?? 0,
   };
 }
+
+/** Whose bill this is (Entity and vendor), by a direct RLS-governed read; `null` when it does not exist or
+ * the caller cannot see it. Used to pay one bill (decision 258). */
+export async function getBillOwner(
+  billId: string,
+): Promise<{ entity_id: string; vendor_id: string } | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("bills")
+    .select("entity_id, vendor_id")
+    .eq("id", uuid(billId))
+    .maybeSingle();
+  if (error || !data) return null;
+  return { entity_id: String(data.entity_id), vendor_id: String(data.vendor_id) };
+}

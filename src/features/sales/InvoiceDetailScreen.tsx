@@ -5,6 +5,8 @@ import { invoiceActivityTimeline, invoiceDocumentStatus } from "@/domain/sales/i
 import { SETTLEMENT_LABELS } from "@/domain/sales/settlement";
 import type { InvoiceDocument } from "@/schemas/sales";
 import { InvoiceActions, type InvoiceActionPermissions } from "./InvoiceActions";
+import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
+import { RecordPaymentForm } from "./RecordPaymentForm";
 import { InvoiceDocumentView, formatDocumentDate } from "./InvoiceDocumentView";
 import { formatShortDate } from "./format";
 
@@ -21,11 +23,14 @@ export function InvoiceDetailScreen({
   doc,
   permissions,
   backHref,
+  payment,
 }: {
   invoiceId: string;
   doc: InvoiceDocument;
   permissions: InvoiceActionPermissions;
   backHref: string;
+  /** Record Payment / Pay Bill (decision 258); absent when not allowed or nothing is outstanding. */
+  payment?: { accounts: readonly SettlementAccountOption[]; today: string };
 }) {
   const status = invoiceDocumentStatus(doc);
   const timeline = invoiceActivityTimeline(doc);
@@ -56,6 +61,14 @@ export function InvoiceDetailScreen({
       </header>
 
       <InvoiceActions invoiceId={invoiceId} status={doc.status} permissions={permissions} />
+      {payment ? (
+        <RecordPaymentForm
+          invoiceId={invoiceId}
+          accounts={payment.accounts}
+          outstanding={doc.outstanding}
+          today={payment.today}
+        />
+      ) : null}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">

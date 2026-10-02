@@ -1624,6 +1624,10 @@ Decision 257: Create Invoice (`/sales/invoices/new`) and Record Bill (`/purchase
 tax fields per line (withholding object, VAT charged, tax-invoice number, VAT treatment) in the shared
 line editor, also on Record Expense. No migration. Full detail in `docs/DECISIONS.md` decision 257.
 
+Decision 258: screens for existing commands -- Add Customer/Vendor, Add Account, Record Payment (invoice),
+Pay Bill, contact tax facts, Tax Setup (profile + engine switch). No migration. The remaining unscreened
+commands are listed in `docs/DECISIONS.md` decision 258.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

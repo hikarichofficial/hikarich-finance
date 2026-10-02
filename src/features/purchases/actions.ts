@@ -10,6 +10,8 @@ import {
   cancelBill,
   correctBill,
   createBillDraft,
+  getBillOwner,
+  recordVendorPayment,
   recallBill,
   rejectBill,
   reverseVendorPayment,
@@ -245,4 +247,37 @@ export async function reverseVendorPaymentAction(
   }
   revalidateVendorPayment(paymentId);
   return { status: "ok" };
+}
+
+/** Pay Bill (decision 258): `record_vendor_payment` with a single allocation to this bill. The amount is
+ * what leaves the account; the bill's payable is already net of any income tax withheld. */
+export async function payBillAction(
+  _previous: BillActionState,
+  formData: FormData,
+): Promise<BillActionState> {
+  const billId = text(formData, "bill_id");
+  const amount = text(formData, "amount");
+  try {
+    const owner = await getBillOwner(billId);
+    if (!owner) return { status: "error", message: "Tagihan tidak ditemukan." };
+    await recordVendorPayment({
+      entity_id: owner.entity_id,
+      idempotency_key: randomUUID(),
+      vendor_id: owner.vendor_id,
+      account_id: text(formData, "account_id"),
+      payment_date: text(formData, "payment_date"),
+      amount,
+      allocations: [{ bill_id: billId, amount }],
+      reference: text(formData, "reference") || undefined,
+      note: text(formData, "note") || undefined,
+    });
+  } catch (error) {
+    return draftErrorState(
+      error,
+      "Pembayaran tidak dapat dicatat. Periksa rekening, tanggal dan jumlah.",
+    );
+  }
+  revalidateBill(billId);
+  revalidatePath("/purchases/payments");
+  return { status: "ok", message: "Pembayaran tercatat." };
 }

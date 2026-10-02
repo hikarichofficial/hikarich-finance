@@ -50,6 +50,10 @@ export function AccountsListScreen({
   entity: string | undefined;
   canCreate: boolean;
 }) {
+  const newHref = entity
+    ? `/money/accounts/new?entity=${encodeURIComponent(entity)}`
+    : "/money/accounts/new";
+
   return (
     <div className="list-screen">
       <header className="list-screen-header">
@@ -61,7 +65,7 @@ export function AccountsListScreen({
           </p>
         </div>
         {canCreate ? (
-          <Link href="/money/accounts/new" className="btn-primary">
+          <Link href={newHref} className="btn-primary">
             Tambah Akun
           </Link>
         ) : null}
@@ -111,7 +115,7 @@ export function AccountsListScreen({
               Hapus Saringan
             </Link>
           ) : canCreate ? (
-            <Link href="/money/accounts/new" className="btn-primary list-empty-action">
+            <Link href={newHref} className="btn-primary list-empty-action">
               Tambah Akun
             </Link>
           ) : null}

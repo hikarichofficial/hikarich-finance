@@ -531,3 +531,18 @@ export async function getArControl(entityId: string, asOf?: string): Promise<ArC
   if (rows.length !== 1) throw new Error("Respons penjualan tidak dikenali.");
   return rows[0];
 }
+
+/** Whose invoice this is (Entity and customer), by a direct RLS-governed read; `null` when it does not
+ * exist or the caller cannot see it. Used to record a payment against one invoice (decision 258). */
+export async function getInvoiceOwner(
+  invoiceId: string,
+): Promise<{ entity_id: string; customer_id: string } | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("invoices")
+    .select("entity_id, customer_id")
+    .eq("id", uuidResultSchema.parse(invoiceId))
+    .maybeSingle();
+  if (error || !data) return null;
+  return { entity_id: String(data.entity_id), customer_id: String(data.customer_id) };
+}
