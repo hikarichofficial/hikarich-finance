@@ -1280,6 +1280,17 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Refusal reasons in Indonesian (decision 271). The database raises `INVALID:` / `CONFLICT:` reasons in
+  English; decision 267 made every form show them. `src/domain/authz/reasonTranslations.json` now holds
+  the 852 distinct reason templates found in the migrations with an Indonesian text each (`{1}`, `{2}`
+  for the `format` placeholders), and `translateReason` matches a reason against them, most specific
+  first, and fills in the values. `describeAuthzError` shows the Indonesian reason alone when it is
+  known and the generic text with the English original otherwise. Display only: the database messages,
+  the error codes and what is refused are unchanged, and the tests that assert on database messages are
+  untouched. A new migration that adds a reason should add its template to the JSON; an unknown reason
+  still shows in English, so nothing is hidden. The Indonesian wording was machine-drafted in bulk and
+  spot-checked, not reviewed line by line.
+
 - Step-up window 30 minutes, and the personal business as a business-type Entity (decision 270).
   1. OWNER: "verifikasinya diubah menjadi 30 menit. karena 10 menit terlalu cepat". The recent
      re-authentication window of Step 06 §8 goes from 10 to 30 minutes: the default of

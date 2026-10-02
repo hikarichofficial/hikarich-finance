@@ -1,3 +1,5 @@
+import { translateReason } from "./translateReason";
+
 /**
  * Authorization error contract shared by the database and the application (Step 06 §5, §8).
  *
@@ -64,5 +66,6 @@ export function describeAuthzError(error: AuthzError): string {
   if (error.code !== "INVALID" && error.code !== "CONFLICT") return base;
   const match = /^(?:INVALID|CONFLICT):\s*([\s\S]+)$/.exec(error.message);
   const reason = match?.[1]?.trim();
-  return reason ? `${base} (${reason})` : base;
+  if (!reason) return base;
+  return translateReason(reason) ?? `${base} (${reason})`;
 }

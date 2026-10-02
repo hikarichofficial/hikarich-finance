@@ -1,5 +1,6 @@
 "use server";
 
+import { translateReason } from "@/domain/authz/translateReason";
 import { revalidatePath } from "next/cache";
 import { requirePermission } from "@/services/identity/access";
 import {
@@ -92,7 +93,7 @@ export async function setCategoryAccountAction(
     return {
       status: "error",
       message: match?.[1]
-        ? `Akun tidak dapat disimpan (${match[1].trim()})`
+        ? (translateReason(match[1]) ?? `Akun tidak dapat disimpan (${match[1].trim()})`)
         : "Akun tidak dapat disimpan.",
     };
   }

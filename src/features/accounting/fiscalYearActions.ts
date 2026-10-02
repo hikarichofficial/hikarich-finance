@@ -2,7 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
-import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
+import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import { closeFiscalYear, reverseFiscalYearClosing } from "@/services/reports/reports";
 
@@ -25,11 +25,9 @@ function text(formData: FormData, name: string): string {
 
 function errorState(error: unknown, fallback: string): FiscalYearState {
   if (error instanceof AuthzError) {
-    const match = /^(?:INVALID|CONFLICT):\s*([\s\S]+)$/.exec(error.message);
-    const base = authzErrorMessage(error.code);
     return {
       status: "error",
-      message: match?.[1] ? `${base} (${match[1].trim()})` : base,
+      message: describeAuthzError(error),
       stepUp: error.code === "STEP_UP_REQUIRED",
     };
   }
