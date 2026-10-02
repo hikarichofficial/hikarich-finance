@@ -1628,6 +1628,9 @@ Decision 258: screens for existing commands -- Add Customer/Vendor, Add Account,
 Pay Bill, contact tax facts, Tax Setup (profile + engine switch). No migration. The remaining unscreened
 commands are listed in `docs/DECISIONS.md` decision 258.
 
+Decision 259: Payment Confirmation queue (`/sales/claims`: confirm or reject a pending customer claim) and
+"Cabut Tautan Publik" on Invoice Detail. No migration. Full detail in `docs/DECISIONS.md` decision 259.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

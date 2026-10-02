@@ -1280,6 +1280,15 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Payment Confirmation queue and link revocation (decision 259, Step 07 §4, Step 09 §11). A customer
+  could already submit "Saya Sudah Bayar" on the public invoice page, but no screen let staff act on it.
+  `/sales/claims` lists the Entity's pending claims (direct RLS read; the requester hash is never
+  selected) and, with `invoices.confirm_payment`, confirms one (`confirm_payment_submission`: account,
+  the date and amount the bank actually shows) or rejects it with a reason (`reject_payment_submission`).
+  Invoice Detail gains "Cabut Tautan Publik" (`revoke_invoice_link`). The public page's PDF path stays
+  the browser print button it already has. Marking a claim as a duplicate of another and setting a link
+  expiry remain without a screen; a duplicate is rejected with a reason for now. No migration.
+
 - Daily-use screens that had a backend but no screen (decision 258, OWNER: "silahkan dibuat ... sampai
   selesai"). An audit of every write service against the screens found many commands no screen calls; this
   slice adds the ones daily work and correct tax determination depend on, all through unmodified RPCs and
