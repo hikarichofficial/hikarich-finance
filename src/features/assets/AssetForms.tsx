@@ -6,6 +6,7 @@ import {
   FISCAL_CLASSES,
   findFiscalClass,
   monthlyStraightLine,
+  suggestFiscalClass,
 } from "@/domain/assets/fiscalClasses";
 import { formatMoney } from "@/domain/money/format";
 import { useActionState, useState, type ReactNode } from "react";
