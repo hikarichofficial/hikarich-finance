@@ -189,6 +189,9 @@ declare
                                          'export_backup_snapshot', 'validate_backup_payload',
                                          'export_backup_file', 'preview_backup_restore',
                                          'restore_backup_snapshot', 'revoke_trusted_device',
+                                         -- Documents Archive, Sales/Purchase report, Saved Reports (decision 252)
+                                         'list_document_archive', 'sales_purchase_report', 'save_report',
+                                         'delete_saved_report',
                                          -- Entity timezone / fiscal-year start in Settings (decision 248)
                                          'update_entity_time_settings',
                                          -- Forecasts (decision 250)

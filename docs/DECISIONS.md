@@ -1222,6 +1222,29 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
 
   Tests: `src/domain/money/reconciliationSession.test.ts`; the RPCs are covered by the existing P4 tests.
 
+- Documents Archive, Sales/Purchase report and Saved Reports (decision 252, the last Step 09 screens
+  without a backend). Migration `20261001400000_p14_archive_sales_purchase_saved.sql`:
+
+  1. `list_document_archive(entity, q, limit, offset)` (`documents.view`): documents replaced by a newer
+     version (`supersedes_document_id`) and documents whose every link was removed, with the reason, the
+     replacing file, when it was archived and the former target kinds. Like `list_documents`, a document
+     that was ever linked is shown only through a target kind the caller may view. Screen:
+     `/documents/archive`, visually separate from active evidence (Step 09 §20).
+  2. `sales_purchase_report(entity, side, dimension, start, end)` (`reports.view` plus `invoices.view` for
+     sales or `bills.view` for purchases): issued invoices, or approved bills plus confirmed expenses,
+     grouped by party, category, product (sales only) or month, with document count and base-currency
+     amounts before and after tax (line amounts converted at the document rate, half-up, as the budget
+     report does). Amounts are returned as text. Screen: `/reports/sales-purchase`.
+  3. `saved_reports` (own rows only, `reports.view`), written through `save_report` and
+     `delete_saved_report`: a person's named shortcut to a report page and its filter query (only
+     `/reports...` and `/tax/ledger` paths, at most 100 per person, unique names). "Simpan laporan ini" on
+     `/reports` and `/reports/sales-purchase`; `/reports/saved` lists, opens (in the active Entity) and
+     deletes them. Exports stay as they are (permission-controlled per report).
+  4. Hardening: `restore_jobs` (decision 247) now also goes through `secure_table` before its select
+     grant, the house rule for every table.
+
+  Tests: `supabase/tests/99_p14_5_archive_reports.sql`, `src/domain/reports/salesPurchase.test.ts`.
+
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
   (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions
