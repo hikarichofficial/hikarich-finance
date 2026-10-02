@@ -1280,6 +1280,26 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Depreciation help and assets owned before the app (decision 268, OWNER: "rumus perhitungan otomatis
+  penyusutan ... ketika dimasukkan nilai awal atau adanya pembelian barang"). The computation itself has
+  existed since P8 and is unchanged: a purchase or expense line marked "Aset" becomes a draft asset when
+  approved, activation writes the monthly plan, and month-end posting books it. Straight line is
+  (cost − residual) ÷ useful-life months; declining balance applies a fixed rate to the book value. Added,
+  screens only, no migration:
+  1. `src/domain/assets/fiscalClasses.ts`: the fiscal groups with their life and yearly rates (Kelompok 1
+     to 4: 4/8/16/20 years, 25/12.5/6.25/5% straight line, 50/25/12.5/10% declining balance; permanent
+     building 20 years 5%; non-permanent 10 years 10%; UU PPh Pasal 11, PMK 72/2023). Choosing a group in
+     the form fills in the useful life, and the form shows the monthly amount before saving. Display and
+     form help only; the database still validates the key and computes the plan.
+  2. `/assets/opening` ("Aset yang Sudah Dimiliki", `system.import`): the screen for `asset_load_opening`,
+     which decision 264 had left without one.
+  Verified in the browser: an asset bill line registered itself on approval, activation with Kelompok 1
+  planned 48 months, Rp 12.000.000 gave Rp 250.000 a month. Payroll post was also exercised (posted);
+  payroll payment asks for the authenticator code.
+
+  Open, for the OWNER: a Personal ledger still tracks assets at cost with no depreciation (Step 15, as
+  built in P8). Depreciating personal-business assets changes economic meaning and is not done here.
+
 - Second walkthrough with the OWNER's authenticator code, and form behaviour (decision 267). Exercised on
   `demo_pt`: tax engine activation (refused for a start date on which documents already exist, accepted
   for the next day), automatic PPh 4(2) 10% on a rent bill, tax override and its withdrawal, fiscal-year

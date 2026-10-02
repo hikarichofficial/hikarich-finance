@@ -66,6 +66,8 @@ export default async function AssetDetailPage({
                 next={next}
                 today={today}
                 depreciable={membership.entity_type !== "personal"}
+                cost={asset.acquisition_cost}
+                currency={currency}
               />
             ) : null}
             <UpdateAssetDetailsForm

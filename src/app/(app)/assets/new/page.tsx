@@ -41,6 +41,10 @@ export default async function NewAssetPage({
           Aset didaftarkan dari baris tagihan atau pengeluaran yang ditandai sebagai aset dan sudah
           disetujui. Setelah didaftarkan, aktifkan aset di halaman detailnya.
         </p>
+        <p className="hint">
+          Punya peralatan yang dibeli sebelum memakai aplikasi ini?{" "}
+          <Link href={`/assets/opening${qs}`}>Catat aset yang sudah dimiliki →</Link>
+        </p>
         {lines.length === 0 ? (
           <p className="dashboard-empty">Tidak ada pembelian aset yang menunggu didaftarkan.</p>
         ) : (

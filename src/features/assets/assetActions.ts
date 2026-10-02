@@ -6,6 +6,7 @@ import { redirect } from "next/navigation";
 import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
+  loadOpeningAssets,
   activateAsset,
   cancelAsset,
   disposeAsset,
@@ -333,4 +334,58 @@ export async function postDepreciationAction(
         ? "Tidak ada penyusutan yang perlu diposting."
         : `${posted} baris penyusutan diposting.`,
   };
+}
+
+/**
+ * Loads one asset the business already owned before it started using this app (`asset_load_opening`,
+ * `system.import`). The cost, the depreciation already taken up to the cut-over date and the plan for the
+ * remaining months are all the database's; this only shapes the form.
+ */
+export async function loadOpeningAssetAction(
+  _previous: AssetActionState,
+  formData: FormData,
+): Promise<AssetActionState> {
+  const entity = text(formData, "entity");
+  const method = text(formData, "method") || "none";
+  const life = text(formData, "life_months");
+  const fiscalClass = text(formData, "fiscal_class");
+  let assetId: string | undefined;
+  try {
+    const { membership } = await requirePermission("system.import", { entityCode: entity });
+    const ids = await loadOpeningAssets({
+      entity_id: membership.entity_id,
+      idempotency_key: randomUUID(),
+      assets: [
+        {
+          name: text(formData, "name"),
+          description: text(formData, "description") || undefined,
+          serial_number: text(formData, "serial_number") || undefined,
+          location: text(formData, "location") || undefined,
+          cost_account: text(formData, "cost_account"),
+          acquisition_date: text(formData, "acquisition_date"),
+          in_service_date: text(formData, "in_service_date"),
+          cutover_date: text(formData, "cutover_date"),
+          cost: text(formData, "cost"),
+          accumulated: text(formData, "accumulated") || undefined,
+          method: method as never,
+          life_months: method === "none" || !life ? undefined : Number(life),
+          residual: method === "none" ? undefined : text(formData, "residual") || undefined,
+          fiscal_class: fiscalClass || undefined,
+          fiscal_method: fiscalClass ? (text(formData, "fiscal_method") as never) : undefined,
+        },
+      ],
+    });
+    assetId = ids[0];
+  } catch (error) {
+    return errorState(
+      error,
+      "Aset tidak dapat disimpan. Periksa akun, tanggal, harga perolehan dan umur manfaat.",
+    );
+  }
+  revalidatePath("/assets");
+  revalidatePath("/assets/depreciation");
+  if (!assetId) return { status: "ok", message: "Aset tersimpan." };
+  redirect(
+    entity ? `/assets/${assetId}?entity=${encodeURIComponent(entity)}` : `/assets/${assetId}`,
+  );
 }
