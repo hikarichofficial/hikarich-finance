@@ -1639,6 +1639,9 @@ Decision 261: edit a draft invoice or bill (`/sales/invoices/[id]/edit`, `/purch
 tax baseline re-checked against official sources. No migration. Full detail in `docs/DECISIONS.md`
 decision 261.
 
+Decision 262: tax preview and manual override on Bill/Invoice Detail; Categories screen with tax mapping
+(`/accounting/categories`). No migration. Full detail in `docs/DECISIONS.md` decision 262.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

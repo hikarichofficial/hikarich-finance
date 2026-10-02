@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { formatMoney, formatPlain } from "@/domain/money/format";
 import {
   billActivityTimeline,
@@ -32,12 +33,15 @@ export function BillDetailScreen({
   permissions,
   backHref,
   payment,
+  taxPanel,
 }: {
   bill: BillDetail;
   permissions: BillActionPermissions;
   backHref: string;
   /** Record Payment / Pay Bill (decision 258); absent when not allowed or nothing is outstanding. */
   payment?: { accounts: readonly SettlementAccountOption[]; today: string };
+  /** The tax the engine would recognise, shown while the document is not recognised yet (decision 262). */
+  taxPanel?: ReactNode;
 }) {
   const editQuery = backHref.includes("?") ? backHref.slice(backHref.indexOf("?")) : "";
   const statusRow: BillListRow = {
@@ -80,6 +84,7 @@ export function BillDetailScreen({
       </header>
 
       <BillActions billId={bill.id} status={bill.status} permissions={permissions} />
+      {taxPanel}
       {bill.status === "draft" && permissions.canEdit ? (
         <p>
           <Link

@@ -109,6 +109,7 @@ export const NAVIGATION: readonly NavGroup[] = [
     items: [
       { label: "Jurnal", href: "/accounting/journal" },
       { label: "Daftar Akun", href: "/accounting/coa" },
+      { label: "Kategori", href: "/accounting/categories" },
       { label: "Periode Akuntansi", href: "/accounting/periods" },
       { label: "Saldo Awal", href: "/accounting/opening-balances" },
       { label: "Penyesuaian Lanjutan", href: "/accounting/adjustments" },
