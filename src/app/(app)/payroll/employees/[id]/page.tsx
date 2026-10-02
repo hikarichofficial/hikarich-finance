@@ -10,6 +10,15 @@ import {
   listEmployees,
 } from "@/services/payroll/payroll";
 import { EmployeeDetailScreen } from "@/features/payroll/EmployeeDetailScreen";
+import {
+  BpjsForm,
+  CompensationForm,
+  EmploymentForm,
+  EndEmployeeForm,
+  TaxOpeningForm,
+  TaxProfileForm,
+  UpdateEmployeeForm,
+} from "@/features/payroll/EmployeeForms";
 
 /** Employee Detail (P13 Part 3g, first increment, Step 09 §10, §17: "compensation is permission-gated").
  * No per-employee RPC returns the row itself (`employee_code`/`full_name`/`status`/dates/current employment) --
@@ -21,7 +30,11 @@ import { EmployeeDetailScreen } from "@/features/payroll/EmployeeDetailScreen";
  * checked with `can()` against the already-loaded access snapshot, the same helper Journal Detail uses to
  * gate its action buttons, applied here to gate a data fetch instead. Skipping the fetch entirely (rather
  * than calling it and catching FORBIDDEN) keeps a viewer without the permission from ever triggering the
- * RPC's own denial, matching Step 09 §17's "isolated as a sensitive module" framing. */
+ * RPC's own denial, matching Step 09 §17's "isolated as a sensitive module" framing.
+ *
+ * The write forms are gated on the permission each RPC checks: `payroll.employee_edit` (update, employment,
+ * end; plus `payroll.tax_view` for the tax profile), `payroll.compensation_edit` (compensation, BPJS; plus
+ * `payroll.compensation_view` and `payroll.tax_view` for the opening tax figures). */
 export default async function EmployeeDetailPage({
   params,
   searchParams,
@@ -51,6 +64,12 @@ export default async function EmployeeDetailPage({
     canViewTax ? getTaxProfile({ employee_id: id }) : Promise.resolve(null),
   ]);
 
+  const canEdit = can(access, entityId, "payroll.employee_edit");
+  const canEditCompensation = can(access, entityId, "payroll.compensation_edit");
+  const canEditTax = canEdit && canViewTax;
+  const canSetTaxOpening = canEditCompensation && canViewCompensation && canViewTax;
+  const today = new Date().toISOString().slice(0, 10);
+
   const backHref = entity
     ? `/payroll/employees?entity=${encodeURIComponent(entity)}`
     : "/payroll/employees";
@@ -64,6 +83,76 @@ export default async function EmployeeDetailPage({
       taxProfile={taxProfile}
       currency={currency}
       backHref={backHref}
+      actionsPanel={
+        canEdit || canEditCompensation ? (
+          <div
+            style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "flex-start" }}
+          >
+            {canEdit ? (
+              <UpdateEmployeeForm
+                employeeId={id}
+                fullName={employee.full_name}
+                joinDate={employee.join_date}
+              />
+            ) : null}
+            {canEdit ? (
+              <EmploymentForm
+                employeeId={id}
+                employmentType={employee.employment_type}
+                positionTitle={employee.position_title}
+                department={employee.department}
+                today={today}
+              />
+            ) : null}
+            {canEditCompensation ? (
+              <CompensationForm
+                employeeId={id}
+                current={(compensation?.components ?? []).map((c) => ({
+                  component: c.component,
+                  kind: c.kind,
+                  label: c.label,
+                  amount: c.amount,
+                  taxable: c.taxable,
+                  bpjsBase: c.bpjs_base,
+                }))}
+                today={today}
+              />
+            ) : null}
+            {canEditTax ? (
+              <TaxProfileForm
+                employeeId={id}
+                current={
+                  taxProfile?.recorded
+                    ? {
+                        taxIdStatus: taxProfile.tax_id_status,
+                        ptkpStatus: taxProfile.ptkp_status,
+                        taxMethod: taxProfile.tax_method,
+                      }
+                    : null
+                }
+                today={today}
+              />
+            ) : null}
+            {canEditCompensation ? (
+              <BpjsForm
+                employeeId={id}
+                current={(bpjs?.enrolled ?? []).map((e) => ({
+                  component: e.component,
+                  rateKey: e.rate_key,
+                  memberRef: e.member_ref,
+                }))}
+                today={today}
+              />
+            ) : null}
+            {canSetTaxOpening ? (
+              <TaxOpeningForm employeeId={id} year={Number(today.slice(0, 4))} />
+            ) : null}
+            {canEdit && employee.status === "active" ? (
+              <EndEmployeeForm employeeId={id} today={today} />
+            ) : null}
+          </div>
+        ) : undefined
+      }
     />
   );
 }

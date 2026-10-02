@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import {
@@ -41,6 +42,7 @@ export function EmployeeDetailScreen({
   taxProfile,
   currency,
   backHref,
+  actionsPanel,
 }: {
   employee: EmployeeRow;
   history: readonly EmploymentHistoryRow[];
@@ -49,6 +51,8 @@ export function EmployeeDetailScreen({
   taxProfile: TaxProfile | null;
   currency: string;
   backHref: string;
+  /** The write forms (client components) the page built for what this viewer may do. */
+  actionsPanel?: ReactNode;
 }) {
   const statusBadge = employeeStatusBadge(employee.status);
 
@@ -100,6 +104,15 @@ export function EmployeeDetailScreen({
           </div>
         </dl>
       </section>
+
+      {actionsPanel ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Tindakan</h2>
+          </div>
+          {actionsPanel}
+        </section>
+      ) : null}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">
