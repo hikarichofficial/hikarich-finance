@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { formatMoney } from "@/domain/money/format";
 import { depreciationLineStatusBadge } from "@/domain/assets/assetList";
 import type { DepreciationRange } from "@/domain/assets/depreciationReport";
@@ -28,6 +29,7 @@ export function DepreciationReportScreen({
   query,
   currency,
   entity,
+  actionsPanel,
 }: {
   rows: readonly DepreciationLineRow[];
   due: readonly DepreciationDueRow[];
@@ -36,6 +38,8 @@ export function DepreciationReportScreen({
   query: string;
   currency: string;
   entity: string | undefined;
+  /** The "post depreciation" form (a client component), passed by the page with `assets.manage`. */
+  actionsPanel?: ReactNode;
 }) {
   return (
     <div className="list-screen">
@@ -85,6 +89,18 @@ export function DepreciationReportScreen({
           </div>
         </dl>
       </section>
+
+      {actionsPanel ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Posting Penyusutan Bulanan</h2>
+          </div>
+          {actionsPanel}
+          <p className="hint">
+            Untuk membatalkan penyusutan yang sudah diposting, buka asetnya lalu pilih bulannya.
+          </p>
+        </section>
+      ) : null}
 
       {due.length > 0 ? (
         <section className="dashboard-section">

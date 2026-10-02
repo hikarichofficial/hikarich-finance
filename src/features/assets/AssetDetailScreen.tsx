@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { formatMoney } from "@/domain/money/format";
 import {
   ASSET_SOURCE_LABELS,
@@ -29,11 +30,14 @@ export function AssetDetailScreen({
   currency,
   entity,
   backHref,
+  actionsPanel,
 }: {
   detail: AssetDetail;
   currency: string;
   entity: string | undefined;
   backHref: string;
+  /** The write forms this person may use on this asset now (client components, built by the page). */
+  actionsPanel?: ReactNode;
 }) {
   const { asset, schedule, events, disposal } = detail;
   const statusBadge = assetStatusBadge(asset.status);
@@ -136,6 +140,15 @@ export function AssetDetailScreen({
         </dl>
         {asset.description ? <p className="hint">{asset.description}</p> : null}
       </section>
+
+      {actionsPanel ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Tindakan</h2>
+          </div>
+          {actionsPanel}
+        </section>
+      ) : null}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">
