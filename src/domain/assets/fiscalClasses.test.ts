@@ -4,6 +4,8 @@ import {
   findFiscalClass,
   fiscalClassLabel,
   monthlyStraightLine,
+  previousMonthEnd,
+  suggestFiscalClass,
 } from "./fiscalClasses";
 
 describe("fiscal classes", () => {
@@ -36,5 +38,31 @@ describe("fiscal classes", () => {
     expect(monthlyStraightLine("abc", "", "48")).toBeNull();
     expect(monthlyStraightLine("1000", "2000", "48")).toBeNull();
     expect(monthlyStraightLine("1000", "", "0")).toBeNull();
+  });
+
+  it("suggests a group from the asset's name", () => {
+    expect(suggestFiscalClass("Laptop kerja")?.key).toBe("group_1");
+    expect(suggestFiscalClass("Meja kantor kayu jati")?.key).toBe("group_1");
+    expect(suggestFiscalClass("Rak gudang")?.key).toBe("group_1");
+    expect(suggestFiscalClass("Meja kerja")?.key).toBe("group_1");
+    expect(suggestFiscalClass("Lemari besi arsip")?.key).toBe("group_2");
+    expect(suggestFiscalClass("AC Daikin 1 PK")?.key).toBe("group_2");
+    expect(suggestFiscalClass("Mobil operasional")?.key).toBe("group_2");
+    expect(suggestFiscalClass("Sepeda motor Honda")?.key).toBe("group_1");
+    expect(suggestFiscalClass("Tanah kavling")?.key).toBe("land");
+    expect(suggestFiscalClass("Ruko dua lantai")?.key).toBe("building_permanent");
+  });
+
+  it("matches whole words only and gives nothing for an unknown name", () => {
+    expect(suggestFiscalClass("Biaya promotor")).toBeNull();
+    expect(suggestFiscalClass("Sesuatu yang lain")).toBeNull();
+    expect(suggestFiscalClass("   ")).toBeNull();
+  });
+
+  it("finds the last day of the previous month", () => {
+    expect(previousMonthEnd("2026-10-03")).toBe("2026-09-30");
+    expect(previousMonthEnd("2026-03-01")).toBe("2026-02-28");
+    expect(previousMonthEnd("2024-03-15")).toBe("2024-02-29");
+    expect(previousMonthEnd("2026-01-10")).toBe("2025-12-31");
   });
 });

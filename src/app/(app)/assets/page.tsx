@@ -1,6 +1,6 @@
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import { getEntityBaseCurrency, listAssets } from "@/services/assets/assets";
+import { autoPostDepreciation, getEntityBaseCurrency, listAssets } from "@/services/assets/assets";
 import { filterAssetRows, parseAssetStatusFilter } from "@/domain/assets/assetList";
 import { AssetRegisterScreen } from "@/features/assets/AssetRegisterScreen";
 
@@ -14,6 +14,9 @@ export default async function AssetRegisterPage({
 }) {
   const { entity, status, q } = await searchParams;
   const { access, membership } = await requirePermission("assets.view", { entityCode: entity });
+  if (can(access, membership.entity_id, "assets.manage")) {
+    await autoPostDepreciation(membership.entity_id);
+  }
   const assetStatus = parseAssetStatusFilter(status) ?? null;
   const query = q ?? "";
 

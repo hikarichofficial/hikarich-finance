@@ -1668,6 +1668,11 @@ Decision 268: fiscal groups fill in the useful life and the form shows the month
 `/assets/opening` for assets owned before the app. Open for the OWNER: depreciation on a Personal ledger.
 Full detail in `docs/DECISIONS.md` decision 268.
 
+Decision 269: fiscal group suggested from the asset name; depreciation posts itself after month end;
+payroll payment fixed (deferred trigger now SECURITY DEFINER). Open for the OWNER: keep the personal
+business as a business-type Entity with taxpayer kind "Orang pribadi". Full detail in
+`docs/DECISIONS.md` decision 269.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
