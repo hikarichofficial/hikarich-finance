@@ -11,7 +11,7 @@ describe("NAVIGATION labels (decision 254)", () => {
       "Akuntansi",
       "Pajak",
       "Aset & Pendanaan",
-      "Gaji",
+      "Payroll",
       "Perencanaan",
       "Laporan",
       "Dokumen",

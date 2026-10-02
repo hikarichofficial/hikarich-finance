@@ -1255,7 +1255,8 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
 
 - Indonesian menu names and reveal submenus (decision 254, OWNER request after the first signed-in
   walkthrough). Every label in `src/domain/shell/navigation.ts` is now simple Indonesian (for example
-  Penjualan, Faktur, Kas & Bank, Rekonsiliasi Bank, Perencanaan, Perkiraan, Laporan, Administrasi); the
+  Penjualan, Pembelian, Kas & Bank, Rekonsiliasi Bank, Perencanaan, Perkiraan, Laporan, Administrasi); terms
+  people use in English anyway stay English (Dashboard, Invoice, Vendor, Payroll, Backup & Restore); the
   sitemap's structure, order, routes and permissions are unchanged, so this is wording only. The Sidebar
   shows one row per menu; pressing it reveals its submenu (short fade/slide, none with reduced motion)
   and closes the one opened before, and the menu of the current page is open by default

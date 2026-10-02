@@ -53,7 +53,7 @@ export const NAVIGATION: readonly NavGroup[] = [
     label: "Ringkasan",
     href: "/",
     items: [
-      { label: "Dasbor", href: "/" },
+      { label: "Dashboard", href: "/" },
       { label: "Saldo Kas & Bank", href: "/money/accounts", permission: ["money.view"] },
       { label: "Aktivitas Terbaru", href: "/activity" },
     ],
@@ -65,7 +65,7 @@ export const NAVIGATION: readonly NavGroup[] = [
     href: "/sales/invoices",
     permission: ["invoices.view"],
     items: [
-      { label: "Faktur", href: "/sales/invoices", permission: ["invoices.view"] },
+      { label: "Invoice", href: "/sales/invoices", permission: ["invoices.view"] },
       { label: "Pembayaran Diterima", href: "/sales/payments", permission: ["invoices.view"] },
       { label: "Pengembalian Dana", href: "/sales/refunds", permission: ["refunds.view"] },
       { label: "Pelanggan", href: "/sales/customers", permission: ["contacts.view"] },
@@ -82,7 +82,7 @@ export const NAVIGATION: readonly NavGroup[] = [
       { label: "Tagihan", href: "/purchases/bills", permission: ["bills.view"] },
       { label: "Beban", href: "/purchases/expenses", permission: ["bills.view"] },
       { label: "Pembayaran Keluar", href: "/purchases/payments", permission: ["bills.view"] },
-      { label: "Pemasok", href: "/purchases/vendors", permission: ["contacts.view"] },
+      { label: "Vendor", href: "/purchases/vendors", permission: ["contacts.view"] },
     ],
   },
   {
@@ -151,13 +151,13 @@ export const NAVIGATION: readonly NavGroup[] = [
   {
     key: "payroll",
     icon: "Users",
-    label: "Gaji",
+    label: "Payroll",
     href: "/payroll/employees",
     permission: ["payroll.employee_view"],
     items: [
       { label: "Karyawan", href: "/payroll/employees" },
       {
-        label: "Proses Gaji",
+        label: "Proses Payroll",
         href: "/payroll/runs",
         // `payroll_run_list`/`payroll_run_get` need `payroll.compensation_view` AND (`payroll.run` OR
         // `payroll.approve` OR `payroll.pay`) -- a compound rule this OR-only permission array cannot fully
@@ -174,7 +174,7 @@ export const NAVIGATION: readonly NavGroup[] = [
         permission: ["payroll.compensation_view"],
       },
       {
-        label: "Pajak & Kewajiban Gaji",
+        label: "Pajak & Kewajiban Payroll",
         href: "/payroll/tax",
         // Was `payroll.tax_view` -- wrong on its own: `payroll_liability_report` (the screen's own "always
         // visible" section) needs only the base compound rule (`payroll.compensation_view` AND run/approve/
@@ -212,7 +212,7 @@ export const NAVIGATION: readonly NavGroup[] = [
       { label: "Penjualan & Pembelian", href: "/reports/sales-purchase" },
       { label: "Arus Kas", href: "/reports/cashflow" },
       { label: "Pajak", href: "/reports/tax" },
-      { label: "Gaji", href: "/reports/payroll" },
+      { label: "Payroll", href: "/reports/payroll" },
       { label: "Aset & Pinjaman", href: "/reports/assets-loans" },
       { label: "Laporan Kustom", href: "/reports/custom" },
       { label: "Laporan Tersimpan", href: "/reports/saved" },
@@ -252,7 +252,7 @@ export const NAVIGATION: readonly NavGroup[] = [
       { label: "Pengaturan", href: "/admin/settings", permission: ["settings.view"] },
       { label: "Keamanan", href: "/admin/security", permission: ["security.view"] },
       {
-        label: "Backup & Pemulihan",
+        label: "Backup & Restore",
         href: "/admin/backup",
         permission: ["backup.create", "backup.restore"],
       },
@@ -288,7 +288,7 @@ export function visibleNavigation(permissions: readonly string[]): NavGroup[] {
 
 /**
  * The nav item the current path belongs to: the item whose `href` is the path itself or its longest
- * path-segment prefix (so `/sales/invoices/123` marks "Faktur" and its group, decision 254). `/` only
+ * path-segment prefix (so `/sales/invoices/123` marks "Invoice" and its group, decision 254). `/` only
  * matches itself. When two groups list the same page, the later (its home group) wins.
  */
 export function activeNavItem(
