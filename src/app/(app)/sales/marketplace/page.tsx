@@ -35,7 +35,10 @@ export default async function MarketplacePage({
     .filter((a) => a.is_active)
     .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` }));
   const storeLabel = new Map(
-    stores.map((s) => [s.id, `${MARKETPLACE_PLATFORM_LABELS[s.platform] ?? s.platform} · ${s.name}`]),
+    stores.map((s) => [
+      s.id,
+      `${MARKETPLACE_PLATFORM_LABELS[s.platform] ?? s.platform} · ${s.name}`,
+    ]),
   );
   const activeStores = stores.filter((s) => s.is_active);
   const today = new Date().toISOString().slice(0, 10);
@@ -46,8 +49,8 @@ export default async function MarketplacePage({
         <div>
           <h1>Marketplace</h1>
           <p className="list-screen-summary">
-            {stores.length} toko · {settlements.length} pencairan terakhir. Penjualan marketplace dicatat
-            per pencairan dana.
+            {stores.length} toko · {settlements.length} pencairan terakhir. Penjualan marketplace
+            dicatat per pencairan dana.
           </p>
         </div>
       </header>
@@ -141,7 +144,9 @@ export default async function MarketplacePage({
           <h2 className="dashboard-section-title">Toko</h2>
         </div>
         {stores.length === 0 ? (
-          <p className="dashboard-empty">Belum ada toko. Tambahkan toko marketplace Anda di bawah.</p>
+          <p className="dashboard-empty">
+            Belum ada toko. Tambahkan toko marketplace Anda di bawah.
+          </p>
         ) : (
           <ul className="dashboard-list">
             {stores.map((s) => (

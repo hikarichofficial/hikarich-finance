@@ -55,7 +55,13 @@ export function MarketplaceStoreForm({
       </label>
       <label>
         Nama Toko
-        <input name="name" required minLength={2} maxLength={120} placeholder="mis. Hikarich Official" />
+        <input
+          name="name"
+          required
+          minLength={2}
+          maxLength={120}
+          placeholder="mis. Hikarich Official"
+        />
       </label>
       <label>
         Rekening Tujuan Pencairan (opsional)
@@ -69,8 +75,8 @@ export function MarketplaceStoreForm({
         </select>
       </label>
       <label className="checkbox-field">
-        <input type="checkbox" name="pph22_exempt" /> Bebas pungutan PPh 22 (orang pribadi omzet sampai
-        Rp500 juta yang sudah menyerahkan surat pernyataan)
+        <input type="checkbox" name="pph22_exempt" /> Bebas pungutan PPh 22 (orang pribadi omzet
+        sampai Rp500 juta yang sudah menyerahkan surat pernyataan)
       </label>
       <Feedback state={state} />
       <button type="submit" className="btn-primary" disabled={pending}>
@@ -102,7 +108,12 @@ export function MarketplaceSettlementForm({
       <input type="hidden" name="entity" value={entity ?? ""} />
       <label>
         Toko
-        <select name="store_id" required value={storeId} onChange={(e) => setStoreId(e.target.value)}>
+        <select
+          name="store_id"
+          required
+          value={storeId}
+          onChange={(e) => setStoreId(e.target.value)}
+        >
           {stores.map((store) => (
             <option key={store.id} value={store.id}>
               {store.label}
@@ -152,7 +163,8 @@ export function MarketplaceSettlementForm({
         <input name="reference" maxLength={200} />
       </label>
       <p className="hint">
-        Dana cair = penjualan + PPN (hanya bila PKP) − biaya − PPh 22. Angka ditulis tanpa titik ribuan.
+        Dana cair = penjualan + PPN (hanya bila PKP) − biaya − PPh 22. Angka ditulis tanpa titik
+        ribuan.
       </p>
       <Feedback state={state} />
       <button type="submit" className="btn-primary" disabled={pending}>
@@ -163,7 +175,13 @@ export function MarketplaceSettlementForm({
 }
 
 /** Reverse a recorded settlement: the journal, the cash movement and the tax are undone. */
-export function ReverseSettlementForm({ settlementId, today }: { settlementId: string; today: string }) {
+export function ReverseSettlementForm({
+  settlementId,
+  today,
+}: {
+  settlementId: string;
+  today: string;
+}) {
   const [state, action, pending] = useActionState(reverseSettlementAction, IDLE);
   const [open, setOpen] = useState(false);
   if (!open) {
