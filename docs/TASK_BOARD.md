@@ -1615,11 +1615,14 @@ Decision 254: menu names in Indonesian and reveal submenus in the Sidebar (OWNER
 Decision 255: `/cash-snapshot` gives Ringkasan > Saldo Kas & Bank its own page; opened menus stay open.
 Full detail in `docs/DECISIONS.md` decision 255.
 
+<<<<<<< HEAD
 Decision 256: PPh 4(2) on rent of land/buildings and PPh 26 on payments to non-residents in the tax
 engine (tax types `wht_pph4_2`, `wht_pph26`), and the PMK 81/2024 payment deadline (the 15th) for PPh 21
 and PPh 23. Next slice: Create Bill / Create Invoice screens with tax fields, then marketplace PPh 22.
 Full detail in `docs/DECISIONS.md` decision 256.
 
+=======
+>>>>>>> origin/main
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
