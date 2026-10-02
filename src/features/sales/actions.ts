@@ -6,10 +6,13 @@ import { redirect } from "next/navigation";
 import { AuthzError, authzErrorMessage } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
+  confirmPaymentSubmission,
   correctInvoice,
   createInvoiceDraft,
   getInvoiceOwner,
   recordPayment,
+  rejectPaymentSubmission,
+  revokeInvoiceLink,
   getInvoiceLink,
   issueInvoice,
   regenerateInvoiceLink,
@@ -264,4 +267,63 @@ export async function recordInvoicePaymentAction(
   revalidateInvoice(invoiceId);
   revalidatePath("/sales/payments");
   return { status: "ok", message: "Pembayaran tercatat." };
+}
+
+/** Confirm a pending payment claim (decision 259, Step 07 §4): `confirm_payment_submission` creates the
+ * confirmed payment, its allocation, the money movement, the journal and the receipt. */
+export async function confirmClaimAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  try {
+    await confirmPaymentSubmission({
+      submission_id: text(formData, "submission_id"),
+      idempotency_key: randomUUID(),
+      account_id: text(formData, "account_id") || undefined,
+      payment_date: text(formData, "payment_date") || undefined,
+      amount: text(formData, "amount") || undefined,
+      note: text(formData, "note") || undefined,
+    });
+  } catch (error) {
+    return draftErrorState(
+      error,
+      "Klaim tidak dapat dikonfirmasi. Periksa rekening, tanggal dan jumlah.",
+    );
+  }
+  revalidatePath("/sales/claims");
+  revalidatePath("/sales/invoices");
+  revalidatePath("/sales/payments");
+  return { status: "ok", message: "Pembayaran dikonfirmasi dan kwitansi terbit." };
+}
+
+/** Reject a pending claim: no financial effect; the reason is kept. */
+export async function rejectClaimAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  try {
+    await rejectPaymentSubmission({
+      submission_id: text(formData, "submission_id"),
+      reason: text(formData, "reason"),
+    });
+  } catch (error) {
+    return draftErrorState(error, "Klaim tidak dapat ditolak. Isi alasan minimal 5 karakter.");
+  }
+  revalidatePath("/sales/claims");
+  return { status: "ok", message: "Klaim ditolak." };
+}
+
+/** Revoke the public link of an invoice: the old address stops working at once (Step 07 §4). */
+export async function revokeInvoiceLinkAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  const invoiceId = text(formData, "invoice_id");
+  try {
+    await revokeInvoiceLink({ invoice_id: invoiceId, reason: text(formData, "reason") });
+  } catch (error) {
+    return draftErrorState(error, "Tautan tidak dapat dicabut. Isi alasan minimal 5 karakter.");
+  }
+  revalidateInvoice(invoiceId);
+  return { status: "ok", message: "Tautan publik dicabut." };
 }

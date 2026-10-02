@@ -546,3 +546,46 @@ export async function getInvoiceOwner(
   if (error || !data) return null;
   return { entity_id: String(data.entity_id), customer_id: String(data.customer_id) };
 }
+
+export interface PaymentClaimRow {
+  id: string;
+  invoice_id: string;
+  invoice_number: string | null;
+  source: string;
+  amount: string;
+  currency: string;
+  payment_date: string;
+  payer_name: string | null;
+  payer_reference: string | null;
+  note: string | null;
+  created_at: string;
+}
+
+/** Pending payment claims of the Entity ("Saya Sudah Bayar" from the public page, or staff-recorded), by a
+ * direct RLS-governed read; the requester hash is never selected. Decision 259. */
+export async function listPendingPaymentClaims(entityId: string): Promise<PaymentClaimRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("payment_submissions")
+    .select(
+      "id, invoice_id, source, amount::text, currency, payment_date, payer_name, payer_reference, note, created_at",
+    )
+    .eq("entity_id", uuid(entityId))
+    .eq("status", "pending")
+    .order("created_at", { ascending: true })
+    .limit(200);
+  if (error) throw new Error("Gagal memuat klaim pembayaran.");
+  const rows = (data ?? []) as unknown as Omit<PaymentClaimRow, "invoice_number">[];
+  if (rows.length === 0) return [];
+  const { data: invoices } = await supabase
+    .from("invoices")
+    .select("id, invoice_number")
+    .in("id", [...new Set(rows.map((r) => r.invoice_id))]);
+  const numbers = new Map(
+    ((invoices ?? []) as { id: string; invoice_number: string | null }[]).map((i) => [
+      i.id,
+      i.invoice_number,
+    ]),
+  );
+  return rows.map((r) => ({ ...r, invoice_number: numbers.get(r.invoice_id) ?? null }));
+}

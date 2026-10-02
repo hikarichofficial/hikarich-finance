@@ -80,7 +80,11 @@ describe("visibleNavigation", () => {
 
   it("shows only the permitted items of a menu", () => {
     const sales = visibleNavigation(["invoices.view"]).find((g) => g.key === "sales");
-    expect(sales?.items?.map((i) => i.href)).toEqual(["/sales/invoices", "/sales/payments"]);
+    expect(sales?.items?.map((i) => i.href)).toEqual([
+      "/sales/invoices",
+      "/sales/payments",
+      "/sales/claims",
+    ]);
   });
 
   it("shows a menu through one item's own permission", () => {

@@ -9,6 +9,7 @@ import {
   idleInvoiceActionState,
   idleInvoiceLinkState,
   issueInvoiceAction,
+  revokeInvoiceLinkAction,
   voidInvoiceAction,
 } from "./actions";
 
@@ -115,6 +116,23 @@ function VoidForm({ invoiceId }: { invoiceId: string }) {
   );
 }
 
+/** Revoke the public link (Step 07 §4, decision 259): the address stops working at once; "Salin Tautan
+ * Publik" afterwards creates a new one. */
+function RevokeLinkForm({ invoiceId }: { invoiceId: string }) {
+  const [state, action, pending] = useActionState(revokeInvoiceLinkAction, idleInvoiceActionState);
+  return (
+    <ReasonForm
+      invoiceId={invoiceId}
+      action={action}
+      pending={pending}
+      state={state}
+      label="Cabut Tautan Publik"
+      pendingLabel="Mencabut…"
+      confirmHint="Tautan yang sudah dibagikan langsung tidak bisa dibuka lagi. Invoice dan riwayatnya tidak berubah."
+    />
+  );
+}
+
 function CorrectForm({ invoiceId }: { invoiceId: string }) {
   const router = useRouter();
   const [state, action, pending] = useActionState(correctInvoiceAction, idleCorrectInvoiceState);
@@ -211,6 +229,7 @@ export function InvoiceActions({
   }
   if (status === "issued" && permissions.canManageLink) {
     actions.push(<CopyLinkForm key="link" invoiceId={invoiceId} />);
+    actions.push(<RevokeLinkForm key="revoke" invoiceId={invoiceId} />);
   }
   if (status === "issued" && permissions.canCorrect) {
     actions.push(<CorrectForm key="correct" invoiceId={invoiceId} />);

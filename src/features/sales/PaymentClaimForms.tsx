@@ -1,0 +1,104 @@
+"use client";
+
+import { useActionState, useState } from "react";
+import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
+import { confirmClaimAction, idleInvoiceActionState, rejectClaimAction } from "./actions";
+
+/**
+ * Confirm or reject one pending payment claim (decision 259, Step 07 §4). Confirming is where the money is
+ * actually recognised: the person picks the account it arrived in and may correct the date or amount to
+ * what the bank shows. Rejecting needs a reason and has no financial effect.
+ */
+export function PaymentClaimForms({
+  submissionId,
+  accounts,
+  amount,
+  paymentDate,
+}: {
+  submissionId: string;
+  accounts: readonly SettlementAccountOption[];
+  amount: string;
+  paymentDate: string;
+}) {
+  const [confirmState, confirmAction, confirming] = useActionState(
+    confirmClaimAction,
+    idleInvoiceActionState,
+  );
+  const [rejectState, rejectAction, rejecting] = useActionState(
+    rejectClaimAction,
+    idleInvoiceActionState,
+  );
+  const [mode, setMode] = useState<"closed" | "confirm" | "reject">("closed");
+
+  if (mode === "closed") {
+    return (
+      <div className="invoice-actions">
+        <button type="button" className="btn-primary" onClick={() => setMode("confirm")}>
+          Konfirmasi
+        </button>
+        <button type="button" className="btn-secondary" onClick={() => setMode("reject")}>
+          Tolak
+        </button>
+      </div>
+    );
+  }
+
+  if (mode === "reject") {
+    return (
+      <form action={rejectAction} className="record-form">
+        <input type="hidden" name="submission_id" value={submissionId} />
+        <label>
+          Alasan Penolakan (minimal 5 karakter)
+          <input name="reason" required minLength={5} maxLength={1000} />
+        </label>
+        {rejectState.status === "error" ? (
+          <p role="alert" className="error">
+            {rejectState.message}
+          </p>
+        ) : null}
+        <button type="submit" className="btn-secondary" disabled={rejecting}>
+          {rejecting ? "Menyimpan…" : "Tolak Klaim"}
+        </button>
+      </form>
+    );
+  }
+
+  return (
+    <form action={confirmAction} className="record-form">
+      <input type="hidden" name="submission_id" value={submissionId} />
+      <label>
+        Diterima di Rekening
+        <select name="account_id" required defaultValue="">
+          <option value="" disabled>
+            Pilih rekening kas/bank
+          </option>
+          {accounts.map((account) => (
+            <option key={account.id} value={account.id}>
+              {account.label}
+            </option>
+          ))}
+        </select>
+      </label>
+      <label>
+        Tanggal Uang Masuk
+        <input type="date" name="payment_date" required defaultValue={paymentDate} />
+      </label>
+      <label>
+        Jumlah yang Benar-benar Masuk
+        <input name="amount" required inputMode="decimal" defaultValue={amount} />
+      </label>
+      <label>
+        Catatan (opsional)
+        <input name="note" maxLength={1000} />
+      </label>
+      {confirmState.status === "error" ? (
+        <p role="alert" className="error">
+          {confirmState.message}
+        </p>
+      ) : null}
+      <button type="submit" className="btn-primary" disabled={confirming}>
+        {confirming ? "Menyimpan…" : "Konfirmasi Pembayaran"}
+      </button>
+    </form>
+  );
+}
