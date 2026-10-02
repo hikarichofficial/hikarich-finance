@@ -14,9 +14,10 @@ import { NavIcon } from "./icons";
  * only renders it and highlights the active link via the current path (Step 09 §4: "the active
  * destination is always visually distinct").
  *
- * Decision 254 (OWNER): each menu is a row that reveals its submenu when pressed, so the sidebar stays
- * short. The menu holding the current page is open; pressing a menu opens it and closes the others the
- * person opened. In the collapsed (icon) sidebar a menu icon expands the sidebar and opens that menu.
+ * Decisions 254/255 (OWNER): each menu is a row that reveals its submenu when pressed, so the sidebar
+ * stays short. Menus the person opened stay open until they close them (so they need not remember where a
+ * submenu lives), and the menu holding the current page opens by itself. In the collapsed (icon) sidebar
+ * a menu icon expands the sidebar and opens that menu.
  */
 export function Sidebar({
   groups,
@@ -31,17 +32,24 @@ export function Sidebar({
 }) {
   const pathname = usePathname();
   const active = activeNavItem(groups, pathname);
-  // What the person toggled for the current page; navigating elsewhere falls back to the active menu.
-  const [choice, setChoice] = useState<{ path: string; key: string | null } | null>(null);
-  const openKey = choice && choice.path === pathname ? choice.key : (active?.groupKey ?? null);
+  const activeKey = active?.groupKey ?? null;
+  // What the person opened or closed by hand; a menu without an entry is open only while it is active.
+  const [manual, setManual] = useState<Readonly<Record<string, boolean>>>({});
+  // Arriving in another menu opens it again even if it was closed by hand earlier.
+  const [seenActiveKey, setSeenActiveKey] = useState(activeKey);
+  if (seenActiveKey !== activeKey) {
+    setSeenActiveKey(activeKey);
+    if (activeKey && manual[activeKey] === false) setManual({ ...manual, [activeKey]: true });
+  }
+  const isOpen = (key: string): boolean => manual[key] ?? key === activeKey;
 
   function toggle(key: string): void {
     if (collapsed) {
       onToggleCollapse();
-      setChoice({ path: pathname, key });
+      setManual({ ...manual, [key]: true });
       return;
     }
-    setChoice({ path: pathname, key: openKey === key ? null : key });
+    setManual({ ...manual, [key]: !isOpen(key) });
   }
 
   return (
@@ -53,7 +61,7 @@ export function Sidebar({
       <nav className="app-nav" aria-label="Navigasi utama">
         {groups.map((group) => {
           const items = group.items ?? [{ label: group.label, href: group.href }];
-          const open = !collapsed && openKey === group.key;
+          const open = !collapsed && isOpen(group.key);
           const panelId = `nav-panel-${group.key}`;
           return (
             <div className="app-nav-group" key={group.key} data-open={open ? "true" : "false"}>

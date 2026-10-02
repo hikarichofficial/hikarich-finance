@@ -305,6 +305,19 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 - OWNER's tax adviser to verify the payroll baseline before P15: the TER tables and categories, PTKP values, the occupational-cost cap, the treatment of employer Kesehatan/JKK/JKM as taxable benefits, PTKP proration for part-year employees, rounding, the JP cap dates and the treatment of over-withheld tax (decisions 121-123, 132).
 - OWNER to decide who holds the `payroll` role and whether payroll approval and payment should be OWNER-only (decisions 120, 125, 127); OWNER to decide the approval rules for `payroll`/`approve` and `payroll`/`pay`.
 - Payroll screens still remaining after Part 3g's first four increments -- Employee Register/Detail (decision 179), Payroll Run Register/Detail (decision 180), Payslip Register/Detail (decision 181), Payroll Tax & Liabilities (decision 182): every payroll action form (employee create/edit/end/record-employment/set-compensation/set-tax-profile/set-bpjs/set-tax-opening; run calculate/adjust/submit/approve/return/post/pay/close/reopen/correct -- all already service-wrapped, none yet given a UI), the payslip PDF/document export, and THR/severance and e-bupot export (decisions 132-133). `payroll_summary_report`/`payroll_control_report` (decision 182's own deferred list) shipped as the Payroll Summary/Payroll Control reports (decision 196).
+- Tax rule master review against official sources (2026-10-02, for P15; not tax advice, to be confirmed by
+  the OWNER's tax consultant before anything is published in production):
+  - Deadlines: PMK 81/2024 Pasal 94 moved the payment deadline of PPh 21 and PPh 23 to the 15th of the
+    following month from 2025; the master's version 1 says the 10th. Draft versions were prepared on the
+    non-production database for review; production needs the same correction.
+  - PPh Final UMKM (PP 20/2026, effective 22 Apr 2026): confirmed 0.5%, Rp4.8 billion ceiling, Rp500
+    million band for individuals only; individuals and Perseroan Perorangan have no time limit,
+    cooperatives 4 years, ordinary PT/CV/firma are no longer eligible (transition applies). The Rp4.8
+    billion test aggregates the turnover of husband, wife, minor children and every Perseroan Perorangan
+    they founded; the engine has no such aggregation yet beyond `aggregation_status`.
+  - Not in the master and not computed by the engine: corporate income tax (Pasal 17/31E, PPh 25/29),
+    PPh 4(2), PPh 26, PPh 21 for non-employees, marketplace PPh 22 (from 1 Nov 2026), annual SPT
+    deadlines. Adding any of these is new engine scope and an OWNER decision.
 - Forecast projection methodology decided by the OWNER (decision 250, answers decision 139). Confirm the "Committed" reading for budgets (decision 138) is what was intended.
 - Recurring rule / budget / revenue target screens (decisions 134-139) are now fully shipped (decisions 183-188), including Recurring Rule's own create/edit template builder (decision 188). The template builder's v1 line editor deliberately leaves every optional tax/discount/product-linkage field (`vat_treatment`, `discount_type`, `wht_object`, `tax_amount`, `product_id`, an account-linked line) unexposed in the UI (decision 188); OWNER to confirm whether a future increment should expose them or whether the defaulted-at-generation behavior is acceptable long-term.
 - Documents Center, Import Wizard and Command Menu screens (decisions 140-146) are a later slice (P13), like every other phase's screens; the download route's signed-URL generation needs Supabase Storage configured, which is an infrastructure step outside this repository's migrations.
@@ -1265,6 +1278,14 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   labels. Found while testing: a submenu item without its own permission made its menu appear for
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
+
+- Sidebar follow-ups (decision 255, OWNER walkthrough feedback). (1) "Saldo Kas & Bank" under
+  Ringkasan now has its own page, `/cash-snapshot` (total active balance, each active account's balance
+  and reconciliation freshness, read-only, `money.view`, the Dashboard's own Account Snapshot data),
+  instead of sharing `/money/accounts` with Kas & Bank > Rekening, which made the highlight jump to the
+  other menu; every submenu now has a unique route (tested). (2) Menus the person opened stay open until
+  they close them, rather than closing when another menu is opened, so they need not remember where a
+  submenu lives; the menu of the current page still opens by itself.
 
 - Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
   `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory

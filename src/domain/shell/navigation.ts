@@ -54,7 +54,7 @@ export const NAVIGATION: readonly NavGroup[] = [
     href: "/",
     items: [
       { label: "Dashboard", href: "/" },
-      { label: "Saldo Kas & Bank", href: "/money/accounts", permission: ["money.view"] },
+      { label: "Saldo Kas & Bank", href: "/cash-snapshot", permission: ["money.view"] },
       { label: "Aktivitas Terbaru", href: "/activity" },
     ],
   },
@@ -289,7 +289,7 @@ export function visibleNavigation(permissions: readonly string[]): NavGroup[] {
 /**
  * The nav item the current path belongs to: the item whose `href` is the path itself or its longest
  * path-segment prefix (so `/sales/invoices/123` marks "Invoice" and its group, decision 254). `/` only
- * matches itself. When two groups list the same page, the later (its home group) wins.
+ * matches itself. Should two menus ever list the same page, the later (its home menu) wins.
  */
 export function activeNavItem(
   groups: readonly NavGroup[],
