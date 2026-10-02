@@ -195,6 +195,8 @@ declare
                                          -- Marketplace stores and settlements (decision 260)
                                          'create_marketplace_store', 'record_marketplace_settlement',
                                          'reverse_marketplace_settlement', 'preview_marketplace_settlement',
+                                         -- Category to ledger account mapping (decision 265)
+                                         'set_category_account',
                                          -- Entity timezone / fiscal-year start in Settings (decision 248)
                                          'update_entity_time_settings',
                                          -- Forecasts (decision 250)

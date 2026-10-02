@@ -1,8 +1,13 @@
 import { can } from "@/domain/authz/access";
 import { requireAccess } from "@/services/identity/access";
-import { listCategoriesForAdmin } from "@/services/accounting/categories";
+import {
+  listCategoriesForAdmin,
+  listCurrentCategoryAccounts,
+} from "@/services/accounting/categories";
+import { listLedgerAccounts } from "@/services/accounting/ledger";
 import {
   CATEGORY_KIND_LABELS,
+  CategoryAccountForm,
   CategoryCreateForm,
   CategoryRowForm,
 } from "@/features/categories/CategoryForms";
@@ -18,7 +23,20 @@ export default async function CategoriesPage({
   const { entity } = await searchParams;
   const { access, membership } = await requireAccess({ entityCode: entity });
   const canManage = can(access, membership.entity_id, "categories.manage");
-  const rows = await listCategoriesForAdmin(membership.entity_id);
+  const canMapAccount = canManage && can(access, membership.entity_id, "coa.manage");
+  const today = new Date().toISOString().slice(0, 10);
+  const [rows, currentAccounts, ledgerAccounts] = await Promise.all([
+    listCategoriesForAdmin(membership.entity_id),
+    listCurrentCategoryAccounts(membership.entity_id, today),
+    canMapAccount ? listLedgerAccounts(membership.entity_id).catch(() => []) : Promise.resolve([]),
+  ]);
+  const postable = ledgerAccounts.filter((a) => a.status === "active" && !a.is_group);
+  const accountOptions = (classes: readonly string[]) =>
+    postable
+      .filter((a) => classes.includes(a.account_class))
+      .map((a) => ({ id: a.id, label: `${a.code} · ${a.name}` }));
+  const revenueAccounts = accountOptions(["revenue", "other_income"]);
+  const expenseAccounts = accountOptions(["expense", "other_expense"]);
 
   return (
     <div className="list-screen">
@@ -43,6 +61,7 @@ export default async function CategoriesPage({
               <th scope="col">Nama</th>
               <th scope="col">Jenis</th>
               <th scope="col">Pemetaan Pajak</th>
+              <th scope="col">Akun & Berlaku Sejak</th>
             </tr>
           </thead>
           <tbody>
@@ -63,6 +82,21 @@ export default async function CategoriesPage({
                     />
                   ) : (
                     (row.tax_category_key ?? "—")
+                  )}
+                </td>
+                <td data-label="Akun">
+                  {canMapAccount && (row.kind === "revenue" || row.kind === "expense") ? (
+                    <CategoryAccountForm
+                      entity={entity}
+                      categoryId={row.id}
+                      accounts={row.kind === "revenue" ? revenueAccounts : expenseAccounts}
+                      currentAccountId={currentAccounts.get(row.id) ?? null}
+                      today={today}
+                    />
+                  ) : currentAccounts.has(row.id) ? (
+                    "Dipetakan"
+                  ) : (
+                    "Akun bawaan"
                   )}
                 </td>
               </tr>

@@ -4,6 +4,7 @@ import { useActionState } from "react";
 import { VAT_TREATMENT_LABELS, WHT_OBJECT_LABELS } from "@/domain/tax/tax";
 import {
   createCategoryAction,
+  setCategoryAccountAction,
   updateCategoryAction,
   type CategoryActionState,
 } from "./categoryActions";
@@ -108,6 +109,49 @@ export function CategoryRowForm({
       <label className="checkbox-field">
         <input type="checkbox" name="is_active" defaultChecked={isActive} /> Aktif
       </label>
+      <button type="submit" className="btn-secondary" disabled={pending}>
+        {pending ? "…" : "Simpan"}
+      </button>
+      <Feedback state={state} />
+    </form>
+  );
+}
+
+/** Choose the ledger account a revenue or expense category posts to, from a date on (decision 265).
+ * Documents already posted keep the account they had. */
+export function CategoryAccountForm({
+  entity,
+  categoryId,
+  accounts,
+  currentAccountId,
+  today,
+}: {
+  entity: string | undefined;
+  categoryId: string;
+  accounts: readonly { id: string; label: string }[];
+  currentAccountId: string | null;
+  today: string;
+}) {
+  const [state, action, pending] = useActionState(setCategoryAccountAction, IDLE);
+  return (
+    <form action={action} className="invoice-action-form">
+      <input type="hidden" name="entity" value={entity ?? ""} />
+      <input type="hidden" name="category_id" value={categoryId} />
+      <select name="account_id" defaultValue={currentAccountId ?? ""} aria-label="Akun">
+        <option value="">Akun bawaan</option>
+        {accounts.map((account) => (
+          <option key={account.id} value={account.id}>
+            {account.label}
+          </option>
+        ))}
+      </select>
+      <input
+        type="date"
+        name="effective_from"
+        required
+        defaultValue={today}
+        aria-label="Berlaku sejak"
+      />
       <button type="submit" className="btn-secondary" disabled={pending}>
         {pending ? "…" : "Simpan"}
       </button>
