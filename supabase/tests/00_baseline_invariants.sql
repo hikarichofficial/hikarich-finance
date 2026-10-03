@@ -201,6 +201,8 @@ declare
                                          'update_entity_time_settings',
                                          -- Entity names, address and contact details in Settings (decision 272)
                                          'update_entity_identity',
+                                         -- An OWNER adds an Entity (decision 276)
+                                         'create_entity',
                                          -- Forecasts (decision 250)
                                          'get_planning_forecast',
                                          -- the three token-scoped functions (also open to `anon`, see below)

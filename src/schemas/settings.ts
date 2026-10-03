@@ -120,3 +120,16 @@ export const entityIdentityInputSchema = z.object({
   expected_version: z.coerce.number().int().positive(),
 });
 export type EntityIdentityInput = z.infer<typeof entityIdentityInputSchema>;
+
+/** Input of `create_entity` (decision 276): an OWNER adds an Entity. The database validates again. */
+export const createEntityInputSchema = z.object({
+  code: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(/^[a-z][a-z0-9_-]{1,30}$/),
+  entity_type: z.enum(["company", "personal"]),
+  legal_name: z.string().trim().min(1).max(200),
+  brand_name: z.string().trim().max(200),
+});
+export type CreateEntityInput = z.infer<typeof createEntityInputSchema>;

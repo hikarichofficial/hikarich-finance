@@ -1696,6 +1696,9 @@ Decision 275: Import Wizard screen, file attachments on Bill/Expense/Invoice (pr
 `SUPABASE_SERVICE_ROLE_KEY` in Vercel Production), PPh Final reasons in Indonesian. Open: a screen to
 add an Entity (OWNER to confirm the rule). Full detail in `docs/DECISIONS.md` decision 275.
 
+Decision 276: `create_entity` and the "Tambah Entity" form on Settings (OWNER only, step-up, creator
+becomes OWNER). Full detail in `docs/DECISIONS.md` decision 276.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

@@ -5,6 +5,7 @@ import {
   getEntitySettingsOverview,
 } from "@/services/settings/settings";
 import { SettingsScreen } from "@/features/settings/SettingsScreen";
+import { CreateEntityForm } from "@/features/settings/CreateEntityForm";
 import { EntityIdentityForm } from "@/features/settings/EntityIdentityForm";
 import { TimeSettingsForm } from "@/features/settings/TimeSettingsForm";
 
@@ -42,6 +43,11 @@ export default async function SettingsPage({
             version={overview.entity.version}
             stepUpHref={`/auth/step-up?next=${encodeURIComponent(here)}`}
           />
+        ) : null
+      }
+      createEntityEditor={
+        membership.role_key === "owner" ? (
+          <CreateEntityForm stepUpHref={`/auth/step-up?next=${encodeURIComponent(here)}`} />
         ) : null
       }
       timeSettingsEditor={

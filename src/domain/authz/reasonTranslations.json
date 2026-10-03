@@ -2728,5 +2728,15 @@
   [
     "not rolled back: this contact is now referenced elsewhere in the Entity",
     "Tidak dibatalkan: kontak ini sudah dipakai di transaksi lain"
-  ]
+  ],
+  ["only an OWNER can add an Entity", "Hanya OWNER yang bisa menambah Entity"],
+  [
+    "the Entity code is 2 to 31 lower-case letters, digits, \"-\" or \"_\", starting with a letter",
+    "Kode Entity 2 sampai 31 huruf kecil, angka, \"-\" atau \"_\", diawali huruf"
+  ],
+  [
+    "the Entity type is a business ledger or a household ledger",
+    "Jenis Entity adalah buku usaha atau buku rumah tangga"
+  ],
+  ["an Entity with this code already exists", "Kode Entity ini sudah dipakai"]
 ]

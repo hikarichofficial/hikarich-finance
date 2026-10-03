@@ -41,12 +41,15 @@ export function SettingsScreen({
   exampleYear,
   timeSettingsEditor,
   identityEditor,
+  createEntityEditor,
 }: {
   overview: EntitySettingsOverview;
   exampleYear: number;
   timeSettingsEditor?: ReactNode;
   /** The names/address form, for holders of `system.entity_config` (decision 272). */
   identityEditor?: ReactNode;
+  /** The add-an-Entity form, shown to an OWNER (decision 276). */
+  createEntityEditor?: ReactNode;
 }) {
   const { entity, profile, numbering, approvalRules, roleNames, settings } = overview;
   const address = profile
@@ -109,6 +112,15 @@ export function SettingsScreen({
             <h2 className="dashboard-section-title">Zona Waktu &amp; Tahun Buku</h2>
           </div>
           {timeSettingsEditor}
+        </section>
+      ) : null}
+
+      {createEntityEditor ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Tambah Entity</h2>
+          </div>
+          {createEntityEditor}
         </section>
       ) : null}
 

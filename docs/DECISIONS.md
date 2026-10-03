@@ -1280,6 +1280,20 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- An OWNER can add an Entity (decision 276).
+  1. OWNER, 3 October 2026, on the rule proposed in decision 275 item 4: "setuju". Only a person who is
+     already an active OWNER may add an Entity; a recent step-up is required; the new Entity gets the
+     standard chart of accounts, an empty profile, and the creator as its only member, as OWNER.
+  2. `create_entity(code, type, legal name, brand)` (migration `20261003150000_p15_create_entity.sql`),
+     audited as `entities.created`. Type is a business ledger or a household ledger; the code and type
+     cannot be changed afterwards and an Entity cannot be deleted.
+  3. Step 06 §1 (no self-granting) stays enforced by `tg_membership_guard`. The guard now accepts an own
+     membership in exactly one case: the OWNER role, on an Entity that `create_entity` marked as being
+     created in the same transaction, while that Entity has no member yet. Test `99_p15_2_create_entity.sql`
+     section 3 shows the marker cannot be used to join an existing Entity.
+  4. Form "Tambah Entity" on Settings, shown to an OWNER. Tax profile, accounts and the tax engine of the
+     new Entity are set up in the application afterwards, as for the first two.
+
 - Import Wizard, file attachments, PPh Final reasons in Indonesian (decision 275).
   1. Import Wizard (Step 15 §15; decisions 140/143 left the screen for later). `/admin/imports/new`: choose
      Kontak, Piutang Terbuka or Utang Terbuka, paste a table from a spreadsheet or pick a CSV file, see how
