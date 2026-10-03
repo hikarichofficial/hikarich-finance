@@ -2738,5 +2738,37 @@
     "the Entity type is a business ledger or a household ledger",
     "Jenis Entity adalah buku usaha atau buku rumah tangga"
   ],
-  ["an Entity with this code already exists", "Kode Entity ini sudah dipakai"]
+  ["an Entity with this code already exists", "Kode Entity ini sudah dipakai"],
+  [
+    "bpjs_kes from % is already recorded; record the change from a later date",
+    "BPJS Kesehatan mulai {1} sudah tercatat; catat perubahan mulai tanggal yang lebih baru"
+  ],
+  [
+    "bpjs_jht from % is already recorded; record the change from a later date",
+    "BPJS Ketenagakerjaan JHT mulai {1} sudah tercatat; catat perubahan mulai tanggal yang lebih baru"
+  ],
+  [
+    "bpjs_jp from % is already recorded; record the change from a later date",
+    "BPJS Ketenagakerjaan JP mulai {1} sudah tercatat; catat perubahan mulai tanggal yang lebih baru"
+  ],
+  [
+    "bpjs_jkk from % is already recorded; record the change from a later date",
+    "BPJS Ketenagakerjaan JKK mulai {1} sudah tercatat; catat perubahan mulai tanggal yang lebih baru"
+  ],
+  [
+    "bpjs_jkm from % is already recorded; record the change from a later date",
+    "BPJS Ketenagakerjaan JKM mulai {1} sudah tercatat; catat perubahan mulai tanggal yang lebih baru"
+  ],
+  [
+    "the tax engine of this Entity starts on %, after this payroll period ended; payroll of an earlier period cannot be posted",
+    "Mesin pajak Entity ini baru mulai {1}, setelah periode payroll ini berakhir; payroll periode sebelum itu tidak bisa diposting"
+  ],
+  [
+    "% is still owed to %; the payment of % exceeds it",
+    "Sisa yang terutang ke {2} adalah {1}; pembayaran {3} melebihinya"
+  ],
+  [
+    "a payment needs a kind (net pay, BPJS Kesehatan or BPJS Ketenagakerjaan), a date, a reference up to 200 and a note up to 1000 characters",
+    "Pembayaran perlu jenis (gaji bersih, BPJS Kesehatan atau BPJS Ketenagakerjaan), tanggal, referensi maksimal 200 dan catatan maksimal 1000 karakter"
+  ]
 ]

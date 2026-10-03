@@ -228,10 +228,13 @@ export function PayrollPaymentForm({
   runId,
   accounts,
   today,
+  bpjsOutstanding,
 }: {
   runId: string;
   accounts: readonly PayrollOption[];
   today: string;
+  /** What is still owed to each BPJS body, already formatted (decision 277). */
+  bpjsOutstanding: { kes: string; tk: string };
 }) {
   const [kind, setKind] = useState("net_pay");
 
@@ -246,13 +249,16 @@ export function PayrollPaymentForm({
         Yang Dibayar
         <select name="kind" value={kind} onChange={(event) => setKind(event.target.value)}>
           <option value="net_pay">Gaji bersih (semua yang belum dibayar)</option>
-          <option value="bpjs">Iuran BPJS</option>
+          <option value="bpjs_kes">Iuran BPJS Kesehatan (sisa {bpjsOutstanding.kes})</option>
+          <option value="bpjs_tk">
+            Iuran BPJS Ketenagakerjaan: JHT, JP, JKK, JKM (sisa {bpjsOutstanding.tk})
+          </option>
         </select>
       </label>
-      {kind === "bpjs" ? (
+      {kind !== "net_pay" ? (
         <label>
-          Jumlah BPJS yang Dibayar
-          <input name="amount" required inputMode="decimal" placeholder="0" />
+          Jumlah yang Dibayar (kosongkan untuk membayar seluruh sisa)
+          <input name="amount" inputMode="decimal" placeholder="seluruh sisa" />
         </label>
       ) : null}
       <label>

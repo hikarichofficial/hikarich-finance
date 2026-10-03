@@ -303,10 +303,18 @@ begin
   perform test_helpers.pcontrols(pt, 'after full payment');
 
   -- BPJS: a part, an excess, the rest
-  v_p3 := public.payroll_record_payment(v_run, 'key-p9c-pm15', 'bpjs', '2025-08-05', v_bank, '300000');
-  perform test_helpers.expect_msg(format('select public.payroll_record_payment(%L, ''key-p9c-pm16'', ''bpjs'', ''2025-08-06'', %L, ''500000'')', v_run, v_bank), 'INVALID', 'BPJS beyond its liability');
-  perform test_helpers.expect_msg(format($q$select public.payroll_record_payment(%L, 'key-p9c-pm17', 'bpjs', '2025-08-06', %L, '100', jsonb_build_array(jsonb_build_object('employee', %L, 'amount', '100')))$q$, v_run, v_bank, test_helpers.g('A')), 'INVALID', 'BPJS is paid in one amount, not per employee');
-  perform public.payroll_record_payment(v_run, 'key-p9c-pm18', 'bpjs', '2025-08-06', v_bank);
+  v_p3 := public.payroll_record_payment(v_run, 'key-p9c-pm15', 'bpjs_tk', '2025-08-05', v_bank, '300000');
+  perform test_helpers.expect_msg(format('select public.payroll_record_payment(%L, ''key-p9c-pm16'', ''bpjs_tk'', ''2025-08-06'', %L, ''500000'')', v_run, v_bank), 'INVALID', 'BPJS beyond its liability');
+  perform test_helpers.expect_msg(format($q$select public.payroll_record_payment(%L, 'key-p9c-pm17', 'bpjs_tk', '2025-08-06', %L, '100', jsonb_build_array(jsonb_build_object('employee', %L, 'amount', '100')))$q$, v_run, v_bank, test_helpers.g('A')), 'INVALID', 'BPJS is paid in one amount, not per employee');
+  -- decision 277: each body is paid on its own, up to what it is owed; the undivided kind is no longer accepted
+  perform test_helpers.expect_msg(format('select public.payroll_record_payment(%L, ''key-p9c-pm18x'', ''bpjs'', ''2025-08-06'', %L)', v_run, v_bank), 'INVALID', 'a BPJS payment names its body');
+  perform public.payroll_record_payment(v_run, 'key-p9c-pm18', 'bpjs_tk', '2025-08-06', v_bank);
+  perform test_helpers.expect_msg(format('select public.payroll_record_payment(%L, ''key-p9c-pm18y'', ''bpjs_tk'', ''2025-08-06'', %L, ''1'')', v_run, v_bank), 'INVALID', 'Ketenagakerjaan is settled; Kesehatan money cannot go there');
+  perform test_helpers.assert(test_helpers.bal(pt, 'BPJS_LIABILITY') <> 0, 'BPJS Kesehatan is still owed');
+  perform public.payroll_record_payment(v_run, 'key-p9c-pm18b', 'bpjs_kes', '2025-08-06', v_bank);
+  perform test_helpers.assert((select (g ->> 'bpjs_kes_due')::numeric = (g ->> 'bpjs_kes_paid')::numeric and (g ->> 'bpjs_tk_due')::numeric = (g ->> 'bpjs_tk_paid')::numeric
+    and (g ->> 'bpjs_kes_due')::numeric > 0 and (g ->> 'bpjs_kes_due')::numeric + (g ->> 'bpjs_tk_due')::numeric = 712000
+    from public.payroll_run_get(v_run) g), 'each body is paid exactly what it was owed');
   perform test_helpers.assert(test_helpers.bal(pt, 'BPJS_LIABILITY') = 0, 'the BPJS liability is cleared');
   perform test_helpers.assert((public.payroll_run_get(v_run) ->> 'bpjs_paid')::numeric = 712000, 'BPJS paid in two parts');
   perform test_helpers.pcontrols(pt, 'after BPJS');
@@ -360,7 +368,7 @@ begin
   perform public.payroll_run_close(v_run, 'key-p9c-cl1');
   perform test_helpers.assert(public.payroll_run_get(v_run) ->> 'status' = 'closed', 'closed (a replay is a no-op)');
   perform test_helpers.expect_msg(format('select public.payroll_run_close(%L, ''key-p9c-cl2'')', v_run), 'CONFLICT', 'closed once');
-  perform test_helpers.expect_msg(format('select public.payroll_record_payment(%L, ''key-p9c-pm20'', ''bpjs'', ''2025-08-06'', %L, ''1'')', v_run, v_bank), 'CONFLICT', 'a closed run takes no payment');
+  perform test_helpers.expect_msg(format('select public.payroll_record_payment(%L, ''key-p9c-pm20'', ''bpjs_tk'', ''2025-08-06'', %L, ''1'')', v_run, v_bank), 'CONFLICT', 'a closed run takes no payment');
   perform test_helpers.expect_msg(format('select public.payroll_run_correct(%L, ''key-p9c-cr0'', ''2025-08-10'', ''Closed run cannot be corrected'')', v_run), 'CONFLICT', 'a closed run is reopened before it is corrected');
   perform test_helpers.logout();
   perform test_helpers.login(v_pay2, 'aal2', interval '3 hours');

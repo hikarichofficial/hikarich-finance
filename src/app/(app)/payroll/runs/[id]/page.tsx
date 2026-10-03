@@ -1,3 +1,5 @@
+import { formatMoney } from "@/domain/money/format";
+import { PAYROLL_PAYMENT_KIND_LABELS } from "@/domain/payroll/payroll";
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { AuthzError } from "@/domain/authz/errors";
@@ -149,6 +151,16 @@ export default async function PayrollRunDetailPage({
                   .filter((a) => a.is_active && a.currency === currency)
                   .map((a) => ({ id: a.financial_account_id, label: a.name }))}
                 today={today}
+                bpjsOutstanding={{
+                  kes: formatMoney(
+                    String(Math.max(Number(run.bpjs_kes_due) - Number(run.bpjs_kes_paid), 0)),
+                    currency,
+                  ),
+                  tk: formatMoney(
+                    String(Math.max(Number(run.bpjs_tk_due) - Number(run.bpjs_tk_paid), 0)),
+                    currency,
+                  ),
+                }}
               />
             ) : null}
             {showPay && confirmedPayments.length > 0 ? (
@@ -156,7 +168,7 @@ export default async function PayrollRunDetailPage({
                 runId={id}
                 payments={confirmedPayments.map((p) => ({
                   id: p.payment_id,
-                  label: `${p.payment_number} — ${p.kind === "net_pay" ? "Gaji bersih" : "BPJS"} (${p.amount})`,
+                  label: `${p.payment_number} — ${PAYROLL_PAYMENT_KIND_LABELS[p.kind]} (${p.amount})`,
                 }))}
                 today={today}
               />

@@ -1280,6 +1280,27 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- BPJS Kesehatan and BPJS Ketenagakerjaan are owed and paid separately (decision 277).
+  1. OWNER, 3 October 2026: "BPJS harusnya ada 2 yaitu kesehatan dan ketenagakerjaan. Itu harus dibedakan,
+     jangan disatukan." BPJS Kesehatan is the health contribution; BPJS Ketenagakerjaan is JHT, JP, JKK and
+     JKM. The amounts calculated do not change.
+  2. Migration `20261003160000_p15_bpjs_two_bodies.sql`: a payroll payment of BPJS names the body
+     (`bpjs_kes` / `bpjs_tk`) and cannot exceed what that body is still owed; an empty amount pays the
+     whole remainder. Posting a run books the BPJS liability as two lines, one per body. `payroll_run_get`
+     returns owed and paid per body. The undivided kind `bpjs` stays valid for payments already recorded
+     and is refused for new ones.
+  3. Still shared, stated for the OWNER: both lines are in the one ledger account "BPJS Liabilities", and
+     the Payroll liability report still shows one BPJS row. Separate ledger accounts would change the chart
+     of accounts of every Entity; not done without a further decision.
+  4. Screens: the payment form offers "Iuran BPJS Kesehatan" and "Iuran BPJS Ketenagakerjaan" with what is
+     left of each; the run shows owed and paid per body; the programme names read "BPJS Ketenagakerjaan:
+     JHT" and so on.
+  5. Two messages found while testing were corrected: posting a payroll run of a period before the tax
+     engine's start now says so (it said "activate the tax engine"); a BPJS enrolment that clashes with an
+     existing date names the programme instead of its internal code.
+  6. Tests: `99_p9_3_posting.sql` (per-body payments, the body's own ceiling, the old kind refused),
+     `99_p9_4_controls.sql`, `src/schemas/payroll.test.ts`.
+
 - An OWNER can add an Entity (decision 276).
   1. OWNER, 3 October 2026, on the rule proposed in decision 275 item 4: "setuju". Only a person who is
      already an active OWNER may add an Entity; a recent step-up is required; the new Entity gets the

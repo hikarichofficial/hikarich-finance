@@ -322,7 +322,10 @@ export function BpjsForm({
         Berlaku Sejak
         <input type="date" name="effective_from" required defaultValue={today} />
       </label>
-      <p className="hint">Pilih hanya program yang berubah; sisanya biarkan Tidak diubah.</p>
+      <p className="hint">
+        BPJS Kesehatan dan BPJS Ketenagakerjaan (JHT, JP, JKK, JKM) adalah dua badan yang berbeda
+        dan dibayar terpisah. Pilih hanya program yang berubah; sisanya biarkan Tidak diubah.
+      </p>
       {BPJS_PROGRAMS.map((program) => {
         const existing = current.find((row) => row.component === program.code);
         return (

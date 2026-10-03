@@ -43,7 +43,10 @@ export function resolveTaxYear(
 }
 
 export type AnnualReconciliationStatus =
-  "reconciled" | "under_withheld" | "over_withheld" | "incomplete";
+  | "reconciled"
+  | "under_withheld"
+  | "over_withheld"
+  | "incomplete";
 
 export const ANNUAL_RECONCILIATION_STATUS_LABELS: Readonly<
   Record<AnnualReconciliationStatus, string>

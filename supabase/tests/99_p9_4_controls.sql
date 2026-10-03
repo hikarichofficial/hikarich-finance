@@ -91,7 +91,7 @@ begin
   -- part payments: 3,000,000 net pay to A, 300,000 of BPJS
   perform public.payroll_record_payment(v_run, 'key-p9d-pm1', 'net_pay', '2025-08-01', v_bank, null,
     jsonb_build_array(jsonb_build_object('employee', test_helpers.g('A'), 'amount', '3000000')));
-  perform public.payroll_record_payment(v_run, 'key-p9d-pm2', 'bpjs', '2025-08-05', v_bank, '300000');
+  perform public.payroll_record_payment(v_run, 'key-p9d-pm2', 'bpjs_tk', '2025-08-05', v_bank, '300000');
   perform test_helpers.logout();
   perform test_helpers.login(v_tax);
   perform public.tax_record_payment(pt, 'key-p9d-tp-1', 'wht_pph21', '2025-07-01', '2025-08-10', v_bank, '100000', '0', '0', 'NTPN-P9D-1', 'part payment (synthetic)');

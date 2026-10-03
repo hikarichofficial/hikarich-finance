@@ -13,7 +13,15 @@ export type EmployeeStatus = "active" | "ended";
 export type CompensationKind = "earning" | "deduction";
 export type TaxIdStatus = "has_tax_id" | "no_tax_id" | "unknown";
 export type PtkpStatus =
-  "TK/0" | "TK/1" | "TK/2" | "TK/3" | "K/0" | "K/1" | "K/2" | "K/3" | "unknown";
+  | "TK/0"
+  | "TK/1"
+  | "TK/2"
+  | "TK/3"
+  | "K/0"
+  | "K/1"
+  | "K/2"
+  | "K/3"
+  | "unknown";
 export type TaxMethod = "employee_borne" | "gross_up";
 export type BpjsComponent = "bpjs_kes" | "bpjs_jht" | "bpjs_jp" | "bpjs_jkk" | "bpjs_jkm";
 export type PayrollStatus =
@@ -27,7 +35,7 @@ export type PayrollStatus =
   | "closed"
   | "corrected"
   | "discarded";
-export type PayrollPaymentKind = "net_pay" | "bpjs";
+export type PayrollPaymentKind = "net_pay" | "bpjs" | "bpjs_kes" | "bpjs_tk";
 export type PayrollPaymentStatus = "confirmed" | "reversed";
 export type PayslipStatus = "issued" | "voided";
 export type PayrollTaxMode = "ter" | "annual";
@@ -75,10 +83,10 @@ export const TAX_METHOD_LABELS: Readonly<Record<TaxMethod, string>> = {
 
 export const BPJS_COMPONENT_LABELS: Readonly<Record<BpjsComponent, string>> = {
   bpjs_kes: "BPJS Kesehatan",
-  bpjs_jht: "BPJS JHT",
-  bpjs_jp: "BPJS JP",
-  bpjs_jkk: "BPJS JKK",
-  bpjs_jkm: "BPJS JKM",
+  bpjs_jht: "BPJS Ketenagakerjaan: JHT",
+  bpjs_jp: "BPJS Ketenagakerjaan: JP",
+  bpjs_jkk: "BPJS Ketenagakerjaan: JKK",
+  bpjs_jkm: "BPJS Ketenagakerjaan: JKM",
 };
 
 export const PAYROLL_STATUS_LABELS: Readonly<Record<PayrollStatus, string>> = {
@@ -96,7 +104,9 @@ export const PAYROLL_STATUS_LABELS: Readonly<Record<PayrollStatus, string>> = {
 
 export const PAYROLL_PAYMENT_KIND_LABELS: Readonly<Record<PayrollPaymentKind, string>> = {
   net_pay: "Gaji bersih",
-  bpjs: "BPJS",
+  bpjs: "BPJS (belum dipisah)",
+  bpjs_kes: "BPJS Kesehatan",
+  bpjs_tk: "BPJS Ketenagakerjaan",
 };
 
 export const PAYROLL_PAYMENT_STATUS_LABELS: Readonly<Record<PayrollPaymentStatus, string>> = {
