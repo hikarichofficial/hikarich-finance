@@ -1280,6 +1280,28 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Import Wizard, file attachments, PPh Final reasons in Indonesian (decision 275).
+  1. Import Wizard (Step 15 §15; decisions 140/143 left the screen for later). `/admin/imports/new`: choose
+     Kontak, Piutang Terbuka or Utang Terbuka, paste a table from a spreadsheet or pick a CSV file, see how
+     the columns were read, then "Periksa Data" stages and validates the batch. The batch page now has
+     Periksa Ulang, Terapkan ke Pembukuan and Batalkan Impor Ini. Parsing and column mapping are
+     application code (`src/domain/imports/csv.ts`: comma, semicolon or tab; Indonesian headers; amounts
+     such as "Rp 1.500.000,50"; day-first dates). The four P11 RPCs are unchanged and decide everything.
+     The import kinds are the three P11 ones; importing invoices or journal entries is not part of it.
+  2. Attachments (Step 08 §21, Step 13 §16; decisions 141-142 left the bytes for later). A "Lampiran"
+     section on Bill, Expense and Invoice detail: upload (PDF, JPG, PNG, WebP; 4 MB, the Server Action
+     ceiling on Vercel), download, remove with a reason. The file type is read from the content. Bytes go
+     to a private bucket `documents` with no Storage policy (migration
+     `20261003140000_p15_documents_bucket.sql`); only the server, with `SUPABASE_SERVICE_ROLE_KEY`, writes
+     it and mints a one-minute signed URL, each time after the database's own check (`register_document`,
+     `get_document_download_grant`). Without the key the section says file storage is not switched on.
+     The OWNER sets the key in Vercel (Production only); it is never in Git.
+  3. The reasons shown on the PPh Final screen and the import row messages are translated
+     (`reasonTranslations.json`).
+  4. Open, for the OWNER: a screen to add a further Entity. It creates a ledger and grants OWNER on it,
+     which is an authorization rule the specs do not state; not built until the OWNER confirms who may do
+     it.
+
 - PPh Final UMKM rules for earlier years; click and loading feedback (decision 274).
   1. OWNER: "tambahkan aturan dan mesin pajaknya yang relate dengan aturan 2021 sampai aturan terbaru",
      to record earlier years. Migration `20261003130000_p15_pph_final_umkm_history.sql` publishes three

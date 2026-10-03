@@ -2690,5 +2690,43 @@
   [
     "The exempt band of an individual depends on the whole year's turnover, and part of this year predates the tax engine; confirm the earlier turnover first",
     "Bagian bebas pajak orang pribadi bergantung pada omzet setahun penuh, dan sebagian tahun ini sebelum mesin pajak aktif; pastikan dulu omzet sebelumnya"
+  ],
+  ["amount must be a positive number", "Jumlah harus angka lebih dari nol"],
+  ["contact_id does not exist in this Entity", "Kontak tidak ada di Entity ini"],
+  ["contact_id or contact_name is required", "Nama Kontak wajib diisi"],
+  [
+    "currency must be a known 3-letter currency code",
+    "Mata Uang harus kode 3 huruf yang dikenal, misalnya IDR"
+  ],
+  ["display_name is required (up to 200 characters)", "Nama wajib diisi (maksimal 200 karakter)"],
+  ["due_date cannot be before txn_date", "Jatuh Tempo tidak boleh sebelum Tanggal"],
+  ["due_date is not a valid date", "Jatuh Tempo bukan tanggal yang benar"],
+  [
+    "duplicate of a record already committed by an earlier import",
+    "Sama dengan data yang sudah masuk dari impor sebelumnya"
+  ],
+  [
+    "duplicate of an earlier row in this same import batch",
+    "Sama dengan baris sebelumnya di impor ini"
+  ],
+  ["reference must be 100 characters or fewer", "Nomor Referensi maksimal 100 karakter"],
+  ["txn_date is not a valid date", "Tanggal bukan tanggal yang benar"],
+  ["txn_date is required", "Tanggal wajib diisi"],
+  [
+    "\"%\" matches more than one existing contact -- supply contact_id",
+    "\"{1}\" cocok dengan lebih dari satu kontak; bedakan dulu nama kontaknya"
+  ],
+  ["duplicate of existing contact % (%)", "Sama dengan kontak yang sudah ada: {1} ({2})"],
+  [
+    "no existing contact matches \"%\" -- import contacts first or supply contact_id",
+    "Tidak ada kontak bernama \"{1}\"; impor atau buat kontaknya lebih dulu"
+  ],
+  [
+    "possible duplicate of existing contact % (same name) -- resolve before import",
+    "Mungkin sama dengan kontak yang sudah ada: {1} (nama sama); pastikan dulu sebelum impor"
+  ],
+  [
+    "not rolled back: this contact is now referenced elsewhere in the Entity",
+    "Tidak dibatalkan: kontak ini sudah dipakai di transaksi lain"
   ]
 ]

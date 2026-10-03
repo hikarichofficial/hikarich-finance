@@ -1,3 +1,4 @@
+import { AttachmentsSection } from "@/features/documents/AttachmentsSection";
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
@@ -43,41 +44,54 @@ export default async function InvoiceDetailPage({
     : `/sales/invoices/${id}`;
 
   return (
-    <InvoiceDetailScreen
-      invoiceId={id}
-      doc={doc}
-      backHref={backHref}
-      taxPanel={
-        taxPreview ? (
-          <TaxPreviewPanel
-            preview={taxPreview}
-            currency={doc.currency}
-            sourceType="invoice"
-            sourceId={id}
-            canOverride={can(access, entityId, "tax.override")}
-            next={selfHref}
-          />
-        ) : null
-      }
-      canEdit={can(access, entityId, "invoices.edit")}
-      payment={
-        canRecordPayment
-          ? {
-              accounts: accounts
-                .filter((a) => a.is_active)
-                .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` })),
-              today: new Date().toISOString().slice(0, 10),
-            }
-          : undefined
-      }
-      permissions={{
-        canIssue: can(access, entityId, "invoices.issue"),
-        canVoid: can(access, entityId, "invoices.void"),
-        canCorrect:
-          can(access, entityId, "invoices.void") && can(access, entityId, "invoices.create"),
-        canManageLink: can(access, entityId, "invoices.regenerate_link"),
-        canCancelDraft: can(access, entityId, "invoices.edit"),
-      }}
-    />
+    <>
+      <InvoiceDetailScreen
+        invoiceId={id}
+        doc={doc}
+        backHref={backHref}
+        taxPanel={
+          taxPreview ? (
+            <TaxPreviewPanel
+              preview={taxPreview}
+              currency={doc.currency}
+              sourceType="invoice"
+              sourceId={id}
+              canOverride={can(access, entityId, "tax.override")}
+              next={selfHref}
+            />
+          ) : null
+        }
+        canEdit={can(access, entityId, "invoices.edit")}
+        payment={
+          canRecordPayment
+            ? {
+                accounts: accounts
+                  .filter((a) => a.is_active)
+                  .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` })),
+                today: new Date().toISOString().slice(0, 10),
+              }
+            : undefined
+        }
+        permissions={{
+          canIssue: can(access, entityId, "invoices.issue"),
+          canVoid: can(access, entityId, "invoices.void"),
+          canCorrect:
+            can(access, entityId, "invoices.void") && can(access, entityId, "invoices.create"),
+          canManageLink: can(access, entityId, "invoices.regenerate_link"),
+          canCancelDraft: can(access, entityId, "invoices.edit"),
+        }}
+      />
+      <div className="record-detail">
+        <AttachmentsSection
+          entityId={membership.entity_id}
+          entity={entity}
+          targetType="invoice"
+          targetId={id}
+          returnPath={`/sales/invoices/${id}`}
+          canUpload={can(access, membership.entity_id, "documents.upload")}
+          defaultPurpose="other"
+        />
+      </div>
+    </>
   );
 }

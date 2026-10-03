@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { translateReason } from "@/domain/authz/translateReason";
 import {
   IMPORT_BATCH_STATUS_LABELS,
   IMPORT_BATCH_STATUS_TONE,
@@ -10,6 +11,7 @@ import {
 } from "@/domain/imports/imports";
 import type { ImportBatchRow, ImportRowRow, ImportRowStatus } from "@/schemas/imports";
 import { formatShortDate } from "./format";
+import { ImportBatchActions } from "./ImportBatchActions";
 
 /**
  * Import batch Detail (P13 unbuilt-screens backlog, decision 241): the batch header plus its rows, filterable
@@ -17,7 +19,7 @@ import { formatShortDate } from "./format";
  * left inspectable" half of Step 08 §19 finally given a screen. Deliberately does not render a row's
  * `raw_payload`/`mapped_payload`: a contacts import can carry a tax identifier, which decision 225 already
  * keeps off every screen behind a column-level grant, and echoing the raw upload here would quietly route
- * around that. Validate/Commit/Rollback stay with the Import Wizard (decision 241 records the deferral).
+ * around that. Check again / Apply / Undo are `ImportBatchActions` (decision 275).
  */
 
 function buildHref(
@@ -38,12 +40,15 @@ export function ImportBatchDetailScreen({
   activeStatus,
   entity,
   backHref,
+  validRows,
 }: {
   batch: ImportBatchRow;
   rows: readonly ImportRowRow[];
   activeStatus: ImportRowStatus | undefined;
   entity: string | undefined;
   backHref: string;
+  /** Rows the database marked valid, whatever filter is shown. */
+  validRows: number;
 }) {
   return (
     <div className="record-detail">
@@ -85,6 +90,8 @@ export function ImportBatchDetailScreen({
           </div>
         </dl>
       </section>
+
+      <ImportBatchActions batchId={batch.batch_id} status={batch.status} validRows={validRows} />
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">
@@ -147,7 +154,7 @@ export function ImportBatchDetailScreen({
                     ) : (
                       <ul>
                         {row.messages.map((message, index) => (
-                          <li key={index}>{message}</li>
+                          <li key={index}>{translateReason(message) ?? message}</li>
                         ))}
                       </ul>
                     )}
