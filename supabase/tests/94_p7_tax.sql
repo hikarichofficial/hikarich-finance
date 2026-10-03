@@ -75,9 +75,9 @@ begin
   -- The verified baseline is present, published and readable by tax viewers only.
   -- P7 published eight (seven tax rules and the fiscal depreciation groups); P9 adds the payroll rules (PPh 21 TER and
   -- annual, BPJS Kes / JHT / JP in two versions / JKK / JKM, the PPh 21 deadline): nine more versions.
-  perform test_helpers.assert((select count(*) from public.tax_rule_versions where status = 'published' and code not like 'BPJS%' and code not like 'PPH21%' and code <> 'DEADLINE_PPH21') = 14
-    and (select count(*) from public.tax_rule_versions where status = 'published') = 24,
-    '1.0 the P7 baseline (eight), the P9 payroll rules (nine) and decision 256 (six: PPh 4(2), PPh 26, their deadlines, two deadline corrections) and the marketplace PPh 22 rule (decision 260) are published');
+  perform test_helpers.assert((select count(*) from public.tax_rule_versions where status = 'published' and code not like 'BPJS%' and code not like 'PPH21%' and code <> 'DEADLINE_PPH21') = 18
+    and (select count(*) from public.tax_rule_versions where status = 'published') = 28,
+    '1.0 the P7 baseline (eight), the P9 payroll rules (nine) and decision 256 (six: PPh 4(2), PPh 26, their deadlines, two deadline corrections) and the marketplace PPh 22 rule (decision 260) and the PPh Final UMKM history (decision 274: three rule versions and a deadline) are published');
   perform test_helpers.assert((select params ->> 'rate' from test_helpers.rule_at('PPN_STANDARD', date '2026-09-01')) = '0.12',
     '1.1 PPN 12% applies in September 2026');
   perform test_helpers.assert((select (params ->> 'dpp_numerator') || '/' || (params ->> 'dpp_denominator')
@@ -88,6 +88,19 @@ begin
     '1.3 no rule before the verified effective date (review, not a guess)');
   perform test_helpers.assert((select rule_version from test_helpers.rule_at('PPN_STANDARD', date '2025-01-01')) = 1,
     '1.4 the rule applies on its effective date');
+  -- Decision 274: earlier years resolve to the rule that was in force then.
+  perform test_helpers.assert((select rule_version from test_helpers.rule_at('PPH_FINAL_UMKM', date '2021-01-31')) = 2
+    and (test_helpers.rule_at('PPH_FINAL_UMKM', date '2021-12-31')).params -> 'exempt_band' = '{}'::jsonb,
+    '1.4a 2021 uses PP 23/2018: no untaxed band');
+  perform test_helpers.assert((select params -> 'exempt_band' ->> 'individual' from test_helpers.rule_at('PPH_FINAL_UMKM', date '2022-01-31')) = '500000000',
+    '1.4b from tax year 2022 individuals have the Rp500 million band');
+  perform test_helpers.assert((select rule_version from test_helpers.rule_at('PPH_FINAL_UMKM', date '2022-12-31')) = 4
+    and (select rule_version from test_helpers.rule_at('PPH_FINAL_UMKM', date '2026-03-31')) = 4
+    and (select rule_version from test_helpers.rule_at('PPH_FINAL_UMKM', date '2026-04-30')) = 1,
+    '1.4c PP 55/2022 applies from 20 December 2022 until PP 20/2026 takes over');
+  perform test_helpers.assert((test_helpers.rule_at('PPH_FINAL_UMKM', date '2018-06-30')).id is null
+    and (select rule_version from test_helpers.rule_at('DEADLINE_PPH_FINAL_UMKM', date '2021-01-31')) = 2,
+    '1.4d nothing before PP 23/2018; the deadline rule covers old periods');
 
   -- Authority: staff and viewers cannot draft or publish; the tax specialist may draft but publishing needs step-up.
   perform test_helpers.login('d0000000-0000-0000-0000-000000000005');
