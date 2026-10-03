@@ -1280,6 +1280,18 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Separate ledger accounts for the two BPJS bodies (decision 278).
+  1. OWNER, 3 October 2026, on decision 277 item 3: "ikut rekomendasimu". Recommended and done: two
+     accounts, because they are two creditors. `2220` keeps its system key `BPJS_LIABILITY` and is renamed
+     "BPJS Ketenagakerjaan Liabilities"; new `2221` "BPJS Kesehatan Liabilities" (`BPJS_KES_LIABILITY`),
+     a control account, provisioned for every business Entity.
+  2. Migration `20261003170000_p15_bpjs_two_accounts.sql`: posting credits each body's account, paying a
+     body debits its account; `payroll_run_differences` and the payroll control read both accounts. The
+     control report keeps one BPJS row (both accounts against both bodies).
+  3. A run posted before this change has its whole BPJS liability in 2220. Production has none.
+  4. Also in this change: the Import Wizard preview shows "Pelanggan/Vendor", its table field is wide and
+     its button compact (findings from testing).
+
 - BPJS Kesehatan and BPJS Ketenagakerjaan are owed and paid separately (decision 277).
   1. OWNER, 3 October 2026: "BPJS harusnya ada 2 yaitu kesehatan dan ketenagakerjaan. Itu harus dibedakan,
      jangan disatukan." BPJS Kesehatan is the health contribution; BPJS Ketenagakerjaan is JHT, JP, JKK and
