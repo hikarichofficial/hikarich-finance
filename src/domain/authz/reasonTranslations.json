@@ -2641,5 +2641,54 @@
   [
     "write what was concluded (5 to 1000 characters)",
     "Tuliskan kesimpulannya (5 sampai 1000 karakter)"
+  ],
+  ["The tax engine is not active for this Entity", "Mesin pajak belum aktif untuk Entity ini"],
+  [
+    "The tax engine starts on %, after this period began; the period is not computed automatically",
+    "Mesin pajak mulai {1}, setelah masa ini berjalan; masa ini tidak dihitung otomatis"
+  ],
+  [
+    "The period is not over yet; the final tax is computed once the month has ended",
+    "Masa ini belum berakhir; PPh Final dihitung setelah bulannya selesai"
+  ],
+  [
+    "No taxpayer profile is in force on the last day of the period",
+    "Belum ada profil pajak yang berlaku pada hari terakhir masa ini"
+  ],
+  [
+    "The Entity is on the general regime; income tax is settled with the annual return, not as a monthly final tax",
+    "Entity ini memakai tarif umum; pajak penghasilan diselesaikan di SPT Tahunan, bukan PPh Final bulanan"
+  ],
+  [
+    "The income-tax regime of the taxpayer is not confirmed",
+    "Rezim pajak penghasilan wajib pajak belum dipastikan"
+  ],
+  [
+    "No PPh Final UMKM rule is in force on %",
+    "Tidak ada aturan PPh Final UMKM yang berlaku pada {1}"
+  ],
+  [
+    "A taxpayer of kind \"%\" is not in the rule's list of eligible kinds; the regime needs review",
+    "Wajib pajak jenis \"{1}\" tidak termasuk yang berhak menurut aturan; rezimnya perlu ditinjau"
+  ],
+  [
+    "The taxpayer is recorded as excluded from the final regime",
+    "Wajib pajak tercatat dikecualikan dari PPh Final"
+  ],
+  [
+    "Whether an exclusion applies to the taxpayer is not confirmed",
+    "Belum dipastikan apakah wajib pajak dikecualikan"
+  ],
+  [
+    "Whether turnover of spouse, minor children or related individual companies must be added is not confirmed",
+    "Belum dipastikan apakah omzet pasangan, anak di bawah umur atau PT Perorangan terkait harus digabung"
+  ],
+  [
+    "Turnover for the year (%) exceeds the annual ceiling of %; the regime ends and the excess is not computed automatically",
+    "Omzet tahun ini ({1}) melewati batas tahunan {2}; PPh Final berakhir dan kelebihannya tidak dihitung otomatis"
+  ],
+  [
+    "The exempt band of an individual depends on the whole year's turnover, and part of this year predates the tax engine; confirm the earlier turnover first",
+    "Bagian bebas pajak orang pribadi bergantung pada omzet setahun penuh, dan sebagian tahun ini sebelum mesin pajak aktif; pastikan dulu omzet sebelumnya"
   ]
 ]
