@@ -907,8 +907,8 @@ function CustomReportTable({
 }
 
 function consolidatedEntityTypeLabel(entityType: string): string {
-  if (entityType === "company") return "Perusahaan";
-  if (entityType === "personal") return "Personal";
+  if (entityType === "company") return "Usaha";
+  if (entityType === "personal") return "Rumah Tangga";
   return entityType;
 }
 

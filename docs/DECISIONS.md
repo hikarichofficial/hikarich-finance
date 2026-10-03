@@ -1280,6 +1280,29 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Production is up; Entity labels "PT" and "Pribadi"; PP 20/2026 term re-checked (decision 273).
+  1. Go-live steps done on 3 October 2026: the OWNER set the two GitHub secrets and re-ran the workflow,
+     which applied all 71 migrations to production; the two Entities were created by the administrator
+     (`pt`: PT Hikarich Kitana Digital, brand Kamar Kajian Market; `hikarich`: Hikarich; both
+     business-type, 59 ledger accounts each); the OWNER ran `bootstrap_owner` themselves in the Supabase
+     SQL editor, signed in and enrolled an authenticator. Taxpayer profiles, accounts and opening balances
+     are still to be entered by the OWNER in the application.
+  2. OWNER: "ubah menjadi Pribadi & PT, tidak perlu tulis nama brand". `entityLabel` now shows the legal
+     form a business ledger's legal name starts with ("PT", "CV") and "Pribadi" when it has none; the
+     household ledger shows "Rumah Tangga". Both production Entities are business-type, so the previous
+     rule labelled both "PT". Display only.
+  3. PPh Final UMKM term, asked by the OWNER. DJP (pajak.go.id/en/node/119971) and Ortax state that under
+     PP 20/2026 individuals and Perseroan Perorangan use the 0.5% rate with no time limit (the 7-year and
+     4-year limits of PP 55/2022 Art. 59 are removed); cooperatives are limited to four years; ordinary
+     PT, CV and firma no longer qualify; the Rp500 million untaxed band is for individuals only. The
+     published rule `PPH_FINAL_UMKM` already encodes exactly this, and `95_p7_determination.sql` 9.27-9.31
+     asserts the band (300 million: no tax; cumulative 700 million: 0.5% of 200 million = 1,000,000; over
+     Rp4.8 billion: review). Ortax also reports a new Art. 58(3) that adds the turnover of a Perseroan
+     Perorangan founded by husband or wife to the Rp4.8 billion test. Whether the OWNER's own PT
+     Perorangan and personal business must be added together was not confirmed from a primary text; the
+     profile field "Omzet digabung" stays the OWNER's answer, and "Belum diketahui" stops the computation
+     for review.
+
 - P15 start: production migrations through GitHub, and editable Entity names (decision 272).
   1. OWNER: "buat otomatisasi itu". `.github/workflows/production-migrations.yml` applies
      `supabase/migrations` to the production project with the Supabase CLI when a merge to `main` changes

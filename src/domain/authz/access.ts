@@ -56,9 +56,18 @@ export function safeNextPath(candidate: unknown, fallback = "/"): string {
   return parsed.success ? parsed.data : fallback;
 }
 
-/** Short label for the Entity switch: PT and Personal are always shown as distinct ledgers. */
+/**
+ * Short label for the Entity switch (decision 273, OWNER: "ubah menjadi Pribadi & PT"). A business ledger
+ * whose legal name carries a legal-form prefix shows that form ("PT", "CV"); a business ledger without
+ * one is a person's own business and shows "Pribadi" (decision 270 keeps it as a business-type Entity).
+ * The household ledger of Step 03 shows "Rumah Tangga", so it is never mistaken for a personal business.
+ * The brand is not used here: it is only the name the business trades as.
+ */
 export function entityLabel(membership: Pick<Membership, "entity_type" | "entity_name">): string {
-  if (membership.entity_type === "company") return "PT";
-  if (membership.entity_type === "personal") return "Personal";
+  if (membership.entity_type === "company") {
+    const form = /^(PT|CV)\b/i.exec(membership.entity_name.trim());
+    return form?.[1] ? form[1].toUpperCase() : "Pribadi";
+  }
+  if (membership.entity_type === "personal") return "Rumah Tangga";
   return membership.entity_name;
 }
