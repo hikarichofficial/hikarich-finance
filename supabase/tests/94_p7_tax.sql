@@ -90,7 +90,7 @@ begin
     '1.4 the rule applies on its effective date');
   -- Decision 274: earlier years resolve to the rule that was in force then.
   perform test_helpers.assert((select rule_version from test_helpers.rule_at('PPH_FINAL_UMKM', date '2021-01-31')) = 2
-    and (test_helpers.rule_at('PPH_FINAL_UMKM', date '2021-12-31')).params -> 'exempt_band' is null,
+    and (test_helpers.rule_at('PPH_FINAL_UMKM', date '2021-12-31')).params -> 'exempt_band' = '{}'::jsonb,
     '1.4a 2021 uses PP 23/2018: no untaxed band');
   perform test_helpers.assert((select params -> 'exempt_band' ->> 'individual' from test_helpers.rule_at('PPH_FINAL_UMKM', date '2022-01-31')) = '500000000',
     '1.4b from tax year 2022 individuals have the Rp500 million band');

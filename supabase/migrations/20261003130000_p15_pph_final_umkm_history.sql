@@ -16,6 +16,7 @@ values
   ('pph_final_umkm', 'PPH_FINAL_UMKM', 2, date '2018-07-01',
    '{"rate":"0.005","annual_ceiling":"4800000000",
      "eligible_kinds":["individual","company","cooperative"],
+     "exempt_band":{},
      "rounding":{"mode":"half_up","scale":0}}'::jsonb,
    'PP 23 Tahun 2018: PPh Final 0.5% of gross turnover up to Rp4.8 billion per tax year; eligible: individuals, cooperatives, CV, firma and PT',
    'PP 23/2018 (effective 1 July 2018)',
