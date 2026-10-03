@@ -248,6 +248,10 @@ const runGetSample: unknown = {
   pay_date: "2025-07-25",
   revision: 1,
   bpjs_paid: "300000.0000",
+  bpjs_kes_due: "250000.0000",
+  bpjs_kes_paid: "0.0000",
+  bpjs_tk_due: "462000.0000",
+  bpjs_tk_paid: "300000.0000",
   closed_at: null,
   posted_at: "2026-09-21T22:56:43.618902+08:00",
   journal_id: "de8bd044-c9c0-4311-b466-c2f5ddb1348c",
@@ -379,7 +383,7 @@ const runLinesSample: unknown = [
 
 const paymentsSample: unknown = [
   {
-    kind: "bpjs",
+    kind: "bpjs_tk",
     amount: "300000.0000",
     status: "confirmed",
     reference: null,
@@ -884,18 +888,21 @@ describe("payment inputs", () => {
     account_id: ACCOUNT,
   };
 
-  it("BPJS is one amount and never lines", () => {
+  it("BPJS names its body, is one amount (or the whole remainder) and never lines", () => {
+    for (const kind of ["bpjs_kes", "bpjs_tk"]) {
+      expect(
+        recordPayrollPaymentInputSchema.safeParse({ ...base, kind, amount: "300000" }).success,
+      ).toBe(true);
+      expect(recordPayrollPaymentInputSchema.safeParse({ ...base, kind }).success).toBe(true);
+    }
     expect(
       recordPayrollPaymentInputSchema.safeParse({ ...base, kind: "bpjs", amount: "300000" })
         .success,
-    ).toBe(true);
-    expect(recordPayrollPaymentInputSchema.safeParse({ ...base, kind: "bpjs" }).success).toBe(
-      false,
-    );
+    ).toBe(false);
     expect(
       recordPayrollPaymentInputSchema.safeParse({
         ...base,
-        kind: "bpjs",
+        kind: "bpjs_tk",
         amount: "300000",
         lines: [{ employee: EMPLOYEE, amount: "1" }],
       }).success,

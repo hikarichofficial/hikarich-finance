@@ -1699,6 +1699,9 @@ add an Entity (OWNER to confirm the rule). Full detail in `docs/DECISIONS.md` de
 Decision 276: `create_entity` and the "Tambah Entity" form on Settings (OWNER only, step-up, creator
 becomes OWNER). Full detail in `docs/DECISIONS.md` decision 276.
 
+Decision 277: BPJS Kesehatan and BPJS Ketenagakerjaan are owed and paid separately (payment kinds,
+posting lines, run screen). Full detail in `docs/DECISIONS.md` decision 277.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

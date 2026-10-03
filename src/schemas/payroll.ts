@@ -61,7 +61,8 @@ export const payrollStatusSchema = z.enum([
   "corrected",
   "discarded",
 ]);
-export const payrollPaymentKindSchema = z.enum(["net_pay", "bpjs"]);
+/** `bpjs` is the undivided kind of payments recorded before decision 277; new payments name the body. */
+export const payrollPaymentKindSchema = z.enum(["net_pay", "bpjs", "bpjs_kes", "bpjs_tk"]);
 export const payrollPaymentStatusSchema = z.enum(["confirmed", "reversed"]);
 export const payslipStatusSchema = z.enum(["issued", "voided"]);
 export const payrollTaxModeSchema = z.enum(["ter", "annual"]);
@@ -393,6 +394,11 @@ export const payrollRunListSchema = z.array(payrollRunRowSchema);
 export type PayrollRunRow = z.infer<typeof payrollRunRowSchema>;
 
 export const payrollRunDetailSchema = payrollRunRowSchema.extend({
+  /** Owed and paid per BPJS body (decision 277). */
+  bpjs_kes_due: signedDecimalTextSchema,
+  bpjs_kes_paid: signedDecimalTextSchema,
+  bpjs_tk_due: signedDecimalTextSchema,
+  bpjs_tk_paid: signedDecimalTextSchema,
   calc_version: z.number().int(),
   calculated_at: z.string().nullable(),
   tax_base_total: taxMoney,
@@ -481,9 +487,12 @@ export const recordPayrollPaymentInputSchema = z
   })
   .superRefine((v, ctx) => {
     if (v.kind === "bpjs") {
-      if (!v.amount) {
-        ctx.addIssue({ code: "custom", path: ["amount"], message: "Isi jumlah BPJS yang dibayar" });
-      }
+      ctx.addIssue({
+        code: "custom",
+        path: ["kind"],
+        message: "Pilih BPJS Kesehatan atau BPJS Ketenagakerjaan",
+      });
+    } else if (v.kind !== "net_pay") {
       if (v.lines) {
         ctx.addIssue({
           code: "custom",

@@ -136,9 +136,25 @@ export function PayrollRunDetailScreen({
             <dd>{formatMoney(run.net_paid, currency)}</dd>
           </div>
           <div>
-            <dt>BPJS Terbayar</dt>
-            <dd>{formatMoney(run.bpjs_paid, currency)}</dd>
+            <dt>BPJS Kesehatan</dt>
+            <dd>
+              {formatMoney(run.bpjs_kes_due, currency)} · terbayar{" "}
+              {formatMoney(run.bpjs_kes_paid, currency)}
+            </dd>
           </div>
+          <div>
+            <dt>BPJS Ketenagakerjaan</dt>
+            <dd>
+              {formatMoney(run.bpjs_tk_due, currency)} · terbayar{" "}
+              {formatMoney(run.bpjs_tk_paid, currency)}
+            </dd>
+          </div>
+          {Number(run.bpjs_paid) > Number(run.bpjs_kes_paid) + Number(run.bpjs_tk_paid) ? (
+            <div>
+              <dt>BPJS Terbayar (belum dipisah)</dt>
+              <dd>{formatMoney(run.bpjs_paid, currency)}</dd>
+            </div>
+          ) : null}
           {run.calculated_at ? (
             <div>
               <dt>Terakhir Dihitung</dt>

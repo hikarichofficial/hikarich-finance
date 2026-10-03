@@ -288,10 +288,10 @@ export function TaxProfileForm({
 
 const BPJS_PROGRAMS = [
   { code: "bpjs_kes", label: "BPJS Kesehatan" },
-  { code: "bpjs_jht", label: "BPJS JHT" },
-  { code: "bpjs_jp", label: "BPJS JP" },
-  { code: "bpjs_jkk", label: "BPJS JKK" },
-  { code: "bpjs_jkm", label: "BPJS JKM" },
+  { code: "bpjs_jht", label: "BPJS Ketenagakerjaan: JHT" },
+  { code: "bpjs_jp", label: "BPJS Ketenagakerjaan: JP" },
+  { code: "bpjs_jkk", label: "BPJS Ketenagakerjaan: JKK" },
+  { code: "bpjs_jkm", label: "BPJS Ketenagakerjaan: JKM" },
 ] as const;
 
 const JKK_GRADES = ["grade_1", "grade_2", "grade_3", "grade_4", "grade_5"] as const;
@@ -322,7 +322,10 @@ export function BpjsForm({
         Berlaku Sejak
         <input type="date" name="effective_from" required defaultValue={today} />
       </label>
-      <p className="hint">Pilih hanya program yang berubah; sisanya biarkan Tidak diubah.</p>
+      <p className="hint">
+        BPJS Kesehatan dan BPJS Ketenagakerjaan (JHT, JP, JKK, JKM) adalah dua badan yang berbeda
+        dan dibayar terpisah. Pilih hanya program yang berubah; sisanya biarkan Tidak diubah.
+      </p>
       {BPJS_PROGRAMS.map((program) => {
         const existing = current.find((row) => row.component === program.code);
         return (

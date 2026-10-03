@@ -452,7 +452,7 @@ export async function recordPayrollPaymentAction(
       kind: kind as never,
       date: text(formData, "date"),
       account_id: text(formData, "account_id"),
-      amount: kind === "bpjs" ? text(formData, "amount") : undefined,
+      amount: kind === "net_pay" ? undefined : text(formData, "amount") || undefined,
       reference: text(formData, "reference") || undefined,
       note: text(formData, "note") || undefined,
     });
