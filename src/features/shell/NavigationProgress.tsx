@@ -63,8 +63,10 @@ export function NavigationProgress() {
         setPendingFrom(null);
       }, GIVE_UP_AFTER_MS);
     }
-    document.addEventListener("click", onClick);
-    return () => document.removeEventListener("click", onClick);
+    // Capture phase: `<Link>` calls preventDefault in its own click handler, which would hide the click from
+    // a listener that runs after it.
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
   }, []);
 
   const pending = pendingFrom !== null && pendingFrom === here;
