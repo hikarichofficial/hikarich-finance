@@ -140,8 +140,13 @@ describe("access helpers", () => {
 
 describe("entityLabel", () => {
   it("labels company, personal and other Entities", () => {
-    expect(entityLabel({ entity_type: "company", entity_name: "X" })).toBe("PT");
-    expect(entityLabel({ entity_type: "personal", entity_name: "X" })).toBe("Personal");
+    expect(entityLabel({ entity_type: "company", entity_name: "PT Hikarich Kitana Digital" })).toBe(
+      "PT",
+    );
+    expect(entityLabel({ entity_type: "company", entity_name: "cv Maju" })).toBe("CV");
+    expect(entityLabel({ entity_type: "company", entity_name: "Hikarich" })).toBe("Pribadi");
+    expect(entityLabel({ entity_type: "company", entity_name: "Ptolemy Shop" })).toBe("Pribadi");
+    expect(entityLabel({ entity_type: "personal", entity_name: "X" })).toBe("Rumah Tangga");
     expect(entityLabel({ entity_type: "other", entity_name: "Foundation" })).toBe("Foundation");
   });
 });

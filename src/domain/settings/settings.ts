@@ -6,8 +6,8 @@ import type { NumberingScope, NumberingSequenceRow } from "@/schemas/settings";
  */
 
 export const ENTITY_TYPE_LABELS: Readonly<Record<"company" | "personal" | "other", string>> = {
-  company: "Perusahaan",
-  personal: "Pribadi",
+  company: "Buku usaha",
+  personal: "Buku rumah tangga",
   other: "Lainnya",
 };
 

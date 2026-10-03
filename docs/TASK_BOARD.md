@@ -1684,6 +1684,10 @@ Decision 272 (P15 started): production migrations workflow, `docs/GO_LIVE.md`, a
 with its Settings form. Waiting on the OWNER: the two GitHub secrets and the production user. Full detail
 in `docs/DECISIONS.md` decision 272.
 
+Decision 273: production schema, Entities and first OWNER are in place; Entity labels are "PT" and
+"Pribadi"; PP 20/2026 has no time limit for individuals and Perseroan Perorangan. Next: the OWNER enters
+taxpayer profiles, accounts and opening balances. Full detail in `docs/DECISIONS.md` decision 273.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
