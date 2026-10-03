@@ -1,3 +1,4 @@
+import { AttachmentsSection } from "@/features/documents/AttachmentsSection";
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
@@ -38,22 +39,35 @@ export default async function ExpenseDetailPage({
     : "/purchases/expenses";
 
   return (
-    <ExpenseDetailScreen
-      expense={expense}
-      lines={lines}
-      payeeLabel={expensePayeeLabel(expense, vendorNames)}
-      accountName={account ? `${account.name} (${account.currency})` : "—"}
-      categoryNames={new Map(categories.map((c) => [c.id, c.name]))}
-      actions={expenseActions(expense.status, {
-        canEdit: can(access, entityId, "bills.edit"),
-        canSubmit: can(access, entityId, "bills.submit"),
-        canPay: can(access, entityId, "bills.pay"),
-        canVoid: can(access, entityId, "bills.void"),
-        canCreate: can(access, entityId, "bills.create"),
-      })}
-      entity={entity}
-      backHref={backHref}
-      canEdit={can(access, entityId, "bills.edit")}
-    />
+    <>
+      <ExpenseDetailScreen
+        expense={expense}
+        lines={lines}
+        payeeLabel={expensePayeeLabel(expense, vendorNames)}
+        accountName={account ? `${account.name} (${account.currency})` : "—"}
+        categoryNames={new Map(categories.map((c) => [c.id, c.name]))}
+        actions={expenseActions(expense.status, {
+          canEdit: can(access, entityId, "bills.edit"),
+          canSubmit: can(access, entityId, "bills.submit"),
+          canPay: can(access, entityId, "bills.pay"),
+          canVoid: can(access, entityId, "bills.void"),
+          canCreate: can(access, entityId, "bills.create"),
+        })}
+        entity={entity}
+        backHref={backHref}
+        canEdit={can(access, entityId, "bills.edit")}
+      />
+      <div className="record-detail">
+        <AttachmentsSection
+          entityId={membership.entity_id}
+          entity={entity}
+          targetType="expense"
+          targetId={id}
+          returnPath={`/purchases/expenses/${id}`}
+          canUpload={can(access, membership.entity_id, "documents.upload")}
+          defaultPurpose="receipt"
+        />
+      </div>
+    </>
   );
 }

@@ -26,6 +26,12 @@ export default async function ImportBatchDetailPage({
 
   const activeStatus = parseImportRowStatusFilter(status);
   const rows = await getImportBatchRows({ batch_id: batch.batch_id, status: activeStatus });
+  const validRows =
+    activeStatus === "valid"
+      ? rows.length
+      : activeStatus === undefined
+        ? rows.filter((row) => row.status === "valid").length
+        : (await getImportBatchRows({ batch_id: batch.batch_id, status: "valid" })).length;
 
   const backHref = entity
     ? `/admin/imports?entity=${encodeURIComponent(entity)}`
@@ -38,6 +44,7 @@ export default async function ImportBatchDetailPage({
       activeStatus={activeStatus}
       entity={entity}
       backHref={backHref}
+      validRows={validRows}
     />
   );
 }

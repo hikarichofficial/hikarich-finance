@@ -1,5 +1,6 @@
 "use client";
 
+import { translateReason } from "@/domain/authz/translateReason";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { formatMoney } from "@/domain/money/format";
@@ -101,7 +102,7 @@ export function TaxFinalScreen({
           <ul className="dashboard-list">
             {preview.reasons.map((reason, i) => (
               <li key={i} className="dashboard-list-item-detail">
-                {reason}
+                {translateReason(reason) ?? reason}
               </li>
             ))}
           </ul>

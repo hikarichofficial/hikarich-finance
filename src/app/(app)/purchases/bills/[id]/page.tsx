@@ -1,3 +1,4 @@
+import { AttachmentsSection } from "@/features/documents/AttachmentsSection";
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
@@ -48,38 +49,51 @@ export default async function BillDetailPage({
     : `/purchases/bills/${id}`;
 
   return (
-    <BillDetailScreen
-      bill={bill}
-      backHref={backHref}
-      taxPanel={
-        taxPreview ? (
-          <TaxPreviewPanel
-            preview={taxPreview}
-            currency={bill.currency}
-            sourceType="bill"
-            sourceId={id}
-            canOverride={can(access, entityId, "tax.override")}
-            next={selfHref}
-          />
-        ) : null
-      }
-      payment={
-        canPay
-          ? {
-              accounts: accounts
-                .filter((a) => a.is_active)
-                .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` })),
-              today: new Date().toISOString().slice(0, 10),
-            }
-          : undefined
-      }
-      permissions={{
-        canSubmit: can(access, entityId, "bills.submit"),
-        canEdit: can(access, entityId, "bills.edit"),
-        canApprove: can(access, entityId, "bills.approve"),
-        canVoid: can(access, entityId, "bills.void"),
-        canCorrect: can(access, entityId, "bills.void") && can(access, entityId, "bills.create"),
-      }}
-    />
+    <>
+      <BillDetailScreen
+        bill={bill}
+        backHref={backHref}
+        taxPanel={
+          taxPreview ? (
+            <TaxPreviewPanel
+              preview={taxPreview}
+              currency={bill.currency}
+              sourceType="bill"
+              sourceId={id}
+              canOverride={can(access, entityId, "tax.override")}
+              next={selfHref}
+            />
+          ) : null
+        }
+        payment={
+          canPay
+            ? {
+                accounts: accounts
+                  .filter((a) => a.is_active)
+                  .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` })),
+                today: new Date().toISOString().slice(0, 10),
+              }
+            : undefined
+        }
+        permissions={{
+          canSubmit: can(access, entityId, "bills.submit"),
+          canEdit: can(access, entityId, "bills.edit"),
+          canApprove: can(access, entityId, "bills.approve"),
+          canVoid: can(access, entityId, "bills.void"),
+          canCorrect: can(access, entityId, "bills.void") && can(access, entityId, "bills.create"),
+        }}
+      />
+      <div className="record-detail">
+        <AttachmentsSection
+          entityId={membership.entity_id}
+          entity={entity}
+          targetType="bill"
+          targetId={id}
+          returnPath={`/purchases/bills/${id}`}
+          canUpload={can(access, membership.entity_id, "documents.upload")}
+          defaultPurpose="vendor_invoice"
+        />
+      </div>
+    </>
   );
 }

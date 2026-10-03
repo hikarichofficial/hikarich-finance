@@ -1692,6 +1692,10 @@ Decision 274: PPh Final UMKM rule versions from 1 July 2018 (PP 23/2018, UU 7/20
 earlier years compute; click and page-loading feedback in the app shell. Full detail in
 `docs/DECISIONS.md` decision 274.
 
+Decision 275: Import Wizard screen, file attachments on Bill/Expense/Invoice (private bucket, needs
+`SUPABASE_SERVICE_ROLE_KEY` in Vercel Production), PPh Final reasons in Indonesian. Open: a screen to
+add an Entity (OWNER to confirm the rule). Full detail in `docs/DECISIONS.md` decision 275.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

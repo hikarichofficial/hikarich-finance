@@ -10,8 +10,7 @@ import { formatShortDate } from "./format";
 
 /**
  * Import history List (P13 unbuilt-screens backlog, decision 241): every import batch of the active Entity,
- * newest first, filterable by domain. Read-only -- staging a new batch belongs to the Import Wizard
- * (decision 140), not this history screen, so there is no Create toolbar here.
+ * newest first, filterable by domain. "Impor Data" opens the Import Wizard (decision 275).
  */
 
 function buildHref(entity: string | undefined, domain: ImportDomain | undefined): string {
@@ -41,6 +40,16 @@ export function ImportBatchesListScreen({
             {activeDomain ? `untuk "${IMPORT_DOMAIN_LABELS[activeDomain]}"` : "ditampilkan"}.
           </p>
         </div>
+        <Link
+          href={
+            entity
+              ? `/admin/imports/new?entity=${encodeURIComponent(entity)}`
+              : "/admin/imports/new"
+          }
+          className="btn-primary"
+        >
+          Impor Data
+        </Link>
       </header>
 
       <div className="list-screen-toolbar">
