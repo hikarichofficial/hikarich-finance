@@ -1702,6 +1702,9 @@ becomes OWNER). Full detail in `docs/DECISIONS.md` decision 276.
 Decision 277: BPJS Kesehatan and BPJS Ketenagakerjaan are owed and paid separately (payment kinds,
 posting lines, run screen). Full detail in `docs/DECISIONS.md` decision 277.
 
+Decision 278: separate ledger accounts 2220 (BPJS Ketenagakerjaan) and 2221 (BPJS Kesehatan). Full detail
+in `docs/DECISIONS.md` decision 278.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

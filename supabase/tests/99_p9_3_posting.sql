@@ -175,7 +175,8 @@ begin
   -- the journal, by hand: Dr salary 22,130,179 (gross + allowance) and employer BPJS 512,000; Cr net pay 21,616,865, PPh 21 313,314, BPJS 712,000
   perform test_helpers.assert(test_helpers.jd(v_j, 'SALARY_EXPENSE') = 22130179 and test_helpers.jd(v_j, 'EMPLOYER_BENEFIT_EXPENSE') = 512000, 'debits: salary expense and employer BPJS');
   perform test_helpers.assert(test_helpers.jc(v_j, 'PAYROLL_LIABILITY') = 21616865 and test_helpers.jc(v_j, 'TAX_PAYABLE') = 313314
-    and test_helpers.jc(v_j, 'BPJS_LIABILITY') = 712000, 'credits: net pay, PPh 21 and BPJS liabilities');
+    and test_helpers.jc(v_j, 'BPJS_LIABILITY') + test_helpers.jc(v_j, 'BPJS_KES_LIABILITY') = 712000
+    and test_helpers.jc(v_j, 'BPJS_KES_LIABILITY') > 0 and test_helpers.jc(v_j, 'BPJS_LIABILITY') > 0, 'credits: net pay, PPh 21 and BPJS liabilities');
   perform test_helpers.assert((select sum(debit) - sum(credit) from public.journal_lines where journal_id = v_j) = 0, 'the journal balances');
   perform test_helpers.assert((select source_type || '/' || entry_date from public.journal_entries where id = v_j) = 'payroll_run/2025-07-31', 'the journal is a payroll journal dated at the month end');
   -- the tax layer: one determination for the run (the total only), one ledger accrual in the payroll month
@@ -310,12 +311,12 @@ begin
   perform test_helpers.expect_msg(format('select public.payroll_record_payment(%L, ''key-p9c-pm18x'', ''bpjs'', ''2025-08-06'', %L)', v_run, v_bank), 'INVALID', 'a BPJS payment names its body');
   perform public.payroll_record_payment(v_run, 'key-p9c-pm18', 'bpjs_tk', '2025-08-06', v_bank);
   perform test_helpers.expect_msg(format('select public.payroll_record_payment(%L, ''key-p9c-pm18y'', ''bpjs_tk'', ''2025-08-06'', %L, ''1'')', v_run, v_bank), 'INVALID', 'Ketenagakerjaan is settled; Kesehatan money cannot go there');
-  perform test_helpers.assert(test_helpers.bal(pt, 'BPJS_LIABILITY') <> 0, 'BPJS Kesehatan is still owed');
+  perform test_helpers.assert(test_helpers.bal(pt, 'BPJS_LIABILITY') = 0 and test_helpers.bal(pt, 'BPJS_KES_LIABILITY') <> 0, 'Ketenagakerjaan is cleared; BPJS Kesehatan, in its own account, is still owed');
   perform public.payroll_record_payment(v_run, 'key-p9c-pm18b', 'bpjs_kes', '2025-08-06', v_bank);
   perform test_helpers.assert((select (g ->> 'bpjs_kes_due')::numeric = (g ->> 'bpjs_kes_paid')::numeric and (g ->> 'bpjs_tk_due')::numeric = (g ->> 'bpjs_tk_paid')::numeric
     and (g ->> 'bpjs_kes_due')::numeric > 0 and (g ->> 'bpjs_kes_due')::numeric + (g ->> 'bpjs_tk_due')::numeric = 712000
     from public.payroll_run_get(v_run) g), 'each body is paid exactly what it was owed');
-  perform test_helpers.assert(test_helpers.bal(pt, 'BPJS_LIABILITY') = 0, 'the BPJS liability is cleared');
+  perform test_helpers.assert(test_helpers.bal(pt, 'BPJS_LIABILITY') = 0 and test_helpers.bal(pt, 'BPJS_KES_LIABILITY') = 0, 'both BPJS liabilities are cleared');
   perform test_helpers.assert((public.payroll_run_get(v_run) ->> 'bpjs_paid')::numeric = 712000, 'BPJS paid in two parts');
   perform test_helpers.pcontrols(pt, 'after BPJS');
   perform test_helpers.logout();

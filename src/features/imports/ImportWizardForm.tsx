@@ -15,6 +15,13 @@ import { idleImportActionState } from "./importActionsState";
 
 const PREVIEW_ROWS = 5;
 
+/** What the preview shows for the contact kind the database will receive. */
+const KIND_LABELS: Readonly<Record<string, string>> = {
+  customer: "Pelanggan",
+  vendor: "Vendor",
+  both: "Pelanggan dan vendor",
+};
+
 /**
  * Import Wizard, step 1 (Step 15 §15, decision 275): choose what is imported, paste a table or pick a CSV
  * file, see how the columns were read, then send it for checking. Nothing is written to the books here: the
@@ -107,7 +114,7 @@ export function ImportWizardForm({ entity }: { entity: string | undefined }) {
         </p>
       ) : null}
 
-      <label>
+      <label style={{ maxWidth: "none" }}>
         Atau tempel tabel dari Excel / Google Sheets di sini
         <textarea
           name="table"
@@ -153,7 +160,8 @@ export function ImportWizardForm({ entity }: { entity: string | undefined }) {
                   <tr key={index}>
                     {shown.map((f) => (
                       <td key={f.key} data-label={f.label}>
-                        {row[f.key] || "—"}
+                        {(f.kind === "contact_kind" ? KIND_LABELS[row[f.key]] : undefined) ??
+                          (row[f.key] || "—")}
                       </td>
                     ))}
                   </tr>
@@ -172,6 +180,7 @@ export function ImportWizardForm({ entity }: { entity: string | undefined }) {
       <button
         type="submit"
         className="btn-primary"
+        style={{ alignSelf: "flex-start" }}
         disabled={pending || !hasData || mapped.missingFields.length > 0}
       >
         {pending ? "Memeriksa…" : "Periksa Data"}
