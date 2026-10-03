@@ -9,6 +9,7 @@ import { visibleQuickCreate } from "@/domain/shell/quickCreate";
 import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { CommandMenu } from "./CommandMenu";
+import { NavigationProgress } from "./NavigationProgress";
 
 const COLLAPSE_STORAGE_KEY = "hikarich.sidebar.collapsed";
 
@@ -109,6 +110,7 @@ export function AppShell({ access, children }: { access: AccessSnapshot; childre
 
   return (
     <div className="app-shell" data-sidebar={sidebarState}>
+      <NavigationProgress />
       <Sidebar
         groups={navigation}
         collapsed={collapsed}

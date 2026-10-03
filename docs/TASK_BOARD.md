@@ -1688,6 +1688,10 @@ Decision 273: production schema, Entities and first OWNER are in place; Entity l
 "Pribadi"; PP 20/2026 has no time limit for individuals and Perseroan Perorangan. Next: the OWNER enters
 taxpayer profiles, accounts and opening balances. Full detail in `docs/DECISIONS.md` decision 273.
 
+Decision 274: PPh Final UMKM rule versions from 1 July 2018 (PP 23/2018, UU 7/2021, PP 55/2022) so
+earlier years compute; click and page-loading feedback in the app shell. Full detail in
+`docs/DECISIONS.md` decision 274.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

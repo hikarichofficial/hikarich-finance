@@ -1280,6 +1280,24 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- PPh Final UMKM rules for earlier years; click and loading feedback (decision 274).
+  1. OWNER: "tambahkan aturan dan mesin pajaknya yang relate dengan aturan 2021 sampai aturan terbaru",
+     to record earlier years. Migration `20261003130000_p15_pph_final_umkm_history.sql` publishes three
+     earlier versions of `PPH_FINAL_UMKM` and one of its deadline rule; nothing existing is edited.
+     From 1 July 2018 (PP 23/2018): 0.5%, ceiling Rp4.8 billion, individuals, companies and
+     cooperatives, no untaxed band. From 1 January 2022 (UU 7/2021): the Rp500 million band for
+     individuals. From 20 December 2022 (PP 55/2022): Perseroan Perorangan added. From 22 April 2026 the
+     existing PP 20/2026 version applies. The rule in force on the last day of each month is used.
+  2. Not modelled, as before: the time limits of the older regulations (7 tax years for individuals, 4
+     for cooperatives, CV and firma, 3 for a PT). The regime chosen on the taxpayer profile is the
+     OWNER's statement that the taxpayer was entitled in that period. Withholding, VAT and payroll rules
+     still start in 2025/2026: a bill or payroll run dated earlier goes to review.
+  3. Production state: the tax engine is active for `hikarich` from 1 January 2021 and for `pt` from 1
+     September 2026 (activation is one-time per Entity).
+  4. OWNER: click and loading feedback "wajib ada". `NavigationProgress` in the app shell shows a bar at
+     the top, dims the page and marks the pressed link with a spinner from the click until the address
+     changes; links and buttons have a pressed state. Display only. Tests: `94_p7_tax.sql` 1.0, 1.4a-d.
+
 - Production is up; Entity labels "PT" and "Pribadi"; PP 20/2026 term re-checked (decision 273).
   1. Go-live steps done on 3 October 2026: the OWNER set the two GitHub secrets and re-ran the workflow,
      which applied all 71 migrations to production; the two Entities were created by the administrator

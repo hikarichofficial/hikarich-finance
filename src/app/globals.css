@@ -2508,3 +2508,126 @@ a.kpi-card:hover {
   font-size: 0.8125rem;
   line-height: 1.5;
 }
+
+/* ---------------------------------------------------------------------------------------------------
+ * Click and page-loading feedback (decision 274). `NavigationProgress` sets `data-active` on the bar and
+ * `data-nav-pending` on the pressed link from the click until the new page has arrived.
+ * ------------------------------------------------------------------------------------------------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.nav-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 3px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.nav-progress[data-active="true"] {
+  opacity: 1;
+}
+
+.nav-progress-bar {
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-progress[data-active="true"] .nav-progress-bar {
+  animation: nav-progress-slide 1.1s ease-in-out infinite;
+}
+
+@keyframes nav-progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+/* The whole page says "working" while the next one loads. */
+body:has(.nav-progress[data-active="true"]) {
+  cursor: progress;
+}
+
+body:has(.nav-progress[data-active="true"]) .app-content {
+  opacity: 0.6;
+  transition: opacity 200ms ease 120ms;
+}
+
+/* Pressed: every link and button gives way a little under the finger or pointer. */
+a:active,
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.app-nav-link:active,
+.app-nav-group-toggle:active {
+  background: var(--accent-wash);
+}
+
+/* Waiting: the pressed link keeps its highlight and shows a small spinner until the page arrives. */
+a[data-nav-pending="true"] {
+  color: var(--foreground);
+  cursor: progress;
+}
+
+.app-nav-link[data-nav-pending="true"] {
+  background: var(--accent-wash);
+  font-weight: 600;
+}
+
+a[data-nav-pending="true"]::after {
+  content: "";
+  flex: none;
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-left: auto;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: -0.1em;
+  animation: nav-pending-spin 0.7s linear infinite;
+}
+
+a[data-nav-pending="true"]:not(.app-nav-link)::after {
+  margin-left: 0.4em;
+}
+
+@keyframes nav-pending-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-progress[data-active="true"] .nav-progress-bar {
+    width: 100%;
+    animation: none;
+  }
+
+  a[data-nav-pending="true"]::after {
+    animation-duration: 2s;
+  }
+
+  a:active,
+  button:active:not(:disabled) {
+    transform: none;
+  }
+}
