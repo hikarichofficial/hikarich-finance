@@ -13,15 +13,7 @@ export type EmployeeStatus = "active" | "ended";
 export type CompensationKind = "earning" | "deduction";
 export type TaxIdStatus = "has_tax_id" | "no_tax_id" | "unknown";
 export type PtkpStatus =
-  | "TK/0"
-  | "TK/1"
-  | "TK/2"
-  | "TK/3"
-  | "K/0"
-  | "K/1"
-  | "K/2"
-  | "K/3"
-  | "unknown";
+  "TK/0" | "TK/1" | "TK/2" | "TK/3" | "K/0" | "K/1" | "K/2" | "K/3" | "unknown";
 export type TaxMethod = "employee_borne" | "gross_up";
 export type BpjsComponent = "bpjs_kes" | "bpjs_jht" | "bpjs_jp" | "bpjs_jkk" | "bpjs_jkm";
 export type PayrollStatus =
