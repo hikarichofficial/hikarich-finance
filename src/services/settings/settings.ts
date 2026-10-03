@@ -3,8 +3,10 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import {
   approvalRuleListSchema,
+  createEntityInputSchema,
   entityIdentityInputSchema,
   entityTimeSettingsInputSchema,
+  type CreateEntityInput,
   type EntityIdentityInput,
   type EntityTimeSettingsInput,
   entityProfileRowSchema,
@@ -180,5 +182,25 @@ export async function updateEntityIdentity(input: EntityIdentityInput): Promise<
     throw new Error("Profil tidak dapat disimpan.");
   }
   if (typeof data !== "number") throw new Error("Respons pengaturan tidak dikenali.");
+  return data;
+}
+
+/** Adds an Entity (decision 276) through `create_entity`: only an OWNER, with a recent step-up; the new
+ * Entity gets the standard chart of accounts and the caller as its OWNER. Returns the new Entity id. */
+export async function createEntity(input: CreateEntityInput): Promise<string> {
+  const v = createEntityInputSchema.parse(input);
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("create_entity", {
+    p_code: v.code,
+    p_entity_type: v.entity_type,
+    p_legal_name: v.legal_name,
+    p_brand_name: v.brand_name,
+  });
+  if (error) {
+    const code = parseAuthzCode(error.message);
+    if (code) throw new AuthzError(code, error.message);
+    throw new Error("Entity tidak dapat dibuat.");
+  }
+  if (typeof data !== "string") throw new Error("Respons pengaturan tidak dikenali.");
   return data;
 }
