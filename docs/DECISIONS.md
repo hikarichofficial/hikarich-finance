@@ -301,7 +301,7 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 - OWNER's tax adviser to verify the fiscal depreciation groups and rates, and to decide the tax treatment of loan interest (deductibility, withholding), forgiven debt, dividends and capital returns (decisions 104, 106, 118), before P15.
 - OWNER to confirm the P8 permission choices: `equity.approve` owner-only and the extra step-up on write-offs, restructures and dividend reversals (decision 107).
 - Part 3f is fully closed out (decisions 174-178: Asset Register/Detail, Loan Register/Detail, Other Receivables/Payables Register/Detail, Capital & Equity Register/Detail, and the Depreciation report). Remaining for a later slice: every action form across the whole capability (loan origination/repayment/restructure/write-off, decision 175; obligation create/settle/write-off/reverse-settlement/void, decision 176; equity create/confirm/pay-dividend/reverse/reverse-payment/cancel, decision 177); the depreciation run action itself (`postDepreciation`) (decisions 104, 117); current/non-current loan presentation with P10 (decision 109). The Asset Movement/Disposal Report named alongside Depreciation in Step 12's own report catalogue (decision 178) shipped as decision 279, alongside the Fiscal Depreciation Schedule and Asset GL reconciliation report from that same bullet (decision 197) -- the whole report-catalogue item is now closed.
-- Foreign-currency loans and assets, interest accrual and asset revaluation: the OWNER confirmed (2026-10-04) these are needed -- any selectable foreign currency with IDR as default, manual monthly exchange-rate entry, automatic FX gain/loss posting to P&L. The loans half shipped as decision 281. Still open: the fixed-asset half (a foreign-currency memo field at registration -- currency, foreign-currency cost and the acquisition-date rate -- historical-rate only, no revaluation, per the OWNER's "catat & tampilkan dalam mata uang asal" choice) and interest accrual (Step 04 §6 still recognises interest when paid, not accrued).
+- Foreign-currency loans and assets, interest accrual and asset revaluation: the OWNER confirmed (2026-10-04) these are needed -- any selectable foreign currency with IDR as default, manual monthly exchange-rate entry, automatic FX gain/loss posting to P&L. The loans half shipped as decision 281 and the fixed-asset half (a historical-rate-only memo, no revaluation) as decision 282. Still open: interest accrual (Step 04 §6 still recognises interest when paid, not accrued).
 - OWNER's tax adviser to verify the payroll baseline before P15: the TER tables and categories, PTKP values, the occupational-cost cap, the treatment of employer Kesehatan/JKK/JKM as taxable benefits, PTKP proration for part-year employees, rounding, the JP cap dates and the treatment of over-withheld tax (decisions 121-123, 132).
 - OWNER to decide who holds the `payroll` role and whether payroll approval and payment should be OWNER-only (decisions 120, 125, 127); OWNER to decide the approval rules for `payroll`/`approve` and `payroll`/`pay`.
 - Payroll screens still remaining after Part 3g's first four increments -- Employee Register/Detail (decision 179), Payroll Run Register/Detail (decision 180), Payslip Register/Detail (decision 181), Payroll Tax & Liabilities (decision 182): every payroll action form (employee create/edit/end/record-employment/set-compensation/set-tax-profile/set-bpjs/set-tax-opening; run calculate/adjust/submit/approve/return/post/pay/close/reopen/correct -- all already service-wrapped, none yet given a UI), the payslip PDF/document export, and THR/severance and e-bupot export (decisions 132-133). `payroll_summary_report`/`payroll_control_report` (decision 182's own deferred list) shipped as the Payroll Summary/Payroll Control reports (decision 196).
@@ -1325,6 +1325,38 @@ replace function` was confirmed to preserve the existing grants on both function
      (`src/features/financing/LoanDetailScreen.tsx`, with a `loanFxRevaluationStatusBadge` helper added to
      `src/domain/financing/loanList.ts`); and the loan detail page wired up with the FX props.
   5. `pnpm check` (838 tests), `pnpm build` and `pnpm db:test` all pass.
+
+- Fixed-asset foreign-currency memo (decision 282, 4 October 2026). The fixed-asset half of the OWNER's
+  foreign-currency confirmation in the "Open items for later phases" bullet above -- "Hanya catat &
+  tampilkan dalam mata uang asal": historical-rate only, no revaluation, unlike the ongoing monthly workflow
+  decision 281 gave loans (a fixed asset's cost does not move once it is bought). Interest accrual stays open.
+  1. New migration `20261004300000_p15_asset_fx_memo.sql`, purely additive: three nullable columns on
+     `fixed_assets` (`fx_currency`, `fx_cost`, `fx_rate`), shaped by a check constraint (all three set or all
+     three null) and locked by the same "fixed once the asset leaves draft" rule `acquisition_cost` and
+     `acquisition_date` already follow. `acquisition_cost` itself is untouched and never recomputed from the
+     memo.
+  2. The memo is captured automatically, not entered by hand, for the normal path: `app_private.
+asset_register_line` (which turns an approved bill/expense asset line into a draft asset) now also reads
+     the originating document's own `currency`/`exchange_rate` and the line's document-currency `line_total`,
+     and fills the memo whenever that currency differs from the Entity's base currency -- zero new UI, zero
+     new RPC, for a bill or expense that was already foreign-currency under P6's own FX support.
+  3. Opening assets have no originating document, so `public.asset_load_opening` accepts an optional
+     `fx_currency`/`fx_cost`/`fx_rate` per item: the currency must differ from the base currency, the rate must
+     be positive with at most 10 decimals (the same shape `bill_check_header` already enforces), and the memo
+     cost converted at the memo rate must land within 20% of the base cost already given -- the same
+     mistyped-rate sanity guard every FX feature in this codebase uses (transfers, decision 281 loans).
+  4. `public.asset_detail` patched (`create or replace function`, grants preserved) to add `fx_currency`/
+     `fx_cost`/`fx_rate` to its JSON. pgTAP coverage in `96_p8_assets.sql` section 11: the automatic capture
+     from a USD bill line, a base-currency line carrying no memo, the memo surfacing read-only through
+     `asset_detail`, direct-update lockdown, the opening-asset currency-must-differ and mistyped-rate checks,
+     and a successful opening-asset memo with its currency upper-cased. `pnpm db:test` passes (clean rebuild,
+     invariants, upgrade check).
+  5. Application layer: `fx_currency`/`fx_cost`/`fx_rate` added to `openingAssetSchema` (all-or-nothing,
+     `src/schemas/assets.ts`, reusing `currencyCodeSchema` from the Loan FX work) and to `assetDetailSchema`;
+     `loadOpeningAssetAction` passes the three fields through unchanged; `OpeningAssetForm` gains an optional
+     "Mata Uang Asal" field that reveals the cost/rate inputs (with a note that they are memo-only); `Asset
+DetailScreen` shows a "Harga & Kurs Asal" row when a memo is present. `pnpm check` (836 tests) and
+     `pnpm build` pass.
 
 - "Kirim Invoice via Email" (decision 280). OWNER, 4 October 2026: Resend, kept alongside -- not instead
   of -- the existing "Salin Tautan Publik" share; confirmed Resend's free tier (3,000 emails/month,

@@ -1,6 +1,6 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
-import { formatMoney } from "@/domain/money/format";
+import { formatMoney, trimDecimalText } from "@/domain/money/format";
 import {
   ASSET_SOURCE_LABELS,
   assetConditionBadge,
@@ -92,6 +92,15 @@ export function AssetDetailScreen({
             <dt>Biaya Perolehan</dt>
             <dd>{formatMoney(asset.acquisition_cost, currency)}</dd>
           </div>
+          {asset.fx_currency ? (
+            <div>
+              <dt>Harga &amp; Kurs Asal</dt>
+              <dd>
+                {formatMoney(asset.fx_cost ?? "0", asset.fx_currency)} · kurs{" "}
+                {trimDecimalText(asset.fx_rate ?? "0")} (catatan, tidak dihitung ulang)
+              </dd>
+            </div>
+          ) : null}
           <div>
             <dt>Akumulasi Penyusutan</dt>
             <dd>{formatMoney(asset.accumulated, currency)}</dd>

@@ -735,4 +735,71 @@ begin
 end
 $$;
 
+-- ================================================================ 11. Asset foreign-currency memo (decision 282)
+do $$
+declare
+  pt uuid := test_helpers.entity('p8a_pt');
+  op uuid := test_helpers.entity('p8a_op');
+  v_owner uuid := 'd0000000-0000-0000-0000-000000000001';
+  v_today date := test_helpers.today(pt);
+  v_b uuid;
+  a public.fixed_assets%rowtype;
+  v_ids uuid[];
+begin
+  perform test_helpers.login(v_owner);
+  -- a bill in USD with a single asset line: the memo is captured automatically, read straight off the document
+  v_b := public.create_bill_draft(pt, 'key-p8a-fx-01', test_helpers.g('va'), v_today - 10, v_today + 20,
+    jsonb_build_array(jsonb_build_object('description', 'Imported Server', 'unit_price', '2000', 'treatment', 'asset')),
+    'INV-P8A-FX-1', 'USD', 15500);
+  perform public.submit_bill(v_b, 'key-p8a-fx-02');
+  perform public.approve_bill(v_b, 'key-p8a-fx-03');
+  perform test_helpers.logout();
+  select * into a from public.fixed_assets where entity_id = pt and name = 'Imported Server';
+  perform test_helpers.assert(a.acquisition_cost = 31000000 and a.fx_currency = 'USD' and a.fx_cost = 2000 and a.fx_rate = 15500,
+    'a foreign-currency bill line gives its draft asset an automatic FX memo (base cost unchanged)');
+  perform test_helpers.put('fx_server', a.id);
+
+  -- a base-currency (IDR) bill line -- the Laptop from section 2 -- carries no memo
+  select * into a from public.fixed_assets where entity_id = pt and name = 'Laptop';
+  perform test_helpers.assert(a.fx_currency is null and a.fx_cost is null and a.fx_rate is null, 'a base-currency bill line gives its asset no FX memo');
+
+  -- the memo is read-only: asset_detail surfaces it, and no direct edit is allowed, like every other cost fact
+  perform test_helpers.login(v_owner);
+  perform test_helpers.assert((public.asset_detail(test_helpers.g('fx_server')) -> 'asset' ->> 'fx_currency') = 'USD'
+    and (public.asset_detail(test_helpers.g('fx_server')) -> 'asset' ->> 'fx_cost') = '2000.0000'
+    and (public.asset_detail(test_helpers.g('fx_server')) -> 'asset' ->> 'fx_rate') = '15500.0000000000',
+    'asset_detail surfaces the FX memo');
+  perform test_helpers.assert((public.asset_detail(test_helpers.g('laptop')) -> 'asset' ->> 'fx_currency') is null,
+    'a base-currency asset carries no fx_currency in its detail');
+  perform test_helpers.expect_error(format('update public.fixed_assets set fx_rate = fx_rate + 1 where id = %L', test_helpers.g('fx_server')), '42501',
+    'the FX memo cannot be edited directly');
+  perform test_helpers.logout();
+
+  -- opening assets have no originating document: the memo must be given explicitly, and the currency must differ from base
+  perform test_helpers.login(v_owner);
+  perform test_helpers.expect_msg(format('select public.asset_load_opening(%L, ''key-p8a-fx-op-0'', %L::jsonb)', op,
+    jsonb_build_array(jsonb_build_object('name', 'Imported Press', 'cost_account', test_helpers.acct(op, 'FIXED_ASSET_EQUIPMENT'),
+      'acquisition_date', test_helpers.today(op) - 100, 'in_service_date', test_helpers.today(op) - 100,
+      'cutover_date', test_helpers.today(op) - 1, 'cost', '30000000', 'method', 'none',
+      'fx_currency', 'IDR'))), 'INVALID', 'the FX memo currency must differ from the Entity''s own base currency');
+  -- the same mistyped-rate sanity guard every FX feature in this codebase uses (transfers, decision 281 loans)
+  perform test_helpers.expect_msg(format('select public.asset_load_opening(%L, ''key-p8a-fx-op-0b'', %L::jsonb)', op,
+    jsonb_build_array(jsonb_build_object('name', 'Imported Press', 'cost_account', test_helpers.acct(op, 'FIXED_ASSET_EQUIPMENT'),
+      'acquisition_date', test_helpers.today(op) - 100, 'in_service_date', test_helpers.today(op) - 100,
+      'cutover_date', test_helpers.today(op) - 1, 'cost', '30000000', 'method', 'none',
+      'fx_currency', 'EUR', 'fx_rate', '10000', 'fx_cost', '2000'))), 'INVALID',
+    'a mistyped rate that does not convert anywhere near the base cost is refused');
+  v_ids := public.asset_load_opening(op, 'key-p8a-fx-op-1', jsonb_build_array(
+    jsonb_build_object('name', 'Imported Press', 'cost_account', test_helpers.acct(op, 'FIXED_ASSET_EQUIPMENT'),
+      'acquisition_date', test_helpers.today(op) - 100, 'in_service_date', test_helpers.today(op) - 100,
+      'cutover_date', test_helpers.today(op) - 1, 'cost', '30000000', 'method', 'none',
+      'fx_currency', 'eur', 'fx_rate', '15000', 'fx_cost', '2000')));
+  perform test_helpers.assert((public.asset_detail(v_ids[1]) -> 'asset' ->> 'fx_currency') = 'EUR', 'the opening asset''s memo is readable through asset_detail too');
+  perform test_helpers.logout();
+  select * into a from public.fixed_assets where id = v_ids[1];
+  perform test_helpers.assert(a.fx_currency = 'EUR' and a.fx_cost = 2000 and a.fx_rate = 15000,
+    'an opening asset carries the FX memo given at load, with the currency upper-cased');
+end
+$$;
+
 rollback;

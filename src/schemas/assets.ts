@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  exchangeRateTextSchema,
   idempotencyKeySchema,
   isoDateSchema,
   moneyTextSchema,
@@ -15,6 +16,14 @@ import {
 
 const reasonSchema = z.string().trim().min(5).max(1000);
 const optionalText = (max: number) => z.string().trim().max(max).optional();
+/** A 3-letter ISO 4217 code. Duplicated from `financing.ts`'s own `currencyCodeSchema` (the Loan FX memo,
+ * decision 281) rather than imported: the two features shipped on separate branches, and a currency code
+ * format is generic enough that re-declaring four lines beats a cross-feature import dependency. */
+const currencyCodeSchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .regex(/^[A-Z]{3}$/, "Kode mata uang harus 3 huruf (ISO 4217)");
 
 export const assetStatusSchema = z.enum(["draft", "active", "sold", "disposed", "cancelled"]);
 export const assetConditionSchema = z.enum([
@@ -177,28 +186,44 @@ export const setFiscalClassInputSchema = z.object({
 });
 
 /** One asset loaded at the cut-over (Step 15 §24): the book value carried forward with its accumulated depreciation. */
-export const openingAssetSchema = z.object({
-  name: z.string().trim().min(1).max(200),
-  description: optionalText(2000),
-  serial_number: optionalText(100),
-  location: optionalText(200),
-  custodian: optionalText(200),
-  /** The fixed-asset ledger account of the cost (an account of this Entity). */
-  cost_account: z.uuid(),
-  acquisition_date: isoDateSchema,
-  in_service_date: isoDateSchema,
-  cutover_date: isoDateSchema,
-  cost: moneyTextSchema,
-  accumulated: moneyTextSchema.optional(),
-  method: depreciationMethodSchema.optional(),
-  life_months: lifeMonthsSchema.optional(),
-  residual: moneyTextSchema.optional(),
-  fiscal_class: z
-    .string()
-    .regex(/^[a-z][a-z0-9_]{1,40}$/)
-    .optional(),
-  fiscal_method: fiscalMethodSchema.optional(),
-});
+export const openingAssetSchema = z
+  .object({
+    name: z.string().trim().min(1).max(200),
+    description: optionalText(2000),
+    serial_number: optionalText(100),
+    location: optionalText(200),
+    custodian: optionalText(200),
+    /** The fixed-asset ledger account of the cost (an account of this Entity). */
+    cost_account: z.uuid(),
+    acquisition_date: isoDateSchema,
+    in_service_date: isoDateSchema,
+    cutover_date: isoDateSchema,
+    cost: moneyTextSchema,
+    accumulated: moneyTextSchema.optional(),
+    method: depreciationMethodSchema.optional(),
+    life_months: lifeMonthsSchema.optional(),
+    residual: moneyTextSchema.optional(),
+    fiscal_class: z
+      .string()
+      .regex(/^[a-z][a-z0-9_]{1,40}$/)
+      .optional(),
+    fiscal_method: fiscalMethodSchema.optional(),
+    /** The FX memo (decision 282, the fixed-asset half of the OWNER's foreign-currency confirmation): what this
+     * asset actually cost, in the currency it was actually bought in, at the acquisition-date rate. Historical-rate
+     * only -- `cost` above stays the base-currency figure and is never recomputed from this; there is no revaluation. */
+    fx_currency: currencyCodeSchema.optional(),
+    fx_cost: moneyTextSchema.optional(),
+    fx_rate: exchangeRateTextSchema.optional(),
+  })
+  .refine(
+    (v) =>
+      Boolean(v.fx_currency) === Boolean(v.fx_cost) &&
+      Boolean(v.fx_currency) === Boolean(v.fx_rate),
+    {
+      path: ["fx_currency"],
+      message: "Isi mata uang, biaya dan kurs asal sekaligus, atau kosongkan ketiganya",
+    },
+  );
 export const loadOpeningAssetsInputSchema = z.object({
   entity_id: z.uuid(),
   idempotency_key: idempotencyKeySchema,
@@ -268,6 +293,9 @@ export const assetDetailSchema = z.object({
     plan_version: z.number().int().nonnegative(),
     fiscal_class_key: z.string().nullable(),
     fiscal_method: fiscalMethodSchema.nullable(),
+    fx_currency: currencyCodeSchema.nullable(),
+    fx_cost: signedDecimalTextSchema.nullable(),
+    fx_rate: signedDecimalTextSchema.nullable(),
     accumulated: signedDecimalTextSchema,
     net_book_value: signedDecimalTextSchema,
     split_from_asset_id: z.uuid().nullable(),

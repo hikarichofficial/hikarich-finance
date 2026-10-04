@@ -347,6 +347,7 @@ export async function loadOpeningAssetAction(
   const method = text(formData, "method") || "none";
   const life = text(formData, "life_months");
   const fiscalClass = text(formData, "fiscal_class");
+  const fxCurrency = text(formData, "fx_currency");
   let assetId: string | undefined;
   try {
     const { membership } = await requirePermission("system.import", { entityCode: entity });
@@ -370,6 +371,9 @@ export async function loadOpeningAssetAction(
           residual: method === "none" ? undefined : text(formData, "residual") || undefined,
           fiscal_class: fiscalClass || undefined,
           fiscal_method: fiscalClass ? (text(formData, "fiscal_method") as never) : undefined,
+          fx_currency: fxCurrency || undefined,
+          fx_cost: fxCurrency ? text(formData, "fx_cost") : undefined,
+          fx_rate: fxCurrency ? text(formData, "fx_rate") : undefined,
         },
       ],
     });
