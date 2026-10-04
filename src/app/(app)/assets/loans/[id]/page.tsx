@@ -5,6 +5,7 @@ import { getMoneyControl } from "@/services/money/money";
 import { LoanActionsPanel } from "@/features/financing/FinancingForms";
 import { requirePermission } from "@/services/identity/access";
 import { getEntityBaseCurrency, getLoan, getLoanSchedule } from "@/services/financing/financing";
+import { listAssets } from "@/services/assets/assets";
 import { LoanDetailScreen } from "@/features/financing/LoanDetailScreen";
 
 /** Loan Detail (P13 Part 3f, second increment, Step 09 §10, §16). The active schedule is a separate RPC
@@ -34,6 +35,13 @@ export default async function LoanDetailPage({
         .filter((a) => a.is_active)
         .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` }))
     : [];
+  // Only a borrowed loan can be linked to the fixed asset it financed (Step 01 #19, loan_set_asset's own guard).
+  const assets =
+    canManage && detail.direction === "borrowed"
+      ? (await listAssets({ entity_id: membership.entity_id }).catch(() => []))
+          .filter((a) => a.status !== "cancelled")
+          .map((a) => ({ id: a.asset_id, label: `${a.asset_code} · ${a.name}` }))
+      : [];
   const today = new Date().toISOString().slice(0, 10);
   const qs = entity ? `?entity=${encodeURIComponent(entity)}` : "";
   // `loan_reverse_payment` refuses a payment of a superseded (restructured) schedule: offer the rest.
@@ -71,6 +79,8 @@ export default async function LoanDetailPage({
             fxCurrency={detail.fx_terms?.currency ?? null}
             fxNote={detail.fx_terms?.note ?? null}
             fxLatestRevaluationId={fxLatestRevaluationId}
+            assets={assets}
+            currentAssetId={detail.asset_id}
           />
         ) : undefined
       }

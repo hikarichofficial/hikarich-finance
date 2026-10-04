@@ -21,6 +21,8 @@ import {
   reverseLoanPayment,
   reverseObligationSettlement,
   revalueLoanFx,
+  restructureLoan,
+  setLoanAsset,
   setLoanFxTerms,
   settleObligation,
   voidObligation,
@@ -182,6 +184,54 @@ export async function cancelLoanAction(
     "Pinjaman tidak dapat dibatalkan. Isi alasan minimal 5 huruf.",
     loanPaths(formData),
     "Pinjaman dibatalkan.",
+  );
+}
+
+/** Replaces the schedule going forward from the effective date (new rate/method/installments or an explicit
+ * manual schedule), closing the current `loan_schedule_versions` row and opening the next one -- past payments
+ * and their allocations are untouched (Step 07 §12, Step 08 §12). The database requires a recent step-up. */
+export async function restructureLoanAction(
+  _previous: FinancingActionState,
+  formData: FormData,
+): Promise<FinancingActionState> {
+  const installments = text(formData, "installments");
+  const stepMonths = text(formData, "step_months");
+  const firstDue = text(formData, "first_due");
+  return run(
+    () =>
+      restructureLoan({
+        loan_id: text(formData, "loan_id"),
+        idempotency_key: randomUUID(),
+        effective_date: text(formData, "effective_date"),
+        rate_percent: text(formData, "rate_percent") || "0",
+        method: text(formData, "method") as never,
+        installments: installments ? Number(installments) : undefined,
+        step_months: stepMonths ? (Number(stepMonths) as never) : undefined,
+        first_due: firstDue || undefined,
+        reason: text(formData, "reason"),
+      }),
+    "Restrukturisasi tidak dapat disimpan. Periksa tanggal efektif, bunga, jumlah cicilan dan alasan.",
+    loanPaths(formData),
+    "Jadwal pinjaman baru tersimpan.",
+  );
+}
+
+/** Links (or unlinks) the fixed asset this borrowed loan financed -- a link only, Step 01 #19: it posts
+ * nothing and never changes the loan's own accounting. Not idempotency-tracked: it is a setting. */
+export async function setLoanAssetAction(
+  _previous: FinancingActionState,
+  formData: FormData,
+): Promise<FinancingActionState> {
+  const assetId = text(formData, "asset_id");
+  return run(
+    () =>
+      setLoanAsset({
+        loan_id: text(formData, "loan_id"),
+        asset_id: assetId || null,
+      }),
+    "Aset tidak dapat ditautkan. Hanya pinjaman diterima (bukan dibatalkan) yang bisa ditautkan ke aset.",
+    loanPaths(formData),
+    "Tautan aset tersimpan.",
   );
 }
 

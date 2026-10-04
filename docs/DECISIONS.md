@@ -300,7 +300,7 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 - Tax on documents already open at the cutover (decision 100; DATA_CUTOVER item 9).
 - OWNER's tax adviser to verify the fiscal depreciation groups and rates, and to decide the tax treatment of loan interest (deductibility, withholding), forgiven debt, dividends and capital returns (decisions 104, 106, 118), before P15.
 - OWNER to confirm the P8 permission choices: `equity.approve` owner-only and the extra step-up on write-offs, restructures and dividend reversals (decision 107).
-- Part 3f is fully closed out (decisions 174-178: Asset Register/Detail, Loan Register/Detail, Other Receivables/Payables Register/Detail, Capital & Equity Register/Detail, and the Depreciation report). Remaining for a later slice: every action form across the whole capability (loan origination/repayment/restructure/write-off, decision 175; obligation create/settle/write-off/reverse-settlement/void, decision 176; equity create/confirm/pay-dividend/reverse/reverse-payment/cancel, decision 177); the depreciation run action itself (`postDepreciation`) (decisions 104, 117); current/non-current loan presentation with P10 (decision 109). The Asset Movement/Disposal Report named alongside Depreciation in Step 12's own report catalogue (decision 178) shipped as decision 279, alongside the Fiscal Depreciation Schedule and Asset GL reconciliation report from that same bullet (decision 197) -- the whole report-catalogue item is now closed.
+- Part 3f is fully closed out (decisions 174-178: Asset Register/Detail, Loan Register/Detail, Other Receivables/Payables Register/Detail, Capital & Equity Register/Detail, and the Depreciation report). This bullet used to claim every action form across the whole capability was still missing; a direct code audit on 4 October 2026 (decision 283) found that was stale -- obligation create/settle/write-off/reverse-settlement/void (decision 176), equity create/confirm/pay-dividend/reverse/reverse-payment/cancel (decision 177), every loan command except restructure/set-asset, and the depreciation run action itself (`postDepreciation`, decisions 104, 117) already had real wired-up UI forms; decision 283 closed the last two loan gaps (restructure, set-asset). Remaining for a later slice: current/non-current loan presentation with P10 (decision 109) -- a presentation-only item, not a missing action form. The Asset Movement/Disposal Report named alongside Depreciation in Step 12's own report catalogue (decision 178) shipped as decision 279, alongside the Fiscal Depreciation Schedule and Asset GL reconciliation report from that same bullet (decision 197) -- the whole report-catalogue item is now closed.
 - Foreign-currency loans and assets, interest accrual and asset revaluation: the OWNER confirmed (2026-10-04) these are needed -- any selectable foreign currency with IDR as default, manual monthly exchange-rate entry, automatic FX gain/loss posting to P&L. The loans half shipped as decision 281 and the fixed-asset half (a historical-rate-only memo, no revaluation) as decision 282. Still open: interest accrual (Step 04 §6 still recognises interest when paid, not accrued).
 - OWNER's tax adviser to verify the payroll baseline before P15: the TER tables and categories, PTKP values, the occupational-cost cap, the treatment of employer Kesehatan/JKK/JKM as taxable benefits, PTKP proration for part-year employees, rounding, the JP cap dates and the treatment of over-withheld tax (decisions 121-123, 132).
 - OWNER to decide who holds the `payroll` role and whether payroll approval and payment should be OWNER-only (decisions 120, 125, 127); OWNER to decide the approval rules for `payroll`/`approve` and `payroll`/`pay`.
@@ -1357,6 +1357,34 @@ asset_register_line` (which turns an approved bill/expense asset line into a dra
      "Mata Uang Asal" field that reveals the cost/rate inputs (with a note that they are memo-only); `Asset
 DetailScreen` shows a "Harga & Kurs Asal" row when a memo is present. `pnpm check` (836 tests) and
      `pnpm build` pass.
+
+- Loan Restructure and Loan Set-Asset UI (decision 283, 4 October 2026). An audit of the real code (not
+  `docs/DECISIONS.md`'s own stale "Open items" bullet, which still claimed "every action form across the
+  whole capability" was missing for loans/obligations/equity -- obligations and equity were already fully
+  wired, and so were every other loan command except these two) found exactly two genuinely unbuilt UI gaps:
+  `loan_restructure` and `loan_set_asset` both already had a full, tested RPC and service-layer function
+  (`restructureLoan`/`setLoanAsset` in `src/services/financing/financing.ts`, calling unmodified P8 RPCs
+  with their own pgTAP coverage in `98_p8_loans.sql`) but no server action and no form anywhere. Pure
+  wiring, no schema or RPC change, no OWNER decision needed (the RPCs' own behaviour is already locked spec).
+  1. `restructureLoanAction`/`setLoanAssetAction` added to `src/features/financing/financingActions.ts`,
+     following the exact pattern of every other loan action in that file (`run()`, `loanPaths()`,
+     `errorState()` for `STEP_UP_REQUIRED` -- `loan_restructure` needs a recent step-up like write-off does).
+  2. Two new `CommandForm`s added to `LoanActionsPanel` in `src/features/financing/FinancingForms.tsx`:
+     "Restrukturisasi Jadwal" (status `active` only, matching the RPC's own guard) reusing the exact
+     rate/method/installments/step_months/first_due fields `LoanCreateForm` already uses for the initial
+     schedule, plus a reason field; "Tautkan ke Aset" / "Ubah Tautan Aset" (any non-cancelled status, borrowed
+     loans only, matching `loan_set_asset`'s own guard) with a dropdown of the Entity's own non-cancelled
+     fixed assets.
+  3. `src/app/(app)/assets/loans/[id]/page.tsx` now also loads the asset list (`listAssets`, gracefully
+     degrading to an empty list on a permission error exactly like the existing `accounts` fetch already
+     does) when the viewer can manage the loan and it is a borrowed one, and passes it plus the loan's current
+     `asset_id` (already present in `loan_detail`'s own JSON) to the panel.
+  4. No schema, RPC or migration touched -- `pnpm check` (839 tests, unchanged count: no new tests needed,
+     since the RPCs this wires up already have their own full pgTAP coverage and no new business logic was
+     written), `pnpm build` and `npx prettier --check .` all pass.
+     (Note: this slice also considered, then explicitly declined, automatic loan interest accrual -- see the
+     "Open items for later phases" bullet above. Decision 108 ("Interest is never accrued automatically") was
+     re-confirmed by the OWNER on 4 October 2026 rather than reversed.)
 
 - "Kirim Invoice via Email" (decision 280). OWNER, 4 October 2026: Resend, kept alongside -- not instead
   of -- the existing "Salin Tautan Publik" share; confirmed Resend's free tier (3,000 emails/month,
