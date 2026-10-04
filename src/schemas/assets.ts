@@ -373,6 +373,36 @@ export const assetControlRowSchema = z.object({
 export const assetControlSchema = z.array(assetControlRowSchema);
 export type AssetControlRow = z.infer<typeof assetControlRowSchema>;
 
+export const assetMovementEventTypeSchema = z.enum([
+  "transferred",
+  "condition_changed",
+  "split",
+  "disposed",
+  "disposal_reversed",
+  "registered",
+  "activated",
+  "cancelled",
+  "opening_loaded",
+]);
+
+export const assetMovementRowSchema = z.object({
+  asset_id: z.uuid(),
+  asset_code: z.string(),
+  asset_name: z.string(),
+  event_date: isoDateSchema,
+  event_type: assetMovementEventTypeSchema,
+  description: z.string(),
+  proceeds: signedDecimalTextSchema.nullable(),
+  cost_removed: signedDecimalTextSchema.nullable(),
+  accumulated_removed: signedDecimalTextSchema.nullable(),
+  net_book_value: signedDecimalTextSchema.nullable(),
+  gain_loss: signedDecimalTextSchema.nullable(),
+  journal_id: z.uuid().nullable(),
+  disposal_status: z.enum(["posted", "reversed"]).nullable(),
+});
+export const assetMovementSchema = z.array(assetMovementRowSchema);
+export type AssetMovementRow = z.infer<typeof assetMovementRowSchema>;
+
 export const postDepreciationResultSchema = z.object({
   posted: z.number().int().nonnegative(),
   total: signedDecimalTextSchema,

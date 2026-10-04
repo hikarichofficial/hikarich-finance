@@ -14,7 +14,7 @@ import {
 import { listLedgerAccounts } from "@/services/accounting/ledger";
 import { loanSummary, loansDue } from "@/services/financing/financing";
 import { getPayrollControl, getPayrollSummary } from "@/services/payroll/payroll";
-import { assetControl, fiscalSchedule, listAssets } from "@/services/assets/assets";
+import { assetControl, assetMovement, fiscalSchedule, listAssets } from "@/services/assets/assets";
 import {
   resolveAsOfDate,
   resolveCompareRange,
@@ -48,6 +48,7 @@ const REPORT_STATEMENTS: readonly ReportStatement[] = [
   "payroll_control",
   "fiscal_schedule",
   "asset_control",
+  "asset_movement",
 ];
 
 function resolveStatement(value: string | undefined): ReportStatement {
@@ -99,7 +100,12 @@ function resolveStatement(value: string | undefined): ReportStatement {
  * Ledger tab's own account picker. Both tabs are gated by `assets.view` plus a second hard-required permission
  * (`tax.view` for the schedule, `accounting.view` for the reconciliation) -- unlike Payroll Summary/Control,
  * the `accountant` and `viewer_auditor` seed roles already hold every permission either tab needs together
- * with `reports.view`, so both are reachable by an ordinary role, not only the OWNER. */
+ * with `reports.view`, so both are reachable by an ordinary role, not only the OWNER. The Asset Movement/
+ * Disposal report (decision 279, tenth increment) closes out the one Step 12 report-catalogue item decision
+ * 178 left open (noted in decision 303's open-items list) -- it reads the new `asset_movement_report` RPC
+ * via the `assetMovement` wrapper, gated by `assets.view` alone (the RPC's own single permission check, no
+ * second hard-required permission unlike the two tabs above), and takes a date range like every other
+ * Entity-scoped statement rather than one asset or one as-of date. */
 export default async function ReportsPage({
   searchParams,
 }: {
@@ -246,6 +252,10 @@ export default async function ReportsPage({
       can(access, membership.entity_id, "accounting.view");
     const rows = canView ? await assetControl(membership.entity_id, asOf) : [];
     data = { statement, asOf, canView, rows };
+  } else if (statement === "asset_movement") {
+    const canView = can(access, membership.entity_id, "assets.view");
+    const rows = canView ? await assetMovement(membership.entity_id, range.from, range.to) : [];
+    data = { statement, range, canView, rows };
   } else {
     const compareRange = resolveCompareRange(compare_from, compare_to);
     const rows = await getProfitAndLoss({

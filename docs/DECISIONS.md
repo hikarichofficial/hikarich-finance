@@ -300,8 +300,8 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 - Tax on documents already open at the cutover (decision 100; DATA_CUTOVER item 9).
 - OWNER's tax adviser to verify the fiscal depreciation groups and rates, and to decide the tax treatment of loan interest (deductibility, withholding), forgiven debt, dividends and capital returns (decisions 104, 106, 118), before P15.
 - OWNER to confirm the P8 permission choices: `equity.approve` owner-only and the extra step-up on write-offs, restructures and dividend reversals (decision 107).
-- Part 3f is fully closed out (decisions 174-178: Asset Register/Detail, Loan Register/Detail, Other Receivables/Payables Register/Detail, Capital & Equity Register/Detail, and the Depreciation report). Remaining for a later slice: every action form across the whole capability (loan origination/repayment/restructure/write-off, decision 175; obligation create/settle/write-off/reverse-settlement/void, decision 176; equity create/confirm/pay-dividend/reverse/reverse-payment/cancel, decision 177); the depreciation run action itself (`postDepreciation`) (decisions 104, 117); the Asset Movement/Disposal Report named alongside Depreciation in Step 12's own report catalogue (decision 178 -- no dedicated RPC yet, new backend work; the Fiscal Depreciation Schedule and Asset GL reconciliation report from that same bullet shipped as decision 197); current/non-current loan presentation with P10 (decision 109).
-- Foreign-currency loans and assets, interest accrual and asset revaluation only if the OWNER needs them (decision 118).
+- Part 3f is fully closed out (decisions 174-178: Asset Register/Detail, Loan Register/Detail, Other Receivables/Payables Register/Detail, Capital & Equity Register/Detail, and the Depreciation report). Remaining for a later slice: every action form across the whole capability (loan origination/repayment/restructure/write-off, decision 175; obligation create/settle/write-off/reverse-settlement/void, decision 176; equity create/confirm/pay-dividend/reverse/reverse-payment/cancel, decision 177); the depreciation run action itself (`postDepreciation`) (decisions 104, 117); current/non-current loan presentation with P10 (decision 109). The Asset Movement/Disposal Report named alongside Depreciation in Step 12's own report catalogue (decision 178) shipped as decision 279, alongside the Fiscal Depreciation Schedule and Asset GL reconciliation report from that same bullet (decision 197) -- the whole report-catalogue item is now closed.
+- Foreign-currency loans and assets, interest accrual and asset revaluation: the OWNER confirmed (2026-10-04) these are needed -- any selectable foreign currency with IDR as default, manual monthly exchange-rate entry, automatic FX gain/loss posting to P&L. Not yet built; scoped as its own full engineering slice (decision 118's own open item, still open).
 - OWNER's tax adviser to verify the payroll baseline before P15: the TER tables and categories, PTKP values, the occupational-cost cap, the treatment of employer Kesehatan/JKK/JKM as taxable benefits, PTKP proration for part-year employees, rounding, the JP cap dates and the treatment of over-withheld tax (decisions 121-123, 132).
 - OWNER to decide who holds the `payroll` role and whether payroll approval and payment should be OWNER-only (decisions 120, 125, 127); OWNER to decide the approval rules for `payroll`/`approve` and `payroll`/`pay`.
 - Payroll screens still remaining after Part 3g's first four increments -- Employee Register/Detail (decision 179), Payroll Run Register/Detail (decision 180), Payslip Register/Detail (decision 181), Payroll Tax & Liabilities (decision 182): every payroll action form (employee create/edit/end/record-employment/set-compensation/set-tax-profile/set-bpjs/set-tax-opening; run calculate/adjust/submit/approve/return/post/pay/close/reopen/correct -- all already service-wrapped, none yet given a UI), the payslip PDF/document export, and THR/severance and e-bupot export (decisions 132-133). `payroll_summary_report`/`payroll_control_report` (decision 182's own deferred list) shipped as the Payroll Summary/Payroll Control reports (decision 196).
@@ -1279,6 +1279,35 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   labels. Found while testing: a submenu item without its own permission made its menu appear for
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
+
+- Asset Movement/Disposal report (decision 279, 4 October 2026). Closes the one Step 12 report-catalogue
+  item decision 178 left open (the Fiscal Depreciation Schedule and Asset GL reconciliation report from
+  that same bullet already shipped as decision 197).
+  1. New read-only RPC `asset_movement_report(p_entity, p_from, p_to, p_limit)`: purely additive, no new
+     table and no change to any existing table, function or trigger. It reads `asset_events` (every
+     lifecycle event: transferred, condition_changed, split, disposed, disposal_reversed, registered,
+     activated, cancelled, opening_loaded) left-joined to `asset_disposals` via the disposal row's own id,
+     which `app_private.asset_event` already stores at `details->>'disposal'` -- an exact join, not a guess
+     from free text. A disposed/disposal_reversed row carries proceeds, cost/accumulated removed, net book
+     value, gain/loss and the posting journal; every other event type carries those as null. Gated by
+     `assets.view` alone (no second hard-required permission, unlike the Fiscal Depreciation Schedule's
+     `tax.view` or the Asset GL reconciliation's `accounting.view`).
+  2. Migration `20261004100000_p15_asset_movement_report.sql`; added to the `rpc_allowlist` invariant;
+     covered by a new pgTAP block in `96_p8_assets.sql` (every transfer/condition-change counted, a
+     disposal and its reversal both shown, the disposal row's gain/loss and proceeds match the disposal
+     record, a from-date after every event excludes everything, a viewer with only `assets.view` reads it,
+     an unauthenticated call is refused). `pnpm db:test` passes (clean rebuild reproducible, invariants
+     pass, upgrade-from-seeded-data check passes).
+  3. Application layer: `assetMovement` wrapper (`src/services/assets/assets.ts`), schemas in
+     `src/schemas/assets.ts`, and a new "Mutasi/Pelepasan Aset" tab on `/reports` (`asset_movement`
+     statement) -- a plain date-range report like every other Entity-scoped statement, not the
+     one-asset/one-as-of-date shape the two tabs beside it use. Each disposal row's event description is
+     composed by the RPC itself in Indonesian (never recomputed in the frontend); proceeds/gain-loss/
+     journal-link columns render "—" for every non-disposal event. `pnpm check`/`pnpm build` pass.
+  4. While verifying this slice, confirmed `eslint-plugin-jsx-a11y` was missing from `node_modules` despite
+     being declared in `package.json` (a stale install, not a code defect) -- `pnpm install` restored it
+     and also picked up the already-declared `next`/`eslint-config-next` 16.3.8 bump from decision 236;
+     `pnpm check` then passed cleanly (835 tests).
 
 - Separate ledger accounts for the two BPJS bodies (decision 278).
   1. OWNER, 3 October 2026, on decision 277 item 3: "ikut rekomendasimu". Recommended and done: two
