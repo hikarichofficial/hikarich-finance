@@ -1705,6 +1705,13 @@ posting lines, run screen). Full detail in `docs/DECISIONS.md` decision 277.
 Decision 278: separate ledger accounts 2220 (BPJS Ketenagakerjaan) and 2221 (BPJS Kesehatan). Full detail
 in `docs/DECISIONS.md` decision 278.
 
+Decision 280: "Kirim Invoice via Email" over Resend, kept alongside "Salin Tautan Publik". New optional
+`RESEND_API_KEY`/`RESEND_FROM_EMAIL` env vars (absent means off, same shape as the Storage service-role
+key); `src/services/email/resend.ts` (plain fetch, no new dependency) and `src/services/sales/
+invoiceEmail.ts` reuse the existing public-link commands -- never a second kind of link. No migration, no
+new RPC. `pnpm check` (835 tests, unchanged) and `pnpm build` pass. Full detail in `docs/DECISIONS.md`
+decision 280.
+
 Decision 279: Asset Movement/Disposal report, closing the one Step 12 report-catalogue item decision 178
 left open. New read-only RPC `asset_movement_report` (gated by `assets.view` alone), a "Mutasi/Pelepasan
 Aset" tab on `/reports`, and pgTAP coverage in `96_p8_assets.sql`. `pnpm db:test` passes (clean rebuild,

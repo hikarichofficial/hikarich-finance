@@ -2,7 +2,9 @@ import { AttachmentsSection } from "@/features/documents/AttachmentsSection";
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import { getInvoiceDocument } from "@/services/sales/sales";
+import { getInvoiceDocument, getInvoiceOwner } from "@/services/sales/sales";
+import { getContact } from "@/services/contacts/contacts";
+import { emailDeliveryEnabled } from "@/services/email/resend";
 import { getMoneyControl } from "@/services/money/money";
 import { previewDocumentTax } from "@/services/tax/tax";
 import { TaxPreviewPanel } from "@/features/tax/TaxPreviewPanel";
@@ -10,7 +12,12 @@ import { InvoiceDetailScreen } from "@/features/sales/InvoiceDetailScreen";
 
 /** Invoice Detail (P13 Part 3a, Step 09 §10, §11). Permission to act is read off the currently active
  * Entity (`?entity=`), the same per-page pattern every other screen uses (DECISIONS 158); the database
- * still re-checks every action against the invoice's own actual Entity regardless of what is active here. */
+ * still re-checks every action against the invoice's own actual Entity regardless of what is active here.
+ * Send Invoice via Email (decision 279's open item) is loaded only when the invoice is issued and the
+ * caller holds `invoices.regenerate_link` (the same gate "Salin Tautan Publik" already uses, since both
+ * share one public link) -- `getInvoiceOwner`/`getContact` are the same lookups `recordInvoicePaymentAction`
+ * already makes for the customer, and `emailDeliveryEnabled()` just reads whether the OWNER has set up
+ * Resend, never a network call. */
 export default async function InvoiceDetailPage({
   params,
   searchParams,
@@ -42,6 +49,18 @@ export default async function InvoiceDetailPage({
   const selfHref = entity
     ? `/sales/invoices/${id}?entity=${encodeURIComponent(entity)}`
     : `/sales/invoices/${id}`;
+
+  const canManageLink = can(access, entityId, "invoices.regenerate_link");
+  const email =
+    doc.status === "issued" && canManageLink
+      ? {
+          configured: emailDeliveryEnabled(),
+          defaultEmail: await getInvoiceOwner(id)
+            .then((owner) => (owner ? getContact(owner.customer_id) : null))
+            .then((contact) => contact?.email ?? null)
+            .catch(() => null),
+        }
+      : undefined;
 
   return (
     <>
@@ -77,9 +96,10 @@ export default async function InvoiceDetailPage({
           canVoid: can(access, entityId, "invoices.void"),
           canCorrect:
             can(access, entityId, "invoices.void") && can(access, entityId, "invoices.create"),
-          canManageLink: can(access, entityId, "invoices.regenerate_link"),
+          canManageLink,
           canCancelDraft: can(access, entityId, "invoices.edit"),
         }}
+        email={email}
       />
       <div className="record-detail">
         <AttachmentsSection

@@ -9,6 +9,7 @@ import {
   ensureInvoiceLinkAction,
   issueInvoiceAction,
   revokeInvoiceLinkAction,
+  sendInvoiceEmailAction,
   setInvoiceLinkExpiryAction,
   voidInvoiceAction,
 } from "./actions";
@@ -16,6 +17,7 @@ import {
   idleCorrectInvoiceState,
   idleInvoiceActionState,
   idleInvoiceLinkState,
+  idleSendInvoiceEmailState,
 } from "./actionsState";
 
 /**
@@ -282,6 +284,51 @@ function CopyLinkForm({ invoiceId }: { invoiceId: string }) {
   );
 }
 
+/** Send Invoice via Email (decision 279's open item): kept alongside, never instead of, "Salin Tautan
+ * Publik" above -- both share the exact same public link. The email field is pre-filled from the
+ * customer's own `contacts.email` when one is on file, but always editable, so a one-off address never
+ * needs to be saved to the contact first. */
+function SendInvoiceEmailForm({
+  invoiceId,
+  defaultEmail,
+}: {
+  invoiceId: string;
+  defaultEmail: string | null;
+}) {
+  const [state, action, pending] = useActionState(
+    sendInvoiceEmailAction,
+    idleSendInvoiceEmailState,
+  );
+  const actionForm = usePreservingForm(action, state);
+  const [email, setEmail] = useState(defaultEmail ?? "");
+
+  return (
+    <form {...actionForm} className="invoice-action-form">
+      <input type="hidden" name="invoice_id" value={invoiceId} />
+      <label>
+        Kirim Invoice ke Email
+        <input
+          type="email"
+          name="email"
+          required
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          placeholder="nama@contoh.com"
+        />
+      </label>
+      {state.status === "error" ? (
+        <p role="alert" className="error">
+          {state.message}
+        </p>
+      ) : null}
+      {state.status === "ok" ? <p className="hint">{state.message}</p> : null}
+      <button type="submit" className="btn-secondary" disabled={pending || email.trim() === ""}>
+        {pending ? "Mengirim…" : "Kirim via Email"}
+      </button>
+    </form>
+  );
+}
+
 export interface InvoiceActionPermissions {
   canIssue: boolean;
   canVoid: boolean;
@@ -301,10 +348,15 @@ export function InvoiceActions({
   invoiceId,
   status,
   permissions,
+  email,
 }: {
   invoiceId: string;
   status: "draft" | "issued" | "cancelled" | "void";
   permissions: InvoiceActionPermissions;
+  /** Absent when the caller skipped loading it (e.g. no `canManageLink`); `configured: false` means the
+   * OWNER has not set up Resend yet (decision 279's open item) -- the form is replaced by a plain hint,
+   * the same "show a hint instead of a form that can only fail" pattern Document Storage already uses. */
+  email?: { configured: boolean; defaultEmail: string | null };
 }) {
   const actions: ReactNode[] = [];
   if (status === "draft" && permissions.canIssue) {
@@ -312,6 +364,22 @@ export function InvoiceActions({
   }
   if (status === "issued" && permissions.canManageLink) {
     actions.push(<CopyLinkForm key="link" invoiceId={invoiceId} />);
+    if (email?.configured) {
+      actions.push(
+        <SendInvoiceEmailForm
+          key="email"
+          invoiceId={invoiceId}
+          defaultEmail={email.defaultEmail}
+        />,
+      );
+    } else if (email) {
+      actions.push(
+        <p key="email-disabled" className="hint">
+          Pengiriman invoice lewat email belum diaktifkan untuk situs ini. Gunakan Salin Tautan
+          Publik.
+        </p>,
+      );
+    }
     actions.push(<LinkExpiryForm key="expiry" invoiceId={invoiceId} />);
     actions.push(<RevokeLinkForm key="revoke" invoiceId={invoiceId} />);
   }

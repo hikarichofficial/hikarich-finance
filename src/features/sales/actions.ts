@@ -24,6 +24,7 @@ import {
   reversePayment,
   voidInvoice,
 } from "@/services/sales/sales";
+import { sendInvoiceEmail } from "@/services/sales/invoiceEmail";
 
 /**
  * Server actions behind Invoice Detail's status actions (P13 Part 3a, Step 09 §11: "Issue/Send/Copy Link/
@@ -35,10 +36,10 @@ import {
  * mismatched `?entity=` in the URL cannot widen what an action is allowed to do (DECISIONS 158's per-page
  * `requireAccess({entityCode})` pattern only controls which buttons are *shown*).
  *
- * Send/Confirm Payment/Refund are Part 3a's later increment (see DECISIONS, P13 Part 3a scope): Send has no
- * email/notification channel built yet (not part of any shipped phase), and Confirm Payment/Refund belong
- * to their own queue screens (Step 09 §11 "Payment confirmation queue... accessible from Sales and
- * Attention/Tasks") rather than a single-invoice action.
+ * Confirm Payment/Refund are Part 3a's later increment (see DECISIONS, P13 Part 3a scope): they belong to
+ * their own queue screens (Step 09 §11 "Payment confirmation queue... accessible from Sales and
+ * Attention/Tasks") rather than a single-invoice action. Send now exists (decision 280,
+ * `sendInvoiceEmailAction` below) over Resend, gated and scoped exactly like "Salin Tautan Publik".
  *
  * `reversePaymentAction` (unbuilt-screens backlog) belongs to Payment Detail, not Invoice Detail, but lives
  * here rather than a second `actions.ts` for one function -- both screens are the same Sales module and
@@ -217,6 +218,55 @@ export async function ensureInvoiceLinkAction(
     return { status: "ok", token };
   } catch (error) {
     return errorState(error, "Tautan publik tidak dapat dibuat.");
+  }
+}
+
+export interface SendInvoiceEmailState {
+  status: "idle" | "ok" | "error";
+  message?: string;
+}
+
+/** Send Invoice via Email (decision 279's open item): reuses the same public link "Salin Tautan Publik"
+ * manages, so the link behind an emailed invoice is never a second, untracked kind -- revoking or expiring
+ * the link disables both equally. Gated the same as the link actions (`invoices.regenerate_link`, checked
+ * by the database inside `regenerate_invoice_link` itself, never re-checked here). An email left blank
+ * falls back to the customer's own `contacts.email`; neither present is reported plainly rather than
+ * silently doing nothing. */
+export async function sendInvoiceEmailAction(
+  _previous: SendInvoiceEmailState,
+  formData: FormData,
+): Promise<SendInvoiceEmailState> {
+  const invoiceId = text(formData, "invoice_id");
+  const email = text(formData, "email");
+  try {
+    const result = await sendInvoiceEmail(invoiceId, email || undefined);
+    switch (result.outcome) {
+      case "sent":
+        return { status: "ok", message: `Invoice terkirim ke ${result.to}.` };
+      case "not_configured":
+        return {
+          status: "error",
+          message:
+            "Pengiriman email belum diaktifkan oleh OWNER. Gunakan Salin Tautan Publik untuk saat ini.",
+        };
+      case "no_recipient":
+        return {
+          status: "error",
+          message: "Isi alamat email tujuan, atau lengkapi email pelanggan ini di data Kontak.",
+        };
+      case "not_issued":
+        return {
+          status: "error",
+          message: "Hanya invoice yang sudah terbit yang dapat dikirim lewat email.",
+        };
+      case "failed":
+        return {
+          status: "error",
+          message: "Email tidak dapat dikirim sekarang. Coba lagi beberapa saat.",
+        };
+    }
+  } catch (error) {
+    return errorState(error, "Email tidak dapat dikirim.");
   }
 }
 

@@ -1280,6 +1280,29 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- "Kirim Invoice via Email" (decision 280). OWNER, 4 October 2026: Resend, kept alongside -- not instead
+  of -- the existing "Salin Tautan Publik" share; confirmed Resend's free tier (3,000 emails/month,
+  100/day) covers Hikarich's volume before building.
+  1. New optional server env vars `RESEND_API_KEY`/`RESEND_FROM_EMAIL` (`src/lib/env/schema.ts`), the same
+     "absent means off" shape `SUPABASE_SERVICE_ROLE_KEY` already uses: without both set, sending reports
+     "not configured" and every existing flow (public link included) keeps working. `src/services/email/
+resend.ts`: a plain `fetch` against Resend's HTTP send endpoint, not the `resend` npm package -- no
+     new dependency for one POST call.
+  2. `src/services/sales/invoiceEmail.ts`'s `sendInvoiceEmail`: only an issued invoice can be emailed (the
+     same gate `regenerate_invoice_link` itself enforces), reuses the exact public link
+     `getInvoiceLink`/`regenerateInvoiceLink` already manage -- never a second, untracked kind of link, so
+     revoking or expiring the link disables both the copied link and every email already sent. The
+     recipient is the address typed in the form, falling back to the customer's own `contacts.email`; either
+     missing is reported plainly, never a silent no-op.
+  3. Invoice Detail's "Kirim Invoice via Email" form (`InvoiceActions.tsx`) sits beside "Salin Tautan
+     Publik", gated the same way (`invoices.regenerate_link`, issued only); when Resend is not configured it
+     is replaced by a plain hint, the same "hint instead of a form that can only fail" pattern Document
+     Storage (decision 275) already uses for an unconfigured integration.
+  4. No migration, no new RPC -- purely an application-layer feature over the already-shipped P5 invoice
+     link commands. `pnpm check` (835 tests, unchanged) and `pnpm build` pass. The OWNER still needs to sign
+     up for Resend, verify a sending domain, and set `RESEND_API_KEY`/`RESEND_FROM_EMAIL` in Vercel before
+     this does anything in Production.
+
 - Asset Movement/Disposal report (decision 279, 4 October 2026). Closes the one Step 12 report-catalogue
   item decision 178 left open (the Fiscal Depreciation Schedule and Asset GL reconciliation report from
   that same bullet already shipped as decision 197).

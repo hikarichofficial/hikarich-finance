@@ -27,6 +27,7 @@ export function InvoiceDetailScreen({
   payment,
   taxPanel,
   canEdit = false,
+  email,
 }: {
   invoiceId: string;
   doc: InvoiceDocument;
@@ -38,6 +39,8 @@ export function InvoiceDetailScreen({
   taxPanel?: ReactNode;
   /** A draft may be edited with `invoices.edit` (decision 261). */
   canEdit?: boolean;
+  /** Send Invoice via Email (decision 279's open item); forwarded to `InvoiceActions` unchanged. */
+  email?: { configured: boolean; defaultEmail: string | null };
 }) {
   const status = invoiceDocumentStatus(doc);
   const timeline = invoiceActivityTimeline(doc);
@@ -67,7 +70,12 @@ export function InvoiceDetailScreen({
         </div>
       </header>
 
-      <InvoiceActions invoiceId={invoiceId} status={doc.status} permissions={permissions} />
+      <InvoiceActions
+        invoiceId={invoiceId}
+        status={doc.status}
+        permissions={permissions}
+        email={email}
+      />
       {taxPanel}
       {doc.status === "draft" && canEdit ? (
         <p>
