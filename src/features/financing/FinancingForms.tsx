@@ -19,6 +19,8 @@ import {
   reverseLoanPaymentAction,
   reverseObligationSettlementAction,
   revalueLoanFxAction,
+  restructureLoanAction,
+  setLoanAssetAction,
   setLoanFxTermsAction,
   settleObligationAction,
   voidObligationAction,
@@ -418,6 +420,8 @@ export function LoanActionsPanel({
   fxCurrency,
   fxNote,
   fxLatestRevaluationId,
+  assets,
+  currentAssetId,
 }: {
   loanId: string;
   lent: boolean;
@@ -433,6 +437,9 @@ export function LoanActionsPanel({
   fxNote?: string | null;
   /** Only the most recent posted revaluation can be reversed; null when there is none to reverse. */
   fxLatestRevaluationId?: string | null;
+  /** Fixed assets this (borrowed) loan can be linked to as the thing it financed (Step 01 #19). */
+  assets?: readonly FinancingOption[];
+  currentAssetId?: string | null;
 }) {
   const common = { idName: "loan_id", id: loanId, next };
   return (
@@ -498,7 +505,77 @@ export function LoanActionsPanel({
             <ReasonField />
             <p className="hint">Perlu verifikasi ulang sebelum menyimpan.</p>
           </CommandForm>
+          <CommandForm
+            {...common}
+            action={restructureLoanAction}
+            openLabel="Restrukturisasi Jadwal"
+            submitLabel="Simpan Jadwal Baru"
+          >
+            <DateField label="Tanggal Efektif" today={today} />
+            <label>
+              Bunga per Tahun (%)
+              <input name="rate_percent" inputMode="decimal" defaultValue="0" />
+            </label>
+            <label>
+              Cara Hitung Cicilan
+              <select name="method" defaultValue="annuity">
+                <option value="annuity">Anuitas (cicilan sama tiap kali)</option>
+                <option value="flat">Flat (pokok dan bunga tetap)</option>
+                <option value="interest_only">Bunga saja, pokok di akhir</option>
+              </select>
+            </label>
+            <label>
+              Jumlah Cicilan (sisa jadwal baru)
+              <input
+                name="installments"
+                type="number"
+                min={1}
+                max={600}
+                required
+                defaultValue={12}
+              />
+            </label>
+            <label>
+              Jarak Antar Cicilan
+              <select name="step_months" defaultValue="1">
+                <option value="1">Tiap bulan</option>
+                <option value="3">Tiap 3 bulan</option>
+                <option value="6">Tiap 6 bulan</option>
+                <option value="12">Tiap tahun</option>
+              </select>
+            </label>
+            <label>
+              Tanggal Cicilan Pertama (jadwal baru)
+              <input type="date" name="first_due" required />
+            </label>
+            <ReasonField />
+            <p className="hint">
+              Jadwal lama berhenti di tanggal efektif; pembayaran yang sudah tercatat tidak berubah.
+              Perlu verifikasi ulang sebelum menyimpan.
+            </p>
+          </CommandForm>
         </>
+      ) : null}
+      {!lent && status !== "cancelled" && assets && assets.length > 0 ? (
+        <CommandForm
+          {...common}
+          action={setLoanAssetAction}
+          openLabel={currentAssetId ? "Ubah Tautan Aset" : "Tautkan ke Aset"}
+          submitLabel="Simpan Tautan"
+        >
+          <label>
+            Aset yang Dibiayai Pinjaman Ini
+            <select name="asset_id" defaultValue={currentAssetId ?? ""}>
+              <option value="">(tidak ditautkan)</option>
+              {assets.map((asset) => (
+                <option key={asset.id} value={asset.id}>
+                  {asset.label}
+                </option>
+              ))}
+            </select>
+          </label>
+          <p className="hint">Tautan saja -- tidak memengaruhi pencatatan pinjaman atau aset.</p>
+        </CommandForm>
       ) : null}
       {payments.length > 0 && (status === "active" || status === "closed") ? (
         <CommandForm

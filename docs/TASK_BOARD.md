@@ -1738,6 +1738,16 @@ confirmation uses). `public.asset_detail` patched to surface it; pgTAP coverage 
 section 11. `pnpm db:test` passes (clean rebuild, invariants, upgrade check); `pnpm check` (836 tests) and
 `pnpm build` pass. Full detail in `docs/DECISIONS.md` decision 282.
 
+Decision 283: Loan Restructure and Loan Set-Asset UI, closing the last two Part 3f action-form gaps found by
+a code audit (the "Open items" bullet claiming every loan/obligation/equity action form was missing was
+stale -- only these two were actually unbuilt). `restructureLoanAction`/`setLoanAssetAction` added to
+`financingActions.ts`; two new `CommandForm`s ("Restrukturisasi Jadwal", "Tautkan ke Aset") added to
+`LoanActionsPanel`; loan detail page now also loads the entity's fixed-asset list for the asset-link
+dropdown. Pure wiring onto the already-built, already-tested `loan_restructure`/`loan_set_asset` RPCs -- no
+schema, RPC or migration change. Automatic interest accrual was considered and explicitly declined this
+round (decision 108, cash-basis, reconfirmed by the OWNER). `pnpm check` (839 tests, unchanged) and
+`pnpm build` pass. Full detail in `docs/DECISIONS.md` decision 283.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
