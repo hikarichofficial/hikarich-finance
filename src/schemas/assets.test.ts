@@ -205,6 +205,25 @@ describe("opening assets", () => {
       }).success,
     ).toBe(false);
   });
+
+  it("an FX memo (decision 282) gives its currency, cost and rate together, or none of them", () => {
+    const parsed = loadOpeningAssetsInputSchema.safeParse({
+      entity_id: ASSET,
+      idempotency_key: KEY,
+      assets: [{ ...asset, fx_currency: "usd", fx_cost: "800", fx_rate: "15000" }],
+    });
+    expect(parsed.success).toBe(true);
+    if (parsed.success) {
+      expect(parsed.data.assets[0].fx_currency).toBe("USD");
+    }
+    expect(
+      loadOpeningAssetsInputSchema.safeParse({
+        entity_id: ASSET,
+        idempotency_key: KEY,
+        assets: [{ ...asset, fx_currency: "USD" }],
+      }).success,
+    ).toBe(false);
+  });
 });
 
 describe("what the database returns", () => {

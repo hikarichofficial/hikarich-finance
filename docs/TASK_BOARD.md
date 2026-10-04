@@ -1718,6 +1718,16 @@ Aset" tab on `/reports`, and pgTAP coverage in `96_p8_assets.sql`. `pnpm db:test
 invariants, upgrade check); `pnpm check` (835 tests) and `pnpm build` pass. Full detail in
 `docs/DECISIONS.md` decision 279.
 
+Decision 282: Fixed-asset foreign-currency memo, the fixed-asset half of the OWNER's "Versi Sederhana" FX
+confirmation -- historical-rate only, no revaluation ("Hanya catat & tampilkan dalam mata uang asal");
+interest accrual stays open. New migration adds nullable `fx_currency`/`fx_cost`/`fx_rate` to `fixed_assets`
+(locked once an asset leaves draft, same as its cost and date). Captured automatically from a
+foreign-currency bill/expense line at registration (`app_private.asset_register_line`); given explicitly
+for opening assets (`asset_load_opening`, with the same 20% mistyped-rate guard the loans half of this
+confirmation uses). `public.asset_detail` patched to surface it; pgTAP coverage in `96_p8_assets.sql`
+section 11. `pnpm db:test` passes (clean rebuild, invariants, upgrade check); `pnpm check` (836 tests) and
+`pnpm build` pass. Full detail in `docs/DECISIONS.md` decision 282.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

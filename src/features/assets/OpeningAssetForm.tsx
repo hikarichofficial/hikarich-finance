@@ -32,6 +32,7 @@ export function OpeningAssetForm({
   const actionForm = usePreservingForm(action, state);
   const [cost, setCost] = useState("");
   const [name, setName] = useState("");
+  const [fxCurrency, setFxCurrency] = useState("");
 
   return (
     <form {...actionForm} className="record-form">
@@ -87,6 +88,32 @@ export function OpeningAssetForm({
         <input name="accumulated" inputMode="decimal" placeholder="0" />
       </label>
       <DepreciationFields depreciable={depreciable} name={name} cost={cost} currency={currency} />
+      <label>
+        Mata Uang Asal (opsional, kalau aset dibeli dalam mata uang asing)
+        <input
+          name="fx_currency"
+          maxLength={3}
+          placeholder={`kosongkan jika dibeli dalam ${currency}`}
+          value={fxCurrency}
+          onChange={(event) => setFxCurrency(event.target.value.toUpperCase())}
+        />
+      </label>
+      {fxCurrency ? (
+        <>
+          <label>
+            Harga Perolehan dalam {fxCurrency}
+            <input name="fx_cost" required inputMode="decimal" />
+          </label>
+          <label>
+            Kurs pada Tanggal Beli ({fxCurrency} ke {currency})
+            <input name="fx_rate" required inputMode="decimal" />
+          </label>
+          <p className="hint">
+            Dicatat hanya sebagai catatan; nilai di atas (dalam {currency}) tetap dipakai untuk
+            akuntansi dan tidak dihitung ulang.
+          </p>
+        </>
+      ) : null}
       <label>
         Nomor Seri (opsional)
         <input name="serial_number" maxLength={100} />
