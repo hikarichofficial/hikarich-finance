@@ -45,6 +45,10 @@ export default async function LoanDetailPage({
       label: `${p.number} · ${p.date} · ${formatMoney(p.principal, currency)} pokok`,
     }));
   const backHref = entity ? `/assets/loans?entity=${encodeURIComponent(entity)}` : "/assets/loans";
+  // Only the most recent POSTED FX revaluation can be reversed (decision 281); `fx_revaluations` is already
+  // newest-first.
+  const fxLatestRevaluationId =
+    detail.fx_revaluations.find((r) => r.status === "posted")?.id ?? null;
 
   return (
     <LoanDetailScreen
@@ -64,6 +68,9 @@ export default async function LoanDetailPage({
             accounts={accounts}
             today={today}
             next={`/assets/loans/${detail.id}${qs}`}
+            fxCurrency={detail.fx_terms?.currency ?? null}
+            fxNote={detail.fx_terms?.note ?? null}
+            fxLatestRevaluationId={fxLatestRevaluationId}
           />
         ) : undefined
       }

@@ -1,5 +1,6 @@
 import { z } from "zod";
 import {
+  exchangeRateTextSchema,
   idempotencyKeySchema,
   isoDateSchema,
   moneyTextSchema,
@@ -291,6 +292,39 @@ export const setLoanAssetInputSchema = z.object({
   asset_id: z.uuid().nullable(),
 });
 
+/** A loan's foreign-currency setting (decision 281, "Versi Sederhana"): principal, proceeds and repayments
+ * stay base-currency only (`loan_create`/`loan_activate`/`loan_repay` untouched); this just tags the loan with
+ * a currency for the monthly revaluation below. The currency locks once a revaluation has posted. */
+export const currencyCodeSchema = z
+  .string()
+  .trim()
+  .toUpperCase()
+  .regex(/^[A-Z]{3}$/, "Kode mata uang harus 3 huruf (ISO 4217)");
+export const setLoanFxTermsInputSchema = z.object({
+  loan_id: z.uuid(),
+  currency: currencyCodeSchema,
+  note: optionalText(500),
+});
+
+/** Posts a manual, monthly FX revaluation: the balance in the foreign currency, read off the statement/
+ * agreement, converted at the period-end rate; the difference against the running outstanding balance posts
+ * to FX_GAIN_LOSS. Dated on a month-end, after the loan's last revaluation (if any). */
+export const revalueLoanFxInputSchema = z.object({
+  loan_id: z.uuid(),
+  idempotency_key: idempotencyKeySchema,
+  date: isoDateSchema,
+  fc_outstanding: moneyTextSchema,
+  rate: exchangeRateTextSchema,
+  note: optionalText(1000),
+});
+
+export const reverseLoanFxRevaluationInputSchema = z.object({
+  revaluation_id: z.uuid(),
+  idempotency_key: idempotencyKeySchema,
+  date: isoDateSchema,
+  reason: reasonSchema,
+});
+
 export const openingLoanSchema = z.object({
   direction: loanDirectionSchema,
   counterparty: z.string().trim().min(1).max(200),
@@ -392,6 +426,28 @@ const loanPaymentSchema = z.object({
     }),
   ),
 });
+const loanFxTermsSchema = z.object({
+  currency: currencyCodeSchema,
+  note: z.string().nullable(),
+});
+
+const loanFxRevaluationSchema = z.object({
+  id: z.uuid(),
+  date: isoDateSchema,
+  status: z.enum(["posted", "reversed"]),
+  fc_outstanding: signedDecimalTextSchema,
+  rate: signedDecimalTextSchema,
+  base_equivalent: signedDecimalTextSchema,
+  outstanding_before: signedDecimalTextSchema,
+  /** What this row adds to `loan_outstanding` from its date onward (positive or negative). */
+  adjustment: signedDecimalTextSchema,
+  note: z.string().nullable(),
+  journal_id: z.uuid().nullable(),
+  reversal_journal_id: z.uuid().nullable(),
+  reverse_reason: z.string().nullable(),
+});
+export type LoanFxRevaluation = z.infer<typeof loanFxRevaluationSchema>;
+
 export const loanDetailSchema = z.object({
   id: z.uuid(),
   number: z.string(),
@@ -431,6 +487,8 @@ export const loanDetailSchema = z.object({
     }),
   ),
   payments: z.array(loanPaymentSchema),
+  fx_terms: loanFxTermsSchema.nullable(),
+  fx_revaluations: z.array(loanFxRevaluationSchema),
 });
 export type LoanDetail = z.infer<typeof loanDetailSchema>;
 

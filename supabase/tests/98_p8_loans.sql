@@ -777,4 +777,123 @@ begin
 end
 $$;
 
+-- ================================================================ 13. Foreign-currency revaluation (decision 281)
+-- "Versi Sederhana": loan_create/loan_activate/loan_repay are untouched; a loan may optionally be tagged with a
+-- foreign currency, and a manual monthly revaluation posts the FX difference to FX_GAIN_LOSS against the loan's own
+-- principal account. app_private.loan_outstanding carries the running total forward additively.
+do $$
+declare
+  pt uuid := test_helpers.entity('p8c_pt');
+  v_owner uuid := 'd0000000-0000-0000-0000-000000000001';
+  v_viewer uuid := 'd0000000-0000-0000-0000-000000000004';
+  v_today date := test_helpers.today(pt);
+  v_bca uuid := test_helpers.g('bca');
+  -- two distinct, deterministic past month-ends: always before v_today, always in order.
+  v_m1 date := app_private.month_end((date_trunc('month', v_today) - interval '3 months')::date);
+  v_m2 date := app_private.month_end((date_trunc('month', v_today) - interval '1 month')::date);
+  v_b uuid;
+  v_g uuid;
+  v_noterms uuid;
+  v_r1 uuid;
+  v_r2 uuid;
+  v_j1 uuid;
+  v_j2 uuid;
+  v_rev uuid;
+begin
+  perform test_helpers.login(v_owner);
+  v_b := public.loan_create(pt, 'k-p8c-fx1', 'borrowed', 'FX Lender Co', null, 'USD working capital', '10000000', v_today - 200, 'short', '0', 'flat', 1, 12, v_today + 300);
+  v_g := public.loan_create(pt, 'k-p8c-fx2', 'lent', 'FX Borrower Co', null, 'USD bridging loan', '8000000', v_today - 200, null, '0', 'flat', 1, 12, v_today + 300);
+  v_noterms := public.loan_create(pt, 'k-p8c-fx2b', 'borrowed', 'No FX Terms Co', null, 'IDR only', '1000000', v_today - 200, 'short', '0', 'flat', 1, 12, v_today + 300);
+  perform public.loan_activate(v_b, 'k-p8c-fx3', v_today - 190, v_bca);
+  perform public.loan_activate(v_g, 'k-p8c-fx4', v_today - 190, v_bca);
+  perform public.loan_activate(v_noterms, 'k-p8c-fx4b', v_today - 190, v_bca);
+  perform test_helpers.logout();
+
+  -- setting the FX currency
+  perform test_helpers.login(v_viewer);
+  perform test_helpers.expect_msg(format('select public.loan_set_fx_terms(%L, ''USD'', null)', v_b), 'FORBIDDEN', 'a viewer cannot set FX terms');
+  perform test_helpers.logout();
+  perform test_helpers.login(v_owner);
+  perform test_helpers.expect_msg(format('select public.loan_set_fx_terms(%L, ''IDR'', null)', v_b), 'INVALID', 'the FX currency must differ from the Entity base currency');
+  perform test_helpers.expect_msg(format('select public.loan_set_fx_terms(%L, ''ZZZ'', null)', v_b), 'INVALID', 'an unknown currency is refused');
+  perform public.loan_set_fx_terms(v_b, 'usd', 'Pinjaman modal kerja USD');
+  perform public.loan_set_fx_terms(v_g, 'USD', null);
+  perform test_helpers.assert((select currency from public.loan_fx_terms where loan_id = v_b) = 'USD', 'the currency is stored uppercase whatever case was given');
+  perform test_helpers.expect_msg(format('select public.loan_revalue_fx(%L, ''k-p8c-fx5'', %L, ''700'', ''30000'')', v_b, v_m1), 'INVALID', 'a rate that moves the balance more than 20%% is refused');
+  perform test_helpers.expect_msg(format('select public.loan_revalue_fx(%L, ''k-p8c-fx5b'', %L, ''700'', ''15000'')', v_noterms, v_m1), 'INVALID', 'a loan with no FX currency cannot be revalued');
+  perform test_helpers.logout();
+
+  -- a borrowed loan: the outstanding balance grows (the rupiah weakens against the USD) -> a loss
+  perform test_helpers.login(v_owner);
+  v_r1 := public.loan_revalue_fx(v_b, 'k-p8c-fx6', v_m1, '700', '15000');
+  perform test_helpers.logout();
+  select journal_id into v_j1 from public.loan_fx_revaluations where id = v_r1;
+  perform test_helpers.assert((select base_equivalent from public.loan_fx_revaluations where id = v_r1) = 10500000
+    and (select adjustment from public.loan_fx_revaluations where id = v_r1) = 500000
+    and (select outstanding_before from public.loan_fx_revaluations where id = v_r1) = 10000000,
+    '700 USD at 15,000 converts to Rp10,500,000; the adjustment is the Rp500,000 difference');
+  perform test_helpers.assert(app_private.loan_outstanding(v_b) = 10500000, 'the outstanding balance carries the revaluation forward');
+  perform test_helpers.assert(test_helpers.jd(v_j1, 'FX_GAIN_LOSS') = 500000 and test_helpers.jc(v_j1, 'LOAN_SHORT_TERM') = 500000,
+    'a growing liability posts Dr FX_GAIN_LOSS / Cr the loan account');
+  perform test_helpers.controls8c(pt, 'after the first borrowed revaluation');
+
+  -- a lent loan: the outstanding balance shrinks (the receivable is worth less) -> a loss
+  perform test_helpers.login(v_owner);
+  v_r2 := public.loan_revalue_fx(v_g, 'k-p8c-fx7', v_m1, '500', '14000');
+  perform test_helpers.logout();
+  select journal_id into v_j2 from public.loan_fx_revaluations where id = v_r2;
+  perform test_helpers.assert((select adjustment from public.loan_fx_revaluations where id = v_r2) = -1000000, 'the receivable is marked down by Rp1,000,000');
+  perform test_helpers.assert(app_private.loan_outstanding(v_g) = 7000000, 'the lent loan''s outstanding balance falls by the same adjustment');
+  perform test_helpers.assert(test_helpers.jd(v_j2, 'FX_GAIN_LOSS') = 1000000 and test_helpers.jc(v_j2, 'OTHER_RECEIVABLE') = 1000000,
+    'a shrinking receivable posts Dr FX_GAIN_LOSS / Cr the receivable account (also a loss, the opposite side of a loan given)');
+  perform test_helpers.controls8c(pt, 'after the first lent revaluation');
+
+  -- once a revaluation exists, the currency is locked; dates must move forward; only the latest can be reversed
+  perform test_helpers.login(v_owner);
+  perform test_helpers.expect_msg(format('select public.loan_set_fx_terms(%L, ''EUR'', null)', v_b), 'CONFLICT', 'the FX currency is locked once a revaluation has posted');
+  perform public.loan_set_fx_terms(v_b, 'USD', 'note updated, same currency');
+  perform test_helpers.expect_msg(format('select public.loan_revalue_fx(%L, ''k-p8c-fx8'', %L, ''700'', ''15500'')', v_b, v_m1), 'INVALID', 'a revaluation must be dated after the last one');
+
+  -- a second, later revaluation: the balance partly reverts -> a gain
+  v_r2 := public.loan_revalue_fx(v_b, 'k-p8c-fx9', v_m2, '700', '14500');
+  perform test_helpers.expect_msg(format('select public.loan_reverse_fx_revaluation(%L, ''k-p8c-fx10'', %L, ''Wrong period, fixing it'')', v_r1, v_today), 'CONFLICT', 'only the most recent revaluation of a loan can be reversed');
+  perform test_helpers.logout();
+  select journal_id into v_j2 from public.loan_fx_revaluations where id = v_r2;
+  perform test_helpers.assert((select adjustment from public.loan_fx_revaluations where id = v_r2) = -350000
+    and app_private.loan_outstanding(v_b) = 10150000, 'the second revaluation nets against the first (Rp500,000 - Rp350,000 = Rp150,000 over the original principal)');
+  perform test_helpers.assert(test_helpers.jd(v_j2, 'LOAN_SHORT_TERM') = 350000 and test_helpers.jc(v_j2, 'FX_GAIN_LOSS') = 350000,
+    'a shrinking liability posts Dr the loan account / Cr FX_GAIN_LOSS (a gain)');
+  perform test_helpers.controls8c(pt, 'after the second borrowed revaluation');
+
+  -- reversing the latest revaluation restores the running total, and the reversed row stays in the history
+  perform test_helpers.login(v_viewer);
+  perform test_helpers.expect_msg(format('select public.loan_reverse_fx_revaluation(%L, ''k-p8c-fx11'', %L, ''Not for a viewer'')', v_r2, v_today), 'FORBIDDEN', 'a viewer cannot reverse an FX revaluation');
+  perform test_helpers.logout();
+  perform test_helpers.login(v_owner);
+  v_rev := public.loan_reverse_fx_revaluation(v_r2, 'k-p8c-fx12', v_today, 'Wrong period, fixing it');
+  perform test_helpers.expect_msg(format('select public.loan_reverse_fx_revaluation(%L, ''k-p8c-fx13'', %L, ''Already reversed'')', v_r2, v_today), 'CONFLICT', 'a reversed FX revaluation cannot be reversed again');
+  perform test_helpers.logout();
+  perform test_helpers.assert((select status from public.loan_fx_revaluations where id = v_r2) = 'reversed'
+    and (select reversal_journal_id from public.loan_fx_revaluations where id = v_r2) = v_rev, 'the revaluation is marked reversed with its own reversal journal');
+  perform test_helpers.assert(app_private.loan_outstanding(v_b) = 10500000, 'reversing the second revaluation leaves only the first in effect');
+  perform test_helpers.assert(test_helpers.jd(v_rev, 'FX_GAIN_LOSS') = 350000 and test_helpers.jc(v_rev, 'LOAN_SHORT_TERM') = 350000, 'the reversal mirrors the original journal');
+  perform test_helpers.controls8c(pt, 'after reversing the second borrowed revaluation');
+
+  -- loan_detail surfaces the FX setting and the full history, reversed rows included
+  perform test_helpers.login(v_viewer);
+  perform test_helpers.assert((public.loan_detail(v_b) -> 'fx_terms' ->> 'currency') = 'USD'
+    and jsonb_array_length(public.loan_detail(v_b) -> 'fx_revaluations') = 2
+    and (select bool_or((x ->> 'status') = 'reversed') from jsonb_array_elements(public.loan_detail(v_b) -> 'fx_revaluations') x),
+    'loan detail carries the FX terms and the full revaluation history, reversed rows included');
+  perform test_helpers.assert((public.loan_detail(v_noterms) ->> 'fx_terms') is null, 'a loan with no FX currency carries no fx_terms');
+  perform test_helpers.logout();
+
+  -- direct table access stays locked down like every other P8 table
+  perform test_helpers.login(v_owner);
+  perform test_helpers.expect_error(format('update public.loan_fx_revaluations set adjustment = 1 where id = %L', v_r1), null, 'the facts of an FX revaluation cannot be edited directly');
+  perform test_helpers.expect_error(format('delete from public.loan_fx_revaluations where id = %L', v_r1), null, 'an FX revaluation cannot be deleted');
+  perform test_helpers.logout();
+end
+$$;
+
 rollback;

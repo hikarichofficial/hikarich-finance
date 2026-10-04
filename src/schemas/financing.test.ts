@@ -11,6 +11,9 @@ import {
   recordFinancingTaxReviewInputSchema,
   repayLoanInputSchema,
   restructureLoanInputSchema,
+  reverseLoanFxRevaluationInputSchema,
+  revalueLoanFxInputSchema,
+  setLoanFxTermsInputSchema,
 } from "./financing";
 
 const ENTITY = "0b2f6d0e-6d2e-4a55-9c58-3f6f3c1d7a01";
@@ -145,6 +148,47 @@ describe("loans", () => {
     };
     expect(loanRowSchema.safeParse(row).success).toBe(true);
     expect(loanRowSchema.safeParse({ ...row, status: "paid_off" }).success).toBe(false);
+  });
+
+  it("the FX currency is normalised to upper case and must be 3 letters (decision 281)", () => {
+    const parsed = setLoanFxTermsInputSchema.parse({ loan_id: ENTITY, currency: "usd" });
+    expect(parsed.currency).toBe("USD");
+    expect(setLoanFxTermsInputSchema.safeParse({ loan_id: ENTITY, currency: "US" }).success).toBe(
+      false,
+    );
+    expect(setLoanFxTermsInputSchema.safeParse({ loan_id: ENTITY, currency: "US1" }).success).toBe(
+      false,
+    );
+  });
+
+  it("a revaluation needs the FC balance and a rate (up to 10 decimals); the note is optional", () => {
+    const base = {
+      loan_id: ENTITY,
+      idempotency_key: KEY,
+      date: "2027-01-31",
+      fc_outstanding: "700",
+      rate: "15000",
+    };
+    expect(revalueLoanFxInputSchema.safeParse(base).success).toBe(true);
+    expect(revalueLoanFxInputSchema.safeParse({ ...base, rate: "15000.12345678901" }).success).toBe(
+      false,
+    );
+    expect(revalueLoanFxInputSchema.safeParse({ ...base, fc_outstanding: "-700" }).success).toBe(
+      false,
+    );
+  });
+
+  it("reversing an FX revaluation states why, like every other reversal", () => {
+    const input = { revaluation_id: ENTITY, idempotency_key: KEY, date: "2027-02-01" };
+    expect(reverseLoanFxRevaluationInputSchema.safeParse({ ...input, reason: "ok" }).success).toBe(
+      false,
+    );
+    expect(
+      reverseLoanFxRevaluationInputSchema.safeParse({
+        ...input,
+        reason: "Periode salah, diperbaiki",
+      }).success,
+    ).toBe(true);
   });
 });
 

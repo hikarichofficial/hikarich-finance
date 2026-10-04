@@ -1718,6 +1718,16 @@ Aset" tab on `/reports`, and pgTAP coverage in `96_p8_assets.sql`. `pnpm db:test
 invariants, upgrade check); `pnpm check` (835 tests) and `pnpm build` pass. Full detail in
 `docs/DECISIONS.md` decision 279.
 
+Decision 281: Loan foreign-currency revaluation, the loans half of the OWNER's "Versi Sederhana" FX
+confirmation (any selectable currency, IDR default, manual monthly rate entry, automatic FX gain/loss to
+P&L) -- the fixed-asset half and interest accrual stay open. New migration adds `loan_fx_terms`/
+`loan_fx_revaluations` and additively patches `app_private.loan_outstanding` (the one function every loan
+reader already calls) and `public.loan_detail`; three new RPCs `loan_set_fx_terms`/`loan_revalue_fx`/
+`loan_reverse_fx_revaluation` (currency locks after the first revaluation, 20% rate sanity guard, only the
+latest revaluation is reversible). pgTAP coverage in `98_p8_loans.sql` section 13; full TS schema/service/
+action/UI layer in the financing module. `pnpm db:test` passes (clean rebuild, invariants, upgrade check);
+`pnpm check` (838 tests) and `pnpm build` pass. Full detail in `docs/DECISIONS.md` decision 281.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

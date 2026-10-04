@@ -8,10 +8,12 @@ import {
 } from "@/domain/financing/financing";
 import {
   LOAN_PAYMENT_KIND_LABELS,
+  loanFxRevaluationStatusBadge,
   loanPaymentStatusBadge,
   loanScheduleStateBadge,
   loanStatusBadge,
   loanVersionStatusBadge,
+  type LoanFxRevaluationStatus,
   type LoanPaymentKind,
   type LoanVersionStatus,
 } from "@/domain/financing/loanList";
@@ -221,6 +223,84 @@ export function LoanDetailScreen({
           </table>
         )}
       </section>
+
+      {detail.fx_terms ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Revaluasi Kurs ({detail.fx_terms.currency})</h2>
+          </div>
+          {detail.fx_terms.note ? <p className="hint">{detail.fx_terms.note}</p> : null}
+          {detail.fx_revaluations.length === 0 ? (
+            <p className="dashboard-empty">Belum ada revaluasi kurs.</p>
+          ) : (
+            <table className="record-table record-table-stacked">
+              <thead>
+                <tr>
+                  <th scope="col">Tanggal</th>
+                  <th scope="col" className="num">
+                    Saldo FC
+                  </th>
+                  <th scope="col" className="num">
+                    Kurs
+                  </th>
+                  <th scope="col" className="num">
+                    Ekuivalen (Rp)
+                  </th>
+                  <th scope="col" className="num">
+                    Selisih
+                  </th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Jurnal</th>
+                </tr>
+              </thead>
+              <tbody>
+                {detail.fx_revaluations.map((r) => {
+                  const revalBadge = loanFxRevaluationStatusBadge(
+                    r.status as LoanFxRevaluationStatus,
+                  );
+                  return (
+                    <tr key={r.id}>
+                      <td data-label="Tanggal">{formatShortDate(r.date)}</td>
+                      <td className="num" data-label="Saldo FC">
+                        {r.fc_outstanding} {detail.fx_terms?.currency}
+                      </td>
+                      <td className="num" data-label="Kurs">
+                        {trimDecimalText(r.rate)}
+                      </td>
+                      <td className="num" data-label="Ekuivalen (Rp)">
+                        {formatMoney(r.base_equivalent, currency)}
+                      </td>
+                      <td className="num" data-label="Selisih">
+                        {formatMoney(r.adjustment, currency)}
+                      </td>
+                      <td data-label="Status">
+                        <span className={`status-badge status-badge-${revalBadge.tone}`}>
+                          {revalBadge.text}
+                        </span>
+                      </td>
+                      <td data-label="Jurnal">
+                        {r.journal_id ? (
+                          <Link href={`/accounting/journal/${r.journal_id}${qs}`}>Lihat →</Link>
+                        ) : (
+                          "—"
+                        )}
+                        {r.reversal_journal_id ? (
+                          <>
+                            {" · "}
+                            <Link href={`/accounting/journal/${r.reversal_journal_id}${qs}`}>
+                              Pembalik →
+                            </Link>
+                          </>
+                        ) : null}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </section>
+      ) : null}
 
       {detail.versions.length > 1 ? (
         <section className="dashboard-section">
