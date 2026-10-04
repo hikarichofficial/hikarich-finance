@@ -254,9 +254,7 @@ export default async function ReportsPage({
     data = { statement, asOf, canView, rows };
   } else if (statement === "asset_movement") {
     const canView = can(access, membership.entity_id, "assets.view");
-    const rows = canView
-      ? await assetMovement(membership.entity_id, range.from, range.to)
-      : [];
+    const rows = canView ? await assetMovement(membership.entity_id, range.from, range.to) : [];
     data = { statement, range, canView, rows };
   } else {
     const compareRange = resolveCompareRange(compare_from, compare_to);
