@@ -286,7 +286,7 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 - Sub-ledger reconciliation of control-account opening balances (decision 44) once P7-P8 exist; financial account balances are covered since P4 (decisions 51-53), customer receivables since P5 (decision 74) and vendor payables since P6 (decision 80).
 - Money screens still remaining after Part 3c's Accounts List/Detail, Transfers List/Detail/create form and Cash/Bank Activity (decisions 169-171): the Reconciliation workspace, balance adjustments, Create/Edit Account, and statement file import (decision 62); source links from an account ledger line to its originating record, once those records have their own detail screens; the OWNER's choice of account kinds that may never go negative (decision 55).
 - Accounting screens still remaining after Part 3d's Journal List/Detail and Chart of Accounts (decision 172): Period Close (checklist of blockers/warnings before Close), Opening Balances, the Manual Journal debit/credit grid builder, and Advanced Adjustments.
-- Sales screens still remaining after Part 3a's Invoices List/Detail (decisions 164-166) and Customers List/Detail (decision 225): the invoice Create/Edit builder, Send, the Payment Confirmation queue, Refund actions, and Products & Services (AR Aging now ships as decision 284; this bullet otherwise pre-dates many later decisions and may already be further stale -- verify against the code before treating any remaining item here as untouched); step-up on reversal and refund specifically (Void/Correct already ship in Part 3a with no step-up, per decision 75's own finding that Step 06 §8 requires none).
+- Sales screens still remaining after Part 3a's Invoices List/Detail (decisions 164-166) and Customers List/Detail (decision 225): the invoice Create/Edit builder, Send, the Payment Confirmation queue, and Products & Services (AR Aging now ships as decision 284; Refund draft/confirm/reject/cancel/reverse now ships as decision 285; this bullet otherwise pre-dates many later decisions and may already be further stale -- verify against the code before treating any remaining item here as untouched); step-up on reversal and refund specifically (Void/Correct already ship in Part 3a with no step-up, per decision 75's own finding that Step 06 §8 requires none).
 - OWNER to decide the Step 09 §11 vs. P5 conflict recorded in decision 166: whether a draft invoice should get a public preview link (would mean reopening P5's locked `regenerate_invoice_link`/`invoice_public_link` SQL) or Step 09 §11's line is superseded by P5's already-reviewed decision 76 scope.
 - Set `PUBLIC_CLAIM_SALT` in Vercel Production before customers use the payment page (decision 70); OWNER to decide whether payment reversal should be OWNER-only (decision 76).
 - Tax on invoices and tax credit notes with P7 (decision 65).
@@ -1409,6 +1409,38 @@ DetailScreen` shows a "Harga & Kurs Asal" row when a memo is present. `pnpm chec
      check already established -- and renders a plain permission message instead of an error when false.
   4. `pnpm check` (841 tests, up from 839: the two new `agingTotals` unit tests), `pnpm build` and
      `npx prettier --check .` all pass.
+
+- Refund draft/confirm/reject/cancel/reverse screen (decision 285, 4 October 2026). Decision 263's own
+  deferred item: `create_refund` with immediate confirmation shipped, but "the separate draft/confirm/
+  reject/cancel/reverse refund commands still have no screen" -- in practice, Payment Detail's refund form
+  was only ever shown to a caller holding BOTH `refunds.create` AND `refunds.confirm` together, so no draft
+  refund could even come into existence from the UI, and nothing existed to act on one if it had (e.g.
+  created directly against the database). `confirmRefund`/`rejectRefund`/`cancelRefund`/`reverseRefund`
+  (`src/services/sales/sales.ts`) already existed, already typed, already pgTAP-tested (P5) -- pure wiring,
+  no schema or RPC change, no OWNER decision needed (every RPC's own permission/status guard is already
+  locked spec).
+  1. `RefundForm` (`src/features/sales/RefundForm.tsx`) now opens for `refunds.create` ALONE, not only the
+     combined permission pair -- a new `immediate` prop picks `createRefundAction` (`p_confirm: true`, the
+     existing decision-263 behaviour, unchanged for a caller who also holds `refunds.confirm`) or the new
+     `createDraftRefundAction` (`p_confirm: false`) otherwise, so a create-only caller now gets a real draft
+     instead of no form at all.
+  2. New `listPaymentRefunds` (`src/services/sales/sales.ts`) reads `public.refunds` directly for one
+     payment (no `list_refunds` RPC exists -- the same "direct table read, RLS alone gates it" shape
+     `listBillsOverview` already uses for `public.bills`; `refunds_select`'s own policy already narrows it
+     to nothing for a caller without `refunds.view`). New `refundRowSchema`/`RefundRow` in
+     `src/schemas/sales.ts`.
+  3. New `RefundActionForms` (`src/features/sales/RefundActionForms.tsx`), the same multi-mode
+     closed/confirm/reject/cancel/reverse shape `PaymentClaimForms` already established for the Payment
+     Confirmation queue (decision 259): a `draft` refund offers Confirm/Reject to `refunds.confirm` and
+     Cancel to `refunds.create` (the RPC's own guard -- any holder of the permission, not narrowed to the
+     original creator); a `confirmed` refund offers Reverse to `refunds.confirm`; every other status
+     (`rejected`/`cancelled`/`reversed`) is terminal and shows only its own `closed_reason`/`reverse_reason`.
+  4. `src/app/(app)/sales/payments/[id]/page.tsx` wires all of this into the existing Payment Detail
+     `refundPanel` slot -- the natural home, since decision 263 already put refund creation there and every
+     refund is already scoped to one payment. No new route.
+  5. `pnpm check` (841 tests, unchanged: no new tests needed, the RPCs this wires up already have their own
+     full pgTAP coverage and no new business logic was written), `pnpm build` and `npx prettier --check .`
+     all pass.
 
 - "Kirim Invoice via Email" (decision 280). OWNER, 4 October 2026: Resend, kept alongside -- not instead
   of -- the existing "Salin Tautan Publik" share; confirmed Resend's free tier (3,000 emails/month,

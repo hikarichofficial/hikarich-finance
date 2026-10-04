@@ -1756,6 +1756,15 @@ gated by its own RPC's own permission (`invoices.view`/`bills.view`). Pure wirin
 migration change. `pnpm check` (841 tests, up from 839: two new `agingTotals` unit tests) and `pnpm build`
 pass. Full detail in `docs/DECISIONS.md` decision 284.
 
+Decision 285: Refund draft/confirm/reject/cancel/reverse screen, closing decision 263's own deferred item --
+`RefundForm` now opens for `refunds.create` alone (not only the combined `refunds.create`+`refunds.confirm`
+pair), saving a draft via the new `createDraftRefundAction`; new `listPaymentRefunds` reads `public.refunds`
+directly (RLS alone gates it, same shape as `listBillsOverview`); new `RefundActionForms` offers Confirm/
+Reject/Cancel/Reverse on Payment Detail, the same multi-mode shape `PaymentClaimForms` already uses. Pure
+wiring onto the already-built, already-tested `confirmRefund`/`rejectRefund`/`cancelRefund`/`reverseRefund`
+-- no schema, RPC or migration change. `pnpm check` (841 tests, unchanged) and `pnpm build` pass. Full
+detail in `docs/DECISIONS.md` decision 285.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

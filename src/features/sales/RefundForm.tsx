@@ -4,7 +4,7 @@ import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import { trimDecimalText } from "@/domain/money/format";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
-import { createRefundAction } from "./actions";
+import { createDraftRefundAction, createRefundAction } from "./actions";
 import { idleInvoiceActionState } from "./actionsState";
 
 export interface RefundOptionView {
@@ -16,23 +16,32 @@ export interface RefundOptionView {
 }
 
 /**
- * Refund part or all of a confirmed payment (Step 07 §3, decision 263) through `create_refund` with
- * immediate confirmation (`refunds.create` and `refunds.confirm`). One amount per refundable part: what
- * was applied to each invoice, and any unapplied advance. The database checks every amount against what
- * is still refundable and posts the cash, accounting and tax consequences together.
+ * Refund part or all of a confirmed payment (Step 07 §3, decision 263). One amount per refundable part:
+ * what was applied to each invoice, and any unapplied advance. The database checks every amount against
+ * what is still refundable and posts the cash, accounting and tax consequences together -- at once when
+ * `immediate` (a person holding both `refunds.create` and `refunds.confirm`), or as a draft waiting in the
+ * Menunggu Konfirmasi list below when not (`refunds.create` alone, decision 263's deferred item, closed by
+ * decision 285): the database RPC is the same `create_refund` either way, only `p_confirm` differs.
  */
 export function RefundForm({
   paymentId,
   options,
   accounts,
   today,
+  immediate,
 }: {
   paymentId: string;
   options: readonly RefundOptionView[];
   accounts: readonly SettlementAccountOption[];
   today: string;
+  /** True for a person holding both `refunds.create` and `refunds.confirm` (confirms at once); false for
+   * `refunds.create` alone (saves a draft for someone else to confirm or reject). */
+  immediate: boolean;
 }) {
-  const [state, action, pending] = useActionState(createRefundAction, idleInvoiceActionState);
+  const [state, action, pending] = useActionState(
+    immediate ? createRefundAction : createDraftRefundAction,
+    idleInvoiceActionState,
+  );
   const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
 
@@ -88,7 +97,7 @@ export function RefundForm({
       ) : null}
       {state.status === "ok" ? <p className="hint">{state.message}</p> : null}
       <button type="submit" className="btn-primary" disabled={pending}>
-        {pending ? "Menyimpan…" : "Simpan Refund"}
+        {pending ? "Menyimpan…" : immediate ? "Simpan Refund" : "Simpan sebagai Draft"}
       </button>
     </form>
   );
