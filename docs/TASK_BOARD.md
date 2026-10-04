@@ -1705,6 +1705,13 @@ posting lines, run screen). Full detail in `docs/DECISIONS.md` decision 277.
 Decision 278: separate ledger accounts 2220 (BPJS Ketenagakerjaan) and 2221 (BPJS Kesehatan). Full detail
 in `docs/DECISIONS.md` decision 278.
 
+Decision 280: "Kirim Invoice via Email" over Resend, kept alongside "Salin Tautan Publik". New optional
+`RESEND_API_KEY`/`RESEND_FROM_EMAIL` env vars (absent means off, same shape as the Storage service-role
+key); `src/services/email/resend.ts` (plain fetch, no new dependency) and `src/services/sales/
+invoiceEmail.ts` reuse the existing public-link commands -- never a second kind of link. No migration, no
+new RPC. `pnpm check` (835 tests, unchanged) and `pnpm build` pass. Full detail in `docs/DECISIONS.md`
+decision 280.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

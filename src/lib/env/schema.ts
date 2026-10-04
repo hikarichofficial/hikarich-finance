@@ -35,6 +35,14 @@ export const serverEnvSchema = z.object({
    * (a fixed fallback salt is used then); set a long random value in Production (DECISIONS 70).
    */
   PUBLIC_CLAIM_SALT: z.string().trim().min(16).optional(),
+  /**
+   * Resend (decision 279's open item, "Kirim Invoice via Email"). Optional: `src/services/email/resend.ts`
+   * returns `{ sent: false, reason: "not_configured" }` without either set, the same "absent means off"
+   * shape `SUPABASE_SERVICE_ROLE_KEY` already uses -- builds and Preview work without it, and the existing
+   * public-link share stays available either way.
+   */
+  RESEND_API_KEY: z.string().trim().min(10).optional(),
+  RESEND_FROM_EMAIL: z.string().trim().email().optional(),
 });
 
 export const envSchema = publicEnvSchema.extend(serverEnvSchema.shape);
