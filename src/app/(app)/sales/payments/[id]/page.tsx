@@ -1,16 +1,45 @@
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import { getPaymentReceipt, getPaymentRefundOptions, listPayments } from "@/services/sales/sales";
+import {
+  getPaymentReceipt,
+  getPaymentRefundOptions,
+  listPaymentRefunds,
+  listPayments,
+} from "@/services/sales/sales";
 import { getMoneyControl } from "@/services/money/money";
+import { formatMoney } from "@/domain/money/format";
 import { RefundForm } from "@/features/sales/RefundForm";
+import { RefundActionForms } from "@/features/sales/RefundActionForms";
 import { PaymentDetailScreen } from "@/features/sales/PaymentDetailScreen";
+import { formatShortDate } from "@/features/sales/format";
+import type { RefundRow } from "@/schemas/sales";
+
+const REFUND_STATUS_LABELS: Readonly<Record<RefundRow["status"], string>> = {
+  draft: "Draft (Menunggu Konfirmasi)",
+  confirmed: "Terkonfirmasi",
+  rejected: "Ditolak",
+  cancelled: "Dibatalkan",
+  reversed: "Dibalik",
+};
 
 /** Payment Detail (unbuilt-screens backlog, Step 09 §10/§11), reached from either Payments Received or
  * Refunds. `list_payments` has no single-item counterpart (matching Accounting Periods' own Detail page
  * precedent), so the row is looked up from the Entity's own payments list by id; `payment_receipt_document`
  * supplies the printable Dokumen section directly by id and independently re-checks the payment's own
- * Entity server-side regardless of what `?entity=` says here. */
+ * Entity server-side regardless of what `?entity=` says here.
+ *
+ * The Refund draft/confirm/reject/cancel/reverse screen (decision 263's own deferred item, closed by
+ * decision 285) lives here too, since every refund action is already scoped to one payment. `RefundForm`
+ * now opens for `refunds.create` ALONE (`canOfferRefundForm`), not only the combined `refunds.create` +
+ * `refunds.confirm` decision 263 originally gated it on -- the form itself picks `create_refund`'s own
+ * `p_confirm` (its `immediate` prop) by whether the caller also holds `refunds.confirm`, so a create-only
+ * caller now gets a real draft instead of being shown no form at all. `listPaymentRefunds` reads
+ * `public.refunds` directly (no `list_refunds` RPC exists, the same "direct read, RLS alone gates it" shape
+ * `listBillsOverview` uses for `public.bills`) and is fetched unconditionally -- `refunds_select`'s own RLS
+ * policy already narrows it to nothing for a caller without `refunds.view`, so no second permission check is
+ * needed here. Each listed refund gets `RefundActionForms` when it is still actionable (`draft` or
+ * `confirmed`); every other status is terminal and shows only its own `closed_reason`/`reverse_reason`. */
 export default async function PaymentDetailPage({
   params,
   searchParams,
@@ -29,17 +58,19 @@ export default async function PaymentDetailPage({
   const receipt = await getPaymentReceipt(id).catch(() => null);
   if (!receipt) notFound();
 
-  const canRefund =
-    row.status === "confirmed" &&
-    can(access, membership.entity_id, "refunds.create") &&
-    can(access, membership.entity_id, "refunds.confirm");
-  const [refundOptions, accounts] = canRefund
-    ? await Promise.all([
-        getPaymentRefundOptions(id).catch(() => []),
-        getMoneyControl(membership.entity_id).catch(() => []),
-      ])
-    : [[], []];
+  const canCreateRefund = can(access, membership.entity_id, "refunds.create");
+  const canConfirmRefund = can(access, membership.entity_id, "refunds.confirm");
+  const canOfferRefundForm = row.status === "confirmed" && canCreateRefund;
+  const [refundOptions, accounts, refunds] = await Promise.all([
+    canOfferRefundForm ? getPaymentRefundOptions(id).catch(() => []) : Promise.resolve([]),
+    canOfferRefundForm
+      ? getMoneyControl(membership.entity_id).catch(() => [])
+      : Promise.resolve([]),
+    // RLS alone gates this (`refunds_select`, `refunds.view`) -- a caller without it simply sees no rows.
+    listPaymentRefunds(id).catch(() => []),
+  ]);
   const refundable = refundOptions.filter((o) => Number(o.refundable) > 0);
+  const today = new Date().toISOString().slice(0, 10);
 
   const backHref = entity
     ? `/sales/payments?entity=${encodeURIComponent(entity)}`
@@ -51,25 +82,83 @@ export default async function PaymentDetailPage({
       receipt={receipt}
       backHref={backHref}
       refundPanel={
-        canRefund && refundable.length > 0 ? (
-          <RefundForm
-            paymentId={id}
-            options={refundable.map((o, index) => ({
-              key: `${o.source}-${o.allocation_id ?? index}`,
-              source: o.source,
-              allocationId: o.allocation_id,
-              label:
-                o.source === "advance"
-                  ? "Uang muka yang belum dipakai"
-                  : `Invoice ${o.invoice_number ?? ""}`.trim(),
-              refundable: o.refundable,
-            }))}
-            accounts={accounts
-              .filter((a) => a.is_active)
-              .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` }))}
-            today={new Date().toISOString().slice(0, 10)}
-          />
-        ) : null
+        <>
+          {canOfferRefundForm && refundable.length > 0 ? (
+            <RefundForm
+              paymentId={id}
+              options={refundable.map((o, index) => ({
+                key: `${o.source}-${o.allocation_id ?? index}`,
+                source: o.source,
+                allocationId: o.allocation_id,
+                label:
+                  o.source === "advance"
+                    ? "Uang muka yang belum dipakai"
+                    : `Invoice ${o.invoice_number ?? ""}`.trim(),
+                refundable: o.refundable,
+              }))}
+              accounts={accounts
+                .filter((a) => a.is_active)
+                .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` }))}
+              today={today}
+              immediate={canConfirmRefund}
+            />
+          ) : null}
+          {refunds.length > 0 ? (
+            <section className="dashboard-section">
+              <div className="dashboard-section-header">
+                <h2 className="dashboard-section-title">Refund</h2>
+              </div>
+              {refunds.map((refund) => (
+                <div
+                  key={refund.id}
+                  className="record-summary-grid"
+                  style={{ marginBottom: "1rem" }}
+                >
+                  <div>
+                    <dt>Nomor</dt>
+                    <dd>{refund.refund_number ?? "(draft)"}</dd>
+                  </div>
+                  <div>
+                    <dt>Jumlah</dt>
+                    <dd>{formatMoney(refund.amount, refund.currency)}</dd>
+                  </div>
+                  <div>
+                    <dt>Tanggal</dt>
+                    <dd>{formatShortDate(refund.refund_date)}</dd>
+                  </div>
+                  <div>
+                    <dt>Status</dt>
+                    <dd>
+                      <span className="status-badge">{REFUND_STATUS_LABELS[refund.status]}</span>
+                    </dd>
+                  </div>
+                  {refund.closed_reason ? (
+                    <div>
+                      <dt>Alasan {refund.status === "rejected" ? "Penolakan" : "Pembatalan"}</dt>
+                      <dd>{refund.closed_reason}</dd>
+                    </div>
+                  ) : null}
+                  {refund.reverse_reason ? (
+                    <div>
+                      <dt>Alasan Pembalikan</dt>
+                      <dd>{refund.reverse_reason}</dd>
+                    </div>
+                  ) : null}
+                  {refund.status === "draft" || refund.status === "confirmed" ? (
+                    <RefundActionForms
+                      refundId={refund.id}
+                      paymentId={id}
+                      status={refund.status}
+                      canConfirm={canConfirmRefund}
+                      canCreate={canCreateRefund}
+                      today={today}
+                    />
+                  ) : null}
+                </div>
+              ))}
+            </section>
+          ) : null}
+        </>
       }
       permissions={{
         canReverse: can(access, membership.entity_id, "invoices.confirm_payment"),
