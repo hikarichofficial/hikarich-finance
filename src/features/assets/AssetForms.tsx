@@ -9,6 +9,7 @@ import {
   suggestFiscalClass,
 } from "@/domain/assets/fiscalClasses";
 import { formatMoney } from "@/domain/money/format";
+import { Decimal, sumDecimals } from "@/domain/money/decimal";
 import { useActionState, useState, type ReactNode } from "react";
 import {
   activateAssetAction,
@@ -21,6 +22,7 @@ import {
   reverseDisposalAction,
   setAssetConditionAction,
   setAssetFiscalClassAction,
+  splitAssetAction,
   transferAssetAction,
   updateAssetDetailsAction,
   type AssetActionState,
@@ -287,6 +289,160 @@ export function ActivateAssetForm({
       </label>
       <DepreciationFields depreciable={depreciable} name={name} cost={cost} currency={currency} />
     </ActionForm>
+  );
+}
+
+interface SplitPartRow {
+  key: string;
+  name: string;
+  cost: string;
+}
+
+function newSplitRow(seq: number, name = ""): SplitPartRow {
+  return { key: `part-${seq}`, name, cost: "" };
+}
+
+function parseAmount(value: string): Decimal {
+  const trimmed = value.trim();
+  if (trimmed === "") return Decimal.zero();
+  return Decimal.tryParse(trimmed) ?? Decimal.zero();
+}
+
+/** Split a draft asset that came from one purchase or expense line into 2-50 named parts (decision 109's own
+ * "the current/non-current split of loans is a P10 reports matter" entry separately left `asset_split` as
+ * the one P8 asset command with no form; closed here). The first part stays this asset (its name and cost
+ * are replaced); the rest become new draft assets from the same source line. The parts must add up to
+ * exactly this asset's own acquisition cost -- `asset_split` enforces it, this only totals client-side so
+ * the button disables until they match. */
+export function SplitAssetForm({
+  assetId,
+  next,
+  name,
+  cost,
+  currency,
+}: {
+  assetId: string;
+  next: string;
+  name: string;
+  cost: string;
+  currency: string;
+}) {
+  const [state, formAction, pending] = useActionState(splitAssetAction, idleAssetActionState);
+  const actionForm = usePreservingForm(formAction, state);
+  const [open, setOpen] = useState(false);
+  const [rows, setRows] = useState<SplitPartRow[]>([newSplitRow(1, name), newSplitRow(2)]);
+  const [seq, setSeq] = useState(3);
+
+  function updateRow(key: string, patch: Partial<SplitPartRow>) {
+    setRows(rows.map((row) => (row.key === key ? { ...row, ...patch } : row)));
+  }
+  function addRow() {
+    if (rows.length >= 50) return;
+    setRows([...rows, newSplitRow(seq)]);
+    setSeq(seq + 1);
+  }
+
+  const total = sumDecimals(rows.map((row) => parseAmount(row.cost)));
+  const target = Decimal.tryParse(cost) ?? Decimal.zero();
+  const matches =
+    rows.length >= 2 && rows.every((row) => row.name.trim() !== "") && total.eq(target);
+  const partsJson = JSON.stringify(
+    rows.map((row) => ({ name: row.name.trim(), cost: row.cost.trim() || "0" })),
+  );
+
+  if (!open) {
+    return (
+      <div>
+        {state.status === "ok" ? <p className="hint">{state.message}</p> : null}
+        <button type="button" className="btn-secondary" onClick={() => setOpen(true)}>
+          Pecah Aset
+        </button>
+      </div>
+    );
+  }
+
+  return (
+    <form {...actionForm} className="record-form record-form-wide">
+      <input type="hidden" name="asset_id" value={assetId} />
+      <input type="hidden" name="parts" value={partsJson} />
+      <p className="hint">
+        Satu baris pembelian menjadi beberapa aset terpisah. Bagian pertama tetap aset ini (nama dan
+        biayanya diganti dengan yang diisi di sini); bagian lain jadi aset baru berstatus draft dari
+        baris sumber yang sama. Total biaya semua bagian harus sama persis dengan biaya perolehan
+        aset ini: {formatMoney(cost, currency)}.
+      </p>
+      <div className="plan-lines-editor">
+        <div className="plan-lines-table-wrap">
+          <table className="record-table plan-lines-table record-table-stacked">
+            <thead>
+              <tr>
+                <th scope="col">Nama Bagian</th>
+                <th scope="col" className="num">
+                  Biaya
+                </th>
+                <th scope="col" aria-label="Hapus baris" />
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map((row) => (
+                <tr key={row.key}>
+                  <td>
+                    <input
+                      type="text"
+                      maxLength={200}
+                      value={row.name}
+                      onChange={(event) => updateRow(row.key, { name: event.target.value })}
+                      placeholder="mis. Laptop 1"
+                    />
+                  </td>
+                  <td className="num" data-label="Biaya">
+                    <input
+                      type="text"
+                      inputMode="decimal"
+                      value={row.cost}
+                      onChange={(event) => updateRow(row.key, { cost: event.target.value })}
+                      placeholder="0"
+                    />
+                  </td>
+                  <td>
+                    {rows.length > 2 ? (
+                      <button
+                        type="button"
+                        className="btn-ghost"
+                        onClick={() => setRows(rows.filter((other) => other.key !== row.key))}
+                      >
+                        Hapus
+                      </button>
+                    ) : null}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        <div className="plan-lines-editor-actions">
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={addRow}
+            disabled={rows.length >= 50}
+          >
+            + Tambah Bagian
+          </button>
+        </div>
+        <p className="hint">
+          Total: {formatMoney(total.toString(), currency)} dari {formatMoney(cost, currency)}{" "}
+          {matches ? "— sudah sama, siap disimpan." : "— belum sama atau ada nama yang kosong."}
+        </p>
+      </div>
+      <Feedback state={state} next={next} />
+      <button type="submit" className="btn-primary" disabled={pending || !matches}>
+        {pending ? "Memecah…" : "Pecah Aset"}
+      </button>
+      <button type="button" className="btn-secondary" onClick={() => setOpen(false)}>
+        Tutup
+      </button>
+    </form>
   );
 }
 

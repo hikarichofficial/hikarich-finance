@@ -300,7 +300,7 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 - Tax on documents already open at the cutover (decision 100; DATA_CUTOVER item 9).
 - OWNER's tax adviser to verify the fiscal depreciation groups and rates, and to decide the tax treatment of loan interest (deductibility, withholding), forgiven debt, dividends and capital returns (decisions 104, 106, 118), before P15.
 - OWNER to confirm the P8 permission choices: `equity.approve` owner-only and the extra step-up on write-offs, restructures and dividend reversals (decision 107).
-- Part 3f is fully closed out (decisions 174-178: Asset Register/Detail, Loan Register/Detail, Other Receivables/Payables Register/Detail, Capital & Equity Register/Detail, and the Depreciation report). This bullet used to claim every action form across the whole capability was still missing; a direct code audit on 4 October 2026 (decision 283) found that was stale -- obligation create/settle/write-off/reverse-settlement/void (decision 176), equity create/confirm/pay-dividend/reverse/reverse-payment/cancel (decision 177), every loan command except restructure/set-asset, and the depreciation run action itself (`postDepreciation`, decisions 104, 117) already had real wired-up UI forms; decision 283 closed the last two loan gaps (restructure, set-asset). Remaining for a later slice: current/non-current loan presentation with P10 (decision 109) -- a presentation-only item, not a missing action form. The Asset Movement/Disposal Report named alongside Depreciation in Step 12's own report catalogue (decision 178) shipped as decision 279, alongside the Fiscal Depreciation Schedule and Asset GL reconciliation report from that same bullet (decision 197) -- the whole report-catalogue item is now closed.
+- Part 3f is fully closed out (decisions 174-178: Asset Register/Detail, Loan Register/Detail, Other Receivables/Payables Register/Detail, Capital & Equity Register/Detail, and the Depreciation report). This bullet used to claim every action form across the whole capability was still missing; a direct code audit on 4 October 2026 (decision 283) found that was stale -- obligation create/settle/write-off/reverse-settlement/void (decision 176), equity create/confirm/pay-dividend/reverse/reverse-payment/cancel (decision 177), every loan command except restructure/set-asset, and the depreciation run action itself (`postDepreciation`, decisions 104, 117) already had real wired-up UI forms; decision 283 closed the last two loan gaps (restructure, set-asset). That same audit, redone against `src/services/assets/assets.ts` specifically, found one more gap it had missed: `splitAsset`/`asset_split` had no form either -- closed as decision 286. Remaining for a later slice: current/non-current loan presentation with P10/reports (decision 109) -- a presentation-only item, not a missing action form; investigated 4 October 2026 and found to need a small migration (adding `current_portion`/`noncurrent_portion` to `public.loan_summary`, not pure client-side wiring) plus two OWNER judgment calls not yet answered anywhere: (a) "12 months from when" for the current/non-current cut (the sensible default is 12 months from the report's own as-of date, matching standard balance-sheet classification, but decision 109 never says so), and (b) whether the split belongs only on the Loan Summary report or also on the canonical Balance Sheet's `LOAN_LONG_TERM` line. The Asset Movement/Disposal Report named alongside Depreciation in Step 12's own report catalogue (decision 178) shipped as decision 279, alongside the Fiscal Depreciation Schedule and Asset GL reconciliation report from that same bullet (decision 197) -- the whole report-catalogue item is now closed.
 - Foreign-currency loans and assets, interest accrual and asset revaluation: the OWNER confirmed (2026-10-04) these are needed -- any selectable foreign currency with IDR as default, manual monthly exchange-rate entry, automatic FX gain/loss posting to P&L. The loans half shipped as decision 281 and the fixed-asset half (a historical-rate-only memo, no revaluation) as decision 282. Still open: interest accrual (Step 04 §6 still recognises interest when paid, not accrued).
 - OWNER's tax adviser to verify the payroll baseline before P15: the TER tables and categories, PTKP values, the occupational-cost cap, the treatment of employer Kesehatan/JKK/JKM as taxable benefits, PTKP proration for part-year employees, rounding, the JP cap dates and the treatment of over-withheld tax (decisions 121-123, 132).
 - OWNER to decide who holds the `payroll` role and whether payroll approval and payment should be OWNER-only (decisions 120, 125, 127); OWNER to decide the approval rules for `payroll`/`approve` and `payroll`/`pay`.
@@ -1441,6 +1441,27 @@ DetailScreen` shows a "Harga & Kurs Asal" row when a memo is present. `pnpm chec
   5. `pnpm check` (841 tests, unchanged: no new tests needed, the RPCs this wires up already have their own
      full pgTAP coverage and no new business logic was written), `pnpm build` and `npx prettier --check .`
      all pass.
+
+- Split Aset screen (decision 286, 4 October 2026). A direct code audit of every exported function in
+  `src/services/**` against its action/UI consumers (following the same method decision 283 used) found
+  `splitAsset`/`asset_split` (`20260926100300_p8_asset_lifecycle.sql`, pgTAP-tested, Step 15 §12) was the
+  only P8 asset command with no server action and no form anywhere in `src/features/assets/` or
+  `src/app/(app)/assets/` -- every sibling command (activate, transfer, setCondition, replan, cancel,
+  setFiscalClass, dispose, reverseDisposal, post/reverseDepreciation, split from decision 283's own loan
+  pair) already had one. Pure wiring, no schema/RPC/migration change, no OWNER decision needed: the RPC
+  itself enforces every constraint (2-50 parts, names required, costs summing to exactly the asset's own
+  acquisition cost, status `draft`, source not `opening`) server-side.
+  1. New `splitAssetAction` (`src/features/assets/assetActions.ts`), the established `errorState()`/
+     `revalidateAsset()` pattern.
+  2. New `SplitAssetForm` (`src/features/assets/AssetForms.tsx`): a repeating name+cost row editor (2-50
+     rows, add/remove), the same `plan-lines-editor`/JSON-hidden-field shape `JournalDraftForm` already
+     established for a dynamic list of lines. The running total is checked client-side against the asset's
+     own acquisition cost before the button enables; the database checks it again.
+  3. `src/app/(app)/assets/[id]/page.tsx`: the form shows only when `asset.status === "draft" &&
+asset.source_type !== "opening"` -- mirroring `asset_split`'s own guard, so no choice is offered that
+     the RPC would reject.
+  4. `pnpm check` (841 tests, unchanged: no new business logic, the RPC already has full pgTAP coverage),
+     `pnpm build` and `npx prettier --check .` all pass.
 
 - "Kirim Invoice via Email" (decision 280). OWNER, 4 October 2026: Resend, kept alongside -- not instead
   of -- the existing "Salin Tautan Publik" share; confirmed Resend's free tier (3,000 emails/month,
