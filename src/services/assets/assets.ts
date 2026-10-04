@@ -11,6 +11,7 @@ import {
   assetDetailSchema,
   assetFilterSchema,
   assetIdInputSchema,
+  assetMovementSchema,
   assetRegisterSchema,
   cancelAssetInputSchema,
   depreciationDueSchema,
@@ -33,6 +34,7 @@ import {
   updateAssetDetailsInputSchema,
   type AssetControlRow,
   type AssetDetail,
+  type AssetMovementRow,
   type AssetRow,
   type DepreciationDueRow,
   type DepreciationLineRow,
@@ -356,6 +358,19 @@ export async function assetControl(entityId: string, asOf?: string): Promise<Ass
     "asset_control_report",
     { p_entity: uuid(entityId), p_as_of: dateArg(asOf) },
     assetControlSchema,
+  );
+}
+
+/** Movement and disposal history for every asset (Step 12 report catalogue), optionally bounded by date. */
+export async function assetMovement(
+  entityId: string,
+  from?: string,
+  to?: string,
+): Promise<AssetMovementRow[]> {
+  return callRpc(
+    "asset_movement_report",
+    { p_entity: uuid(entityId), p_from: dateArg(from), p_to: dateArg(to) },
+    assetMovementSchema,
   );
 }
 

@@ -51,7 +51,12 @@ import type {
 } from "@/schemas/reports";
 import type { LoanDueRow, LoanSummaryRow } from "@/schemas/financing";
 import type { PayrollControlRow, PayrollSummaryRow } from "@/schemas/payroll";
-import type { AssetControlRow, AssetRow, FiscalScheduleRow } from "@/schemas/assets";
+import type {
+  AssetControlRow,
+  AssetMovementRow,
+  AssetRow,
+  FiscalScheduleRow,
+} from "@/schemas/assets";
 import type { LedgerAccountRow } from "@/schemas/accounting";
 import type { Membership } from "@/schemas/access";
 import { formatShortDate } from "./format";
@@ -69,7 +74,8 @@ export type ReportStatement =
   | "payroll_summary"
   | "payroll_control"
   | "fiscal_schedule"
-  | "asset_control";
+  | "asset_control"
+  | "asset_movement";
 
 export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: string }[] = [
   { value: "pnl", label: "Laba Rugi" },
@@ -85,6 +91,7 @@ export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: st
   { value: "payroll_control", label: "Kontrol Payroll" },
   { value: "fiscal_schedule", label: "Jadwal Penyusutan Fiskal" },
   { value: "asset_control", label: "Kontrol Aset Tetap" },
+  { value: "asset_movement", label: "Mutasi/Pelepasan Aset" },
 ];
 
 export type ReportsData =
@@ -150,6 +157,12 @@ export type ReportsData =
       asOf: string;
       canView: boolean;
       rows: readonly AssetControlRow[];
+    }
+  | {
+      statement: "asset_movement";
+      range: ReportDateRange;
+      canView: boolean;
+      rows: readonly AssetMovementRow[];
     };
 
 function buildTabHref(entity: string | undefined, statement: ReportStatement): string {
@@ -218,7 +231,13 @@ function buildTabHref(entity: string | undefined, statement: ReportStatement): s
  * unrelated account keys, a mismatch count with no cross-account grand total) via its own
  * `assetControlAccountLabel`/`assetControlSummary`/`assetControlRowBalanced` -- a second, asset-specific copy
  * of the same three small helpers rather than repurposing the payroll-named ones across an unrelated module,
- * the same per-module duplication precedent used throughout Part 3/4. The other Reports nav sub-items
+ * the same per-module duplication precedent used throughout Part 3/4. The Asset Movement/Disposal tab
+ * (decision 279, tenth increment) wires the new `asset_movement_report` RPC in via the `assetMovement`
+ * wrapper, closing out the one Step 12 report-catalogue item decision 178 left open -- its rows are a
+ * human-readable Indonesian `description` the RPC itself composes per `event_type` (never recomputed here),
+ * with proceeds/gain-loss/journal columns that are simply `null` -- rendered "—" -- on every event that is
+ * not a disposal, the same `=== null ? "—" : formatMoney(...)` idiom Payroll Summary's masked columns use.
+ * The other Reports nav sub-items
  * (Sales/Purchase, a standalone Cashflow view, Tax, Saved Reports) have no P12/P9 RPC behind them yet and
  * fall through to the `[...slug]` "coming soon" placeholder (decision 157's precedent) until one exists.
  * Every figure here is the database's own debit/credit, re-signed once via `naturalAmount`
@@ -333,6 +352,14 @@ export function ReportsScreen({
       ) : null}
       {data.statement === "asset_control" ? (
         <AssetControlTable rows={data.rows} canView={data.canView} currency={currency} />
+      ) : null}
+      {data.statement === "asset_movement" ? (
+        <AssetMovementTable
+          rows={data.rows}
+          canView={data.canView}
+          currency={currency}
+          entity={entity}
+        />
       ) : null}
     </div>
   );
@@ -1535,5 +1562,98 @@ function AssetControlTable({
         </tbody>
       </table>
     </>
+  );
+}
+
+const ASSET_MOVEMENT_EVENT_LABELS: Readonly<Record<AssetMovementRow["event_type"], string>> = {
+  transferred: "Dipindahkan",
+  condition_changed: "Kondisi Berubah",
+  split: "Dipecah",
+  disposed: "Dilepas",
+  disposal_reversed: "Pelepasan Dibatalkan",
+  registered: "Didaftarkan",
+  activated: "Diaktifkan",
+  cancelled: "Dibatalkan",
+  opening_loaded: "Saldo Awal",
+};
+
+function AssetMovementTable({
+  rows,
+  canView,
+  currency,
+  entity,
+}: {
+  rows: readonly AssetMovementRow[];
+  canView: boolean;
+  currency: string;
+  entity: string | undefined;
+}) {
+  if (!canView) {
+    return (
+      <div className="list-empty">
+        <p>Anda tidak memiliki izin untuk melihat mutasi/pelepasan aset.</p>
+      </div>
+    );
+  }
+  if (rows.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada mutasi atau pelepasan aset pada periode ini.</p>
+      </div>
+    );
+  }
+  return (
+    <table className="record-table">
+      <thead>
+        <tr>
+          <th scope="col">Tanggal</th>
+          <th scope="col">Aset</th>
+          <th scope="col">Peristiwa</th>
+          <th scope="col" className="num">
+            Hasil Pelepasan
+          </th>
+          <th scope="col" className="num">
+            Laba/Rugi
+          </th>
+          <th scope="col">Jurnal</th>
+          <th scope="col">Status</th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row, index) => {
+          const journalHref = row.journal_id
+            ? entity
+              ? `/accounting/journal/${row.journal_id}?entity=${encodeURIComponent(entity)}`
+              : `/accounting/journal/${row.journal_id}`
+            : null;
+          return (
+            <tr key={`${row.asset_id}-${row.event_date}-${row.event_type}-${index}`}>
+              <td>{formatShortDate(row.event_date)}</td>
+              <td>
+                {row.asset_code} · {row.asset_name}
+              </td>
+              <td>
+                <span className="status-badge">{ASSET_MOVEMENT_EVENT_LABELS[row.event_type]}</span>{" "}
+                {row.description}
+              </td>
+              <td className="num">
+                {row.proceeds === null ? "—" : formatMoney(row.proceeds, currency)}
+              </td>
+              <td className="num">
+                {row.gain_loss === null ? "—" : formatMoney(row.gain_loss, currency)}
+              </td>
+              <td>{journalHref ? <Link href={journalHref}>Lihat</Link> : "—"}</td>
+              <td>
+                {row.disposal_status === null
+                  ? "—"
+                  : row.disposal_status === "posted"
+                    ? "Terposting"
+                    : "Dibatalkan"}
+              </td>
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
   );
 }

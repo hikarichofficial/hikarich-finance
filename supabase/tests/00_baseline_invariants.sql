@@ -136,7 +136,7 @@ declare
                                          'asset_dispose', 'asset_reverse_disposal', 'asset_set_fiscal_class',
                                          'asset_register', 'asset_detail', 'asset_depreciation_report',
                                          'asset_depreciation_due', 'asset_pending_lines', 'asset_fiscal_schedule',
-                                         'asset_control_report',
+                                         'asset_control_report', 'asset_movement_report',
                                          'loan_create', 'loan_activate', 'loan_repay', 'loan_write_off',
                                          'loan_reverse_payment', 'loan_restructure', 'loan_cancel', 'loan_set_asset',
                                          'loan_load_opening', 'loan_list', 'loan_schedule', 'loan_detail', 'loan_due',
