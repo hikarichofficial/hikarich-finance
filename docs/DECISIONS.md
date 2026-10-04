@@ -286,11 +286,11 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 - Sub-ledger reconciliation of control-account opening balances (decision 44) once P7-P8 exist; financial account balances are covered since P4 (decisions 51-53), customer receivables since P5 (decision 74) and vendor payables since P6 (decision 80).
 - Money screens still remaining after Part 3c's Accounts List/Detail, Transfers List/Detail/create form and Cash/Bank Activity (decisions 169-171): the Reconciliation workspace, balance adjustments, Create/Edit Account, and statement file import (decision 62); source links from an account ledger line to its originating record, once those records have their own detail screens; the OWNER's choice of account kinds that may never go negative (decision 55).
 - Accounting screens still remaining after Part 3d's Journal List/Detail and Chart of Accounts (decision 172): Period Close (checklist of blockers/warnings before Close), Opening Balances, the Manual Journal debit/credit grid builder, and Advanced Adjustments.
-- Sales screens still remaining after Part 3a's Invoices List/Detail (decisions 164-166) and Customers List/Detail (decision 225): the invoice Create/Edit builder, Send, the Payment Confirmation queue, Refund actions, Products & Services, and aging; step-up on reversal and refund specifically (Void/Correct already ship in Part 3a with no step-up, per decision 75's own finding that Step 06 §8 requires none).
+- Sales screens still remaining after Part 3a's Invoices List/Detail (decisions 164-166) and Customers List/Detail (decision 225): the invoice Create/Edit builder, Send, the Payment Confirmation queue, Refund actions, and Products & Services (AR Aging now ships as decision 284; this bullet otherwise pre-dates many later decisions and may already be further stale -- verify against the code before treating any remaining item here as untouched); step-up on reversal and refund specifically (Void/Correct already ship in Part 3a with no step-up, per decision 75's own finding that Step 06 §8 requires none).
 - OWNER to decide the Step 09 §11 vs. P5 conflict recorded in decision 166: whether a draft invoice should get a public preview link (would mean reopening P5's locked `regenerate_invoice_link`/`invoice_public_link` SQL) or Step 09 §11's line is superseded by P5's already-reviewed decision 76 scope.
 - Set `PUBLIC_CLAIM_SALT` in Vercel Production before customers use the payment page (decision 70); OWNER to decide whether payment reversal should be OWNER-only (decision 76).
 - Tax on invoices and tax credit notes with P7 (decision 65).
-- Purchase screens still remaining after Part 3b's Bills List/Detail (decisions 167-168) and Vendors List/Detail (decision 225): the Record Bill/Record Expense builders, the Payment action, Expenses, evidence upload and aging; step-up on void and payment reversal (decisions 84, 87).
+- Purchase screens still remaining after Part 3b's Bills List/Detail (decisions 167-168) and Vendors List/Detail (decision 225): the Record Bill/Record Expense builders, the Payment action, Expenses, and evidence upload (AP Aging now ships as decision 284; this bullet otherwise pre-dates many later decisions and may already be further stale -- verify against the code before treating any remaining item here as untouched); step-up on void and payment reversal (decisions 84, 87).
 - OWNER to decide whether paying and reversing vendor payments should be OWNER-only (decision 87) and whether purchase lines may use Depreciation, Bad Debt and Interest Expense accounts (decision 87).
 - OWNER to decide the `contacts.view`/`bills.view` permission gap recorded in decision 168: whether the `approver`/`tax` role templates should also receive `contacts.view` so vendor names resolve for draft/submitted/cancelled bills, or whether the `vendor_reference`/"Vendor" fallback already shipped is acceptable as-is.
 - OWNER to decide the `accounting.view`/`money.view` permission gap recorded in decision 171: whether the `finance_staff`/`approver` role templates should also receive `accounting.view` so journal numbers resolve on Cash/Bank Activity, or whether the "—" fallback already shipped is acceptable as-is.
@@ -1385,6 +1385,30 @@ DetailScreen` shows a "Harga & Kurs Asal" row when a memo is present. `pnpm chec
      (Note: this slice also considered, then explicitly declined, automatic loan interest accrual -- see the
      "Open items for later phases" bullet above. Decision 108 ("Interest is never accrued automatically") was
      re-confirmed by the OWNER on 4 October 2026 rather than reversed.)
+
+- AR Aging / AP Aging report screen (decision 284, 4 October 2026). A further audit of the "Open items for
+  later phases" bullet (same method as decision 283: verify against the real code, not the bullet's own
+  prose) found the `ar_aging`/`ap_aging` RPCs (P5/P6) were already built, already typed end-to-end
+  (`getArAging`/`getApAging` in `src/services/sales/sales.ts`/`src/services/purchases/purchases.ts`,
+  `ArAgingRow`/`ApAgingRow` in `src/schemas/sales.ts`/`src/schemas/purchases.ts`) and already pgTAP-tested,
+  but only ever consumed by the Dashboard's own KPI tiles -- no standalone report screen existed. Pure
+  wiring, same shape as decision 196 (Payroll Summary/Control) and decision 197 (Fiscal Depreciation
+  Schedule/Asset GL Reconciliation): an already-built, already-tested RPC gets its first dedicated screen.
+  No schema, RPC or migration change, no OWNER decision needed.
+  1. New shared `agingTotals` helper added to `src/domain/reports/reports.ts` (one helper for both reports,
+     since `ar_aging`/`ap_aging` return identically-shaped aging buckets, differing only in the
+     id/name/record-count column) -- covered by two new unit tests in `reports.test.ts`.
+  2. Two new tabs ("Umur Piutang", "Umur Utang") added to the Reports screen
+     (`src/features/reports/ReportsScreen.tsx`): `ArAgingTable`/`ApAgingTable`, each with a per-customer/
+     per-vendor row and a totals footer, following the exact `asset_control`-style "Per tanggal" (as-of
+     date) filter shape -- not a date range, since aging is a point-in-time snapshot.
+  3. `src/app/(app)/reports/page.tsx` wires both in via the existing `getArAging`/`getApAging` wrappers.
+     Each tab is gated by its own RPC's own permission (`invoices.view` for AR, `bills.view` for AP) rather
+     than `reports.view` alone, computed as its own `canView` and checked before the RPC is called --
+     the same "never surface a choice the RPC would reject with FORBIDDEN" rule Loans Due's `loans.view`
+     check already established -- and renders a plain permission message instead of an error when false.
+  4. `pnpm check` (841 tests, up from 839: the two new `agingTotals` unit tests), `pnpm build` and
+     `npx prettier --check .` all pass.
 
 - "Kirim Invoice via Email" (decision 280). OWNER, 4 October 2026: Resend, kept alongside -- not instead
   of -- the existing "Salin Tautan Publik" share; confirmed Resend's free tier (3,000 emails/month,

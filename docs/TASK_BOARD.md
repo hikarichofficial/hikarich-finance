@@ -1748,6 +1748,14 @@ schema, RPC or migration change. Automatic interest accrual was considered and e
 round (decision 108, cash-basis, reconfirmed by the OWNER). `pnpm check` (839 tests, unchanged) and
 `pnpm build` pass. Full detail in `docs/DECISIONS.md` decision 283.
 
+Decision 284: AR Aging / AP Aging report screen, closing another "Open items" gap found by the same
+code-audit method as decision 283 -- `ar_aging`/`ap_aging` (P5/P6) were already built, typed and tested but
+only ever consumed by the Dashboard's KPI tiles. New "Umur Piutang"/"Umur Utang" tabs on `/reports`
+(`ArAgingTable`/`ApAgingTable`), a shared `agingTotals` helper in `src/domain/reports/reports.ts`, each
+gated by its own RPC's own permission (`invoices.view`/`bills.view`). Pure wiring -- no schema, RPC or
+migration change. `pnpm check` (841 tests, up from 839: two new `agingTotals` unit tests) and `pnpm build`
+pass. Full detail in `docs/DECISIONS.md` decision 284.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
