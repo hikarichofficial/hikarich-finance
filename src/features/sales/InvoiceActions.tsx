@@ -366,12 +366,17 @@ export function InvoiceActions({
     actions.push(<CopyLinkForm key="link" invoiceId={invoiceId} />);
     if (email?.configured) {
       actions.push(
-        <SendInvoiceEmailForm key="email" invoiceId={invoiceId} defaultEmail={email.defaultEmail} />,
+        <SendInvoiceEmailForm
+          key="email"
+          invoiceId={invoiceId}
+          defaultEmail={email.defaultEmail}
+        />,
       );
     } else if (email) {
       actions.push(
         <p key="email-disabled" className="hint">
-          Pengiriman invoice lewat email belum diaktifkan untuk situs ini. Gunakan Salin Tautan Publik.
+          Pengiriman invoice lewat email belum diaktifkan untuk situs ini. Gunakan Salin Tautan
+          Publik.
         </p>,
       );
     }

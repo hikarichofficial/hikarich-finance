@@ -115,7 +115,8 @@ export async function sendInvoiceEmail(
 
   const appUrl = getServerEnv().APP_URL.replace(/\/+$/, "");
   const link = `${appUrl}/i/${token}`;
-  const issuerName = partyText(doc.issuer, "brand_name") ?? partyText(doc.issuer, "legal_name") ?? "Hikarich";
+  const issuerName =
+    partyText(doc.issuer, "brand_name") ?? partyText(doc.issuer, "legal_name") ?? "Hikarich";
 
   const result = await sendEmail({
     to,

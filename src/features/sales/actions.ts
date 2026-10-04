@@ -246,7 +246,8 @@ export async function sendInvoiceEmailAction(
       case "not_configured":
         return {
           status: "error",
-          message: "Pengiriman email belum diaktifkan oleh OWNER. Gunakan Salin Tautan Publik untuk saat ini.",
+          message:
+            "Pengiriman email belum diaktifkan oleh OWNER. Gunakan Salin Tautan Publik untuk saat ini.",
         };
       case "no_recipient":
         return {
@@ -254,9 +255,15 @@ export async function sendInvoiceEmailAction(
           message: "Isi alamat email tujuan, atau lengkapi email pelanggan ini di data Kontak.",
         };
       case "not_issued":
-        return { status: "error", message: "Hanya invoice yang sudah terbit yang dapat dikirim lewat email." };
+        return {
+          status: "error",
+          message: "Hanya invoice yang sudah terbit yang dapat dikirim lewat email.",
+        };
       case "failed":
-        return { status: "error", message: "Email tidak dapat dikirim sekarang. Coba lagi beberapa saat." };
+        return {
+          status: "error",
+          message: "Email tidak dapat dikirim sekarang. Coba lagi beberapa saat.",
+        };
     }
   } catch (error) {
     return errorState(error, "Email tidak dapat dikirim.");

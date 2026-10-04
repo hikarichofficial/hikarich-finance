@@ -1286,7 +1286,7 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   1. New optional server env vars `RESEND_API_KEY`/`RESEND_FROM_EMAIL` (`src/lib/env/schema.ts`), the same
      "absent means off" shape `SUPABASE_SERVICE_ROLE_KEY` already uses: without both set, sending reports
      "not configured" and every existing flow (public link included) keeps working. `src/services/email/
-     resend.ts`: a plain `fetch` against Resend's HTTP send endpoint, not the `resend` npm package -- no
+resend.ts`: a plain `fetch` against Resend's HTTP send endpoint, not the `resend` npm package -- no
      new dependency for one POST call.
   2. `src/services/sales/invoiceEmail.ts`'s `sendInvoiceEmail`: only an issued invoice can be emailed (the
      same gate `regenerate_invoice_link` itself enforces), reuses the exact public link
