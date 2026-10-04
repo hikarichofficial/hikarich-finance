@@ -704,4 +704,35 @@ begin
 end
 $$;
 
+-- ================================================================ 9. Asset Movement/Disposal report
+do $$
+declare
+  pt uuid := test_helpers.entity('p8a_pt');
+  v_owner uuid := 'd0000000-0000-0000-0000-000000000001';
+  v_viewer uuid := 'd0000000-0000-0000-0000-000000000004';
+  v_laptop uuid := test_helpers.g('laptop');
+  v_monitor uuid := test_helpers.g('monitor');
+begin
+  perform test_helpers.login(v_owner);
+  perform test_helpers.assert((select count(*) from public.asset_movement_report(pt) where asset_id = v_laptop and event_type = 'transferred') = 1
+    and (select count(*) from public.asset_movement_report(pt) where asset_id = v_laptop and event_type = 'condition_changed') = 2,
+    'the movement report lists every transfer and condition change of the laptop');
+  perform test_helpers.assert((select count(*) from public.asset_movement_report(pt) where asset_id = v_monitor and event_type = 'disposed') = 1
+    and (select count(*) from public.asset_movement_report(pt) where asset_id = v_monitor and event_type = 'disposal_reversed') = 1,
+    'the movement report shows the monitor''s sale and its reversal');
+  perform test_helpers.assert((select gain_loss::numeric from public.asset_movement_report(pt) where asset_id = v_monitor and event_type = 'disposed') = -1000000,
+    'the disposed row carries the gain/loss figure from the disposal record (a loss here)');
+  perform test_helpers.assert((select journal_id from public.asset_movement_report(pt) where asset_id = v_monitor and event_type = 'disposed') is not null
+    and (select proceeds::numeric from public.asset_movement_report(pt) where asset_id = v_monitor and event_type = 'disposed') = 2000000,
+    'the disposed row links to its journal and carries the proceeds');
+  perform test_helpers.assert((select count(*) from public.asset_movement_report(pt, p_from => test_helpers.today(pt) + 1)) = 0,
+    'a from-date after every event excludes everything');
+  perform test_helpers.logout();
+  perform test_helpers.login(v_viewer);
+  perform test_helpers.assert((select count(*) from public.asset_movement_report(pt)) > 0, 'a viewer reads the movement report');
+  perform test_helpers.logout();
+  perform test_helpers.expect_msg(format('select public.asset_movement_report(%L)', pt), 'UNAUTHENTICATED', 'the movement report needs a session');
+end
+$$;
+
 rollback;

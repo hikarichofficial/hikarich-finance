@@ -1705,6 +1705,12 @@ posting lines, run screen). Full detail in `docs/DECISIONS.md` decision 277.
 Decision 278: separate ledger accounts 2220 (BPJS Ketenagakerjaan) and 2221 (BPJS Kesehatan). Full detail
 in `docs/DECISIONS.md` decision 278.
 
+Decision 279: Asset Movement/Disposal report, closing the one Step 12 report-catalogue item decision 178
+left open. New read-only RPC `asset_movement_report` (gated by `assets.view` alone), a "Mutasi/Pelepasan
+Aset" tab on `/reports`, and pgTAP coverage in `96_p8_assets.sql`. `pnpm db:test` passes (clean rebuild,
+invariants, upgrade check); `pnpm check` (835 tests) and `pnpm build` pass. Full detail in
+`docs/DECISIONS.md` decision 279.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new
