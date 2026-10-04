@@ -139,6 +139,7 @@ declare
                                          'asset_control_report', 'asset_movement_report',
                                          'loan_create', 'loan_activate', 'loan_repay', 'loan_write_off',
                                          'loan_reverse_payment', 'loan_restructure', 'loan_cancel', 'loan_set_asset',
+                                         'loan_set_fx_terms', 'loan_revalue_fx', 'loan_reverse_fx_revaluation',
                                          'loan_load_opening', 'loan_list', 'loan_schedule', 'loan_detail', 'loan_due',
                                          'loan_summary',
                                          'equity_create', 'equity_confirm', 'equity_pay_dividend', 'equity_reverse',

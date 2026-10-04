@@ -38,9 +38,12 @@ import {
   restructureLoanInputSchema,
   reverseDividendPaymentInputSchema,
   reverseEquityEventInputSchema,
+  reverseLoanFxRevaluationInputSchema,
   reverseLoanPaymentInputSchema,
   reverseSettlementInputSchema,
+  revalueLoanFxInputSchema,
   setLoanAssetInputSchema,
+  setLoanFxTermsInputSchema,
   settleObligationInputSchema,
   voidObligationInputSchema,
   writeOffLoanInputSchema,
@@ -323,6 +326,56 @@ export async function cancelLoan(input: z.input<typeof cancelLoanInputSchema>): 
 export async function setLoanAsset(input: z.input<typeof setLoanAssetInputSchema>): Promise<void> {
   const v = setLoanAssetInputSchema.parse(input);
   await callRpc("loan_set_asset", { p_loan: v.loan_id, p_asset: v.asset_id }, nothing);
+}
+
+/** Tags a loan with a foreign currency for the manual revaluation below (decision 281, "Versi Sederhana");
+ * principal, proceeds and repayments stay base-currency only. The currency locks once a revaluation posts. */
+export async function setLoanFxTerms(
+  input: z.input<typeof setLoanFxTermsInputSchema>,
+): Promise<void> {
+  const v = setLoanFxTermsInputSchema.parse(input);
+  await callRpc(
+    "loan_set_fx_terms",
+    { p_loan: v.loan_id, p_currency: v.currency, p_note: v.note ?? null },
+    uuidResultSchema,
+  );
+}
+
+/** Posts a monthly FX revaluation: the balance in the foreign currency at the period-end rate, the
+ * difference against the running outstanding balance going to FX_GAIN_LOSS. Returns the revaluation id. */
+export async function revalueLoanFx(
+  input: z.input<typeof revalueLoanFxInputSchema>,
+): Promise<string> {
+  const v = revalueLoanFxInputSchema.parse(input);
+  return callRpc(
+    "loan_revalue_fx",
+    {
+      p_loan: v.loan_id,
+      p_key: v.idempotency_key,
+      p_date: v.date,
+      p_fc_outstanding: v.fc_outstanding,
+      p_rate: v.rate,
+      p_note: v.note ?? null,
+    },
+    uuidResultSchema,
+  );
+}
+
+/** Reverses the most recent FX revaluation of a loan (only the latest one may be reversed). */
+export async function reverseLoanFxRevaluation(
+  input: z.input<typeof reverseLoanFxRevaluationInputSchema>,
+): Promise<string> {
+  const v = reverseLoanFxRevaluationInputSchema.parse(input);
+  return callRpc(
+    "loan_reverse_fx_revaluation",
+    {
+      p_revaluation: v.revaluation_id,
+      p_key: v.idempotency_key,
+      p_date: v.date,
+      p_reason: v.reason,
+    },
+    uuidResultSchema,
+  );
 }
 
 /** Loads loans at the cut-over (Step 15 §24). Returns the new loan ids in order. */

@@ -132,3 +132,21 @@ const LOAN_PAYMENT_STATUS_LABELS: Readonly<Record<LoanPaymentStatus, string>> = 
 export function loanPaymentStatusBadge(status: LoanPaymentStatus): LoanListBadge {
   return { text: LOAN_PAYMENT_STATUS_LABELS[status], tone: LOAN_PAYMENT_STATUS_TONE[status] };
 }
+
+/** An FX revaluation (decision 281): posted stands, reversed is excluded from the running total from its
+ * reversal date onward but stays in the history for audit. */
+export type LoanFxRevaluationStatus = "posted" | "reversed";
+const LOAN_FX_REVALUATION_STATUS_TONE: Readonly<Record<LoanFxRevaluationStatus, LoanListTone>> = {
+  posted: "success",
+  reversed: "attention",
+};
+const LOAN_FX_REVALUATION_STATUS_LABELS: Readonly<Record<LoanFxRevaluationStatus, string>> = {
+  posted: "Posted",
+  reversed: "Dibatalkan",
+};
+export function loanFxRevaluationStatusBadge(status: LoanFxRevaluationStatus): LoanListBadge {
+  return {
+    text: LOAN_FX_REVALUATION_STATUS_LABELS[status],
+    tone: LOAN_FX_REVALUATION_STATUS_TONE[status],
+  };
+}

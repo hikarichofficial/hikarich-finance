@@ -15,8 +15,11 @@ import {
   repayLoanAction,
   reverseDividendPaymentAction,
   reverseEquityEventAction,
+  reverseLoanFxRevaluationAction,
   reverseLoanPaymentAction,
   reverseObligationSettlementAction,
+  revalueLoanFxAction,
+  setLoanFxTermsAction,
   settleObligationAction,
   voidObligationAction,
   writeOffLoanAction,
@@ -412,6 +415,9 @@ export function LoanActionsPanel({
   accounts,
   today,
   next,
+  fxCurrency,
+  fxNote,
+  fxLatestRevaluationId,
 }: {
   loanId: string;
   lent: boolean;
@@ -422,6 +428,11 @@ export function LoanActionsPanel({
   accounts: readonly FinancingOption[];
   today: string;
   next: string;
+  /** The loan's FX setting (decision 281), if any; null once it is locked by a revaluation is still a currency. */
+  fxCurrency?: string | null;
+  fxNote?: string | null;
+  /** Only the most recent posted revaluation can be reversed; null when there is none to reverse. */
+  fxLatestRevaluationId?: string | null;
 }) {
   const common = { idName: "loan_id", id: loanId, next };
   return (
@@ -502,6 +513,72 @@ export function LoanActionsPanel({
             placeholder="Pilih pembayaran"
             options={payments}
           />
+          <DateField label="Tanggal Pembatalan" today={today} />
+          <ReasonField />
+        </CommandForm>
+      ) : null}
+      {status === "active" || status === "closed" ? (
+        <CommandForm
+          {...common}
+          action={setLoanFxTermsAction}
+          openLabel={fxCurrency ? "Ubah Mata Uang Pinjaman" : "Atur Mata Uang Asing"}
+          submitLabel="Simpan"
+        >
+          <label>
+            Kode Mata Uang (ISO 4217, 3 huruf)
+            <input
+              name="currency"
+              required
+              minLength={3}
+              maxLength={3}
+              style={{ textTransform: "uppercase" }}
+              defaultValue={fxCurrency ?? ""}
+              placeholder="USD"
+            />
+          </label>
+          <label>
+            Catatan
+            <input name="note" maxLength={500} defaultValue={fxNote ?? ""} />
+          </label>
+          {fxCurrency ? (
+            <p className="hint">
+              Mata uang terkunci setelah ada revaluasi; nilai yang sama tetap bisa disimpan untuk
+              memperbarui catatan.
+            </p>
+          ) : null}
+        </CommandForm>
+      ) : null}
+      {status === "active" && fxCurrency ? (
+        <CommandForm
+          {...common}
+          action={revalueLoanFxAction}
+          openLabel="Catat Revaluasi Kurs"
+          submitLabel="Simpan Revaluasi"
+        >
+          <label>
+            Tanggal (akhir bulan)
+            <input type="date" name="date" required defaultValue={today} max={today} />
+          </label>
+          <MoneyField name="fc_outstanding" label={`Saldo Outstanding (${fxCurrency})`} required />
+          <MoneyField name="rate" label={`Kurs (Rp per 1 ${fxCurrency})`} required />
+          <label>
+            Catatan
+            <input name="note" maxLength={1000} placeholder="Mis. kurs tengah BI" />
+          </label>
+          <p className="hint">
+            Selisih terhadap saldo outstanding saat ini akan diposting otomatis ke Laba/Rugi Selisih
+            Kurs.
+          </p>
+        </CommandForm>
+      ) : null}
+      {fxLatestRevaluationId ? (
+        <CommandForm
+          {...common}
+          action={reverseLoanFxRevaluationAction}
+          openLabel="Batalkan Revaluasi Terakhir"
+          submitLabel="Batalkan Revaluasi"
+        >
+          <input type="hidden" name="revaluation_id" value={fxLatestRevaluationId} />
           <DateField label="Tanggal Pembatalan" today={today} />
           <ReasonField />
         </CommandForm>

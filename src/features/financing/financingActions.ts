@@ -17,8 +17,11 @@ import {
   repayLoan,
   reverseDividendPayment,
   reverseEquityEvent,
+  reverseLoanFxRevaluation,
   reverseLoanPayment,
   reverseObligationSettlement,
+  revalueLoanFx,
+  setLoanFxTerms,
   settleObligation,
   voidObligation,
   writeOffLoan,
@@ -216,6 +219,63 @@ export async function reverseLoanPaymentAction(
     "Pembayaran tidak dapat dibatalkan. Pilih pembayaran, lalu isi tanggal dan alasan.",
     loanPaths(formData),
     "Pembayaran dibatalkan.",
+  );
+}
+
+/** Tags (or re-confirms) the loan's foreign currency; the database refuses a change once a revaluation has
+ * posted (decision 281). Not an idempotency-tracked command: it is a setting, re-sent safely. */
+export async function setLoanFxTermsAction(
+  _previous: FinancingActionState,
+  formData: FormData,
+): Promise<FinancingActionState> {
+  return run(
+    () =>
+      setLoanFxTerms({
+        loan_id: text(formData, "loan_id"),
+        currency: text(formData, "currency"),
+        note: text(formData, "note") || undefined,
+      }),
+    "Mata uang pinjaman tidak dapat disimpan. Kode mata uang harus berbeda dari mata uang dasar Entity.",
+    loanPaths(formData),
+    "Mata uang pinjaman tersimpan.",
+  );
+}
+
+export async function revalueLoanFxAction(
+  _previous: FinancingActionState,
+  formData: FormData,
+): Promise<FinancingActionState> {
+  return run(
+    () =>
+      revalueLoanFx({
+        loan_id: text(formData, "loan_id"),
+        idempotency_key: randomUUID(),
+        date: text(formData, "date"),
+        fc_outstanding: text(formData, "fc_outstanding"),
+        rate: text(formData, "rate"),
+        note: text(formData, "note") || undefined,
+      }),
+    "Revaluasi tidak dapat disimpan. Periksa tanggal (akhir bulan, setelah revaluasi terakhir), saldo dan kurs.",
+    loanPaths(formData),
+    "Revaluasi kurs tersimpan.",
+  );
+}
+
+export async function reverseLoanFxRevaluationAction(
+  _previous: FinancingActionState,
+  formData: FormData,
+): Promise<FinancingActionState> {
+  return run(
+    () =>
+      reverseLoanFxRevaluation({
+        revaluation_id: text(formData, "revaluation_id"),
+        idempotency_key: randomUUID(),
+        date: text(formData, "date"),
+        reason: text(formData, "reason"),
+      }),
+    "Revaluasi tidak dapat dibatalkan. Hanya revaluasi terbaru yang dapat dibatalkan.",
+    loanPaths(formData),
+    "Revaluasi kurs dibatalkan.",
   );
 }
 

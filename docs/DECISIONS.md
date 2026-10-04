@@ -301,7 +301,7 @@ change a locked item requires explicit OWNER approval and is recorded under "OWN
 - OWNER's tax adviser to verify the fiscal depreciation groups and rates, and to decide the tax treatment of loan interest (deductibility, withholding), forgiven debt, dividends and capital returns (decisions 104, 106, 118), before P15.
 - OWNER to confirm the P8 permission choices: `equity.approve` owner-only and the extra step-up on write-offs, restructures and dividend reversals (decision 107).
 - Part 3f is fully closed out (decisions 174-178: Asset Register/Detail, Loan Register/Detail, Other Receivables/Payables Register/Detail, Capital & Equity Register/Detail, and the Depreciation report). Remaining for a later slice: every action form across the whole capability (loan origination/repayment/restructure/write-off, decision 175; obligation create/settle/write-off/reverse-settlement/void, decision 176; equity create/confirm/pay-dividend/reverse/reverse-payment/cancel, decision 177); the depreciation run action itself (`postDepreciation`) (decisions 104, 117); current/non-current loan presentation with P10 (decision 109). The Asset Movement/Disposal Report named alongside Depreciation in Step 12's own report catalogue (decision 178) shipped as decision 279, alongside the Fiscal Depreciation Schedule and Asset GL reconciliation report from that same bullet (decision 197) -- the whole report-catalogue item is now closed.
-- Foreign-currency loans and assets, interest accrual and asset revaluation: the OWNER confirmed (2026-10-04) these are needed -- any selectable foreign currency with IDR as default, manual monthly exchange-rate entry, automatic FX gain/loss posting to P&L. Not yet built; scoped as its own full engineering slice (decision 118's own open item, still open).
+- Foreign-currency loans and assets, interest accrual and asset revaluation: the OWNER confirmed (2026-10-04) these are needed -- any selectable foreign currency with IDR as default, manual monthly exchange-rate entry, automatic FX gain/loss posting to P&L. The loans half shipped as decision 281. Still open: the fixed-asset half (a foreign-currency memo field at registration -- currency, foreign-currency cost and the acquisition-date rate -- historical-rate only, no revaluation, per the OWNER's "catat & tampilkan dalam mata uang asal" choice) and interest accrual (Step 04 §6 still recognises interest when paid, not accrued).
 - OWNER's tax adviser to verify the payroll baseline before P15: the TER tables and categories, PTKP values, the occupational-cost cap, the treatment of employer Kesehatan/JKK/JKM as taxable benefits, PTKP proration for part-year employees, rounding, the JP cap dates and the treatment of over-withheld tax (decisions 121-123, 132).
 - OWNER to decide who holds the `payroll` role and whether payroll approval and payment should be OWNER-only (decisions 120, 125, 127); OWNER to decide the approval rules for `payroll`/`approve` and `payroll`/`pay`.
 - Payroll screens still remaining after Part 3g's first four increments -- Employee Register/Detail (decision 179), Payroll Run Register/Detail (decision 180), Payslip Register/Detail (decision 181), Payroll Tax & Liabilities (decision 182): every payroll action form (employee create/edit/end/record-employment/set-compensation/set-tax-profile/set-bpjs/set-tax-opening; run calculate/adjust/submit/approve/return/post/pay/close/reopen/correct -- all already service-wrapped, none yet given a UI), the payslip PDF/document export, and THR/severance and e-bupot export (decisions 132-133). `payroll_summary_report`/`payroll_control_report` (decision 182's own deferred list) shipped as the Payroll Summary/Payroll Control reports (decision 196).
@@ -1279,6 +1279,52 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   labels. Found while testing: a submenu item without its own permission made its menu appear for
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
+
+- Loan foreign-currency revaluation (decision 281, 4 October 2026). The loans half of the OWNER's
+  foreign-currency confirmation in the "Open items for later phases" bullet above ("Versi Sederhana": any
+  selectable foreign currency with IDR as default, manual monthly exchange-rate entry, automatic FX
+  gain/loss posting to P&L) -- the fixed-asset half and interest accrual stay open.
+  1. New migration `20261004200000_p15_loan_fx_revaluation.sql`, purely additive: `loan_fx_terms` (one row
+     per loan once an FX currency is set -- currency, optional note) and `loan_fx_revaluations` (one row
+     per posted or reversed monthly revaluation -- date, foreign-currency outstanding, rate, the computed
+     base-currency adjustment, status, reversal linkage), each with the project's standard guard trigger,
+     timestamps and RLS. `app_private.loan_outstanding` -- the single function every loan reader, report
+     and control RPC already calls -- is patched with `create or replace function` to add
+     `+ coalesce(sum(adjustment) from loan_fx_revaluations where posted and as-of-date, 0)`; because nothing
+     else reads outstanding any other way, this one additive patch is the entire propagation, with zero
+     changes to any existing loan command, report or control. `public.loan_detail` is similarly patched
+     (`create or replace function`) to add `fx_terms`/`fx_revaluations` keys to its JSON; `create or
+replace function` was confirmed to preserve the existing grants on both functions, so no grant/revoke
+     statements needed repeating.
+  2. Three new RPCs, each `security definer`: `loan_set_fx_terms` (sets or clears the currency once; the
+     currency locks after the first revaluation is posted, so it can't change mid-series), `loan_revalue_fx`
+     (posts one monthly revaluation -- the date must advance past the last one, the rate must be within 20%
+     of the amount, the same mistyped-rate sanity guard `app_private.transfer_figures` uses for Transfer FX
+     -- and posts the Dr/Cr side of the gain/loss to the `FX_GAIN_LOSS` system account, with the correct side for
+     all four combinations of growing/shrinking and borrowed/lent derived from one boolean expression
+     rather than four hard-coded cases), and `loan_reverse_fx_revaluation` (reverses a revaluation with a
+     required reason -- only the latest posted revaluation for a loan is reversible, because each
+     revaluation's adjustment is computed against the running total at post time, not a stored chain, so
+     reversing anything but the latest would desynchronize it). All three added to the `rpc_allowlist`
+     invariant in `00_baseline_invariants.sql`.
+  3. pgTAP coverage added to `98_p8_loans.sql` (section 13): viewer-forbidden checks, currency validation
+     (must differ from base, must be a known currency, case-insensitive), the 20% rate guard, "no FX terms
+     set yet", a full borrowed-loan revaluation and a full lent-loan revaluation with journal assertions on
+     both, the currency-lock-after-first-revaluation check, the date-must-advance check, a second (netting)
+     revaluation, the only-latest-is-reversible check, a full reversal with mirrored journal assertions,
+     re-reversal rejection, `loan_detail` JSON-shape assertions, and direct-table lockdown. `pnpm db:test`
+     passes (clean migration rebuild, invariants, upgrade-from-seeded-data).
+  4. Application layer, following the existing financing-module conventions exactly: input/output schemas
+     in `src/schemas/financing.ts` (`setLoanFxTermsInputSchema`, `revalueLoanFxInputSchema`,
+     `reverseLoanFxRevaluationInputSchema`, `loanFxTermsSchema`, `loanFxRevaluationSchema`, and
+     `loanDetailSchema` extended with `fx_terms`/`fx_revaluations`); three thin service wrappers in
+     `src/services/financing/financing.ts`; three server actions in
+     `src/features/financing/financingActions.ts`; three new command forms (set/update FX currency, post a
+     revaluation, reverse the latest one) added to `LoanActionsPanel` in
+     `src/features/financing/FinancingForms.tsx`; a new "Revaluasi Kurs" section on the loan detail screen
+     (`src/features/financing/LoanDetailScreen.tsx`, with a `loanFxRevaluationStatusBadge` helper added to
+     `src/domain/financing/loanList.ts`); and the loan detail page wired up with the FX props.
+  5. `pnpm check` (838 tests), `pnpm build` and `pnpm db:test` all pass.
 
 - "Kirim Invoice via Email" (decision 280). OWNER, 4 October 2026: Resend, kept alongside -- not instead
   of -- the existing "Salin Tautan Publik" share; confirmed Resend's free tier (3,000 emails/month,
