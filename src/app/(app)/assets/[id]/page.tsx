@@ -13,6 +13,7 @@ import {
   ReplanAssetForm,
   ReverseDepreciationForm,
   ReverseDisposalForm,
+  SplitAssetForm,
   TransferAssetForm,
   UpdateAssetDetailsForm,
 } from "@/features/assets/AssetForms";
@@ -66,6 +67,15 @@ export default async function AssetDetailPage({
                 next={next}
                 today={today}
                 depreciable={membership.entity_type !== "personal"}
+                name={asset.name}
+                cost={asset.acquisition_cost}
+                currency={currency}
+              />
+            ) : null}
+            {isDraft && asset.source_type !== "opening" ? (
+              <SplitAssetForm
+                assetId={id}
+                next={next}
                 name={asset.name}
                 cost={asset.acquisition_cost}
                 currency={currency}

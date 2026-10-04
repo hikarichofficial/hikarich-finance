@@ -1756,6 +1756,13 @@ gated by its own RPC's own permission (`invoices.view`/`bills.view`). Pure wirin
 migration change. `pnpm check` (841 tests, up from 839: two new `agingTotals` unit tests) and `pnpm build`
 pass. Full detail in `docs/DECISIONS.md` decision 284.
 
+Decision 286: Split Aset screen, wiring up the one P8 asset command with no form (`asset_split`, found by a
+direct code audit of every `src/services/**` export against its action/UI consumers, same method decision
+283 used). New `splitAssetAction` + `SplitAssetForm` (a repeating name+cost row editor, 2-50 rows) on Asset
+Detail, shown only for a draft asset from a purchase/expense line (not `opening`), matching `asset_split`'s
+own guard. Pure wiring -- no schema, RPC or migration change. `pnpm check` (841 tests, unchanged) and
+`pnpm build` pass. Full detail in `docs/DECISIONS.md` decision 286.
+
 Decision 244 (OWNER answers 1a/2a/3a): "Users & Roles" and "Security" are now nav-gated on
 `users.view` and `security.view`; `/reports/tax` forwards to `/tax/ledger`; `/reports/assets-loans`
 forwards to the Kontrol Aset Tetap tab. `pnpm check` (740 tests, up from 738), `pnpm build` (2 new

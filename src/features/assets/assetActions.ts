@@ -17,6 +17,7 @@ import {
   reverseDisposal,
   setAssetCondition,
   setAssetFiscalClass,
+  splitAsset,
   transferAsset,
   updateAssetDetails,
 } from "@/services/assets/assets";
@@ -208,6 +209,41 @@ export async function transferAssetAction(
   }
   revalidateAsset(assetId);
   return { status: "ok", message: "Pemindahan aset tersimpan." };
+}
+
+/** Splits a draft asset that came from one purchase or expense line into 2-50 named parts whose costs add
+ * up to exactly its own acquisition cost (`asset_split`). The first part stays the original asset (its name
+ * and cost are replaced); the rest become new draft assets from the same source line. */
+export async function splitAssetAction(
+  _previous: AssetActionState,
+  formData: FormData,
+): Promise<AssetActionState> {
+  const assetId = text(formData, "asset_id");
+  let parts: unknown;
+  try {
+    parts = JSON.parse(text(formData, "parts") || "[]");
+  } catch {
+    return { status: "error", message: "Daftar bagian tidak dapat dibaca." };
+  }
+  let ids: string[];
+  try {
+    ids = await splitAsset({
+      asset_id: assetId,
+      idempotency_key: randomUUID(),
+      parts: parts as never,
+    });
+  } catch (error) {
+    return errorState(
+      error,
+      "Aset tidak dapat dipecah. Pastikan 2-50 bagian, tiap bagian punya nama, dan totalnya sama persis dengan biaya perolehan aset ini.",
+    );
+  }
+  revalidateAsset(assetId);
+  revalidatePath("/assets");
+  return {
+    status: "ok",
+    message: `Aset dipecah menjadi ${ids.length} bagian. Bagian baru berstatus draft, menunggu diaktifkan.`,
+  };
 }
 
 export async function disposeAssetAction(
