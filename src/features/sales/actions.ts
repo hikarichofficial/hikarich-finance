@@ -7,7 +7,9 @@ import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
   cancelInvoice,
+  cancelRefund,
   confirmPaymentSubmission,
+  confirmRefund,
   markSubmissionDuplicate,
   setInvoiceLinkExpiry,
   correctInvoice,
@@ -16,6 +18,8 @@ import {
   getInvoiceOwner,
   recordPayment,
   rejectPaymentSubmission,
+  rejectRefund,
+  reverseRefund,
   revokeInvoiceLink,
   updateInvoiceDraft,
   getInvoiceLink,
@@ -437,6 +441,149 @@ export async function createRefundAction(
   revalidatePath("/sales/refunds");
   revalidatePath("/sales/invoices");
   return { status: "ok", message: "Refund tercatat." };
+}
+
+/** Save a refund as a DRAFT, without confirming (`create_refund` with `confirm: false`) -- for a person who
+ * holds `refunds.create` alone, separate from `refunds.confirm` (decision 263's own separation-of-duties
+ * reading). The draft then waits in the Menunggu Konfirmasi section below for someone with
+ * `refunds.confirm` to confirm or reject it, same shape every other draft/review split in this app uses. */
+export async function createDraftRefundAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  const paymentId = text(formData, "payment_id");
+  const count = Number(text(formData, "option_count")) || 0;
+  const items: (
+    | { source: "allocation"; allocation_id: string; amount: string }
+    | { source: "advance"; amount: string }
+  )[] = [];
+  for (let index = 0; index < Math.min(count, 100); index += 1) {
+    const amount = text(formData, `amount_${index}`);
+    if (amount === "" || Number(amount) === 0) continue;
+    if (text(formData, `source_${index}`) === "advance") {
+      items.push({ source: "advance", amount });
+    } else {
+      items.push({
+        source: "allocation",
+        allocation_id: text(formData, `allocation_${index}`),
+        amount,
+      });
+    }
+  }
+  if (items.length === 0) {
+    return { status: "error", message: "Isi jumlah refund minimal pada satu baris." };
+  }
+  try {
+    await createRefund({
+      payment_id: paymentId,
+      idempotency_key: randomUUID(),
+      account_id: text(formData, "account_id"),
+      refund_date: text(formData, "refund_date"),
+      items,
+      reason: text(formData, "reason") || undefined,
+      reference: text(formData, "reference") || undefined,
+      confirm: false,
+    });
+  } catch (error) {
+    return draftErrorState(
+      error,
+      "Refund tidak dapat disimpan sebagai draft. Periksa jumlah (tanpa titik ribuan), rekening dan tanggal.",
+    );
+  }
+  revalidatePath("/sales/payments");
+  revalidatePath(`/sales/payments/${paymentId}`);
+  revalidatePath("/sales/refunds");
+  return { status: "ok", message: "Draft refund disimpan, menunggu konfirmasi." };
+}
+
+/** Confirm a draft refund (`confirm_refund`, `refunds.confirm`): posts the cash, accounting and tax
+ * consequences `create_refund` itself already computed when the draft was saved. */
+export async function confirmRefundAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  const paymentId = text(formData, "payment_id");
+  try {
+    await confirmRefund({ refund_id: text(formData, "refund_id"), idempotency_key: randomUUID() });
+  } catch (error) {
+    return errorState(error, "Refund tidak dapat dikonfirmasi.");
+  }
+  revalidatePath("/sales/payments");
+  revalidatePath(`/sales/payments/${paymentId}`);
+  revalidatePath("/sales/refunds");
+  revalidatePath("/sales/invoices");
+  return { status: "ok", message: "Refund dikonfirmasi." };
+}
+
+/** Reject a draft refund (`reject_refund`, `refunds.confirm`): it never posts, the reservation it made on
+ * the payment's refundable balance is released. */
+export async function rejectRefundAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  const paymentId = text(formData, "payment_id");
+  try {
+    await rejectRefund({
+      refund_id: text(formData, "refund_id"),
+      reason: text(formData, "reason"),
+    });
+  } catch (error) {
+    return draftErrorState(error, "Refund tidak dapat ditolak. Isi alasan minimal 5 karakter.");
+  }
+  revalidatePath("/sales/payments");
+  revalidatePath(`/sales/payments/${paymentId}`);
+  revalidatePath("/sales/refunds");
+  return { status: "ok", message: "Refund ditolak." };
+}
+
+/** Cancel a draft refund (`cancel_refund`, `refunds.create` -- the creator's own permission, not
+ * `refunds.confirm`, matching the RPC's own guard: withdrawing a request you made yourself needs no
+ * reviewer permission). */
+export async function cancelRefundAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  const paymentId = text(formData, "payment_id");
+  try {
+    await cancelRefund({
+      refund_id: text(formData, "refund_id"),
+      reason: text(formData, "reason"),
+    });
+  } catch (error) {
+    return draftErrorState(error, "Refund tidak dapat dibatalkan. Isi alasan minimal 5 karakter.");
+  }
+  revalidatePath("/sales/payments");
+  revalidatePath(`/sales/payments/${paymentId}`);
+  revalidatePath("/sales/refunds");
+  return { status: "ok", message: "Draft refund dibatalkan." };
+}
+
+/** Reverse a confirmed refund (`reverse_refund`, `refunds.confirm`): posts a reversing journal dated on or
+ * after the refund itself and releases the cash/tax/sub-ledger effect it posted, the same reversal shape
+ * every other confirmed-document undo in this app uses. */
+export async function reverseRefundAction(
+  _previous: InvoiceActionState,
+  formData: FormData,
+): Promise<InvoiceActionState> {
+  const paymentId = text(formData, "payment_id");
+  try {
+    await reverseRefund({
+      refund_id: text(formData, "refund_id"),
+      idempotency_key: randomUUID(),
+      date: text(formData, "date"),
+      reason: text(formData, "reason"),
+    });
+  } catch (error) {
+    return draftErrorState(
+      error,
+      "Refund tidak dapat dibalik. Isi tanggal (tidak di masa depan) dan alasan minimal 5 karakter.",
+    );
+  }
+  revalidatePath("/sales/payments");
+  revalidatePath(`/sales/payments/${paymentId}`);
+  revalidatePath("/sales/refunds");
+  revalidatePath("/sales/invoices");
+  return { status: "ok", message: "Refund dibalik." };
 }
 
 /** Mark a pending claim as a duplicate of another claim of the same invoice (`mark_submission_duplicate`,

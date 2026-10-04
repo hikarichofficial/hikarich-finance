@@ -27,6 +27,7 @@ import {
   recordPaymentInputSchema,
   refundOptionsSchema,
   refundReasonInputSchema,
+  refundRowSchema,
   regenerateLinkInputSchema,
   rejectSubmissionInputSchema,
   reverseCreditApplicationInputSchema,
@@ -45,6 +46,7 @@ import {
   type PaymentListRow,
   type ReceiptDocument,
   type RefundOption,
+  type RefundRow,
 } from "@/schemas/sales";
 
 /**
@@ -461,6 +463,24 @@ export async function reverseRefund(
     { p_refund: v.refund_id, p_key: v.idempotency_key, p_date: v.date, p_reason: v.reason },
     uuidResultSchema,
   );
+}
+
+/** A payment's own refund records, read directly from `public.refunds` (no `list_refunds` RPC exists --
+ * same "direct table read when no RPC exists" shape `listBillsOverview` uses for `public.bills`). Newest
+ * first, so a payment with several refund attempts shows its most recent one first. */
+export async function listPaymentRefunds(paymentId: string): Promise<RefundRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("refunds")
+    .select(
+      "id, refund_number, status, amount::text, currency, refund_date, reason, reference, closed_reason, reverse_reason",
+    )
+    .eq("payment_id", uuid(paymentId))
+    .order("created_at", { ascending: false });
+  if (error) throw new Error("Gagal memuat refund.");
+  const parsed = z.array(refundRowSchema).safeParse(data);
+  if (!parsed.success) throw new Error("Respons refund tidak dikenali.");
+  return parsed.data;
 }
 
 // ---- public link management (authenticated)

@@ -272,6 +272,32 @@ export const reverseRefundInputSchema = z.object({
   reason: reasonSchema,
 });
 
+export const refundStatusSchema = z.enum([
+  "draft",
+  "confirmed",
+  "rejected",
+  "cancelled",
+  "reversed",
+]);
+export type RefundStatus = z.infer<typeof refundStatusSchema>;
+
+/** One payment's own refund records, read directly from `public.refunds` (RLS-gated on `refunds.view`,
+ * `refunds_select`) since no `list_refunds` RPC exists -- the same "direct table read when no RPC exists"
+ * shape `listBillsOverview` already uses for `public.bills`. */
+export const refundRowSchema = z.object({
+  id: z.uuid(),
+  refund_number: z.string().nullable(),
+  status: refundStatusSchema,
+  amount: moneyTextSchema,
+  currency: z.string(),
+  refund_date: isoDateSchema,
+  reason: z.string(),
+  reference: z.string().nullable(),
+  closed_reason: z.string().nullable(),
+  reverse_reason: z.string().nullable(),
+});
+export type RefundRow = z.infer<typeof refundRowSchema>;
+
 // ---- public links
 export const regenerateLinkInputSchema = z.object({
   invoice_id: z.uuid(),
