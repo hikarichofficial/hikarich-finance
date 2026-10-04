@@ -1280,6 +1280,52 @@ build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes).
   people who could not open any of its pages (the pages themselves still refused); such items now
   inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
 
+- Loan foreign-currency revaluation (decision 281, 4 October 2026). The loans half of the OWNER's
+  foreign-currency confirmation in the "Open items for later phases" bullet above ("Versi Sederhana": any
+  selectable foreign currency with IDR as default, manual monthly exchange-rate entry, automatic FX
+  gain/loss posting to P&L) -- the fixed-asset half and interest accrual stay open.
+  1. New migration `20261004200000_p15_loan_fx_revaluation.sql`, purely additive: `loan_fx_terms` (one row
+     per loan once an FX currency is set -- currency, optional note) and `loan_fx_revaluations` (one row
+     per posted or reversed monthly revaluation -- date, foreign-currency outstanding, rate, the computed
+     base-currency adjustment, status, reversal linkage), each with the project's standard guard trigger,
+     timestamps and RLS. `app_private.loan_outstanding` -- the single function every loan reader, report
+     and control RPC already calls -- is patched with `create or replace function` to add
+     `+ coalesce(sum(adjustment) from loan_fx_revaluations where posted and as-of-date, 0)`; because nothing
+     else reads outstanding any other way, this one additive patch is the entire propagation, with zero
+     changes to any existing loan command, report or control. `public.loan_detail` is similarly patched
+     (`create or replace function`) to add `fx_terms`/`fx_revaluations` keys to its JSON; `create or
+replace function` was confirmed to preserve the existing grants on both functions, so no grant/revoke
+     statements needed repeating.
+  2. Three new RPCs, each `security definer`: `loan_set_fx_terms` (sets or clears the currency once; the
+     currency locks after the first revaluation is posted, so it can't change mid-series), `loan_revalue_fx`
+     (posts one monthly revaluation -- the date must advance past the last one, the rate must be within 20%
+     of the amount, the same mistyped-rate sanity guard `app_private.transfer_figures` uses for Transfer FX
+     -- and posts the Dr/Cr side of the gain/loss to the `FX_GAIN_LOSS` system account, with the correct side for
+     all four combinations of growing/shrinking and borrowed/lent derived from one boolean expression
+     rather than four hard-coded cases), and `loan_reverse_fx_revaluation` (reverses a revaluation with a
+     required reason -- only the latest posted revaluation for a loan is reversible, because each
+     revaluation's adjustment is computed against the running total at post time, not a stored chain, so
+     reversing anything but the latest would desynchronize it). All three added to the `rpc_allowlist`
+     invariant in `00_baseline_invariants.sql`.
+  3. pgTAP coverage added to `98_p8_loans.sql` (section 13): viewer-forbidden checks, currency validation
+     (must differ from base, must be a known currency, case-insensitive), the 20% rate guard, "no FX terms
+     set yet", a full borrowed-loan revaluation and a full lent-loan revaluation with journal assertions on
+     both, the currency-lock-after-first-revaluation check, the date-must-advance check, a second (netting)
+     revaluation, the only-latest-is-reversible check, a full reversal with mirrored journal assertions,
+     re-reversal rejection, `loan_detail` JSON-shape assertions, and direct-table lockdown. `pnpm db:test`
+     passes (clean migration rebuild, invariants, upgrade-from-seeded-data).
+  4. Application layer, following the existing financing-module conventions exactly: input/output schemas
+     in `src/schemas/financing.ts` (`setLoanFxTermsInputSchema`, `revalueLoanFxInputSchema`,
+     `reverseLoanFxRevaluationInputSchema`, `loanFxTermsSchema`, `loanFxRevaluationSchema`, and
+     `loanDetailSchema` extended with `fx_terms`/`fx_revaluations`); three thin service wrappers in
+     `src/services/financing/financing.ts`; three server actions in
+     `src/features/financing/financingActions.ts`; three new command forms (set/update FX currency, post a
+     revaluation, reverse the latest one) added to `LoanActionsPanel` in
+     `src/features/financing/FinancingForms.tsx`; a new "Revaluasi Kurs" section on the loan detail screen
+     (`src/features/financing/LoanDetailScreen.tsx`, with a `loanFxRevaluationStatusBadge` helper added to
+     `src/domain/financing/loanList.ts`); and the loan detail page wired up with the FX props.
+  5. `pnpm check` (838 tests), `pnpm build` and `pnpm db:test` all pass.
+
 - Fixed-asset foreign-currency memo (decision 282, 4 October 2026). The fixed-asset half of the OWNER's
   foreign-currency confirmation in the "Open items for later phases" bullet above -- "Hanya catat &
   tampilkan dalam mata uang asal": historical-rate only, no revaluation, unlike the ongoing monthly workflow
