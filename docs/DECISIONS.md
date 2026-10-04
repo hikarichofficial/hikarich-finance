@@ -1458,7 +1458,7 @@ DetailScreen` shows a "Harga & Kurs Asal" row when a memo is present. `pnpm chec
      established for a dynamic list of lines. The running total is checked client-side against the asset's
      own acquisition cost before the button enables; the database checks it again.
   3. `src/app/(app)/assets/[id]/page.tsx`: the form shows only when `asset.status === "draft" &&
-     asset.source_type !== "opening"` -- mirroring `asset_split`'s own guard, so no choice is offered that
+asset.source_type !== "opening"` -- mirroring `asset_split`'s own guard, so no choice is offered that
      the RPC would reject.
   4. `pnpm check` (841 tests, unchanged: no new business logic, the RPC already has full pgTAP coverage),
      `pnpm build` and `npx prettier --check .` all pass.
