@@ -7,6 +7,7 @@ import {
   CASH_FLOW_BUCKET_ORDER,
   PNL_SECTION_ORDER,
   REPORT_SUBROUTE_TARGETS,
+  agingTotals,
   balanceSheetTotals,
   cashFlowTotals,
   consolidatedCashPositionTotals,
@@ -646,6 +647,48 @@ describe("loanSummaryTotals", () => {
     expect(totals.closingPrincipal.toString()).toBe("0");
     expect(totals.interestPaid.toString()).toBe("0");
     expect(totals.feesPaid.toString()).toBe("0");
+  });
+});
+
+describe("agingTotals", () => {
+  it("sums every bucket across customers/vendors and counts the rows", () => {
+    const rows = [
+      {
+        not_due: "1000000.0000",
+        days_1_30: "500000.0000",
+        days_31_60: "0.0000",
+        days_61_90: "0.0000",
+        days_over_90: "0.0000",
+        total: "1500000.0000",
+      },
+      {
+        not_due: "0.0000",
+        days_1_30: "0.0000",
+        days_31_60: "200000.0000",
+        days_61_90: "100000.0000",
+        days_over_90: "50000.0000",
+        total: "350000.0000",
+      },
+    ];
+    const totals = agingTotals(rows);
+    expect(totals.notDue.toString()).toBe("1000000.0000");
+    expect(totals.days1to30.toString()).toBe("500000.0000");
+    expect(totals.days31to60.toString()).toBe("200000.0000");
+    expect(totals.days61to90.toString()).toBe("100000.0000");
+    expect(totals.daysOver90.toString()).toBe("50000.0000");
+    expect(totals.total.toString()).toBe("1850000.0000");
+    expect(totals.recordCount).toBe(2);
+  });
+
+  it("returns zero totals and a zero count for no rows", () => {
+    const totals = agingTotals([]);
+    expect(totals.notDue.toString()).toBe("0");
+    expect(totals.days1to30.toString()).toBe("0");
+    expect(totals.days31to60.toString()).toBe("0");
+    expect(totals.days61to90.toString()).toBe("0");
+    expect(totals.daysOver90.toString()).toBe("0");
+    expect(totals.total.toString()).toBe("0");
+    expect(totals.recordCount).toBe(0);
   });
 });
 

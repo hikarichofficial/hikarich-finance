@@ -12,6 +12,7 @@ import {
   CASH_FLOW_BUCKET_LABELS,
   CASH_FLOW_BUCKET_ORDER,
   PNL_SECTION_ORDER,
+  agingTotals,
   assetControlAccountLabel,
   assetControlRowBalanced,
   assetControlSummary,
@@ -50,6 +51,8 @@ import type {
   ReportDatasetCatalogRow,
 } from "@/schemas/reports";
 import type { LoanDueRow, LoanSummaryRow } from "@/schemas/financing";
+import type { ArAgingRow } from "@/schemas/sales";
+import type { ApAgingRow } from "@/schemas/purchases";
 import type { PayrollControlRow, PayrollSummaryRow } from "@/schemas/payroll";
 import type {
   AssetControlRow,
@@ -75,7 +78,9 @@ export type ReportStatement =
   | "payroll_control"
   | "fiscal_schedule"
   | "asset_control"
-  | "asset_movement";
+  | "asset_movement"
+  | "ar_aging"
+  | "ap_aging";
 
 export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: string }[] = [
   { value: "pnl", label: "Laba Rugi" },
@@ -92,6 +97,8 @@ export const REPORT_STATEMENT_TABS: readonly { value: ReportStatement; label: st
   { value: "fiscal_schedule", label: "Jadwal Penyusutan Fiskal" },
   { value: "asset_control", label: "Kontrol Aset Tetap" },
   { value: "asset_movement", label: "Mutasi/Pelepasan Aset" },
+  { value: "ar_aging", label: "Umur Piutang" },
+  { value: "ap_aging", label: "Umur Utang" },
 ];
 
 export type ReportsData =
@@ -163,7 +170,9 @@ export type ReportsData =
       range: ReportDateRange;
       canView: boolean;
       rows: readonly AssetMovementRow[];
-    };
+    }
+  | { statement: "ar_aging"; asOf: string; canView: boolean; rows: readonly ArAgingRow[] }
+  | { statement: "ap_aging"; asOf: string; canView: boolean; rows: readonly ApAgingRow[] };
 
 function buildTabHref(entity: string | undefined, statement: ReportStatement): string {
   const params = new URLSearchParams();
@@ -237,6 +246,19 @@ function buildTabHref(entity: string | undefined, statement: ReportStatement): s
  * human-readable Indonesian `description` the RPC itself composes per `event_type` (never recomputed here),
  * with proceeds/gain-loss/journal columns that are simply `null` -- rendered "—" -- on every event that is
  * not a disposal, the same `=== null ? "—" : formatMoney(...)` idiom Payroll Summary's masked columns use.
+ * The AR Aging and AP Aging tabs (decision 284, eleventh increment) wire the already-built `ar_aging`/
+ * `ap_aging` RPCs (P5/P6, unused in a screen until now -- only ever called from the Dashboard's own KPI
+ * tiles) in via the already-typed `getArAging`/`getApAging` wrappers, imported directly from
+ * `@/services/sales/sales`/`@/services/purchases/purchases` rather than duplicated into the reports module,
+ * the same "import the existing typed wrapper, never a second copy" shape Loans Due/Loan Summary already
+ * established for `@/services/financing/financing`. Each is gated by its own RPC's own permission
+ * (`invoices.view` for AR, `bills.view` for AP) rather than `reports.view` alone -- not every role holding
+ * `reports.view` also holds those (same "never surface a choice the RPC would reject with FORBIDDEN" rule
+ * as Loans Due's `loans.view` check), so this screen checks each before calling its RPC and renders a plain
+ * permission message instead of an error when it is false. Both take a single `as_of` date, the same
+ * "Per tanggal" filter shape as Balance Sheet/Asset Control/Payroll Control, and share one `agingTotals`
+ * helper (`@/domain/reports/reports`) for their footer row since the two RPCs return identically-shaped
+ * aging buckets, differing only in the id/name/record-count column.
  * The other Reports nav sub-items
  * (Sales/Purchase, a standalone Cashflow view, Tax, Saved Reports) have no P12/P9 RPC behind them yet and
  * fall through to the `[...slug]` "coming soon" placeholder (decision 157's precedent) until one exists.
@@ -361,6 +383,12 @@ export function ReportsScreen({
           entity={entity}
         />
       ) : null}
+      {data.statement === "ar_aging" ? (
+        <ArAgingTable rows={data.rows} canView={data.canView} currency={currency} />
+      ) : null}
+      {data.statement === "ap_aging" ? (
+        <ApAgingTable rows={data.rows} canView={data.canView} currency={currency} />
+      ) : null}
     </div>
   );
 }
@@ -429,7 +457,9 @@ function RangeForm({ data, entity }: { data: ReportsData; entity: string | undef
       {data.statement === "balance_sheet" ||
       data.statement === "consolidated" ||
       data.statement === "payroll_control" ||
-      data.statement === "asset_control" ? (
+      data.statement === "asset_control" ||
+      data.statement === "ar_aging" ||
+      data.statement === "ap_aging" ? (
         <label>
           Per tanggal
           <input type="date" name="as_of" defaultValue={data.asOf} />
@@ -1654,6 +1684,170 @@ function AssetMovementTable({
           );
         })}
       </tbody>
+    </table>
+  );
+}
+
+function ArAgingTable({
+  rows,
+  canView,
+  currency,
+}: {
+  rows: readonly ArAgingRow[];
+  canView: boolean;
+  currency: string;
+}) {
+  if (!canView) {
+    return (
+      <div className="list-empty">
+        <p>Anda tidak memiliki izin untuk melihat umur piutang.</p>
+      </div>
+    );
+  }
+  if (rows.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada piutang terbuka per tanggal ini.</p>
+      </div>
+    );
+  }
+  const totals = agingTotals(rows);
+  return (
+    <table className="record-table">
+      <thead>
+        <tr>
+          <th scope="col">Pelanggan</th>
+          <th scope="col" className="num">
+            Belum Jatuh Tempo
+          </th>
+          <th scope="col" className="num">
+            1-30 Hari
+          </th>
+          <th scope="col" className="num">
+            31-60 Hari
+          </th>
+          <th scope="col" className="num">
+            61-90 Hari
+          </th>
+          <th scope="col" className="num">
+            &gt;90 Hari
+          </th>
+          <th scope="col" className="num">
+            Total
+          </th>
+          <th scope="col" className="num">
+            Jml. Invoice
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.customer_id}>
+            <td>{row.customer_name}</td>
+            <td className="num">{formatMoney(row.not_due, currency)}</td>
+            <td className="num">{formatMoney(row.days_1_30, currency)}</td>
+            <td className="num">{formatMoney(row.days_31_60, currency)}</td>
+            <td className="num">{formatMoney(row.days_61_90, currency)}</td>
+            <td className="num">{formatMoney(row.days_over_90, currency)}</td>
+            <td className="num">{formatMoney(row.total, currency)}</td>
+            <td className="num">{row.invoice_count}</td>
+          </tr>
+        ))}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row">Total</th>
+          <td className="num">{formatMoney(totals.notDue.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.days1to30.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.days31to60.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.days61to90.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.daysOver90.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.total.toString(), currency)}</td>
+          <td className="num">{totals.recordCount}</td>
+        </tr>
+      </tfoot>
+    </table>
+  );
+}
+
+function ApAgingTable({
+  rows,
+  canView,
+  currency,
+}: {
+  rows: readonly ApAgingRow[];
+  canView: boolean;
+  currency: string;
+}) {
+  if (!canView) {
+    return (
+      <div className="list-empty">
+        <p>Anda tidak memiliki izin untuk melihat umur utang.</p>
+      </div>
+    );
+  }
+  if (rows.length === 0) {
+    return (
+      <div className="list-empty">
+        <p>Tidak ada utang terbuka per tanggal ini.</p>
+      </div>
+    );
+  }
+  const totals = agingTotals(rows);
+  return (
+    <table className="record-table">
+      <thead>
+        <tr>
+          <th scope="col">Vendor</th>
+          <th scope="col" className="num">
+            Belum Jatuh Tempo
+          </th>
+          <th scope="col" className="num">
+            1-30 Hari
+          </th>
+          <th scope="col" className="num">
+            31-60 Hari
+          </th>
+          <th scope="col" className="num">
+            61-90 Hari
+          </th>
+          <th scope="col" className="num">
+            &gt;90 Hari
+          </th>
+          <th scope="col" className="num">
+            Total
+          </th>
+          <th scope="col" className="num">
+            Jml. Tagihan
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        {rows.map((row) => (
+          <tr key={row.vendor_id}>
+            <td>{row.vendor_name}</td>
+            <td className="num">{formatMoney(row.not_due, currency)}</td>
+            <td className="num">{formatMoney(row.days_1_30, currency)}</td>
+            <td className="num">{formatMoney(row.days_31_60, currency)}</td>
+            <td className="num">{formatMoney(row.days_61_90, currency)}</td>
+            <td className="num">{formatMoney(row.days_over_90, currency)}</td>
+            <td className="num">{formatMoney(row.total, currency)}</td>
+            <td className="num">{row.bill_count}</td>
+          </tr>
+        ))}
+      </tbody>
+      <tfoot>
+        <tr>
+          <th scope="row">Total</th>
+          <td className="num">{formatMoney(totals.notDue.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.days1to30.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.days31to60.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.days61to90.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.daysOver90.toString(), currency)}</td>
+          <td className="num">{formatMoney(totals.total.toString(), currency)}</td>
+          <td className="num">{totals.recordCount}</td>
+        </tr>
+      </tfoot>
     </table>
   );
 }

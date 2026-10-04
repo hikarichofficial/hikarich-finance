@@ -15,6 +15,8 @@ import { listLedgerAccounts } from "@/services/accounting/ledger";
 import { loanSummary, loansDue } from "@/services/financing/financing";
 import { getPayrollControl, getPayrollSummary } from "@/services/payroll/payroll";
 import { assetControl, assetMovement, fiscalSchedule, listAssets } from "@/services/assets/assets";
+import { getArAging } from "@/services/sales/sales";
+import { getApAging } from "@/services/purchases/purchases";
 import {
   resolveAsOfDate,
   resolveCompareRange,
@@ -49,6 +51,8 @@ const REPORT_STATEMENTS: readonly ReportStatement[] = [
   "fiscal_schedule",
   "asset_control",
   "asset_movement",
+  "ar_aging",
+  "ap_aging",
 ];
 
 function resolveStatement(value: string | undefined): ReportStatement {
@@ -105,7 +109,13 @@ function resolveStatement(value: string | undefined): ReportStatement {
  * 178 left open (noted in decision 303's open-items list) -- it reads the new `asset_movement_report` RPC
  * via the `assetMovement` wrapper, gated by `assets.view` alone (the RPC's own single permission check, no
  * second hard-required permission unlike the two tabs above), and takes a date range like every other
- * Entity-scoped statement rather than one asset or one as-of date. */
+ * Entity-scoped statement rather than one asset or one as-of date. The AR Aging and AP Aging tabs (decision
+ * 284, eleventh increment) read the already-built `getArAging`/`getApAging` wrappers (P5/P6, previously
+ * only consumed by the Dashboard's own KPI tiles, unused in a dedicated screen until now) from
+ * `@/services/sales/sales`/`@/services/purchases/purchases`. Each is gated by its own RPC's own permission
+ * (`invoices.view`/`bills.view`) rather than `reports.view` alone, computed as its own `canView` and checked
+ * before the RPC is called -- same "never surface a choice the RPC would reject with FORBIDDEN" rule as
+ * Loans Due's `loans.view` check -- and both take a plain `as_of` date like Balance Sheet/Asset Control. */
 export default async function ReportsPage({
   searchParams,
 }: {
@@ -256,6 +266,14 @@ export default async function ReportsPage({
     const canView = can(access, membership.entity_id, "assets.view");
     const rows = canView ? await assetMovement(membership.entity_id, range.from, range.to) : [];
     data = { statement, range, canView, rows };
+  } else if (statement === "ar_aging") {
+    const canView = can(access, membership.entity_id, "invoices.view");
+    const rows = canView ? await getArAging(membership.entity_id, { asOf }) : [];
+    data = { statement, asOf, canView, rows };
+  } else if (statement === "ap_aging") {
+    const canView = can(access, membership.entity_id, "bills.view");
+    const rows = canView ? await getApAging(membership.entity_id, { asOf }) : [];
+    data = { statement, asOf, canView, rows };
   } else {
     const compareRange = resolveCompareRange(compare_from, compare_to);
     const rows = await getProfitAndLoss({

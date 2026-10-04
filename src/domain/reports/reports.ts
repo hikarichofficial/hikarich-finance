@@ -638,6 +638,46 @@ export function loanSummaryTotals(
   };
 }
 
+// ================================================================ AR Aging / AP Aging (P13 Part 4, eleventh increment, decision 284)
+
+export interface AgingTotals {
+  notDue: Decimal;
+  days1to30: Decimal;
+  days31to60: Decimal;
+  days61to90: Decimal;
+  daysOver90: Decimal;
+  total: Decimal;
+  recordCount: number;
+}
+
+/** The grand-total row under an AR Aging or AP Aging table -- a display-only sum of exactly the
+ * per-customer/per-vendor `not_due`/`days_1_30`/`days_31_60`/`days_61_90`/`days_over_90`/`total` figures
+ * `ar_aging`/`ap_aging` already returned, the same "already in each row, never a second aggregation" shape
+ * every other totals helper here uses. One shared helper for both reports -- their row shapes differ only
+ * in the id/name/record-count column (`customer_id`/`customer_name`/`invoice_count` vs
+ * `vendor_id`/`vendor_name`/`bill_count`), never in the aging figures themselves, so `recordCount` is a
+ * plain `rows.length` rather than summing either RPC's own count column. */
+export function agingTotals(
+  rows: readonly {
+    not_due: string;
+    days_1_30: string;
+    days_31_60: string;
+    days_61_90: string;
+    days_over_90: string;
+    total: string;
+  }[],
+): AgingTotals {
+  return {
+    notDue: sumDecimals(rows.map((r) => Decimal.parse(r.not_due))),
+    days1to30: sumDecimals(rows.map((r) => Decimal.parse(r.days_1_30))),
+    days31to60: sumDecimals(rows.map((r) => Decimal.parse(r.days_31_60))),
+    days61to90: sumDecimals(rows.map((r) => Decimal.parse(r.days_61_90))),
+    daysOver90: sumDecimals(rows.map((r) => Decimal.parse(r.days_over_90))),
+    total: sumDecimals(rows.map((r) => Decimal.parse(r.total))),
+    recordCount: rows.length,
+  };
+}
+
 // ================================================================ Payroll Summary / Payroll Control (P13 Part 4, eighth increment)
 
 export interface PayrollSummaryTotals {
