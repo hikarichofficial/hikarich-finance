@@ -5,6 +5,7 @@ import { requireAccess } from "@/services/identity/access";
 import { getEntityBaseCurrency, listPayrollRuns } from "@/services/payroll/payroll";
 import { PayrollRunRegisterScreen } from "@/features/payroll/PayrollRunRegisterScreen";
 import { CreatePayrollRunForm } from "@/features/payroll/PayrollRunForms";
+import { todayInBusinessZone } from "@/lib/time";
 
 /**
  * Payroll Run Register (P13 Part 3g, second increment, Step 09 §17). Unlike Employee Register/Detail
@@ -51,7 +52,7 @@ export default async function PayrollRunRegisterPage({
       entity={entity}
       actionsPanel={
         can(access, entityId, "payroll.run") ? (
-          <CreatePayrollRunForm entity={entity} today={new Date().toISOString().slice(0, 10)} />
+          <CreatePayrollRunForm entity={entity} today={todayInBusinessZone()} />
         ) : undefined
       }
     />

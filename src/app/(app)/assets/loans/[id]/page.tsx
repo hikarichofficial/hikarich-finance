@@ -7,6 +7,7 @@ import { requirePermission } from "@/services/identity/access";
 import { getEntityBaseCurrency, getLoan, getLoanSchedule } from "@/services/financing/financing";
 import { listAssets } from "@/services/assets/assets";
 import { LoanDetailScreen } from "@/features/financing/LoanDetailScreen";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Loan Detail (P13 Part 3f, second increment, Step 09 §10, §16). The active schedule is a separate RPC
  * (`loan_schedule`) from `loan_detail`, unlike Asset Detail where the schedule is embedded -- both are fetched
@@ -42,7 +43,7 @@ export default async function LoanDetailPage({
           .filter((a) => a.status !== "cancelled")
           .map((a) => ({ id: a.asset_id, label: `${a.asset_code} · ${a.name}` }))
       : [];
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
   const qs = entity ? `?entity=${encodeURIComponent(entity)}` : "";
   // `loan_reverse_payment` refuses a payment of a superseded (restructured) schedule: offer the rest.
   const activeVersionId = detail.versions.find((v) => v.status === "active")?.id;

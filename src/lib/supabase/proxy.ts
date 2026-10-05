@@ -10,7 +10,7 @@ export function isPublicPath(pathname: string): boolean {
 }
 
 /** Paths that are never Entity-scoped (no `?entity=` to carry), even for a signed-in visitor. */
-const ENTITY_LESS_PATHS = ["/auth/mfa", "/auth/step-up"] as const;
+const ENTITY_LESS_PATHS = ["/auth/mfa", "/auth/step-up", "/guide/image"] as const;
 
 function isEntityLessPath(pathname: string): boolean {
   return (

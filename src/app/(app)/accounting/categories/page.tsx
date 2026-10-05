@@ -11,6 +11,7 @@ import {
   CategoryCreateForm,
   CategoryRowForm,
 } from "@/features/categories/CategoryForms";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Categories (Step 03 §6, decision 262): every member may read them; adding one or changing its tax
  * mapping needs `categories.manage` (the RLS policy of the table). The tax mapping is the fallback a line
@@ -24,7 +25,7 @@ export default async function CategoriesPage({
   const { access, membership } = await requireAccess({ entityCode: entity });
   const canManage = can(access, membership.entity_id, "categories.manage");
   const canMapAccount = canManage && can(access, membership.entity_id, "coa.manage");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
   const [rows, currentAccounts, ledgerAccounts] = await Promise.all([
     listCategoriesForAdmin(membership.entity_id),
     listCurrentCategoryAccounts(membership.entity_id, today),

@@ -2185,3 +2185,29 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   ledger account, journal lines and movements stay exactly as they were (period close still reads it through
   `money_control_rows`), and its name gets a "(dihapus ...)" suffix so the name can be reused. A balance left on
   it stays in the ledger; the confirmation shows it. An account with no history is still erased for real.
+
+- Step-by-step guide ("Panduan" menu), PDF built from the same source, and a batch of finding fixes (decision
+  299, OWNER, 5 October 2026, tasks 83-93). (1) A new last menu group "Panduan" (`/guide`) holds 25 core
+  how-to guides (getting started, cash and bank, sales, purchases, tax and other receivables), each with
+  location, who may do it, numbered steps, real screenshots, result, rules, common mistakes and error texts.
+  The content is JSON under `src/content/guide/` (inline grammar `**bold**` and `[teks](slug)`), the single
+  source for the pages (`src/domain/guide/guides.ts`, `src/app/(app)/guide/**`) and for the PDF
+  (`scripts/guide/build_guide_pdf.py`, new "Bagian VI"; the same script is kept in the Project doc). Screenshots
+  are real captures of the live site stored in `src/content/guide/images/`, NOT in `public/`, because a screenshot
+  can show real data: they are served by `/guide/image/<name>` (extension-less, since `src/proxy.ts` skips paths
+  ending in an image extension) behind `requireAccess()`. Guides whose screens need transactions that do not
+  exist yet (invoice detail, public page, payment form) carry no screenshot for now. (2) The guide states that an
+  issued unpaid invoice is Piutang Usaha automatically and that no separate "piutang" switch exists. (3) Findings
+  fixed in the same change: draft invoices now show in the invoice list (all, and a "Draf" tab) read directly
+  because they have no number and no receivable (#88); default dates use the business time zone WITA through
+  `src/lib/time.ts` and the e-mail history shows WITA (#89); customers and vendors can be edited and
+  deactivated (`contacts.edit`, direct RLS update, tax identifier untouched, role only widened to "both") and a
+  cash/bank account's name, institution, holder and number can be edited through the existing
+  `update_financial_account` (#90); Saldo Awal clears its grid after a successful posting, the account list
+  hides default cash accounts that no cash/bank account is linked to and disables foreign-currency cash/bank
+  accounts, the reconciliation page hides archived accounts and their sessions, and "money_adjustment" gets a
+  label (#91); misleading "tanpa titik ribuan" and "contoh 1500000.00" texts removed, Kuantitas accepts a decimal
+  comma, and pending payment claims lead the Dashboard "Perlu Perhatian" list with the bell icon opening it
+  (#92); the untranslated tax-reconciliation sentences are shown in Indonesian (#93). Open and not changed: the
+  OWNER's decision on receipts first made to a director's or personal account (task 82), and the cleanup of test
+  data in Production (task 77), which the OWNER runs herself.

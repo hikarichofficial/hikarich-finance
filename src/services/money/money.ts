@@ -512,3 +512,41 @@ export async function getReconciliationSession(
   if (!parsed.success) throw new Error("Respons sesi rekonsiliasi tidak dikenali.");
   return parsed.data;
 }
+
+/** The descriptive fields the Edit Account form pre-fills (name, institution, holder). The account number is
+ * never read back (it is a sensitive column); the form treats it as write-only. Finding #90. */
+export async function getAccountEditableFields(
+  accountId: string,
+): Promise<{ name: string; institution_name: string; account_holder: string } | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("financial_accounts")
+    .select("name, institution_name, account_holder")
+    .eq("id", uuidResultSchema.parse(accountId))
+    .maybeSingle();
+  if (error || !data) return null;
+  return {
+    name: String(data.name ?? ""),
+    institution_name: String(data.institution_name ?? ""),
+    account_holder: String(data.account_holder ?? ""),
+  };
+}
+
+/** Which ledger account each cash/bank account is linked to (finding #91), by an RLS-governed direct read. */
+export async function listFinancialAccountLinks(
+  entityId: string,
+): Promise<{ ledger_account_id: string; name: string; currency: string }[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("financial_accounts")
+    .select("ledger_account_id, name, currency")
+    .eq("entity_id", uuidResultSchema.parse(entityId));
+  if (error) throw new Error("Gagal memuat rekening kas/bank.");
+  return ((data ?? []) as { ledger_account_id: string; name: string; currency: string }[]).map(
+    (r) => ({
+      ledger_account_id: String(r.ledger_account_id),
+      name: String(r.name),
+      currency: String(r.currency),
+    }),
+  );
+}

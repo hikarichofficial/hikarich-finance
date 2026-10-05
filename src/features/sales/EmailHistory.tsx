@@ -6,7 +6,7 @@ const SENT_AT = new Intl.DateTimeFormat("id-ID", {
   year: "numeric",
   hour: "2-digit",
   minute: "2-digit",
-  timeZone: "Asia/Jakarta",
+  timeZone: "Asia/Makassar",
 });
 
 /** "Riwayat Pengiriman Email" of an invoice or a payment receipt: what went out, to whom and when. Sending again
@@ -29,7 +29,7 @@ export function EmailHistory({
         <table className="record-table record-table-stacked">
           <thead>
             <tr>
-              <th scope="col">Waktu (WIB)</th>
+              <th scope="col">Waktu (WITA)</th>
               <th scope="col">Tujuan</th>
               <th scope="col">Status</th>
             </tr>
@@ -37,7 +37,7 @@ export function EmailHistory({
           <tbody>
             {rows.map((row) => (
               <tr key={row.id}>
-                <td>{SENT_AT.format(new Date(row.sent_at))}</td>
+                <td>{SENT_AT.format(new Date(row.sent_at))} WITA</td>
                 <td data-label="Tujuan">{row.recipient}</td>
                 <td data-label="Status">
                   <span

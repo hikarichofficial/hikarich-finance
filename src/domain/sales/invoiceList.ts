@@ -50,15 +50,20 @@ export function invoiceDocumentStatus(doc: InvoiceDocument): InvoiceListStatus {
   return { text: SETTLEMENT_LABELS[doc.settlement_status ?? "unpaid"], tone: "neutral" };
 }
 
+/** The list's own filter value: an RPC filter, or "draft" (drafts have no number yet, so the position RPC
+ * never returns them; the page reads them separately). */
+export type InvoiceListFilter = InvoiceFilter | "draft";
+
 export interface InvoiceFilterOption {
   /** `null` is "every invoice" -- `list_invoice_positions` takes a null filter the same way. */
-  value: InvoiceFilter | null;
+  value: InvoiceListFilter | null;
   label: string;
 }
 
 /** Toolbar filter tabs (Step 09 §9), in the order the list reads best: broadest first, closed last. */
 export const INVOICE_FILTER_OPTIONS: readonly InvoiceFilterOption[] = [
   { value: null, label: "Semua" },
+  { value: "draft", label: "Draf" },
   { value: "open", label: "Terbuka" },
   { value: "overdue", label: "Jatuh Tempo" },
   { value: "unpaid", label: "Belum Dibayar" },
@@ -67,7 +72,7 @@ export const INVOICE_FILTER_OPTIONS: readonly InvoiceFilterOption[] = [
   { value: "closed", label: "Dibatalkan" },
 ];
 
-export function parseInvoiceFilter(value: string | undefined): InvoiceFilter | undefined {
+export function parseInvoiceFilter(value: string | undefined): InvoiceListFilter | undefined {
   const option = INVOICE_FILTER_OPTIONS.find((o) => o.value === value);
   return option?.value ?? undefined;
 }

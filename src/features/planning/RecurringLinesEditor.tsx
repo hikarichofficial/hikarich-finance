@@ -142,7 +142,8 @@ export function buildRecurringLinesJson(
         ...row.extra,
         description,
         unit_price: unitPrice,
-        quantity: row.quantity.trim() === "" ? undefined : row.quantity.trim(),
+        // A decimal comma ("1,5") is accepted the way it is in the money fields.
+        quantity: row.quantity.trim() === "" ? undefined : row.quantity.trim().replace(",", "."),
         category_id: row.category_id === "" ? undefined : row.category_id,
       };
       if (kind !== "invoice") {

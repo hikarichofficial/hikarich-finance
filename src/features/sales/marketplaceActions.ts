@@ -78,10 +78,7 @@ export async function recordSettlementAction(
       note: text(formData, "note") || undefined,
     });
   } catch (error) {
-    return errorState(
-      error,
-      "Pencairan tidak dapat dicatat. Periksa tanggal dan angka (tanpa titik atau koma ribuan).",
-    );
+    return errorState(error, "Pencairan tidak dapat dicatat. Periksa tanggal dan angka.");
   }
   revalidatePath("/sales/marketplace");
   return { status: "ok", message: "Pencairan tercatat." };

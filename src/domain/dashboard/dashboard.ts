@@ -176,7 +176,17 @@ export function reconciliationsNeedingAttention(
   return rows.filter((r) => r.session_in_progress || r.unresolved_lines > 0);
 }
 
-export type AttentionKind = "tax_review" | "missing_evidence" | "reconciliation";
+export type AttentionKind = "payment_claim" | "tax_review" | "missing_evidence" | "reconciliation";
+
+/** A pending payment claim ("Saya Sudah Bayar") as the attention list needs it. */
+export interface PendingClaimLike {
+  id: string;
+  invoice_number: string | null;
+  amount: string;
+  currency: string;
+  payer_name: string | null;
+  payment_date: string;
+}
 
 export interface AttentionItem {
   kind: AttentionKind;
@@ -201,7 +211,16 @@ export function buildAttentionItems(input: {
   taxReviewQueue: readonly ReviewQueueRow[];
   missingEvidence: readonly MissingEvidenceRow[];
   staleReconciliations: readonly ReconciliationStatusRow[];
+  /** Customer payment claims waiting for confirmation (finding #92: there was no notification for them). */
+  pendingClaims?: readonly PendingClaimLike[];
 }): AttentionItem[] {
+  const claims: AttentionItem[] = (input.pendingClaims ?? []).map((c) => ({
+    kind: "payment_claim" as const,
+    id: c.id,
+    title: `Klaim pembayaran ${c.invoice_number ?? "invoice"}`,
+    detail: `${c.payer_name ?? "Pelanggan"} mengaku membayar ${c.currency} ${c.amount}. Periksa mutasi rekening lalu konfirmasi atau tolak.`,
+    date: c.payment_date,
+  }));
   const items: AttentionItem[] = [
     ...input.taxReviewQueue.map((r) => ({
       kind: "tax_review" as const,
@@ -227,7 +246,8 @@ export function buildAttentionItems(input: {
       date: r.last_reconciled_until,
     })),
   ];
-  return items.sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""));
+  // Claims wait on a person, so they always lead the list.
+  return [...claims, ...items.sort((a, b) => (b.date ?? "").localeCompare(a.date ?? ""))];
 }
 
 export type RecentActivityKind = "customer_payment" | "vendor_payment" | "invoice_issued";

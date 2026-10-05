@@ -10,6 +10,7 @@ import {
   MarketplaceStoreForm,
   ReverseSettlementForm,
 } from "@/features/sales/MarketplaceForms";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Marketplace (decision 260): the Entity's stores and their settlements (payouts). Viewing needs
  * `invoices.view`; adding a store `invoices.create`; recording a settlement `invoices.issue` and
@@ -41,7 +42,7 @@ export default async function MarketplacePage({
     ]),
   );
   const activeStores = stores.filter((s) => s.is_active);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
 
   return (
     <div className="list-screen">

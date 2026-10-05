@@ -8,6 +8,7 @@ import { eligibleCounterAccounts } from "@/domain/money/balanceAdjustment";
 import { recordBalanceAdjustmentAction } from "./balanceAdjustmentActions";
 import { idleBalanceAdjustmentFormState } from "./balanceAdjustmentActionsState";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { todayInBusinessZone } from "@/lib/time";
 
 /**
  * Balance Adjustment form ("Advanced Adjustments", Step 09 §14, decision 232): the account's balance is
@@ -34,7 +35,7 @@ export function BalanceAdjustmentForm({
     idleBalanceAdjustmentFormState,
   );
   const actionForm = usePreservingForm(action, state);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
   const activeAccounts = accounts.filter((a) => a.is_active);
   const counterAccounts = eligibleCounterAccounts(ledgerAccounts);
 

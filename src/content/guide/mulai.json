@@ -1,0 +1,200 @@
+{
+  "key": "mulai",
+  "title": "Mulai Memakai",
+  "description": "Urutan langkah pertama kali, cara masuk, berpindah antara PT dan Pribadi, dan pengaturan pajak awal.",
+  "guides": [
+    {
+      "slug": "urutan-langkah-awal",
+      "title": "Urutan Langkah Pertama Kali Memakai Hikarich Finance",
+      "summary": "Daftar langkah yang sebaiknya dikerjakan berurutan sebelum mencatat transaksi pertama.",
+      "path": "Mulai dari halaman Masuk, lalu ikuti urutan di bawah",
+      "who": "Pemilik (OWNER). Beberapa langkah hanya bisa dilakukan OWNER.",
+      "quick": "Urutan yang aman: masuk, pilih Entity yang benar, isi pengaturan pajak, tambah rekening, isi saldo awal, tambah pelanggan dan produk, baru buat invoice.",
+      "steps": [
+        {
+          "title": "Masuk ke aplikasi dan pilih Entity yang benar",
+          "text": "Buka https://finance.hikarichgroup.com, masuk dengan email dan kata sandi, lalu periksa pemilih Entity di kiri atas. Pastikan tertulis **PT** untuk pembukuan PT Hikarich Kitana Digital, atau **Pribadi** untuk pembukuan pribadi. Data kedua Entity tidak pernah digabung.\n\nPanduan lengkap: [Cara Masuk dan Berpindah Entity](masuk-dan-ganti-entitas)."
+        },
+        {
+          "title": "Isi Pengaturan Pajak (sekali per Entity)",
+          "text": "Buka **Pajak > Pengaturan Pajak**, isi profil pajak, lalu aktifkan mesin pajak pada tanggal pertama pajak harus dihitung. Ini dikerjakan sebelum ada invoice, tagihan, atau pengeluaran, karena mesin pajak tidak bisa diaktifkan mundur bila sudah ada dokumen pada tanggal itu.\n\nPanduan lengkap: [Cara Mengisi Pengaturan Pajak Awal](pengaturan-pajak-awal)."
+        },
+        {
+          "title": "Tambahkan rekening kas, bank, dan e-wallet",
+          "text": "Buka **Kas & Bank > Rekening** lalu **Tambah Akun** untuk setiap rekening yang dipakai (misalnya rekening bank PT). Rekening PT diisi di Entity PT, rekening pribadi di Entity Pribadi.\n\nPanduan lengkap: [Cara Menambah Rekening](tambah-rekening)."
+        },
+        {
+          "title": "Isi saldo awal rekening (bila sudah ada uang di rekening)",
+          "text": "Saldo awal tidak diketik di form rekening. Isi lewat **Akuntansi > Saldo Awal** pada tanggal mulai pembukuan. Bila rekening baru dan saldonya nol, langkah ini boleh dilewati.\n\nPanduan lengkap: [Cara Mengisi Saldo Awal](saldo-awal)."
+        },
+        {
+          "title": "Tambahkan pelanggan dan produk atau jasa",
+          "text": "Buka **Penjualan > Pelanggan** dan **Penjualan > Produk & Jasa**. Pelanggan juga bisa ditambah langsung saat membuat invoice.\n\nPanduan: [Cara Menambah Pelanggan](tambah-pelanggan) dan [Cara Menambah Produk dan Jasa](produk-dan-jasa)."
+        },
+        {
+          "title": "Buat dan terbitkan invoice pertama",
+          "text": "Buka **Penjualan > Invoice > Buat Invoice**. Setelah diterbitkan, invoice otomatis menjadi piutang usaha sampai dibayar.\n\nPanduan: [Cara Membuat dan Menerbitkan Invoice](buat-terbitkan-invoice) dan [Memahami Piutang dan Pendapatan](memahami-piutang-pendapatan)."
+        },
+        {
+          "title": "Catat pembayaran saat uang masuk ke rekening PT",
+          "text": "Saat pelanggan membayar, buka invoice lalu tekan **Catat Pembayaran**. Isi tanggal dengan tanggal uang benar-benar masuk ke rekening PT.\n\nPanduan: [Cara Menerima Pembayaran Invoice](terima-pembayaran)."
+        }
+      ],
+      "mistakes": [
+        "Mulai mencatat transaksi sebelum memeriksa Entity aktif di kiri atas, sehingga transaksi PT tercatat di Pribadi atau sebaliknya.",
+        "Membuat invoice dulu baru mengaktifkan mesin pajak. Mesin pajak ditolak bila sudah ada dokumen pada atau setelah tanggal mulainya.",
+        "Mencari kolom saldo di form rekening. Saldo awal ada di Akuntansi > Saldo Awal."
+      ],
+      "related": ["masuk-dan-ganti-entitas", "pengaturan-pajak-awal", "tambah-rekening"]
+    },
+    {
+      "slug": "masuk-dan-ganti-entitas",
+      "title": "Cara Masuk dan Berpindah Entity (PT dan Pribadi)",
+      "summary": "Masuk dengan email, kata sandi dan kode autentikator, lalu berpindah antara pembukuan PT dan Pribadi.",
+      "path": "Halaman Masuk (/login); pemilih Entity di bilah atas",
+      "who": "Semua pengguna. Akun dibuat oleh OWNER; tidak ada halaman Daftar atau Lupa Kata Sandi di aplikasi.",
+      "quick": "Setiap halaman hanya menampilkan satu Entity. Selalu lihat pemilih Entity di kiri atas sebelum menyimpan apa pun.",
+      "steps": [
+        {
+          "title": "Buka halaman Masuk",
+          "text": "Buka https://finance.hikarichgroup.com. Bila belum masuk, aplikasi otomatis membawa Anda ke halaman **Masuk** dengan teks “Hikarich Finance — akses terbatas.”"
+        },
+        {
+          "title": "Isi email dan kata sandi",
+          "text": "Isi kolom **Email** dan **Kata sandi**, lalu tekan **Masuk**. Tombol berubah menjadi “Memeriksa…” selama proses."
+        },
+        {
+          "title": "Verifikasi dua langkah (kode autentikator)",
+          "text": "Untuk akun OWNER, aplikasi meminta kode dari aplikasi autentikator (Google Authenticator, 1Password, dan sejenisnya).\n\nBila sudah pernah diatur: isi **Kode autentikator (6 digit)** lalu tekan **Verifikasi**. Kode berganti tiap 30 detik; bila ditolak, tunggu kode baru dan ulangi.\n\nBila pertama kali: tekan **Atur autentikator**, pindai kode QR dengan aplikasi autentikator (atau ketik kunci manual yang tampil di bawahnya), isi **Kode dari autentikator (6 digit)**, lalu tekan **Aktifkan**.",
+          "warning": "Tidak ada kode cadangan di layar. Simpan aplikasi autentikator Anda baik-baik, karena aplikasi tidak punya fitur reset kata sandi atau kode."
+        },
+        {
+          "title": "Periksa Dashboard dan pemilih Entity",
+          "text": "Setelah berhasil, Dashboard terbuka. Di bilah atas sebelah kiri ada **pemilih Entity** yang menampilkan label **PT** atau **Pribadi**.",
+          "image": {
+            "file": "mulai-dashboard.jpg",
+            "caption": "Dashboard. Pemilih Entity ada di kiri atas, menu di sisi kiri."
+          }
+        },
+        {
+          "title": "Berpindah antara PT dan Pribadi",
+          "text": "Klik pemilih Entity. Daftar menampilkan nama resmi tiap Entity dan peran Anda, misalnya “PT · OWNER” dan “Pribadi · OWNER”. Klik salah satu untuk berpindah. Aplikasi membuka halaman yang sama untuk Entity yang dipilih; saringan di alamat halaman (misalnya bulan atau status) tidak ikut terbawa.\n\nBila akun Anda hanya punya satu Entity, label ditampilkan tanpa daftar pilihan.",
+          "image": {
+            "file": "mulai-entity-switcher.jpg",
+            "caption": "Daftar pemilih Entity."
+          },
+          "tip": "Aplikasi mengingat Entity terakhir yang Anda pilih selama 180 hari di browser yang sama."
+        },
+        {
+          "title": "Mencari halaman atau data dengan cepat",
+          "text": "Tekan tombol **Cari atau buka halaman…** di bilah atas, atau tekan Ctrl+K (Windows) atau Cmd+K (Mac) saat kursor tidak sedang berada di kolom isian. Ketik minimal 2 huruf untuk mencari kontak, invoice, tagihan, pengeluaran, aset, pinjaman, atau jurnal di Entity aktif. Hasil dipilih dengan klik.\n\nDraf invoice yang belum terbit juga bisa ditemukan lewat pencarian ini (tampil sebagai “Invoice (draft)”)."
+        },
+        {
+          "title": "Keluar",
+          "text": "Tekan ikon **Keluar** di pojok kanan atas bilah atas. Anda dibawa kembali ke halaman Masuk."
+        }
+      ],
+      "result": [
+        "Menu di sisi kiri berisi grup: Ringkasan, Penjualan, Pembelian, Kas & Bank, Akuntansi, Pajak, Aset & Pendanaan, Payroll, Perencanaan, Laporan, Dokumen, Administrasi, dan Panduan. Menu yang tidak diizinkan untuk peran Anda tidak ditampilkan."
+      ],
+      "rules": [
+        "PT dan Pribadi tidak pernah digabung di satu halaman. Satu-satunya laporan lintas Entity adalah Analisis Konsolidasi (khusus kas, perlu izin tambahan).",
+        "Akun yang dinonaktifkan melihat pesan “Akun ini dinonaktifkan. Hubungi OWNER.”",
+        "Pintasan Ctrl+K atau Cmd+K tidak aktif saat kursor berada di kolom isian."
+      ],
+      "mistakes": [
+        "Mencatat transaksi saat Entity aktif salah. Selalu periksa label di kiri atas sebelum menekan Simpan.",
+        "Memasukkan kode autentikator yang sudah lewat 30 detik. Tunggu kode baru."
+      ],
+      "errors": [
+        {
+          "message": "Email atau kata sandi tidak sesuai.",
+          "meaning": "Email atau kata sandi salah. Pesan sengaja dibuat umum agar tidak membocorkan email mana yang terdaftar."
+        },
+        {
+          "message": "Kode tidak sesuai atau sudah kedaluwarsa.",
+          "meaning": "Kode autentikator salah atau sudah berganti. Gunakan kode terbaru."
+        },
+        {
+          "message": "Akun ini belum memiliki akses ke Entity mana pun. Hubungi OWNER.",
+          "meaning": "Akun belum diberi akses ke PT maupun Pribadi. OWNER perlu menambahkannya di Administrasi > Pengguna & Peran."
+        }
+      ],
+      "related": ["urutan-langkah-awal", "pengaturan-pajak-awal"]
+    },
+    {
+      "slug": "pengaturan-pajak-awal",
+      "title": "Cara Mengisi Pengaturan Pajak Awal",
+      "summary": "Mengisi profil pajak Entity lalu mengaktifkan mesin pajak supaya invoice, tagihan, dan pengeluaran dihitung pajaknya otomatis.",
+      "path": "Pajak > Pengaturan Pajak",
+      "who": "Melihat: peran dengan akses Pajak. Menyimpan profil: peran Pajak dan OWNER. Mengaktifkan mesin pajak: hanya OWNER, dengan verifikasi ulang kode autentikator.",
+      "quick": "Isi profil pajak dulu, lalu aktifkan mesin pajak pada tanggal pertama pajak harus dihitung. Lakukan ini untuk PT dan Pribadi masing-masing, sebelum mencatat dokumen.",
+      "steps": [
+        {
+          "title": "Pastikan Entity aktif benar",
+          "text": "PT dan Pribadi diisi terpisah. Periksa pemilih Entity di kiri atas sebelum mulai."
+        },
+        {
+          "title": "Buka Pajak > Pengaturan Pajak",
+          "text": "Di menu kiri pilih **Pajak**, lalu **Pengaturan Pajak**. Halaman memiliki dua bagian: **Profil Pajak Entitas** dan **Mesin Pajak**.",
+          "image": {
+            "file": "pajak-setup.jpg",
+            "caption": "Halaman Pengaturan Pajak: profil dan mesin pajak."
+          }
+        },
+        {
+          "title": "Isi Profil Pajak Entitas",
+          "text": "Isi kolom berikut:\n\n**Berlaku Sejak**: tanggal profil mulai berlaku (bawaan hari ini).\n\n**Jenis Wajib Pajak**: pilih “PT Perorangan (Perseroan Perorangan)”, “Orang pribadi”, “PT / CV / badan lain”, “Koperasi”, atau “Lainnya”. Untuk Entity PT pilih PT Perorangan; untuk Entity Pribadi ganti menjadi “Orang pribadi” (bawaan formulir adalah PT Perorangan).\n\n**Skema Pajak Penghasilan**: “PPh Final UMKM”, “Tarif umum”, atau “Belum diketahui”.\n\n**Dikecualikan dari PPh Final UMKM?** dan **Omzet Digabung dengan Usaha Lain**: Tidak, Ya, atau Belum diketahui.\n\n**Status PPN**: “Belum PKP (PPN tidak dihitung)”, “PKP (PPN dihitung otomatis)”, atau “Belum diketahui”.\n\n**Wajib Memotong PPh (PPh 23, 4(2), 26)?**: Ya, Tidak, atau Belum diketahui.\n\n**NPWP (opsional; disimpan terenkripsi)** dan **Catatan Bukti (opsional)**."
+        },
+        {
+          "title": "Simpan profil",
+          "text": "Tekan **Simpan Profil Pajak**. Bila berhasil tampil “Profil pajak tersimpan.”",
+          "warning": "Kolom NPWP tidak menampilkan NPWP yang sudah tersimpan. Setiap kali menyimpan profil baru, ketik NPWP lagi; bila dikosongkan, baris profil yang baru tersimpan tanpa NPWP."
+        },
+        {
+          "title": "Aktifkan Mesin Pajak (OWNER)",
+          "text": "Di bagian **Mesin Pajak**, isi **Hitung Pajak Otomatis Mulai Tanggal** dengan hari pertama pajak harus dihitung, lalu tekan **Aktifkan Mesin Pajak**. Bila diminta verifikasi ulang, tekan tautan “Verifikasi ulang →”, masukkan kode autentikator, lalu ulangi. Bila berhasil tampil “Mesin pajak aktif.”\n\nSetelah aktif, dokumen bertanggal sejak tanggal itu dihitung pajaknya otomatis: PPN keluaran pada invoice, PPN masukan dan PPh potongan pada tagihan dan pengeluaran. Dokumen bertanggal sebelum itu tidak dihitung ulang."
+        },
+        {
+          "title": "Periksa hasilnya",
+          "text": "Buka **Pajak > Ringkasan Pajak**. Tertulis “Mesin pajak aktif sejak …” dan bagian **Profil Pajak Entity** menampilkan profil yang berlaku."
+        }
+      ],
+      "result": [
+        "Profil tersimpan per tanggal dan bersifat tambah-saja: bila status berubah (misalnya menjadi PKP), simpan lagi dengan tanggal berlaku yang baru. Riwayat lama tetap ada.",
+        "Payroll baru bisa diposting setelah mesin pajak aktif."
+      ],
+      "rules": [
+        "Mesin pajak hanya bisa diaktifkan satu kali per Entity dan tidak bisa dimatikan atau diubah tanggalnya dari layar.",
+        "Empat isian tidak boleh “Belum diketahui” saat mengaktifkan: Jenis Wajib Pajak, Skema Pajak Penghasilan, Status PPN, dan Wajib Memotong PPh.",
+        "Aktivasi ditolak bila sudah ada invoice, tagihan, atau pengeluaran bertanggal pada atau setelah tanggal mulai. Pilih tanggal yang lebih baru atau aktifkan sebelum mencatat dokumen.",
+        "Tanggal mulai harus berada antara 1 Januari 2000 dan satu tahun ke depan."
+      ],
+      "mistakes": [
+        "Mengaktifkan mesin pajak dengan tanggal hari ini padahal sudah ada dokumen bertanggal lebih baru: ditolak.",
+        "Membiarkan Status PPN, Skema, Jenis, atau Wajib Memotong tetap “Belum diketahui”.",
+        "Menekan Aktifkan Mesin Pajak dengan akun selain OWNER: ditolak “Anda tidak memiliki izin untuk tindakan ini.”",
+        "Lupa menyimpan profil baru saat status berubah menjadi PKP. Simpan ulang dengan tanggal berlaku PKP, jangan menimpa."
+      ],
+      "errors": [
+        {
+          "message": "Profil pajak tidak dapat disimpan. Periksa isian.",
+          "meaning": "Ada isian yang tidak valid, misalnya NPWP kurang dari 5 karakter atau catatan lebih dari 1000 karakter."
+        },
+        {
+          "message": "Mesin pajak tidak dapat diaktifkan.",
+          "meaning": "Penyebab umum: profil belum lengkap, sudah ada dokumen pada tanggal itu, atau bukan OWNER."
+        },
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Tekan Verifikasi ulang →, masukkan kode, lalu ulangi."
+        },
+        {
+          "message": "Catat dulu profil wajib pajak yang berlaku pada atau sebelum <tanggal>",
+          "meaning": "Simpan profil dengan Berlaku Sejak pada atau sebelum tanggal mulai mesin pajak."
+        }
+      ],
+      "related": ["urutan-langkah-awal", "buat-terbitkan-invoice", "bayar-pajak"]
+    }
+  ]
+}

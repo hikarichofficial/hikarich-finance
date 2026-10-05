@@ -26,7 +26,8 @@ export type NavIconName =
   | "Target"
   | "BarChart3"
   | "FolderOpen"
-  | "Settings";
+  | "Settings"
+  | "BookMarked";
 
 export interface NavItem {
   readonly label: string;
@@ -261,6 +262,16 @@ export const NAVIGATION: readonly NavGroup[] = [
         permission: ["backup.create", "backup.restore"],
       },
     ],
+  },
+  {
+    // Decision 299: the step-by-step guide, open to every signed-in member (no permission gate) so anyone
+    // who needs "how do I ..." can read it. Its screenshots may show real data, so they are served only to
+    // signed-in people (see the image route).
+    key: "guide",
+    icon: "BookMarked",
+    label: "Panduan",
+    href: "/guide",
+    items: [{ label: "Semua Panduan", href: "/guide" }],
   },
 ];
 

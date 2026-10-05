@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { listContacts } from "@/services/contacts/contacts";
 import { LoanCreateForm } from "@/features/financing/FinancingForms";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Tambah Pinjaman, gated `loans.manage` -- the permission `loan_create` itself checks. The loan is saved as a
  * draft; money moves only when it is activated on Loan Detail. */
@@ -31,7 +32,7 @@ export default async function NewLoanPage({
           key={entity ?? membership.entity_code}
           entity={entity}
           isCompany={membership.entity_type === "company"}
-          today={new Date().toISOString().slice(0, 10)}
+          today={todayInBusinessZone()}
           knownParties={knownParties}
         />
       </section>

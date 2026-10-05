@@ -15,6 +15,7 @@ import {
   type EvidencePurpose,
   type FilingTaxType,
 } from "@/domain/tax/tax";
+import { differenceDetailText } from "@/domain/tax/differenceText";
 import type { DocumentRow } from "@/schemas/documents";
 import type { FinancialAccountPickerRow } from "@/schemas/planning";
 import type { TaxEvidenceRow, TaxPaymentRow, TaxPeriodPosition } from "@/schemas/tax";
@@ -28,6 +29,7 @@ import {
 import { idleTaxFilingActionState } from "./taxFilingActionsState";
 import { formatShortDate } from "./format";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { todayInBusinessZone } from "@/lib/time";
 
 /**
  * Filing & Evidence (P13 unbuilt-screens backlog, "Filing & Evidence" nav item, Step 05 §9, decision 238):
@@ -222,7 +224,7 @@ function PositionSummary({
           {position.differences.map((diff, i) => (
             <li key={i} className="dashboard-list-item">
               <p className="dashboard-list-item-title">{DIFFERENCE_LABELS[diff.code]}</p>
-              <p className="dashboard-list-item-detail">{diff.text}</p>
+              <p className="dashboard-list-item-detail">{differenceDetailText(diff, currency)}</p>
               {diff.amount !== null ? (
                 <span className="dashboard-list-item-value">
                   {formatMoney(diff.amount, currency)}
@@ -328,7 +330,7 @@ function ReversePaymentForm({
   const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
 
   if (!open) {
     return (
@@ -401,7 +403,7 @@ function RecordPaymentForm({
 }) {
   const [state, action, pending] = useActionState(recordTaxPaymentAction, idleTaxFilingActionState);
   const actionForm = usePreservingForm(action, state);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
   const [payable, setPayable] = useState("");
   const [assetOffset, setAssetOffset] = useState("");
   const [penalty, setPenalty] = useState("");
@@ -531,7 +533,7 @@ function RecordFilingForm({
 }) {
   const [state, action, pending] = useActionState(recordTaxFilingAction, idleTaxFilingActionState);
   const actionForm = usePreservingForm(action, state);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
   const [note, setNote] = useState("");
 
   return (

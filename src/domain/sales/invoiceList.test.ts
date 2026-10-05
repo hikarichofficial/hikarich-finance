@@ -191,3 +191,9 @@ describe("invoiceActivityTimeline", () => {
     expect(voided.at(-1)).toEqual({ label: "Dibatalkan (void)", date: null, tone: "neutral" });
   });
 });
+
+describe("draft filter", () => {
+  it("accepts 'draft' as a list filter and keeps it out of the RPC filter set", () => {
+    expect(parseInvoiceFilter("draft")).toBe("draft");
+  });
+});

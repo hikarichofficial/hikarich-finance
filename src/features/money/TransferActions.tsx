@@ -8,6 +8,7 @@ import {
   reverseTransferAction,
 } from "./transferActions";
 import { idleTransferActionState } from "./transferActionsState";
+import { todayInBusinessZone } from "@/lib/time";
 
 /**
  * Transfer Detail's status actions (Step 09 §13), following the exact shape `BillActions.tsx`/
@@ -113,7 +114,7 @@ function ReverseForm({ transferId }: { transferId: string }) {
   const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
 
   if (!open) {
     return (

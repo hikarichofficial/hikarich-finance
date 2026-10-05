@@ -6,6 +6,7 @@ import type { MoneyControlRow } from "@/schemas/money";
 import { createTransferAction } from "./transferActions";
 import { idleTransferFormState } from "./transferActionsState";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { todayInBusinessZone } from "@/lib/time";
 
 /**
  * Transfer create form (P13 Part 3c, Step 09 §13: "Transfer form clearly distinguishes same-Entity transfer
@@ -30,7 +31,7 @@ export function TransferForm({
 }) {
   const [state, action, pending] = useActionState(createTransferAction, idleTransferFormState);
   const actionForm = usePreservingForm(action, state);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
   const active = accounts.filter((a) => a.is_active);
 
   return (

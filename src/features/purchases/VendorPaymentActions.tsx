@@ -4,6 +4,7 @@ import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import { reverseVendorPaymentAction } from "./actions";
 import { idleReverseVendorPaymentState } from "./actionsState";
+import { todayInBusinessZone } from "@/lib/time";
 
 /**
  * Payment Made Detail's only status action. Mirrors `PaymentActions.tsx`'s own Sales-side `ReverseForm`
@@ -19,7 +20,7 @@ function ReverseForm({ paymentId }: { paymentId: string }) {
   const actionForm = usePreservingForm(action, state);
   const [reason, setReason] = useState("");
   const [open, setOpen] = useState(false);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
 
   if (!open) {
     return (

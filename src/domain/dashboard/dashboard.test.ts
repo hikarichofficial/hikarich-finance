@@ -463,3 +463,26 @@ describe("mergeRecentActivity", () => {
     expect(items).toHaveLength(3);
   });
 });
+
+describe("buildAttentionItems pending payment claims (finding #92)", () => {
+  it("puts claims first, whatever the dates of the other items", () => {
+    const items = buildAttentionItems({
+      taxReviewQueue: [],
+      missingEvidence: [],
+      staleReconciliations: [],
+      pendingClaims: [
+        {
+          id: "c1",
+          invoice_number: "INV-001",
+          amount: "1000000",
+          currency: "IDR",
+          payer_name: "Budi",
+          payment_date: "2020-01-01",
+        },
+      ],
+    });
+    expect(items).toHaveLength(1);
+    expect(items[0]).toMatchObject({ kind: "payment_claim", id: "c1" });
+    expect(items[0].title).toContain("INV-001");
+  });
+});

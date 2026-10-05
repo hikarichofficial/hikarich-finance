@@ -3,6 +3,7 @@ import { requirePermission } from "@/services/identity/access";
 import { listContacts } from "@/services/contacts/contacts";
 import { EQUITY_KIND_LABELS } from "@/domain/financing/financing";
 import { EquityCreateForm } from "@/features/financing/FinancingForms";
+import { todayInBusinessZone } from "@/lib/time";
 
 const COMPANY_KINDS = ["contribution", "capital_return", "dividend"] as const;
 const PERSONAL_KINDS = [
@@ -45,7 +46,7 @@ export default async function NewEquityEventPage({
           key={entity ?? membership.entity_code}
           entity={entity}
           kinds={kinds}
-          today={new Date().toISOString().slice(0, 10)}
+          today={todayInBusinessZone()}
           knownParties={knownParties}
         />
       </section>

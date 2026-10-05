@@ -65,3 +65,47 @@ export async function getContactTaxFacts(contactId: string): Promise<{
   if (error || !data) return null;
   return data as never;
 }
+
+export interface ContactPatch {
+  display_name: string;
+  legal_name: string | null;
+  email: string | null;
+  phone: string | null;
+  address_line: string | null;
+  city: string | null;
+  country_code: string | null;
+  notes: string | null;
+  /** Only ever widens a contact to "both"; narrowing could orphan existing invoices or bills. */
+  kind?: "both";
+}
+
+/** Edit a contact's details through RLS (`contacts_update` requires `contacts.edit`). The tax identifier and
+ * the entity are never touched here. Throws a user-safe Error when nothing was updated. Finding #90. */
+export async function updateContact(contactId: string, patch: ContactPatch): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("contacts")
+    .update(patch)
+    .eq("id", uuidResultSchema.parse(contactId))
+    .select("id");
+  if (error || !data || data.length === 0) {
+    throw new Error("Perubahan kontak tidak dapat disimpan.");
+  }
+}
+
+/** Activate or deactivate a contact. Inactive contacts keep all history but are meant to disappear from
+ * new-transaction pickers. */
+export async function setContactStatus(
+  contactId: string,
+  status: "active" | "inactive",
+): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("contacts")
+    .update({ status })
+    .eq("id", uuidResultSchema.parse(contactId))
+    .select("id");
+  if (error || !data || data.length === 0) {
+    throw new Error("Status kontak tidak dapat diubah.");
+  }
+}

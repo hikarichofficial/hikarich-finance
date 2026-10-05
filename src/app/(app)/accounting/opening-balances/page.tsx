@@ -7,7 +7,8 @@ import {
   listLedgerAccounts,
   listOpeningBatches,
 } from "@/services/accounting/ledger";
-import { openingEligibleAccounts } from "@/domain/accounting/openingBalances";
+import { openingAccountOptions } from "@/domain/accounting/openingBalances";
+import { listFinancialAccountLinks } from "@/services/money/money";
 import { formatMoney } from "@/domain/money/format";
 import { OpeningBalanceForm } from "@/features/accounting/OpeningBalanceForm";
 import { CompleteOpeningForm } from "@/features/accounting/CompleteOpeningForm";
@@ -27,11 +28,12 @@ export default async function OpeningBalancesPage({
   const entityId = membership.entity_id;
   const canPost = can(access, entityId, "system.import");
 
-  const [batches, journals, accounts, baseCurrency] = await Promise.all([
+  const [batches, journals, accounts, baseCurrency, links] = await Promise.all([
     listOpeningBatches(entityId),
     listJournals(entityId),
     listLedgerAccounts(entityId),
     getEntityBaseCurrency(entityId),
+    listFinancialAccountLinks(entityId),
   ]);
   const journalBySource = new Map(
     journals.filter((j) => j.source_type === "opening_balance").map((j) => [j.source_id, j.id]),
@@ -113,7 +115,7 @@ export default async function OpeningBalancesPage({
             <h2 className="dashboard-section-title">Posting Saldo Awal</h2>
           </div>
           <OpeningBalanceForm
-            accounts={openingEligibleAccounts(accounts)}
+            options={openingAccountOptions(accounts, links, baseCurrency)}
             baseCurrency={baseCurrency}
             entity={entity}
           />

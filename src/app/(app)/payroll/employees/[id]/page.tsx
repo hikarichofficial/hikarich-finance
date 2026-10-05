@@ -19,6 +19,7 @@ import {
   TaxProfileForm,
   UpdateEmployeeForm,
 } from "@/features/payroll/EmployeeForms";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Employee Detail (P13 Part 3g, first increment, Step 09 §10, §17: "compensation is permission-gated").
  * No per-employee RPC returns the row itself (`employee_code`/`full_name`/`status`/dates/current employment) --
@@ -68,7 +69,7 @@ export default async function EmployeeDetailPage({
   const canEditCompensation = can(access, entityId, "payroll.compensation_edit");
   const canEditTax = canEdit && canViewTax;
   const canSetTaxOpening = canEditCompensation && canViewCompensation && canViewTax;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
 
   const backHref = entity
     ? `/payroll/employees?entity=${encodeURIComponent(entity)}`

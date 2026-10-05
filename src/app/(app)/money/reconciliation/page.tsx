@@ -5,7 +5,7 @@ import {
   getReconciliationStatus,
   listReconciliationSessions,
 } from "@/services/money/money";
-import { mergeReconciliationListRows } from "@/domain/money/reconciliationList";
+import { mergeReconciliationListRows, visibleSessions } from "@/domain/money/reconciliationList";
 import { ReconciliationListScreen } from "@/features/money/ReconciliationListScreen";
 
 /** Reconciliation List (Step 09 §13, decisions 231 and 251). Gated `money.view`, matching
@@ -30,7 +30,7 @@ export default async function ReconciliationListPage({
   return (
     <ReconciliationListScreen
       rows={rows}
-      sessions={sessions}
+      sessions={visibleSessions(sessions, control)}
       entity={entity}
       canReconcile={can(access, membership.entity_id, "money.reconcile")}
     />

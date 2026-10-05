@@ -4,6 +4,7 @@ import { requirePermission } from "@/services/identity/access";
 import { getContact, getContactTaxFacts } from "@/services/contacts/contacts";
 import { matchesContactRole } from "@/domain/contacts/contactsList";
 import { ContactDetailScreen } from "@/features/contacts/ContactDetailScreen";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Customer Detail (P13, Step 09 §10/§11). Permission is read off the currently active Entity (`?entity=`),
  * the same per-page pattern every other screen uses (decision 158). A contact belonging to a different
@@ -41,13 +42,23 @@ export default async function CustomerDetailPage({
     <ContactDetailScreen
       contact={contact}
       backHref={backHref}
+      manage={
+        can(access, membership.entity_id, "contacts.edit")
+          ? {
+              editHref: entity
+                ? `/sales/customers/${id}/edit?entity=${encodeURIComponent(entity)}`
+                : `/sales/customers/${id}/edit`,
+              entity,
+            }
+          : undefined
+      }
       backLabel="Kembali ke daftar pelanggan"
       tax={
         canSeeTax
           ? {
               facts: taxFacts,
               canRecord: can(access, membership.entity_id, "tax.confirm_facts"),
-              today: new Date().toISOString().slice(0, 10),
+              today: todayInBusinessZone(),
             }
           : undefined
       }

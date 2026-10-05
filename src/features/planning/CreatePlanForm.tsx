@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import { PLAN_PERIOD_TYPE_LABELS, type PlanPeriodType } from "@/domain/planning/planning";
 import { createBudgetAction, createRevenueTargetAction } from "./actions";
 import { idlePlanningActionState } from "./actionsState";
+import { todayInBusinessZone } from "@/lib/time";
 
 /**
  * Create-shell form for a Budget or Revenue Target (P13 Part 3h, fifth increment, Step 09 §18). The two
@@ -31,7 +32,7 @@ export function CreatePlanForm({
     idlePlanningActionState,
   );
   const actionForm = usePreservingForm(action, state);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
   const submitLabel = kind === "budget" ? "Simpan Anggaran" : "Simpan Target Pendapatan";
 
   return (

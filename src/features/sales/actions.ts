@@ -488,7 +488,7 @@ export async function createRefundAction(
   } catch (error) {
     return draftErrorState(
       error,
-      "Refund tidak dapat disimpan. Periksa jumlah (tanpa titik ribuan), rekening dan tanggal.",
+      "Refund tidak dapat disimpan. Periksa jumlah, rekening dan tanggal.",
     );
   }
   revalidatePath("/sales/payments");
@@ -542,7 +542,7 @@ export async function createDraftRefundAction(
   } catch (error) {
     return draftErrorState(
       error,
-      "Refund tidak dapat disimpan sebagai draft. Periksa jumlah (tanpa titik ribuan), rekening dan tanggal.",
+      "Refund tidak dapat disimpan sebagai draft. Periksa jumlah, rekening dan tanggal.",
     );
   }
   revalidatePath("/sales/payments");

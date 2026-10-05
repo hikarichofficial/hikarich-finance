@@ -80,13 +80,13 @@ export function NewSessionForm({
         <MoneyInput
           name="statement_opening"
           defaultValue={defaults.opening}
-          placeholder="contoh 1500000.00"
+          placeholder="mis. 1.500.000,00"
           required
         />
       </label>
       <label>
         Saldo akhir rekening koran
-        <MoneyInput name="statement_closing" placeholder="contoh 1750000.00" required />
+        <MoneyInput name="statement_closing" placeholder="mis. 1.750.000,00" required />
       </label>
       <label>
         Catatan

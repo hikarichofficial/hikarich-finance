@@ -11,6 +11,7 @@ import {
   BarChart3,
   FolderOpen,
   Settings,
+  BookMarked,
   type LucideIcon,
 } from "lucide-react";
 import type { NavIconName } from "@/domain/shell/navigation";
@@ -30,6 +31,7 @@ const ICONS: Record<NavIconName, LucideIcon> = {
   BarChart3,
   FolderOpen,
   Settings,
+  BookMarked,
 };
 
 export function NavIcon({ name, size = 18 }: { name: NavIconName; size?: number }) {

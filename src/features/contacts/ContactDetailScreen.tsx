@@ -2,6 +2,7 @@ import Link from "next/link";
 import { CONTACT_KIND_LABELS } from "@/domain/contacts/contactsList";
 import type { ContactRow } from "@/schemas/contacts";
 import { formatShortDate } from "./format";
+import { ContactStatusButton } from "./ContactStatusButton";
 import { ContactTaxFactsForm, type ContactTaxFacts } from "./ContactTaxFactsForm";
 
 /**
@@ -19,12 +20,15 @@ export function ContactDetailScreen({
   backHref,
   backLabel,
   tax,
+  manage,
 }: {
   contact: ContactRow;
   backHref: string;
   backLabel: string;
   /** The contact's tax facts (decision 258); absent when the person cannot see tax data. */
   tax?: { facts: ContactTaxFacts | null; canRecord: boolean; today: string };
+  /** Edit / deactivate controls (finding #90); absent when the person lacks `contacts.edit`. */
+  manage?: { editHref: string; entity: string | undefined };
 }) {
   const statusTone = contact.status === "active" ? "success" : "neutral";
   const statusText = contact.status === "active" ? "Aktif" : "Tidak Aktif";
@@ -42,6 +46,18 @@ export function ContactDetailScreen({
         </div>
         <div className="record-detail-header-end">
           <span className={`status-badge status-badge-${statusTone}`}>{statusText}</span>
+          {manage ? (
+            <>
+              <Link href={manage.editHref} className="btn-secondary">
+                Ubah
+              </Link>
+              <ContactStatusButton
+                contactId={contact.id}
+                entity={manage.entity}
+                status={contact.status}
+              />
+            </>
+          ) : null}
         </div>
       </header>
 

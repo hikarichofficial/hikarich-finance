@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { EmployeeForm } from "@/features/payroll/EmployeeForm";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Tambah Karyawan, gated `payroll.employee_edit` -- the permission `employee_create` itself checks. */
 export default async function NewEmployeePage({
@@ -26,7 +27,7 @@ export default async function NewEmployeePage({
         </div>
       </header>
       <section className="dashboard-section">
-        <EmployeeForm entity={entity} today={new Date().toISOString().slice(0, 10)} />
+        <EmployeeForm entity={entity} today={todayInBusinessZone()} />
       </section>
     </div>
   );
