@@ -2099,3 +2099,14 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   `label-has-associated-control` is told `MoneyInput` is a control. Tests: `typing.test.ts`,
   `lineSuggestions.test.ts`, plus a real-browser check of the typing, caret, popup placement, click and keyboard
   picks and the submitted values.
+
+- Saving a customer or vendor failed in production (decision 294, 5 October 2026). Root cause, read from the
+  runtime log: `contactActions.ts` is a "use server" file, and decision 287's quick-add work exported a
+  constant (`idleQuickCreateContactState`) and two `.bind(...)` constants from it. Next.js allows only async
+  functions to be exported from such a file and checks this when the module is first loaded, so the whole file
+  failed to load and EVERY action in it (Add Customer, Add Vendor, the quick add in Buat Invoice) returned an
+  error before reaching the database. `tsc`, lint and `next build` do not run that check, which is why it was
+  missed. Fix: the state moves to `contactActionsState.ts` (with the other idle states) and the two bound
+  constants become async wrapper functions. Guard: `tests/unit/useServerExports.test.ts` reads every file that
+  starts with the "use server" directive and refuses any export that is not an async function or a type; it was
+  checked to fail on the broken version.

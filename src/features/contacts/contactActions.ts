@@ -7,6 +7,7 @@ import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import { createContact } from "@/services/sales/sales";
 import { recordContactFacts } from "@/services/tax/tax";
+import type { QuickCreateContactState } from "./contactActionsState";
 
 /**
  * Server actions behind Add Customer / Add Vendor and the contact's tax facts (decision 258). Both writes
@@ -70,14 +71,6 @@ export async function createContactAction(
   );
 }
 
-export interface QuickCreateContactState {
-  status: "idle" | "ok" | "error";
-  message?: string;
-  contact?: { id: string; display_name: string };
-}
-
-export const idleQuickCreateContactState: QuickCreateContactState = { status: "idle" };
-
 /**
  * Quick-add a customer or vendor from inside another form (owner, 4 October 2026: "saat pembuatan invoice
  * menu isian pelanggan wajib ada tombol tambah pelanggan baru"), without leaving the page the person is
@@ -86,7 +79,7 @@ export const idleQuickCreateContactState: QuickCreateContactState = { status: "i
  * required field (display_name); the full Add Customer/Vendor screen still covers every other field for
  * when the person wants to fill in more up front.
  */
-export async function quickCreateContactAction(
+async function quickCreateContactAction(
   role: "customer" | "vendor",
   _previous: QuickCreateContactState,
   formData: FormData,
@@ -117,10 +110,22 @@ export async function quickCreateContactAction(
   }
 }
 
-/** Bound for `useActionState`, which calls its action as `(previousState, formData)` -- Next's documented
- * way to pass an extra fixed argument to a Server Action. */
-export const quickCreateCustomerAction = quickCreateContactAction.bind(null, "customer");
-export const quickCreateVendorAction = quickCreateContactAction.bind(null, "vendor");
+/** One async function per role for `useActionState`, which calls its action as `(previousState, formData)`.
+ * A "use server" file may export only async functions (never a constant or an object), so these are plain
+ * wrappers rather than `.bind(...)` constants. */
+export async function quickCreateCustomerAction(
+  previous: QuickCreateContactState,
+  formData: FormData,
+): Promise<QuickCreateContactState> {
+  return quickCreateContactAction("customer", previous, formData);
+}
+
+export async function quickCreateVendorAction(
+  previous: QuickCreateContactState,
+  formData: FormData,
+): Promise<QuickCreateContactState> {
+  return quickCreateContactAction("vendor", previous, formData);
+}
 
 export async function recordContactFactsAction(
   _previous: ContactActionState,

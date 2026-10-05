@@ -2,11 +2,8 @@
 
 import { useActionState, useEffect, useRef } from "react";
 import { Drawer } from "@/features/shell/Drawer";
-import {
-  idleQuickCreateContactState,
-  quickCreateCustomerAction,
-  quickCreateVendorAction,
-} from "./contactActions";
+import { quickCreateCustomerAction, quickCreateVendorAction } from "./contactActions";
+import { idleQuickCreateContactState } from "./contactActionsState";
 
 /**
  * Add-a-customer/vendor-on-the-spot Drawer (owner, 4 October 2026: a form that needs a contact -- Buat
