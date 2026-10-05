@@ -1,5 +1,6 @@
 "use client";
 
+import { ContactPicker } from "@/features/contacts/ContactPicker";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import {
@@ -227,23 +228,13 @@ export function RecurringRuleForm({
 
         {kind === "invoice" ? (
           <>
-            <label>
-              Pelanggan
-              <select
-                name="customer_id"
-                required
-                defaultValue={templateField(template, "customer_id")}
-              >
-                <option value="" disabled>
-                  Pilih pelanggan…
-                </option>
-                {customers.map((customer) => (
-                  <option key={customer.id} value={customer.id}>
-                    {customer.display_name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <ContactPicker
+              label="Pelanggan"
+              name="customer_id"
+              noun="pelanggan"
+              contacts={customers}
+              defaultValue={templateField(template, "customer_id")}
+            />
             <label>
               Akun Pembayaran (opsional)
               <select

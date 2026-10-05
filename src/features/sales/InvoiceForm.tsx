@@ -13,6 +13,7 @@ import {
   RecurringLinesEditor,
   type RecurringLineRow,
 } from "@/features/planning/RecurringLinesEditor";
+import { ContactPicker } from "@/features/contacts/ContactPicker";
 import { QuickAddContactDrawer } from "@/features/contacts/QuickAddContactDrawer";
 import { createInvoiceAction } from "./actions";
 import { idleInvoiceActionState } from "./actionsState";
@@ -68,42 +69,90 @@ export function InvoiceForm({
   );
   const [customerId, setCustomerId] = useState(initial?.customer_id ?? "");
   const [addingCustomer, setAddingCustomer] = useState(false);
+  const [newCustomerName, setNewCustomerName] = useState("");
 
   return (
-    <form {...actionForm} className="record-form record-form-wide">
-      <input type="hidden" name="entity" value={entity ?? ""} />
-      <input type="hidden" name="lines" value={buildRecurringLinesJson(rows, "invoice")} />
-      {initial ? (
-        <>
-          <input type="hidden" name="invoice_id" value={initial.id} />
-          <input type="hidden" name="version" value={initial.version} />
-        </>
-      ) : null}
+    <>
+      <form {...actionForm} className="record-form record-form-wide">
+        <input type="hidden" name="entity" value={entity ?? ""} />
+        <input type="hidden" name="lines" value={buildRecurringLinesJson(rows, "invoice")} />
+        {initial ? (
+          <>
+            <input type="hidden" name="invoice_id" value={initial.id} />
+            <input type="hidden" name="version" value={initial.version} />
+          </>
+        ) : null}
 
-      <label>
-        Pelanggan
-        <select
+        <ContactPicker
+          label="Pelanggan"
           name="customer_id"
-          required
+          noun="pelanggan"
+          contacts={customerList}
           value={customerId}
-          onChange={(event) => setCustomerId(event.target.value)}
-        >
-          <option value="" disabled>
-            Pilih pelanggan
-          </option>
-          {customerList.map((customer) => (
-            <option key={customer.id} value={customer.id}>
-              {customer.display_name}
-            </option>
-          ))}
-        </select>
-        <button type="button" className="btn-ghost" onClick={() => setAddingCustomer(true)}>
-          + Tambah pelanggan baru
+          onChange={setCustomerId}
+          onAddNew={(typedName) => {
+            setNewCustomerName(typedName);
+            setAddingCustomer(true);
+          }}
+        />
+        <label>
+          Tanggal Invoice
+          <input
+            type="date"
+            name="issue_date"
+            required
+            defaultValue={initial?.issue_date ?? today}
+          />
+        </label>
+        <label>
+          Jatuh Tempo
+          <input type="date" name="due_date" required defaultValue={initial?.due_date ?? today} />
+        </label>
+        <label>
+          Rekening Tujuan Pembayaran (opsional)
+          <select name="payment_account_id" defaultValue={initial?.payment_account_id ?? ""}>
+            <option value="">— Tidak dicantumkan —</option>
+            {accounts.map((account) => (
+              <option key={account.financial_account_id} value={account.financial_account_id}>
+                {account.name} ({account.currency})
+              </option>
+            ))}
+          </select>
+        </label>
+
+        <RecurringLinesEditor
+          kind="invoice"
+          categories={categories}
+          suggestions={suggestions}
+          rows={rows}
+          onChange={setRows}
+          taxFields
+        />
+
+        <label>
+          Catatan untuk Pelanggan (opsional)
+          <textarea name="notes" maxLength={2000} defaultValue={initial?.notes ?? ""} />
+        </label>
+        <label>
+          Syarat & Ketentuan (opsional)
+          <textarea name="terms" maxLength={4000} defaultValue={initial?.terms ?? ""} />
+        </label>
+
+        {state.status === "error" ? (
+          <p role="alert" className="error">
+            {state.message}
+          </p>
+        ) : null}
+        <button type="submit" className="btn-primary" disabled={pending}>
+          {pending ? "Menyimpan…" : initial ? "Simpan Perubahan" : "Simpan sebagai Draf"}
         </button>
-      </label>
+      </form>
+      {/* Outside the form on purpose: a form inside a form is invalid HTML, and the panel's own Save button
+        was submitting the invoice instead of the new customer. */}
       <QuickAddContactDrawer
         contactKind="customer"
         entity={entity}
+        initialName={newCustomerName}
         open={addingCustomer}
         onClose={() => setAddingCustomer(false)}
         onCreated={(contact) => {
@@ -112,52 +161,6 @@ export function InvoiceForm({
           setAddingCustomer(false);
         }}
       />
-      <label>
-        Tanggal Invoice
-        <input type="date" name="issue_date" required defaultValue={initial?.issue_date ?? today} />
-      </label>
-      <label>
-        Jatuh Tempo
-        <input type="date" name="due_date" required defaultValue={initial?.due_date ?? today} />
-      </label>
-      <label>
-        Rekening Tujuan Pembayaran (opsional)
-        <select name="payment_account_id" defaultValue={initial?.payment_account_id ?? ""}>
-          <option value="">— Tidak dicantumkan —</option>
-          {accounts.map((account) => (
-            <option key={account.financial_account_id} value={account.financial_account_id}>
-              {account.name} ({account.currency})
-            </option>
-          ))}
-        </select>
-      </label>
-
-      <RecurringLinesEditor
-        kind="invoice"
-        categories={categories}
-        suggestions={suggestions}
-        rows={rows}
-        onChange={setRows}
-        taxFields
-      />
-
-      <label>
-        Catatan untuk Pelanggan (opsional)
-        <textarea name="notes" maxLength={2000} defaultValue={initial?.notes ?? ""} />
-      </label>
-      <label>
-        Syarat & Ketentuan (opsional)
-        <textarea name="terms" maxLength={4000} defaultValue={initial?.terms ?? ""} />
-      </label>
-
-      {state.status === "error" ? (
-        <p role="alert" className="error">
-          {state.message}
-        </p>
-      ) : null}
-      <button type="submit" className="btn-primary" disabled={pending}>
-        {pending ? "Menyimpan…" : initial ? "Simpan Perubahan" : "Simpan sebagai Draf"}
-      </button>
-    </form>
+    </>
   );
 }
