@@ -9,6 +9,11 @@ import {
 } from "@/services/sales/sales";
 import { getMoneyControl } from "@/services/money/money";
 import { formatMoney } from "@/domain/money/format";
+import { emailDeliveryEnabled } from "@/services/email/resend";
+import { listEmailDeliveries } from "@/services/email/deliveries";
+import { getContact } from "@/services/contacts/contacts";
+import { EmailHistory } from "@/features/sales/EmailHistory";
+import { SendReceiptEmailForm } from "@/features/sales/SendReceiptEmailForm";
 import { RefundForm } from "@/features/sales/RefundForm";
 import { RefundActionForms } from "@/features/sales/RefundActionForms";
 import { PaymentDetailScreen } from "@/features/sales/PaymentDetailScreen";
@@ -72,6 +77,12 @@ export default async function PaymentDetailPage({
   const refundable = refundOptions.filter((o) => Number(o.refundable) > 0);
   const today = new Date().toISOString().slice(0, 10);
 
+  const canSendEmail = can(access, membership.entity_id, "invoices.regenerate_link");
+  const [emailHistory, customerContact] = await Promise.all([
+    listEmailDeliveries(membership.entity_id, "payment_receipt", id),
+    canSendEmail ? getContact(row.customer_id).catch(() => null) : Promise.resolve(null),
+  ]);
+
   const backHref = entity
     ? `/sales/payments?entity=${encodeURIComponent(entity)}`
     : "/sales/payments";
@@ -81,6 +92,27 @@ export default async function PaymentDetailPage({
       row={row}
       receipt={receipt}
       backHref={backHref}
+      emailPanel={
+        <>
+          {canSendEmail && row.status === "confirmed" ? (
+            <section className="dashboard-section">
+              <div className="dashboard-section-header">
+                <h2 className="dashboard-section-title">Kirim Bukti Pembayaran</h2>
+              </div>
+              <SendReceiptEmailForm
+                paymentId={id}
+                entity={entity}
+                defaultEmail={customerContact?.email ?? null}
+                configured={emailDeliveryEnabled()}
+              />
+            </section>
+          ) : null}
+          <EmailHistory
+            rows={emailHistory}
+            emptyText="Bukti pembayaran ini belum pernah dikirim lewat email."
+          />
+        </>
+      }
       refundPanel={
         <>
           {canOfferRefundForm && refundable.length > 0 ? (
