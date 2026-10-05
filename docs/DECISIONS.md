@@ -2049,3 +2049,15 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   group; the page explains that everyday income and costs belong in Invoice/Pembayaran Diterima and Beban.
   Account names are still the English COA template names; translating them is a separate, OWNER-approved
   change to data.
+
+- Default chart-of-accounts names in Indonesian (decision 290, OWNER: "disesuaikan dengan penggunaan bahasa
+  indonesia ... jangan mengurangi makna, atau jangan terlalu berbelit karena menerjemahkan semua kata").
+  Migration `20261005200000_p15_coa_indonesian_names.sql` renames the 61 company and 35 personal template
+  accounts to natural accounting terms (Piutang Usaha, Utang Usaha, Laba Ditahan, Beban ..., Kas Tunai) --
+  short, not word for word. Names only: codes, classes, normal balances and system keys are unchanged and
+  posting never reads a name (Step 04 §16), so no journal, report or tax result moves. Existing ledger
+  accounts are renamed only where the name still equals the old template default, so an account the OWNER
+  renamed or created herself (for example 1121 "Mandiri Bisnis HKD") is kept. The migration is idempotent and
+  new Entities start in Indonesian. Test `99_p15_4_coa_indonesian_names.sql` covers new-Entity names, no
+  English accounting word left in either template, and that an owner-chosen name survives; test 99_p12_2 now
+  looks the Current Year Earnings line up by its Indonesian name.
