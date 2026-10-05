@@ -31,7 +31,9 @@ export default function GuideIndexPage() {
       </header>
       <GuideSearch items={items} />
       <p className="guide-hint">
-        Belum tahu harus mulai dari mana?{" "}
+        Ingin melihat gambar alurnya, misalnya saat ada pelanggan yang mau membayar harus ke menu
+        apa? <Link href="/guide/alur-kerja">Buka Alur Kerja (Diagram)</Link>. Belum tahu harus mulai
+        dari mana?{" "}
         <Link href="/guide/urutan-langkah-awal">Baca urutan langkah pertama kali memakai</Link>.
         Ingin tahu soal invoice yang belum dibayar?{" "}
         <Link href="/guide/memahami-piutang-pendapatan">

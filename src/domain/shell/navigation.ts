@@ -271,7 +271,10 @@ export const NAVIGATION: readonly NavGroup[] = [
     icon: "BookMarked",
     label: "Panduan",
     href: "/guide",
-    items: [{ label: "Semua Panduan", href: "/guide" }],
+    items: [
+      { label: "Semua Panduan", href: "/guide" },
+      { label: "Alur Kerja (Diagram)", href: "/guide/alur-kerja" },
+    ],
   },
 ];
 

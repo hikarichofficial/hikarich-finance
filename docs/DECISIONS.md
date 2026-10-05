@@ -2211,3 +2211,19 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   (#92); the untranslated tax-reconciliation sentences are shown in Indonesian (#93). Open and not changed: the
   OWNER's decision on receipts first made to a director's or personal account (task 82), and the cleanup of test
   data in Production (task 77), which the OWNER runs herself.
+
+- Flow diagrams in the guide (decision 300, OWNER, 5 October 2026, task 94). The OWNER asked for pictures of
+  the workflow, for example "when a customer wants to pay, which menu do I open and what comes next", drawn as
+  diagrams. (1) One source, `src/content/guide/alur.json`, holds a quick lookup table ("Saya mau ... buka menu
+  apa?") and seven flow diagrams: money coming in from a customer, billing a customer, correcting or cancelling
+  an invoice or payment, recording an expense or paying a vendor, moving money between accounts, paying and
+  reporting tax, and first-time set-up. Each box names who acts (Pelanggan, Anda, Sistem), what is done and which
+  menu to open; diamonds are questions whose answers run side by side. (2) `scripts/guide/flow_diagrams.py` lays
+  the source out once and writes it two ways: SVG files in `src/content/guide/diagrams/` for the website and
+  reportlab drawings for the PDF, so the two cannot disagree; a test fails when an SVG is missing or was drawn
+  from an older `alur.json` (run `scripts/guide/build_flow_diagrams.py`). (3) The website gets a page "Alur Kerja
+  (Diagram)" (`/guide/alur-kerja`, sidebar item under Panduan) and each related guide shows its diagrams above
+  its steps; every diagram also has a plain-text outline. The SVG is served by an auth-checked route
+  (`/guide/diagram/<id>`, entity-less path) and never from `public/`. (4) The PDF gets a chapter "Alur Kerja
+  (Diagram)" at the start of Bagian VI; a tall diagram is cut between top-level steps. No change to accounting,
+  tax, authorization or any user workflow.

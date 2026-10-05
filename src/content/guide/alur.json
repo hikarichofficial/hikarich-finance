@@ -1,0 +1,639 @@
+{
+  "title": "Alur Kerja (Diagram)",
+  "intro": "Diagram ini menjawab pertanyaan \"kalau terjadi X, saya harus buka menu apa, lalu apa?\". Baca dari atas ke bawah mengikuti panah. Belah ketupat adalah pertanyaan: pilih jalur yang sesuai dengan keadaan Anda. Setiap kotak menyebut siapa yang bertindak, apa yang dilakukan, dan menu yang dibuka.",
+  "quick": [
+    {
+      "want": "Ada pelanggan yang mau atau sudah membayar invoice",
+      "menu": "Penjualan > Invoice > (klik invoice) > Catat Pembayaran. Bila pelanggan menekan \"Saya Sudah Bayar\": Penjualan > Klaim Pembayaran",
+      "guide": "terima-pembayaran"
+    },
+    {
+      "want": "Menagih pelanggan (membuat invoice)",
+      "menu": "Penjualan > Invoice > Buat Invoice",
+      "guide": "buat-terbitkan-invoice"
+    },
+    {
+      "want": "Mengirim invoice ke pelanggan",
+      "menu": "Penjualan > Invoice > (klik invoice terbit) > Salin Tautan Publik atau Kirim via Email",
+      "guide": "bagikan-invoice"
+    },
+    {
+      "want": "Membatalkan atau mengoreksi invoice",
+      "menu": "Penjualan > Invoice > (klik invoice)",
+      "guide": "batalkan-koreksi-invoice"
+    },
+    {
+      "want": "Membalik pembayaran yang salah atau mengembalikan uang ke pelanggan",
+      "menu": "Penjualan > Pembayaran Diterima > (klik pembayaran)",
+      "guide": "balik-pembayaran-refund"
+    },
+    {
+      "want": "Melihat siapa yang belum membayar",
+      "menu": "Laporan > Laporan Keuangan > tab Umur Piutang",
+      "guide": "lihat-piutang"
+    },
+    {
+      "want": "Mencatat tagihan dari vendor",
+      "menu": "Pembelian > Tagihan > Catat Tagihan",
+      "guide": "catat-tagihan-vendor"
+    },
+    {
+      "want": "Membayar tagihan vendor",
+      "menu": "Pembelian > Tagihan > (klik tagihan Disetujui) > Bayar Tagihan",
+      "guide": "bayar-tagihan-vendor"
+    },
+    {
+      "want": "Mencatat pengeluaran yang sudah dibayar langsung (struk atau nota)",
+      "menu": "Pembelian > Beban > Catat Pengeluaran",
+      "guide": "buat-biaya"
+    },
+    {
+      "want": "Memindahkan uang antar rekening",
+      "menu": "Kas & Bank > Transfer > Buat Transfer",
+      "guide": "transfer-antar-rekening"
+    },
+    {
+      "want": "Melihat saldo dan mutasi rekening",
+      "menu": "Kas & Bank > Rekening",
+      "guide": "lihat-saldo-mutasi"
+    },
+    {
+      "want": "Membayar atau melaporkan pajak",
+      "menu": "Pajak > Pelaporan & Bukti",
+      "guide": "bayar-pajak"
+    },
+    {
+      "want": "Menambah rekening baru",
+      "menu": "Kas & Bank > Rekening > Tambah Akun",
+      "guide": "tambah-rekening"
+    },
+    {
+      "want": "Mengisi saldo awal rekening",
+      "menu": "Akuntansi > Saldo Awal",
+      "guide": "saldo-awal"
+    }
+  ],
+  "flows": [
+    {
+      "id": "uang-masuk",
+      "title": "Ada Pelanggan yang Mau atau Sudah Membayar: Harus ke Menu Mana?",
+      "summary": "Dari pelanggan berkata \"saya mau bayar\" sampai uang tercatat di rekening PT dan piutang berkurang.",
+      "guides": [
+        "terima-pembayaran",
+        "konfirmasi-klaim-pembayaran",
+        "bagikan-invoice",
+        "buat-terbitkan-invoice",
+        "memahami-piutang-pendapatan"
+      ],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "pelanggan",
+          "title": "Pelanggan bilang mau bayar atau sudah transfer"
+        },
+        {
+          "kind": "choice",
+          "question": "Invoice-nya sudah diterbitkan di aplikasi?",
+          "branches": [
+            {
+              "label": "Belum",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buat dan terbitkan invoice",
+                  "menu": "Penjualan > Invoice > Buat Invoice",
+                  "note": "Simpan sebagai Draf, lalu Terbitkan Invoice"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Invoice bernomor dan otomatis menjadi piutang"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Kirim tautan invoice ke pelanggan",
+                  "menu": "Buka invoice > Salin Tautan Publik atau Kirim via Email"
+                }
+              ]
+            },
+            {
+              "label": "Sudah",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Cari invoicenya",
+                  "menu": "Penjualan > Invoice",
+                  "note": "Status: Belum dibayar, Dibayar sebagian, atau Jatuh tempo"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "pelanggan",
+          "title": "Pelanggan membayar: transfer ke rekening PT"
+        },
+        {
+          "kind": "choice",
+          "question": "Dari mana Anda tahu uangnya sudah masuk?",
+          "branches": [
+            {
+              "label": "Pelanggan memberi tahu",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "pelanggan",
+                  "title": "Pelanggan menekan Saya Sudah Bayar",
+                  "note": "Di halaman tautan invoice"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Klaim tercatat \"menunggu\"",
+                  "note": "Saldo dan piutang belum berubah"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Cek mutasi bank, lalu Konfirmasi",
+                  "menu": "Penjualan > Klaim Pembayaran > Konfirmasi",
+                  "note": "Isi rekening, tanggal, dan jumlah yang benar-benar masuk"
+                }
+              ]
+            },
+            {
+              "label": "Terlihat di mutasi bank",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Catat pembayaran di invoice",
+                  "menu": "Penjualan > Invoice > (klik invoice) > Catat Pembayaran",
+                  "note": "Isi rekening penerima, tanggal uang masuk, dan jumlah"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Pembayaran tercatat dengan nomor kwitansi RCP",
+          "note": "Piutang berkurang, saldo rekening bertambah. Invoice jadi Lunas, atau Dibayar sebagian bila jumlahnya kurang"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Kirim bukti pembayaran (opsional)",
+          "menu": "Penjualan > Pembayaran Diterima > (klik pembayaran)",
+          "note": "Isi email, tekan Kirim Bukti Pembayaran"
+        },
+        {
+          "kind": "end",
+          "title": "Selesai"
+        }
+      ]
+    },
+    {
+      "id": "buat-invoice",
+      "title": "Menagih Pelanggan: dari Invoice sampai Menjadi Piutang",
+      "summary": "Membuat invoice, memeriksanya, menerbitkannya, dan mengirimnya. Invoice yang belum dibayar menjadi piutang otomatis.",
+      "guides": [
+        "buat-terbitkan-invoice",
+        "bagikan-invoice",
+        "tambah-pelanggan",
+        "produk-dan-jasa"
+      ],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ada penjualan yang harus ditagih"
+        },
+        {
+          "kind": "choice",
+          "question": "Pelanggan dan produknya sudah terdaftar?",
+          "branches": [
+            {
+              "label": "Belum",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Daftarkan dulu",
+                  "menu": "Penjualan > Pelanggan dan Penjualan > Produk & Jasa",
+                  "note": "Pelanggan juga bisa ditambah langsung di form invoice"
+                }
+              ]
+            },
+            {
+              "label": "Sudah",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Buat Invoice",
+          "menu": "Penjualan > Invoice > Buat Invoice",
+          "note": "Pilih pelanggan, tanggal, jatuh tempo, rekening tujuan, lalu isi baris"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Simpan sebagai Draf",
+          "note": "Belum bernomor dan belum menjadi piutang"
+        },
+        {
+          "kind": "choice",
+          "question": "Isi draf sudah benar?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": []
+            },
+            {
+              "label": "Belum",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Perbaiki draf",
+                  "menu": "Buka draf > Ubah Draf"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Terbitkan Invoice"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Nomor diberikan, pendapatan diakui, sisa tagihan otomatis menjadi Piutang Usaha"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Bagikan ke pelanggan",
+          "menu": "Buka invoice > Salin Tautan Publik atau Kirim via Email"
+        },
+        {
+          "kind": "end",
+          "title": "Tunggu pembayaran",
+          "note": "Lanjut ke diagram: Ada Pelanggan yang Mau atau Sudah Membayar"
+        }
+      ]
+    },
+    {
+      "id": "koreksi-invoice",
+      "title": "Invoice atau Pembayaran Salah: Dibatalkan, Dikoreksi, atau Dibalik?",
+      "summary": "Pilih jalur sesuai keadaan invoice. Invoice yang sudah ada pembayarannya tidak bisa dibatalkan sebelum pembayarannya dibalik.",
+      "guides": ["batalkan-koreksi-invoice", "balik-pembayaran-refund"],
+      "width": 160,
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ada invoice atau pembayaran yang salah"
+        },
+        {
+          "kind": "choice",
+          "question": "Bagaimana keadaan invoicenya?",
+          "branches": [
+            {
+              "label": "Masih draf",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Ubah Draf atau Batalkan Draf",
+                  "menu": "Buka draf > Ubah Draf atau Batalkan Draf",
+                  "note": "Tanpa dampak akuntansi"
+                }
+              ]
+            },
+            {
+              "label": "Terbit, belum dibayar",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Koreksi Invoice (isi salah) atau Batalkan Invoice (tidak jadi beli)",
+                  "menu": "Buka invoice > Koreksi Invoice atau Batalkan Invoice",
+                  "note": "Hanya OWNER. Alasan minimal 5 karakter"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Invoice lama menjadi Dibatalkan (void)",
+                  "note": "Koreksi otomatis membuka draf pengganti"
+                }
+              ]
+            },
+            {
+              "label": "Terbit, sudah dibayar",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Balik Pembayaran lebih dulu",
+                  "menu": "Penjualan > Pembayaran Diterima > (klik pembayaran) > Balik Pembayaran"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Lalu Koreksi atau Batalkan invoice",
+                  "note": "Seperti jalur di sebelahnya"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Bila uang benar-benar dikembalikan ke pelanggan: Refund ke Pelanggan di detail pembayaran"
+        }
+      ]
+    },
+    {
+      "id": "pengeluaran",
+      "title": "Mau Mencatat Pengeluaran atau Membayar Vendor: Pakai Menu yang Mana?",
+      "summary": "Pengeluaran yang sudah dibayar langsung dicatat sebagai Pengeluaran. Tagihan dari vendor dicatat sebagai Tagihan lalu dibayar.",
+      "guides": ["buat-biaya", "catat-tagihan-vendor", "bayar-tagihan-vendor"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ada uang keluar atau tagihan yang harus dibayar"
+        },
+        {
+          "kind": "choice",
+          "question": "Sudah dibayar langsung (struk atau nota), atau vendor menagih?",
+          "branches": [
+            {
+              "label": "Sudah dibayar langsung",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Catat Pengeluaran",
+                  "menu": "Pembelian > Beban > Catat Pengeluaran",
+                  "note": "Pilih rekening pembayar, vendor atau nama penerima, isi baris, lampirkan struk, simpan sebagai Draf"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Konfirmasi & Posting",
+                  "note": "Finance Staff menekan Ajukan untuk Persetujuan lebih dulu"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Saldo rekening berkurang, biaya tercatat (nomor EXP)"
+                }
+              ]
+            },
+            {
+              "label": "Vendor menagih",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Catat Tagihan",
+                  "menu": "Pembelian > Tagihan > Catat Tagihan",
+                  "note": "Isi vendor, tanggal, jatuh tempo, dan baris tagihan"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Setujui Tagihan",
+                  "note": "Finance Staff menekan Ajukan; OWNER atau Finance Admin menyetujui. Utang usaha tercatat (nomor BILL)"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Bayar Tagihan saat membayar",
+                  "menu": "Pembelian > Tagihan > (klik tagihan Disetujui) > Bayar Tagihan",
+                  "note": "Saldo dan utang berkurang (nomor PAY)"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai"
+        }
+      ]
+    },
+    {
+      "id": "transfer",
+      "title": "Memindahkan Uang Antar Rekening",
+      "summary": "Transfer antar dua rekening dalam Entity yang sama. Draf transfer belum memindahkan uang; saldo berubah saat dikonfirmasi.",
+      "guides": ["transfer-antar-rekening"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Uang dipindah dari satu rekening ke rekening lain"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Buat Transfer",
+          "menu": "Kas & Bank > Transfer > Buat Transfer",
+          "note": "Isi Dari Akun, Ke Akun, tanggal, jumlah, dan biaya bank bila ada"
+        },
+        {
+          "kind": "choice",
+          "question": "Akun Anda berhak mengonfirmasi transfer?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Centang konfirmasi sekarang juga, lalu simpan"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Simpan sebagai draf"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pihak yang berwenang menekan Konfirmasi Transfer",
+                  "menu": "Kas & Bank > Transfer > (klik transfer)"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Saldo kedua rekening berubah (nomor TRF)"
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Salah transfer? Tekan Balik Transfer di detail transfer"
+        }
+      ]
+    },
+    {
+      "id": "pajak",
+      "title": "Membayar dan Melaporkan Pajak (Tiap Masa Pajak)",
+      "summary": "Lihat posisi pajak, bayar sebesar yang sudah diakui, catat pelaporan, lalu lampirkan bukti. Mesin pajak harus aktif lebih dulu.",
+      "guides": ["bayar-pajak", "pengaturan-pajak-awal"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Masa pajak berakhir, saatnya bayar dan lapor"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Lihat posisi pajak",
+          "menu": "Pajak > PPN, Pemotongan PPh, atau PPh Final",
+          "note": "Pilih Masa Pajak, lihat Posisi Tercatat dan Sisa Kekurangan"
+        },
+        {
+          "kind": "choice",
+          "question": "Pajaknya PPh Final?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Hitung Pajak Final Bulan Ini",
+                  "menu": "Pajak > PPh Final"
+                }
+              ]
+            },
+            {
+              "label": "Bukan",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Catat Pembayaran",
+          "menu": "Pajak > Pelaporan & Bukti",
+          "note": "Isi tanggal bayar, jumlah, dan akun pembayar"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Catat Pelaporan (SPT)",
+          "note": "Isi tanggal lapor dan nomor tanda terima"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Rekonsiliasi dan lampirkan bukti",
+          "note": "Rekonsiliasi Sekarang, lalu Lampirkan bukti bayar dan bukti lapor"
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Pantau jadwal di Pajak > Kalender Pajak"
+        }
+      ]
+    },
+    {
+      "id": "persiapan-awal",
+      "title": "Persiapan Pertama Kali Memakai Aplikasi",
+      "summary": "Lakukan satu kali per Entity (PT dan Pribadi), supaya saat membuat invoice atau mencatat pengeluaran semuanya tinggal dipilih.",
+      "guides": [
+        "urutan-langkah-awal",
+        "pengaturan-pajak-awal",
+        "tambah-rekening",
+        "saldo-awal",
+        "tambah-pelanggan",
+        "tambah-vendor",
+        "produk-dan-jasa"
+      ],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Pertama kali memakai aplikasi"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Pilih Entity yang dikerjakan",
+          "menu": "Pemilih Entity di bilah atas",
+          "note": "PT atau Pribadi"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Isi Pengaturan Pajak",
+          "menu": "Pajak > Pengaturan Pajak"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Tambah rekening kas dan bank",
+          "menu": "Kas & Bank > Rekening > Tambah Akun"
+        },
+        {
+          "kind": "choice",
+          "question": "Rekening sudah berisi uang sebelum memakai aplikasi?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Isi Saldo Awal",
+                  "menu": "Akuntansi > Saldo Awal"
+                }
+              ]
+            },
+            {
+              "label": "Belum",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Tambah pelanggan, vendor, dan produk atau jasa",
+          "menu": "Penjualan > Pelanggan, Pembelian > Vendor, Penjualan > Produk & Jasa"
+        },
+        {
+          "kind": "end",
+          "title": "Siap membuat invoice pertama",
+          "note": "Lanjut ke diagram: Menagih Pelanggan"
+        }
+      ]
+    }
+  ]
+}

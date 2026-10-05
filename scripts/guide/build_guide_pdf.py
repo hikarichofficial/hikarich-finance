@@ -11,6 +11,7 @@ Built with reportlab Platypus, with an auto-generated Table of Contents.
 import json
 import os
 import re
+import sys
 from reportlab.lib.pagesizes import A4
 from reportlab.lib.units import mm
 from reportlab.lib import colors
@@ -18,7 +19,7 @@ from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.enums import TA_CENTER, TA_LEFT
 from reportlab.platypus import (
     BaseDocTemplate, PageTemplate, Frame, Paragraph, Spacer, Table, TableStyle,
-    PageBreak, NextPageTemplate, FrameBreak, KeepTogether, HRFlowable
+    PageBreak, NextPageTemplate, FrameBreak, KeepTogether, HRFlowable, CondPageBreak
 )
 from reportlab.platypus.tableofcontents import TableOfContents
 from reportlab.platypus.flowables import Flowable
@@ -31,6 +32,9 @@ GUIDE_DIR = os.environ.get(
     "GUIDE_DIR",
     os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", "..", "src", "content", "guide"),
 )
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import flow_diagrams  # noqa: E402 -- draws the flow diagrams (decision 300); same code as the website's SVG files
+
 GUIDE_FILES = ["mulai.json", "kas-bank.json", "penjualan.json", "pembelian.json", "pajak-lainnya.json"]
 
 # ----------------------------------------------------------------------------
@@ -937,6 +941,11 @@ def guide_flow(guide, titles):
     if guide.get("quick"):
         flow.append(callout("tip", "Ringkasnya. " + guide["quick"]))
         flow.append(Spacer(1, 4))
+    if GUIDE_FLOWS.get(guide["slug"]):
+        links = ", ".join('<a href="#f-%s" color="#1a4d8f"><u>%s</u></a>' % (fl["id"], _plain(fl["title"]))
+                          for fl in GUIDE_FLOWS[guide["slug"]])
+        flow.append(Paragraph("<b>Diagram alur:</b> " + links + " (lihat bab Alur Kerja)", styles["GuideBody"]))
+        flow.append(Spacer(1, 2))
     flow.append(Paragraph("Langkah-langkah", styles["GuideH3"]))
     for i, step in enumerate(guide["steps"], 1):
         flow.append(step_block(i, step))
@@ -960,6 +969,49 @@ def guide_flow(guide, titles):
     return flow
 
 
+FLOW_DATA = {"flows": [], "quick": []}
+GUIDE_FLOWS = {}  # guide slug -> flows that explain it
+
+
+def load_flows():
+    data, _ = flow_diagrams.load(GUIDE_DIR)
+    FLOW_DATA.update(data)
+    GUIDE_FLOWS.clear()
+    for fl in data["flows"]:
+        for slug in fl["guides"]:
+            GUIDE_FLOWS.setdefault(slug, []).append(fl)
+
+
+def flow_chapter(titles):
+    """Alur Kerja (Diagram): the lookup table and every flow diagram, drawn by the same code as the website."""
+    data = FLOW_DATA
+    story = [Paragraph("Alur Kerja (Diagram)", styles["GuideGroupHeading"])]
+    story += paras(data["intro"])
+    story.append(Spacer(1, 4))
+    story.append(Paragraph("Saya mau ... buka menu apa?", styles["GuideH3"]))
+    rows = []
+    for row in data["quick"]:
+        rows.append([row["want"], row["menu"], "[%s](%s)" % (titles.get(row["guide"], row["guide"]), row["guide"])])
+    story.append(data_table(["Saya mau", "Buka menu", "Panduan lengkap"], rows, [150, 170, 120]))
+    story.append(PageBreak())
+    for fl in data["flows"]:
+        pieces = flow_diagrams.to_drawings(fl, 440, 600)
+        head = [Paragraph('<a name="f-%s"/>%s' % (fl["id"], _plain(fl["title"])), styles["GuideHeading"])]
+        head += paras(fl["summary"])
+        head.append(Spacer(1, 4))
+        story.append(CondPageBreak(pieces[0].height + 90))
+        story.append(KeepTogether(head + [pieces[0]]))
+        for piece in pieces[1:]:
+            story.append(CondPageBreak(piece.height + 10))
+            story.append(piece)
+        guides = ", ".join('<a href="#g-%s" color="#1a4d8f"><u>%s</u></a>' % (slug, _plain(titles.get(slug, slug)))
+                           for slug in fl["guides"])
+        story.append(Paragraph("<b>Panduan langkah demi langkah:</b> " + guides, styles["GuideBody"]))
+        story.append(HRFlowable(width="100%", color=colors.HexColor("#d9dde4"), spaceBefore=8, spaceAfter=8))
+    story.append(PageBreak())
+    return story
+
+
 def load_guides():
     groups = []
     for name in GUIDE_FILES:
@@ -970,21 +1022,28 @@ def load_guides():
 
 def guide_section_story():
     groups = load_guides()
+    load_flows()
     titles = {g["slug"]: g["title"] for grp in groups for g in grp["guides"]}
     story = [Paragraph("Bagian VI &mdash; Panduan Langkah demi Langkah", styles["ModuleHeading"])]
     story += paras(
         "Bagian ini sama persis dengan menu <b>Panduan</b> di website (isinya diambil dari sumber yang sama). "
         "Tiap panduan menjelaskan satu pekerjaan dari awal sampai selesai: di mana menunya, siapa yang boleh, "
         "langkah demi langkah dengan gambar layar asli, hasil yang benar, aturan penting, kesalahan yang sering "
-        "terjadi, dan arti pesan kesalahan. Tulisan bergaris bawah biru adalah tautan ke panduan lain.", "Intro")
+        "terjadi, dan arti pesan kesalahan. Bab pertama, <b>Alur Kerja (Diagram)</b>, menggambar alur dari sebuah "
+        "kejadian (misalnya ada pelanggan yang mau membayar) sampai menu yang harus dibuka. Tulisan bergaris bawah "
+        "biru adalah tautan ke panduan atau diagram lain.", "Intro")
     story.append(Spacer(1, 4))
     story.append(Paragraph("<b>Daftar panduan</b>", styles["GuideBody"]))
+    story.append(Paragraph('&nbsp;&nbsp;&bull;&nbsp; <a href="#f-%s" color="#1a4d8f"><u>Alur Kerja (Diagram): gambar alur '
+                           'dari kejadian ke menu yang harus dibuka</u></a>' % FLOW_DATA["flows"][0]["id"],
+                           styles["GuideCell"]))
     for grp in groups:
         story.append(Paragraph("<b>%s</b>" % _plain(grp["title"]), styles["GuideBody"]))
         for g in grp["guides"]:
             story.append(Paragraph('&nbsp;&nbsp;&bull;&nbsp; <a href="#g-%s" color="#1a4d8f"><u>%s</u></a>'
                                    % (g["slug"], _plain(g["title"])), styles["GuideCell"]))
     story.append(PageBreak())
+    story += flow_chapter(titles)
     for grp in groups:
         story.append(Paragraph(_plain(grp["title"]), styles["GuideGroupHeading"]))
         story += paras(grp["description"])

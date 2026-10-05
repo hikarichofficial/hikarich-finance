@@ -9,6 +9,8 @@ import {
   neighbours,
   paragraphs,
 } from "@/domain/guide/guides";
+import { flowsForGuide } from "@/domain/guide/flows";
+import { FlowDiagram } from "@/features/guide/FlowDiagram";
 import { GuideText } from "@/features/guide/GuideText";
 
 export function generateStaticParams() {
@@ -28,6 +30,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
   if (!guide) notFound();
   const group = groupOfGuide(slug);
   const { prev, next } = neighbours(slug);
+  const flows = flowsForGuide(slug);
   const related = (guide.related ?? [])
     .map((relatedSlug) => findGuide(relatedSlug))
     .filter((item): item is NonNullable<typeof item> => item !== undefined);
@@ -59,6 +62,18 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
           <strong>Intinya: </strong>
           <GuideText text={guide.quick} />
         </p>
+      ) : null}
+
+      {flows.length > 0 ? (
+        <section aria-labelledby="guide-flows">
+          <h2 id="guide-flows">Diagram alur</h2>
+          {flows.map((flow) => (
+            <FlowDiagram key={flow.id} flow={flow} />
+          ))}
+          <p className="guide-hint">
+            Semua diagram ada di <Link href="/guide/alur-kerja">Alur Kerja (Diagram)</Link>.
+          </p>
+        </section>
       ) : null}
 
       <section aria-labelledby="guide-steps">
