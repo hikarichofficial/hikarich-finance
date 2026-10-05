@@ -122,7 +122,7 @@ begin
      join public.ledger_accounts la on la.id = ba.account_id where la.system_key = 'ACCOUNTS_PAYABLE') = 6000000,
     'the matching 6,000,000 liability is real too');
   perform test_helpers.assert(
-    (select credit::numeric from public.balance_sheet(v_pt, '2024-12-31') where account_class = 'equity' and name = 'Current Year Earnings') = 6000000,
+    (select credit::numeric from public.balance_sheet(v_pt, '2024-12-31') where account_class = 'equity' and name = 'Laba Tahun Berjalan') = 6000000,
     'Current Year Earnings computes to 6,000,000 (5,000,000 revenue - 1,000,000 expense + 2,000,000 gain), never a posted balance');
   perform test_helpers.assert(
     not exists (select 1 from public.journal_lines where ledger_account_id = test_helpers.acct(v_pt, 'CURRENT_YEAR_EARNINGS')),
