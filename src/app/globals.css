@@ -2322,11 +2322,17 @@ a.kpi-card:hover {
   resize: vertical;
 }
 
-.checkbox-field {
+.checkbox-field,
+.record-form label.checkbox-field {
   display: flex;
   flex-direction: row;
   align-items: center;
   gap: var(--space-2);
+}
+
+.record-form label.checkbox-field input {
+  width: auto;
+  flex: none;
 }
 
 /* Budget/Revenue Target "set lines" editable grid (P13 Part 3h, fifth increment): a month x category grid

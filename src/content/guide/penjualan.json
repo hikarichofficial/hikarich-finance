@@ -87,7 +87,7 @@
           "text": "Tabel memuat **Nama** (dengan deskripsi singkat di bawahnya), **Jenis**, **SKU**, **Satuan**, **Harga Bawaan**, dan **Status**. Deskripsi yang panjang dipotong dua baris: tekan **Selengkapnya** untuk membukanya dan **Ringkas** untuk menutup lagi. Tab: Semua, Aktif, Nonaktif, Produk, Jasa. Tekan **Tambah Produk**; form Tambah Produk ada di halaman tersendiri, terpisah dari daftar.",
           "image": {
             "file": "produk-daftar.jpg",
-            "caption": "Daftar produk dan jasa."
+            "caption": "Daftar produk dan jasa. Deskripsi panjang dipotong dua baris; tekan Selengkapnya untuk membukanya."
           }
         },
         {
@@ -100,7 +100,11 @@
         },
         {
           "title": "Tekan Simpan Produk",
-          "text": "Setelah berhasil Anda dibawa ke halaman detail produk. Halaman ini hanya untuk membaca. Untuk mengubah, tekan **Ubah** di kanan atas; form Ubah Produk terbuka di halaman sendiri, lalu tekan **Simpan Perubahan** dan Anda kembali ke detail."
+          "text": "Setelah berhasil Anda dibawa ke halaman detail produk. Halaman ini hanya untuk membaca. Untuk mengubah, tekan **Ubah** di kanan atas; form Ubah Produk terbuka di halaman sendiri, lalu tekan **Simpan Perubahan** dan Anda kembali ke detail.",
+          "image": {
+            "file": "produk-detail.jpg",
+            "caption": "Detail produk: halaman baca saja, dengan tombol Ubah di kanan atas."
+          }
         },
         {
           "title": "Cara produk muncul di Buat Invoice",

@@ -2239,3 +2239,8 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   the same way customers and vendors already work. Tambah Produk was already its own page
   (`/sales/products/new`) and stays so. No change to data, accounting, tax or authorization. The guide "Cara
   Menambah Produk dan Jasa" describes the new flow; its screenshots are retaken after this is live.
+
+- Follow-up to decision 301 (6 October 2026, task 95). The product edit form's "Aktif" checkbox sat centred above
+  its label because the generic form-label rule outranked the checkbox rule; a checkbox field now stays a row.
+  The guide "Cara Menambah Produk dan Jasa" has retaken screenshots of the compact list and the new read-only
+  detail page. Open: none for tasks 94 and 95.
