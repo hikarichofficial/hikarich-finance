@@ -12,6 +12,7 @@ import {
   RecurringLinesEditor,
   type RecurringLineRow,
 } from "@/features/planning/RecurringLinesEditor";
+import { QuickAddContactDrawer } from "@/features/contacts/QuickAddContactDrawer";
 import { createInvoiceAction } from "./actions";
 import { idleInvoiceActionState } from "./actionsState";
 
@@ -55,6 +56,14 @@ export function InvoiceForm({
       ? buildInitialRecurringLines(initial.lines)
       : [newRecurringLineRow(1)],
   );
+  // Local copy so a quick-added customer (owner, 4 October 2026) can be appended and selected right away,
+  // without reloading the page and losing the lines already typed in below. Only what the dropdown needs
+  // to render (id + name) -- a quick add never returns the other ContactRow fields, and none are used here.
+  const [customerList, setCustomerList] = useState<{ id: string; display_name: string }[]>(
+    customers.map((c) => ({ id: c.id, display_name: c.display_name })),
+  );
+  const [customerId, setCustomerId] = useState(initial?.customer_id ?? "");
+  const [addingCustomer, setAddingCustomer] = useState(false);
 
   return (
     <form {...actionForm} className="record-form record-form-wide">
@@ -69,17 +78,36 @@ export function InvoiceForm({
 
       <label>
         Pelanggan
-        <select name="customer_id" required defaultValue={initial?.customer_id ?? ""}>
+        <select
+          name="customer_id"
+          required
+          value={customerId}
+          onChange={(event) => setCustomerId(event.target.value)}
+        >
           <option value="" disabled>
             Pilih pelanggan
           </option>
-          {customers.map((customer) => (
+          {customerList.map((customer) => (
             <option key={customer.id} value={customer.id}>
               {customer.display_name}
             </option>
           ))}
         </select>
+        <button type="button" className="btn-ghost" onClick={() => setAddingCustomer(true)}>
+          + Tambah pelanggan baru
+        </button>
       </label>
+      <QuickAddContactDrawer
+        contactKind="customer"
+        entity={entity}
+        open={addingCustomer}
+        onClose={() => setAddingCustomer(false)}
+        onCreated={(contact) => {
+          setCustomerList((list) => [...list, contact]);
+          setCustomerId(contact.id);
+          setAddingCustomer(false);
+        }}
+      />
       <label>
         Tanggal Invoice
         <input type="date" name="issue_date" required defaultValue={initial?.issue_date ?? today} />

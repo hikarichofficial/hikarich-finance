@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
+import { listContacts } from "@/services/contacts/contacts";
 import { LoanCreateForm } from "@/features/financing/FinancingForms";
 
 /** Tambah Pinjaman, gated `loans.manage` -- the permission `loan_create` itself checks. The loan is saved as a
@@ -12,6 +13,7 @@ export default async function NewLoanPage({
   const { entity } = await searchParams;
   const { membership } = await requirePermission("loans.manage", { entityCode: entity });
   const backHref = entity ? `/assets/loans?entity=${encodeURIComponent(entity)}` : "/assets/loans";
+  const knownParties = (await listContacts(membership.entity_id)).map((c) => c.display_name);
 
   return (
     <div className="record-detail">
@@ -26,9 +28,11 @@ export default async function NewLoanPage({
       </header>
       <section className="dashboard-section">
         <LoanCreateForm
+          key={entity ?? membership.entity_code}
           entity={entity}
           isCompany={membership.entity_type === "company"}
           today={new Date().toISOString().slice(0, 10)}
+          knownParties={knownParties}
         />
       </section>
     </div>

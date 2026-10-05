@@ -70,6 +70,58 @@ export async function createContactAction(
   );
 }
 
+export interface QuickCreateContactState {
+  status: "idle" | "ok" | "error";
+  message?: string;
+  contact?: { id: string; display_name: string };
+}
+
+export const idleQuickCreateContactState: QuickCreateContactState = { status: "idle" };
+
+/**
+ * Quick-add a customer or vendor from inside another form (owner, 4 October 2026: "saat pembuatan invoice
+ * menu isian pelanggan wajib ada tombol tambah pelanggan baru"), without leaving the page the person is
+ * already filling in -- unlike `createContactAction` above, this never redirects, it hands the new
+ * contact's id/name back so the caller can select it in place. Same `create_contact` RPC, same minimal
+ * required field (display_name); the full Add Customer/Vendor screen still covers every other field for
+ * when the person wants to fill in more up front.
+ */
+export async function quickCreateContactAction(
+  role: "customer" | "vendor",
+  _previous: QuickCreateContactState,
+  formData: FormData,
+): Promise<QuickCreateContactState> {
+  const entity = text(formData, "entity");
+  const displayName = text(formData, "display_name");
+  const basePath = role === "vendor" ? "/purchases/vendors" : "/sales/customers";
+  try {
+    const { membership } = await requirePermission("contacts.create", { entityCode: entity });
+    const contactId = await createContact({
+      entity_id: membership.entity_id,
+      idempotency_key: randomUUID(),
+      kind: role,
+      display_name: displayName,
+      email: text(formData, "email") || undefined,
+      phone: text(formData, "phone") || undefined,
+    });
+    revalidatePath(basePath);
+    return { status: "ok", contact: { id: contactId, display_name: displayName } };
+  } catch (error) {
+    if (error instanceof AuthzError) {
+      return { status: "error", message: describeAuthzError(error) };
+    }
+    return {
+      status: "error",
+      message: `${role === "vendor" ? "Vendor" : "Pelanggan"} tidak dapat disimpan. Periksa nama, email dan telepon.`,
+    };
+  }
+}
+
+/** Bound for `useActionState`, which calls its action as `(previousState, formData)` -- Next's documented
+ * way to pass an extra fixed argument to a Server Action. */
+export const quickCreateCustomerAction = quickCreateContactAction.bind(null, "customer");
+export const quickCreateVendorAction = quickCreateContactAction.bind(null, "vendor");
+
 export async function recordContactFactsAction(
   _previous: ContactActionState,
   formData: FormData,
