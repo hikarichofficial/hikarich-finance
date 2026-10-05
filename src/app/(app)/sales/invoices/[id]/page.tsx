@@ -5,6 +5,8 @@ import { requirePermission } from "@/services/identity/access";
 import { getInvoiceDocument, getInvoiceOwner } from "@/services/sales/sales";
 import { getContact } from "@/services/contacts/contacts";
 import { emailDeliveryEnabled } from "@/services/email/resend";
+import { listEmailDeliveries } from "@/services/email/deliveries";
+import { EmailHistory } from "@/features/sales/EmailHistory";
 import { getMoneyControl } from "@/services/money/money";
 import { previewDocumentTax } from "@/services/tax/tax";
 import { TaxPreviewPanel } from "@/features/tax/TaxPreviewPanel";
@@ -102,6 +104,12 @@ export default async function InvoiceDetailPage({
         email={email}
       />
       <div className="record-detail">
+        {doc.status === "issued" ? (
+          <EmailHistory
+            rows={await listEmailDeliveries(membership.entity_id, "invoice", id)}
+            emptyText="Invoice ini belum pernah dikirim lewat email."
+          />
+        ) : null}
         <AttachmentsSection
           entityId={membership.entity_id}
           entity={entity}

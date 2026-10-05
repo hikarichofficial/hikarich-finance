@@ -29,6 +29,7 @@ import {
   voidInvoice,
 } from "@/services/sales/sales";
 import { sendInvoiceEmail } from "@/services/sales/invoiceEmail";
+import { sendPaymentReceiptEmail } from "@/services/sales/paymentReceiptEmail";
 
 /**
  * Server actions behind Invoice Detail's status actions (P13 Part 3a, Step 09 §11: "Issue/Send/Copy Link/
@@ -244,6 +245,7 @@ export async function sendInvoiceEmailAction(
   const email = text(formData, "email");
   try {
     const result = await sendInvoiceEmail(invoiceId, email || undefined);
+    revalidateInvoice(invoiceId);
     switch (result.outcome) {
       case "sent":
         return { status: "ok", message: `Invoice terkirim ke ${result.to}.` };
@@ -262,6 +264,59 @@ export async function sendInvoiceEmailAction(
         return {
           status: "error",
           message: "Hanya invoice yang sudah terbit yang dapat dikirim lewat email.",
+        };
+      case "failed":
+        return {
+          status: "error",
+          message: "Email tidak dapat dikirim sekarang. Coba lagi beberapa saat.",
+        };
+    }
+  } catch (error) {
+    return errorState(error, "Email tidak dapat dikirim.");
+  }
+}
+
+export interface SendReceiptEmailState {
+  status: "idle" | "ok" | "error";
+  message?: string;
+}
+
+/** Send Bukti Pembayaran via Email (OWNER, 5 October 2026). Same gate as sending the invoice itself
+ * (`invoices.regenerate_link`), because the email carries the invoice's public link. The address typed in the
+ * form wins over the customer's e-mail on file. */
+export async function sendPaymentReceiptEmailAction(
+  _previous: SendReceiptEmailState,
+  formData: FormData,
+): Promise<SendReceiptEmailState> {
+  const paymentId = text(formData, "payment_id");
+  const entity = text(formData, "entity");
+  const email = text(formData, "email");
+  try {
+    await requirePermission("invoices.regenerate_link", { entityCode: entity });
+    const result = await sendPaymentReceiptEmail(paymentId, email || undefined);
+    revalidatePath(`/sales/payments/${paymentId}`);
+    switch (result.outcome) {
+      case "sent":
+        return { status: "ok", message: `Bukti pembayaran terkirim ke ${result.to}.` };
+      case "not_configured":
+        return {
+          status: "error",
+          message: "Pengiriman email belum diaktifkan oleh OWNER.",
+        };
+      case "no_recipient":
+        return {
+          status: "error",
+          message: "Isi alamat email tujuan, atau lengkapi email pelanggan ini di data Kontak.",
+        };
+      case "not_confirmed":
+        return {
+          status: "error",
+          message: "Bukti pembayaran hanya dapat dikirim untuk pembayaran yang masih berlaku.",
+        };
+      case "no_invoice":
+        return {
+          status: "error",
+          message: "Pembayaran ini belum dialokasikan ke invoice, jadi belum punya halaman bukti.",
         };
       case "failed":
         return {

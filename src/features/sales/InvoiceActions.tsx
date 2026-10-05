@@ -306,7 +306,7 @@ function SendInvoiceEmailForm({
     <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="invoice_id" value={invoiceId} />
       <label>
-        Kirim Invoice ke Email
+        Kirim / Kirim Ulang Invoice ke Email
         <input
           type="email"
           name="email"

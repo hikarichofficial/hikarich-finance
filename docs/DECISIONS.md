@@ -2140,3 +2140,28 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   existing disable action (reason required, balance must be zero), which the detail page now offers too. (4) The
   category form says plainly that tax treatment is automatic and the per-category choice is only a fallback; the
   field is now called "Perlakuan Pajak (opsional)" (task 69).
+
+- Line description picker opens on focus (decision 296, OWNER, 5 October 2026: "supaya saat pembuatan invoice
+  tinggal atau bisa di klik yang sudah ada"). The popup above a line's Description field no longer waits for two
+  typed characters: clicking the empty field lists the first names on file (products on file and earlier lines),
+  one character narrows to names that start with it, two or more match anywhere in the name as before. Products
+  without a default price are now offered too (the price stays empty). The user guide PDF gained "Bagian I --
+  Langkah Awal" (order of first-time setup: tax profile, accounts, opening balances, categories, customers,
+  vendors, products, first invoice, expenses, tax payment) and its stale limitation notes were corrected. Task 67
+  answered by the OWNER: follow the recommendation, `accounting.view` stays withheld from finance_staff/approver.
+
+- E-mail receipts and delivery history (decision 297, OWNER, 5 October 2026: "pengiriman bukti bayar atau
+  invoice ... via email ke email pelanggan ... tetap bisa di edit atau dikirim ulang"). Checked first: "Kirim
+  Invoice via Email" (decision 280) is in the code and stays on the invoice page after payment (an invoice stays
+  `issued` once paid), but `RESEND_API_KEY`/`RESEND_FROM_EMAIL` are not set in Production, so it is still off
+  there. Added: (1) "Kirim Bukti Pembayaran" on Payment Detail (`sendPaymentReceiptEmail`): mails the customer the
+  public receipt page `/i/<token>/receipt?no=<payment number>` through the public link of an invoice the payment
+  settled, reusing that link (never a second kind), pre-filled address always editable, gated like the invoice
+  e-mail (`invoices.regenerate_link`), confirmed payments only. (2) `email_deliveries` + `record_email_delivery`
+  (migration `20261005700000_p15_email_deliveries.sql`, test `99_p15_7_email_deliveries.sql`): append-only
+  history of every attempt (to whom, sent/failed, when), written only through the function, readable with
+  `invoices.view`; shown as "Riwayat Pengiriman Email" on Invoice Detail and Payment Detail, so a document can
+  be sent again and the earlier sends stay visible. History writing is best effort and never turns a delivered
+  e-mail into an error. (3) The invoice e-mail reads "sudah lunas" with a "Lihat Invoice & Kwitansi" button once
+  paid. The OWNER still has to create a Resend account, verify a sending domain and set the two variables in
+  Vercel; the guide PDF explains the steps.

@@ -3,6 +3,7 @@ import type {
   InvoiceActionState,
   InvoiceLinkState,
   SendInvoiceEmailState,
+  SendReceiptEmailState,
 } from "./actions";
 
 /** Initial form states. They live outside the "use server" file, which may export only async functions. */
@@ -11,3 +12,4 @@ export const idleCorrectInvoiceState: CorrectInvoiceState = { status: "idle" };
 export const idleInvoiceLinkState: InvoiceLinkState = { status: "idle" };
 export const idleReversePaymentState: InvoiceActionState = { status: "idle" };
 export const idleSendInvoiceEmailState: SendInvoiceEmailState = { status: "idle" };
+export const idleSendReceiptEmailState: SendReceiptEmailState = { status: "idle" };

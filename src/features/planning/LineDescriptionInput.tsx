@@ -13,8 +13,8 @@ interface PopupPosition {
 }
 
 /**
- * The description of a line, with the popup above it (OWNER, 5 October 2026): once two characters are typed,
- * names already used before appear with the price they were last used at. Clicking one (or arrow keys +
+ * The description of a line, with the popup above it (OWNER, 5 October 2026): as soon as the field is focused (and as
+ * more is typed), names already used before appear with the price they were last used at. Clicking one (or arrow keys +
  * Enter) fills the description and its price; carrying on typing, with the same name or a different one,
  * just works -- nothing is forced. The popup is drawn on the page itself (not inside the table), so a
  * scrolling table can never clip it, and it opens above the field unless there is no room there.
@@ -116,7 +116,9 @@ export function LineDescriptionInput({
               }}
             >
               <p className="line-suggest-title">
-                Sudah pernah ada. Klik untuk memakai, atau lanjut mengetik.
+                {value.trim() === ""
+                  ? "Pilih yang sudah ada, atau ketik nama baru."
+                  : "Sudah pernah ada. Klik untuk memakai, atau lanjut mengetik."}
               </p>
               <ul id={listId} role="listbox">
                 {matches.map((item, index) => (
