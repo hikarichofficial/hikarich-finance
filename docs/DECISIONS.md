@@ -2165,3 +2165,23 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   e-mail into an error. (3) The invoice e-mail reads "sudah lunas" with a "Lihat Invoice & Kwitansi" button once
   paid. The OWNER still has to create a Resend account, verify a sending domain and set the two variables in
   Vercel; the guide PDF explains the steps.
+
+- Type-to-search contact fields, nested-form fix and Hapus Rekening with transactions (decision 298, OWNER, 5
+  October 2026, tasks 78-81). (1) In Buat Invoice the "Tambah Pelanggan Baru" panel was rendered inside the
+  invoice `<form>`; a form inside a form is invalid HTML and its "Simpan & Gunakan" button submitted the invoice
+  instead. The panel now sits outside the form (also in the new Bill form). (2) Customer and vendor are no
+  longer plain dropdowns: `ContactPicker` is a field you click and type in; the list narrows to the registered
+  names that match the letters (names starting with them first), a name that is not on file offers "+ Tambah ...
+  baru" with the typed name carried into the panel, and the browser's own required check still blocks saving
+  until one is chosen. Used on Buat Invoice, Record Bill (vendor quick-add added) and the recurring-invoice form.
+  (3) The line Description popup now opens on focus even when nothing is registered and says why (Production had
+  0 products and 0 invoice lines, so it looked broken); it narrows with every letter and says so when nothing
+  matches. No products are seeded: the business's products are the OWNER's to register under Penjualan > Produk &
+  Jasa, and invoiced lines then appear by themselves. (4) Hapus Rekening is now available for an account with
+  transactions too, behind a double confirmation (type the exact name, then tick a final box). Step 03 §1 still
+  holds in substance: an account with history is not physically erased but archived
+  (`remove_financial_account`, migration `20261005800000_p15_remove_financial_account.sql`, test
+  `99_p15_8_remove_financial_account.sql`): `deleted_at` is set, `public.money_control` no longer lists it, its
+  ledger account, journal lines and movements stay exactly as they were (period close still reads it through
+  `money_control_rows`), and its name gets a "(dihapus ...)" suffix so the name can be reused. A balance left on
+  it stays in the ledger; the confirmation shows it. An account with no history is still erased for real.

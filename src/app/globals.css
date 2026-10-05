@@ -2716,3 +2716,57 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
     transform: none;
   }
 }
+
+/* Customer / vendor field you can type in, with the matching names listed under it (OWNER, 5 October 2026). */
+.contact-picker {
+  position: relative;
+}
+
+.contact-picker-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  z-index: 60;
+  max-height: 320px;
+  padding: var(--space-2);
+  overflow-y: auto;
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.contact-picker-list ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.contact-picker-add {
+  display: block;
+  width: 100%;
+  padding: 8px var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  text-align: left;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: var(--radius-sm, 6px);
+}
+
+.contact-picker-add:hover,
+.contact-picker-add.is-active {
+  background: var(--surface-sunken);
+}
+
+.contact-picker-field {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}

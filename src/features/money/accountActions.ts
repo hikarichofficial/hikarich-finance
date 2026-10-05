@@ -7,7 +7,7 @@ import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
   createFinancialAccount,
-  deleteFinancialAccount,
+  removeFinancialAccount,
   setFinancialAccountActive,
 } from "@/services/money/money";
 
@@ -62,7 +62,11 @@ function manageErrorMessage(error: unknown, fallback: string): string {
   return error instanceof AuthzError ? describeAuthzError(error) : fallback;
 }
 
-/** Hapus Rekening: only an account with no history at all (the database decides). */
+/**
+ * Hapus Rekening, behind a double confirmation (OWNER, 5 October 2026): the name must be typed exactly (step one)
+ * and the final box ticked (step two). An account with no history is erased; one with transactions is archived
+ * by the database (gone from every list, books untouched) -- the screen says which before it asks.
+ */
 export async function deleteAccountAction(
   _previous: AccountActionState,
   formData: FormData,
@@ -70,11 +74,21 @@ export async function deleteAccountAction(
   const entity = text(formData, "entity");
   const accountId = text(formData, "account_id");
   if (text(formData, "confirm") !== "yes") {
-    return { status: "error", message: "Centang kotak konfirmasi dulu untuk menghapus rekening." };
+    return {
+      status: "error",
+      message: "Centang kotak konfirmasi akhir dulu untuk menghapus rekening.",
+    };
+  }
+  const expected = text(formData, "expected_name");
+  if (expected === "" || text(formData, "confirm_name") !== expected) {
+    return {
+      status: "error",
+      message: "Nama rekening yang diketik belum sama persis. Tidak ada yang dihapus.",
+    };
   }
   try {
     await requirePermission("money.edit", { entityCode: entity });
-    await deleteFinancialAccount({ account_id: accountId, reason: text(formData, "reason") });
+    await removeFinancialAccount({ account_id: accountId, reason: text(formData, "reason") });
   } catch (error) {
     return {
       status: "error",

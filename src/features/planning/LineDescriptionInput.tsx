@@ -38,7 +38,8 @@ export function LineDescriptionInput({
   const [position, setPosition] = useState<PopupPosition | null>(null);
 
   const matches = matchSuggestions(value, suggestions);
-  const open = focused && !dismissed && matches.length > 0;
+  // The popup opens whenever the field is focused, even with nothing on file, so it is never mistaken for broken.
+  const open = focused && !dismissed;
 
   useLayoutEffect(() => {
     if (!open || !ref.current) return;
@@ -47,7 +48,7 @@ export function LineDescriptionInput({
       const rect = ref.current.getBoundingClientRect();
       const width = Math.max(rect.width, 280);
       const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
-      const needed = 40 + matches.length * 44;
+      const needed = 40 + Math.max(1, matches.length) * 44;
       setPosition(
         rect.top > needed
           ? { left, width, bottom: window.innerHeight - rect.top + 4 }
@@ -89,7 +90,7 @@ export function LineDescriptionInput({
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         onKeyDown={(event) => {
-          if (!open) return;
+          if (!open || matches.length === 0) return;
           if (event.key === "ArrowDown") {
             event.preventDefault();
             setActive((index) => (index + 1) % matches.length);
@@ -116,9 +117,13 @@ export function LineDescriptionInput({
               }}
             >
               <p className="line-suggest-title">
-                {value.trim() === ""
-                  ? "Pilih yang sudah ada, atau ketik nama baru."
-                  : "Sudah pernah ada. Klik untuk memakai, atau lanjut mengetik."}
+                {matches.length > 0
+                  ? value.trim() === ""
+                    ? "Pilih yang sudah ada, atau ketik nama baru."
+                    : "Sesuai huruf yang diketik. Klik untuk memakai, atau lanjut mengetik."
+                  : suggestions.length === 0
+                    ? "Belum ada produk atau baris tersimpan. Ketik nama sendiri, atau daftarkan produk di menu Penjualan > Produk & Jasa agar muncul di sini."
+                    : "Tidak ada yang cocok dengan huruf ini. Lanjutkan mengetik untuk memakai nama baru."}
               </p>
               <ul id={listId} role="listbox">
                 {matches.map((item, index) => (

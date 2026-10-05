@@ -198,24 +198,23 @@ export function AccountDetailScreen({
           <div className="dashboard-section-header">
             <h2 className="dashboard-section-title">Kelola Rekening</h2>
           </div>
-          {hasHistory ? (
-            <p className="hint">
-              Rekening ini sudah punya transaksi, jadi tidak bisa dihapus. Anda dapat
-              menonaktifkannya (saldo harus nol) agar tidak muncul lagi di pilihan pembayaran.
-            </p>
-          ) : (
-            <p className="hint">Rekening ini belum punya transaksi, sehingga boleh dihapus.</p>
-          )}
+          <p className="hint">
+            {hasHistory
+              ? "Rekening ini sudah punya transaksi. Anda boleh menghapusnya (ada dua langkah konfirmasi): rekening hilang dari semua daftar, riwayatnya tetap tersimpan. Atau cukup nonaktifkan (saldo harus nol) agar tidak muncul di pilihan pembayaran."
+              : "Rekening ini belum punya transaksi. Anda boleh menghapusnya (ada dua langkah konfirmasi)."}
+          </p>
           <ToggleAccountActiveForm
             entity={entity}
             accountId={account.financial_account_id}
             isActive={account.is_active}
           />
-          {canDelete && !hasHistory ? (
+          {canDelete ? (
             <DeleteAccountForm
               entity={entity}
               accountId={account.financial_account_id}
               accountName={account.name}
+              hasHistory={hasHistory}
+              balanceText={formatMoney(account.movement_balance, account.currency)}
             />
           ) : null}
         </section>

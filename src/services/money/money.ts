@@ -122,6 +122,21 @@ export async function deleteFinancialAccount(
   );
 }
 
+/**
+ * "Hapus Rekening" from the screen: erases an account that has no history, and archives one that has (it leaves
+ * every list and picker; its ledger account, journal lines and movements stay exactly as they were).
+ */
+export async function removeFinancialAccount(
+  input: z.input<typeof deleteFinancialAccountInputSchema>,
+): Promise<"deleted" | "archived"> {
+  const v = deleteFinancialAccountInputSchema.parse(input);
+  return callRpc(
+    "remove_financial_account",
+    { p_account: v.account_id, p_reason: v.reason ?? null },
+    z.enum(["deleted", "archived"]),
+  );
+}
+
 export async function getMoneyControl(entityId: string, asOf?: string): Promise<MoneyControlRow[]> {
   return callRpc(
     "money_control",

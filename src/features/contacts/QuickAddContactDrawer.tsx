@@ -15,12 +15,15 @@ import { idleQuickCreateContactState } from "./contactActionsState";
 export function QuickAddContactDrawer({
   contactKind,
   entity,
+  initialName = "",
   open,
   onClose,
   onCreated,
 }: {
   contactKind: "customer" | "vendor";
   entity: string | undefined;
+  /** What was already typed in the contact field, so the name is not typed twice. */
+  initialName?: string;
   open: boolean;
   onClose: () => void;
   onCreated: (contact: { id: string; display_name: string }) => void;
@@ -57,7 +60,13 @@ export function QuickAddContactDrawer({
         <input type="hidden" name="entity" value={entity ?? ""} />
         <label>
           Nama
-          <input name="display_name" required maxLength={200} autoComplete="off" />
+          <input
+            name="display_name"
+            required
+            maxLength={200}
+            autoComplete="off"
+            defaultValue={initialName}
+          />
         </label>
         <label>
           Email (opsional)
