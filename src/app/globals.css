@@ -3029,3 +3029,59 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
     margin-left: 0;
   }
 }
+
+/* Flow diagrams of the user guide (decision 300) */
+.guide-flow {
+  margin: var(--space-4) 0;
+}
+
+.guide-flow h2,
+.guide-flow h3 {
+  margin-bottom: var(--space-1);
+}
+
+.guide-flow-summary {
+  margin: 0 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.guide-flow-image {
+  display: block;
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.guide-flow-text {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.guide-flow-text summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.guide-flow-text ul {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guide-flow-text li {
+  padding: 2px 0;
+}
+
+.guide-flow-question {
+  margin-top: var(--space-1);
+  font-weight: 600;
+}
+
+.guide-flow-toc {
+  margin: var(--space-3) 0;
+}

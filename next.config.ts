@@ -15,6 +15,7 @@ const nextConfig: NextConfig = {
   // serverless bundle of that route must carry them.
   outputFileTracingIncludes: {
     "/guide/image/[file]": ["./src/content/guide/images/**/*"],
+    "/guide/diagram/[id]": ["./src/content/guide/diagrams/**/*"],
   },
   experimental: {
     serverActions: {
