@@ -3,6 +3,7 @@ import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import {
   getAccountActivity,
+  getAccountEditableFields,
   getMoneyControl,
   getReconciliationStatus,
 } from "@/services/money/money";
@@ -41,6 +42,10 @@ export default async function AccountDetailPage({
     getAccountActivity(id, { limit: 1 }),
   ]);
 
+  const editable = can(access, membership.entity_id, "money.edit")
+    ? await getAccountEditableFields(id)
+    : null;
+
   const backHref = entity
     ? `/money/accounts?entity=${encodeURIComponent(entity)}`
     : "/money/accounts";
@@ -58,6 +63,7 @@ export default async function AccountDetailPage({
         can(access, membership.entity_id, "coa.manage")
       }
       hasHistory={anyActivity.length > 0}
+      editable={editable}
     />
   );
 }

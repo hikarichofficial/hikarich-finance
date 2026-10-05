@@ -4,6 +4,7 @@ import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState, type ReactNode } from "react";
 import { discardJournalAction, postJournalAction, reverseJournalAction } from "./actions";
 import { idleJournalActionState } from "./actionsState";
+import { todayInBusinessZone } from "@/lib/time";
 
 /**
  * Journal Detail's status actions (Step 09 §14), following the exact shape `TransferActions.tsx` already
@@ -79,7 +80,7 @@ function ReverseForm({ journalId }: { journalId: string }) {
   const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
   const [reason, setReason] = useState("");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
 
   if (!open) {
     return (

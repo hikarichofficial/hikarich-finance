@@ -2,7 +2,11 @@
 
 import { useActionState, useState } from "react";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { deleteAccountAction, setAccountActiveAction } from "./accountActions";
+import {
+  deleteAccountAction,
+  setAccountActiveAction,
+  updateAccountDetailsAction,
+} from "./accountActions";
 import { idleAccountActionState } from "./accountActionsState";
 
 function Feedback({ state }: { state: { status: string; message?: string } }) {
@@ -140,5 +144,60 @@ export function ToggleAccountActiveForm({
       </button>
       <Feedback state={state} />
     </form>
+  );
+}
+
+/** Ubah Detail Rekening: name, institution, holder and (write-only) number. Kind, currency and ledger account
+ * are fixed at creation. Finding #90. */
+export function EditAccountDetailsForm({
+  entity,
+  accountId,
+  current,
+}: {
+  entity: string | undefined;
+  accountId: string;
+  current: { name: string; institution_name: string; account_holder: string };
+}) {
+  const [state, action, pending] = useActionState(
+    updateAccountDetailsAction,
+    idleAccountActionState,
+  );
+  const actionForm = usePreservingForm(action, state);
+  return (
+    <details className="account-edit">
+      <summary className="btn-secondary">Ubah Detail Rekening</summary>
+      <form {...actionForm} className="record-form">
+        <input type="hidden" name="entity" value={entity ?? ""} />
+        <input type="hidden" name="account_id" value={accountId} />
+        <label>
+          Nama Rekening
+          <input name="name" required maxLength={120} defaultValue={current.name} />
+        </label>
+        <label>
+          Bank / Lembaga (opsional)
+          <input name="institution_name" maxLength={120} defaultValue={current.institution_name} />
+        </label>
+        <label>
+          Nama Pemilik Rekening (opsional)
+          <input name="account_holder" maxLength={120} defaultValue={current.account_holder} />
+        </label>
+        <label>
+          Nomor Rekening (opsional)
+          <input
+            name="account_number"
+            maxLength={60}
+            autoComplete="off"
+            placeholder="Kosongkan jika tidak diubah"
+          />
+        </label>
+        <p className="hint">
+          Jenis rekening dan mata uang tidak bisa diubah setelah rekening dibuat.
+        </p>
+        <Feedback state={state} />
+        <button type="submit" className="btn-primary" disabled={pending}>
+          {pending ? "Menyimpan…" : "Simpan Perubahan"}
+        </button>
+      </form>
+    </details>
   );
 }

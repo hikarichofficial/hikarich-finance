@@ -24,7 +24,12 @@ import {
   getProfitAndLoss,
   getStatementOfChangesInEquity,
 } from "@/services/reports/reports";
-import { getArAging, listInvoicePositions, listPayments } from "@/services/sales/sales";
+import {
+  getArAging,
+  listInvoicePositions,
+  listPayments,
+  listPendingPaymentClaims,
+} from "@/services/sales/sales";
 import {
   getApAging,
   listMissingEvidence,
@@ -141,6 +146,7 @@ export async function getDashboardSnapshot(
     taxOverview,
     taxCalendarRows,
     taxReviewRows,
+    claimRows,
   ] = await Promise.all([
     getEntityBaseCurrency(entityId),
     canReports
@@ -175,6 +181,7 @@ export async function getDashboardSnapshot(
     canTax ? getTaxOverview(entityId) : null,
     canTax ? getTaxCalendar({ entity_id: entityId }) : null,
     canTax ? listTaxReviewQueue(entityId) : null,
+    canInvoices ? listPendingPaymentClaims(entityId) : null,
   ]);
 
   const finance: DashboardFinanceSection | null = financeRows
@@ -239,6 +246,7 @@ export async function getDashboardSnapshot(
     taxReviewQueue: taxReviewRows ?? [],
     missingEvidence: missingEvidenceRows ?? [],
     staleReconciliations: reconciliationAttention,
+    pendingClaims: claimRows ?? [],
   }).slice(0, ATTENTION_LIMIT);
 
   const recentActivity = mergeRecentActivity(

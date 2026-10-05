@@ -3,6 +3,7 @@ import { requirePermission } from "@/services/identity/access";
 import { getTaxOverview } from "@/services/tax/tax";
 import { formatShortDate } from "@/features/tax/format";
 import { TaxEngineForm, TaxProfileForm } from "@/features/tax/TaxSetupForms";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Tax Setup (decision 258, Step 05 §3-§4): the Entity's tax profile and the engine switch. Viewing needs
  * `tax.view`; the forms appear with `tax.confirm_facts` (the profile RPC's own check). The engine switch is
@@ -16,7 +17,7 @@ export default async function TaxSetupPage({
   const { access, membership } = await requirePermission("tax.view", { entityCode: entity });
   const overview = await getTaxOverview(membership.entity_id);
   const canRecord = can(access, membership.entity_id, "tax.confirm_facts");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
   const next = entity ? `/tax/setup?entity=${encodeURIComponent(entity)}` : "/tax/setup";
   const p = overview.profile;
 

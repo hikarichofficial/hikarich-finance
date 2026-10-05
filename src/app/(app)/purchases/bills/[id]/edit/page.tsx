@@ -7,6 +7,7 @@ import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
 import { getBillDraftForEdit } from "@/services/purchases/purchases";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { BillForm } from "@/features/purchases/BillForm";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Edit a DRAFT bill (Step 09 §12, decision 261), gated `bills.edit` -- the permission `update_bill_draft`
  * checks. Anything that is no longer a draft is "not found" here: a recognised bill is corrected instead. */
@@ -51,7 +52,7 @@ export default async function EditBillPage({
           categories={categories}
           suggestions={suggestions}
           entity={entity}
-          today={new Date().toISOString().slice(0, 10)}
+          today={todayInBusinessZone()}
           initial={draft}
         />
       </section>

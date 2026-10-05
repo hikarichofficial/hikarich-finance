@@ -19,6 +19,7 @@ import { RefundActionForms } from "@/features/sales/RefundActionForms";
 import { PaymentDetailScreen } from "@/features/sales/PaymentDetailScreen";
 import { formatShortDate } from "@/features/sales/format";
 import type { RefundRow } from "@/schemas/sales";
+import { todayInBusinessZone } from "@/lib/time";
 
 const REFUND_STATUS_LABELS: Readonly<Record<RefundRow["status"], string>> = {
   draft: "Draft (Menunggu Konfirmasi)",
@@ -75,7 +76,7 @@ export default async function PaymentDetailPage({
     listPaymentRefunds(id).catch(() => []),
   ]);
   const refundable = refundOptions.filter((o) => Number(o.refundable) > 0);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
 
   const canSendEmail = can(access, membership.entity_id, "invoices.regenerate_link");
   const [emailHistory, customerContact] = await Promise.all([

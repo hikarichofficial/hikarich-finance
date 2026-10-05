@@ -3,6 +3,7 @@ import { requirePermission } from "@/services/identity/access";
 import { listLedgerAccounts } from "@/services/accounting/ledger";
 import { getEntityBaseCurrency } from "@/services/assets/assets";
 import { OpeningAssetForm } from "@/features/assets/OpeningAssetForm";
+import { todayInBusinessZone } from "@/lib/time";
 
 const FIXED_ASSET_KEYS = new Set([
   "FIXED_ASSET_EQUIPMENT",
@@ -59,7 +60,7 @@ export default async function OpeningAssetPage({
         <OpeningAssetForm
           entity={entity}
           next={`/assets/opening${qs}`}
-          today={new Date().toISOString().slice(0, 10)}
+          today={todayInBusinessZone()}
           depreciable={membership.entity_type !== "personal"}
           currency={currency}
           accounts={options}

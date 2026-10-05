@@ -119,6 +119,7 @@ const SOURCE_TYPE_LABELS: Readonly<Record<string, string>> = {
   vendor_payment: "Pembayaran Vendor",
   expense: "Pengeluaran",
   balance_adjustment: "Penyesuaian Saldo",
+  money_adjustment: "Penyesuaian Saldo",
   tax_payment: "Pembayaran Pajak",
 };
 

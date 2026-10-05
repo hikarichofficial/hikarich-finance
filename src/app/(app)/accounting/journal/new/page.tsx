@@ -4,6 +4,7 @@ import { requirePermission } from "@/services/identity/access";
 import { listLedgerAccounts } from "@/services/accounting/ledger";
 import { accountClassLabel } from "@/domain/accounting/coaList";
 import { JournalDraftForm } from "@/features/accounting/JournalDraftForm";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Order of the account groups in the picker: what a person records most often (income, costs) first, the
  * system-protected accounts last. */
@@ -62,7 +63,7 @@ export default async function NewJournalPage({
         <JournalDraftForm
           accounts={options}
           entity={entity}
-          today={new Date().toISOString().slice(0, 10)}
+          today={todayInBusinessZone()}
           canOverride={canOverride}
         />
       </section>

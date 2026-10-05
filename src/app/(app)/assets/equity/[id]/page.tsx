@@ -6,6 +6,7 @@ import { EquityActionsPanel } from "@/features/financing/FinancingForms";
 import { requirePermission } from "@/services/identity/access";
 import { getEntityBaseCurrency, getEquityEvent } from "@/services/financing/financing";
 import { EquityDetailScreen } from "@/features/financing/EquityDetailScreen";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Capital & Equity Detail (P13 Part 3f, fourth increment, Step 09 §10, §16). */
 export default async function EquityDetailPage({
@@ -31,7 +32,7 @@ export default async function EquityDetailPage({
         .filter((a) => a.is_active)
         .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` }))
     : [];
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
   // `equity_confirm` / `equity_reverse` also need `equity.approve` for a capital return or a dividend.
   const needsApproval = detail.kind === "capital_return" || detail.kind === "dividend";
   const canConfirmOrReverse = !needsApproval || can(access, membership.entity_id, "equity.approve");

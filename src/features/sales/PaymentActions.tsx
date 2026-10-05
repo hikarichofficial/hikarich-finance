@@ -4,6 +4,7 @@ import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import { reversePaymentAction } from "./actions";
 import { idleReversePaymentState } from "./actionsState";
+import { todayInBusinessZone } from "@/lib/time";
 
 /**
  * Payment Detail's status actions. `reverse_payment` is the only lifecycle action with anything to wire up
@@ -21,7 +22,7 @@ function ReverseForm({ paymentId }: { paymentId: string }) {
   const actionForm = usePreservingForm(action, state);
   const [reason, setReason] = useState("");
   const [open, setOpen] = useState(false);
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
 
   if (!open) {
     return (

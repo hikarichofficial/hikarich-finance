@@ -24,6 +24,7 @@ import {
   buildRecurringLinesJson,
   type RecurringLineRow,
 } from "./RecurringLinesEditor";
+import { todayInBusinessZone } from "@/lib/time";
 
 /**
  * The recurring template create/edit builder itself (P13 Part 3h, sixth increment, Step 09 §13, §18) --
@@ -94,7 +95,7 @@ export function RecurringRuleForm({
     buildInitialRecurringLines(templateLines(rule?.template)),
   );
   const template = rule?.template;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
   const submitLabel = mode === "create" ? "Buat Aturan Berulang" : "Simpan Perubahan";
   const pendingLabel = mode === "create" ? "Membuat…" : "Menyimpan…";
   const intervalHint =

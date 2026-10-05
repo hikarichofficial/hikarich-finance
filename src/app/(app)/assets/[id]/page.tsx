@@ -18,6 +18,7 @@ import {
   UpdateAssetDetailsForm,
 } from "@/features/assets/AssetForms";
 import { formatMonth } from "@/features/assets/format";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Asset Detail (P13 Part 3f, first increment, Step 09 §10, §16). The write forms are shown with
  * `assets.manage` -- the permission every P8 asset command checks -- and only in the statuses where the
@@ -42,7 +43,7 @@ export default async function AssetDetailPage({
   const { asset, schedule, disposal } = detail;
   const canManage = can(access, membership.entity_id, "assets.manage");
   const next = entity ? `/assets/${id}?entity=${encodeURIComponent(entity)}` : `/assets/${id}`;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
   const isDraft = asset.status === "draft";
   const isActive = asset.status === "active";
   const inHand = isDraft || isActive;

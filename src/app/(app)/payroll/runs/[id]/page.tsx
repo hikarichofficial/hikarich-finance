@@ -21,6 +21,7 @@ import {
   ReversePayrollPaymentForm,
   RunCommandForm,
 } from "@/features/payroll/PayrollRunForms";
+import { todayInBusinessZone } from "@/lib/time";
 
 /**
  * Payroll Run Detail (P13 Part 3g, second increment, Step 09 §17). Same compound-permission rule as the
@@ -72,7 +73,7 @@ export default async function PayrollRunDetailPage({
   const status = run.status;
   const editable = status === "draft" || status === "calculated";
   const payable = status === "posted" || status === "partially_paid" || status === "paid";
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
 
   const showCalculate = canRun && editable;
   const showSubmit = canRun && status === "calculated";

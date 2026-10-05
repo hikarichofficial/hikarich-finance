@@ -4,6 +4,7 @@ import { getMoneyControl } from "@/services/money/money";
 import { listContacts } from "@/services/contacts/contacts";
 import { obligationKindTitle } from "@/domain/financing/obligationList";
 import { ObligationCreateForm } from "@/features/financing/FinancingForms";
+import { todayInBusinessZone } from "@/lib/time";
 
 const LIST_HREF: Readonly<Record<"receivable" | "payable", string>> = {
   receivable: "/assets/other-receivables",
@@ -47,7 +48,7 @@ export default async function NewObligationPage({
           entity={entity}
           kind={kind}
           accounts={accounts}
-          today={new Date().toISOString().slice(0, 10)}
+          today={todayInBusinessZone()}
           knownParties={knownParties}
         />
       </section>

@@ -6,6 +6,7 @@ import { ObligationActionsPanel } from "@/features/financing/FinancingForms";
 import { requirePermission } from "@/services/identity/access";
 import { getEntityBaseCurrency, getObligation } from "@/services/financing/financing";
 import { ObligationDetailScreen } from "@/features/financing/ObligationDetailScreen";
+import { todayInBusinessZone } from "@/lib/time";
 
 const LIST_HREF: Readonly<Record<"receivable" | "payable", string>> = {
   receivable: "/assets/other-receivables",
@@ -40,7 +41,7 @@ export default async function ObligationDetailPage({
         .filter((a) => a.is_active)
         .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` }))
     : [];
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayInBusinessZone();
   const activeSettlements = detail.settlements
     .filter((s) => s.status === "active")
     .map((s) => ({

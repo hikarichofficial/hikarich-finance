@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
+import { getContact, setContactStatus, updateContact } from "@/services/contacts/contacts";
 import { createContact } from "@/services/sales/sales";
 import { recordContactFacts } from "@/services/tax/tax";
 import type { QuickCreateContactState } from "./contactActionsState";
@@ -149,4 +150,87 @@ export async function recordContactFactsAction(
   revalidatePath("/sales/customers");
   revalidatePath("/purchases/vendors");
   return { status: "ok", message: "Data pajak tersimpan." };
+}
+
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+function basePathOf(kind: string | null): string {
+  return kind === "vendor" ? "/purchases/vendors" : "/sales/customers";
+}
+
+/** Edit a customer's or vendor's details (finding #90). The contact must belong to the active Entity. */
+export async function updateContactAction(
+  _previous: ContactActionState,
+  formData: FormData,
+): Promise<ContactActionState> {
+  const entity = text(formData, "entity");
+  const contactId = text(formData, "contact_id");
+  const role = text(formData, "role") === "vendor" ? "vendor" : "customer";
+  const displayName = text(formData, "display_name");
+  const email = text(formData, "email");
+  const country = text(formData, "country_code").toUpperCase();
+  if (displayName === "") return { status: "error", message: "Nama wajib diisi." };
+  if (email !== "" && !EMAIL_PATTERN.test(email)) {
+    return { status: "error", message: "Format email tidak valid." };
+  }
+  if (country !== "" && !/^[A-Z]{2}$/.test(country)) {
+    return { status: "error", message: "Kode negara harus 2 huruf, mis. ID." };
+  }
+  const basePath = basePathOf(role);
+  try {
+    const { membership } = await requirePermission("contacts.edit", { entityCode: entity });
+    const existing = await getContact(contactId);
+    if (!existing || existing.entity_id !== membership.entity_id) {
+      return { status: "error", message: "Kontak tidak ditemukan." };
+    }
+    await updateContact(contactId, {
+      display_name: displayName,
+      legal_name: text(formData, "legal_name") || null,
+      email: email || null,
+      phone: text(formData, "phone") || null,
+      address_line: text(formData, "address_line") || null,
+      city: text(formData, "city") || null,
+      country_code: country || null,
+      notes: text(formData, "notes") || null,
+      ...(text(formData, "also_other_role") === "on" && existing.kind !== "both"
+        ? { kind: "both" as const }
+        : {}),
+    });
+  } catch (error) {
+    return errorState(error, "Perubahan tidak dapat disimpan. Periksa isian.");
+  }
+  revalidatePath(basePath);
+  redirect(
+    entity
+      ? `${basePath}/${contactId}?entity=${encodeURIComponent(entity)}`
+      : `${basePath}/${contactId}`,
+  );
+}
+
+/** Deactivate or reactivate a contact; history is kept either way. */
+export async function setContactStatusAction(
+  _previous: ContactActionState,
+  formData: FormData,
+): Promise<ContactActionState> {
+  const entity = text(formData, "entity");
+  const contactId = text(formData, "contact_id");
+  const status = text(formData, "status") === "inactive" ? "inactive" : "active";
+  try {
+    const { membership } = await requirePermission("contacts.edit", { entityCode: entity });
+    const existing = await getContact(contactId);
+    if (!existing || existing.entity_id !== membership.entity_id) {
+      return { status: "error", message: "Kontak tidak ditemukan." };
+    }
+    await setContactStatus(contactId, status);
+  } catch (error) {
+    return errorState(error, "Status kontak tidak dapat diubah.");
+  }
+  revalidatePath("/sales/customers");
+  revalidatePath("/purchases/vendors");
+  revalidatePath(`/sales/customers/${contactId}`);
+  revalidatePath(`/purchases/vendors/${contactId}`);
+  return {
+    status: "ok",
+    message: status === "inactive" ? "Kontak dinonaktifkan." : "Kontak diaktifkan kembali.",
+  };
 }

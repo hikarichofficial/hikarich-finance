@@ -6,6 +6,7 @@ import { listActiveCategories } from "@/services/accounting/categories";
 import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { ExpenseForm } from "@/features/purchases/ExpenseForm";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Record Expense (Step 09 §12/§22, decision 245), gated `bills.create` -- the permission
  * `create_expense_draft` itself checks. Only active accounts and active vendors are offered. */
@@ -45,7 +46,7 @@ export default async function NewExpensePage({
           categories={categories}
           suggestions={suggestions}
           entity={entity}
-          today={new Date().toISOString().slice(0, 10)}
+          today={todayInBusinessZone()}
         />
       </section>
     </div>

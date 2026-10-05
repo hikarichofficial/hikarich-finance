@@ -23,18 +23,29 @@ export interface ReconciliationListRow extends ReconciliationStatusRow {
 /** `reconciliation_status` carries no currency of its own -- joined here by `financial_account_id` against
  * `money_control` (the same RPC `AccountsListScreen` already reads for its own rows), the same purely-
  * presentational join `mergeAccountRows`/`mergeTransferRows` already use rather than a second, currency-only
- * RPC call. An account missing from `control` (none in practice -- both RPCs read every account of the
- * Entity) falls back to "IDR", this codebase's own established default (`transferList.ts`'s own
- * precedent). */
+ * RPC call. An account missing from `control` is an archived one and is dropped. */
 export function mergeReconciliationListRows(
   status: readonly ReconciliationStatusRow[],
   control: readonly MoneyControlRow[],
 ): ReconciliationListRow[] {
   const byId = new Map(control.map((row) => [row.financial_account_id, row.currency]));
-  return status.map((row) => ({
-    ...row,
-    currency: byId.get(row.financial_account_id) ?? "IDR",
-  }));
+  // `money_control` skips accounts removed with "Hapus Rekening" while `reconciliation_status` still lists
+  // them, so a row without a control entry is an archived account and is left out (finding #91).
+  return status
+    .filter((row) => byId.has(row.financial_account_id))
+    .map((row) => ({
+      ...row,
+      currency: byId.get(row.financial_account_id) ?? "IDR",
+    }));
+}
+
+/** Sessions of accounts still on the list; archived accounts' sessions are hidden with them. */
+export function visibleSessions<T extends { financial_account_id: string }>(
+  sessions: readonly T[],
+  control: readonly MoneyControlRow[],
+): T[] {
+  const live = new Set(control.map((row) => row.financial_account_id));
+  return sessions.filter((s) => live.has(s.financial_account_id));
 }
 
 /** A session in progress is the most actionable state (someone is mid-way through); unresolved lines from a

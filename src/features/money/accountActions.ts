@@ -9,6 +9,7 @@ import {
   createFinancialAccount,
   removeFinancialAccount,
   setFinancialAccountActive,
+  updateFinancialAccount,
 } from "@/services/money/money";
 
 /** Server action behind Add Account (decision 258): the unmodified `create_financial_account`. */
@@ -129,4 +130,38 @@ export async function setAccountActiveAction(
     status: "ok",
     message: active ? "Rekening diaktifkan kembali." : "Rekening dinonaktifkan.",
   };
+}
+
+/** Ubah detail rekening (nama, bank, pemegang, nomor). Jenis, mata uang dan akun buku besar tetap. The
+ * number is write-only: left blank it stays unchanged. Finding #90. */
+export async function updateAccountDetailsAction(
+  _previous: AccountActionState,
+  formData: FormData,
+): Promise<AccountActionState> {
+  const entity = text(formData, "entity");
+  const accountId = text(formData, "account_id");
+  const name = text(formData, "name");
+  if (name === "") return { status: "error", message: "Nama rekening wajib diisi." };
+  const patch: Record<string, string> = {
+    name,
+    institution_name: text(formData, "institution_name"),
+    account_holder: text(formData, "account_holder"),
+  };
+  const number = text(formData, "account_number");
+  if (number !== "") patch.account_number = number;
+  try {
+    await requirePermission("money.edit", { entityCode: entity });
+    await updateFinancialAccount({ account_id: accountId, patch });
+  } catch (error) {
+    return {
+      status: "error",
+      message: manageErrorMessage(
+        error,
+        "Detail rekening tidak dapat disimpan. Pastikan nama belum dipakai rekening lain.",
+      ),
+    };
+  }
+  revalidatePath("/money/accounts");
+  revalidatePath(`/money/accounts/${accountId}`);
+  return { status: "ok", message: "Detail rekening tersimpan." };
 }

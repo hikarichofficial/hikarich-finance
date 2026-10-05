@@ -2,9 +2,12 @@
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
-import { checkOpeningLines, type OpeningLineDraft } from "@/domain/accounting/openingBalances";
+import {
+  checkOpeningLines,
+  type OpeningAccountOption,
+  type OpeningLineDraft,
+} from "@/domain/accounting/openingBalances";
 import { formatMoney } from "@/domain/money/format";
-import type { LedgerAccountRow } from "@/schemas/accounting";
 import { postOpeningBalancesAction } from "./openingBalanceActions";
 import { idleOpeningActionState } from "./openingBalanceActionsState";
 import { MoneyInput } from "@/features/shared/MoneyInput";
@@ -20,11 +23,11 @@ function emptyRow(n: number): OpeningLineDraft {
 }
 
 export function OpeningBalanceForm({
-  accounts,
+  options,
   baseCurrency,
   entity,
 }: {
-  accounts: readonly LedgerAccountRow[];
+  options: readonly OpeningAccountOption[];
   baseCurrency: string;
   entity: string | undefined;
 }) {
@@ -35,6 +38,13 @@ export function OpeningBalanceForm({
   const actionForm = usePreservingForm(action, state);
   const [rows, setRows] = useState<OpeningLineDraft[]>([emptyRow(1), emptyRow(2)]);
   const [seq, setSeq] = useState(3);
+  // After a successful posting the grid is emptied so the same numbers cannot be posted twice by accident.
+  const [clearedFor, setClearedFor] = useState<unknown>(null);
+  if (state.status === "ok" && clearedFor !== state) {
+    setClearedFor(state);
+    setRows([emptyRow(seq), emptyRow(seq + 1)]);
+    setSeq(seq + 2);
+  }
   const check = checkOpeningLines(rows);
 
   function update(key: string, field: keyof OpeningLineDraft, value: string) {
@@ -78,9 +88,10 @@ export function OpeningBalanceForm({
                   onChange={(e) => update(row.key, "account_id", e.target.value)}
                 >
                   <option value="">Pilih akun</option>
-                  {accounts.map((a) => (
-                    <option key={a.id} value={a.id}>
+                  {options.map(({ account: a, hint, disabled }) => (
+                    <option key={a.id} value={a.id} disabled={disabled}>
                       {a.code} · {a.name}
+                      {hint ? ` (${hint})` : ""}
                     </option>
                   ))}
                 </select>

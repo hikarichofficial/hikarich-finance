@@ -1,6 +1,6 @@
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import { listInvoicePositions } from "@/services/sales/sales";
+import { listDraftInvoices, listInvoicePositions } from "@/services/sales/sales";
 import { filterInvoicePositionsByQuery, parseInvoiceFilter } from "@/domain/sales/invoiceList";
 import { InvoicesListScreen } from "@/features/sales/InvoicesListScreen";
 
@@ -16,7 +16,14 @@ export default async function InvoicesListPage({
   const filter = parseInvoiceFilter(status) ?? null;
   const query = q ?? "";
 
-  const rows = await listInvoicePositions(membership.entity_id, { filter: filter ?? undefined });
+  // Drafts have no number or receivable, so the position RPC omits them: show them under "Semua" and "Draf".
+  const issued =
+    filter === "draft"
+      ? []
+      : await listInvoicePositions(membership.entity_id, { filter: filter ?? undefined });
+  const drafts =
+    filter === null || filter === "draft" ? await listDraftInvoices(membership.entity_id) : [];
+  const rows = [...drafts, ...issued];
   const visible = filterInvoicePositionsByQuery(rows, query);
 
   return (

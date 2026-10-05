@@ -11,6 +11,11 @@ if (process.env.SKIP_ENV_VALIDATION !== "1") {
 const nextConfig: NextConfig = {
   poweredByHeader: false,
   reactStrictMode: true,
+  // The guide screenshots are read from disk by an auth-checked route handler (decision 299), so the
+  // serverless bundle of that route must carry them.
+  outputFileTracingIncludes: {
+    "/guide/image/[file]": ["./src/content/guide/images/**/*"],
+  },
   experimental: {
     serverActions: {
       // Backup restore sends the backup file's text through a Server Action (decision 247). The browser

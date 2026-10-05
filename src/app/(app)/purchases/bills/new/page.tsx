@@ -5,6 +5,7 @@ import { listActiveCategories } from "@/services/accounting/categories";
 import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { BillForm } from "@/features/purchases/BillForm";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Record Bill (Step 09 §12, decision 257), gated `bills.create` -- the permission `create_bill_draft`
  * itself checks. Only active vendors are offered. */
@@ -42,7 +43,7 @@ export default async function NewBillPage({
           categories={categories}
           suggestions={suggestions}
           entity={entity}
-          today={new Date().toISOString().slice(0, 10)}
+          today={todayInBusinessZone()}
         />
       </section>
     </div>

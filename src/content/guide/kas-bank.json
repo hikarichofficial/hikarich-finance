@@ -1,0 +1,408 @@
+{
+  "key": "kas-bank",
+  "title": "Kas & Bank",
+  "description": "Menambah rekening, melihat saldo dan mutasi, mengisi saldo awal, menonaktifkan atau menghapus rekening, dan transfer antar rekening.",
+  "guides": [
+    {
+      "slug": "tambah-rekening",
+      "title": "Cara Menambah Rekening (Bank, Kas Tunai, E-wallet)",
+      "summary": "Mendaftarkan rekening baru supaya bisa dipakai untuk menerima pembayaran, membayar tagihan, dan transfer.",
+      "path": "Kas & Bank > Rekening > Tambah Akun",
+      "who": "Perlu izin kelola rekening (money.edit) dan kelola Daftar Akun (coa.manage). Dengan peran bawaan, praktisnya OWNER. Peran Finance Admin melihat tombolnya tetapi gagal menyimpan.",
+      "quick": "Rekening hanya didaftarkan di sini. Saldo tidak diketik di form ini; saldo awal diisi lewat Akuntansi > Saldo Awal.",
+      "steps": [
+        {
+          "title": "Pastikan Entity aktif benar",
+          "text": "Rekening PT didaftarkan di Entity PT, rekening pribadi di Entity Pribadi. Periksa pemilih Entity di kiri atas."
+        },
+        {
+          "title": "Buka Kas & Bank > Rekening",
+          "text": "Halaman berjudul **Akun Kas & Bank** menampilkan semua rekening beserta saldonya.",
+          "image": {
+            "file": "rekening-daftar.jpg",
+            "caption": "Daftar rekening. Tombol Tambah Akun ada di kanan atas."
+          }
+        },
+        {
+          "title": "Tekan Tambah Akun",
+          "text": "Tombol **Tambah Akun** ada di kanan atas. Halaman berikutnya berjudul **Tambah Rekening**."
+        },
+        {
+          "title": "Isi form Tambah Rekening",
+          "text": "**Jenis**: pilih “Bank”, “Kas tunai”, atau “E-wallet / saldo marketplace”.\n\n**Nama Rekening** (wajib, maksimal 120 karakter), misalnya “BCA Operasional”. Nama harus unik di Entity ini.\n\n**Mata Uang** (wajib): kotak teks 3 huruf, bawaan IDR. Kode yang dikenal: IDR, USD, EUR, SGD, MYR, AUD, GBP, JPY, CNY, SAR. Kode lain ditolak.\n\n**Nama Bank / Penyedia**, **Nomor Rekening**, dan **Atas Nama** bersifat opsional. Isian ini dipakai sebagai petunjuk pembayaran di invoice bila rekening dipilih sebagai tujuan pembayaran.",
+          "image": {
+            "file": "rekening-tambah-form.jpg",
+            "caption": "Form Tambah Rekening."
+          },
+          "warning": "Jenis dan Mata Uang tidak bisa diubah setelah rekening dibuat. Periksa dengan teliti sebelum menyimpan."
+        },
+        {
+          "title": "Tekan Simpan",
+          "text": "Tombol **Simpan** berubah menjadi “Menyimpan…”. Setelah berhasil, Anda dibawa ke halaman detail rekening baru dengan saldo 0 dan status “Belum pernah direkonsiliasi”."
+        },
+        {
+          "title": "Isi saldo awal bila rekening sudah berisi uang",
+          "text": "Form tidak punya kolom saldo. Bila rekening sudah berisi uang pada saat mulai pembukuan, isi lewat [Cara Mengisi Saldo Awal](saldo-awal)."
+        }
+      ],
+      "result": [
+        "Rekening baru muncul di daftar Rekening dan menjadi pilihan di form Terima Pembayaran, Bayar Tagihan, Transfer, dan Catat Pengeluaran.",
+        "Sistem otomatis membuat akun buku besar untuk rekening ini di bawah kelompok kas (kode 1111-1119 untuk kas tunai, 1121-1189 untuk bank, 1191-1199 untuk e-wallet) dengan nama yang sama.",
+        "Belum ada jurnal sampai ada saldo awal atau transaksi."
+      ],
+      "rules": [
+        "Nama rekening unik per Entity dan membedakan huruf besar dan kecil.",
+        "Nomor rekening, nama bank, dan atas nama tidak ditampilkan di daftar atau detail rekening; hanya tercetak di invoice sebagai cara pembayaran.",
+        "Nama, bank, pemilik, dan nomor rekening bisa diubah lewat tombol **Ubah Detail Rekening** di bagian Kelola Rekening. Jenis dan mata uang tidak bisa diubah."
+      ],
+      "mistakes": [
+        "Mencari kolom saldo di form ini. Saldo awal diisi di Akuntansi > Saldo Awal.",
+        "Salah mengetik kode mata uang (misalnya IDRR). Tampil pesan “Mata uang tidak dikenal.”",
+        "Mengira tombol Tambah Akun pasti bisa menyimpan. Perlu juga izin coa.manage."
+      ],
+      "errors": [
+        {
+          "message": "Rekening keuangan dengan nama ini sudah ada.",
+          "meaning": "Nama sudah dipakai di Entity ini. Pakai nama lain."
+        },
+        {
+          "message": "Mata uang tidak dikenal.",
+          "meaning": "Kode mata uang tidak ada di daftar yang didukung."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Akun Anda tidak punya izin kelola rekening dan kelola Daftar Akun."
+        },
+        {
+          "message": "Rekening tidak dapat disimpan. Periksa nama dan mata uang.",
+          "meaning": "Nama kosong atau kode mata uang bukan 3 huruf."
+        }
+      ],
+      "related": ["saldo-awal", "lihat-saldo-mutasi", "nonaktif-hapus-rekening"]
+    },
+    {
+      "slug": "lihat-saldo-mutasi",
+      "title": "Cara Melihat Saldo dan Mutasi Rekening",
+      "summary": "Melihat saldo tiap rekening, riwayat uang masuk dan keluar, dan saldo berjalan.",
+      "path": "Kas & Bank > Rekening (daftar dan detail), Kas & Bank > Mutasi Kas & Bank, Ringkasan > Saldo Kas & Bank",
+      "who": "Semua peran yang punya akses Kas & Bank (izin lihat).",
+      "quick": "Saldo tidak pernah diketik. Saldo selalu hasil dari mutasi: saldo awal, pembayaran masuk, pengeluaran, dan transfer.",
+      "steps": [
+        {
+          "title": "Lihat daftar semua rekening",
+          "text": "Buka **Kas & Bank > Rekening**. Tabel memuat **Nama Akun**, **Jenis**, **Status**, **Saldo Sistem**, dan **Saldo Buku Besar**. Tab di atas tabel: Semua, Aktif, Tidak Aktif, Ada Selisih, Belum Direkonsiliasi. Kolom pencarian bekerja saat tombol **Cari** ditekan.\n\n**Saldo Sistem** adalah saldo dari pergerakan kas. **Saldo Buku Besar** adalah saldo akun buku besar rekening itu. Keduanya seharusnya sama; bila beda, status menampilkan “Selisih dengan Buku Besar”.",
+          "image": {
+            "file": "rekening-daftar.jpg",
+            "caption": "Daftar rekening dengan saldo."
+          }
+        },
+        {
+          "title": "Buka detail satu rekening",
+          "text": "Klik nama rekening. Halaman detail menampilkan saldo besar di atas, bagian **Ringkasan** (Saldo Sistem, Saldo Buku Besar, Selisih, Terakhir Direkonsiliasi, Total Masuk dan Total Keluar pada rentang yang tampil), lalu tabel **Aktivitas**.",
+          "image": {
+            "file": "rekening-detail.jpg",
+            "caption": "Detail rekening: ringkasan dan aktivitas."
+          }
+        },
+        {
+          "title": "Atur rentang tanggal",
+          "text": "Isi **Dari** dan **Sampai**, lalu tekan **Terapkan**. Bawaan hanya 30 hari terakhir, jadi mutasi lama tidak tampak sampai tanggal “Dari” diundurkan. Tabel menampilkan **Tanggal**, **Keterangan**, **Jurnal**, **Masuk**, **Keluar**, dan **Saldo Berjalan**, dengan data terbaru di atas (maksimal 500 baris).\n\nSaldo Berjalan selalu saldo kumulatif sebenarnya sejak awal, tidak terpotong oleh rentang tanggal."
+        },
+        {
+          "title": "Lihat mutasi semua rekening sekaligus",
+          "text": "Buka **Kas & Bank > Mutasi Kas & Bank** (judul halaman **Aktivitas Kas & Bank**). Pilih **Akun** (atau “Semua akun”), rentang tanggal, atau ketik kata kunci, lalu tekan **Terapkan**. Tabel tidak memiliki saldo berjalan karena memuat banyak rekening dan mata uang.",
+          "image": {
+            "file": "rekening-mutasi.jpg",
+            "caption": "Mutasi Kas & Bank untuk semua rekening."
+          }
+        },
+        {
+          "title": "Lihat ringkasan saldo di Ringkasan",
+          "text": "Buka **Ringkasan > Saldo Kas & Bank**. Halaman menampilkan total saldo rekening aktif dan daftar saldo tiap rekening dengan status rekonsiliasi. Rekening nonaktif tidak ikut dijumlahkan."
+        }
+      ],
+      "result": [
+        "Baca saja; tidak ada jurnal yang dibuat.",
+        "Keterangan baris mutasi menunjukkan sumbernya, misalnya Saldo Awal, Transfer Antar Akun, Pembayaran Pelanggan, Pembayaran Vendor, Pengeluaran, atau Pembayaran Pajak. Pembalikan tampil sebagai baris baru berlawanan arah dengan tanda “(pembalik)”."
+      ],
+      "rules": [
+        "Rekening yang sudah dihapus tidak tampil. Rekening nonaktif tetap tampil dengan status Tidak Aktif.",
+        "Kolom Jurnal menampilkan “—” bila peran Anda tidak punya akses Akuntansi."
+      ],
+      "mistakes": [
+        "Berharap menambah saldo dengan mengedit saldo. Catat transaksi (terima pembayaran, transfer, saldo awal) sebagai gantinya.",
+        "Mengira “Selisih dengan Buku Besar” adalah selisih dengan bank. Itu pemeriksaan internal sistem terhadap jurnal. Selisih dengan bank dicek lewat Rekonsiliasi Bank.",
+        "Tidak melihat mutasi lama karena rentang bawaan hanya 30 hari."
+      ],
+      "related": ["tambah-rekening", "saldo-awal", "transfer-antar-rekening"]
+    },
+    {
+      "slug": "saldo-awal",
+      "title": "Cara Mengisi Saldo Awal Rekening",
+      "summary": "Memasukkan uang yang sudah ada di rekening pada tanggal mulai pembukuan.",
+      "path": "Akuntansi > Saldo Awal",
+      "who": "Melihat: akses Akuntansi. Memposting dan menyelesaikan: izin impor sistem (system.import), yaitu OWNER dan Finance Admin. Peran Akuntan hanya melihat riwayat.",
+      "quick": "Pilih akun buku besar milik rekening (bukan nama rekening), isi jumlah di kolom Debit, lalu posting. Akun lawan otomatis ke Penampung Saldo Awal (8900).",
+      "steps": [
+        {
+          "title": "Pastikan rekening sudah dibuat",
+          "text": "Saldo awal rekening diisi ke akun buku besar milik rekening itu. Daftarkan dulu rekeningnya lewat [Cara Menambah Rekening](tambah-rekening). Akun buku besar rekening baru bernama sama dengan rekeningnya dan berkode 11xx."
+        },
+        {
+          "title": "Buka Akuntansi > Saldo Awal",
+          "text": "Halaman **Saldo Awal** menampilkan status “Belum dimulai”, “Sedang diisi”, atau “Selesai”, formulir **Posting Saldo Awal**, dan tabel **Riwayat Posting**.",
+          "image": {
+            "file": "saldo-awal.jpg",
+            "caption": "Halaman Saldo Awal."
+          }
+        },
+        {
+          "title": "Isi Tanggal Cutover dan Catatan",
+          "text": "**Tanggal Cutover** adalah tanggal efektif saldo awal (tanggal jurnal dan tanggal mutasi kas). Pakai tanggal sehari sebelum transaksi pertama di aplikasi, atau awal bulan pembukuan. **Catatan (opsional)** dipakai sebagai deskripsi jurnal."
+        },
+        {
+          "title": "Isi baris saldo",
+          "text": "Pada tabel baris pilih **Akun** dari daftar (bentuknya “1121 · BCA Operasional”), lalu isi **Debit** dengan jumlah uang di rekening. Isi tepat satu dari Debit atau Kredit per baris. Tekan **Tambah Baris** untuk rekening berikutnya; **Hapus** menghapus baris.\n\nDi bawah tabel tampil **Total**, total Debit, total Kredit, dan **Selisih ke akun penampung**.",
+          "warning": "Rekening kas/bank Anda tampil dengan keterangan “(rekening kas/bank)”; pilih yang itu agar saldo rekening ikut terisi. Akun kas bawaan yang tidak terhubung ke rekening mana pun sengaja tidak ditampilkan, karena memilihnya mengubah buku besar tanpa mengubah saldo rekening."
+        },
+        {
+          "title": "Tekan Posting Saldo Awal",
+          "text": "Tombol aktif setelah tidak ada masalah isian. Hasil: “Saldo awal berhasil diposting.” dan tabel **Riwayat Posting** bertambah satu baris. Mutasi kas “Saldo Awal” otomatis muncul di rekening pada tanggal cutover.",
+          "tip": "Setelah sukses, isian grid dikosongkan otomatis supaya angka yang sama tidak terposting dua kali."
+        },
+        {
+          "title": "Posting akun lain dan saldo selain kas",
+          "text": "Ulangi untuk rekening lain. Saldo awal piutang, utang, aset, dan pinjaman juga masuk di sini atau di modul masing-masing, sebelum Anda menekan Selesaikan."
+        },
+        {
+          "title": "Selesaikan Saldo Awal",
+          "text": "Bagian **Selesaikan** muncul setelah ada minimal satu posting. Baca peringatannya, isi **Catatan penyelesaian**, lalu tekan **Selesaikan Saldo Awal**. Bila sisa akun penampung tidak nol, catatan wajib minimal 10 karakter. Hasil: “Saldo awal diselesaikan.” dan status menjadi “Selesai”.",
+          "warning": "Setelah diselesaikan, saldo awal tidak bisa diposting lagi untuk Entity ini dan tidak ada tombol membuka kembali. Koreksi selanjutnya lewat Akuntansi > Penyesuaian Lanjutan."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Contoh jurnal untuk saldo awal Rp 10.000.000 di BCA Operasional",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["1121 BCA Operasional", "10.000.000", ""],
+            ["8900 Penampung Saldo Awal", "", "10.000.000"]
+          ]
+        }
+      ],
+      "result": [
+        "Satu jurnal bertipe Saldo Awal terbentuk per posting. Mutasi “Saldo Awal” muncul di rekening pada tanggal cutover dan saldo rekening bertambah.",
+        "Bila Anda menambah baris lawan sendiri (misalnya Kredit 3100 Modal Disetor sebesar yang sama), tidak ada baris penampung."
+      ],
+      "rules": [
+        "Hanya akun neraca (aset, kewajiban, ekuitas) yang boleh dipakai. Akun pendapatan atau beban ditolak.",
+        "Periode akuntansi pada tanggal cutover harus terbuka. Rekening nonaktif tidak bisa diberi saldo awal.",
+        "Posting ulang akun yang sama menambah saldo lagi; tidak ada pemeriksaan ganda dan tidak ada tombol batal batch.",
+        "Rekening bermata uang asing tampil abu-abu dan tidak bisa dipilih di formulir ini (butuh kolom jumlah asli dan kurs). Gunakan Akuntansi > Penyesuaian Lanjutan, yang punya kolom Kurs."
+      ],
+      "mistakes": [
+        "Berharap menemukan kolom saldo di form rekening.",
+        "Memilih akun bawaan yang tidak terhubung ke rekening, sehingga saldo rekening tidak berubah.",
+        "Menekan Selesaikan sebelum piutang, utang, aset, dan pinjaman awal ikut diposting.",
+        "Mengisi Kredit pada akun kas dengan maksud saldo masuk. Kredit pada akun kas berarti saldo negatif."
+      ],
+      "errors": [
+        {
+          "message": "Saldo awal Entity ini sudah selesai diisi.",
+          "meaning": "Saldo awal sudah diselesaikan; gunakan Penyesuaian Lanjutan."
+        },
+        {
+          "message": "Periode akuntansi <tanggal> berstatus <status> dan tidak menerima posting.",
+          "meaning": "Pilih Tanggal Cutover di periode yang masih terbuka."
+        },
+        {
+          "message": "Saldo awal hanya boleh memakai akun neraca (bukan <kode>).",
+          "meaning": "Pilih akun aset, kewajiban, atau ekuitas."
+        },
+        {
+          "message": "Rekening <nama> nonaktif dan tidak bisa diberi saldo awal.",
+          "meaning": "Aktifkan kembali rekening lebih dulu."
+        },
+        {
+          "message": "Akun kliring belum nol (<angka>); rekonsiliasikan atau jelaskan penyesuaian migrasinya (minimal 10 karakter).",
+          "meaning": "Isi Catatan penyelesaian minimal 10 karakter, atau lengkapi baris lawan."
+        }
+      ],
+      "related": ["tambah-rekening", "lihat-saldo-mutasi"]
+    },
+    {
+      "slug": "nonaktif-hapus-rekening",
+      "title": "Cara Menonaktifkan dan Menghapus Rekening",
+      "summary": "Menyembunyikan rekening yang tidak dipakai lagi, atau menghapusnya dengan konfirmasi dua langkah.",
+      "path": "Kas & Bank > Rekening > (klik nama rekening) > bagian Kelola Rekening",
+      "who": "Nonaktifkan dan Aktifkan Kembali: izin money.edit. Hapus Rekening: money.edit dan coa.manage (praktisnya OWNER).",
+      "quick": "Nonaktifkan: rekening tetap terlihat, saldo harus nol. Hapus: rekening hilang dari semua daftar, saldo tidak harus nol; riwayat tetap tersimpan bila rekening sudah punya transaksi.",
+      "steps": [
+        {
+          "title": "Buka detail rekening dan gulir ke bawah",
+          "text": "Buka **Kas & Bank > Rekening**, klik nama rekening, lalu gulir ke bagian paling bawah **Kelola Rekening**.",
+          "image": {
+            "file": "rekening-kelola.jpg",
+            "caption": "Bagian Kelola Rekening di bawah halaman detail rekening."
+          }
+        },
+        {
+          "title": "Mengubah nama, bank, pemilik, atau nomor rekening",
+          "text": "Tekan **Ubah Detail Rekening** untuk membuka formulir. Ubah **Nama Rekening**, **Bank / Lembaga**, **Nama Pemilik Rekening**, atau **Nomor Rekening**, lalu tekan **Simpan Perubahan**. Nomor rekening tidak ditampilkan kembali demi keamanan: biarkan kosong bila tidak ingin mengubahnya.\n\nHasil: “Detail rekening tersimpan.” Jenis rekening dan mata uang tidak bisa diubah setelah rekening dibuat.",
+          "tip": "Nama rekening harus unik di dalam satu Entity."
+        },
+        {
+          "title": "Pilihan A: Nonaktifkan Rekening",
+          "text": "Isi **Alasan menonaktifkan** (wajib, minimal 5 karakter), lalu tekan **Nonaktifkan Rekening**. Syaratnya saldo rekening harus tepat nol. Bila belum nol, pindahkan saldo lewat [Transfer](transfer-antar-rekening) atau catat pengeluaran sampai nol.\n\nHasil: “Rekening dinonaktifkan.” Status menjadi “Tidak Aktif” dan tombol berubah menjadi **Aktifkan Kembali**. Rekening nonaktif tidak muncul sebagai pilihan pembayaran atau transfer, dan tidak dihitung di Saldo Kas & Bank, tetapi riwayatnya tetap bisa dilihat."
+        },
+        {
+          "title": "Mengaktifkan kembali",
+          "text": "Tekan **Aktifkan Kembali**. Tidak ada kolom alasan. Hasil: “Rekening diaktifkan kembali.”"
+        },
+        {
+          "title": "Pilihan B: Hapus Rekening (dua langkah konfirmasi)",
+          "text": "Klik ringkasan merah **Hapus Rekening** untuk membuka panel. Panel menjelaskan konsekuensinya: bila rekening belum punya transaksi, ia dihapus permanen; bila sudah punya transaksi, ia hilang dari semua daftar dan pilihan tetapi riwayat dan jurnalnya tetap tersimpan agar laporan tidak berubah, dan saldo yang tersisa tetap tercatat di buku besar.\n\n**Alasan (opsional)** boleh diisi."
+        },
+        {
+          "title": "Langkah 1: ketik nama rekening",
+          "text": "Ketik nama rekening persis seperti tampil di layar (huruf besar dan kecil harus sama). Tombol **Lanjut ke konfirmasi akhir** baru aktif setelah nama sama persis."
+        },
+        {
+          "title": "Langkah 2: konfirmasi terakhir",
+          "text": "Peringatan merah “Langkah 2. Ini konfirmasi terakhir…” muncul. Centang **Ya, saya yakin dan hapus rekening ini**, lalu tekan **Hapus Rekening Sekarang**. Setelah berhasil Anda dibawa kembali ke daftar rekening dan rekening itu tidak tampak lagi."
+        }
+      ],
+      "result": [
+        "Rekening tanpa riwayat sama sekali: dihapus permanen.",
+        "Rekening dengan riwayat: diarsipkan. Namanya diberi akhiran “(dihapus tanggal ...)” sehingga nama asli boleh dipakai lagi untuk rekening baru. Tidak ada tombol di layar untuk memulihkannya."
+      ],
+      "rules": [
+        "Nonaktifkan wajib saldo nol dan alasan minimal 5 karakter. Hapus tidak mewajibkan saldo nol dan alasannya opsional.",
+        "Saldo yang tersisa pada rekening yang dihapus tetap ikut di buku besar dan di pemeriksaan penutupan periode."
+      ],
+      "mistakes": [
+        "Mengira Hapus pada rekening bertransaksi menghapus data. Riwayat dan jurnal tetap ada; hanya hilang dari layar.",
+        "Mencoba menonaktifkan rekening yang saldonya belum nol.",
+        "Salah ketik nama saat konfirmasi. Salin dan tempel nama dari layar paling aman."
+      ],
+      "errors": [
+        {
+          "message": "Akun masih memiliki saldo; pindahkan saldonya sebelum dinonaktifkan.",
+          "meaning": "Saldo rekening harus nol sebelum dinonaktifkan."
+        },
+        {
+          "message": "Nama rekening yang diketik belum sama persis. Tidak ada yang dihapus.",
+          "meaning": "Periksa ejaan dan huruf besar kecil nama rekening."
+        },
+        {
+          "message": "Centang kotak konfirmasi akhir dulu untuk menghapus rekening.",
+          "meaning": "Centang kotak Ya, saya yakin sebelum menekan Hapus Rekening Sekarang."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Menghapus rekening perlu izin money.edit dan coa.manage."
+        }
+      ],
+      "related": ["tambah-rekening", "transfer-antar-rekening"]
+    },
+    {
+      "slug": "transfer-antar-rekening",
+      "title": "Cara Transfer Antar Rekening",
+      "summary": "Memindahkan uang dari satu rekening ke rekening lain di Entity yang sama, termasuk biaya bank dan transfer beda mata uang.",
+      "path": "Kas & Bank > Transfer > Buat Transfer",
+      "who": "Membuat draf dan membatalkan draf: money.transfer_create (Finance Admin, OWNER). Mengonfirmasi dan membalik: money.transfer_approve (Approver, OWNER). Dengan peran bawaan hanya OWNER yang bisa membuat dan mengonfirmasi sekaligus.",
+      "quick": "Draf transfer tidak memindahkan uang. Saldo baru berubah saat transfer dikonfirmasi.",
+      "steps": [
+        {
+          "title": "Buka Kas & Bank > Transfer",
+          "text": "Halaman **Transfer Antar Akun** menampilkan daftar transfer dengan tab Semua, Menunggu Konfirmasi, Terkonfirmasi, Dibatalkan, Dibalik. Tekan **Buat Transfer**.",
+          "image": {
+            "file": "transfer-daftar.jpg",
+            "caption": "Daftar transfer."
+          }
+        },
+        {
+          "title": "Isi Dari Akun, Ke Akun, tanggal, dan jumlah",
+          "text": "**Dari Akun** dan **Ke Akun**: pilih dua rekening aktif yang berbeda di Entity ini. **Tanggal Transfer** (bawaan hari ini). **Jumlah Dikirim** dalam mata uang rekening sumber.",
+          "image": {
+            "file": "transfer-form.jpg",
+            "caption": "Form Buat Transfer Baru."
+          }
+        },
+        {
+          "title": "Isi Biaya Bank bila ada",
+          "text": "**Biaya Bank (opsional)** dikeluarkan dari rekening sumber di atas jumlah dikirim, dan dicatat sebagai beban biaya bank. Tujuan menerima jumlah penuh."
+        },
+        {
+          "title": "Isi kolom beda mata uang hanya bila perlu",
+          "text": "Bila mata uang rekening sumber dan tujuan berbeda, isi **Jumlah Diterima** dan kurs untuk sisi yang bukan mata uang dasar (**Kurs Sumber** atau **Kurs Tujuan**). Kolom kurs memakai TITIK sebagai desimal (misalnya 15500.5), tanpa pemisah ribuan. Selisih kurs dibatasi 20% dari jumlah.\n\nBila mata uang sama, biarkan kosong."
+        },
+        {
+          "title": "Deskripsi dan Referensi (opsional)",
+          "text": "**Deskripsi** (maksimal 500 karakter) dan **Referensi** (maksimal 120 karakter) membantu mencari transfer kemudian."
+        },
+        {
+          "title": "Simpan sebagai draf atau langsung konfirmasi",
+          "text": "Bila akun Anda berhak mengonfirmasi, ada kotak **Konfirmasi transfer ini sekarang juga (langsung memposting jurnal)**. Centang bila ingin langsung selesai. Bila tidak, tampil teks “Transfer ini disimpan sebagai draf dan menunggu konfirmasi dari pihak yang berwenang.” Tekan **Simpan Transfer**."
+        },
+        {
+          "title": "Konfirmasi draf (bila belum dikonfirmasi)",
+          "text": "Buka detail transfer berstatus “Menunggu Konfirmasi”, lalu tekan **Konfirmasi Transfer**. Nomor TRF-tahun-urut diberikan saat konfirmasi. Bila draf salah, tekan **Batalkan Transfer** dan buat ulang; isi transfer tidak bisa diedit."
+        },
+        {
+          "title": "Membalik transfer yang salah",
+          "text": "Pada transfer “Terkonfirmasi” tekan **Balik Transfer (Reverse)**, isi **Tanggal Pembalikan** dan **Alasan (minimal 5 karakter)**, lalu tekan **Balik Transfer**. Transfer asli tetap tercatat dengan status “Dibalik” dan muncul mutasi pembalik di kedua rekening. Tidak bisa diurungkan."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal saat transfer dikonfirmasi (tanpa biaya dan selisih kurs)",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Akun buku rekening tujuan", "jumlah diterima", ""],
+            ["Akun buku rekening sumber", "", "jumlah dikirim"]
+          ]
+        }
+      ],
+      "result": [
+        "Saldo rekening sumber berkurang dan saldo tujuan bertambah saat konfirmasi. Transfer tidak menimbulkan pendapatan atau beban, kecuali biaya bank dan selisih kurs.",
+        "Draf tidak punya efek akuntansi dan tidak bernomor."
+      ],
+      "rules": [
+        "Kedua rekening harus aktif, berbeda, dan milik Entity yang sama. Transfer PT ke Pribadi tidak bisa dibuat di sini.",
+        "Bila kebijakan saldo minus aktif untuk jenis rekening sumber (bawaan: Bank), konfirmasi yang membuat saldo di bawah nol ditolak.",
+        "Tanggal transfer harus berada di periode akuntansi yang terbuka saat konfirmasi.",
+        "Transfer yang pergerakannya sudah dicocokkan di rekonsiliasi bank tidak bisa dibalik sebelum pencocokan dilepas."
+      ],
+      "mistakes": [
+        "Mengira draf sudah memindahkan uang.",
+        "Mengharapkan tombol Edit. Batalkan draf lalu buat ulang, atau balik transfer terkonfirmasi lalu buat ulang.",
+        "Mengetik kurs dengan koma atau titik ribuan. “15.500” terbaca 15,5.",
+        "Mengira biaya bank dipotong dari jumlah yang diterima tujuan. Biaya dikeluarkan dari rekening sumber tambahan."
+      ],
+      "errors": [
+        {
+          "message": "Transfer memerlukan dua rekening yang berbeda.",
+          "meaning": "Dari Akun dan Ke Akun tidak boleh sama."
+        },
+        {
+          "message": "Rekening yang nonaktif tidak bisa dipakai untuk transfer.",
+          "meaning": "Aktifkan kembali rekening atau pilih rekening lain."
+        },
+        {
+          "message": "Ini akan membuat <rekening> di bawah nol, dan itu tidak diizinkan untuk rekening <jenis>.",
+          "meaning": "Saldo sumber tidak cukup. Isi saldo lebih dulu atau kurangi jumlah."
+        },
+        {
+          "message": "Kedua rekening harus milik Entity ini; perpindahan uang antara PT dan Pribadi harus dicatat sesuai dasar ekonominya yang sebenarnya.",
+          "meaning": "Transfer PT dan Pribadi tidak dicatat sebagai transfer biasa."
+        },
+        {
+          "message": "Selisih kurs melebihi 20% dari jumlah; periksa kursnya.",
+          "meaning": "Kemungkinan kurs salah ketik."
+        }
+      ],
+      "related": ["lihat-saldo-mutasi", "nonaktif-hapus-rekening"]
+    }
+  ]
+}

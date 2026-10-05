@@ -8,7 +8,11 @@ import {
 import type { AccountActivityRow } from "@/schemas/money";
 import { Decimal } from "@/domain/money/decimal";
 import { formatShortDate } from "./format";
-import { DeleteAccountForm, ToggleAccountActiveForm } from "./AccountManageForms";
+import {
+  DeleteAccountForm,
+  EditAccountDetailsForm,
+  ToggleAccountActiveForm,
+} from "./AccountManageForms";
 
 /**
  * Account Detail (P13 Part 3c, Step 09 §10, §13: "Account detail resembles a clean bank ledger with filters,
@@ -35,6 +39,7 @@ export function AccountDetailScreen({
   canManage,
   canDelete,
   hasHistory,
+  editable,
 }: {
   account: AccountListRow;
   activity: readonly AccountActivityRow[];
@@ -44,6 +49,8 @@ export function AccountDetailScreen({
   canManage: boolean;
   canDelete: boolean;
   hasHistory: boolean;
+  /** Current name/institution/holder for the edit form; `null` hides it. */
+  editable: { name: string; institution_name: string; account_holder: string } | null;
 }) {
   const status = accountListStatus(account);
   let totalIn = Decimal.parse("0");
@@ -203,6 +210,13 @@ export function AccountDetailScreen({
               ? "Rekening ini sudah punya transaksi. Anda boleh menghapusnya (ada dua langkah konfirmasi): rekening hilang dari semua daftar, riwayatnya tetap tersimpan. Atau cukup nonaktifkan (saldo harus nol) agar tidak muncul di pilihan pembayaran."
               : "Rekening ini belum punya transaksi. Anda boleh menghapusnya (ada dua langkah konfirmasi)."}
           </p>
+          {editable ? (
+            <EditAccountDetailsForm
+              entity={entity}
+              accountId={account.financial_account_id}
+              current={editable}
+            />
+          ) : null}
           <ToggleAccountActiveForm
             entity={entity}
             accountId={account.financial_account_id}

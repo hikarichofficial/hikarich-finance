@@ -1,7 +1,11 @@
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
-import { INVOICE_FILTER_OPTIONS, invoicePositionStatus } from "@/domain/sales/invoiceList";
-import type { InvoiceFilter, InvoicePosition } from "@/schemas/sales";
+import {
+  INVOICE_FILTER_OPTIONS,
+  invoicePositionStatus,
+  type InvoiceListFilter,
+} from "@/domain/sales/invoiceList";
+import type { InvoicePosition } from "@/schemas/sales";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
 
@@ -26,7 +30,11 @@ import { formatShortDate } from "./format";
  * deliberately excluded (§23's own carve-out keeps "advanced report building" desktop-optimized).
  */
 
-function buildHref(entity: string | undefined, filter: InvoiceFilter | null, q: string): string {
+function buildHref(
+  entity: string | undefined,
+  filter: InvoiceListFilter | null,
+  q: string,
+): string {
   const params = new URLSearchParams();
   if (entity) params.set("entity", entity);
   if (filter) params.set("status", filter);
@@ -43,7 +51,7 @@ export function InvoicesListScreen({
   canCreate,
 }: {
   rows: readonly InvoicePosition[];
-  activeFilter: InvoiceFilter | null;
+  activeFilter: InvoiceListFilter | null;
   query: string;
   entity: string | undefined;
   canCreate: boolean;
@@ -157,7 +165,7 @@ export function InvoicesListScreen({
                         { label: "Total", value: formatMoney(row.total, row.currency) },
                         {
                           label: "Sisa Tagihan",
-                          value: formatMoney(row.outstanding, row.currency),
+                          value: outstandingText(row),
                         },
                       ]}
                     />
@@ -174,7 +182,7 @@ export function InvoicesListScreen({
                     {formatMoney(row.total, row.currency)}
                   </td>
                   <td className="num" data-label="Sisa Tagihan">
-                    {formatMoney(row.outstanding, row.currency)}
+                    {outstandingText(row)}
                   </td>
                 </tr>
               );
@@ -186,6 +194,11 @@ export function InvoicesListScreen({
   );
 }
 
-function filterLabel(filter: InvoiceFilter): string {
+/** A draft is not a receivable yet, so it shows no outstanding amount. */
+function outstandingText(row: InvoicePosition): string {
+  return row.status === "draft" ? "—" : formatMoney(row.outstanding, row.currency);
+}
+
+function filterLabel(filter: InvoiceListFilter): string {
   return INVOICE_FILTER_OPTIONS.find((option) => option.value === filter)?.label ?? filter;
 }

@@ -27,6 +27,48 @@ export function openingEligibleAccounts(accounts: readonly LedgerAccountRow[]): 
   );
 }
 
+export interface OpeningAccountOption {
+  account: LedgerAccountRow;
+  /** Short note shown after the account name. */
+  hint: string | null;
+  /** Cannot be chosen here (foreign-currency cash/bank accounts need an original amount and a rate). */
+  disabled: boolean;
+}
+
+/**
+ * The opening-balance account choices with the traps removed (finding #91): the default cash/bank accounts
+ * that no real cash/bank account is linked to are left out (posting there changes the books without creating
+ * a cash movement), real cash/bank accounts are labelled, and foreign-currency ones are shown but disabled
+ * because this grid has no original-amount and rate columns.
+ */
+export function openingAccountOptions(
+  accounts: readonly LedgerAccountRow[],
+  links: readonly { ledger_account_id: string; name: string; currency: string }[],
+  baseCurrency: string,
+): OpeningAccountOption[] {
+  const eligible = openingEligibleAccounts(accounts);
+  const linkByLedger = new Map(links.map((l) => [l.ledger_account_id, l]));
+  const cashGroupIds = new Set(accounts.filter((a) => a.code === "1100").map((a) => a.id));
+  const options: OpeningAccountOption[] = [];
+  for (const account of eligible) {
+    const link = linkByLedger.get(account.id);
+    if (link) {
+      const foreign = link.currency !== baseCurrency;
+      options.push({
+        account,
+        hint: foreign
+          ? `rekening ${link.currency}, isi lewat Penyesuaian Lanjutan`
+          : "rekening kas/bank",
+        disabled: foreign,
+      });
+      continue;
+    }
+    if (account.parent_id !== null && cashGroupIds.has(account.parent_id)) continue;
+    options.push({ account, hint: null, disabled: false });
+  }
+  return options;
+}
+
 export interface OpeningLineDraft {
   key: string;
   account_id: string;

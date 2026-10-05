@@ -1,0 +1,196 @@
+{
+  "key": "pajak-lainnya",
+  "title": "Pajak dan Piutang Lain",
+  "description": "Mencatat pembayaran pajak dan pelaporan, serta piutang atau utang di luar invoice dan tagihan.",
+  "guides": [
+    {
+      "slug": "bayar-pajak",
+      "title": "Cara Mencatat Pembayaran Pajak dan Pelaporan",
+      "summary": "Melihat posisi pajak per masa, mencatat pembayaran, mencatat pelaporan (SPT), dan melampirkan bukti.",
+      "path": "Pajak > Pelaporan & Bukti (posisi di Pajak > PPN, Pemotongan PPh, PPh Final)",
+      "who": "Melihat: tax.view. Mencatat pembayaran, pelaporan, rekonsiliasi, dan bukti: izin tandai lapor (tax.mark_filed), yaitu peran Pajak dan OWNER. Finance Admin tidak punya izin ini. Hitung PPh Final: tax.confirm_facts.",
+      "quick": "Mesin pajak harus aktif dulu. Pajak yang bisa dibayar hanya yang sudah diakui dari invoice, tagihan, atau pengeluaran. Pelaporan hanya catatan referensi dan tidak mengubah buku besar.",
+      "steps": [
+        {
+          "title": "Pastikan mesin pajak aktif",
+          "text": "Tanpa mesin pajak aktif tidak ada pajak yang diakui, jadi tidak ada sisa untuk dibayar. Lihat [Cara Mengisi Pengaturan Pajak Awal](pengaturan-pajak-awal)."
+        },
+        {
+          "title": "Lihat posisi pajak masa berjalan",
+          "text": "Buka **Pajak > PPN**, **Pajak > Pemotongan PPh**, atau **Pajak > PPh Final**. Pilih **Masa Pajak** (bulan; bawaan bulan lalu) lalu **Terapkan**. Bagian **Posisi Tercatat** menampilkan Terutang (Diakui), Sudah Dibayar, dan Sisa Kekurangan. PPN juga menampilkan PPN Masukan Diakui, Terpakai, dan Tersedia."
+        },
+        {
+          "title": "Khusus PPh Final: hitung dulu",
+          "text": "Di **Pajak > PPh Final**, periksa **Pratinjau** lalu tekan **Hitung Pajak Final Bulan Ini**. Tombol hanya aktif bila status pratinjau “Ditentukan otomatis”. Hasilnya mencatat PPh Final sebagai terutang; pembayaran dibatasi sebesar yang sudah diakui, jadi langkah ini harus lebih dulu."
+        },
+        {
+          "title": "Buka Pajak > Pelaporan & Bukti",
+          "text": "Pilih **Jenis Pajak** (PPN, PPh 23 (dipotong), PPh 4(2) sewa tanah/bangunan, PPh 26 (luar negeri), PPh Final UMKM) dan **Masa Pajak**, lalu **Terapkan**. PPh 21 dicatat lewat Payroll, bukan layar ini.",
+          "image": {
+            "file": "pajak-pelaporan.jpg",
+            "caption": "Halaman Pelaporan & Bukti."
+          }
+        },
+        {
+          "title": "Catat Pembayaran",
+          "text": "Di bagian **Catat Pembayaran**, perhatikan petunjuk “Sisa kekurangan saat ini”. Isi **Tanggal Bayar**, **Pajak Dibayar**, **Kompensasi PPN Masukan (opsional, khusus PPN)**, **Denda (opsional)**, **Akun Pembayar**, **Referensi (opsional)**, dan **Catatan** (wajib bila ada denda, misalnya nomor surat tagihan). Tekan **Catat Pembayaran**. Pembayaran muncul di **Riwayat Pembayaran**."
+        },
+        {
+          "title": "Catat Pelaporan (SPT)",
+          "text": "Di bagian pelaporan isi **Tanggal Lapor**, **No. Tanda Terima**, **Dasar Pengenaan yang Dilaporkan**, **Pajak yang Dilaporkan**, dan **Kredit PPN yang Dilaporkan (opsional)**. Tekan **Catat Pelaporan**. Bila periode sudah pernah dilaporkan, tombol menjadi **Catat Amendemen** dan catatan wajib."
+        },
+        {
+          "title": "Rekonsiliasi periode",
+          "text": "Tekan **Rekonsiliasi Sekarang** untuk membandingkan buku dengan pelaporan. Bila ada selisih, isi catatan minimal 10 karakter."
+        },
+        {
+          "title": "Lampirkan bukti pendukung",
+          "text": "Di **Bukti Pendukung**, cari dokumen yang sudah diunggah di menu Dokumen lewat **Cari Dokumen**, pilih **Tujuan** (Bukti lapor, Bukti bayar, Bukti potong, Faktur pajak, Lainnya), lalu **Lampirkan**. Bukti tidak bisa dihapus setelah dilampirkan."
+        },
+        {
+          "title": "Pantau Kalender Pajak",
+          "text": "**Pajak > Kalender Pajak** menampilkan langkah Hitung, Bayar, Lapor, Bukti per masa dengan status Selesai, Perlu dikerjakan, Terlambat, atau Akan datang. PPh yang dipotong dibayar paling lambat tanggal 15 bulan berikutnya."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal pembayaran pajak",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Utang Pajak", "pajak dibayar", ""],
+            ["Beban Denda Pajak", "denda (bila ada)", ""],
+            ["Aset Pajak (PPN masukan)", "", "kompensasi (bila ada)"],
+            ["Kas/Bank (akun pembayar)", "", "pajak dibayar dikurangi kompensasi ditambah denda"]
+          ]
+        }
+      ],
+      "result": [
+        "Saldo rekening pembayar berkurang dan Sisa Kekurangan mengecil. Pelaporan dan bukti hanya catatan referensi tanpa jurnal."
+      ],
+      "rules": [
+        "Tanggal bayar tidak boleh di masa depan atau sebelum awal masa pajak.",
+        "Jumlah dibayar tidak boleh melebihi sisa. Kompensasi PPN masukan dibatasi PPN masukan yang tersedia.",
+        "Pembayaran yang sepenuhnya dikompensasi tidak memakai akun pembayar.",
+        "Satu pelaporan per masa; perubahan lewat amendemen.",
+        "Pembayaran dibatalkan lewat tombol Balik di Riwayat Pembayaran (Tanggal Pembalikan dan alasan minimal 5 karakter).",
+        "Belum ada menu Bayar pajak mandiri di luar halaman ini."
+      ],
+      "mistakes": [
+        "Membayar sebelum mesin pajak diaktifkan atau tanpa ada pajak yang diakui.",
+        "Lupa Hitung Pajak Final Bulan Ini sebelum membayar PPh Final.",
+        "Salah memilih Masa Pajak.",
+        "Mengisi denda tanpa catatan.",
+        "Mengira Catat Pelaporan membayar atau mengubah buku.",
+        "Finance Admin mengharapkan bisa mencatat pembayaran pajak. Izin ini hanya milik peran Pajak dan OWNER."
+      ],
+      "errors": [
+        {
+          "message": "Pajak yang dibayar harus lebih dari nol",
+          "meaning": "Isi jumlah pajak dibayar."
+        },
+        {
+          "message": "Denda perlu catatan yang menjelaskannya (misalnya nomor surat tagihan)",
+          "meaning": "Isi kolom Catatan."
+        },
+        {
+          "message": "Pembayaran pajak tidak dapat dicatat.",
+          "meaning": "Pesan umum, termasuk saldo tidak cukup atau melebihi sisa."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Akun tidak punya izin tandai lapor."
+        }
+      ],
+      "related": ["pengaturan-pajak-awal", "catat-tagihan-vendor", "buat-biaya"]
+    },
+    {
+      "slug": "piutang-lain",
+      "title": "Cara Mencatat Piutang Lain (Pinjaman ke Pihak Lain)",
+      "summary": "Mencatat uang yang Anda pinjamkan ke pihak lain di luar invoice penjualan, lalu mencatat penerimaan kembali.",
+      "path": "Aset & Pendanaan > Piutang Lain > Tambah Piutang lain-lain",
+      "who": "Melihat: loans.view. Membuat, melunasi, menghapus sisa, membatalkan: loans.manage (OWNER dan Finance Admin). Hapus Sisa juga perlu verifikasi ulang kode autentikator.",
+      "quick": "Piutang Lain BUKAN untuk tagihan pelanggan. Tagihan pelanggan selalu lewat Penjualan > Invoice supaya pendapatan tidak ganda dan muncul di Umur Piutang.",
+      "steps": [
+        {
+          "title": "Pastikan memang bukan invoice",
+          "text": "Gunakan ini hanya untuk uang yang keluar sebagai pinjaman atau talangan (misalnya pinjaman sederhana ke pihak lain). Untuk pinjaman berjadwal dengan cicilan dan bunga, gunakan Aset & Pendanaan > Pinjaman dengan jenis “Pinjaman diberikan”."
+        },
+        {
+          "title": "Buka Aset & Pendanaan > Piutang Lain",
+          "text": "Halaman menampilkan **Nomor**, **Pihak**, **Tujuan**, **Jatuh Tempo**, **Pokok**, **Outstanding**, dan **Status** (Berjalan, Lunas, Dibatalkan, Terlambat). Tekan **Tambah Piutang lain-lain**.",
+          "image": {
+            "file": "piutang-lain-daftar.jpg",
+            "caption": "Daftar Piutang Lain."
+          }
+        },
+        {
+          "title": "Isi form",
+          "text": "**Siapa yang Berutang ke Kita** (nama pihak, wajib; ada saran dari daftar kontak). **Keterangan** (wajib, 3-500 karakter). **Jumlah**. **Tanggal** (bawaan hari ini, tidak boleh di masa depan). **Jatuh Tempo (opsional)**. **Uang Keluar dari Rekening** (rekening aktif).",
+          "image": {
+            "file": "piutang-lain-form.jpg",
+            "caption": "Form Tambah Piutang lain-lain."
+          }
+        },
+        {
+          "title": "Tekan Simpan",
+          "text": "Anda dibawa ke halaman detail. Nomor berawalan ORC, saldo rekening berkurang sebesar jumlah, dan status Berjalan."
+        },
+        {
+          "title": "Catat penerimaan kembali",
+          "text": "Di detail, bagian **Tindakan**, tekan **Catat Penerimaan**. Isi **Tanggal**, **Uang Masuk ke Rekening**, **Jumlah Pokok** (bawaan sisa), **Bunga (jika ada)**, **Biaya (jika ada)**, dan **Catatan** (wajib bila ada bunga atau biaya). Tekan **Simpan Pelunasan**. Bila pokok sama dengan sisa, status menjadi Lunas."
+        },
+        {
+          "title": "Hapus sisa, batalkan, atau batalkan pelunasan",
+          "text": "**Hapus Sisa** (hapus buku piutang tak tertagih) butuh alasan 5-1000 karakter dan verifikasi ulang. **Batalkan (Salah Catat)** hanya untuk yang belum ada pelunasan aktif. **Batalkan Pelunasan** membalik satu pelunasan."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal saat piutang lain dicatat dan saat diterima kembali",
+          "columns": ["Kejadian", "Debit", "Kredit"],
+          "rows": [
+            ["Dicatat", "Piutang Lain-lain", "Kas/Bank (uang keluar)"],
+            [
+              "Diterima kembali",
+              "Kas/Bank (pokok + bunga + biaya)",
+              "Piutang Lain (pokok), Pendapatan Bunga, Pendapatan Lain"
+            ],
+            ["Hapus Sisa", "Beban Piutang Tak Tertagih", "Piutang Lain"]
+          ]
+        }
+      ],
+      "result": ["Piutang lain tercatat di aset dan tidak masuk Umur Piutang penjualan."],
+      "rules": [
+        "Tanggal tidak boleh di masa depan; jatuh tempo tidak boleh sebelum tanggal.",
+        "Pelunasan pokok tidak boleh melebihi sisa; periode akuntansi harus terbuka.",
+        "Rekening yang dipakai harus rekening dalam mata uang dasar Entity.",
+        "Belum ada kolom “dasar hubungan” untuk menandai pinjaman ke direktur atau pihak berelasi, dan data tidak bisa diedit setelah dibuat."
+      ],
+      "mistakes": [
+        "Memakai Piutang Lain untuk tagihan invoice pelanggan. Pendapatan bisa tercatat ganda.",
+        "Mencatat pinjaman berjadwal (cicilan dan bunga) di sini, bukan di Pinjaman.",
+        "Mengisi bunga atau biaya tanpa catatan.",
+        "Memakai Hapus Sisa tanpa verifikasi ulang."
+      ],
+      "errors": [
+        {
+          "message": "Data tidak dapat disimpan. Periksa jumlah, tanggal dan rekening.",
+          "meaning": "Pesan umum saat membuat."
+        },
+        {
+          "message": "Bunga atau biaya memerlukan catatan yang menjelaskannya.",
+          "meaning": "Isi kolom Catatan."
+        },
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Tekan Verifikasi ulang →, lalu ulangi."
+        },
+        {
+          "message": "Kewajiban yang sudah memiliki pelunasan tidak bisa dibatalkan (void); balik dulu pelunasannya.",
+          "meaning": "Gunakan Batalkan Pelunasan lebih dulu."
+        }
+      ],
+      "related": ["memahami-piutang-pendapatan", "transfer-antar-rekening"]
+    }
+  ]
+}

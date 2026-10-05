@@ -3,18 +3,21 @@ import type { AttentionItem, AttentionKind } from "@/domain/dashboard/dashboard"
 import { formatShortDate } from "./format";
 
 const KIND_LABEL: Readonly<Record<AttentionKind, string>> = {
+  payment_claim: "Klaim Pembayaran",
   tax_review: "Tinjau Pajak",
   missing_evidence: "Bukti Belum Lengkap",
   reconciliation: "Rekonsiliasi",
 };
 
 const KIND_HREF: Readonly<Record<AttentionKind, string>> = {
+  payment_claim: "/sales/claims",
   tax_review: "/tax",
   missing_evidence: "/documents/evidence",
   reconciliation: "/money/reconciliation",
 };
 
 const KIND_BADGE: Readonly<Record<AttentionKind, string>> = {
+  payment_claim: "status-badge-critical",
   tax_review: "status-badge-attention",
   missing_evidence: "status-badge-attention",
   reconciliation: "status-badge-progress",
@@ -29,7 +32,7 @@ const KIND_BADGE: Readonly<Record<AttentionKind, string>> = {
  */
 export function TasksAttention({ items }: { items: readonly AttentionItem[] }) {
   return (
-    <section className="dashboard-section">
+    <section className="dashboard-section" id="perlu-perhatian">
       <div className="dashboard-section-header">
         <h2 className="dashboard-section-title">Perlu Perhatian</h2>
       </div>

@@ -4,6 +4,7 @@ import { requirePermission } from "@/services/identity/access";
 import { getContact, getContactTaxFacts } from "@/services/contacts/contacts";
 import { matchesContactRole } from "@/domain/contacts/contactsList";
 import { ContactDetailScreen } from "@/features/contacts/ContactDetailScreen";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Vendor Detail (P13, Step 09 §10/§12), the same generalized `ContactDetailScreen` Customer Detail uses,
  * scoped to `kind = 'vendor' | 'both'` instead. */
@@ -38,13 +39,23 @@ export default async function VendorDetailPage({
     <ContactDetailScreen
       contact={contact}
       backHref={backHref}
+      manage={
+        can(access, membership.entity_id, "contacts.edit")
+          ? {
+              editHref: entity
+                ? `/purchases/vendors/${id}/edit?entity=${encodeURIComponent(entity)}`
+                : `/purchases/vendors/${id}/edit`,
+              entity,
+            }
+          : undefined
+      }
       backLabel="Kembali ke daftar vendor"
       tax={
         canSeeTax
           ? {
               facts: taxFacts,
               canRecord: can(access, membership.entity_id, "tax.confirm_facts"),
-              today: new Date().toISOString().slice(0, 10),
+              today: todayInBusinessZone(),
             }
           : undefined
       }

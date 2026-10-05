@@ -16,6 +16,7 @@ describe("NAVIGATION labels (decision 254)", () => {
       "Laporan",
       "Dokumen",
       "Administrasi",
+      "Panduan",
     ]);
   });
 
@@ -75,7 +76,7 @@ describe("activeNavItem", () => {
 describe("visibleNavigation", () => {
   it("hides a menu whose pages the person cannot open", () => {
     const keys = visibleNavigation(["invoices.view"]).map((g) => g.key);
-    expect(keys).toEqual(["overview", "sales"]);
+    expect(keys).toEqual(["overview", "sales", "guide"]);
   });
 
   it("shows only the permitted items of a menu", () => {

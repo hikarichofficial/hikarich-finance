@@ -11,6 +11,7 @@ import { getMoneyControl } from "@/services/money/money";
 import { previewDocumentTax } from "@/services/tax/tax";
 import { TaxPreviewPanel } from "@/features/tax/TaxPreviewPanel";
 import { InvoiceDetailScreen } from "@/features/sales/InvoiceDetailScreen";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Invoice Detail (P13 Part 3a, Step 09 §10, §11). Permission to act is read off the currently active
  * Entity (`?entity=`), the same per-page pattern every other screen uses (DECISIONS 158); the database
@@ -89,7 +90,7 @@ export default async function InvoiceDetailPage({
                 accounts: accounts
                   .filter((a) => a.is_active)
                   .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` })),
-                today: new Date().toISOString().slice(0, 10),
+                today: todayInBusinessZone(),
               }
             : undefined
         }

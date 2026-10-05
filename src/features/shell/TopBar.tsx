@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Bell, LogOut, Menu, Search } from "lucide-react";
 import { logoutAction } from "@/features/auth/actions";
 import type { Membership } from "@/schemas/access";
@@ -35,9 +36,14 @@ export function TopBar({
         <kbd>⌘K</kbd>
       </button>
       <div className="app-topbar-actions">
-        <button type="button" className="icon-button" aria-label="Notifikasi">
+        <Link
+          href="/#perlu-perhatian"
+          className="icon-button"
+          aria-label="Notifikasi: buka daftar Perlu Perhatian di Dashboard"
+          title="Perlu Perhatian"
+        >
           <Bell size={18} strokeWidth={1.75} aria-hidden="true" />
-        </button>
+        </Link>
         <form action={logoutAction}>
           <button
             type="submit"

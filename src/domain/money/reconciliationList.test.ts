@@ -35,11 +35,18 @@ function status(overrides: Partial<ReconciliationStatusRow> = {}): Reconciliatio
 describe("mergeReconciliationListRows", () => {
   it("joins purely by financial_account_id and carries the account's currency", () => {
     const merged = mergeReconciliationListRows(
-      [status({ financial_account_id: "a" }), status({ financial_account_id: "b" })],
+      [status({ financial_account_id: "a" })],
       [control({ financial_account_id: "a", currency: "USD" })],
     );
     expect(merged.find((r) => r.financial_account_id === "a")?.currency).toBe("USD");
-    expect(merged.find((r) => r.financial_account_id === "b")?.currency).toBe("IDR");
+  });
+
+  it("drops an account that money_control no longer lists (archived by Hapus Rekening)", () => {
+    const merged = mergeReconciliationListRows(
+      [status({ financial_account_id: "a" }), status({ financial_account_id: "b" })],
+      [control({ financial_account_id: "a", currency: "USD" })],
+    );
+    expect(merged.map((r) => r.financial_account_id)).toEqual(["a"]);
   });
 });
 

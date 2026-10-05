@@ -1,0 +1,806 @@
+{
+  "key": "penjualan",
+  "title": "Penjualan",
+  "description": "Pelanggan, produk, invoice, pembayaran, piutang, klaim pembayaran, pembatalan, dan refund.",
+  "guides": [
+    {
+      "slug": "tambah-pelanggan",
+      "title": "Cara Menambah Pelanggan",
+      "summary": "Mendaftarkan pelanggan baru dari menu Pelanggan atau langsung saat membuat invoice.",
+      "path": "Penjualan > Pelanggan > Tambah Pelanggan, atau dari Penjualan > Invoice > Buat Invoice",
+      "who": "Izin buat kontak (contacts.create): OWNER, Finance Admin, Finance Staff. Mengisi NPWP/NIK perlu izin data sensitif (default hanya OWNER).",
+      "quick": "Cukup nama. Email dan telepon dicek supaya tidak ada pelanggan ganda. Saat membuat invoice, ketik nama di kolom Pelanggan lalu pilih baris “+ Tambah … sebagai pelanggan baru”.",
+      "steps": [
+        {
+          "title": "Cara 1: lewat menu Pelanggan",
+          "text": "Buka **Penjualan > Pelanggan**. Tabel memuat **Nama**, **Jenis**, **Status**, dan **Kontak**. Cari pelanggan lebih dulu di kolom **Cari nama, email, atau telepon…** supaya tidak membuat ganda, lalu tekan **Tambah Pelanggan** di kanan atas.",
+          "image": {
+            "file": "pelanggan-daftar.jpg",
+            "caption": "Daftar pelanggan."
+          }
+        },
+        {
+          "title": "Isi form Tambah Pelanggan",
+          "text": "**Nama** (wajib, maksimal 200 karakter). Sisanya opsional: **Nama Resmi / Badan**, **Email**, **Telepon**, **NPWP / NIK**, **Alamat**, **Kota**, **Kode Negara (2 huruf)** bawaan ID, dan **Catatan**.\n\nCentang **Kontak ini juga vendor** bila pihak ini juga Anda bayar. Centang **Tetap simpan walau ada nama yang mirip** hanya bila memang pihak yang berbeda.",
+          "image": {
+            "file": "pelanggan-tambah-form.jpg",
+            "caption": "Form Tambah Pelanggan."
+          },
+          "tip": "Alamat dan kota pelanggan tercetak di invoice saat diterbitkan, dan data pelanggan bisa diubah kapan saja lewat tombol **Ubah** di halaman detail pelanggan (invoice yang sudah terbit tidak ikut berubah). Isi selengkap mungkin sejak awal."
+        },
+        {
+          "title": "Tekan Simpan",
+          "text": "Setelah berhasil Anda dibawa ke halaman detail pelanggan. Pelanggan berstatus **Aktif**."
+        },
+        {
+          "title": "Mengubah atau menonaktifkan pelanggan",
+          "text": "Buka detail pelanggan, lalu tekan **Ubah** untuk memperbarui nama, nama resmi, email, telepon, alamat, kota, kode negara, atau catatan. Tekan **Simpan Perubahan**. Kotak “Kontak ini juga ...” bisa dicentang untuk menjadikan kontak ini pelanggan sekaligus vendor.\n\nTombol **Nonaktifkan** menyembunyikan pelanggan dari pilihan pada dokumen baru; riwayatnya tetap ada. Tekan **Aktifkan Kembali** untuk memakainya lagi. Dokumen yang sudah terbit tidak ikut berubah karena menyimpan salinan data saat diterbitkan.",
+          "tip": "Butuh izin ubah kontak; tanpa izin itu tombol Ubah dan Nonaktifkan tidak tampil. NPWP/NIK tidak bisa diubah dari layar ini."
+        },
+        {
+          "title": "Cara 2: langsung dari Buat Invoice",
+          "text": "Di halaman **Buat Invoice**, klik kolom **Pelanggan** lalu ketik nama. Daftar menampilkan pelanggan yang cocok dengan huruf yang diketik (maksimal 8). Klik untuk memilih. Bila belum ada, pilih baris **+ Tambah “NAMA” sebagai pelanggan baru**. Panel samping **Tambah Pelanggan Baru** terbuka dengan nama sudah terisi; isi **Email** dan **Telepon** bila ada, lalu tekan **Simpan & Gunakan**. Pelanggan langsung terpilih di invoice dan isian invoice tidak hilang.",
+          "warning": "Panel cepat tidak punya kotak “Tetap simpan walau ada nama yang mirip”. Bila nama mirip dengan pelanggan lama, gunakan pelanggan lama atau buka form Tambah Pelanggan lengkap."
+        }
+      ],
+      "result": [
+        "Pelanggan muncul di daftar Pelanggan dan di pilihan Invoice. Tidak ada jurnal atau dampak akuntansi."
+      ],
+      "rules": [
+        "Email yang sama, telepon yang sama (0812… dianggap sama dengan +62 812…), atau NPWP/NIK yang sama selalu ditolak.",
+        "Nama yang sama setelah dirapikan ditolak kecuali kotak “Tetap simpan walau ada nama yang mirip” dicentang di form lengkap.",
+        "Hanya pelanggan Aktif yang bisa dipilih di invoice baru.",
+        "NPWP/NIK tidak ditampilkan lagi setelah disimpan dan tidak tercetak di invoice.",
+        "Mengubah atau menonaktifkan pelanggan setelah dibuat belum tersedia di layar."
+      ],
+      "mistakes": [
+        "Membuat pelanggan dua kali dengan ejaan sedikit berbeda. Cari dulu di daftar.",
+        "Mengisi NPWP/NIK dengan akun yang tidak berhak lalu mendapat “Anda tidak memiliki izin untuk tindakan ini.” Kosongkan kolom NPWP/NIK.",
+        "Menulis telepon dengan format berbeda dan mengira dianggap berbeda. Sistem menyamakan keduanya dan menolak."
+      ],
+      "errors": [
+        {
+          "message": "Ini mirip dengan kontak yang sudah ada “<NAMA>” (<alasan>); gunakan kontak itu, atau konfirmasi bahwa ini pihak yang berbeda.",
+          "meaning": "Ada kontak dengan nama, email, telepon, atau NPWP yang sama. Gunakan kontak itu."
+        },
+        {
+          "message": "Kontak tidak dapat disimpan. Periksa nama, email, telepon dan kode negara.",
+          "meaning": "Salah satu isian tidak valid."
+        },
+        {
+          "message": "Pelanggan tidak dapat disimpan. Periksa nama, email dan telepon.",
+          "meaning": "Pesan umum dari panel cepat di Buat Invoice."
+        }
+      ],
+      "related": ["buat-terbitkan-invoice", "tambah-vendor"]
+    },
+    {
+      "slug": "produk-dan-jasa",
+      "title": "Cara Menambah Produk dan Jasa",
+      "summary": "Mendaftarkan barang atau jasa yang dijual supaya muncul sebagai saran saat membuat invoice, lengkap dengan harga dan kategori bawaan.",
+      "path": "Penjualan > Produk & Jasa > Tambah Produk",
+      "who": "Lihat: products.view. Tambah dan ubah: products.create dan products.edit (OWNER, Finance Admin, Finance Staff).",
+      "quick": "Produk hanya mempercepat pengisian invoice. Invoice tidak terhubung ke produk, jadi mengubah produk tidak mengubah invoice lama.",
+      "steps": [
+        {
+          "title": "Buka Penjualan > Produk & Jasa",
+          "text": "Tabel memuat **Nama**, **Jenis**, **SKU**, **Satuan**, **Harga Bawaan**, dan **Status**. Tab: Semua, Aktif, Nonaktif, Produk, Jasa. Tekan **Tambah Produk**.",
+          "image": {
+            "file": "produk-daftar.jpg",
+            "caption": "Daftar produk dan jasa."
+          }
+        },
+        {
+          "title": "Isi form Tambah Produk",
+          "text": "**Jenis**: Produk atau Jasa. **Nama** (wajib). **SKU / Kode (opsional)**: harus unik bila diisi. **Satuan** (wajib, bawaan “unit”). **Harga Satuan Bawaan (opsional)**: pemisah ribuan otomatis, koma untuk desimal. **Mata Uang Harga (opsional)**. **Kategori Pendapatan Bawaan (opsional)**: menentukan akun pendapatan, misalnya Penjualan Produk, Penjualan E-book, Penjualan Software & Alat Digital, Penjualan Jasa, Pendapatan Lainnya. **Deskripsi (opsional)**. Kotak **Aktif (dapat dipilih saat membuat invoice)** tercentang bawaan.",
+          "image": {
+            "file": "produk-tambah-form.jpg",
+            "caption": "Form Tambah Produk."
+          }
+        },
+        {
+          "title": "Tekan Simpan Produk",
+          "text": "Setelah berhasil Anda dibawa ke halaman detail produk. Untuk mengubah, buka detail produk lalu **Simpan Perubahan**."
+        },
+        {
+          "title": "Cara produk muncul di Buat Invoice",
+          "text": "Di baris invoice, klik kolom **Deskripsi**. Daftar saran menampilkan nama produk aktif dan deskripsi yang pernah dipakai, menyempit sesuai huruf yang diketik. Klik saran untuk mengisi deskripsi, harga terakhir, dan kategori. Anda juga boleh mengetik nama baru secara bebas."
+        },
+        {
+          "title": "Menonaktifkan produk",
+          "text": "Buka detail produk, hilangkan centang **Aktif**, lalu **Simpan Perubahan**. Produk nonaktif tidak lagi muncul sebagai saran. Tidak ada tombol hapus karena produk mungkin sudah dipakai invoice."
+        }
+      ],
+      "result": [
+        "Produk muncul di daftar dan sebagai saran deskripsi di Buat Invoice. Tidak ada jurnal."
+      ],
+      "rules": [
+        "SKU harus unik per Entity. Dua produk boleh bernama sama.",
+        "Mata uang harga tidak memengaruhi invoice; invoice selalu dalam mata uang dasar Entity."
+      ],
+      "mistakes": [
+        "Mengira produk harus dipilih dari daftar terpisah di invoice. Cukup klik atau ketik di kolom Deskripsi.",
+        "Mengisi SKU yang sudah ada: tampil “Produk tidak dapat disimpan.”",
+        "Mengetik harga dengan titik sebagai desimal. Gunakan koma; titik adalah pemisah ribuan."
+      ],
+      "errors": [
+        {
+          "message": "Nama wajib diisi / Satuan wajib diisi",
+          "meaning": "Kolom wajib kosong."
+        },
+        {
+          "message": "Produk tidak dapat disimpan.",
+          "meaning": "Pesan umum, termasuk SKU kembar atau izin kurang."
+        },
+        {
+          "message": "Produk telah diubah orang lain. Muat ulang halaman lalu coba lagi.",
+          "meaning": "Dua orang mengubah produk yang sama bersamaan."
+        }
+      ],
+      "related": ["buat-terbitkan-invoice", "tambah-pelanggan"]
+    },
+    {
+      "slug": "buat-terbitkan-invoice",
+      "title": "Cara Membuat dan Menerbitkan Invoice",
+      "summary": "Membuat draf invoice, memeriksanya, lalu menerbitkannya. Setelah terbit, invoice yang belum dibayar otomatis menjadi piutang usaha.",
+      "path": "Penjualan > Invoice > Buat Invoice",
+      "who": "Buat dan ubah draf: invoices.create dan invoices.edit (OWNER, Finance Admin, Finance Staff). Menerbitkan: invoices.issue (OWNER dan Finance Admin; Finance Staff tidak bisa).",
+      "quick": "Draf belum bernomor dan belum menjadi piutang. Begitu **Terbitkan Invoice** ditekan, invoice bernomor, pendapatan diakui, dan sisa tagihan otomatis menjadi piutang usaha. Tidak ada pilihan khusus untuk membuat piutang.",
+      "steps": [
+        {
+          "title": "Buka Penjualan > Invoice dan tekan Buat Invoice",
+          "text": "Halaman daftar berjudul **Invoice Penjualan**. Tab saringan: Semua, Terbuka, Jatuh Tempo, Belum Dibayar, Dibayar Sebagian, Lunas, Dibatalkan.",
+          "image": {
+            "file": "invoice-daftar.jpg",
+            "caption": "Daftar invoice dengan tombol Buat Invoice di kanan atas."
+          }
+        },
+        {
+          "title": "Pilih Pelanggan",
+          "text": "Klik kolom **Pelanggan** lalu ketik nama. Daftar menyempit sesuai huruf yang diketik. Klik untuk memilih, atau pilih **+ Tambah “NAMA” sebagai pelanggan baru** bila belum terdaftar (lihat [Cara Menambah Pelanggan](tambah-pelanggan)).",
+          "image": {
+            "file": "invoice-form.jpg",
+            "caption": "Form Buat Invoice."
+          }
+        },
+        {
+          "title": "Isi Tanggal Invoice dan Jatuh Tempo",
+          "text": "**Tanggal Invoice** dan **Jatuh Tempo** sama-sama bawaan hari ini. Ubah **Jatuh Tempo** sesuai syarat pembayaran (misalnya 14 hari kemudian). Jatuh tempo tidak boleh sebelum tanggal invoice.",
+          "warning": "Bila jatuh tempo dibiarkan sama dengan tanggal invoice, invoice langsung tampil “Jatuh tempo” keesokan harinya. Tanggal bawaan memakai tanggal hari ini menurut WITA."
+        },
+        {
+          "title": "Pilih Rekening Tujuan Pembayaran (opsional)",
+          "text": "Pilih rekening PT supaya nama bank, nomor rekening, dan atas nama tercetak di invoice sebagai **Cara pembayaran**. Rekening harus berada dalam mata uang invoice (IDR)."
+        },
+        {
+          "title": "Isi baris invoice",
+          "text": "Untuk setiap baris:\n\n**Deskripsi**: klik lalu ketik atau pilih saran produk. Saran menyempit sesuai huruf yang diketik; memilih saran mengisi harga dan kategori.\n\n**Kuantitas**: kosong dianggap 1. Desimal boleh memakai koma (1,5) atau titik (1.5).\n\n**Harga Satuan**: pemisah ribuan otomatis, koma untuk desimal.\n\n**Diskon**: “Tanpa diskon”, “Persen (%)”, atau “Nominal (Rp)”.\n\n**Kategori**: kategori pendapatan, menentukan akun pendapatan. Tanpa kategori masuk ke Pendapatan Usaha Lainnya.\n\n**Perlakuan PPN**: untuk Entity PKP wajib dipilih di setiap baris atau lewat kategori. Pilihan: “Kena PPN”, “PPN dibebaskan / tidak dipungut”, “Bukan objek PPN”, dan lainnya.\n\nTekan **+ Tambah Baris** untuk baris berikutnya (maksimal 200). **Hapus** menghapus baris.",
+          "warning": "Baris yang deskripsi atau harga satuannya kosong dibuang diam-diam saat disimpan."
+        },
+        {
+          "title": "Isi Catatan dan Syarat & Ketentuan (opsional)",
+          "text": "**Catatan untuk Pelanggan** dan **Syarat & Ketentuan** akan tercetak di invoice."
+        },
+        {
+          "title": "Tekan Simpan sebagai Draf",
+          "text": "Anda dibawa ke detail draf. Header menampilkan “Draf” (belum bernomor), pelanggan, total, dan bagian **Perhitungan Pajak (sebelum dicatat)** yang menunjukkan pajak yang akan diakui. Periksa semuanya. Tombol yang tersedia: **Ubah Draf**, **Batalkan Draf**, dan **Terbitkan Invoice**.",
+          "tip": "Draf tampil di daftar Penjualan > Invoice dengan status “Draf” dan sisa tagihan “—” (belum menjadi piutang). Tab **Draf** menampilkan draf saja. Draf juga bisa dicari lewat kolom “Cari atau buka halaman…” di bilah atas."
+        },
+        {
+          "title": "Tekan Terbitkan Invoice",
+          "text": "Tombol **Terbitkan Invoice** tidak meminta konfirmasi tambahan. Dalam satu kali tekan sistem: memberi nomor (misalnya HKD-2026-0001), membekukan salinan data penerbit, pelanggan, dan rekening tujuan, memposting jurnal, membuat tautan publik, dan mengubah status menjadi Diterbitkan."
+        },
+        {
+          "title": "Setelah terbit: invoice otomatis menjadi piutang",
+          "text": "Sisa tagihan sudah tercatat sebagai Piutang Usaha. Status di daftar menjadi “Belum dibayar” (atau “Jatuh tempo N hari” bila sudah lewat). Selanjutnya bagikan invoice ([Cara Membagikan Invoice](bagikan-invoice)) dan catat pembayarannya saat uang masuk ([Cara Menerima Pembayaran Invoice](terima-pembayaran))."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal saat Terbitkan Invoice (contoh: Rp 1.000.000, tanpa PPN dan diskon)",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Piutang Usaha (1200)", "1.000.000", ""],
+            ["Pendapatan sesuai kategori baris", "", "1.000.000"]
+          ]
+        },
+        {
+          "title": "Arti status invoice di layar",
+          "columns": ["Status", "Arti"],
+          "rows": [
+            [
+              "Draf",
+              "Belum bernomor, belum ada jurnal, belum ada tautan publik, belum menjadi piutang."
+            ],
+            ["Belum dibayar", "Terbit dan belum ada pembayaran. Sisa tagihan adalah piutang."],
+            [
+              "Dibayar sebagian",
+              "Ada pembayaran tetapi sisa tagihan masih lebih dari nol. Sisa tetap piutang."
+            ],
+            ["Lunas", "Sisa tagihan nol. Tidak ada piutang."],
+            ["Jatuh tempo N hari", "Terbit, masih ada sisa, dan tanggal jatuh tempo sudah lewat."],
+            ["Dibatalkan", "Draf yang dibatalkan."],
+            ["Dibatalkan (void)", "Invoice terbit yang dibatalkan dengan jurnal pembalik."]
+          ]
+        }
+      ],
+      "result": [
+        "Pendapatan diakui saat invoice terbit (basis akrual), bukan saat uang masuk. Bila ada PPN, Utang Pajak (2200) dikreditkan; bila ada diskon, Diskon & Retur Penjualan (4200) didebit.",
+        "Tampil nomor invoice, tombol berbagi, tombol Catat Pembayaran, serta tombol Koreksi dan Batalkan Invoice bagi yang berizin.",
+        "Setelah terbit isi invoice tidak bisa diedit. Perbaikan dilakukan lewat Koreksi Invoice (lihat [Cara Membatalkan atau Mengoreksi Invoice](batalkan-koreksi-invoice))."
+      ],
+      "rules": [
+        "Total invoice harus lebih dari nol dan minimal satu baris terisi.",
+        "Tanggal invoice boleh mundur selama periode akuntansinya masih terbuka. Tanggal di masa depan boleh disimpan sebagai draf tetapi baru bisa diterbitkan saat tanggalnya tiba.",
+        "Invoice selalu dalam mata uang dasar Entity (IDR); belum ada kolom mata uang atau kurs di formulir.",
+        "Entity PKP: baris dengan “Digital / PMSE” atau “Rumus PPN khusus” otomatis berstatus “Perlu ditinjau” dan tidak bisa diterbitkan sampai ditangani."
+      ],
+      "mistakes": [
+        "Mengira draf yang tersimpan sudah menjadi piutang. Piutang baru ada setelah Terbitkan Invoice.",
+        "Lupa mengubah Jatuh Tempo.",
+        "Memakai titik untuk desimal di Harga. Harga memakai koma sebagai desimal (titik = ribuan); Kuantitas menerima koma maupun titik.",
+        "Menerbitkan lalu sadar salah pelanggan: harus Koreksi atau Batalkan Invoice (khusus OWNER).",
+        "Entity PKP tetapi baris belum diberi Perlakuan PPN: penerbitan ditolak “perlu ditinjau”."
+      ],
+      "errors": [
+        {
+          "message": "Isi minimal satu baris dengan deskripsi dan harga.",
+          "meaning": "Semua baris kosong."
+        },
+        {
+          "message": "Tanggal jatuh tempo tidak boleh sebelum tanggal terbit.",
+          "meaning": "Perbaiki Jatuh Tempo."
+        },
+        {
+          "message": "Invoice bernilai nol tidak bisa diterbitkan.",
+          "meaning": "Total harus lebih dari nol."
+        },
+        {
+          "message": "Invoice bertanggal di masa depan tetap menjadi draf sampai tanggalnya tiba.",
+          "meaning": "Ubah Tanggal Invoice lewat Ubah Draf atau tunggu tanggalnya."
+        },
+        {
+          "message": "Penentuan pajak Invoice ini perlu ditinjau sebelum bisa diterbitkan: <alasan>",
+          "meaning": "Lengkapi Perlakuan PPN di baris yang disebut (alasan bisa tampil dalam bahasa Inggris)."
+        },
+        {
+          "message": "Periode akuntansi <tanggal> berstatus <status> dan tidak menerima posting.",
+          "meaning": "Periode sudah ditutup. Ganti tanggal lewat Ubah Draf."
+        }
+      ],
+      "related": [
+        "memahami-piutang-pendapatan",
+        "bagikan-invoice",
+        "terima-pembayaran",
+        "lihat-piutang"
+      ]
+    },
+    {
+      "slug": "bagikan-invoice",
+      "title": "Cara Membagikan Invoice ke Pelanggan",
+      "summary": "Menyalin tautan publik, mengirim invoice lewat email, mencetak atau menyimpan PDF, mengatur masa berlaku, dan mencabut tautan.",
+      "path": "Penjualan > Invoice > (klik invoice yang sudah terbit)",
+      "who": "Izin regenerasi tautan (invoices.regenerate_link): OWNER dan Finance Admin. Finance Staff tidak melihat tombol berbagi.",
+      "quick": "Tautan publik dibuat otomatis saat invoice diterbitkan. Pelanggan membuka tautan tanpa login, bisa mencetak atau menyimpan PDF, dan bisa menekan “Saya Sudah Bayar”.",
+      "steps": [
+        {
+          "title": "Buka invoice yang sudah terbit",
+          "text": "Tombol berbagi hanya ada pada invoice berstatus terbit. Draf, Dibatalkan, dan Dibatalkan (void) tidak punya tautan."
+        },
+        {
+          "title": "Salin tautan publik",
+          "text": "Tekan **Salin Tautan Publik**. Alamat muncul di kolom baca-saja dengan tombol **Salin** (berubah menjadi “Tersalin”). Kirim tautan itu lewat WhatsApp atau cara lain. Bentuk alamatnya https://finance.hikarichgroup.com/i/ diikuti kode acak panjang."
+        },
+        {
+          "title": "Kirim invoice lewat email",
+          "text": "Pada **Kirim / Kirim Ulang Invoice ke Email**, kolom email terisi dari email pelanggan; ganti bila perlu. Tekan **Kirim via Email**. Email berisi tombol “Lihat & Bayar Invoice” yang membuka halaman publik. Tidak ada lampiran PDF. Setiap percobaan tercatat di **Riwayat Pengiriman Email** (Terkirim atau Gagal).",
+          "tip": "Bila tampil “Pengiriman invoice lewat email belum diaktifkan untuk situs ini”, gunakan Salin Tautan Publik."
+        },
+        {
+          "title": "Cetak atau simpan sebagai PDF",
+          "text": "Buka tautan publik, tekan **Cetak / simpan PDF**, lalu pilih “Simpan sebagai PDF” di dialog cetak browser. Halaman detail internal tidak memiliki tombol cetak."
+        },
+        {
+          "title": "Atur masa berlaku tautan (opsional)",
+          "text": "Tekan **Atur Masa Berlaku Tautan**, isi **Tautan Berlaku Sampai** (kosong berarti tanpa batas), lalu **Simpan Masa Berlaku**. Waktu harus di masa depan dan paling lama 5 tahun."
+        },
+        {
+          "title": "Cabut tautan bila perlu",
+          "text": "Tekan **Cabut Tautan Publik**, tulis **Alasan (minimal 5 karakter)**, lalu tekan tombol merah **Cabut Tautan Publik**. Tautan yang sudah dibagikan tidak bisa dibuka lagi. Untuk berbagi lagi, tekan **Salin Tautan Publik**; tautan baru dibuat otomatis."
+        },
+        {
+          "title": "Mengirim bukti pembayaran setelah lunas",
+          "text": "Setelah pembayaran dicatat, buka detail pembayaran di Penjualan > Pembayaran Diterima. Isi email pada **Kirim Bukti Pembayaran ke Email** lalu tekan **Kirim Bukti Pembayaran**. Pelanggan menerima tautan kwitansi (RCP-…)."
+        }
+      ],
+      "result": [
+        "Pelanggan melihat dokumen INVOICE dengan baris, subtotal, diskon, PPN, total, sudah dibayar, sisa tagihan, pembayaran diterima, cara pembayaran, catatan, serta syarat dan ketentuan.",
+        "Tautan mati otomatis bila invoice dibatalkan (void). Pelanggan yang membuka tautan tidak aktif melihat “Tautan tidak tersedia”."
+      ],
+      "rules": [
+        "Nomor rekening pada halaman publik invoice tidak disamarkan. Pada kwitansi publik nomor rekening disamarkan.",
+        "Waktu di riwayat email ditampilkan dalam WITA."
+      ],
+      "mistakes": [
+        "Mencari tombol bagikan pada draf. Terbitkan invoice dulu.",
+        "Setelah mencabut tautan lupa membuat tautan baru; pelanggan melihat “Tautan tidak tersedia”.",
+        "Mengira email membawa lampiran PDF. Email hanya membawa tautan.",
+        "Mengirim ke email lama karena kolom terisi otomatis dari data pelanggan. Ketik alamat baru langsung di kolom."
+      ],
+      "errors": [
+        {
+          "message": "Invoice terkirim ke <alamat>.",
+          "meaning": "Berhasil dikirim."
+        },
+        {
+          "message": "Pengiriman email belum diaktifkan oleh OWNER. Gunakan Salin Tautan Publik untuk saat ini.",
+          "meaning": "Kunci layanan email belum dipasang di situs."
+        },
+        {
+          "message": "Isi alamat email tujuan, atau lengkapi email pelanggan ini di data Kontak.",
+          "meaning": "Kolom email kosong."
+        },
+        {
+          "message": "Email tidak dapat dikirim sekarang. Coba lagi beberapa saat.",
+          "meaning": "Gangguan sementara atau batas pengiriman layanan email tercapai."
+        }
+      ],
+      "related": ["buat-terbitkan-invoice", "terima-pembayaran", "konfirmasi-klaim-pembayaran"]
+    },
+    {
+      "slug": "memahami-piutang-pendapatan",
+      "title": "Memahami Piutang dan Pendapatan (Invoice yang Belum Dibayar)",
+      "summary": "Penjelasan alur dari invoice terbit, piutang, sampai uang masuk, serta cara mencatat pembayaran yang diterima lewat rekening pribadi tanpa pendapatan ganda.",
+      "path": "Penjualan > Invoice, Penjualan > Pembayaran Diterima, Laporan > Laporan Keuangan > Umur Piutang",
+      "who": "Panduan konsep. Setiap langkah punya panduan sendiri yang ditautkan di bawah.",
+      "quick": "Invoice terbit dan belum dibayar otomatis menjadi piutang usaha. Saat uang masuk ke rekening PT, tekan Catat Pembayaran: piutang berkurang dan kas bertambah, tanpa menambah pendapatan lagi.",
+      "steps": [
+        {
+          "title": "Draf: belum ada piutang",
+          "text": "Invoice yang masih berstatus Draf belum bernomor, belum ada jurnal, dan belum menjadi piutang."
+        },
+        {
+          "title": "Terbitkan Invoice: piutang dan pendapatan dicatat otomatis",
+          "text": "Saat **Terbitkan Invoice** ditekan, sistem langsung mencatat Piutang Usaha sebesar total invoice dan mengakui pendapatan (serta Utang Pajak bila ada PPN). Tidak ada pilihan atau kotak “jadikan piutang” karena ini otomatis untuk setiap invoice yang diterbitkan.\n\nSelama invoice belum dibayar, sisa tagihan adalah piutang usaha. Angkanya terlihat di Dashboard (kartu Piutang Usaha), di detail invoice (Sisa Tagihan), dan di Laporan > Laporan Keuangan > tab Umur Piutang.",
+          "image": {
+            "file": "piutang-umur.jpg",
+            "caption": "Laporan Umur Piutang."
+          }
+        },
+        {
+          "title": "Uang masuk: catat pembayaran, piutang menjadi lunas",
+          "text": "Saat pelanggan membayar, buka invoice dan tekan **Catat Pembayaran**. Pilih rekening PT yang menerima uang, isi tanggal dana masuk, jumlah, dan nomor referensi. Sistem mendebit rekening kas atau bank dan mengkredit Piutang Usaha. Pendapatan tidak dicatat lagi karena sudah diakui saat invoice terbit, sehingga tidak ada pendapatan ganda.\n\nBila jumlah lebih kecil dari sisa, status menjadi “Dibayar sebagian” dan sisanya tetap piutang. Bila sisa nol, status menjadi “Lunas”."
+        },
+        {
+          "title": "Bila pelanggan membayar ke rekening pribadi lalu diteruskan ke PT",
+          "text": "Jangan mencatat pembayaran pada tanggal pelanggan transfer ke rekening pribadi. Biarkan invoice tetap piutang usaha. Pada hari uang benar-benar masuk ke rekening PT: buka invoice, tekan **Catat Pembayaran**, pilih rekening PT penerima, isi **Tanggal** dengan tanggal dana masuk di mutasi bank PT, isi **Jumlah** sesuai yang masuk, dan isi **Nomor Referensi / Bukti Transfer** dengan bukti transfer dari rekening pribadi ke PT.\n\nDengan cara ini piutang usaha berubah menjadi kas PT pada tanggal yang sama dengan mutasi bank PT, dan pendapatan tetap hanya dicatat sekali.",
+          "warning": "Aplikasi belum punya pilihan khusus “diterima di rekening direktur” atau pencatatan otomatis piutang PT kepada direktur. Bila uang akan tertahan lama di rekening pribadi, hubungi pengembang untuk memutuskan mekanisme tambahan."
+        },
+        {
+          "title": "Pelanggan menekan “Saya Sudah Bayar”",
+          "text": "Klaim dari pelanggan tidak mengubah apa pun sampai staf memeriksa dan menekan **Konfirmasi**. Lihat [Cara Mengonfirmasi Klaim Pembayaran](konfirmasi-klaim-pembayaran)."
+        },
+        {
+          "title": "Bila pembayaran salah atau invoice salah",
+          "text": "Pembayaran dikoreksi dengan **Balik Pembayaran**, invoice dikoreksi dengan **Koreksi Invoice** atau **Batalkan Invoice**. Lihat [Cara Membatalkan atau Mengoreksi Invoice](batalkan-koreksi-invoice)."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Dua kejadian, dua jurnal, pendapatan hanya sekali",
+          "columns": ["Kejadian", "Debit", "Kredit"],
+          "rows": [
+            [
+              "1. Invoice diterbitkan (Rp 1.000.000)",
+              "Piutang Usaha 1.000.000",
+              "Pendapatan 1.000.000"
+            ],
+            [
+              "2. Uang masuk ke rekening PT, Catat Pembayaran",
+              "Kas/Bank PT 1.000.000",
+              "Piutang Usaha 1.000.000"
+            ]
+          ]
+        },
+        {
+          "title": "Alur status invoice",
+          "columns": ["Tahap", "Posisi piutang", "Pendapatan"],
+          "rows": [
+            ["Draf", "Belum ada", "Belum diakui"],
+            ["Terbit, belum dibayar", "Seluruh total", "Diakui penuh"],
+            ["Dibayar sebagian", "Sisa tagihan", "Tetap, tidak berubah"],
+            ["Lunas", "Nol", "Tetap, tidak berubah"]
+          ]
+        }
+      ],
+      "result": [
+        "Pendapatan hanya dicatat sekali, saat invoice terbit. Pembayaran hanya memindahkan piutang menjadi kas.",
+        "Kelebihan bayar ditolak oleh layar Catat Pembayaran. Catat hanya sebesar sisa tagihan."
+      ],
+      "rules": [
+        "Piutang Lain (Aset & Pendanaan > Piutang Lain) bukan untuk tagihan pelanggan. Piutang usaha berasal dari invoice. Mencatat tagihan pelanggan di Piutang Lain bisa membuat pendapatan ganda dan tidak muncul di Umur Piutang.",
+        "Refund tidak membuka kembali invoice. Lihat [Cara Membalik Pembayaran dan Refund](balik-pembayaran-refund)."
+      ],
+      "mistakes": [
+        "Mencatat pembayaran pada tanggal pelanggan transfer ke rekening pribadi padahal uang baru masuk PT beberapa hari kemudian.",
+        "Memilih rekening yang salah saat Catat Pembayaran. Perbaiki dengan Balik Pembayaran lalu catat ulang.",
+        "Mencatat bruto padahal bank menyetor neto (dipotong biaya atau PPh). Belum ada kolom potongan; catat jumlah yang benar-benar masuk dan sisa invoice tetap menggantung."
+      ],
+      "related": [
+        "buat-terbitkan-invoice",
+        "terima-pembayaran",
+        "lihat-piutang",
+        "konfirmasi-klaim-pembayaran"
+      ]
+    },
+    {
+      "slug": "terima-pembayaran",
+      "title": "Cara Menerima (Mencatat) Pembayaran Invoice",
+      "summary": "Mencatat uang yang masuk dari pelanggan ke rekening PT, penuh atau sebagian, lalu mengirim bukti pembayaran.",
+      "path": "Penjualan > Invoice > (klik invoice terbit) > Catat Pembayaran",
+      "who": "Izin konfirmasi pembayaran (invoices.confirm_payment): OWNER dan Finance Admin. Tombol hanya tampil bila invoice terbit dan sisa tagihan lebih dari nol.",
+      "quick": "Isi rekening PT yang menerima uang dan tanggal uang benar-benar masuk. Piutang berkurang, kas bertambah, pendapatan tidak bertambah.",
+      "steps": [
+        {
+          "title": "Buka invoice yang akan dibayar",
+          "text": "Buka **Penjualan > Invoice**, klik invoice berstatus Belum dibayar, Dibayar sebagian, atau Jatuh tempo. Cek **Sisa Tagihan** di bagian Ringkasan."
+        },
+        {
+          "title": "Tekan Catat Pembayaran",
+          "text": "Tombol **Catat Pembayaran** ada di bawah tombol berbagi. Sebuah formulir terbuka."
+        },
+        {
+          "title": "Pilih rekening penerima",
+          "text": "Pada **Diterima di Rekening** pilih rekening PT tempat uang benar-benar masuk. Rekening harus bermata uang sama dengan invoice."
+        },
+        {
+          "title": "Isi tanggal dana masuk",
+          "text": "Isi **Tanggal** dengan tanggal uang masuk sesuai mutasi bank. Tanggal tidak boleh di masa depan dan tidak boleh sebelum tanggal invoice."
+        },
+        {
+          "title": "Isi jumlah",
+          "text": "**Jumlah** terisi otomatis dengan seluruh sisa tagihan. Untuk pembayaran sebagian, ubah menjadi lebih kecil. Jumlah tidak boleh melebihi sisa tagihan."
+        },
+        {
+          "title": "Isi referensi dan catatan",
+          "text": "**Nomor Referensi / Bukti Transfer (opsional)** dan **Catatan (opsional)**. Untuk dana yang diteruskan dari rekening pribadi, isi nomor bukti transfer ke PT di sini."
+        },
+        {
+          "title": "Tekan Simpan Pembayaran",
+          "text": "Bila berhasil tampil “Pembayaran tercatat.” dan ringkasan invoice diperbarui. Pembayaran muncul di **Penjualan > Pembayaran Diterima** dengan nomor kwitansi RCP-tahun-urut.",
+          "image": {
+            "file": "pembayaran-daftar.jpg",
+            "caption": "Daftar Pembayaran Diterima."
+          }
+        },
+        {
+          "title": "Pembayaran sebagian: ulangi untuk cicilan berikutnya",
+          "text": "Status menjadi “Dibayar sebagian”. Tekan **Catat Pembayaran** lagi saat cicilan berikutnya masuk; jumlah otomatis terisi sisa terbaru."
+        },
+        {
+          "title": "Kirim bukti pembayaran (opsional)",
+          "text": "Buka detail pembayaran, isi email pada **Kirim Bukti Pembayaran ke Email**, lalu tekan **Kirim Bukti Pembayaran**."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal saat Catat Pembayaran",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Kas/Bank (rekening yang dipilih)", "jumlah dibayar", ""],
+            ["Piutang Usaha (1200)", "", "jumlah dibayar"]
+          ]
+        }
+      ],
+      "result": [
+        "Saldo rekening bertambah dan tampil sebagai pemasukan di Kas & Bank > Mutasi.",
+        "Status invoice dihitung ulang: “Dibayar sebagian” bila sisa lebih dari nol, “Lunas” bila nol.",
+        "Pendapatan tidak dicatat lagi. Tidak ada email otomatis ke pelanggan."
+      ],
+      "rules": [
+        "Pembayaran bersifat final; tidak bisa diedit. Koreksi dengan Balik Pembayaran lalu catat ulang.",
+        "Satu pembayaran dari layar ini selalu dialokasikan ke satu invoice.",
+        "Kelebihan bayar ditolak. Layar belum punya pilihan menyimpannya sebagai uang muka pelanggan.",
+        "Belum ada kolom biaya bank atau potongan PPh. Catat jumlah yang benar-benar masuk.",
+        "Periode akuntansi tanggal pembayaran harus terbuka."
+      ],
+      "mistakes": [
+        "Mencatat pembayaran di tanggal pelanggan transfer ke rekening pribadi. Gunakan tanggal uang masuk ke rekening PT.",
+        "Memilih rekening yang salah.",
+        "Mencatat dua kali. Pembayaran kedua ditolak bila melebihi sisa.",
+        "Menganggap klaim “Saya Sudah Bayar” dari pelanggan sudah melunasi invoice."
+      ],
+      "errors": [
+        {
+          "message": "Alokasi sebesar <jumlah> melebihi sisa yang belum dibayar (<sisa>) pada Invoice <nomor>.",
+          "meaning": "Jumlah lebih besar dari sisa tagihan. Kecilkan jumlah."
+        },
+        {
+          "message": "Tanggal pembayaran tidak boleh di masa depan.",
+          "meaning": "Isi tanggal hari ini atau sebelumnya."
+        },
+        {
+          "message": "Tanggal pembayaran lebih awal dari tanggal terbit Invoice <nomor>.",
+          "meaning": "Tanggal harus pada atau setelah tanggal invoice."
+        },
+        {
+          "message": "Invoice <nomor> dalam IDR, tetapi rekening penerimanya dalam <mata uang>.",
+          "meaning": "Pilih rekening bermata uang sama."
+        },
+        {
+          "message": "Pembayaran tidak dapat dicatat. Periksa rekening, tanggal dan jumlah.",
+          "meaning": "Pesan umum; periksa ketiga isian."
+        }
+      ],
+      "related": [
+        "memahami-piutang-pendapatan",
+        "konfirmasi-klaim-pembayaran",
+        "balik-pembayaran-refund",
+        "lihat-piutang"
+      ]
+    },
+    {
+      "slug": "konfirmasi-klaim-pembayaran",
+      "title": "Cara Mengonfirmasi Klaim Pembayaran dari Pelanggan",
+      "summary": "Memeriksa klaim “Saya Sudah Bayar” dari halaman publik invoice lalu mengonfirmasi, menolak, atau menandainya sebagai duplikat.",
+      "path": "Penjualan > Klaim Pembayaran",
+      "who": "Melihat: invoices.view. Konfirmasi, Tolak, Tandai Duplikat: invoices.confirm_payment (OWNER, Finance Admin).",
+      "quick": "Klaim hanyalah pemberitahuan dari pelanggan. Invoice baru lunas setelah staf menekan Konfirmasi dan mencocokkan dengan mutasi bank.",
+      "steps": [
+        {
+          "title": "Pelanggan mengirim klaim",
+          "text": "Di halaman publik invoice, bila sisa tagihan lebih dari nol, pelanggan melihat “Sudah membayar? Beri tahu kami.” Ia mengisi jumlah, tanggal, nama pembayar, referensi, dan catatan, lalu menekan **Saya Sudah Bayar**. Klaim hanya disimpan sebagai “menunggu”; kas, piutang, dan status invoice tidak berubah."
+        },
+        {
+          "title": "Buka Penjualan > Klaim Pembayaran",
+          "text": "Halaman menampilkan “N klaim menunggu konfirmasi.” Tiap klaim berjudul jumlah dan nomor invoice (tautan ke invoice), lalu **Tanggal Bayar (menurut klaim)**, **Nama Pembayar**, **Referensi**, **Sumber**, dan **Catatan**. Klaim terlama di atas. Klaim baru juga muncul di bagian **Perlu Perhatian** pada Dashboard; ikon lonceng di bilah atas membukanya.",
+          "image": {
+            "file": "klaim-daftar.jpg",
+            "caption": "Daftar Klaim Pembayaran."
+          }
+        },
+        {
+          "title": "Periksa mutasi bank PT",
+          "text": "Bandingkan klaim dengan mutasi rekening PT. Pastikan uang benar-benar masuk, berapa jumlahnya, dan tanggalnya."
+        },
+        {
+          "title": "Konfirmasi klaim yang benar",
+          "text": "Tekan **Konfirmasi**, lalu isi **Diterima di Rekening**, **Tanggal Uang Masuk** (ubah ke tanggal dana masuk rekening PT bila berbeda dari klaim), **Jumlah yang Benar-benar Masuk** (ubah sesuai mutasi bank), dan **Catatan (opsional)**. Tekan **Konfirmasi Pembayaran**. Bila berhasil tampil “Pembayaran dikonfirmasi dan kwitansi terbit.” Efeknya sama dengan Catat Pembayaran."
+        },
+        {
+          "title": "Tolak klaim yang tidak benar",
+          "text": "Tekan **Tolak**, tulis **Alasan Penolakan (minimal 5 karakter)**, lalu **Tolak Klaim**. Tidak ada efek keuangan."
+        },
+        {
+          "title": "Tandai klaim ganda",
+          "text": "Bila pelanggan mengirim klaim yang sama dua kali, tekan **Tandai Duplikat** pada salah satunya, pilih klaim yang sama di **Klaim Ini Sama dengan**, tulis alasan, lalu **Tandai Duplikat**. Tombol ini hanya muncul bila ada klaim menunggu lain pada invoice yang sama."
+        }
+      ],
+      "result": [
+        "Konfirmasi: pembayaran Dikonfirmasi, nomor kwitansi RCP diterbitkan, jurnal Debit Kas/Bank dan Kredit Piutang Usaha, invoice menjadi Dibayar sebagian atau Lunas.",
+        "Tolak dan Duplikat: tidak ada efek keuangan; alasan tersimpan."
+      ],
+      "rules": [
+        "Jumlah yang dikonfirmasi tidak boleh melebihi sisa tagihan saat ini.",
+        "Klaim yang sudah ditinjau tidak bisa ditinjau lagi.",
+        "Bila invoice dibatalkan (void), semua klaim menunggu otomatis ditolak.",
+        "Pembatas anti-penyalahgunaan: maksimal 5 klaim menunggu per invoice, 20 klaim per invoice per hari."
+      ],
+      "mistakes": [
+        "Mengira klaim sudah melunasi invoice. Invoice baru berubah setelah Konfirmasi Pembayaran.",
+        "Menerima begitu saja tanggal atau jumlah klaim padahal mutasi bank berbeda. Perbaiki di formulir konfirmasi.",
+        "Mengonfirmasi klaim ganda sebagai dua pembayaran. Gunakan Tandai Duplikat.",
+        "Tidak memeriksa **Perlu Perhatian** di Dashboard atau halaman Klaim Pembayaran, sehingga klaim baru tertunda."
+      ],
+      "errors": [
+        {
+          "message": "Klaim tidak dapat dikonfirmasi. Periksa rekening, tanggal dan jumlah.",
+          "meaning": "Salah satu isian tidak valid."
+        },
+        {
+          "message": "Pilih rekening yang menerima uangnya.",
+          "meaning": "Kolom Diterima di Rekening kosong."
+        },
+        {
+          "message": "Klaim ini sudah ditinjau (<status>).",
+          "meaning": "Klaim sudah dikonfirmasi, ditolak, atau ditandai duplikat."
+        },
+        {
+          "message": "Klaim tidak dapat ditolak. Isi alasan minimal 5 karakter.",
+          "meaning": "Alasan penolakan terlalu pendek."
+        }
+      ],
+      "related": ["terima-pembayaran", "bagikan-invoice"]
+    },
+    {
+      "slug": "batalkan-koreksi-invoice",
+      "title": "Cara Membatalkan atau Mengoreksi Invoice",
+      "summary": "Membatalkan draf, membatalkan invoice terbit (void), atau mengoreksinya dengan draf pengganti.",
+      "path": "Penjualan > Invoice > (klik invoice)",
+      "who": "Batalkan Draf dan Ubah Draf: invoices.edit. Batalkan Invoice (void) dan Koreksi Invoice: OWNER (izin void; koreksi juga perlu izin buat).",
+      "quick": "Draf: Batalkan Draf. Terbit dan belum dibayar: Koreksi Invoice atau Batalkan Invoice. Terbit dan sudah ada pembayaran: Balik Pembayaran dulu.",
+      "steps": [
+        {
+          "title": "Tentukan keadaan invoice",
+          "text": "Draf: bisa Ubah Draf atau Batalkan Draf (tanpa dampak akuntansi).\n\nTerbit dan belum ada pembayaran aktif: Koreksi Invoice (void dan draf pengganti) atau Batalkan Invoice (void tanpa pengganti).\n\nTerbit dan ada pembayaran aktif: tidak bisa void atau koreksi. Balik semua pembayaran lebih dulu (lihat [Cara Membalik Pembayaran dan Refund](balik-pembayaran-refund)).\n\nSudah dibatalkan: tidak ada tindakan lanjutan."
+        },
+        {
+          "title": "Batalkan Draf",
+          "text": "Buka detail draf, tekan **Batalkan Draf**, tulis **Alasan (minimal 5 karakter)**, lalu tekan tombol merah **Batalkan Draf**. Hasil: “Draf dibatalkan.” dan status menjadi Dibatalkan. Nomor tidak pernah diberikan."
+        },
+        {
+          "title": "Koreksi Invoice (void dan draf pengganti)",
+          "text": "Buka invoice terbit, tekan **Koreksi Invoice**, tulis **Alasan (minimal 5 karakter)**, lalu tekan **Koreksi Invoice**. Invoice lama menjadi “Dibatalkan (void)” dan aplikasi otomatis membuka draf pengganti dengan isi yang sama persis. Tekan **Ubah Draf**, perbaiki yang salah, **Simpan Perubahan**, lalu **Terbitkan Invoice** untuk mendapat nomor baru.",
+          "tip": "Tanggal invoice pengganti sama dengan tanggal invoice lama. Bila bulan itu sudah ditutup, ubah Tanggal Invoice dan Jatuh Tempo di Ubah Draf."
+        },
+        {
+          "title": "Batalkan Invoice (void tanpa pengganti)",
+          "text": "Untuk pelanggan yang tidak jadi membeli: buka invoice terbit, tekan **Batalkan Invoice**, tulis alasan (minimal 5 karakter), lalu tekan tombol merah **Batalkan Invoice**. Tombol merah baru aktif setelah alasan cukup panjang.",
+          "warning": "Void tidak bisa diurungkan. Nomor invoice tidak dipakai ulang dan tetap tampil dengan lencana “Dibatalkan (void)”."
+        },
+        {
+          "title": "Invoice yang sudah dibayar salah isi",
+          "text": "Urutan aman: Balik Pembayaran (tiap pembayaran; balik refund lebih dulu bila ada), lalu Koreksi Invoice, Ubah Draf, Terbitkan Invoice baru, dan terakhir Catat Pembayaran lagi dengan tanggal dana masuk yang asli."
+        }
+      ],
+      "result": [
+        "Void membuat jurnal pembalik bertanggal hari ini (Debit Pendapatan, Kredit Piutang Usaha, dan PPN keluaran dibalik). Piutang invoice menjadi nol dan keluar dari Umur Piutang.",
+        "Tautan publik dicabut dan klaim yang menunggu otomatis ditolak."
+      ],
+      "rules": [
+        "Hanya OWNER yang bisa void dan koreksi. Finance Admin tidak melihat tombolnya.",
+        "Alasan minimal 5 karakter pada semua pembatalan.",
+        "Periode akuntansi tempat jurnal pembalik jatuh harus terbuka."
+      ],
+      "mistakes": [
+        "Menekan Batalkan Invoice pada invoice yang sudah ada pembayaran: ditolak. Balik pembayaran dulu.",
+        "Mengira refund sama dengan membatalkan invoice. Refund tidak mengubah status invoice.",
+        "Mengira void bisa diurungkan.",
+        "Mengoreksi invoice dari bulan yang sudah ditutup tanpa mengganti tanggal draf pengganti."
+      ],
+      "errors": [
+        {
+          "message": "Invoice ini punya <N> alokasi pembayaran aktif; balik pembayaran tersebut dulu.",
+          "meaning": "Balik semua pembayaran invoice ini sebelum void atau koreksi."
+        },
+        {
+          "message": "Pembatalan (void) perlu alasan minimal 5 karakter.",
+          "meaning": "Alasan terlalu pendek."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Hanya OWNER yang bisa void dan koreksi."
+        }
+      ],
+      "related": [
+        "balik-pembayaran-refund",
+        "buat-terbitkan-invoice",
+        "memahami-piutang-pendapatan"
+      ]
+    },
+    {
+      "slug": "balik-pembayaran-refund",
+      "title": "Cara Membalik Pembayaran dan Refund ke Pelanggan",
+      "summary": "Mengoreksi pembayaran yang salah catat dengan Balik Pembayaran, atau mengembalikan uang ke pelanggan dengan Refund.",
+      "path": "Penjualan > Pembayaran Diterima > (klik pembayaran)",
+      "who": "Balik Pembayaran: invoices.confirm_payment. Refund: membuat dan mengonfirmasi hanya OWNER (refunds.create, refunds.confirm); melihat daftar: refunds.view.",
+      "quick": "Balik Pembayaran dipakai bila pembayaran salah catat atau uang tidak pernah masuk. Refund dipakai bila uang benar-benar dikembalikan ke pelanggan.",
+      "steps": [
+        {
+          "title": "Buka detail pembayaran",
+          "text": "Buka **Penjualan > Pembayaran Diterima**, klik pembayaran yang dimaksud. Detail menampilkan jumlah, status refund, dan tombol aksi."
+        },
+        {
+          "title": "Balik Pembayaran (koreksi salah catat)",
+          "text": "Tekan **Balik Pembayaran** (tampil hanya bila status Dikonfirmasi), isi **Tanggal Pembalikan** (tidak boleh sebelum tanggal pembayaran dan tidak di masa depan) dan **Alasan (minimal 5 karakter)**, lalu tekan tombol merah **Balik Pembayaran**.\n\nHasil: pembayaran berstatus “Dibalik”, kwitansi berlabel “Dibatalkan”, uang keluar dari rekening, invoice kembali Belum dibayar atau Dibayar sebagian, dan piutangnya terbuka lagi. Setelah itu pembayaran bisa dicatat ulang dengan benar.",
+          "warning": "Tidak bisa diurungkan. Bila pembayaran punya refund terkonfirmasi, balik refund lebih dulu."
+        },
+        {
+          "title": "Refund ke Pelanggan (uang dikembalikan)",
+          "text": "Tekan **Refund ke Pelanggan**. Isi jumlah per sumber (“Invoice … (maksimal …)” atau “Uang muka yang belum dipakai”), **Dibayar dari Rekening**, **Tanggal Refund**, **Alasan (minimal 5 karakter)**, dan **Nomor Referensi Transfer (opsional)**. Tekan **Simpan Refund** (langsung terkonfirmasi) atau **Simpan sebagai Draft** (menunggu konfirmasi)."
+        },
+        {
+          "title": "Konfirmasi, tolak, atau batalkan draft refund",
+          "text": "Pada bagian **Refund** di detail pembayaran, draft refund punya tombol **Konfirmasi**, **Tolak**, dan **Batalkan**. Refund terkonfirmasi punya **Balik Refund**."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal refund terkonfirmasi",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            [
+              "Diskon & Retur Penjualan (bagian atas invoice) dan/atau Uang Muka Pelanggan",
+              "jumlah refund",
+              ""
+            ],
+            ["Kas/Bank (uang keluar)", "", "jumlah refund"]
+          ]
+        }
+      ],
+      "result": [
+        "Refund tidak membuka kembali invoice: invoice tetap Lunas atau Dibayar sebagian. Yang bertambah adalah “Total Dikembalikan”, dan pembayaran berlabel Refund Sebagian atau Refund Penuh. Untuk menagih lagi atas barang yang sama, buat invoice baru."
+      ],
+      "rules": [
+        "Refund tidak boleh melebihi sisa yang bisa dikembalikan per invoice.",
+        "Satu refund hanya untuk satu pembayaran.",
+        "Draft refund menahan saldo refund sampai dikonfirmasi, ditolak, atau dibatalkan."
+      ],
+      "mistakes": [
+        "Mengira refund membatalkan invoice atau mengembalikan piutang.",
+        "Mengharapkan finance_admin bisa refund. Hanya OWNER."
+      ],
+      "errors": [
+        {
+          "message": "Pembayaran ini punya refund yang sudah dikonfirmasi; balik refund tersebut dulu.",
+          "meaning": "Balik refund sebelum membalik pembayaran."
+        },
+        {
+          "message": "Hanya <jumlah> yang masih bisa di-refund dari alokasi ini",
+          "meaning": "Jumlah refund melebihi sisa yang dapat dikembalikan."
+        },
+        {
+          "message": "Tanggal refund harus di antara tanggal pembayaran dan hari ini.",
+          "meaning": "Perbaiki Tanggal Refund."
+        }
+      ],
+      "related": ["terima-pembayaran", "batalkan-koreksi-invoice"]
+    },
+    {
+      "slug": "lihat-piutang",
+      "title": "Cara Melihat Piutang (Umur Piutang dan Daftar Invoice)",
+      "summary": "Melihat siapa yang belum membayar, berapa, dan sudah berapa hari lewat jatuh tempo.",
+      "path": "Laporan > Laporan Keuangan > tab Umur Piutang; Penjualan > Invoice; Dashboard",
+      "who": "Umur Piutang: izin lihat laporan (reports.view) dan lihat invoice (invoices.view). Finance Staff tidak melihat menu Laporan.",
+      "quick": "Piutang adalah sisa tagihan semua invoice terbit yang belum lunas. Laporan Umur Piutang mengelompokkannya per pelanggan menurut keterlambatan.",
+      "steps": [
+        {
+          "title": "Buka Laporan > Laporan Keuangan",
+          "text": "Halaman **Laporan Keuangan** memiliki deretan tab. Pilih tab **Umur Piutang**."
+        },
+        {
+          "title": "Pilih tanggal laporan",
+          "text": "Isi **Per tanggal** (bawaan hari ini) lalu tekan **Terapkan**. Mengganti tanggal menghitung posisi piutang pada tanggal itu.",
+          "image": {
+            "file": "piutang-umur.jpg",
+            "caption": "Tab Umur Piutang."
+          }
+        },
+        {
+          "title": "Baca tabel",
+          "text": "Satu baris per pelanggan, dari piutang terbesar: **Pelanggan**, **Belum Jatuh Tempo**, **1-30 Hari**, **31-60 Hari**, **61-90 Hari**, **>90 Hari**, **Total**, dan **Jml. Invoice**. Baris Total ada di bawah. Angka adalah sisa tagihan dalam IDR. Bila kosong tampil “Tidak ada piutang terbuka per tanggal ini.”\n\nYang masuk hanya invoice terbit dengan sisa lebih dari nol. Draf, void, dan invoice lunas tidak masuk."
+        },
+        {
+          "title": "Telusuri invoice per pelanggan",
+          "text": "Laporan belum punya tautan ke daftar invoice pelanggan. Buka **Penjualan > Invoice** dan pakai tab **Terbuka** (semua piutang) atau **Jatuh Tempo** (yang terlambat), atau ketik nama pelanggan di kolom cari.",
+          "image": {
+            "file": "invoice-daftar.jpg",
+            "caption": "Daftar invoice dengan tab Terbuka dan Jatuh Tempo."
+          }
+        },
+        {
+          "title": "Lihat ringkasan di Dashboard",
+          "text": "Kartu **Piutang Usaha** di Dashboard menampilkan total piutang dan jumlah yang sudah jatuh tempo."
+        }
+      ],
+      "result": ["Baca saja; tidak ada jurnal."],
+      "rules": [
+        "Kelompok umur dihitung dari jumlah hari lewat Jatuh Tempo pada tanggal laporan. “Belum Jatuh Tempo” termasuk yang jatuh tempo tepat pada hari itu.",
+        "Angka pada baris Total di kolom Jml. Invoice adalah jumlah pelanggan, bukan jumlah invoice.",
+        "Saldo Piutang Usaha di Neraca bisa berbeda dari Umur Piutang bila ada saldo awal atau jurnal manual yang bukan dari invoice."
+      ],
+      "mistakes": [
+        "Mencari draf atau invoice void di daftar piutang. Keduanya tidak termasuk.",
+        "Mengira “Belum Jatuh Tempo” berarti belum ditagih.",
+        "Mengisi Jatuh Tempo terlalu cepat sehingga banyak invoice langsung terlihat jatuh tempo."
+      ],
+      "errors": [
+        {
+          "message": "Anda tidak memiliki izin untuk melihat umur piutang.",
+          "meaning": "Akun tidak punya izin lihat invoice."
+        }
+      ],
+      "related": ["memahami-piutang-pendapatan", "terima-pembayaran", "lihat-utang"]
+    }
+  ]
+}

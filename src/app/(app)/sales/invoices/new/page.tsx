@@ -6,6 +6,7 @@ import { listActiveCategories } from "@/services/accounting/categories";
 import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { InvoiceForm } from "@/features/sales/InvoiceForm";
+import { todayInBusinessZone } from "@/lib/time";
 
 /** Create Invoice (Step 09 §11, decision 257), gated `invoices.create` -- the permission
  * `create_invoice_draft` itself checks. Only active customers and active accounts are offered. */
@@ -45,7 +46,7 @@ export default async function NewInvoicePage({
           categories={categories}
           suggestions={suggestions}
           entity={entity}
-          today={new Date().toISOString().slice(0, 10)}
+          today={todayInBusinessZone()}
         />
       </section>
     </div>

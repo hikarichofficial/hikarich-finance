@@ -248,6 +248,58 @@ export async function listInvoicePositions(
   );
 }
 
+/** Draft invoices of the Entity as list rows. Drafts have no number and no receivable yet, so
+ * `list_invoice_positions` never returns them; this is a direct RLS-governed read, shaped like a position row
+ * (settlement fields empty, outstanding equal to the draft total as a preview). Finding #88. */
+export async function listDraftInvoices(entityId: string): Promise<InvoicePosition[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("invoices")
+    .select("id, customer_id, currency, issue_date, due_date, total::text")
+    .eq("entity_id", uuid(entityId))
+    .eq("status", "draft")
+    .order("issue_date", { ascending: false })
+    .limit(200);
+  if (error) throw new Error("Gagal memuat draf invoice.");
+  const rows = (data ?? []) as unknown as {
+    id: string;
+    customer_id: string;
+    currency: string;
+    issue_date: string;
+    due_date: string;
+    total: string;
+  }[];
+  if (rows.length === 0) return [];
+  const { data: contacts } = await supabase
+    .from("contacts")
+    .select("id, display_name")
+    .in("id", [...new Set(rows.map((r) => r.customer_id))]);
+  const names = new Map(
+    ((contacts ?? []) as { id: string; display_name: string }[]).map((c) => [c.id, c.display_name]),
+  );
+  return invoicePositionsSchema.parse(
+    rows.map((r) => ({
+      invoice_id: r.id,
+      invoice_number: null,
+      customer_id: r.customer_id,
+      customer_name: names.get(r.customer_id) ?? "—",
+      currency: r.currency,
+      status: "draft",
+      issue_date: r.issue_date,
+      due_date: r.due_date,
+      total: r.total,
+      settled: "0",
+      outstanding: r.total,
+      base_outstanding: r.total,
+      refunded: "0",
+      settlement_status: null,
+      refund_status: null,
+      is_overdue: false,
+      days_overdue: 0,
+    })),
+  );
+}
+
 export async function getInvoiceDocument(invoiceId: string): Promise<InvoiceDocument> {
   return callRpc("invoice_document", { p_invoice: uuid(invoiceId) }, invoiceDocumentSchema);
 }

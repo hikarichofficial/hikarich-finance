@@ -1,0 +1,388 @@
+{
+  "key": "pembelian",
+  "title": "Pembelian",
+  "description": "Vendor, pengeluaran langsung (biaya), tagihan vendor, pembayaran tagihan, dan utang usaha.",
+  "guides": [
+    {
+      "slug": "tambah-vendor",
+      "title": "Cara Menambah Vendor",
+      "summary": "Mendaftarkan pihak yang Anda bayar (pemasok, penyedia jasa) dari menu Vendor atau langsung dari form Tagihan.",
+      "path": "Pembelian > Vendor > Tambah Vendor",
+      "who": "Izin buat kontak (contacts.create): OWNER, Finance Admin, Finance Staff. Mengisi NPWP/NIK perlu izin data sensitif (default hanya OWNER).",
+      "quick": "Cukup nama. Sistem menolak vendor ganda berdasarkan email, telepon, NPWP, atau nama yang sama.",
+      "steps": [
+        {
+          "title": "Buka Pembelian > Vendor",
+          "text": "Tabel memuat **Nama**, **Jenis**, **Status**, dan **Kontak**. Cari dulu di kolom **Cari nama, email, atau telepon…**, lalu tekan **Tambah Vendor**.",
+          "image": {
+            "file": "vendor-daftar.jpg",
+            "caption": "Daftar vendor."
+          }
+        },
+        {
+          "title": "Isi form Tambah Vendor",
+          "text": "**Nama** (wajib). Opsional: **Nama Resmi / Badan**, **Email**, **Telepon**, **NPWP / NIK** (hanya terlihat bagi yang berhak), **Alamat**, **Kota**, **Kode Negara**, **Catatan**. Centang **Kontak ini juga pelanggan** bila pihak ini juga membeli dari Anda.",
+          "image": {
+            "file": "vendor-tambah-form.jpg",
+            "caption": "Form Tambah Vendor."
+          }
+        },
+        {
+          "title": "Tekan Simpan",
+          "text": "Anda dibawa ke halaman detail vendor."
+        },
+        {
+          "title": "Mengubah atau menonaktifkan vendor",
+          "text": "Buka detail vendor, lalu tekan **Ubah** untuk memperbarui nama, nama resmi, email, telepon, alamat, kota, kode negara, atau catatan. Tekan **Simpan Perubahan**. Kotak “Kontak ini juga ...” bisa dicentang untuk menjadikan kontak ini pelanggan sekaligus vendor.\n\nTombol **Nonaktifkan** menyembunyikan vendor dari pilihan pada dokumen baru; riwayatnya tetap ada. Tekan **Aktifkan Kembali** untuk memakainya lagi. Dokumen yang sudah terbit tidak ikut berubah karena menyimpan salinan data saat diterbitkan.",
+          "tip": "Butuh izin ubah kontak; tanpa izin itu tombol Ubah dan Nonaktifkan tidak tampil. NPWP/NIK tidak bisa diubah dari layar ini."
+        },
+        {
+          "title": "Tambah cepat dari form Tagihan",
+          "text": "Di **Catat Tagihan**, klik kolom **Vendor**, ketik nama, lalu pilih baris **+ Tambah “nama” sebagai vendor baru**. Isi **Email** dan **Telepon** di panel, tekan **Simpan & Gunakan**. Vendor baru langsung terpilih."
+        },
+        {
+          "title": "Isi Data Pajak vendor bila perlu",
+          "text": "Di detail vendor, bagian **Data Pajak** (butuh akses Pajak) menyimpan Jenis Pihak, Domisili Pajak, NPWP, Status PKP, dan Surat Keterangan Bebas Potong PPh. Data ini dipakai menghitung potongan PPh pada tagihan dan pengeluaran. Tanpa data ini, potongan PPh untuk vendor tersebut akan minta ditinjau dan tagihan tidak bisa disetujui."
+        }
+      ],
+      "result": [
+        "Vendor muncul di daftar Vendor dan sebagai pilihan di Tagihan dan Pengeluaran. Tidak ada jurnal."
+      ],
+      "rules": [
+        "Email, telepon, atau NPWP yang sama selalu ditolak. Nama yang sama ditolak kecuali kotak “Tetap simpan walau ada nama yang mirip” dicentang di form lengkap.",
+        "Vendor nonaktif tidak bisa dipakai di tagihan atau pengeluaran baru.",
+        "Mengubah atau menonaktifkan vendor setelah dibuat belum tersedia di layar."
+      ],
+      "mistakes": [
+        "Membuat vendor ganda dengan ejaan berbeda.",
+        "Lupa mengisi Data Pajak vendor sehingga persetujuan tagihan tertahan.",
+        "Mengira panel cepat bisa menyimpan nama yang mirip."
+      ],
+      "errors": [
+        {
+          "message": "Ini mirip dengan kontak yang sudah ada “<nama>” (<alasan>); gunakan kontak itu, atau konfirmasi bahwa ini pihak yang berbeda.",
+          "meaning": "Gunakan vendor yang sudah ada."
+        },
+        {
+          "message": "Kontak tidak dapat disimpan. Periksa nama, email, telepon dan kode negara.",
+          "meaning": "Salah satu isian tidak valid."
+        }
+      ],
+      "related": ["catat-tagihan-vendor", "buat-biaya", "tambah-pelanggan"]
+    },
+    {
+      "slug": "buat-biaya",
+      "title": "Cara Membuat Biaya (Mencatat Pengeluaran Langsung)",
+      "summary": "Mencatat belanja atau biaya yang langsung dibayar dari kas atau bank, tanpa tagihan.",
+      "path": "Pembelian > Beban > Catat Pengeluaran",
+      "who": "Buat dan ubah draf: bills.create dan bills.edit. Ajukan: bills.submit. Konfirmasi & Posting: bills.pay (OWNER, Finance Admin; Finance Staff tidak bisa). Balik dan Koreksi: OWNER.",
+      "quick": "Simpan sebagai Draf tidak mengurangi saldo. Saldo baru berkurang setelah **Konfirmasi & Posting** oleh pengguna yang berhak.",
+      "steps": [
+        {
+          "title": "Buka Pembelian > Beban",
+          "text": "Halaman berjudul **Pengeluaran**. Tab: Semua, Draf, Diajukan, Dikonfirmasi, Dibalik, Dibatalkan. Tekan **Catat Pengeluaran**.",
+          "image": {
+            "file": "biaya-daftar.jpg",
+            "caption": "Daftar pengeluaran."
+          }
+        },
+        {
+          "title": "Pilih rekening pembayar dan tanggal",
+          "text": "**Dibayar dari Rekening**: pilih rekening kas atau bank yang dipakai. **Tanggal** (bawaan hari ini).",
+          "image": {
+            "file": "biaya-form.jpg",
+            "caption": "Form Catat Pengeluaran."
+          }
+        },
+        {
+          "title": "Isi Vendor atau Nama Penerima",
+          "text": "Pilih **Vendor (opsional)** dari daftar terdaftar. Bila tidak memilih vendor, kolom **Nama Penerima** wajib diisi (misalnya “Toko Bangunan Jaya”). Isi **Nomor Struk / Nota (opsional)**; nomor ini dipakai mendeteksi struk ganda."
+        },
+        {
+          "title": "Isi baris pengeluaran",
+          "text": "Untuk tiap baris: **Deskripsi** (klik untuk saran; harga terakhir terisi otomatis bila nama sama), **Kuantitas** (desimal boleh koma atau titik), **Harga Satuan**, **Perlakuan**, dan **Kategori**.\n\n**Perlakuan**: “Beban” (bawaan, biaya langsung), “Aset” (pembelian barang yang dicatat sebagai aset tetap), atau “Dibayar di Muka”. Kategori yang tampil menyesuaikan perlakuan.\n\nKolom pajak per baris: **Objek potongan PPh**, kotak **PPN ditagih vendor**, dan **No. Faktur Pajak**. Isi hanya bila relevan dan mesin pajak sudah aktif."
+        },
+        {
+          "title": "Isi Catatan dan tekan Simpan sebagai Draf",
+          "text": "Anda dibawa ke detail pengeluaran berstatus Draf. Bukti struk dilampirkan di bagian **Lampiran** setelah draf tersimpan (PDF, JPG, PNG, atau WebP maksimal 4 MB; jenis bawaan “Kuitansi”)."
+        },
+        {
+          "title": "Konfirmasi & Posting",
+          "text": "Pengguna dengan izin bayar menekan **Konfirmasi & Posting**. Bila Finance Staff yang membuat draf, ia menekan **Ajukan untuk Persetujuan** lebih dulu, lalu OWNER atau Finance Admin yang konfirmasi. Status menjadi Dikonfirmasi dan nomor berawalan EXP.",
+          "tip": "Bila sistem mendeteksi struk ganda (penerima, nomor struk, tanggal, mata uang, dan total sama), muncul tombol “Ini memang struk ganda yang disengaja” dan kolom alasan (minimal 5 karakter). Gunakan hanya bila struk itu memang sengaja dicatat lagi."
+        },
+        {
+          "title": "Menolak, membatalkan, membalik, atau mengoreksi",
+          "text": "**Tolak** mengembalikan pengeluaran ke draf dengan alasan penolakan. **Batalkan** membatalkan draf tanpa dampak akuntansi. Pada pengeluaran Dikonfirmasi, OWNER dapat menekan **Balik (Reverse)** (jurnal dan mutasi kas dibalik) atau **Koreksi** (dibalik dan dibuat draf pengganti)."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal saat Konfirmasi & Posting (contoh biaya Rp 500.000, tanpa pajak)",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Beban sesuai kategori (atau aset / dibayar di muka)", "500.000", ""],
+            ["Kas/Bank (rekening pembayar)", "", "500.000"]
+          ]
+        }
+      ],
+      "result": [
+        "Saldo rekening berkurang dan muncul sebagai pengeluaran di Mutasi Kas & Bank.",
+        "Bila ada PPh potongan, kas keluar sebesar total dikurangi PPh dan PPh dicatat sebagai Utang Pajak. PPN masukan yang bisa dikreditkan masuk ke aset pajak."
+      ],
+      "rules": [
+        "Harus ada Vendor atau Nama Penerima. Total harus lebih dari nol.",
+        "Pengeluaran bertanggal di masa depan tetap draf sampai tanggalnya tiba.",
+        "Periode akuntansi harus terbuka.",
+        "Rekening bank dengan saldo yang akan menjadi negatif ditolak (kebijakan bawaan hanya untuk jenis Bank; kas tunai dan e-wallet boleh minus).",
+        "Belum ada kolom mata uang atau kurs untuk pengeluaran valas."
+      ],
+      "mistakes": [
+        "Mengira Simpan sebagai Draf sudah mengurangi saldo.",
+        "Mengetik kuantitas dengan titik ribuan. Kuantitas hanya menerima koma atau titik sebagai desimal.",
+        "Salah memilih Perlakuan (Beban, Aset, Dibayar di Muka) karena kategori mengikuti perlakuan.",
+        "Mencatat pembelian kredit (belum dibayar) sebagai pengeluaran. Pakai [Cara Mencatat Tagihan Vendor](catat-tagihan-vendor)."
+      ],
+      "errors": [
+        {
+          "message": "Isi Vendor atau penerima pembayaran",
+          "meaning": "Pilih vendor atau ketik nama penerima."
+        },
+        {
+          "message": "Ini akan membuat <rekening> di bawah nol, dan itu tidak diizinkan untuk rekening <jenis>.",
+          "meaning": "Saldo rekening bank tidak cukup."
+        },
+        {
+          "message": "Pengeluaran bernilai nol tidak bisa dikonfirmasi.",
+          "meaning": "Isi harga pada minimal satu baris."
+        },
+        {
+          "message": "Pengeluaran tidak dapat dikonfirmasi. Jika struk ini tercatat ganda, isi alasan duplikat.",
+          "meaning": "Struk ini terdeteksi ganda."
+        }
+      ],
+      "related": ["tambah-vendor", "catat-tagihan-vendor", "bayar-pajak"]
+    },
+    {
+      "slug": "catat-tagihan-vendor",
+      "title": "Cara Mencatat dan Menyetujui Tagihan Vendor",
+      "summary": "Mencatat tagihan dari vendor yang belum dibayar, lalu menyetujuinya sehingga menjadi utang usaha.",
+      "path": "Pembelian > Tagihan > Catat Tagihan",
+      "who": "Buat: bills.create. Ajukan: bills.submit. Setujui atau tolak: bills.approve (Approver, Finance Admin, OWNER). Void dan koreksi: OWNER.",
+      "quick": "Draf belum menambah utang. Utang usaha baru tercatat setelah **Setujui Tagihan**.",
+      "steps": [
+        {
+          "title": "Buka Pembelian > Tagihan",
+          "text": "Halaman **Tagihan Pembelian**. Tab: Semua, Menunggu Persetujuan, Terbuka, Jatuh Tempo, Lunas, Dibatalkan. Tekan **Catat Tagihan**.",
+          "image": {
+            "file": "tagihan-daftar.jpg",
+            "caption": "Daftar tagihan pembelian."
+          }
+        },
+        {
+          "title": "Pilih vendor dan isi tanggal",
+          "text": "**Vendor** (ketik atau pilih; bisa menambah baru). **Nomor Invoice dari Vendor (opsional)** dipakai mendeteksi tagihan ganda. **Tanggal Tagihan** (bawaan hari ini) dan **Jatuh Tempo** (tidak boleh sebelum tanggal tagihan).",
+          "image": {
+            "file": "tagihan-form.jpg",
+            "caption": "Form Catat Tagihan."
+          }
+        },
+        {
+          "title": "Isi baris tagihan",
+          "text": "Sama seperti pengeluaran: **Deskripsi**, **Kuantitas**, **Harga Satuan**, **Perlakuan** (Beban, Aset, Dibayar di Muka), **Kategori**, serta kolom pajak **Objek potongan PPh**, **PPN ditagih vendor**, dan **No. Faktur Pajak**. Potongan PPh dan PPN dihitung otomatis dari isian pajak tiap baris dan Data Pajak vendor; hasilnya terlihat di halaman tagihan sebelum disetujui."
+        },
+        {
+          "title": "Simpan sebagai Draf",
+          "text": "Tekan **Simpan sebagai Draf**. Tagihan masih tanpa nomor (“Draf”) dan belum ada jurnal. Lampirkan bukti (invoice vendor, kontrak) di bagian **Lampiran** pada halaman detail."
+        },
+        {
+          "title": "Ajukan untuk persetujuan (opsional)",
+          "text": "Finance Staff menekan **Ajukan untuk Persetujuan**. Status menjadi Menunggu persetujuan. Pengaju bisa menarik kembali dengan **Tarik Kembali ke Draf**."
+        },
+        {
+          "title": "Setujui Tagihan",
+          "text": "Pengguna dengan izin approve (bisa langsung dari draf) menekan **Setujui Tagihan**. Status menjadi Disetujui dan nomor berawalan BILL. Untuk menolak, tekan **Tolak Tagihan** dan tulis alasan; tagihan dikembalikan ke pengaju."
+        },
+        {
+          "title": "Lihat hasilnya",
+          "text": "Detail tagihan menampilkan **Total Tagihan**, **Subtotal**, **Pajak**, **Sudah Dibayar**, **Sisa Tagihan**, dan **Status Pelunasan**. Untuk membayarnya, lihat [Cara Membayar Tagihan Vendor](bayar-tagihan-vendor)."
+        },
+        {
+          "title": "Membatalkan atau mengoreksi",
+          "text": "Draf atau yang menunggu: **Batalkan Tagihan** (tanpa dampak akuntansi). Yang sudah disetujui: OWNER dapat **Batalkan Tagihan (Void)** atau **Koreksi Tagihan** dengan alasan minimal 5 karakter. Void ditolak bila ada pembayaran aktif; balik pembayarannya dulu."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal saat Setujui Tagihan (contoh Rp 1.000.000, tanpa pajak)",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Beban sesuai kategori (atau aset / dibayar di muka)", "1.000.000", ""],
+            ["Utang Usaha", "", "1.000.000"]
+          ]
+        }
+      ],
+      "result": [
+        "Utang usaha naik dan beban atau aset tercatat. Kas tidak berubah sampai tagihan dibayar.",
+        "Bila ada PPh potongan, Utang Usaha sebesar total dikurangi PPh dan sisanya masuk Utang Pajak. PPN masukan yang dikreditkan masuk aset pajak."
+      ],
+      "rules": [
+        "Tanggal tagihan tidak boleh di masa depan saat disetujui.",
+        "Periode akuntansi harus terbuka. Total harus lebih dari nol.",
+        "Bila mesin pajak aktif dan ada baris yang perlu ditinjau, persetujuan ditolak sampai diselesaikan. Bila mesin pajak belum aktif tetapi tagihan mengandung pajak, ditolak.",
+        "Duplikat persis (vendor dan referensi vendor sama) ditolak. Layar tagihan belum punya kolom alasan untuk mengesampingkannya.",
+        "Tanpa Aturan Persetujuan di Administrasi > Pengaturan, orang yang sama boleh membuat dan menyetujui bila punya kedua izin. Finance Staff tidak punya izin setujui.",
+        "Jatuh tempo tidak bisa diubah setelah disetujui. Tagihan valas belum didukung di layar."
+      ],
+      "mistakes": [
+        "Mengira Simpan sebagai Draf sudah menambah utang.",
+        "Mengisi tanggal tagihan di masa depan.",
+        "Mengisi PPN atau objek potongan PPh padahal mesin pajak belum aktif atau Data Pajak vendor kosong.",
+        "Membandingkan Total di daftar (bersih dari potongan PPh) dengan header detail (bruto)."
+      ],
+      "errors": [
+        {
+          "message": "Tagihan harus punya minimal satu baris yang ada jumlahnya",
+          "meaning": "Isi harga pada minimal satu baris."
+        },
+        {
+          "message": "Penentuan pajak tagihan ini perlu ditinjau sebelum bisa disetujui: <alasan>",
+          "meaning": "Lengkapi isian pajak baris atau Data Pajak vendor."
+        },
+        {
+          "message": "Ini tampak seperti duplikat dari <nomor> ...",
+          "meaning": "Vendor dan referensi vendor sama dengan tagihan lain."
+        },
+        {
+          "message": "Kontak yang nonaktif tidak bisa dipakai untuk tagihan baru.",
+          "meaning": "Pilih vendor yang aktif."
+        }
+      ],
+      "related": ["bayar-tagihan-vendor", "lihat-utang", "tambah-vendor"]
+    },
+    {
+      "slug": "bayar-tagihan-vendor",
+      "title": "Cara Membayar Tagihan Vendor",
+      "summary": "Mencatat pembayaran atas tagihan yang sudah disetujui, penuh atau sebagian, dan membalikkannya bila salah.",
+      "path": "Pembelian > Tagihan > (klik tagihan Disetujui) > Bayar Tagihan",
+      "who": "Izin bayar (bills.pay): OWNER dan Finance Admin. Finance Staff dan Approver tidak bisa.",
+      "quick": "Tidak ada form pembayaran mandiri. Pembayaran dimulai dari detail tagihan. Jumlah yang dibayar adalah sisa tagihan (bersih dari PPh potongan).",
+      "steps": [
+        {
+          "title": "Buka tagihan berstatus Disetujui",
+          "text": "Buka **Pembelian > Tagihan** dan klik tagihan yang sudah disetujui dengan sisa lebih dari nol. Bila belum disetujui, tombol pembayaran tidak muncul."
+        },
+        {
+          "title": "Tekan Bayar Tagihan",
+          "text": "Form pembayaran terbuka."
+        },
+        {
+          "title": "Isi form",
+          "text": "**Dibayar dari Rekening** (rekening aktif yang bermata uang sama dengan tagihan). **Tanggal** (bawaan hari ini; tidak boleh di masa depan atau sebelum tanggal tagihan). **Jumlah** (bawaan seluruh sisa; kecilkan untuk bayar sebagian). **Nomor Referensi / Bukti Transfer (opsional)**. **Catatan (opsional)**."
+        },
+        {
+          "title": "Tekan Simpan Pembayaran",
+          "text": "Bila berhasil tampil “Pembayaran tercatat.” Pembayaran bernomor PAY dan berstatus Dikonfirmasi. Lihat di **Pembelian > Pembayaran Keluar** (halaman berjudul **Pembayaran ke Vendor**).",
+          "image": {
+            "file": "pembayaran-keluar-daftar.jpg",
+            "caption": "Daftar Pembayaran ke Vendor."
+          }
+        },
+        {
+          "title": "Membalik pembayaran yang salah",
+          "text": "Buka detail pembayaran di Pembayaran Keluar, tekan **Balik Pembayaran**, isi **Tanggal Pembalikan** dan **Alasan (minimal 5 karakter)**. Jurnal dan mutasi kas dibalik dan tagihan kembali terbuka."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal saat pembayaran tagihan",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Utang Usaha", "jumlah dibayar", ""],
+            ["Kas/Bank (rekening pembayar)", "", "jumlah dibayar"]
+          ]
+        }
+      ],
+      "result": [
+        "Saldo rekening berkurang dan utang usaha berkurang. Status tagihan menjadi Dibayar sebagian atau Lunas."
+      ],
+      "rules": [
+        "Pembayaran lebih dari sisa ditolak. Uang muka ke vendor belum didukung.",
+        "Jumlah yang dibayar adalah total dikurangi PPh potongan.",
+        "Saldo rekening bank yang akan menjadi negatif ditolak.",
+        "Satu pembayaran dari layar mengalokasikan ke satu tagihan.",
+        "Tagihan yang sudah dibayar tidak bisa di-void sebelum pembayarannya dibalik."
+      ],
+      "mistakes": [
+        "Mencari tombol “Pembayaran baru” di Pembayaran Keluar. Mulailah dari detail tagihan.",
+        "Memasukkan jumlah bruto padahal ada PPh potongan.",
+        "Membayar dari rekening bank yang saldonya kurang."
+      ],
+      "errors": [
+        {
+          "message": "Alokasi sebesar <jumlah> melebihi sisa yang belum dibayar (<sisa>) pada tagihan <nomor>.",
+          "meaning": "Jumlah lebih besar dari sisa."
+        },
+        {
+          "message": "Tagihan <nomor> berstatus <status> dan tidak bisa dibayar.",
+          "meaning": "Setujui tagihan lebih dulu."
+        },
+        {
+          "message": "Ini akan membuat <rekening> di bawah nol, dan itu tidak diizinkan untuk rekening <jenis>.",
+          "meaning": "Saldo rekening kurang."
+        },
+        {
+          "message": "Pembayaran tidak dapat dicatat. Periksa rekening, tanggal dan jumlah.",
+          "meaning": "Pesan umum."
+        }
+      ],
+      "related": ["catat-tagihan-vendor", "lihat-utang"]
+    },
+    {
+      "slug": "lihat-utang",
+      "title": "Cara Melihat Utang (Umur Utang dan Daftar Tagihan)",
+      "summary": "Melihat tagihan vendor yang belum dibayar dan berapa lama lewat jatuh tempo.",
+      "path": "Laporan > Laporan Keuangan > tab Umur Utang; Pembelian > Tagihan",
+      "who": "Umur Utang: izin lihat laporan (reports.view) dan lihat tagihan (bills.view).",
+      "quick": "Yang masuk Umur Utang hanya tagihan Disetujui dengan sisa lebih dari nol.",
+      "steps": [
+        {
+          "title": "Buka Laporan > Laporan Keuangan > Umur Utang",
+          "text": "Pilih tab **Umur Utang**, isi **Per tanggal**, lalu tekan **Terapkan**.",
+          "image": {
+            "file": "utang-umur.jpg",
+            "caption": "Tab Umur Utang."
+          }
+        },
+        {
+          "title": "Baca tabel",
+          "text": "Kolom: **Vendor**, **Belum Jatuh Tempo**, **1-30 Hari**, **31-60 Hari**, **61-90 Hari**, **>90 Hari**, **Total**, **Jml. Tagihan**, dan baris total. Bila kosong tampil “Tidak ada utang terbuka per tanggal ini.”"
+        },
+        {
+          "title": "Telusuri di daftar Tagihan",
+          "text": "Buka **Pembelian > Tagihan** dan pakai tab **Terbuka** atau **Jatuh Tempo**. Lencana status: Lunas, Jatuh tempo N hari, Dibayar sebagian, Belum dibayar."
+        },
+        {
+          "title": "Ringkasan di Dashboard dan laporan lain",
+          "text": "Kartu **Utang Usaha** di Dashboard menautkan ke daftar tagihan. **Laporan > Penjualan & Pembelian** menampilkan total pembelian per vendor, kategori, produk, atau bulan."
+        }
+      ],
+      "result": ["Baca saja; tidak ada jurnal."],
+      "rules": [
+        "Tagihan draf atau menunggu persetujuan tidak masuk Umur Utang.",
+        "Sisa tagihan sudah bersih dari PPh potongan."
+      ],
+      "mistakes": [
+        "Mengira pembayaran sebagian menghapus tagihan dari daftar. Tagihan tetap tampil dengan sisa.",
+        "Tidak melihat tab karena akun tidak punya izin lihat laporan."
+      ],
+      "errors": [
+        {
+          "message": "Anda tidak memiliki izin untuk melihat umur utang.",
+          "meaning": "Akun tidak punya izin lihat tagihan atau laporan."
+        }
+      ],
+      "related": ["catat-tagihan-vendor", "bayar-tagihan-vendor", "lihat-piutang"]
+    }
+  ]
+}
