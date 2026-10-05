@@ -3085,3 +3085,97 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
 .guide-flow-toc {
   margin: var(--space-3) 0;
 }
+
+/* Compact product screens and the "Selengkapnya" reveal (task 95) */
+.expandable-text {
+  position: relative;
+}
+
+.expandable-text-body {
+  margin: 0;
+  overflow: hidden;
+  white-space: pre-line;
+  line-height: 1.4;
+  transition: max-height 0.28s ease;
+}
+
+.expandable-text-cut .expandable-text-body {
+  max-height: 2.8em;
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+}
+
+.expandable-text-open .expandable-text-body {
+  max-height: 60em;
+}
+
+.expandable-text-toggle {
+  margin-top: 2px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--accent-strong);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.expandable-text-toggle:hover {
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expandable-text-body {
+    transition: none;
+  }
+}
+
+.product-row-description {
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  max-width: 46ch;
+}
+
+.record-table-compact th,
+.record-table-compact td {
+  padding-block: 8px;
+}
+
+.record-summary-compact {
+  gap: var(--space-2) var(--space-4);
+}
+
+.record-summary-compact dd {
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.record-summary-compact .record-summary-wide {
+  grid-column: 1 / -1;
+}
+
+.record-summary-compact .record-summary-wide dd {
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.record-detail-compact .record-detail-header h1 {
+  font-size: var(--text-xl);
+}
+
+.record-detail-compact .record-detail-amount {
+  font-size: var(--text-lg);
+}
+
+.record-detail-compact .dashboard-section {
+  padding: var(--space-3) var(--space-4);
+}
+
+.record-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}

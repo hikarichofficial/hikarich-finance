@@ -7,10 +7,10 @@ import { listActiveCategories } from "@/services/accounting/categories";
 import { getEntityBaseCurrency } from "@/services/accounting/ledger";
 import { formatMoney } from "@/domain/money/format";
 import { PRODUCT_KIND_LABELS } from "@/domain/products/productsList";
-import { ProductForm } from "@/features/products/ProductForm";
+import { ExpandableText } from "@/features/shared/ExpandableText";
 
-/** Product Detail (decision 245): Summary for everyone with `products.view`; the edit form only for
- * `products.edit`. Archiving (`products.archive` maps to a hard delete policy) is deliberately not offered:
+/** Product Detail (decision 245, compact in task 95): a read-only summary for everyone with `products.view`;
+ * the edit form is its own page (`./edit`, `products.edit`) so viewing and editing are never stacked. Archiving (`products.archive` maps to a hard delete policy) is deliberately not offered:
  * a product may already be referenced by invoice lines, so it is deactivated instead. */
 export default async function ProductDetailPage({
   params,
@@ -33,6 +33,9 @@ export default async function ProductDetailPage({
   const backHref = entity
     ? `/sales/products?entity=${encodeURIComponent(entity)}`
     : "/sales/products";
+  const editHref = entity
+    ? `/sales/products/${id}/edit?entity=${encodeURIComponent(entity)}`
+    : `/sales/products/${id}/edit`;
   const category = categories.find((c) => c.id === product.default_category_id);
   const price =
     product.default_unit_price === null
@@ -40,7 +43,7 @@ export default async function ProductDetailPage({
       : formatMoney(String(product.default_unit_price), product.default_currency ?? baseCurrency);
 
   return (
-    <div className="record-detail">
+    <div className="record-detail record-detail-compact">
       <p className="record-detail-back">
         <Link href={backHref}>← Kembali ke daftar produk</Link>
       </p>
@@ -56,6 +59,11 @@ export default async function ProductDetailPage({
             {product.is_active ? "Aktif" : "Nonaktif"}
           </span>
           <p className="record-detail-amount">{price}</p>
+          {canEdit ? (
+            <Link href={editHref} className="btn-secondary">
+              Ubah
+            </Link>
+          ) : null}
         </div>
       </header>
 
@@ -63,7 +71,7 @@ export default async function ProductDetailPage({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Ringkasan</h2>
         </div>
-        <dl className="record-summary-grid">
+        <dl className="record-summary-grid record-summary-compact">
           <div>
             <dt>SKU</dt>
             <dd>{product.sku ?? "—"}</dd>
@@ -76,26 +84,18 @@ export default async function ProductDetailPage({
             <dt>Kategori Bawaan</dt>
             <dd>{category?.name ?? "—"}</dd>
           </div>
-          <div>
+          <div className="record-summary-wide">
             <dt>Deskripsi</dt>
-            <dd>{product.description ?? "—"}</dd>
+            <dd>
+              {product.description ? (
+                <ExpandableText text={product.description} limit={220} />
+              ) : (
+                "—"
+              )}
+            </dd>
           </div>
         </dl>
       </section>
-
-      {canEdit ? (
-        <section className="dashboard-section">
-          <div className="dashboard-section-header">
-            <h2 className="dashboard-section-title">Ubah</h2>
-          </div>
-          <ProductForm
-            product={product}
-            categories={categories.filter((c) => c.kind === "revenue")}
-            baseCurrency={baseCurrency}
-            entity={entity}
-          />
-        </section>
-      ) : null}
     </div>
   );
 }

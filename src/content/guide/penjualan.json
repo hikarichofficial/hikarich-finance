@@ -78,13 +78,13 @@
       "slug": "produk-dan-jasa",
       "title": "Cara Menambah Produk dan Jasa",
       "summary": "Mendaftarkan barang atau jasa yang dijual supaya muncul sebagai saran saat membuat invoice, lengkap dengan harga dan kategori bawaan.",
-      "path": "Penjualan > Produk & Jasa > Tambah Produk",
+      "path": "Penjualan > Produk & Jasa > Tambah Produk (ubah: buka produk > Ubah)",
       "who": "Lihat: products.view. Tambah dan ubah: products.create dan products.edit (OWNER, Finance Admin, Finance Staff).",
       "quick": "Produk hanya mempercepat pengisian invoice. Invoice tidak terhubung ke produk, jadi mengubah produk tidak mengubah invoice lama.",
       "steps": [
         {
           "title": "Buka Penjualan > Produk & Jasa",
-          "text": "Tabel memuat **Nama**, **Jenis**, **SKU**, **Satuan**, **Harga Bawaan**, dan **Status**. Tab: Semua, Aktif, Nonaktif, Produk, Jasa. Tekan **Tambah Produk**.",
+          "text": "Tabel memuat **Nama** (dengan deskripsi singkat di bawahnya), **Jenis**, **SKU**, **Satuan**, **Harga Bawaan**, dan **Status**. Deskripsi yang panjang dipotong dua baris: tekan **Selengkapnya** untuk membukanya dan **Ringkas** untuk menutup lagi. Tab: Semua, Aktif, Nonaktif, Produk, Jasa. Tekan **Tambah Produk**; form Tambah Produk ada di halaman tersendiri, terpisah dari daftar.",
           "image": {
             "file": "produk-daftar.jpg",
             "caption": "Daftar produk dan jasa."
@@ -100,7 +100,7 @@
         },
         {
           "title": "Tekan Simpan Produk",
-          "text": "Setelah berhasil Anda dibawa ke halaman detail produk. Untuk mengubah, buka detail produk lalu **Simpan Perubahan**."
+          "text": "Setelah berhasil Anda dibawa ke halaman detail produk. Halaman ini hanya untuk membaca. Untuk mengubah, tekan **Ubah** di kanan atas; form Ubah Produk terbuka di halaman sendiri, lalu tekan **Simpan Perubahan** dan Anda kembali ke detail."
         },
         {
           "title": "Cara produk muncul di Buat Invoice",
@@ -108,7 +108,7 @@
         },
         {
           "title": "Menonaktifkan produk",
-          "text": "Buka detail produk, hilangkan centang **Aktif**, lalu **Simpan Perubahan**. Produk nonaktif tidak lagi muncul sebagai saran. Tidak ada tombol hapus karena produk mungkin sudah dipakai invoice."
+          "text": "Buka detail produk, tekan **Ubah**, hilangkan centang **Aktif**, lalu **Simpan Perubahan**. Produk nonaktif tidak lagi muncul sebagai saran. Tidak ada tombol hapus karena produk mungkin sudah dipakai invoice."
         }
       ],
       "result": [
