@@ -2034,3 +2034,18 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   `supabase/tests/99_p14_3_entity_time.sql` updated to assert the new default, and its "valid change"
   scenario (2.x) retargeted from Makassar to Jakarta so it still exercises a real change instead of a
   no-op against the new default.
+
+- Kategori screen wording (decision 288, OWNER: "saya tidak mengerti fungsi kategori ini"). Text only, no
+  behaviour change. The page now says a category is the kind of revenue or expense on an invoice/bill line
+  (not a customer or vendor list), and the tax-mapping default option reads "Otomatis dari profil pajak
+  (disarankan)" with a hint that tax is still computed automatically from the Entity's tax profile. Checked
+  in the code: a category is optional on an invoice line (`Tanpa kategori`; revenue then posts to
+  `OTHER_OPERATING_REVENUE`, `resolve_revenue_account`), so an empty category list does not block the first
+  invoice. Seeding standard categories is a separate, OWNER-approved follow-up.
+
+- Jurnal Manual account picker (decision 289, OWNER: "pilihannya banyak sekali dan saya bingung"). Display
+  only, no posting rule changed: the account dropdown is grouped (Pendapatan, Beban, Aset, Liabilitas,
+  Ekuitas, Lainnya), sorted by code inside each group, with the system-protected accounts in a last
+  group; the page explains that everyday income and costs belong in Invoice/Pembayaran Diterima and Beban.
+  Account names are still the English COA template names; translating them is a separate, OWNER-approved
+  change to data.

@@ -24,7 +24,7 @@ export const CATEGORY_KIND_LABELS: Readonly<Record<string, string>> = {
 function TaxKeyOptions() {
   return (
     <>
-      <option value="">Tanpa pemetaan pajak</option>
+      <option value="">Otomatis dari profil pajak (disarankan)</option>
       <optgroup label="Penjualan (PPN)">
         {Object.entries(VAT_TREATMENT_LABELS).map(([value, label]) => (
           <option key={value} value={value}>
@@ -80,6 +80,10 @@ export function CategoryCreateForm({ entity }: { entity: string | undefined }) {
           <TaxKeyOptions />
         </select>
       </label>
+      <p className="hint">
+        Pajak tetap dihitung otomatis dari profil pajak entitas. Pilih perlakuan khusus di sini
+        hanya jika kategori ini selalu punya perlakuan pajak tertentu; biarkan jika ragu.
+      </p>
       <Feedback state={state} />
       <button type="submit" className="btn-primary" disabled={pending}>
         {pending ? "Menyimpan…" : "Tambah Kategori"}

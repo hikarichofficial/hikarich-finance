@@ -10,6 +10,8 @@ const IDLE: JournalDraftState = { status: "idle" };
 export interface JournalAccountOption {
   id: string;
   label: string;
+  /** The picker heading this account sits under (income, costs, ... , system-protected last). */
+  group: string;
 }
 
 interface JournalLineRowState {
@@ -131,10 +133,16 @@ export function JournalDraftForm({
                       onChange={(event) => updateRow(row.key, { account_id: event.target.value })}
                     >
                       <option value="">Pilih akun</option>
-                      {accounts.map((account) => (
-                        <option key={account.id} value={account.id}>
-                          {account.label}
-                        </option>
+                      {[...new Set(accounts.map((account) => account.group))].map((group) => (
+                        <optgroup key={group} label={group}>
+                          {accounts
+                            .filter((account) => account.group === group)
+                            .map((account) => (
+                              <option key={account.id} value={account.id}>
+                                {account.label}
+                              </option>
+                            ))}
+                        </optgroup>
                       ))}
                     </select>
                   </td>
