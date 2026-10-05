@@ -2099,3 +2099,18 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   `label-has-associated-control` is told `MoneyInput` is a control. Tests: `typing.test.ts`,
   `lineSuggestions.test.ts`, plus a real-browser check of the typing, caret, popup placement, click and keyboard
   picks and the submitted values.
+
+- Negative-balance block and Contacts access for approver/tax (decision 293, OWNER, 4 October 2026, answers to
+  the open points of decisions 55 and 168). (1) Settings gains a "Blokir Saldo Minus" form: the OWNER (or anyone
+  holding `system.entity_config`, with a recent step-up) chooses which account kinds -- bank, cash, e-wallet --
+  may never go negative, through the new `set_negative_balance_block` RPC; `record_movement` has read the
+  `money.block_negative_balance` setting since P4 but nothing could write it. The migration seeds her answer
+  ("bank only: every expense reduces the bank balance; cash can be topped up from the bank") for every Entity
+  that never had the key set. (2) `approver` and `tax` roles gain `contacts.view`, so a bill shows the real
+  vendor name instead of the generic "Vendor" (decision 168). Decision 171's companion ask -- journal numbers
+  on Cash/Bank Activity for finance_staff/approver -- is deliberately not granted: `accounting.view` also
+  opens the Journal List/Detail, Trial Balance, Opening Balances and the control reports, a much larger grant
+  than asked, so it stays an open question for the OWNER (task 67). Migrations
+  `20261005400000_p15_role_permission_grants.sql` and `20261005500000_p15_negative_balance_setting.sql` (dated
+  after the newest applied migration so a push never lands out of order); test
+  `99_p15_3_negative_balance_block.sql`.

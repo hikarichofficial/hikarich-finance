@@ -104,6 +104,20 @@ export const entityTimeSettingsInputSchema = z.object({
 });
 export type EntityTimeSettingsInput = z.infer<typeof entityTimeSettingsInputSchema>;
 
+/** The three `financial_accounts.kind` values (`20260919100600_p1_money_links.sql`'s own check
+ * constraint) -- also the only values `set_negative_balance_block` accepts. */
+export const financialAccountKindSchema = z.enum(["bank", "cash", "ewallet"]);
+export type FinancialAccountKind = z.infer<typeof financialAccountKindSchema>;
+
+/** Input of `set_negative_balance_block` (decision 55, OWNER answer 4 October 2026): the account kinds
+ * that may never go negative. An empty list blocks none. The database re-checks `system.entity_config`
+ * and a recent step-up. */
+export const negativeBalanceBlockInputSchema = z.object({
+  entity_id: z.uuid(),
+  kinds: z.array(financialAccountKindSchema).max(3),
+});
+export type NegativeBalanceBlockInput = z.infer<typeof negativeBalanceBlockInputSchema>;
+
 /** Input of `update_entity_identity` (decision 272): the Entity's names, address and contact details.
  * Empty text clears an optional field; the database validates lengths and the email again. */
 export const entityIdentityInputSchema = z.object({
