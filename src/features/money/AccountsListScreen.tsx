@@ -6,7 +6,6 @@ import {
   type AccountListFilter,
   type AccountListRow,
 } from "@/domain/money/accountsList";
-import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 
 /**
  * Accounts List (P13 Part 3c, Step 09 §9, §13: "Accounts screen shows each real bank/cash/e-wallet account,
@@ -144,24 +143,7 @@ export function AccountsListScreen({
               return (
                 <tr key={row.financial_account_id}>
                   <td>
-                    <RecordPreviewLink
-                      href={href}
-                      label={row.name}
-                      eyebrow="Akun Kas & Bank"
-                      title={row.name}
-                      badges={[{ tone: status.tone, text: status.text }]}
-                      fields={[
-                        { label: "Jenis", value: row.kind },
-                        {
-                          label: "Saldo Sistem",
-                          value: formatMoney(row.movement_balance, row.currency),
-                        },
-                        {
-                          label: "Saldo Buku Besar",
-                          value: formatMoney(row.ledger_balance, row.currency),
-                        },
-                      ]}
-                    />
+                    <Link href={href}>{row.name}</Link>
                   </td>
                   <td data-label="Jenis">{row.kind}</td>
                   <td data-label="Status">

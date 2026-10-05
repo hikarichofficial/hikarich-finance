@@ -2072,6 +2072,35 @@ a.kpi-card:hover {
   text-decoration: none;
 }
 
+/* A button-styled link keeps its own colour (the Quick Preview drawer sits inside a table cell, and the
+   plain-link rule above made its white label dark-on-dark, so the button looked empty). */
+.record-table a.btn-primary {
+  color: #fff;
+}
+
+.record-table a.btn-secondary,
+.record-table a.btn-ghost {
+  color: var(--foreground);
+}
+
+.record-table a.btn-danger {
+  color: var(--danger);
+}
+
+.account-danger {
+  margin-top: var(--space-4);
+}
+
+.account-danger > summary {
+  display: inline-flex;
+  cursor: pointer;
+  list-style: none;
+}
+
+.account-danger[open] > .record-form {
+  margin-top: var(--space-3);
+}
+
 .record-table a:hover {
   text-decoration: underline;
 }

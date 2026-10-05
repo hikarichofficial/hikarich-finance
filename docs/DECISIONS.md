@@ -2125,3 +2125,18 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   constants become async wrapper functions. Guard: `tests/unit/useServerExports.test.ts` reads every file that
   starts with the "use server" directive and refuses any export that is not an async function or a type; it was
   checked to fail on the broken version.
+
+- Account detail and "Hapus Rekening" (decision 295, OWNER, 5 October 2026: "saat klik rekening pun tidak ada
+  detailnya yang muncul ... dan juga harus ada tombol hapus rekening"). (1) The empty button in the account
+  panel was a styling bug: the plain-link rule of `.record-table` turned a button-styled link inside a table
+  cell dark-on-dark, in every list that uses the Quick Preview panel; button-styled links now keep their own
+  colour. (2) The Accounts list opens the full Account Detail page directly; the page already shows the system
+  and ledger balance, the activity ledger (invoice receipts, expenses, bill and tax payments, transfers) and now
+  also the total in and out for the chosen date range. (3) New `delete_financial_account` RPC (migration
+  `20261005600000_p15_delete_financial_account.sql`, test `99_p15_6_delete_financial_account.sql`): needs
+  `money.edit` and `coa.manage`; refuses while the account has any money movement, any journal line or any other
+  record pointing at it (those foreign keys are `on delete restrict`); a ledger account the system created for it is
+  set inactive, a default control account mapped by hand is left alone. An account with history is retired with the
+  existing disable action (reason required, balance must be zero), which the detail page now offers too. (4) The
+  category form says plainly that tax treatment is automatic and the per-category choice is only a fallback; the
+  field is now called "Perlakuan Pajak (opsional)" (task 69).

@@ -26,6 +26,7 @@ import {
   journalNumberRowSchema,
   moneyMovementRowSchema,
   setFinancialAccountActiveInputSchema,
+  deleteFinancialAccountInputSchema,
   transferRowSchema,
   unreconciledMovementsSchema,
   updateFinancialAccountInputSchema,
@@ -105,6 +106,18 @@ export async function setFinancialAccountActive(
   return callRpc(
     "set_financial_account_active",
     { p_account: v.account_id, p_active: v.active, p_reason: v.reason },
+    z.boolean(),
+  );
+}
+
+/** Deletes an account that has no history at all; the database refuses anything else (use disable instead). */
+export async function deleteFinancialAccount(
+  input: z.input<typeof deleteFinancialAccountInputSchema>,
+): Promise<boolean> {
+  const v = deleteFinancialAccountInputSchema.parse(input);
+  return callRpc(
+    "delete_financial_account",
+    { p_account: v.account_id, p_reason: v.reason ?? null },
     z.boolean(),
   );
 }

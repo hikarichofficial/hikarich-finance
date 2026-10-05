@@ -46,6 +46,11 @@ export const setFinancialAccountActiveInputSchema = z.object({
   reason: z.string().trim().min(5).max(500),
 });
 
+export const deleteFinancialAccountInputSchema = z.object({
+  account_id: z.uuid(),
+  reason: z.string().trim().max(500).optional(),
+});
+
 export const balanceAdjustmentInputSchema = z.object({
   entity_id: z.uuid(),
   idempotency_key: idempotencyKeySchema,
