@@ -2227,3 +2227,15 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   (`/guide/diagram/<id>`, entity-less path) and never from `public/`. (4) The PDF gets a chapter "Alur Kerja
   (Diagram)" at the start of Bagian VI; a tall diagram is cut between top-level steps. No change to accounting,
   tax, authorization or any user workflow.
+
+- Compact product screens (decision 301, OWNER, 5 October 2026, task 95). The OWNER asked for a more compact
+  product display, with a reveal effect for long descriptions, and for the add-product page to be apart from the
+  list view. (1) The product list is tighter (smaller row padding) and shows each description under the name,
+  cut to two lines with a "Selengkapnya" / "Ringkas" toggle that opens it smoothly (`ExpandableText`; the full
+  text stays in the page; the toggle only appears when the text is longer than 110 characters or has more than two
+  lines, `needsReveal`; no motion with "reduce motion"). (2) The product detail page is read-only and compact (smaller
+  title and summary, description in the same reveal); the edit form moves to its own page
+  `/sales/products/[id]/edit` (`products.edit`, "Ubah" button on the detail page, saving returns to the detail),
+  the same way customers and vendors already work. Tambah Produk was already its own page
+  (`/sales/products/new`) and stays so. No change to data, accounting, tax or authorization. The guide "Cara
+  Menambah Produk dan Jasa" describes the new flow; its screenshots are retaken after this is live.

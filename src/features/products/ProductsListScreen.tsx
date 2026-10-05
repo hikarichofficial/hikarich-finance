@@ -6,6 +6,7 @@ import {
   type ProductFilter,
 } from "@/domain/products/productsList";
 import type { ProductRow } from "@/schemas/products";
+import { ExpandableText } from "@/features/shared/ExpandableText";
 
 /** Products & Services List (Step 09 §3 Sales, decision 245). */
 
@@ -106,7 +107,7 @@ export function ProductsListScreen({
           ) : null}
         </div>
       ) : (
-        <table className="record-table record-table-stacked">
+        <table className="record-table record-table-stacked record-table-compact">
           <thead>
             <tr>
               <th scope="col">Nama</th>
@@ -129,6 +130,9 @@ export function ProductsListScreen({
                 <tr key={row.id}>
                   <td>
                     <Link href={href}>{row.name}</Link>
+                    {row.description ? (
+                      <ExpandableText text={row.description} className="product-row-description" />
+                    ) : null}
                   </td>
                   <td data-label="Jenis">{PRODUCT_KIND_LABELS[row.kind]}</td>
                   <td data-label="SKU">{row.sku ?? "—"}</td>
