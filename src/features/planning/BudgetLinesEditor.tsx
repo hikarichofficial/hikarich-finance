@@ -7,6 +7,7 @@ import type { BudgetLineRow } from "@/schemas/planning";
 import { setBudgetLinesAction } from "./actions";
 import { idlePlanningActionState } from "./actionsState";
 import { formatMonthLabel } from "./format";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 /**
  * Budget "set lines" editable grid (P13 Part 3h, fifth increment, Step 09 §18: "period-based editable
@@ -152,11 +153,9 @@ export function BudgetLinesEditor({
                   </td>
                   {months.map((month) => (
                     <td key={month} className="num">
-                      <input
-                        type="text"
-                        inputMode="decimal"
+                      <MoneyInput
                         value={row.amounts[month] ?? ""}
-                        onChange={(event) => setAmount(row.key, month, event.target.value)}
+                        onValueChange={(amount) => setAmount(row.key, month, amount)}
                         placeholder="0"
                       />
                     </td>

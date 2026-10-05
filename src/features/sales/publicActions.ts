@@ -30,7 +30,10 @@ export async function submitClaimAction(
   _previous: ClaimState,
   formData: FormData,
 ): Promise<ClaimState> {
-  const amount = parseMoneyInput(text(formData, "amount") ?? "");
+  // The amount field (`MoneyInput`) submits plain decimal text ("1500000", "1500.5"); text typed in the older
+  // Indonesian style ("1.500.000") is still read the way it always was.
+  const rawAmount = (text(formData, "amount") ?? "").trim();
+  const amount = /^\d{1,16}(\.\d{1,4})?$/.test(rawAmount) ? rawAmount : parseMoneyInput(rawAmount);
   const token = text(formData, "token") ?? "";
   if (amount === null) return { status: "invalid" };
 

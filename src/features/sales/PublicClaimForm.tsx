@@ -3,6 +3,7 @@
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { submitClaimAction, type ClaimState, type ClaimStatus } from "./publicActions";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 const initial: ClaimState = { status: "idle" };
 
@@ -51,13 +52,7 @@ export function PublicClaimForm({
       </p>
       <label>
         Jumlah yang dibayar
-        <input
-          name="amount"
-          inputMode="decimal"
-          autoComplete="off"
-          defaultValue={outstanding}
-          required
-        />
+        <MoneyInput name="amount" autoComplete="off" defaultValue={outstanding} required />
       </label>
       <label>
         Tanggal pembayaran

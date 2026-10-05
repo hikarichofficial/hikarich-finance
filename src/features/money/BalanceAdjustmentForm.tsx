@@ -7,6 +7,7 @@ import type { MoneyControlRow } from "@/schemas/money";
 import { eligibleCounterAccounts } from "@/domain/money/balanceAdjustment";
 import { recordBalanceAdjustmentAction } from "./balanceAdjustmentActions";
 import { idleBalanceAdjustmentFormState } from "./balanceAdjustmentActionsState";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 /**
  * Balance Adjustment form ("Advanced Adjustments", Step 09 §14, decision 232): the account's balance is
@@ -71,7 +72,7 @@ export function BalanceAdjustmentForm({
 
       <label>
         Jumlah
-        <input type="text" inputMode="decimal" name="amount" required placeholder="0" />
+        <MoneyInput name="amount" required placeholder="0" />
       </label>
 
       <p className="hint">

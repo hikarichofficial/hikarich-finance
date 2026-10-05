@@ -3,6 +3,7 @@
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import type { CategoryRow } from "@/schemas/categories";
+import type { LineSuggestion } from "@/domain/sales/lineSuggestions";
 import type { ContactRow } from "@/schemas/contacts";
 import {
   buildInitialRecurringLines,
@@ -24,12 +25,15 @@ import { idleBillActionState } from "./actionsState";
 export function BillForm({
   vendors,
   categories,
+  suggestions = [],
   entity,
   today,
   initial,
 }: {
   vendors: readonly ContactRow[];
   categories: readonly CategoryRow[];
+  /** Descriptions used before, for the popup above each line's description (OWNER, 5 October 2026). */
+  suggestions?: readonly LineSuggestion[];
   entity: string | undefined;
   today: string;
   /** Present when editing an existing draft (decision 261): the same form saves through `update_bill_draft`. */
@@ -96,6 +100,7 @@ export function BillForm({
       <RecurringLinesEditor
         kind="bill"
         categories={categories}
+        suggestions={suggestions}
         rows={rows}
         onChange={setRows}
         taxFields

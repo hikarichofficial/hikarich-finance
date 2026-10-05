@@ -3,6 +3,7 @@
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import { trimDecimalText } from "@/domain/money/format";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 export interface SettlementAccountOption {
   id: string;
@@ -74,12 +75,7 @@ export function SettlementForm({
       </label>
       <label>
         Jumlah
-        <input
-          name="amount"
-          required
-          inputMode="decimal"
-          defaultValue={trimDecimalText(outstanding)}
-        />
+        <MoneyInput name="amount" required defaultValue={trimDecimalText(outstanding)} />
       </label>
       <label>
         Nomor Referensi / Bukti Transfer (opsional)

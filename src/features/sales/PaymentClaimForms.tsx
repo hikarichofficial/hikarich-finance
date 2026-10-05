@@ -6,6 +6,7 @@ import { trimDecimalText } from "@/domain/money/format";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
 import { confirmClaimAction, markClaimDuplicateAction, rejectClaimAction } from "./actions";
 import { idleInvoiceActionState } from "./actionsState";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 export interface DuplicateClaimOption {
   id: string;
@@ -143,7 +144,7 @@ export function PaymentClaimForms({
       </label>
       <label>
         Jumlah yang Benar-benar Masuk
-        <input name="amount" required inputMode="decimal" defaultValue={trimDecimalText(amount)} />
+        <MoneyInput name="amount" required defaultValue={trimDecimalText(amount)} />
       </label>
       <label>
         Catatan (opsional)

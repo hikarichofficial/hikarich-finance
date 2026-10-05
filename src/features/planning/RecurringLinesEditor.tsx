@@ -5,6 +5,10 @@ import { Fragment } from "react";
 import type { CategoryRow } from "@/schemas/categories";
 import type { RecurringKind } from "@/domain/planning/planning";
 import { VAT_TREATMENT_LABELS, WHT_OBJECT_LABELS } from "@/domain/tax/tax";
+import { plainMoneyText } from "@/domain/money/typing";
+import { exactSuggestion, type LineSuggestion } from "@/domain/sales/lineSuggestions";
+import { MoneyInput } from "@/features/shared/MoneyInput";
+import { LineDescriptionInput } from "./LineDescriptionInput";
 
 /**
  * The recurring template's own line items (P13 Part 3h, sixth increment, Step 09 §13, §18) -- the one piece
@@ -29,6 +33,11 @@ import { VAT_TREATMENT_LABELS, WHT_OBJECT_LABELS } from "@/domain/tax/tax";
  * submit -- "a blank cell simply omits that line", the same choice `BudgetLinesEditor` made for an empty
  * amount cell.
  *
+ * Invoice lines also show a Diskon column (OWNER, 5 October 2026: it was in the brief and was missing): none, a
+ * percentage or a fixed amount, sent as the RPC's own `discount_type` / `discount_value`. The description
+ * field offers names used before with their last price (`LineDescriptionInput`, `suggestions`), and every
+ * amount field puts its thousands separators in by itself (`MoneyInput`).
+ *
  * `taxFields` (decision 257) adds a second row under each line with the tax facts the P7 engine reads from
  * the line: for a bill/expense the VAT the vendor charged, the tax-invoice number and the withholding
  * object; for an invoice the VAT treatment. They live in `extra` under the RPC's own field names, so the
@@ -51,6 +60,9 @@ export interface RecurringLineRow {
   unit_price: string;
   category_id: string;
   treatment: "expense" | "asset" | "prepaid";
+  /** Invoice lines only (a purchase has no discount, decision 78): "none", a percentage, or a fixed amount. */
+  discount_type: "none" | "percent" | "fixed";
+  discount_value: string;
   /** Fields of the original template line this editor does not render, kept verbatim so they survive a
    * re-save untouched. Empty for a row the person added in this session. */
   extra: Record<string, unknown>;
@@ -64,6 +76,8 @@ function makeRow(key: string, initial?: Partial<RecurringLineRow>): RecurringLin
     unit_price: "",
     category_id: "",
     treatment: "expense",
+    discount_type: "none",
+    discount_value: "",
     extra: {},
     ...initial,
   };
@@ -73,7 +87,15 @@ export function newRecurringLineRow(seq: number): RecurringLineRow {
   return makeRow(`new-${seq}`);
 }
 
-const RENDERED_LINE_FIELDS = ["description", "quantity", "unit_price", "category_id", "treatment"];
+const RENDERED_LINE_FIELDS = [
+  "description",
+  "quantity",
+  "unit_price",
+  "category_id",
+  "treatment",
+  "discount_type",
+  "discount_value",
+];
 
 function extraFieldsOf(line: Record<string, unknown>): Record<string, unknown> {
   return Object.fromEntries(
@@ -94,6 +116,14 @@ export function buildInitialRecurringLines(
       category_id: typeof line.category_id === "string" ? line.category_id : "",
       treatment:
         line.treatment === "asset" || line.treatment === "prepaid" ? line.treatment : "expense",
+      discount_type:
+        line.discount_type === "percent" || line.discount_type === "fixed"
+          ? line.discount_type
+          : "none",
+      discount_value:
+        line.discount_value != null && Number(line.discount_value) > 0
+          ? trimDecimalText(String(line.discount_value))
+          : "",
       extra,
     });
   });
@@ -106,7 +136,7 @@ export function buildRecurringLinesJson(
   return JSON.stringify(
     rows.flatMap((row) => {
       const description = row.description.trim();
-      const unitPrice = row.unit_price.trim();
+      const unitPrice = plainMoneyText(row.unit_price.trim());
       if (description === "" || unitPrice === "") return [];
       const line: Record<string, unknown> = {
         ...row.extra,
@@ -117,6 +147,9 @@ export function buildRecurringLinesJson(
       };
       if (kind !== "invoice") {
         line.treatment = row.treatment;
+      } else if (row.discount_type !== "none" && row.discount_value.trim() !== "") {
+        line.discount_type = row.discount_type;
+        line.discount_value = plainMoneyText(row.discount_value.trim());
       }
       return [line];
     }),
@@ -139,6 +172,7 @@ export function RecurringLinesEditor({
   rows,
   onChange,
   taxFields = false,
+  suggestions = [],
 }: {
   kind: RecurringKind;
   categories: readonly CategoryRow[];
@@ -146,6 +180,8 @@ export function RecurringLinesEditor({
   onChange: (rows: RecurringLineRow[]) => void;
   /** Show the per-line tax facts (VAT charged, tax-invoice number, withholding object / VAT treatment). */
   taxFields?: boolean;
+  /** Descriptions already used before (with their last price), for the popup above the description field. */
+  suggestions?: readonly LineSuggestion[];
 }) {
   function addRow() {
     onChange([...rows, newRecurringLineRow(rows.length + 1)]);
@@ -167,7 +203,48 @@ export function RecurringLinesEditor({
   }
 
   const showTreatment = kind !== "invoice";
-  const columnCount = showTreatment ? 6 : 5;
+  const showDiscount = kind === "invoice";
+  const columnCount = 6;
+
+  /** Typing a description that is exactly one used before fills in its price (and category) when those are
+   * still empty; the person can change both straight away. */
+  function changeDescription(row: RecurringLineRow, description: string, rowCategoryIds: string[]) {
+    const patch: Partial<RecurringLineRow> = { description };
+    const known = exactSuggestion(description, suggestions);
+    if (known) {
+      if (row.unit_price.trim() === "" && known.unit_price !== "") {
+        patch.unit_price = trimDecimalText(known.unit_price);
+      }
+      if (
+        row.category_id === "" &&
+        known.category_id &&
+        rowCategoryIds.includes(known.category_id)
+      ) {
+        patch.category_id = known.category_id;
+      }
+    }
+    updateRow(row.key, patch);
+  }
+
+  /** Choosing a suggestion is an explicit act: the description and its last price are taken, the category
+   * only if the line has none yet. */
+  function pickSuggestion(
+    row: RecurringLineRow,
+    suggestion: LineSuggestion,
+    rowCategoryIds: string[],
+  ) {
+    updateRow(row.key, {
+      description: suggestion.description,
+      unit_price:
+        suggestion.unit_price !== "" ? trimDecimalText(suggestion.unit_price) : row.unit_price,
+      category_id:
+        row.category_id === "" &&
+        suggestion.category_id &&
+        rowCategoryIds.includes(suggestion.category_id)
+          ? suggestion.category_id
+          : row.category_id,
+    });
+  }
 
   return (
     <div className="plan-lines-editor">
@@ -187,6 +264,7 @@ export function RecurringLinesEditor({
                   Harga Satuan
                 </th>
                 {showTreatment ? <th scope="col">Perlakuan</th> : null}
+                {showDiscount ? <th scope="col">Diskon</th> : null}
                 <th scope="col">Kategori</th>
                 <th scope="col" aria-label="Hapus baris" />
               </tr>
@@ -199,14 +277,23 @@ export function RecurringLinesEditor({
                   <Fragment key={row.key}>
                     <tr>
                       <td>
-                        <input
-                          type="text"
-                          maxLength={500}
+                        <LineDescriptionInput
                           value={row.description}
-                          onChange={(event) =>
-                            updateRow(row.key, { description: event.target.value })
+                          suggestions={suggestions}
+                          onChange={(text) =>
+                            changeDescription(
+                              row,
+                              text,
+                              rowCategories.map((category) => category.id),
+                            )
                           }
-                          placeholder="Deskripsi baris"
+                          onPick={(suggestion) =>
+                            pickSuggestion(
+                              row,
+                              suggestion,
+                              rowCategories.map((category) => category.id),
+                            )
+                          }
                         />
                       </td>
                       <td className="num" data-label="Kuantitas">
@@ -219,13 +306,9 @@ export function RecurringLinesEditor({
                         />
                       </td>
                       <td className="num" data-label="Harga Satuan">
-                        <input
-                          type="text"
-                          inputMode="decimal"
+                        <MoneyInput
                           value={row.unit_price}
-                          onChange={(event) =>
-                            updateRow(row.key, { unit_price: event.target.value })
-                          }
+                          onValueChange={(unit_price) => updateRow(row.key, { unit_price })}
                           placeholder="0"
                         />
                       </td>
@@ -243,6 +326,42 @@ export function RecurringLinesEditor({
                             <option value="asset">Aset</option>
                             <option value="prepaid">Dibayar di Muka</option>
                           </select>
+                        </td>
+                      ) : null}
+                      {showDiscount ? (
+                        <td data-label="Diskon">
+                          <div className="plan-lines-discount">
+                            <select
+                              aria-label="Jenis diskon"
+                              value={row.discount_type}
+                              onChange={(event) =>
+                                updateRow(row.key, {
+                                  discount_type: event.target
+                                    .value as RecurringLineRow["discount_type"],
+                                  discount_value:
+                                    event.target.value === "none" ? "" : row.discount_value,
+                                })
+                              }
+                            >
+                              <option value="none">Tanpa diskon</option>
+                              <option value="percent">Persen (%)</option>
+                              <option value="fixed">Nominal (Rp)</option>
+                            </select>
+                            {row.discount_type !== "none" ? (
+                              <MoneyInput
+                                aria-label={
+                                  row.discount_type === "percent"
+                                    ? "Diskon persen"
+                                    : "Diskon nominal"
+                                }
+                                value={row.discount_value}
+                                onValueChange={(discount_value) =>
+                                  updateRow(row.key, { discount_value })
+                                }
+                                placeholder={row.discount_type === "percent" ? "mis. 10" : "0"}
+                              />
+                            ) : null}
+                          </div>
                         </td>
                       ) : null}
                       <td data-label="Kategori">
@@ -311,12 +430,10 @@ export function RecurringLinesEditor({
                                 </label>
                                 <label>
                                   PPN ditagih vendor
-                                  <input
-                                    type="text"
-                                    inputMode="decimal"
+                                  <MoneyInput
                                     value={extraText(row, "tax_amount")}
-                                    onChange={(event) =>
-                                      updateExtra(row, "tax_amount", event.target.value)
+                                    onValueChange={(amount) =>
+                                      updateExtra(row, "tax_amount", amount)
                                     }
                                     placeholder="0"
                                   />

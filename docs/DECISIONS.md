@@ -2061,3 +2061,41 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   new Entities start in Indonesian. Test `99_p15_4_coa_indonesian_names.sql` covers new-Entity names, no
   English accounting word left in either template, and that an owner-chosen name survives; test 99_p12_2 now
   looks the Current Year Earnings line up by its Indonesian name.
+
+- Standard categories for every Entity (decision 291, OWNER, 5 October 2026: "buat kategori standard,
+  misalnya Penjualan Produk, dan lainnya yang diperlukan"). Migration
+  `20261005300000_p15_default_categories.sql` adds `app_private.provision_default_categories`: a company
+  Entity gets 5 revenue categories (Penjualan Produk, Penjualan E-book, Penjualan Software & Alat Digital,
+  Penjualan Jasa, Pendapatan Lainnya) and 13 expense categories (Pemasaran & Iklan, Produksi Konten, Software
+  & Langganan, Hosting/Domain & Cloud, Biaya Payment Gateway, Biaya Bank, Jasa Profesional, Kantor & Umum,
+  Komunikasi & Internet, Perjalanan & Transportasi, Gaji & Tunjangan, Sewa & Ruang Kerja, Pengeluaran
+  Operasional Lainnya); a personal Entity gets 4 income and 9 expense categories. Each is mapped to its ledger
+  account by system key (never by name) in the `sales` / `purchases` context from 2000-01-01, so a back-dated
+  invoice maps too; the tax classification stays empty (automatic, decision 288). A category whose name the
+  Entity already has is skipped with its mapping, so nothing the OWNER made herself is duplicated or
+  re-mapped. New Entities get the set because `provision_default_coa` now also provisions categories (the
+  account provisioning keeps its own name, `provision_default_accounts`); existing Entities are filled by the
+  same migration. Idempotent. Test `99_p15_5_default_categories.sql`.
+
+- Invoice, bill and expense line entry (decision 292, OWNER, 5 October 2026), four connected changes.
+  (1) Every amount field puts its thousands separators in by itself while typing ("100000000" shows as
+  "100.000.000"; a comma starts the decimals). The shared `MoneyInput` is a drop-in for the old plain
+  decimal input: the visible field has no name and a hidden field submits the plain decimal text, so no
+  server action or schema changed; the typing rules live in `src/domain/money/typing.ts` (dots are ignored
+  while typing, since the field inserts them; a pasted value goes through `parseMoneyInput`) with the caret
+  kept after the same digit. Applied to the transfer, payment, refund, settlement, marketplace, asset, payroll,
+  tax, journal, opening-balance, financing, budget and line-editor amount fields; exchange rates and
+  percentage rates are deliberately left as plain decimals. The public "Saya Sudah Bayar" amount accepts the
+  plain text first and the older Indonesian style as before. (2) The invoice line editor shows the Diskon
+  column that was missing (none, percent or fixed amount, sent as the RPC's `discount_type`/`discount_value`
+  and validated server-side as before); purchases still have no discount (decision 78). (3) Typing a
+  description shows a popup above the field with names already used on earlier lines (and, for invoices, the
+  products on file) and the price last used; clicking one (or arrow keys + Enter) fills the description and
+  its price, and the line's category when it has none; typing the same name in full fills an empty price on
+  its own; carrying on typing something different is never blocked and every filled value stays editable.
+  The popup is drawn on the page so the scrolling table cannot clip it. The suggestions are a best-effort
+  RLS-scoped read (`listLineSuggestions`: `invoice_lines`, `bill_lines`, `expense_lines`, newest first, one
+  per name, case- and spacing-insensitive); a failed read just shows no popup. (4) ESLint's
+  `label-has-associated-control` is told `MoneyInput` is a control. Tests: `typing.test.ts`,
+  `lineSuggestions.test.ts`, plus a real-browser check of the typing, caret, popup placement, click and keyboard
+  picks and the submitted values.

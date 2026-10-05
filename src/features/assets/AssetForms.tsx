@@ -27,6 +27,7 @@ import {
   updateAssetDetailsAction,
   type AssetActionState,
 } from "./assetActions";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 /**
  * The fixed-asset write forms (P8 RPCs, all `assets.manage`). Each is a small form that opens from a
@@ -237,12 +238,11 @@ export function DepreciationFields({
           </label>
           <label>
             Nilai Sisa (opsional)
-            <input
+            <MoneyInput
               name="residual"
-              inputMode="decimal"
               placeholder="0"
               value={residual}
-              onChange={(event) => setResidual(event.target.value)}
+              onValueChange={setResidual}
             />
           </label>
           <p className="hint">
@@ -396,11 +396,9 @@ export function SplitAssetForm({
                     />
                   </td>
                   <td className="num" data-label="Biaya">
-                    <input
-                      type="text"
-                      inputMode="decimal"
+                    <MoneyInput
                       value={row.cost}
-                      onChange={(event) => updateRow(row.key, { cost: event.target.value })}
+                      onValueChange={(cost) => updateRow(row.key, { cost })}
                       placeholder="0"
                     />
                   </td>
@@ -584,7 +582,7 @@ export function ReplanAssetForm({
       </label>
       <label>
         Nilai Sisa
-        <input name="residual" inputMode="decimal" required defaultValue={residual ?? "0"} />
+        <MoneyInput name="residual" required defaultValue={residual ?? "0"} />
       </label>
       <label>
         Alasan Perubahan
@@ -687,7 +685,7 @@ export function DisposeAssetForm({
           {method !== "none" ? (
             <label>
               Harga Jual
-              <input name="proceeds" inputMode="decimal" required placeholder="0" />
+              <MoneyInput name="proceeds" required placeholder="0" />
             </label>
           ) : null}
           {method === "cash" ? (

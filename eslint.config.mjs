@@ -14,6 +14,16 @@ const eslintConfig = defineConfig([
   // config object: `nextVitals` already registers the `jsx-a11y` plugin itself, and flat config refuses to
   // register the same plugin name twice even with the identical underlying plugin.
   { rules: jsxA11y.flatConfigs.recommended.rules },
+  // `MoneyInput` renders the real <input> itself, so a <label> around it is labelled exactly as it was around
+  // the plain input it replaced (the rule cannot see inside a component unless told).
+  {
+    rules: {
+      "jsx-a11y/label-has-associated-control": [
+        "error",
+        { controlComponents: ["MoneyInput"], depth: 3 },
+      ],
+    },
+  },
   // Override default ignores of eslint-config-next.
   globalIgnores([
     // Default ignores of eslint-config-next:

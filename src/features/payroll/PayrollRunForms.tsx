@@ -10,6 +10,7 @@ import {
   removePayrollAdjustmentAction,
   reversePayrollPaymentAction,
 } from "./payrollActions";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 export interface PayrollOption {
   id: string;
@@ -179,7 +180,7 @@ export function AdjustmentForm({
       </label>
       <label>
         Jumlah
-        <input name="amount" required inputMode="decimal" placeholder="0" />
+        <MoneyInput name="amount" required placeholder="0" />
       </label>
       <label className="checkbox-field">
         <input type="checkbox" name="taxable" defaultChecked /> Dihitung untuk PPh 21
@@ -258,7 +259,7 @@ export function PayrollPaymentForm({
       {kind !== "net_pay" ? (
         <label>
           Jumlah yang Dibayar (kosongkan untuk membayar seluruh sisa)
-          <input name="amount" inputMode="decimal" placeholder="seluruh sisa" />
+          <MoneyInput name="amount" placeholder="seluruh sisa" />
         </label>
       ) : null}
       <label>

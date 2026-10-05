@@ -27,6 +27,7 @@ import {
 } from "./taxFilingActions";
 import { idleTaxFilingActionState } from "./taxFilingActionsState";
 import { formatShortDate } from "./format";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 /**
  * Filing & Evidence (P13 unbuilt-screens backlog, "Filing & Evidence" nav item, Step 05 §9, decision 238):
@@ -437,39 +438,28 @@ function RecordPaymentForm({
         </label>
         <label>
           Pajak Dibayar
-          <input
-            type="text"
-            inputMode="decimal"
+          <MoneyInput
             name="payable"
             required
             placeholder="0"
             value={payable}
-            onChange={(event) => setPayable(event.target.value)}
+            onValueChange={setPayable}
           />
         </label>
         {taxType === "vat" ? (
           <label>
             Kompensasi PPN Masukan (opsional)
-            <input
-              type="text"
-              inputMode="decimal"
+            <MoneyInput
               name="asset_offset"
               placeholder="0"
               value={assetOffset}
-              onChange={(event) => setAssetOffset(event.target.value)}
+              onValueChange={setAssetOffset}
             />
           </label>
         ) : null}
         <label>
           Denda (opsional)
-          <input
-            type="text"
-            inputMode="decimal"
-            name="penalty"
-            placeholder="0"
-            value={penalty}
-            onChange={(event) => setPenalty(event.target.value)}
-          />
+          <MoneyInput name="penalty" placeholder="0" value={penalty} onValueChange={setPenalty} />
         </label>
         <label>
           Akun Pembayar
@@ -572,16 +562,16 @@ function RecordFilingForm({
         </label>
         <label>
           Dasar Pengenaan yang Dilaporkan
-          <input type="text" inputMode="decimal" name="reported_base" required placeholder="0" />
+          <MoneyInput name="reported_base" required placeholder="0" />
         </label>
         <label>
           Pajak yang Dilaporkan
-          <input type="text" inputMode="decimal" name="reported_tax" required placeholder="0" />
+          <MoneyInput name="reported_tax" required placeholder="0" />
         </label>
         {taxType === "vat" ? (
           <label>
             Kredit PPN yang Dilaporkan (opsional)
-            <input type="text" inputMode="decimal" name="reported_credit" placeholder="0" />
+            <MoneyInput name="reported_credit" placeholder="0" />
           </label>
         ) : null}
         <label>

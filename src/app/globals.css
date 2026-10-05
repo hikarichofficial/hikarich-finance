@@ -2349,6 +2349,62 @@ a.kpi-card:hover {
   color: var(--text-secondary);
 }
 
+/* Popup of names already used, above a line's description field (OWNER, 5 October 2026). Drawn on the page
+   itself so the scrolling table around the field can never clip it. */
+.line-suggest {
+  position: fixed;
+  z-index: 60;
+  max-height: 60vh;
+  overflow-y: auto;
+  padding: var(--space-2);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.line-suggest-title {
+  margin: 0 0 var(--space-1);
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.line-suggest ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.line-suggest-item {
+  display: flex;
+  gap: var(--space-3);
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8px var(--space-2);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  border-radius: var(--radius-sm, 6px);
+}
+
+.line-suggest-item:hover,
+.line-suggest-item.is-active {
+  background: var(--surface-sunken);
+}
+
+.line-suggest-price {
+  flex: none;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.plan-lines-discount {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
 .plan-lines-editor-actions {
   display: flex;
   gap: var(--space-3);

@@ -9,6 +9,7 @@ import {
   reverseSettlementAction,
   type MarketplaceActionState,
 } from "./marketplaceActions";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 const IDLE: MarketplaceActionState = { status: "idle" };
 
@@ -151,23 +152,23 @@ export function MarketplaceSettlementForm({
       </label>
       <label>
         Total Penjualan (omzet, sebelum PPN)
-        <input name="gross" required inputMode="decimal" placeholder="mis. 2500000" />
+        <MoneyInput name="gross" required placeholder="mis. 2.500.000" />
       </label>
       <label>
         Biaya Admin / Komisi Marketplace
-        <input name="fees" inputMode="decimal" placeholder="0" />
+        <MoneyInput name="fees" placeholder="0" />
       </label>
       <label>
         PPh 22 Dipungut Marketplace (kosongkan untuk dihitung otomatis 0,5%)
-        <input name="pph22" inputMode="decimal" />
+        <MoneyInput name="pph22" />
       </label>
       <label>
         Nomor Laporan / Referensi (opsional)
         <input name="reference" maxLength={200} />
       </label>
       <p className="hint">
-        Dana cair = penjualan + PPN (hanya bila PKP) − biaya − PPh 22. Angka ditulis tanpa titik
-        ribuan.
+        Dana cair = penjualan + PPN (hanya bila PKP) − biaya − PPh 22. Titik ribuan terisi otomatis;
+        gunakan koma untuk desimal.
       </p>
       <Feedback state={state} />
       <button type="submit" className="btn-primary" disabled={pending}>

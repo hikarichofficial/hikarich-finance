@@ -11,6 +11,7 @@ import {
   setTaxProfileAction,
   updateEmployeeAction,
 } from "./payrollActions";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 /** Change the name, and the join date while no posted Payroll has counted the employee (`employee_update`). */
 export function UpdateEmployeeForm({
@@ -185,12 +186,7 @@ export function CompensationForm({
           </label>
           <label>
             Jumlah per Bulan
-            <input
-              name={`amount_${index}`}
-              inputMode="decimal"
-              defaultValue={row.amount}
-              placeholder="0"
-            />
+            <MoneyInput name={`amount_${index}`} defaultValue={row.amount} placeholder="0" />
           </label>
           <label className="checkbox-field">
             <input type="checkbox" name={`taxable_${index}`} defaultChecked={row.taxable} />{" "}
@@ -396,15 +392,15 @@ export function TaxOpeningForm({ employeeId, year }: { employeeId: string; year:
       </label>
       <label>
         Total Penghasilan Bruto Kena Pajak
-        <input name="taxable_gross" required inputMode="decimal" placeholder="0" />
+        <MoneyInput name="taxable_gross" required placeholder="0" />
       </label>
       <label>
         Total Iuran Pensiun/JHT yang Dipotong
-        <input name="pension_deduction" inputMode="decimal" defaultValue="0" />
+        <MoneyInput name="pension_deduction" defaultValue="0" />
       </label>
       <label>
         Total PPh 21 yang Sudah Dipotong
-        <input name="pph21_withheld" required inputMode="decimal" placeholder="0" />
+        <MoneyInput name="pph21_withheld" required placeholder="0" />
       </label>
       <label>
         Catatan (opsional)
