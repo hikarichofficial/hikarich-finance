@@ -28,9 +28,7 @@ function isEntityLessPath(pathname: string): boolean {
 export const ACTIVE_ENTITY_COOKIE = "hikarich-active-entity";
 
 export type EntityCookieDecision =
-  | { kind: "none" }
-  | { kind: "remember"; value: string }
-  | { kind: "redirect"; value: string };
+  { kind: "none" } | { kind: "remember"; value: string } | { kind: "redirect"; value: string };
 
 /**
  * Pure decision for the Entity-memory behaviour above, split out from `updateSession` so it can be unit
