@@ -12,12 +12,14 @@ import {
   entityProfileRowSchema,
   entitySettingListSchema,
   entitySummaryRowSchema,
+  negativeBalanceBlockInputSchema,
   numberingSequenceListSchema,
   roleNameListSchema,
   type ApprovalRuleRow,
   type EntityProfileRow,
   type EntitySettingRow,
   type EntitySummaryRow,
+  type NegativeBalanceBlockInput,
   type NumberingSequenceRow,
 } from "@/schemas/settings";
 
@@ -155,6 +157,25 @@ export async function updateEntityTimeSettings(input: EntityTimeSettingsInput): 
   }
   if (typeof data !== "number") throw new Error("Respons pengaturan tidak dikenali.");
   return data;
+}
+
+/** Changes which account kinds (`bank`, `cash`, `ewallet`) may never go negative (decision 55, OWNER
+ * answer 4 October 2026) through `set_negative_balance_block`, which checks `system.entity_config` and a
+ * recent step-up. Returns the kinds actually saved. */
+export async function setNegativeBalanceBlock(input: NegativeBalanceBlockInput): Promise<string[]> {
+  const v = negativeBalanceBlockInputSchema.parse(input);
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("set_negative_balance_block", {
+    p_entity: v.entity_id,
+    p_kinds: v.kinds,
+  });
+  if (error) {
+    const code = parseAuthzCode(error.message);
+    if (code) throw new AuthzError(code, error.message);
+    throw new Error("Pengaturan tidak dapat disimpan.");
+  }
+  if (!Array.isArray(data)) throw new Error("Respons pengaturan tidak dikenali.");
+  return data as string[];
 }
 
 /** Changes the Entity's names, address and contact details (decision 272) through

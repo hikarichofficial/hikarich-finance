@@ -7,6 +7,7 @@ import {
 import { SettingsScreen } from "@/features/settings/SettingsScreen";
 import { CreateEntityForm } from "@/features/settings/CreateEntityForm";
 import { EntityIdentityForm } from "@/features/settings/EntityIdentityForm";
+import { NegativeBalanceBlockForm } from "@/features/settings/NegativeBalanceBlockForm";
 import { TimeSettingsForm } from "@/features/settings/TimeSettingsForm";
 
 /** Settings (unbuilt-screens backlog, decision 243). Gated on `settings.view`, the permission
@@ -28,6 +29,12 @@ export default async function SettingsPage({
     canEdit ? entityHasAccountingPeriods(entityId) : Promise.resolve(null),
   ]);
   const here = entity ? `/admin/settings?entity=${encodeURIComponent(entity)}` : "/admin/settings";
+  const negativeBalanceValue = overview.settings.find(
+    (s) => s.setting_key === "money.block_negative_balance",
+  )?.setting_value;
+  const blockedKinds = Array.isArray(negativeBalanceValue)
+    ? (negativeBalanceValue as string[])
+    : [];
 
   return (
     <SettingsScreen
@@ -58,6 +65,15 @@ export default async function SettingsPage({
             fiscalYearStartMonth={overview.entity.fiscal_year_start_month}
             version={overview.entity.version}
             fiscalYearLocked={hasPeriods !== false}
+            stepUpHref={`/auth/step-up?next=${encodeURIComponent(here)}`}
+          />
+        ) : null
+      }
+      negativeBalanceEditor={
+        canEdit ? (
+          <NegativeBalanceBlockForm
+            entity={entity}
+            blockedKinds={blockedKinds}
             stepUpHref={`/auth/step-up?next=${encodeURIComponent(here)}`}
           />
         ) : null

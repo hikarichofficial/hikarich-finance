@@ -7,6 +7,7 @@ import { isFiscalYearLockedMessage } from "@/domain/settings/settings";
 import { requirePermission } from "@/services/identity/access";
 import {
   createEntity,
+  setNegativeBalanceBlock,
   updateEntityIdentity,
   updateEntityTimeSettings,
 } from "@/services/settings/settings";
@@ -61,6 +62,39 @@ export async function updateTimeSettingsAction(
   }
   revalidatePath("/admin/settings");
   return { status: "ok", message: "Zona waktu dan tahun buku disimpan." };
+}
+
+/** Settings write (decision 55, OWNER answer 4 October 2026): which account kinds (bank/cash/ewallet) may
+ * never go negative. The RPC re-checks `system.entity_config` and a recent step-up; an empty selection
+ * blocks none. */
+export async function setNegativeBalanceBlockAction(
+  _previous: TimeSettingsState,
+  formData: FormData,
+): Promise<TimeSettingsState> {
+  const kinds = formData.getAll("kind").filter((v): v is string => typeof v === "string");
+  try {
+    const { membership } = await requirePermission("system.entity_config", {
+      entityCode: text(formData, "entity"),
+    });
+    await setNegativeBalanceBlock({ entity_id: membership.entity_id, kinds: kinds as never });
+  } catch (error) {
+    if (error instanceof AuthzError) {
+      return {
+        status: "error",
+        message: describeAuthzError(error),
+        stepUp: error.code === "STEP_UP_REQUIRED",
+      };
+    }
+    return { status: "error", message: "Pengaturan tidak dapat disimpan." };
+  }
+  revalidatePath("/admin/settings");
+  return {
+    status: "ok",
+    message:
+      kinds.length === 0
+        ? "Tidak ada jenis akun yang dikunci."
+        : `Saldo ${kinds.join(", ")} tidak boleh minus.`,
+  };
 }
 
 /** Settings write (decision 272): the Entity's names, address and contact details. The RPC re-checks the

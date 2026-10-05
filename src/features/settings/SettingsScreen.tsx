@@ -42,6 +42,7 @@ export function SettingsScreen({
   timeSettingsEditor,
   identityEditor,
   createEntityEditor,
+  negativeBalanceEditor,
 }: {
   overview: EntitySettingsOverview;
   exampleYear: number;
@@ -50,8 +51,15 @@ export function SettingsScreen({
   identityEditor?: ReactNode;
   /** The add-an-Entity form, shown to an OWNER (decision 276). */
   createEntityEditor?: ReactNode;
+  /** The "which account kinds may never go negative" form, for holders of `system.entity_config`
+   * (decision 55, OWNER answer 4 October 2026). When given, the raw `money.block_negative_balance` row is
+   * left out of the generic list below -- this form is its editable replacement. */
+  negativeBalanceEditor?: ReactNode;
 }) {
   const { entity, profile, numbering, approvalRules, roleNames, settings } = overview;
+  const otherSettings = negativeBalanceEditor
+    ? settings.filter((s) => s.setting_key !== "money.block_negative_balance")
+    : settings;
   const address = profile
     ? [
         profile.address_line,
@@ -215,11 +223,14 @@ export function SettingsScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Pengaturan Lain</h2>
         </div>
-        {settings.length === 0 ? (
-          <p>Tidak ada pengaturan tambahan; semua memakai nilai bawaan sistem.</p>
+        {negativeBalanceEditor}
+        {otherSettings.length === 0 ? (
+          negativeBalanceEditor ? null : (
+            <p>Tidak ada pengaturan tambahan; semua memakai nilai bawaan sistem.</p>
+          )
         ) : (
           <dl className="record-summary-grid">
-            {settings.map((setting) => (
+            {otherSettings.map((setting) => (
               <Field
                 key={setting.setting_key}
                 label={entitySettingLabel(setting.setting_key)}
