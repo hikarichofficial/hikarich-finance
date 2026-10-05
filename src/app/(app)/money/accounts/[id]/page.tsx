@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import {
   getAccountActivity,
@@ -23,7 +24,7 @@ export default async function AccountDetailPage({
 }) {
   const { id } = await params;
   const { entity, from, to } = await searchParams;
-  const { membership } = await requirePermission("money.view", { entityCode: entity });
+  const { access, membership } = await requirePermission("money.view", { entityCode: entity });
 
   const [control, reconciliation] = await Promise.all([
     getMoneyControl(membership.entity_id),
@@ -35,7 +36,10 @@ export default async function AccountDetailPage({
   if (!account) notFound();
 
   const range = resolveActivityRange(from, to);
-  const activity = await getAccountActivity(id, { from: range.from, to: range.to, limit: 500 });
+  const [activity, anyActivity] = await Promise.all([
+    getAccountActivity(id, { from: range.from, to: range.to, limit: 500 }),
+    getAccountActivity(id, { limit: 1 }),
+  ]);
 
   const backHref = entity
     ? `/money/accounts?entity=${encodeURIComponent(entity)}`
@@ -48,6 +52,12 @@ export default async function AccountDetailPage({
       backHref={backHref}
       range={range}
       entity={entity}
+      canManage={can(access, membership.entity_id, "money.edit")}
+      canDelete={
+        can(access, membership.entity_id, "money.edit") &&
+        can(access, membership.entity_id, "coa.manage")
+      }
+      hasHistory={anyActivity.length > 0}
     />
   );
 }

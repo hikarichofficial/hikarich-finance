@@ -2770,5 +2770,13 @@
   [
     "a payment needs a kind (net pay, BPJS Kesehatan or BPJS Ketenagakerjaan), a date, a reference up to 200 and a note up to 1000 characters",
     "Pembayaran perlu jenis (gaji bersih, BPJS Kesehatan atau BPJS Ketenagakerjaan), tanggal, referensi maksimal 200 dan catatan maksimal 1000 karakter"
+  ],
+  [
+    "this account already has transactions and cannot be deleted; disable it instead",
+    "rekening ini sudah punya transaksi sehingga tidak bisa dihapus; nonaktifkan saja"
+  ],
+  [
+    "this account is still used by other records (for example a payment channel, invoice or loan); disable it instead",
+    "rekening ini masih dipakai data lain (misalnya saluran pembayaran, invoice, atau pinjaman) sehingga tidak bisa dihapus; nonaktifkan saja"
   ]
 ]

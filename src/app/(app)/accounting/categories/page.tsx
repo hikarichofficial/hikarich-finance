@@ -61,7 +61,7 @@ export default async function CategoriesPage({
             <tr>
               <th scope="col">Nama</th>
               <th scope="col">Jenis</th>
-              <th scope="col">Pemetaan Pajak</th>
+              <th scope="col">Perlakuan Pajak</th>
               <th scope="col">Akun & Berlaku Sejak</th>
             </tr>
           </thead>
@@ -73,7 +73,7 @@ export default async function CategoriesPage({
                   {row.is_active ? "" : " (tidak aktif)"}
                 </td>
                 <td data-label="Jenis">{CATEGORY_KIND_LABELS[row.kind] ?? row.kind}</td>
-                <td data-label="Pemetaan Pajak">
+                <td data-label="Perlakuan Pajak">
                   {canManage ? (
                     <CategoryRowForm
                       entity={entity}

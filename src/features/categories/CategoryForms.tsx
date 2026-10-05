@@ -75,14 +75,16 @@ export function CategoryCreateForm({ entity }: { entity: string | undefined }) {
         </select>
       </label>
       <label>
-        Pemetaan Pajak Otomatis
+        Perlakuan Pajak (opsional)
         <select name="tax_category_key" defaultValue="">
           <TaxKeyOptions />
         </select>
       </label>
       <p className="hint">
-        Pajak tetap dihitung otomatis dari profil pajak entitas. Pilih perlakuan khusus di sini
-        hanya jika kategori ini selalu punya perlakuan pajak tertentu; biarkan jika ragu.
+        Pajak tetap dihitung otomatis dari profil pajak entitas, jadi biarkan pilihan pertama
+        &quot;Otomatis&quot;. Pilih perlakuan lain hanya jika kategori ini SELALU punya perlakuan
+        pajak tertentu; pilihan ini hanya dipakai bila baris dokumen tidak menyebut pajaknya
+        sendiri.
       </p>
       <Feedback state={state} />
       <button type="submit" className="btn-primary" disabled={pending}>
@@ -110,7 +112,7 @@ export function CategoryRowForm({
     <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="id" value={id} />
-      <select name="tax_category_key" defaultValue={taxKey ?? ""} aria-label="Pemetaan pajak">
+      <select name="tax_category_key" defaultValue={taxKey ?? ""} aria-label="Perlakuan pajak">
         <TaxKeyOptions />
       </select>
       <label className="checkbox-field">

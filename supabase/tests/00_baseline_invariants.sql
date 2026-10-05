@@ -84,6 +84,7 @@ declare
                                          -- P4 money, transfers and reconciliation
                                          'money_control', 'account_activity', 'create_financial_account',
                                          'update_financial_account', 'set_financial_account_active',
+                                         'delete_financial_account',
                                          'record_balance_adjustment', 'create_transfer', 'confirm_transfer',
                                          'cancel_transfer', 'reverse_transfer', 'create_reconciliation_session',
                                          'discard_reconciliation_session', 'add_statement_lines',

@@ -6,7 +6,9 @@ import {
   type AccountListRow,
 } from "@/domain/money/accountsList";
 import type { AccountActivityRow } from "@/schemas/money";
+import { Decimal } from "@/domain/money/decimal";
 import { formatShortDate } from "./format";
+import { DeleteAccountForm, ToggleAccountActiveForm } from "./AccountManageForms";
 
 /**
  * Account Detail (P13 Part 3c, Step 09 §10, §13: "Account detail resembles a clean bank ledger with filters,
@@ -30,14 +32,26 @@ export function AccountDetailScreen({
   backHref,
   range,
   entity,
+  canManage,
+  canDelete,
+  hasHistory,
 }: {
   account: AccountListRow;
   activity: readonly AccountActivityRow[];
   backHref: string;
   range: { from: string; to: string };
   entity: string | undefined;
+  canManage: boolean;
+  canDelete: boolean;
+  hasHistory: boolean;
 }) {
   const status = accountListStatus(account);
+  let totalIn = Decimal.parse("0");
+  let totalOut = Decimal.parse("0");
+  for (const movement of activity) {
+    if (movement.direction === "in") totalIn = totalIn.add(Decimal.parse(movement.amount));
+    else totalOut = totalOut.add(Decimal.parse(movement.amount));
+  }
   const baseDiffers = account.currency !== "IDR";
 
   return (
@@ -90,6 +104,14 @@ export function AccountDetailScreen({
                 : "Belum pernah"}
             </dd>
           </div>
+          <div>
+            <dt>Total Masuk (rentang ini)</dt>
+            <dd>{formatMoney(totalIn.toString(), account.currency)}</dd>
+          </div>
+          <div>
+            <dt>Total Keluar (rentang ini)</dt>
+            <dd>{formatMoney(totalOut.toString(), account.currency)}</dd>
+          </div>
           {account.reconciliation && account.reconciliation.unresolved_lines > 0 ? (
             <div>
               <dt>Baris Belum Selesai</dt>
@@ -103,6 +125,10 @@ export function AccountDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Aktivitas</h2>
         </div>
+        <p className="hint">
+          Saldo bertambah saat pembayaran invoice diterima di rekening ini dan berkurang saat
+          pengeluaran, pembayaran tagihan, atau pajak dibayar dari rekening ini.
+        </p>
         <form method="get" className="list-search-form">
           {entity ? <input type="hidden" name="entity" value={entity} /> : null}
           <label>
@@ -166,6 +192,34 @@ export function AccountDetailScreen({
           </table>
         )}
       </section>
+
+      {canManage ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Kelola Rekening</h2>
+          </div>
+          {hasHistory ? (
+            <p className="hint">
+              Rekening ini sudah punya transaksi, jadi tidak bisa dihapus. Anda dapat
+              menonaktifkannya (saldo harus nol) agar tidak muncul lagi di pilihan pembayaran.
+            </p>
+          ) : (
+            <p className="hint">Rekening ini belum punya transaksi, sehingga boleh dihapus.</p>
+          )}
+          <ToggleAccountActiveForm
+            entity={entity}
+            accountId={account.financial_account_id}
+            isActive={account.is_active}
+          />
+          {canDelete && !hasHistory ? (
+            <DeleteAccountForm
+              entity={entity}
+              accountId={account.financial_account_id}
+              accountName={account.name}
+            />
+          ) : null}
+        </section>
+      ) : null}
     </div>
   );
 }
