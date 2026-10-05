@@ -35,9 +35,9 @@ declare
   q text;
 begin
   select version into v_ver from public.entities where id = e1;
-  perform test_helpers.assert((select timezone from public.entities where id = e1) = 'Asia/Jakarta'
+  perform test_helpers.assert((select timezone from public.entities where id = e1) = 'Asia/Makassar'
     and (select fiscal_year_start_month from public.entities where id = e1) = 1,
-    '1.0 Indonesian defaults: WIB and a January fiscal year');
+    '1.0 Indonesian defaults: WITA and a January fiscal year (OWNER, 5 October 2026: her own local time)');
 
   q := format('select public.update_entity_time_settings(%L, %L, 1, %s, %L)', e1, 'Asia/Makassar', v_ver, 'Kantor di Bali');
 
@@ -62,16 +62,16 @@ begin
 
   -- 2. a valid change: timezone and fiscal-year start (no periods yet)
   execute format('select public.update_entity_time_settings(%L, %L, 4, %s, %L)',
-    e1, 'Asia/Makassar', v_ver, 'Kantor di Bali, tahun buku April') into v_new;
+    e1, 'Asia/Jakarta', v_ver, 'Kantor pindah ke Jakarta, tahun buku April') into v_new;
   perform test_helpers.logout();
   perform test_helpers.assert(v_new = v_ver + 1, '2.1 the version advances');
-  perform test_helpers.assert((select timezone from public.entities where id = e1) = 'Asia/Makassar'
+  perform test_helpers.assert((select timezone from public.entities where id = e1) = 'Asia/Jakarta'
     and (select fiscal_year_start_month from public.entities where id = e1) = 4, '2.2 both settings stored');
   perform test_helpers.assert(exists (select 1 from public.audit_events where entity_id = e1
-    and action = 'entities.time_settings_changed' and reason = 'Kantor di Bali, tahun buku April'
-    and before_state ->> 'timezone' = 'Asia/Jakarta' and after_state ->> 'fiscal_year_start_month' = '4'),
+    and action = 'entities.time_settings_changed' and reason = 'Kantor pindah ke Jakarta, tahun buku April'
+    and before_state ->> 'timezone' = 'Asia/Makassar' and after_state ->> 'fiscal_year_start_month' = '4'),
     '2.3 audited with the reason and before/after');
-  perform test_helpers.assert(app_private.entity_today(e1) = (now() at time zone 'Asia/Makassar')::date,
+  perform test_helpers.assert(app_private.entity_today(e1) = (now() at time zone 'Asia/Jakarta')::date,
     '2.4 the Entity''s today follows its configured timezone');
 
   -- 3. once a period exists, the fiscal-year start is locked; the timezone may still change

@@ -113,6 +113,7 @@ export function AppShell({ access, children }: { access: AccessSnapshot; childre
       <NavigationProgress />
       <Sidebar
         groups={navigation}
+        entityCode={membership.entity_code}
         collapsed={collapsed}
         onToggleCollapse={toggleCollapse}
         onNavigate={() => setMobileOpen(false)}

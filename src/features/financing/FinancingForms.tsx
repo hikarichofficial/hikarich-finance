@@ -203,15 +203,43 @@ function PickField({
   );
 }
 
+/** A text field whose value is usually one of a known, finite set (a counterparty already in Contacts) but
+ * can still be typed freely for a name not yet on file -- "boleh diklik dan pilih, atau tetap bisa ketik
+ * baru" per the owner (5 Oct 2026). Native `<input list>` renders this as a text box with a dropdown of
+ * suggestions, so no new component or RPC is needed. */
+function PartyField({
+  listId,
+  label,
+  knownParties,
+}: {
+  listId: string;
+  label: ReactNode;
+  knownParties: readonly string[];
+}) {
+  return (
+    <label>
+      {label}
+      <input name="counterparty" required maxLength={200} autoComplete="off" list={listId} />
+      <datalist id={listId}>
+        {knownParties.map((name) => (
+          <option key={name} value={name} />
+        ))}
+      </datalist>
+    </label>
+  );
+}
+
 // ================================================================ create forms
 export function LoanCreateForm({
   entity,
   isCompany,
   today,
+  knownParties,
 }: {
   entity: string | undefined;
   isCompany: boolean;
   today: string;
+  knownParties: readonly string[];
 }) {
   const [state, action, pending] = useActionState(createLoanAction, idleFinancingActionState);
   const actionForm = usePreservingForm(action, state);
@@ -231,13 +259,14 @@ export function LoanCreateForm({
           <option value="lent">Pinjaman diberikan (kita meminjamkan)</option>
         </select>
       </label>
-      <label>
-        {direction === "borrowed" ? "Pemberi Pinjaman" : "Peminjam"}
-        <input name="counterparty" required maxLength={200} />
-      </label>
+      <PartyField
+        listId="loan-counterparty-options"
+        label={direction === "borrowed" ? "Pemberi Pinjaman" : "Peminjam"}
+        knownParties={knownParties}
+      />
       <label>
         Tujuan Pinjaman
-        <input name="purpose" required minLength={3} maxLength={500} />
+        <input name="purpose" required minLength={3} maxLength={500} autoComplete="off" />
       </label>
       <MoneyField name="principal" label="Jumlah Pokok" required />
       <label>
@@ -299,11 +328,13 @@ export function ObligationCreateForm({
   kind,
   accounts,
   today,
+  knownParties,
 }: {
   entity: string | undefined;
   kind: "receivable" | "payable";
   accounts: readonly FinancingOption[];
   today: string;
+  knownParties: readonly string[];
 }) {
   const [state, action, pending] = useActionState(createObligationAction, idleFinancingActionState);
   const actionForm = usePreservingForm(action, state);
@@ -313,13 +344,14 @@ export function ObligationCreateForm({
     <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="kind" value={kind} />
-      <label>
-        {receivable ? "Siapa yang Berutang ke Kita" : "Kepada Siapa Kita Berutang"}
-        <input name="counterparty" required maxLength={200} />
-      </label>
+      <PartyField
+        listId="obligation-counterparty-options"
+        label={receivable ? "Siapa yang Berutang ke Kita" : "Kepada Siapa Kita Berutang"}
+        knownParties={knownParties}
+      />
       <label>
         Keterangan
-        <input name="purpose" required minLength={3} maxLength={500} />
+        <input name="purpose" required minLength={3} maxLength={500} autoComplete="off" />
       </label>
       <MoneyField name="amount" label="Jumlah" required />
       <DateField label="Tanggal" today={today} />
@@ -343,10 +375,12 @@ export function EquityCreateForm({
   entity,
   kinds,
   today,
+  knownParties,
 }: {
   entity: string | undefined;
   kinds: readonly FinancingOption[];
   today: string;
+  knownParties: readonly string[];
 }) {
   const [state, action, pending] = useActionState(
     createEquityEventAction,
@@ -370,13 +404,14 @@ export function EquityCreateForm({
           ))}
         </select>
       </label>
-      <label>
-        Nama Pemilik / Pihak
-        <input name="counterparty" required maxLength={200} />
-      </label>
+      <PartyField
+        listId="equity-counterparty-options"
+        label="Nama Pemilik / Pihak"
+        knownParties={knownParties}
+      />
       <label>
         Keterangan
-        <input name="purpose" required minLength={3} maxLength={500} />
+        <input name="purpose" required minLength={3} maxLength={500} autoComplete="off" />
       </label>
       <MoneyField name="amount" label="Jumlah" required />
       <DateField label="Tanggal" today={today} />

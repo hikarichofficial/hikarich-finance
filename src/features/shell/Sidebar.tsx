@@ -21,11 +21,15 @@ import { NavIcon } from "./icons";
  */
 export function Sidebar({
   groups,
+  entityCode,
   collapsed,
   onToggleCollapse,
   onNavigate,
 }: {
   groups: readonly NavGroup[];
+  /** The active Entity's code, carried on every link below (Step 01 #4: PT and Personal never merge) --
+   * a bare href here would silently drop back to the person's first membership on click. */
+  entityCode: string;
   collapsed: boolean;
   onToggleCollapse: () => void;
   onNavigate?: () => void;
@@ -89,7 +93,7 @@ export function Sidebar({
                   return (
                     <Link
                       key={item.href}
-                      href={item.href}
+                      href={`${item.href}?entity=${encodeURIComponent(entityCode)}`}
                       className="app-nav-link"
                       aria-current={current ? "page" : undefined}
                       onClick={onNavigate}

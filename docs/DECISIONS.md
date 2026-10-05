@@ -1976,3 +1976,61 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   `pnpm audit` clean) -- only the shared, pre-existing "Migration clean-rebuild and invariants" CI job is
   affected, by this unrelated pre-existing defect, and it should stop failing once UTC time moves past the
   boundary window for today (and will recur again at next month's end until resolved).
+
+- **FATAL** (OWNER's own word): switching Entity then clicking any other menu silently reverted to
+  "Pribadi" (decision 287). Root cause: every `(app)` page and `AppShell` resolve the active Entity purely
+  from the `?entity=` query string (`resolveActiveEntity`, falling back to the first membership when the
+  param is missing or invalid) -- by design, so the URL stays the single source of truth and both places
+  agree. `Sidebar`'s nav links, though, were bare `item.href` with no `?entity=` at all, so the very first
+  click away from the page that set the query string dropped it, and the fallback silently picked
+  "Pribadi" (the first membership by `entity_code` order) -- never merging PT's data with Pribadi's (every
+  RPC still runs under the one Entity the server actually resolved), but making the PT books effectively
+  unreachable past one click. Fixed two ways: (1) `Sidebar` now receives the active `entityCode` and
+  appends it to every nav `href` (fast path for the one place that was wrong); (2) a universal safety net
+  in `src/lib/supabase/proxy.ts` (`decideEntityCookie`, 9 new Vitest cases) -- on every signed-in `GET`, it
+  remembers the Entity named in the URL in an httpOnly cookie, and when a URL carries none it 307-redirects
+  to the same URL with `?entity=<remembered>` appended, so _any_ internal link that forgets the query
+  string (not just the sidebar) still lands on the right Entity instead of silently falling back. Verified
+  with `pnpm check` (850 tests) and `pnpm build`.
+
+- "Nama Pemilik / Pihak" on Tambah Modal/Ekuitas showed the other Entity's name after switching Entity
+  (decision 287). Likely the browser's own form-autofill remembering a value typed on a previous visit to
+  the same-shaped field, since the field is an uncontrolled `<input>` with no `autoComplete` set. Fixed by
+  adding `autoComplete="off"` to the `counterparty`/`purpose` inputs in all three financing create forms
+  (Pinjaman, Piutang Lain/Utang Lain, Modal/Ekuitas) and giving each create form a `key={entity}`, so React
+  remounts it (and its DOM) fresh on an Entity switch instead of reusing the previous Entity's form
+  element.
+
+- Known counterparties (Nama Pemilik/Pihak and similar) are now click-and-pick, not forced free text
+  (decision 287, OWNER: "hal-hal yang sudah pasti begini tidak perlu diberikan isian tapi diberikan
+  pilihan"). No new RPC or migration: each of the three financing create-forms' pages now loads the
+  Entity's existing Contacts (`listContacts`) and passes their names down as `knownParties`; the
+  `counterparty` field (new shared `PartyField`) renders as a native `<input list>` + `<datalist>`, which
+  shows a clickable dropdown of names already on file while still accepting a new name by typing -- a
+  name not yet in Contacts is not forced through a separate screen first.
+
+- "Tambah Pelanggan" directly from Buat Invoice (decision 287, OWNER: a new-customer button or a
+  search-and-pick, not a trip to the Pelanggan screen first). New non-redirecting server action
+  `quickCreateContactAction` (bound to `quickCreateCustomerAction`/`quickCreateVendorAction`) and a
+  reusable `QuickAddContactDrawer` (name, email, phone only; links to the full Add Customer/Vendor screen
+  for the rest) wired into `InvoiceForm`'s Pelanggan field via a "+ Tambah pelanggan baru" button, so a
+  brand-new customer can be added and selected without losing the invoice lines already typed below. The
+  existing Pelanggan `<select>` was already a real dropdown over every active customer (click and pick),
+  so the "search an existing one" half of the request was already there; this adds the missing "or add
+  new" half.
+
+- "Rekening Tujuan Pembayaran" empty on Buat Invoice despite bank accounts existing (decision 287). Traced
+  to the same root cause as the entity-revert FATAL above: with the Entity silently falling back to
+  "Pribadi", the account list was genuinely for the wrong Entity (empty or someone else's accounts), not a
+  separate filtering bug in `InvoiceForm`. No change needed beyond the entity-revert fix; resolved
+  transitively once that proxy-level fix landed.
+
+- Default timezone for a brand-new Entity changed from WIB to **WITA (`Asia/Makassar`)** (decision 287,
+  OWNER: "untuk jam default website gunakan saja jam lokal yaitu WITA Asia/Makassar," her own location).
+  `alter table entities alter column timezone set default 'Asia/Makassar'`
+  (`20261005100000_p15_default_timezone_wita.sql`) -- only the default for an Entity created from now on;
+  an existing Entity's stored timezone is untouched (she can change it herself from Settings > Waktu &
+  Tahun Buku, decision 248, which already offers WITA as a choice and keeps the audit trail). Test 1.0 in
+  `supabase/tests/99_p14_3_entity_time.sql` updated to assert the new default, and its "valid change"
+  scenario (2.x) retargeted from Makassar to Jakarta so it still exercises a real change instead of a
+  no-op against the new default.
