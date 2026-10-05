@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
+import { listContacts } from "@/services/contacts/contacts";
 import { obligationKindTitle } from "@/domain/financing/obligationList";
 import { ObligationCreateForm } from "@/features/financing/FinancingForms";
 
@@ -27,6 +28,7 @@ export default async function NewObligationPage({
   const accounts = (await getMoneyControl(membership.entity_id).catch(() => []))
     .filter((a) => a.is_active)
     .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` }));
+  const knownParties = (await listContacts(membership.entity_id)).map((c) => c.display_name);
 
   return (
     <div className="record-detail">
@@ -41,10 +43,12 @@ export default async function NewObligationPage({
       </header>
       <section className="dashboard-section">
         <ObligationCreateForm
+          key={entity ?? membership.entity_code}
           entity={entity}
           kind={kind}
           accounts={accounts}
           today={new Date().toISOString().slice(0, 10)}
+          knownParties={knownParties}
         />
       </section>
     </div>
