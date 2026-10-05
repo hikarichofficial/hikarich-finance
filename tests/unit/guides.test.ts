@@ -72,6 +72,10 @@ describe("guide content integrity (decision 299)", () => {
       "penjualan",
       "pembelian",
       "pajak-lainnya",
+      "akuntansi-laporan",
+      "aset-pinjaman",
+      "payroll-perencanaan",
+      "administrasi-dokumen",
     ]);
     for (const group of GUIDE_GROUPS) expect(group.guides.length).toBeGreaterThan(0);
   });

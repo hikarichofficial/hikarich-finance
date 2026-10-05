@@ -312,7 +312,25 @@ export function visibleNavigation(permissions: readonly string[]): NavGroup[] {
 export function activeNavItem(
   groups: readonly NavGroup[],
   pathname: string,
+  kind?: string | null,
 ): { groupKey: string; href: string } | null {
+  // Other receivables and payables share one form/detail path (`/assets/obligations/...`); the `kind` in the
+  // address says which of the two menus (Piutang Lain / Utang Lain) the person came from.
+  if (pathname === "/assets/obligations" || pathname.startsWith("/assets/obligations/")) {
+    const target =
+      kind === "receivable"
+        ? "/assets/other-receivables"
+        : kind === "payable"
+          ? "/assets/other-payables"
+          : null;
+    if (target) {
+      for (const group of groups) {
+        if (group.items?.some((item) => item.href === target)) {
+          return { groupKey: group.key, href: target };
+        }
+      }
+    }
+  }
   let best: { groupKey: string; href: string } | null = null;
   for (const group of groups) {
     for (const item of group.items ?? [{ label: group.label, href: group.href }]) {

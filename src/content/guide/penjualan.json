@@ -423,6 +423,7 @@
       ],
       "rules": [
         "Piutang Lain (Aset & Pendanaan > Piutang Lain) bukan untuk tagihan pelanggan. Piutang usaha berasal dari invoice. Mencatat tagihan pelanggan di Piutang Lain bisa membuat pendapatan ganda dan tidak muncul di Umur Piutang.",
+        "Uang pelanggan yang masuk ke rekening PT hanya menutup piutang usaha. Pendapatan sudah diakui saat invoice terbit, jadi pembayaran tidak menambah pendapatan lagi dan tidak ada pendapatan ganda. Catat pembayarannya lewat [Cara Menerima Pembayaran Invoice](terima-pembayaran).",
         "Refund tidak membuka kembali invoice. Lihat [Cara Membalik Pembayaran dan Refund](balik-pembayaran-refund)."
       ],
       "mistakes": [

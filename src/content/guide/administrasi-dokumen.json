@@ -1,0 +1,1040 @@
+{
+  "key": "administrasi-dokumen",
+  "title": "Administrasi dan Dokumen",
+  "description": "Mengatur pengguna, keamanan, pengaturan Entity, backup, impor data, dokumen lampiran, dan memantau pajak di luar pembayaran.",
+  "guides": [
+    {
+      "slug": "kelola-pengguna-peran",
+      "title": "Cara Mengelola Pengguna dan Peran",
+      "summary": "Melihat anggota Entity, mengubah peran, mengatur pengecualian izin, dan menonaktifkan atau mengaktifkan kembali keanggotaan.",
+      "path": "Administrasi > Pengguna & Peran",
+      "who": "Melihat daftar dan detail: users.view. Ubah peran: users.assign_role dan users.assign_entity. Nonaktifkan atau aktifkan keanggotaan: users.disable. Pengecualian izin: users.change_permissions. Semua perubahan juga butuh verifikasi ulang. Pada pengaturan bawaan izin-izin ini hanya dimiliki OWNER; Finance Admin dan peran lain tidak punya izin pengguna.",
+      "quick": "Layar ini mengatur akses anggota yang **sudah ada**. Tidak ada tombol Undang atau Tambah Pengguna, dan akun Anda sendiri tidak bisa diubah dari sini.",
+      "steps": [
+        {
+          "title": "Pastikan Entity aktif benar",
+          "text": "Anggota dan peran diatur per Entity. Periksa pemilih Entity di kiri atas sebelum mengubah apa pun, karena seseorang bisa menjadi Finance Admin di PT tetapi hanya Viewer / Auditor di Pribadi. Lihat [Cara Masuk dan Berpindah Entity](masuk-dan-ganti-entitas)."
+        },
+        {
+          "title": "Buka Administrasi > Pengguna & Peran",
+          "text": "Halaman berjudul **Pengguna & Peran** dengan ringkasan “N anggota entitas ini.” Tabel memuat **Nama**, **Peran**, dan **Status** (Aktif atau Nonaktif). Akun Anda ditandai “(Anda)”. Klik nama untuk membuka detail anggota.",
+          "image": {
+            "file": "pengguna-peran.jpg",
+            "caption": "Halaman Pengguna & Peran."
+          }
+        },
+        {
+          "title": "Baca detail anggota",
+          "text": "Bagian **Izin Efektif** mencantumkan tiap izin dengan kolom **Izin**, **Sumber** (Peran atau Pengecualian), dan **Status** (Berlaku atau Ditolak). Bila ada, bagian **Pengecualian Izin** menjelaskan izin yang ditambah atau dicabut khusus untuk orang ini beserta alasannya.",
+          "tip": "Nama izin tampil sebagai kode (misalnya invoices.view). Kode itu tetap dalam bahasa Inggris."
+        },
+        {
+          "title": "Lakukan verifikasi ulang bila diminta",
+          "text": "Bila tertulis “Perubahan akses memerlukan verifikasi ulang.”, tekan **Verifikasi sekarang**, isi kode 6 digit dari aplikasi autentikator, lalu Anda kembali ke halaman ini. Verifikasi berlaku 30 menit. Lihat [Cara Memakai Verifikasi Dua Langkah dan Verifikasi Ulang](keamanan-akun)."
+        },
+        {
+          "title": "Ubah peran",
+          "text": "Di bagian **Ubah Peran**, pilih **Peran** (nama peran seperti di tabel di bawah), isi **Alasan (minimal 5 karakter)**, lalu tekan **Ubah Peran**. Bila berhasil tampil “Peran diperbarui.” Alasan tercatat di [Jejak Audit](jejak-audit-aktivitas)."
+        },
+        {
+          "title": "Atur pengecualian izin (bila perlu)",
+          "text": "Di bagian **Atur Pengecualian Izin**, pilih **Izin**, lalu **Efek**: “Berikan (tambahan di luar peran)”, “Tolak (cabut walau peran memberi)”, atau “Hapus pengecualian”. Isi alasan, lalu tekan **Simpan Pengecualian**. Bila berhasil tampil “Pengecualian izin disimpan.”",
+          "tip": "Pakai pengecualian hanya untuk kasus khusus. Untuk kebutuhan umum, lebih rapi memilih peran yang sesuai."
+        },
+        {
+          "title": "Nonaktifkan atau aktifkan kembali keanggotaan",
+          "text": "Di bagian **Nonaktifkan Keanggotaan** (atau **Aktifkan Keanggotaan** bila sudah nonaktif), isi alasan lalu tekan tombolnya. Hasilnya “Keanggotaan dinonaktifkan.” atau “Keanggotaan diaktifkan.” Orang tersebut tidak bisa membuka Entity ini selama nonaktif, tetapi riwayat kerjanya tetap ada.",
+          "warning": "Menonaktifkan hanya berlaku untuk Entity yang sedang aktif. Akses di Entity lain tidak ikut berubah."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Peran bawaan dan gambaran izinnya",
+          "columns": ["Peran di layar", "Gambaran izin bawaan"],
+          "rows": [
+            [
+              "Owner / Super Admin",
+              "Semua izin, termasuk pengguna, keamanan, backup, pengaturan Entity, dan aturan pajak. Wajib memakai verifikasi dua langkah."
+            ],
+            [
+              "Finance Admin",
+              "Pekerjaan keuangan harian: invoice, tagihan (menyetujui dan membayar), kas dan bank, kontak, produk, aset dan pinjaman, laporan, dokumen, impor data, dan melihat pengaturan. Tanpa izin pengguna, keamanan, backup, jejak audit, pencatatan bayar atau lapor pajak, dan perubahan pengaturan Entity."
+            ],
+            [
+              "Finance Staff",
+              "Menyiapkan invoice dan tagihan sebagai draf, mencatat uang masuk dan keluar, mengelola kontak dan produk, serta mengunggah dokumen. Tidak menerbitkan atau menyetujui."
+            ],
+            [
+              "Approver",
+              "Melihat dan menyetujui invoice, tagihan, transfer sensitif, dan jurnal, tanpa hak mengubah."
+            ],
+            [
+              "Accountant",
+              "Akuntansi: jurnal, daftar akun, penutupan periode, rekonsiliasi dan penyesuaian, melihat pajak, dan laporan."
+            ],
+            [
+              "Tax",
+              "Melihat pajak, mengonfirmasi data pajak, mencatat pembayaran dan pelaporan pajak, serta ekspor pajak. Juga bisa melihat invoice, tagihan, laporan, dan dokumen."
+            ],
+            [
+              "Payroll",
+              "Karyawan, kompensasi, proses, persetujuan dan pembayaran payroll, serta pajak payroll. Tidak melihat keuangan lain."
+            ],
+            ["Viewer / Auditor", "Hanya membaca di banyak modul, termasuk Jejak Audit."]
+          ]
+        }
+      ],
+      "result": [
+        "Peran, status, dan pengecualian baru langsung berlaku. Menu yang tidak diizinkan bagi peran itu tidak lagi ditampilkan.",
+        "Setiap perubahan tercatat di Jejak Audit beserta alasannya dan di bagian Kejadian Keamanan pada halaman Keamanan."
+      ],
+      "rules": [
+        "Tidak ada tombol Undang atau Tambah Pengguna. Izin “undang pengguna” ada di katalog izin, tetapi belum punya layar. Akun login dan keanggotaan awal dibuat di luar aplikasi oleh pengelola teknis.",
+        "Akses akun Anda sendiri tidak bisa diubah. Di detail akun sendiri tertulis “Ini akun Anda sendiri. Akses Anda hanya dapat diubah oleh pengguna lain.” dan tidak ada formulir.",
+        "Hanya OWNER yang boleh memberi atau mengubah peran OWNER dan mengelola Entity Pribadi.",
+        "Anda tidak bisa memberi peran atau izin yang Anda sendiri tidak punya.",
+        "Izin OWNER tidak bisa dikecualikan, dan minimal satu OWNER aktif harus tetap ada.",
+        "Alasan wajib diisi (minimal 5 karakter) pada setiap perubahan.",
+        "Belum ada layar untuk menonaktifkan seluruh akun login seseorang, hanya keanggotaan di Entity yang aktif."
+      ],
+      "mistakes": [
+        "Mencari tombol Undang atau Tambah Pengguna. Orang baru harus disiapkan akunnya oleh pengelola teknis dulu.",
+        "Mengubah anggota saat Entity aktif salah (PT atau Pribadi).",
+        "Memberi pengecualian izin padahal peran lain yang lebih tepat sudah ada.",
+        "Menonaktifkan keanggotaan OWNER terakhir."
+      ],
+      "errors": [
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Belum verifikasi ulang dalam 30 menit terakhir. Tekan Verifikasi sekarang, lalu ulangi."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Akun Anda tidak punya izin yang dibutuhkan, atau Anda mencoba mengubah akun sendiri, akun OWNER, atau memberi izin yang tidak Anda miliki."
+        },
+        {
+          "message": "Tindakan ditolak: setidaknya satu OWNER aktif harus tetap ada.",
+          "meaning": "Perubahan akan menghilangkan OWNER aktif terakhir."
+        },
+        {
+          "message": "Hak akses OWNER tidak bisa diubah.",
+          "meaning": "Pengecualian izin tidak berlaku untuk OWNER."
+        },
+        {
+          "message": "Peran tidak dapat diubah. Alasan minimal 5 karakter.",
+          "meaning": "Pesan umum saat ubah peran gagal. Periksa alasan dan koneksi, lalu ulangi."
+        },
+        {
+          "message": "Status keanggotaan tidak dapat diubah. Alasan minimal 5 karakter.",
+          "meaning": "Pesan umum saat nonaktifkan atau aktifkan gagal."
+        },
+        {
+          "message": "Pengecualian izin tidak dapat disimpan. Alasan minimal 5 karakter.",
+          "meaning": "Pesan umum saat simpan pengecualian gagal."
+        }
+      ],
+      "related": ["keamanan-akun", "jejak-audit-aktivitas", "masuk-dan-ganti-entitas"]
+    },
+    {
+      "slug": "keamanan-akun",
+      "title": "Cara Memakai Verifikasi Dua Langkah dan Verifikasi Ulang",
+      "summary": "Mengaktifkan autentikator, memahami kapan aplikasi meminta kode lagi (verifikasi ulang), dan memakai halaman Keamanan.",
+      "path": "Halaman Verifikasi dua langkah dan Verifikasi ulang (muncul otomatis); Administrasi > Keamanan",
+      "who": "Verifikasi dua langkah: semua akun OWNER, dan peran lain bila Entity mewajibkan MFA. Verifikasi ulang: siapa pun yang melakukan tindakan sensitif. Melihat halaman Keamanan: security.view (pada bawaan hanya OWNER). Mencabut perangkat milik orang lain: security.manage dan verifikasi ulang; perangkat milik sendiri boleh dicabut sendiri.",
+      "quick": "Kode 6 digit dari aplikasi autentikator dipakai dua kali: saat masuk, dan saat tindakan sensitif meminta **verifikasi ulang** (berlaku 30 menit).",
+      "steps": [
+        {
+          "title": "Ketahui kapan verifikasi dua langkah wajib",
+          "text": "Akun OWNER selalu wajib. Peran lain wajib bila pengaturan “Wajibkan autentikasi dua faktor (MFA)” untuk Entity bernilai Ya. Di halaman **Keamanan**, lencana di kanan atas menampilkan “MFA wajib” atau “MFA tidak diwajibkan”."
+        },
+        {
+          "title": "Atur autentikator pertama kali",
+          "text": "Setelah masuk dengan email dan kata sandi, halaman **Verifikasi dua langkah** tampil dengan teks “Akun ini wajib memakai autentikator (Google Authenticator, 1Password, dan sejenisnya).” Tekan **Atur autentikator**, pindai kode QR dengan aplikasi autentikator, isi **Kode dari autentikator (6 digit)**, lalu tekan **Aktifkan**.",
+          "warning": "Bila tidak bisa memindai, aplikasi menampilkan kunci manual. Kunci itu setara kata sandi kedua: jangan difoto, dikirim lewat chat, atau dibagikan."
+        },
+        {
+          "title": "Masuk di hari-hari berikutnya",
+          "text": "Halaman **Verifikasi dua langkah** meminta “Masukkan kode dari aplikasi autentikator Anda.” Isi **Kode autentikator (6 digit)** lalu tekan **Verifikasi**. Kode berganti sekitar tiap 30 detik. Lihat juga [Cara Masuk dan Berpindah Entity](masuk-dan-ganti-entitas)."
+        },
+        {
+          "title": "Lakukan verifikasi ulang saat diminta",
+          "text": "Tindakan sensitif meminta kode terbaru walau Anda sudah masuk. Aplikasi menampilkan tautan **Verifikasi sekarang** atau halaman **Verifikasi ulang** dengan teks “Tindakan sensitif memerlukan kode autentikator terbaru (berlaku 30 menit).” Isi kode lalu tekan **Lanjutkan**. Anda kembali ke halaman semula; ulangi tindakannya.",
+          "tip": "Contoh tindakan yang meminta verifikasi ulang: mengubah akses pengguna, menyimpan Pengaturan, Tambah Entity, mengaktifkan mesin pajak, menerbitkan aturan pajak, Hapus Sisa piutang lain, memulihkan backup, dan mencabut perangkat orang lain. Membuat backup tidak memintanya."
+        },
+        {
+          "title": "Bila belum punya autentikator terdaftar",
+          "text": "Halaman Verifikasi ulang menulis “Tindakan sensitif memerlukan verifikasi ulang. Silakan keluar lalu masuk kembali.” dan menyediakan tombol **Keluar**. Masuk kembali dengan kata sandi memperbarui waktu verifikasi."
+        },
+        {
+          "title": "Buka Administrasi > Keamanan",
+          "text": "Halaman **Keamanan** hanya untuk dibaca (kecuali Cabut). Bagian **Kejadian Keamanan** memuat **Waktu**, **Kejadian**, **Pengguna**, dan **Tingkat** (Info, Peringatan, atau Kritis), 50 baris per halaman dengan tombol **Sebelumnya** dan **Berikutnya**. Waktu ditampilkan dalam UTC."
+        },
+        {
+          "title": "Kelola Perangkat Tepercaya",
+          "text": "Bagian **Perangkat Tepercaya** memuat **Perangkat**, **Pengguna**, **Terakhir Terlihat**, **Status** (Tepercaya atau Dicabut), dan **Tindakan**. Untuk mencabut, tekan **Cabut**, isi **Alasan (minimal 5 karakter)**, lalu tekan **Cabut perangkat**. Bila berhasil tampil “Perangkat dicabut.” Mencabut perangkat pengguna lain meminta verifikasi ulang dalam 30 menit terakhir."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Arti kode pada kolom Kejadian",
+          "columns": ["Kode di layar", "Artinya"],
+          "rows": [
+            ["membership_assigned", "Peran seseorang diberikan atau diubah."],
+            ["membership_disabled", "Keanggotaan seseorang dinonaktifkan."],
+            ["membership_enabled", "Keanggotaan seseorang diaktifkan kembali."],
+            ["permission_override", "Pengecualian izin diberikan, ditolak, atau dihapus."],
+            [
+              "sensitive_reveal",
+              "Seseorang membuka data sensitif (misalnya NPWP atau nomor rekening); isinya tidak dicatat."
+            ]
+          ]
+        }
+      ],
+      "result": [
+        "Setelah verifikasi ulang, semua tindakan sensitif bisa dilakukan selama 30 menit tanpa diminta kode lagi.",
+        "Halaman Keamanan membantu pemilik memeriksa siapa yang mengubah akses."
+      ],
+      "rules": [
+        "Aplikasi tidak menyediakan kode cadangan, reset kata sandi, atau layar mengganti autentikator. Simpan aplikasi autentikator Anda baik-baik.",
+        "Pengaturan “Wajibkan autentikasi dua faktor (MFA)” untuk peran selain OWNER hanya tampil di Administrasi > Pengaturan dan tidak bisa diubah dari layar mana pun.",
+        "Daftar Perangkat Tepercaya hanya menampilkan perangkat yang sudah tercatat. Belum ada layar di aplikasi yang mendaftarkan perangkat, sehingga daftar bisa kosong (“Belum ada perangkat tepercaya yang tercatat.”).",
+        "Kolom Kejadian menampilkan kode bahasa Inggris, bukan kalimat."
+      ],
+      "mistakes": [
+        "Memasukkan kode yang sudah lewat 30 detik. Tunggu kode baru.",
+        "Mengganti ponsel tanpa memindahkan aplikasi autentikator terlebih dulu, sehingga tidak bisa masuk.",
+        "Mengira verifikasi ulang tidak berlaku bila baru saja masuk. Yang dihitung adalah 30 menit terakhir sejak kode terakhir."
+      ],
+      "errors": [
+        {
+          "message": "Kode tidak sesuai atau sudah kedaluwarsa.",
+          "meaning": "Kode 6 digit salah atau sudah berganti. Tunggu kode berikutnya lalu ulangi."
+        },
+        {
+          "message": "Gagal memulai pengaturan autentikator.",
+          "meaning": "Pengaturan awal autentikator gagal. Muat ulang halaman lalu tekan Atur autentikator lagi."
+        },
+        {
+          "message": "Sesi tidak valid. Silakan masuk kembali.",
+          "meaning": "Sesi Anda sudah berakhir. Masuk lagi."
+        },
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Tindakan sensitif belum diverifikasi ulang dalam 30 menit. Tekan Verifikasi sekarang."
+        },
+        {
+          "message": "Perangkat tidak dapat dicabut. Alasan minimal 5 karakter.",
+          "meaning": "Pencabutan perangkat gagal. Periksa alasan dan izin Anda."
+        }
+      ],
+      "related": ["masuk-dan-ganti-entitas", "kelola-pengguna-peran", "pengaturan-aplikasi"]
+    },
+    {
+      "slug": "pengaturan-aplikasi",
+      "title": "Cara Memakai Halaman Pengaturan (Zona Waktu, Saldo Minus, dan Lainnya)",
+      "summary": "Melihat profil, penomoran, dan aturan persetujuan Entity, serta mengubah nama, zona waktu, tahun buku, pembatasan saldo minus, dan menambah Entity.",
+      "path": "Administrasi > Pengaturan",
+      "who": "Melihat: settings.view (OWNER dan Finance Admin). Mengubah nama dan profil, zona waktu dan awal tahun buku, serta pembatasan saldo minus: izin konfigurasi Entity (system.entity_config), pada bawaan hanya OWNER, dengan verifikasi ulang. Tambah Entity: hanya OWNER.",
+      "quick": "Halaman ini mengatur satu Entity sekaligus. Hanya sebagian yang bisa diubah; penomoran dokumen dan aturan persetujuan hanya bisa dibaca.",
+      "steps": [
+        {
+          "title": "Buka Administrasi > Pengaturan",
+          "text": "Halaman berjudul “Pengaturan Entitas” dengan nama merek (atau nama resmi) Entity aktif dan lencana Aktif atau Nonaktif. Pastikan pemilih Entity di kiri atas benar sebelum mengubah apa pun."
+        },
+        {
+          "title": "Periksa Profil Entitas",
+          "text": "Bagian **Profil Entitas** menampilkan **Nama Resmi**, **Nama Merek**, **Kode**, **Jenis** (Buku usaha, Buku rumah tangga, atau Lainnya), **Mata Uang Dasar**, **Zona Waktu**, **Awal Tahun Fiskal**, **Alamat**, **Email**, **Telepon**, dan **Situs Web**.",
+          "image": {
+            "file": "pengaturan.jpg",
+            "caption": "Halaman Pengaturan: Profil Entitas dan form Ubah Nama & Profil."
+          }
+        },
+        {
+          "title": "Ubah nama dan profil (OWNER)",
+          "text": "Di bagian **Ubah Nama & Profil**, ubah **Nama Resmi**, **Nama Merek (opsional)**, **Alamat (opsional)**, **Kota (opsional)**, **Provinsi (opsional)**, **Kode Pos (opsional)**, **Email (opsional)**, **Telepon (opsional)**, atau **Situs Web (opsional)**, lalu tekan **Simpan Nama & Profil**. Bila berhasil tampil “Nama dan profil disimpan.” Invoice dan kuitansi yang sudah terbit tetap memakai nama lama; dokumen baru memakai nama baru.",
+          "warning": "Bila tertulis perlu verifikasi ulang, tekan Verifikasi sekarang dulu lalu ulangi."
+        },
+        {
+          "title": "Ubah Zona Waktu dan Tahun Buku (OWNER)",
+          "text": "Di bagian **Zona Waktu & Tahun Buku**, pilih **Zona waktu** (WIB, WITA, atau WIT), pilih **Awal tahun buku**, isi **Alasan perubahan (minimal 5 karakter)**, lalu tekan **Simpan**. Bila berhasil tampil “Zona waktu dan tahun buku disimpan.” Masa pajak, tanggal jatuh tempo, dan “hari ini” di aplikasi mengikuti zona waktu ini.",
+          "tip": "Setelah periode akuntansi dibuat, kolom Awal tahun buku terkunci dengan keterangan “Awal tahun buku terkunci karena periode akuntansi sudah dibuat.” Zona waktu tetap bisa diubah."
+        },
+        {
+          "title": "Atur pembatasan saldo minus (OWNER)",
+          "text": "Di bagian **Pengaturan Lain**, centang jenis rekening yang tidak boleh minus: **Bank**, **Kas tunai**, dan **E-wallet / saldo marketplace**, lalu tekan **Simpan**. Rekening yang dicentang menolak transaksi uang keluar yang membuat saldonya di bawah nol. Yang tidak dicentang hanya diperingatkan dan transaksi tetap jalan. Bila berhasil tampil, misalnya, “Saldo bank tidak boleh minus.”",
+          "tip": "Pengaturan awal Entity: hanya jenis Bank yang dikunci."
+        },
+        {
+          "title": "Baca Penomoran Dokumen dan Aturan Persetujuan",
+          "text": "Bagian **Penomoran Dokumen** menampilkan **Dokumen** (Invoice Penjualan, Kuitansi Pembayaran, Tagihan Pembelian, Jurnal, dan seterusnya), **Contoh Nomor**, **Reset** (Setiap tahun atau Tidak pernah), dan **Status**. Bagian **Aturan Persetujuan** menampilkan **Modul · Aksi**, **Mulai Jumlah**, **Persetujuan** (Wajib atau Tidak wajib), **Penyetuju**, dan **Berlaku**. Keduanya hanya untuk dibaca."
+        },
+        {
+          "title": "Tambah Entity baru (OWNER)",
+          "text": "Di bagian **Tambah Entity**, pilih **Jenis** (Buku usaha atau Buku rumah tangga), isi **Nama Resmi**, **Nama Merek (opsional)**, dan **Kode (dipakai di alamat halaman; tidak bisa diubah)**, lalu tekan **Tambah Entity**. Entity baru langsung mendapat daftar akun standar, Anda menjadi OWNER-nya, dan Anda dibawa ke Pengaturan Entity itu untuk mengisi alamat dan data pajak."
+        }
+      ],
+      "result": [
+        "Perubahan langsung berlaku untuk dokumen dan transaksi baru. Dokumen yang sudah terbit tidak berubah.",
+        "Penonaktifan transaksi yang membuat saldo minus tampil sebagai penolakan di form transaksi uang keluar."
+      ],
+      "rules": [
+        "Perubahan nama, profil, zona waktu, tahun buku, saldo minus, dan Tambah Entity butuh verifikasi ulang dalam 30 menit terakhir.",
+        "Kode Entity dan jenis Entity tidak bisa diubah setelah dibuat, dan Entity yang sudah dibuat tidak bisa dihapus.",
+        "Penomoran dokumen, aturan persetujuan, pengaturan MFA, dan “Toleransi selisih tanggal saat mencocokkan mutasi (hari)” hanya tampil sebagai informasi.",
+        "Entity yang dibuat sekarang mulai dengan zona WITA (Asia/Makassar). Entity yang sudah ada tetap memakai zona yang tersimpan; cek kolom Zona Waktu di Profil Entitas.",
+        "Kode Entity: 2 sampai 31 huruf kecil, angka, - atau _, diawali huruf."
+      ],
+      "mistakes": [
+        "Mencari tombol untuk mengubah format nomor invoice atau aturan persetujuan. Belum ada layarnya.",
+        "Mengubah awal tahun buku setelah periode dibuat. Kolomnya terkunci.",
+        "Mengira pembatasan saldo minus berlaku untuk semua rekening. Ia berlaku per jenis (Bank, Kas tunai, E-wallet).",
+        "Membuat Entity baru hanya untuk mencoba. Entity tidak bisa dihapus."
+      ],
+      "errors": [
+        {
+          "message": "Pengaturan tidak dapat disimpan. Pastikan alasan diisi minimal 5 karakter.",
+          "meaning": "Pesan umum saat menyimpan Zona Waktu & Tahun Buku gagal."
+        },
+        {
+          "message": "Awal tahun buku tidak dapat diubah karena periode akuntansi sudah ada.",
+          "meaning": "Awal tahun buku sudah terkunci. Ubah hanya zona waktu."
+        },
+        {
+          "message": "Pengaturan tidak dapat disimpan.",
+          "meaning": "Pesan umum saat menyimpan pembatasan saldo minus gagal."
+        },
+        {
+          "message": "Profil tidak dapat disimpan. Periksa nama dan email.",
+          "meaning": "Nama kosong atau alamat email tidak valid."
+        },
+        {
+          "message": "Kode Entity ini sudah dipakai",
+          "meaning": "Pilih kode lain saat Tambah Entity."
+        },
+        {
+          "message": "Ini akan membuat <nama rekening> di bawah nol, dan itu tidak diizinkan untuk rekening <jenis>.",
+          "meaning": "Transaksi uang keluar ditolak karena saldo akan minus pada jenis rekening yang dikunci."
+        },
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Tekan Verifikasi sekarang, isi kode, lalu simpan lagi."
+        }
+      ],
+      "related": ["keamanan-akun", "masuk-dan-ganti-entitas", "pengaturan-pajak-awal"]
+    },
+    {
+      "slug": "jejak-audit-aktivitas",
+      "title": "Cara Membaca Jejak Audit dan Aktivitas Terbaru",
+      "summary": "Melihat kejadian penting terbaru dalam bahasa sehari-hari, dan menelusuri siapa mengubah apa lewat catatan audit teknis.",
+      "path": "Ringkasan > Aktivitas Terbaru; Administrasi > Jejak Audit (halaman berjudul Log Audit)",
+      "who": "Aktivitas Terbaru: semua pengguna; barisnya hanya yang boleh Anda lihat (pembayaran dan invoice perlu izin lihat invoice, pembayaran vendor perlu izin lihat tagihan). Jejak Audit: izin lihat audit (audit.view), yaitu OWNER dan Viewer / Auditor.",
+      "quick": "**Aktivitas Terbaru** untuk melihat apa yang baru terjadi. **Jejak Audit** untuk menelusuri siapa mengubah data apa, kapan, dan mengapa; catatannya tidak bisa diedit atau dihapus.",
+      "steps": [
+        {
+          "title": "Lihat Aktivitas Terbaru",
+          "text": "Buka **Ringkasan > Aktivitas Terbaru**, atau tekan **Lihat semua** pada kartu Aktivitas Terbaru di Dashboard. Halaman menampilkan sampai 100 kejadian penting: pembayaran yang sudah terkonfirmasi (“Pembayaran <nomor>”, dari pelanggan maupun ke vendor) dan invoice yang sudah diterbitkan (“Invoice <nomor>”). Tiap baris memuat pihak terkait, jumlah, dan tanggal; klik judulnya menuju Pembayaran Diterima, Pembayaran Keluar, atau Invoice. Bila kosong tertulis “Belum ada aktivitas untuk periode ini.”",
+          "image": {
+            "file": "aktivitas.jpg",
+            "caption": "Halaman Aktivitas Terbaru."
+          }
+        },
+        {
+          "title": "Buka Administrasi > Jejak Audit",
+          "text": "Halaman berjudul **Log Audit** dengan ringkasan “Kejadian 1–50, terbaru lebih dulu.” Jejak Audit memuat semua perubahan data pada Entity aktif, bukan hanya yang penting.",
+          "image": {
+            "file": "jejak-audit.jpg",
+            "caption": "Halaman Log Audit dengan tab Semua, Dibuat, Diubah, Dihapus."
+          }
+        },
+        {
+          "title": "Saring jenis perubahan",
+          "text": "Pilih tab **Semua**, **Dibuat**, **Diubah**, atau **Dihapus**. Bila tidak ada hasil tampil “Tidak ada kejadian audit untuk saringan atau halaman ini.” dengan tombol **Hapus Saringan**."
+        },
+        {
+          "title": "Baca kolom tabel",
+          "text": "**Waktu** (dalam UTC), **Tabel** (nama teknis data yang berubah), **Aksi** (Dibuat, Diubah, atau Dihapus), **Pelaku** (nama pengguna, “Sistem”, atau “Tautan publik”), **Field Berubah** (nama kolom yang berubah, tanpa nilainya), dan **Alasan** (alasan yang diisi saat mengubah, bila ada)."
+        },
+        {
+          "title": "Pindah halaman",
+          "text": "Setiap halaman memuat 50 kejadian. Pakai **Sebelumnya** dan **Berikutnya** untuk bergerak. Filter tetap terbawa saat berpindah halaman."
+        },
+        {
+          "title": "Telusuri sebuah perubahan",
+          "text": "Cari baris dengan Tabel dan Waktu yang sesuai, lihat **Pelaku** dan **Alasan**. Untuk perubahan akses pengguna, lihat juga bagian Kejadian Keamanan di [Cara Memakai Verifikasi Dua Langkah dan Verifikasi Ulang](keamanan-akun)."
+        }
+      ],
+      "result": [
+        "Anda tahu siapa yang membuat, mengubah, atau menghapus data, kapan, dan alasannya bila diisi.",
+        "Catatan audit bertambah sendiri dan tidak bisa diubah atau dihapus dari aplikasi."
+      ],
+      "rules": [
+        "Jejak Audit hanya membaca. Waktu ditampilkan dalam UTC, yaitu 7, 8, atau 9 jam lebih awal dari WIB, WITA, atau WIT.",
+        "Yang ditampilkan nama kolom yang berubah, bukan nilai lamanya atau barunya.",
+        "Nama tabel dan beberapa aksi khusus tampil sebagai kode teknis berbahasa Inggris.",
+        "Belum ada pencarian per orang atau tanggal, dan belum ada tombol ekspor audit.",
+        "Aktivitas Terbaru bukan log lengkap: hanya pembayaran terkonfirmasi dan invoice terbit.",
+        "Setiap Entity punya jejaknya sendiri; periksa pemilih Entity."
+      ],
+      "mistakes": [
+        "Mengira Aktivitas Terbaru memuat semua perubahan. Untuk itu pakai Jejak Audit.",
+        "Menghitung waktu audit sebagai WIB padahal ditampilkan dalam UTC.",
+        "Mencari nilai lama sebuah angka. Jejak hanya menunjukkan kolom apa yang berubah."
+      ],
+      "errors": [
+        {
+          "message": "Belum ada kejadian audit untuk entitas ini.",
+          "meaning": "Belum ada perubahan data tercatat untuk Entity aktif."
+        },
+        {
+          "message": "Gagal memuat log audit.",
+          "meaning": "Halaman gagal memuat data. Muat ulang; bila terus terjadi, hubungi pengelola teknis."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Akun Anda tidak punya izin lihat audit, sehingga menu Jejak Audit tidak tampil."
+        }
+      ],
+      "related": ["kelola-pengguna-peran", "keamanan-akun"]
+    },
+    {
+      "slug": "backup-restore",
+      "title": "Cara Membuat Backup dan Memulihkan Data",
+      "summary": "Mengunduh backup data Entity secara rutin, membaca riwayatnya, dan memulihkan dari berkas backup bila terjadi kehilangan data.",
+      "path": "Administrasi > Backup & Restore",
+      "who": "Membuat backup dan melihat riwayat: izin buat backup (backup.create). Memulihkan: izin pulihkan backup (backup.restore) dan verifikasi ulang. Pada bawaan keduanya hanya OWNER, dan halaman hanya terbuka bagi pemegang backup.create.",
+      "quick": "Unduh **Backup Penuh** secara rutin dan simpan file di luar aplikasi. Aplikasi tidak membuat backup otomatis; ia hanya mengingatkan bila backup terakhir sudah 30 hari atau belum pernah ada.",
+      "steps": [
+        {
+          "title": "Buka Administrasi > Backup & Restore",
+          "text": "Halaman berjudul “Backup & Restore Center”. Backup dibuat per Entity, jadi PT dan Pribadi masing-masing perlu dibackup. Bila perlu pengingat, tampil “Belum pernah ada backup untuk Entity ini. Disarankan membuat Backup Penuh sekarang.” atau “Backup terakhir N hari yang lalu. Disarankan membuat backup baru.”",
+          "image": {
+            "file": "backup.jpg",
+            "caption": "Backup & Restore Center."
+          }
+        },
+        {
+          "title": "Pilih jenis backup di Buat Backup",
+          "text": "Ada tiga kartu. **Backup Penuh**: seluruh data Entity, termasuk metadata dokumen dan jejak audit. **Backup Data Saja**: data operasional dan keuangan saat ini saja, tanpa jejak audit maupun metadata dokumen. **Arsip Dokumen**: daftar (manifes) dokumen milik Entity, tanpa isi berkas. Tekan tombol **Unduh Backup Penuh**, **Unduh Backup Data Saja**, atau **Unduh Arsip Dokumen**."
+        },
+        {
+          "title": "Simpan berkas di tempat aman",
+          "text": "Browser mengunduh berkas bernama seperti hikarich-backup-full-2026-10-06.json (jenis dan tanggal ikut di nama). Simpan di luar aplikasi, misalnya drive pribadi yang terenkripsi. Jangan membuka lalu menyimpan ulang berkas itu karena ada pemeriksa checksum.",
+          "warning": "Berkas berisi seluruh data keuangan Entity. Perlakukan seperti dokumen rahasia."
+        },
+        {
+          "title": "Periksa Riwayat Backup",
+          "text": "Tabel **Riwayat Backup** memuat **Waktu**, **Jenis**, **Jumlah Tabel**, dan **Ukuran**. Pengingat 30 hari dihitung dari baris teratas."
+        },
+        {
+          "title": "Pulihkan dari berkas (OWNER)",
+          "text": "Di bagian **Pulihkan dari Berkas**, pilih berkas backup (.json). Aplikasi lebih dulu memeriksa checksum, kecocokan Entity, dan dampaknya. Bila lolos tampil “Berkas <nama> valid dan siap dipulihkan.” beserta **Isi berkas yang akan dipulihkan** dan **Data yang sudah ada di Entity ini**. Bila tidak lolos tampil “Berkas <nama> tidak dapat dipulihkan.” dengan daftar alasannya."
+        },
+        {
+          "title": "Lakukan verifikasi ulang, lalu konfirmasi",
+          "text": "Bila tertulis “Pemulihan memerlukan verifikasi ulang (30 menit terakhir).”, tekan **Verifikasi sekarang**, lalu pilih berkas lagi. Ketik kode Entity pada kolom konfirmasi, lalu tekan **Pulihkan sekarang** (atau **Batal**). Hasilnya “Pemulihan selesai dan lolos pemeriksaan integritas.” atau “Pemulihan gagal. Tidak ada data yang ditulis; percobaan ini tercatat di riwayat.”"
+        },
+        {
+          "title": "Periksa Riwayat Pemulihan",
+          "text": "Tabel **Riwayat Pemulihan** memuat **Waktu**, **Jenis Berkas**, **Baris**, dan **Status** (Berhasil atau Gagal (tidak ada data yang ditulis))."
+        }
+      ],
+      "result": [
+        "Anda punya salinan data di luar aplikasi yang bisa dipakai bila terjadi kehilangan data.",
+        "Pemulihan berjalan sebagai satu transaksi: bila ada yang gagal, tidak ada data yang tertulis."
+      ],
+      "rules": [
+        "Batas ukuran berkas pemulihan 4 MB, karena berkas dikirim lewat layanan hosting (Vercel) yang membatasi kiriman sekitar 4,5 MB. Dokumen rilis mencatat batas yang sama untuk pengiriman backup. Bila data mendekati batas, hubungi pengelola teknis.",
+        "Pemulihan hanya ke Entity yang masih kosong dan memiliki ID yang sama dengan backup. Jadi ia dipakai untuk pemulihan darurat, bukan untuk “mengembalikan ke kemarin” pada Entity yang sudah berisi data.",
+        "Hanya Backup Penuh atau Backup Data Saja yang bisa dipulihkan. Arsip Dokumen tidak bisa.",
+        "Backup tidak membawa isi berkas lampiran (PDF, foto), hanya data tentang berkas. Simpan berkas aslinya sendiri.",
+        "Keanggotaan pengguna tidak ikut dipulihkan; akses perlu diatur ulang.",
+        "Membuat backup tidak meminta verifikasi ulang; memulihkan meminta.",
+        "Tidak ada jadwal backup otomatis. Pengingat hanya tampil saat Anda membuka halaman ini."
+      ],
+      "mistakes": [
+        "Menyimpan berkas backup hanya di komputer yang sama dengan yang dipakai sehari-hari.",
+        "Mengira backup Entity PT sudah mencakup Pribadi. Keduanya terpisah.",
+        "Menyimpan ulang atau mengedit berkas backup sehingga checksum tidak cocok.",
+        "Mengira memulihkan bisa menimpa data yang sudah ada."
+      ],
+      "errors": [
+        {
+          "message": "Berkas terlalu besar (<ukuran>). Batas unggah saat ini 4.0 MB.",
+          "meaning": "Berkas melewati batas hosting. Hubungi pengelola teknis."
+        },
+        {
+          "message": "Checksum tidak cocok: isi berkas telah berubah atau rusak sejak backup dibuat.",
+          "meaning": "Berkas diubah atau rusak. Gunakan backup asli."
+        },
+        {
+          "message": "Backup ini milik Entity lain (ID Entity berbeda).",
+          "meaning": "Berkas berasal dari Entity lain, bukan yang sedang aktif."
+        },
+        {
+          "message": "Entity tujuan tidak kosong. Pemulihan hanya dilakukan ke Entity yang belum berisi data (keputusan OWNER).",
+          "meaning": "Entity aktif sudah berisi data, jadi pemulihan ditolak."
+        },
+        {
+          "message": "Hanya Backup Penuh atau Backup Data Saja yang dapat dipulihkan.",
+          "meaning": "Berkas yang dipilih adalah Arsip Dokumen."
+        },
+        {
+          "message": "Ekspor backup gagal diproses.",
+          "meaning": "Pembuatan backup gagal. Coba lagi."
+        },
+        {
+          "message": "Pemulihan gagal diproses.",
+          "meaning": "Pesan umum saat pemulihan gagal. Lihat Riwayat Pemulihan."
+        }
+      ],
+      "related": ["pengaturan-aplikasi", "kelola-pengguna-peran", "keamanan-akun"]
+    },
+    {
+      "slug": "impor-data",
+      "title": "Cara Mengimpor Data Kontak dan Saldo Terbuka Lama",
+      "summary": "Memasukkan banyak kontak, atau piutang dan utang yang masih terbuka dari sistem lama, dari tabel Excel atau CSV, dengan pemeriksaan per baris.",
+      "path": "Administrasi > Impor Data > Impor Data",
+      "who": "Mengimpor: izin impor data (system.import). Menerapkan impor Kontak juga perlu izin buat kontak (contacts.create). Membatalkan impor: izin batalkan impor (system.rollback_import), dan untuk Kontak juga izin arsip kontak (contacts.archive). Peran bawaan: OWNER dan Finance Admin.",
+      "quick": "Tempel atau unggah tabel, tekan **Periksa Data**, baca hasil tiap baris, baru tekan **Terapkan ke Pembukuan**. Sebelum diterapkan belum ada yang masuk.",
+      "steps": [
+        {
+          "title": "Buka Administrasi > Impor Data",
+          "text": "Halaman pertama berjudul **Riwayat Impor**. Tabelnya memuat **Berkas Sumber**, **Jenis**, **Tanggal**, **Baris**, dan **Status** (Persiapan, Sudah Divalidasi, Sudah Diterapkan, atau Dibatalkan). Tab penyaring: **Semua**, **Kontak**, **Piutang Terbuka (Data Awal)**, **Utang Terbuka (Data Awal)**. Tekan tombol **Impor Data**.",
+          "image": {
+            "file": "impor-daftar.jpg",
+            "caption": "Riwayat Impor dengan tombol Impor Data."
+          }
+        },
+        {
+          "title": "Pilih jenis data",
+          "text": "Di **Data yang diimpor**, pilih Kontak, Piutang Terbuka (Data Awal), atau Utang Terbuka (Data Awal). Layar menulis kolom yang dikenali. Tekan **Isi dengan contoh** untuk memuat judul kolom dan satu baris contoh yang bisa disalin ke Excel.\n\nKolom Kontak: **Jenis** (wajib; pelanggan, vendor, atau keduanya), **Nama** (wajib), **Nama Resmi**, **Email**, **Telepon**, **NPWP/NIK**, **Catatan**.\n\nKolom Piutang dan Utang Terbuka: **Nama Kontak**, **Jumlah**, **Mata Uang**, **Tanggal** (semuanya wajib), **Jatuh Tempo**, **Nomor Referensi**, **Catatan**."
+        },
+        {
+          "title": "Masukkan tabelnya",
+          "text": "Pilih berkas lewat **Pilih berkas CSV (opsional)**, atau tempel tabel dari Excel atau Google Sheets di kolom **Atau tempel tabel dari Excel / Google Sheets di sini**. Baris pertama harus judul kolom. Pemisah koma, titik koma, atau tab dikenali otomatis."
+        },
+        {
+          "title": "Periksa pratinjau pembacaan",
+          "text": "Layar menulis “Terbaca N baris data” dengan contoh lima baris pertama. Kolom wajib yang belum ada ditandai merah, dan kolom yang tidak dikenali ditulis “tidak ikut diimpor”. Tombol **Periksa Data** nonaktif sampai kolom wajib lengkap."
+        },
+        {
+          "title": "Tekan Periksa Data",
+          "text": "Aplikasi menyimpan tabel sebagai batch persiapan dan langsung memeriksanya, lalu membuka halaman batch. Di sana ada **Ringkasan** (Jenis Impor, Jumlah Baris, Status Batch), bagian **Tindakan**, dan tabel **Baris** dengan kolom **No.**, **Status**, **Pesan**, dan **Hasil**. Tab penyaring status baris: Semua, Menunggu Validasi, Valid, Tidak Valid, Duplikat, Diterapkan, Dibatalkan."
+        },
+        {
+          "title": "Baca pesan pada baris bermasalah",
+          "text": "Contoh pesan: “Sama dengan kontak yang sudah ada: <nama> (<alasan>)” (baris Duplikat, akan dilewati), “Mungkin sama dengan kontak yang sudah ada: <nama> (nama sama); pastikan dulu sebelum impor” (Tidak Valid), atau “Tidak ada kontak bernama \"<nama>\"; impor atau buat kontaknya lebih dulu” (untuk Piutang atau Utang Terbuka).",
+          "tip": "Baris Tidak Valid tidak bisa diedit di layar. Perbaiki tabelnya lalu impor ulang sebagai batch baru."
+        },
+        {
+          "title": "Terapkan ke Pembukuan",
+          "text": "Bila ada baris valid, tertulis “N baris valid akan masuk ke pembukuan. Baris tidak valid dan duplikat dilewati.” Tekan **Terapkan ke Pembukuan**. Hasilnya, misalnya, “N baris masuk ke pembukuan, M baris dilewati.” Bila tidak ada baris valid tertulis “Tidak ada baris valid. Perbaiki tabelnya lalu impor ulang.” dan tombol nonaktif.",
+          "warning": "Piutang Terbuka dan Utang Terbuka (Data Awal) hanya catatan informasi: tidak menjadi invoice atau tagihan dan tidak menambah jurnal. Pakai hanya bila piutang atau utang itu sudah termasuk saldo awal, supaya tidak tercatat dua kali. Lihat [Cara Mengisi Saldo Awal](saldo-awal)."
+        },
+        {
+          "title": "Batalkan impor bila salah (bila perlu)",
+          "text": "Di batch berstatus Sudah Diterapkan, isi **Alasan pembatalan** lalu tekan **Batalkan Impor Ini**. Hasilnya “N baris dibatalkan, M baris tetap karena sudah dipakai transaksi lain.” Batch yang sudah dibatalkan ditulis “Batch ini sudah dibatalkan; tidak ada tindakan lagi.”"
+        }
+      ],
+      "result": [
+        "Kontak yang diimpor muncul di Penjualan > Pelanggan atau Pembelian > Vendor sesuai kolom Jenis.",
+        "Setiap batch dan barisnya tersimpan di Riwayat Impor sebagai jejak."
+      ],
+      "rules": [
+        "Hanya tiga jenis impor yang tersedia: Kontak, Piutang Terbuka (Data Awal), dan Utang Terbuka (Data Awal). Belum ada impor produk, transaksi, atau saldo rekening.",
+        "Satu kali impor maksimal 5000 baris. Berkas CSV maksimal 900 KB; bagi menjadi beberapa berkas bila lebih besar.",
+        "Untuk Piutang dan Utang Terbuka, Nama Kontak harus sama dengan kontak yang sudah ada, jadi impor Kontak dulu.",
+        "Tanggal boleh 15/08/2026 atau 2026-08-15. Mata uang rupiah ditulis IDR. Jumlah boleh ditulis seperti Rp 1.500.000,50. Jatuh Tempo tidak boleh sebelum Tanggal.",
+        "Pada kontak, nama yang sama persis dilewati sebagai Duplikat, sedangkan nama mirip diminta dipastikan dulu (Tidak Valid).",
+        "NPWP/NIK yang diimpor tidak ditampilkan di halaman hasil.",
+        "Tombol Periksa Ulang hanya muncul untuk batch berstatus Persiapan. Karena Periksa Data langsung memeriksa, biasanya Anda langsung melihat tombol Terapkan.",
+        "Belum ada layar yang menampilkan daftar Piutang atau Utang Terbuka yang sudah diimpor. Hasilnya hanya terlihat sebagai jumlah baris di batch."
+      ],
+      "mistakes": [
+        "Menerapkan Piutang Terbuka padahal piutang itu sudah ada di saldo awal sehingga tercatat dua kali.",
+        "Mengimpor Piutang Terbuka sebelum kontaknya ada.",
+        "Mengira tombol Terapkan ke Pembukuan juga membuat invoice atau tagihan dari baris Piutang atau Utang Terbuka.",
+        "Mengubah isi tabel di batch lama. Perbaikan dilakukan dengan impor baru."
+      ],
+      "errors": [
+        {
+          "message": "Isi tabel dengan satu baris judul kolom dan minimal satu baris data.",
+          "meaning": "Tabel kosong atau hanya berisi judul."
+        },
+        {
+          "message": "Kolom wajib belum ada: <kolom>.",
+          "meaning": "Tabel belum memuat kolom wajib. Tambahkan kolom itu."
+        },
+        {
+          "message": "Satu kali impor maksimal 5000 baris.",
+          "meaning": "Bagi tabel menjadi beberapa impor."
+        },
+        {
+          "message": "Berkas terlalu besar. Bagi menjadi beberapa berkas di bawah 900 KB.",
+          "meaning": "Berkas CSV melewati batas unggah."
+        },
+        {
+          "message": "Data tidak dapat disiapkan untuk impor. Periksa isi tabel.",
+          "meaning": "Pesan umum saat menyiapkan batch gagal."
+        },
+        {
+          "message": "Batch tidak dapat diterapkan.",
+          "meaning": "Pesan umum saat Terapkan gagal, misalnya status batch tidak lagi Sudah Divalidasi atau Anda tidak punya izin."
+        },
+        {
+          "message": "Tulis alasan pembatalan.",
+          "meaning": "Alasan pembatalan minimal 3 karakter."
+        }
+      ],
+      "related": ["tambah-pelanggan", "tambah-vendor", "saldo-awal", "urutan-langkah-awal"]
+    },
+    {
+      "slug": "dokumen-lampiran",
+      "title": "Cara Melampirkan Bukti dan Mencari Dokumen",
+      "summary": "Mengunggah bukti (PDF atau foto) pada invoice, tagihan, atau beban, lalu mencarinya kembali di Pusat Dokumen, Bukti Terkait, dan Arsip.",
+      "path": "Dokumen > Pusat Dokumen, Unggahan, Bukti Terkait, Arsip. Unggah dari bagian Lampiran di Penjualan > Invoice, Pembelian > Tagihan, atau Pembelian > Beban",
+      "who": "Melihat Pusat Dokumen, Unggahan, Bukti Terkait, dan Arsip: izin lihat dokumen (documents.view). Melampirkan dan melepas lampiran: izin unggah dokumen (documents.upload) ditambah izin mengubah catatannya (invoice: izin buat atau ubah invoice; tagihan dan beban: izin buat atau ubah tagihan). Peran bawaan: OWNER, Finance Admin, dan Finance Staff. Accountant, Tax, Payroll, dan Viewer / Auditor hanya melihat.",
+      "quick": "Unggah dilakukan di bagian **Lampiran** pada detail invoice, tagihan, atau beban. Menu **Dokumen** dipakai untuk mencari dan memeriksa, bukan untuk mengunggah.",
+      "steps": [
+        {
+          "title": "Buka detail catatan yang akan dilampiri",
+          "text": "Buka **Penjualan > Invoice**, **Pembelian > Tagihan**, atau **Pembelian > Beban**, lalu klik catatannya. Gulir ke bagian **Lampiran**. Tabelnya memuat **Berkas**, **Jenis**, **Ukuran**, dan **Tindakan**; bila belum ada tertulis “Belum ada lampiran.”"
+        },
+        {
+          "title": "Pilih berkas dan jenisnya",
+          "text": "Pada **Berkas (PDF, JPG, PNG atau WebP, maksimal 4 MB)** pilih berkas. Pilih **Jenis lampiran**: Invoice vendor, Kuitansi, Kontrak, atau Lainnya. Pilihan awalnya Invoice vendor di Tagihan, Kuitansi di Beban, dan Lainnya di Invoice. Tekan **Lampirkan**. Bila berhasil tampil “Lampiran tersimpan.”",
+          "tip": "Berkas dengan isi yang sama di Entity yang sama dianggap satu dokumen dan hanya disimpan sekali."
+        },
+        {
+          "title": "Unduh atau buka lampiran",
+          "text": "Klik nama berkas di kolom **Berkas**. Berkas terbuka di tab baru lewat tautan sementara yang berlaku sekitar 1 menit, dan izin Anda dicek tiap kali."
+        },
+        {
+          "title": "Lepas lampiran yang salah",
+          "text": "Di kolom **Tindakan**, tekan **Lepas**, isi **Alasan** (minimal 3 karakter), lalu tekan **Lepas Lampiran**. Bila berhasil tampil “Lampiran dilepas.” Berkas yang dilepas pindah ke Arsip.",
+          "warning": "Lampiran hanya bisa dilepas selagi catatannya belum final: invoice yang masih draft, atau tagihan dan beban yang masih draft atau diajukan. Setelah itu lampiran menjadi bagian dari catatan."
+        },
+        {
+          "title": "Cari di Pusat Dokumen",
+          "text": "Buka **Dokumen > Pusat Dokumen**. Ringkasan menulis “N dokumen ditampilkan.” Pakai tab jenis (Semua, Tagihan, Pengeluaran, Invoice, Aset Tetap, Pinjaman, Piutang/Utang Lain-lain, Transaksi Ekuitas, Kontak, Jurnal, Pelaporan Pajak, Pembayaran Pajak, Batch Impor) atau ketik di **Cari nama berkas…** lalu tekan **Cari**. Kolomnya **Nama Berkas**, **Terkait Dengan**, **Tautan**, **Ukuran**, dan **Diunggah**.",
+          "image": {
+            "file": "dokumen-pusat.jpg",
+            "caption": "Pusat Dokumen."
+          }
+        },
+        {
+          "title": "Bedakan Unggahan, Bukti Terkait, dan Arsip",
+          "text": "**Dokumen > Unggahan** (judul halaman “Unggahan Belum Ditautkan”) menampilkan dokumen yang belum tertaut ke catatan mana pun. **Dokumen > Bukti Terkait** (judul “Bukti Tertaut”) menampilkan dokumen yang tertaut ke minimal satu catatan, dengan tab jenis yang sama. **Dokumen > Arsip** (judul “Arsip Dokumen”) menampilkan dokumen yang diganti versi baru atau dilepas, dengan kolom **Berkas**, **Alasan Diarsipkan** (Diganti versi baru atau Dilepas), **Dulu Terkait**, **Diarsipkan**, dan **Ukuran**. Arsip bukan bukti aktif."
+        },
+        {
+          "title": "Bukti untuk pajak",
+          "text": "Bukti bayar dan bukti lapor pajak dilampirkan dari Pajak > Pelaporan & Bukti dengan memilih dokumen yang sudah ada. Lihat [Cara Mencatat Pembayaran Pajak dan Pelaporan](bayar-pajak)."
+        }
+      ],
+      "result": [
+        "Bukti tampil di bagian Lampiran catatan dan di Dokumen > Pusat Dokumen dan Bukti Terkait.",
+        "Dokumen yang dilepas atau diganti versi baru tidak hilang; ia tersimpan di Arsip."
+      ],
+      "rules": [
+        "Jenis berkas yang diterima PDF, JPG, PNG, atau WebP, dan jenisnya diperiksa dari isi berkas, bukan dari namanya.",
+        "Ukuran maksimal 4 MB per berkas, karena layanan hosting membatasi ukuran kiriman.",
+        "Penyimpanan berkas bergantung pada pengaturan situs. Bila belum aktif, bagian Lampiran menulis “Penyimpanan berkas belum diaktifkan untuk situs ini.”",
+        "Tombol unggah hanya ada di detail Invoice, Tagihan, dan Beban. Menu Dokumen sendiri tidak punya tombol unggah, dan nama berkas di Pusat Dokumen, Unggahan, Bukti Terkait, dan Arsip bukan tautan unduhan.",
+        "Invoice berstatus void, serta tagihan atau beban yang sudah dibatalkan, tidak bisa ditambah lampiran.",
+        "Bukti pajak yang sudah dilampirkan tidak bisa dihapus.",
+        "Belum ada tombol ekspor dokumen massal."
+      ],
+      "mistakes": [
+        "Mencari tombol Unggah di menu Dokumen. Unggah dilakukan dari detail catatan.",
+        "Melampirkan setelah catatan final lalu mencoba melepasnya. Setelah itu ia tidak bisa dilepas.",
+        "Mengunggah berkas lebih dari 4 MB atau bertipe selain PDF dan gambar.",
+        "Mengharapkan dokumen yang sudah dilepas masih tampil sebagai bukti aktif. Ia pindah ke Arsip."
+      ],
+      "errors": [
+        {
+          "message": "Pilih berkas yang akan dilampirkan.",
+          "meaning": "Belum ada berkas dipilih, atau berkasnya kosong."
+        },
+        {
+          "message": "Berkas terlalu besar. Ukuran maksimal 4 MB.",
+          "meaning": "Kecilkan atau kompres berkas."
+        },
+        {
+          "message": "Jenis berkas harus PDF, JPG, PNG atau WebP.",
+          "meaning": "Isi berkas bukan salah satu dari jenis yang diterima."
+        },
+        {
+          "message": "Penyimpanan berkas belum diaktifkan untuk situs ini.",
+          "meaning": "Fitur simpan berkas belum dinyalakan oleh pengelola teknis."
+        },
+        {
+          "message": "Berkas tidak dapat disimpan. Coba lagi.",
+          "meaning": "Penyimpanan gagal sementara. Ulangi."
+        },
+        {
+          "message": "Tulis alasan melepas lampiran.",
+          "meaning": "Alasan minimal 3 karakter."
+        },
+        {
+          "message": "Berkas tidak ditemukan atau Anda tidak berhak membukanya.",
+          "meaning": "Tautan unduhan tidak valid atau akun Anda tidak boleh melihat catatan yang terkait."
+        }
+      ],
+      "related": ["catat-tagihan-vendor", "buat-biaya", "buat-terbitkan-invoice", "bayar-pajak"]
+    },
+    {
+      "slug": "kalender-pajak",
+      "title": "Cara Memantau Kalender Pajak",
+      "summary": "Membaca langkah Hitung, Bayar, Lapor, dan Bukti per masa pajak beserta tenggat dan statusnya, supaya tidak terlambat.",
+      "path": "Pajak > Kalender Pajak",
+      "who": "Melihat: izin lihat pajak (tax.view), yaitu OWNER, Finance Admin, Accountant, Tax, dan Viewer / Auditor. Halaman ini hanya membaca; mengerjakan langkahnya perlu izin tandai lapor (tax.mark_filed), yaitu Tax dan OWNER.",
+      "quick": "Kalender menunjukkan **apa yang harus dikerjakan, sampai kapan, dan statusnya**. Pengerjaannya dilakukan di halaman PPh Final dan Pelaporan & Bukti.",
+      "steps": [
+        {
+          "title": "Buka Pajak > Kalender Pajak",
+          "text": "Halaman berjudul **Kalender Pajak** dengan ringkasan “N langkah pada rentang ini.” Rentang awalnya satu bulan sebelum bulan ini sampai dua bulan ke depan.",
+          "image": {
+            "file": "pajak-kalender.jpg",
+            "caption": "Kalender Pajak."
+          }
+        },
+        {
+          "title": "Atur rentang",
+          "text": "Ubah **Dari** dan **Sampai**, lalu tekan **Terapkan**. Rentang yang dipilih tidak boleh lebih dari 36 bulan. Bila Dari lebih akhir daripada Sampai, halaman memakai rentang awal."
+        },
+        {
+          "title": "Baca tabel",
+          "text": "Kolomnya **Masa Pajak**, **Jenis Pajak**, **Langkah**, **Jatuh Tempo**, **Status**, **Keterangan**, dan **Kekurangan**. Tiap masa pajak bisa punya beberapa baris, satu per langkah."
+        },
+        {
+          "title": "Kerjakan langkahnya",
+          "text": "Langkah **Hitung** untuk PPh Final UMKM dikerjakan di Pajak > PPh Final. Langkah **Bayar**, **Lapor**, dan **Bukti** dikerjakan di Pajak > Pelaporan & Bukti. Panduannya ada di [Cara Mencatat Pembayaran Pajak dan Pelaporan](bayar-pajak)."
+        },
+        {
+          "title": "Pantau juga dari Ringkasan Pajak",
+          "text": "Bagian **Tenggat Terdekat** di **Pajak > Ringkasan Pajak** menampilkan langkah yang Perlu dikerjakan atau Terlambat, sehingga Anda tidak harus membuka kalender tiap hari. Lihat [Memahami Ringkasan Pajak, PPN, dan Pemotongan PPh](posisi-ppn-pph)."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Langkah pada kalender",
+          "columns": ["Langkah", "Artinya", "Dikerjakan di"],
+          "rows": [
+            [
+              "Hitung",
+              "Khusus PPh Final UMKM: pajak bulan itu dihitung setelah bulan berakhir.",
+              "Pajak > PPh Final"
+            ],
+            [
+              "Bayar",
+              "Pajak yang diakui dibayar sampai tenggat. Kolom Kekurangan menunjukkan sisa yang belum dibayar.",
+              "Pajak > Pelaporan & Bukti"
+            ],
+            [
+              "Lapor",
+              "Pelaporan (SPT) masa itu dicatat. Setelah selesai, Keterangan menulis tanggal dan nomor tanda terimanya.",
+              "Pajak > Pelaporan & Bukti"
+            ],
+            [
+              "Bukti",
+              "Muncul bila pelaporan sudah dicatat tetapi bukti tanda terima belum dilampirkan.",
+              "Pajak > Pelaporan & Bukti"
+            ]
+          ]
+        },
+        {
+          "title": "Arti status",
+          "columns": ["Status", "Artinya"],
+          "rows": [
+            ["Selesai", "Langkah sudah dikerjakan."],
+            [
+              "Perlu dikerjakan",
+              "Tenggat tinggal 10 hari atau kurang (untuk Hitung: bulannya sudah berakhir)."
+            ],
+            ["Terlambat", "Tenggat sudah lewat."],
+            ["Akan datang", "Belum waktunya."],
+            ["Tidak berlaku", "Tidak ada pajak yang diakui pada masa itu."],
+            ["Belum ada aturan", "Aturan tenggat untuk masa itu belum tersedia di Aturan Pajak."]
+          ]
+        }
+      ],
+      "result": ["Anda tahu langkah pajak mana yang harus segera dikerjakan atau sudah terlambat."],
+      "rules": [
+        "Kalender hanya memuat tiga jenis pajak: PPN, PPh 23 (dipotong), dan PPh Final UMKM. PPh 4(2), PPh 26, dan PPh 21 tidak masuk kalender.",
+        "Baris hanya muncul untuk masa yang relevan: ada pajak yang diakui atau dibayar, sudah ada pelaporan, atau Entity berstatus PKP atau PPh Final UMKM sejak mesin pajak aktif.",
+        "Tanggal jatuh tempo berasal dari aturan tenggat di menu Aturan Pajak.",
+        "Kolom Keterangan memakai kalimat dari sistem yang masih berbahasa Inggris (misalnya “Paid” atau “The return of the period is not recorded as filed”).",
+        "Mesin pajak harus aktif; kalender kosong bila belum."
+      ],
+      "mistakes": [
+        "Menunggu kalender menandai Selesai padahal pembayaran atau pelaporan belum dicatat di Pelaporan & Bukti.",
+        "Mengira PPh 21 karyawan muncul di kalender.",
+        "Memilih rentang lebih dari 36 bulan sehingga halaman gagal dimuat."
+      ],
+      "errors": [
+        {
+          "message": "Tidak ada langkah pajak pada rentang ini.",
+          "meaning": "Belum ada pajak diakui atau mesin pajak belum aktif untuk rentang yang dipilih."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Akun Anda tidak punya izin lihat pajak, sehingga menu Pajak tidak tampil."
+        }
+      ],
+      "related": ["bayar-pajak", "pengaturan-pajak-awal", "posisi-ppn-pph", "aturan-pajak"]
+    },
+    {
+      "slug": "posisi-ppn-pph",
+      "title": "Memahami Ringkasan Pajak, PPN, dan Pemotongan PPh",
+      "summary": "Membaca posisi pajak per masa: berapa yang diakui, sudah dibayar, dan masih kurang, untuk PPN dan PPh yang dipotong.",
+      "path": "Pajak > Ringkasan Pajak, Pajak > PPN, Pajak > Pemotongan PPh",
+      "who": "Melihat: izin lihat pajak (tax.view), yaitu OWNER, Finance Admin, Accountant, Tax, dan Viewer / Auditor. Halaman-halaman ini hanya membaca.",
+      "quick": "Angka yang harus dibayar adalah **Sisa Kekurangan**, bukan Terutang (Diakui). Pajak dihitung otomatis dari invoice, tagihan, dan beban; halaman ini hanya menampilkannya per masa.",
+      "steps": [
+        {
+          "title": "Mulai dari Pajak > Ringkasan Pajak",
+          "text": "Di bawah judul tertulis “Mesin pajak aktif sejak …” atau “Mesin pajak belum diaktifkan untuk Entity ini.” Bagian **Kewajiban Terutang** menampilkan pajak yang masih harus dibayar per jenis. Bila ada dokumen yang belum bisa dihitung pajaknya tertulis “N transaksi perlu ditinjau untuk penentuan pajak.” Bagian **Profil Pajak Entity** menampilkan **Berlaku Sejak**, **Jenis Wajib Pajak**, **Domisili**, **Rezim Pajak Penghasilan**, **Status PPN**, dan **Pemotong Pajak**. Bagian **Tenggat Terdekat** menampilkan langkah yang Perlu dikerjakan atau Terlambat.",
+          "image": {
+            "file": "pajak-ringkasan.jpg",
+            "caption": "Ringkasan Pajak."
+          }
+        },
+        {
+          "title": "Buka posisi PPN",
+          "text": "Buka **Pajak > PPN**. Pilih **Masa Pajak** (bulan; awalnya bulan lalu), lalu tekan **Terapkan**. Bagian **Posisi Tercatat** menampilkan **Terutang (Diakui)**, **Sudah Dibayar**, **Sisa Kekurangan**, **PPN Masukan Diakui**, **PPN Masukan Terpakai**, **PPN Masukan Tersedia**, **Pelaporan**, **Bukti Terlampir**, dan **Per Tanggal**."
+        },
+        {
+          "title": "Buka posisi Pemotongan PPh",
+          "text": "Buka **Pajak > Pemotongan PPh**. Pilih **Jenis Pajak**: PPh 23 (dipotong), PPh 4(2) sewa tanah/bangunan, atau PPh 26 (luar negeri), dan **Masa Pajak**, lalu **Terapkan**. Judul halaman menjadi “Pemotongan PPh: <jenis>”. Angkanya sama dengan PPN, tanpa baris PPN Masukan.",
+          "tip": "PPh 21 karyawan tidak ada di sini; ia dicatat lewat Payroll. PPh Final UMKM ada di Pajak > PPh Final."
+        },
+        {
+          "title": "Periksa Pelaporan dan selisih",
+          "text": "Baris **Pelaporan** menulis “Belum dilaporkan” atau “Dilaporkan (nomor tanda terima)”. Bila buku dan pelaporan berbeda, daftar selisih tampil dengan judul seperti “Belum ada pelaporan”, “Pajak yang dilaporkan berbeda dari buku”, “Belum dibayar”, atau “Kelebihan bayar”."
+        },
+        {
+          "title": "Telusuri sumbernya",
+          "text": "Tekan “Lihat entri Buku Besar Pajak untuk masa ini →” untuk melihat entri per dokumen. Lihat [Memahami Buku Besar Pajak dan Penentuan Pajak](buku-besar-pajak)."
+        },
+        {
+          "title": "Bayar dan lapor",
+          "text": "Pembayaran, pelaporan, dan bukti dicatat di Pajak > Pelaporan & Bukti. Lihat [Cara Mencatat Pembayaran Pajak dan Pelaporan](bayar-pajak)."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Arti angka pada Posisi Tercatat",
+          "columns": ["Isian", "Artinya"],
+          "rows": [
+            ["Terutang (Diakui)", "Pajak yang sudah diakui sistem dari dokumen masa itu."],
+            ["Sudah Dibayar", "Pembayaran pajak yang sudah dicatat untuk masa itu."],
+            [
+              "Sisa Kekurangan",
+              "Terutang dikurangi Sudah Dibayar. Inilah yang masih harus dibayar."
+            ],
+            ["PPN Masukan Diakui", "PPN dari pembelian yang bisa dikreditkan (khusus PPN)."],
+            [
+              "PPN Masukan Terpakai",
+              "Bagian PPN Masukan yang sudah dikompensasikan saat pembayaran."
+            ],
+            ["PPN Masukan Tersedia", "Sisa PPN Masukan yang masih bisa dikompensasikan."],
+            ["Bukti Terlampir", "Jumlah dokumen bukti yang sudah dilampirkan untuk masa itu."]
+          ]
+        }
+      ],
+      "result": [
+        "Anda tahu pajak masa tertentu: sudah diakui berapa, sudah dibayar berapa, dan masih kurang berapa."
+      ],
+      "rules": [
+        "Semua halaman di sini hanya membaca; tidak ada tombol bayar atau lapor.",
+        "Mesin pajak harus aktif, kalau tidak, tidak ada pajak yang diakui.",
+        "PPN keluaran berasal dari invoice, sedangkan PPN masukan dan PPh yang dipotong berasal dari tagihan dan beban. Semuanya otomatis, tidak diketik di halaman ini.",
+        "Masa Pajak selalu satu bulan kalender. Angka tampil dalam mata uang dasar Entity.",
+        "Kolom Per Tanggal menunjukkan posisi sampai tanggal itu."
+      ],
+      "mistakes": [
+        "Membaca Terutang (Diakui) sebagai angka yang harus dibayar. Yang harus dibayar adalah Sisa Kekurangan.",
+        "Salah memilih Masa Pajak (bulan).",
+        "Mencari PPh 21 di Pemotongan PPh.",
+        "Mengabaikan catatan “transaksi perlu ditinjau”: dokumen itu belum bisa dicatat sampai pajaknya ditentukan."
+      ],
+      "errors": [
+        {
+          "message": "Mesin pajak belum diaktifkan untuk Entity ini.",
+          "meaning": "Aktifkan di Pajak > Pengaturan Pajak. Lihat panduan Pengaturan Pajak Awal."
+        },
+        {
+          "message": "Profil pajak Entity belum diisi.",
+          "meaning": "Isi profil pajak lebih dulu."
+        },
+        {
+          "message": "Tidak ada kewajiban pajak terutang.",
+          "meaning": "Semua pajak yang diakui sudah dibayar, atau belum ada yang diakui."
+        }
+      ],
+      "related": ["pengaturan-pajak-awal", "bayar-pajak", "kalender-pajak", "buku-besar-pajak"]
+    },
+    {
+      "slug": "buku-besar-pajak",
+      "title": "Memahami Buku Besar Pajak dan Penentuan Pajak",
+      "summary": "Menelusuri entri pajak per dokumen, melihat bagaimana pajak sebuah invoice atau tagihan dihitung, dan memahami koreksi manual.",
+      "path": "Pajak > Buku Pajak (halaman berjudul Buku Besar Pajak)",
+      "who": "Melihat: izin lihat pajak (tax.view). Koreksi manual pajak pada dokumen yang belum dicatat: izin koreksi pajak (tax.override), pada bawaan hanya OWNER, dan butuh verifikasi ulang.",
+      "quick": "Buku Besar Pajak menjawab pertanyaan **“pajak ini muncul dari dokumen mana dan dihitung bagaimana?”** Klik deskripsi entri untuk melihat rincian perhitungannya.",
+      "steps": [
+        {
+          "title": "Buka Pajak > Buku Pajak",
+          "text": "Halaman berjudul **Buku Besar Pajak** dengan ringkasan “N entri ditampilkan.” Yang dimuat paling banyak 1000 entri terbaru.",
+          "image": {
+            "file": "pajak-buku.jpg",
+            "caption": "Buku Besar Pajak."
+          }
+        },
+        {
+          "title": "Saring entri",
+          "text": "Pilih **Jenis Pajak** (Semua Jenis Pajak, PPN, PPh 23 (dipotong), PPh 4(2) sewa tanah/bangunan, PPh 26 (luar negeri), PPh 21 (karyawan), PPh Final UMKM), **Sumber** (Semua Sumber, Invoice Penjualan, Tagihan Pembelian, Beban, Masa Pajak (PPh Final UMKM)), **Status** (Semua Status, Ditentukan otomatis, Dikonfirmasi, Diubah pemilik, Digantikan), dan **Masa Pajak** (Semua Masa atau satu bulan). Bisa juga ketik di **Cari deskripsi…**. Tekan **Terapkan**."
+        },
+        {
+          "title": "Baca tabel",
+          "text": "Kolomnya **Tanggal**, **Masa Pajak**, **Jenis** (misalnya PPN keluaran, PPN masukan, PPh 23 dipotong), **Deskripsi**, **Status**, dan **Jumlah**. Bila tidak ada hasil tertulis “Tidak ada entri pajak pada saringan ini.”"
+        },
+        {
+          "title": "Buka rincian penentuan",
+          "text": "Klik **Deskripsi** pada baris yang bersumber dari invoice, tagihan, atau beban. Halaman “Pajak · Penentuan” terbuka. Untuk invoice dan tagihan ada tautan “Lihat dokumen sumber →”; untuk beban tertulis “Dokumen sumber ini belum memiliki layar detail tersendiri.” Tombol “← Kembali ke buku besar pajak” membawa Anda kembali."
+        },
+        {
+          "title": "Baca perhitungannya",
+          "text": "Tiap jenis pajak punya bagian sendiri dengan **Tanggal Peristiwa**, **Masa Pajak**, **Dasar Pengenaan**, **Tarif**, **Jumlah Pajak**, dan bila ada **Hasil Mesin Sebelum Diubah**, **Konsekuensi**, **Ditinjau Petugas Pajak** (Ya atau Belum), dan **Alasan Digantikan**. Di bawahnya ada **Aturan yang Diterapkan** (kode aturan, versi, dan sumber hukum), **Rincian Perhitungan**, dan **Penjelasan Mesin Pajak**. Hasil lama yang sudah diganti disimpan di bagian **Riwayat**."
+        },
+        {
+          "title": "Pahami status Perlu ditinjau",
+          "text": "Dokumen yang pajaknya belum bisa ditentukan (misalnya data pajak vendor belum lengkap) berstatus “Perlu ditinjau”. Dokumen itu belum bisa dicatat sampai alasannya diselesaikan. Alasannya tampil di panel “Perhitungan Pajak (sebelum dicatat)” pada detail invoice atau tagihan."
+        },
+        {
+          "title": "Koreksi Manual Pajak (OWNER)",
+          "text": "Pada dokumen yang belum dicatat, tekan **Koreksi Manual Pajak**. Pilih **Pajak yang Dikoreksi**, isi **Jumlah Pajak yang Benar**, **Alasan (minimal 10 karakter)**, dan **Catatan Bukti (mis. nomor surat / dokumen)**, lalu tekan **Simpan Koreksi**. Bila berhasil tampil “Koreksi pajak tersimpan.” Untuk membatalkan, tekan **Tarik Koreksi <jenis pajak>**, isi alasan (minimal 5 karakter), lalu **Tarik Koreksi**; tampil “Koreksi pajak ditarik.”",
+          "warning": "Koreksi mengganti hasil hitungan otomatis, dan hasil hitungan sebelumnya tidak dipakai. Pakai hanya bila ada dasar tertulis dan simpan buktinya."
+        }
+      ],
+      "result": [
+        "Anda bisa menjelaskan kepada konsultan atau pemeriksa dari mana setiap angka pajak berasal."
+      ],
+      "rules": [
+        "Buku Besar dan halaman Penentuan hanya membaca; entri tidak bisa diedit atau dihapus.",
+        "Penyaringan dilakukan di halaman atas maksimal 1000 entri terbaru.",
+        "Entri bersumber “Masa Pajak (PPh Final UMKM)” tidak punya halaman Penentuan.",
+        "Filter Status tidak punya pilihan “Perlu ditinjau”; dokumen seperti itu terlihat di detail dokumennya dan di jumlah pada Ringkasan Pajak.",
+        "Koreksi manual tidak tersedia untuk PPh Final UMKM dan PPh 21."
+      ],
+      "mistakes": [
+        "Mengira entri bisa diedit langsung di buku besar. Koreksi dilakukan lewat dokumen sumber atau Koreksi Manual Pajak.",
+        "Memakai Koreksi Manual Pajak untuk menutupi data pajak vendor yang belum lengkap. Lengkapi dulu data pajaknya.",
+        "Mengabaikan status Perlu ditinjau lalu heran dokumen tidak bisa dicatat."
+      ],
+      "errors": [
+        {
+          "message": "Belum ada penentuan pajak untuk dokumen ini.",
+          "meaning": "Dokumen masih draf atau mesin pajak belum aktif pada tanggal dokumen."
+        },
+        {
+          "message": "Dokumen ini belum bisa dicatat sampai hal berikut diselesaikan:",
+          "meaning": "Ada alasan yang harus diselesaikan dulu; alasannya tertulis di bawahnya."
+        },
+        {
+          "message": "Koreksi tidak dapat disimpan. Alasan minimal 10 karakter, catatan bukti minimal 5.",
+          "meaning": "Lengkapi alasan dan catatan bukti."
+        },
+        {
+          "message": "Koreksi tidak dapat ditarik. Alasan minimal 5 karakter.",
+          "meaning": "Isi alasan penarikan, atau koreksi sudah dipakai dokumen yang diposting."
+        },
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Tekan Verifikasi ulang, isi kode, lalu ulangi."
+        }
+      ],
+      "related": ["posisi-ppn-pph", "tambah-vendor", "catat-tagihan-vendor", "aturan-pajak"]
+    },
+    {
+      "slug": "aturan-pajak",
+      "title": "Cara Melihat dan Mengelola Aturan Pajak",
+      "summary": "Membaca tarif dan tenggat pajak yang dipakai sistem beserta sumber hukumnya, dan (khusus OWNER) membuat versi aturan baru.",
+      "path": "Pajak > Aturan Pajak",
+      "who": "Melihat: izin lihat pajak (tax.view). Membuat aturan baru, versi baru, ubah draf, menerbitkan, dan membatalkan draf: izin kelola aturan pajak (tax.manage_rules), pada bawaan hanya OWNER. Menerbitkan juga butuh verifikasi ulang.",
+      "quick": "Tarif dan tenggat pajak tersimpan sebagai **aturan berversi**. Aturan yang sudah terbit tidak diubah; perubahan dilakukan dengan versi baru yang berlaku sejak tanggal tertentu.",
+      "steps": [
+        {
+          "title": "Buka Pajak > Aturan Pajak",
+          "text": "Halaman berjudul **Aturan Pajak / Konfigurasi** dengan ringkasan “N versi aturan ditampilkan.” Aturan ini berlaku sama untuk semua Entity (PT dan Pribadi).",
+          "image": {
+            "file": "pajak-aturan.jpg",
+            "caption": "Aturan Pajak / Konfigurasi."
+          }
+        },
+        {
+          "title": "Saring dan cari",
+          "text": "Pilih **Kelompok** (PPN, PPh 23, PPh Final UMKM, PPh Pasal 4(2), PPh 26, PPh 21, PPh Badan, PPh Orang Pribadi, Tenggat, Penyusutan Fiskal, BPJS, atau Lainnya) dan **Status** (Draf, Diterbitkan, atau Dibatalkan). Ketik di **Cari kode atau sumber…** lalu tekan **Terapkan**."
+        },
+        {
+          "title": "Baca daftar aturan",
+          "text": "Kolomnya **Kode**, **Kelompok**, **Versi**, **Berlaku Sejak**, **Status**, dan **Sumber**. Kode yang diakhiri “(pencabutan)” berarti versi itu mengakhiri aturan. Klik kode untuk membuka detail."
+        },
+        {
+          "title": "Baca detail aturan",
+          "text": "Detail memuat **Ringkasan** (**Berlaku Sejak**, **Verifikasi** Terverifikasi atau Perlu Ditinjau, **Diverifikasi Pada**, **Diterbitkan Pada**), **Sumber Hukum** (**Judul Sumber**, **Referensi**, tautan “Buka sumber →”, dan **Catatan**), **Parameter** (nilai tarif dan sejenisnya), dan **Versi Lain dari Kode Ini** untuk melihat perubahan dari waktu ke waktu."
+        },
+        {
+          "title": "Buat versi baru (OWNER)",
+          "text": "Di detail aturan yang sudah terbit, tekan **Buat versi baru**. Formulir terisi salinan aturan lama. Ubah hanya yang berubah: **Berlaku sejak**, **Parameter (JSON)**, **Judul sumber hukum**, **Nomor/pasal referensi**, **Tautan sumber (https)**, **Diverifikasi pada**, **Status verifikasi** (Perlu ditinjau atau Terverifikasi dengan sumber resmi), dan **Catatan**. Tekan **Simpan draf**. Aturan yang benar-benar baru dibuat lewat tombol **Aturan baru** di daftar, dengan **Kelompok** dan **Kode aturan**."
+        },
+        {
+          "title": "Terbitkan atau buang draf (OWNER)",
+          "text": "Di detail draf tersedia **Ubah draf**, **Terbitkan aturan**, dan **Batalkan draf** (isi alasan minimal 5 karakter). Menerbitkan membuat versi itu berlaku untuk dokumen bertanggal sejak tanggal berlakunya dan tidak bisa diubah lagi. Syaratnya verifikasi ulang dan status “Terverifikasi”.",
+          "warning": "Tarif yang salah memengaruhi perhitungan pajak semua dokumen baru. Ubah hanya dengan dasar hukum tertulis dan sebaiknya konsultasikan dengan konsultan pajak."
+        }
+      ],
+      "result": [
+        "Versi yang terbit dipakai mesin pajak untuk dokumen bertanggal sejak tanggal berlakunya. Dokumen lama tidak dihitung ulang."
+      ],
+      "rules": [
+        "Aturan yang sudah terbit tidak pernah diubah; hanya ada versi baru.",
+        "Hanya aturan berstatus Diterbitkan yang dipakai mesin pajak; Draf dan Dibatalkan tidak.",
+        "Satu kode hanya boleh punya satu versi terbit untuk tanggal berlaku yang sama.",
+        "Parameter ditulis dalam JSON dan diperiksa sistem sesuai kelompok aturan saat draf disimpan.",
+        "Penjelasan kesalahan dari sistem pada formulir ini bisa muncul dalam bahasa Inggris di bawah tulisan “Detail dari sistem:”."
+      ],
+      "mistakes": [
+        "Mengira menyimpan draf sudah mengubah tarif. Draf belum dipakai sebelum diterbitkan.",
+        "Menerbitkan versi dengan tanggal berlaku yang salah.",
+        "Menerbitkan tanpa mengubah status verifikasi menjadi Terverifikasi."
+      ],
+      "errors": [
+        {
+          "message": "Parameter bukan JSON yang valid.",
+          "meaning": "Penulisan JSON salah (tanda kurung, koma, atau tanda kutip)."
+        },
+        {
+          "message": "Parameter harus berupa objek JSON ({ ... }).",
+          "meaning": "Parameter harus diawali kurung kurawal."
+        },
+        {
+          "message": "Draf aturan tidak dapat disimpan. Periksa isian lalu coba lagi.",
+          "meaning": "Pesan umum. Lihat Detail dari sistem di bawahnya."
+        },
+        {
+          "message": "Aturan tidak dapat diterbitkan.",
+          "meaning": "Status verifikasi belum Terverifikasi, parameter tidak sesuai kelompok, atau belum verifikasi ulang."
+        },
+        {
+          "message": "Draf tidak dapat dibatalkan. Alasan minimal 5 karakter.",
+          "meaning": "Isi alasan pembatalan."
+        },
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Tekan Verifikasi sekarang, isi kode, lalu ulangi."
+        }
+      ],
+      "related": ["kalender-pajak", "buku-besar-pajak", "pengaturan-pajak-awal"]
+    }
+  ]
+}

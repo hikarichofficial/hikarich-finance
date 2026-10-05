@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { ChevronDown, PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { activeNavItem, type NavGroup } from "@/domain/shell/navigation";
@@ -35,7 +35,8 @@ export function Sidebar({
   onNavigate?: () => void;
 }) {
   const pathname = usePathname();
-  const active = activeNavItem(groups, pathname);
+  const kind = useSearchParams().get("kind");
+  const active = activeNavItem(groups, pathname, kind);
   const activeKey = active?.groupKey ?? null;
   // What the person opened or closed by hand; a menu without an entry is open only while it is active.
   const [manual, setManual] = useState<Readonly<Record<string, boolean>>>({});
