@@ -29,8 +29,17 @@ describe("dedupeSuggestions", () => {
 
 describe("matchSuggestions", () => {
   const all = [s("Penjualan E-book"), s("E-book Panduan"), s("Jasa Desain"), s("Ebook Lama")];
-  it("needs two characters", () => {
-    expect(matchSuggestions("e", all)).toEqual([]);
+  it("offers the first names on file when nothing is typed yet", () => {
+    expect(matchSuggestions("", all, 2).map((r) => r.description)).toEqual([
+      "Penjualan E-book",
+      "E-book Panduan",
+    ]);
+  });
+  it("matches only the start of a name for one character, start or inside from two", () => {
+    expect(matchSuggestions("e", all).map((r) => r.description)).toEqual([
+      "E-book Panduan",
+      "Ebook Lama",
+    ]);
   });
   it("lists names that start with the text before names that only contain it", () => {
     expect(matchSuggestions("e-b", all).map((r) => r.description)).toEqual([

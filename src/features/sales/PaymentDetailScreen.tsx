@@ -23,6 +23,7 @@ export function PaymentDetailScreen({
   permissions,
   backHref,
   refundPanel,
+  emailPanel,
 }: {
   row: PaymentListRow;
   receipt: ReceiptDocument;
@@ -30,6 +31,8 @@ export function PaymentDetailScreen({
   backHref: string;
   /** The refund form, when the person may refund and something is still refundable (decision 263). */
   refundPanel?: ReactNode;
+  /** Send Bukti Pembayaran form and its delivery history (OWNER, 5 October 2026). */
+  emailPanel?: ReactNode;
 }) {
   const status = paymentRowStatus(row);
   const refund = refundStatusDisplay(row.refund_status);
@@ -109,6 +112,7 @@ export function PaymentDetailScreen({
         </div>
         <ReceiptDocumentView receipt={receipt} />
       </section>
+      {emailPanel}
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">

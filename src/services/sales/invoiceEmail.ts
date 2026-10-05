@@ -4,6 +4,7 @@ import { getServerEnv } from "@/lib/env";
 import { formatMoney } from "@/domain/money/format";
 import { getContact } from "@/services/contacts/contacts";
 import { emailDeliveryEnabled, sendEmail } from "@/services/email/resend";
+import { recordEmailDelivery } from "@/services/email/deliveries";
 import type { InvoiceDocument } from "@/schemas/sales";
 import {
   getInvoiceDocument,
@@ -47,6 +48,7 @@ function shortDate(isoDate: string): string {
 function invoiceEmailHtml(doc: InvoiceDocument, link: string, issuerName: string): string {
   const customerName = partyText(doc.customer, "display_name") ?? "Pelanggan";
   const total = formatMoney(doc.total, doc.currency);
+  const paid = doc.settlement_status === "paid";
   return `<!doctype html>
 <html lang="id">
   <body style="font-family: Arial, Helvetica, sans-serif; color: #1a1a1a; background: #f4f4f5; margin: 0; padding: 24px;">
@@ -60,14 +62,17 @@ function invoiceEmailHtml(doc: InvoiceDocument, link: string, issuerName: string
         <td style="padding: 28px;">
           <p style="margin: 0 0 16px;">Halo ${esc(customerName)},</p>
           <p style="margin: 0 0 16px;">
-            Invoice <b>${esc(doc.invoice_number ?? "-")}</b> sejumlah <b>${esc(total)}</b> telah terbit,
-            dengan jatuh tempo pembayaran pada <b>${esc(shortDate(doc.due_date))}</b>.
+            ${
+              paid
+                ? `Invoice <b>${esc(doc.invoice_number ?? "-")}</b> sejumlah <b>${esc(total)}</b> sudah <b>lunas</b>. Terima kasih atas pembayaran Anda.`
+                : `Invoice <b>${esc(doc.invoice_number ?? "-")}</b> sejumlah <b>${esc(total)}</b> telah terbit, dengan jatuh tempo pembayaran pada <b>${esc(shortDate(doc.due_date))}</b>.`
+            }
           </p>
           <p style="margin: 0 0 24px;">
             <a href="${esc(link)}"
                style="display: inline-block; background: #0f172a; color: #ffffff; text-decoration: none;
                       padding: 12px 24px; border-radius: 6px; font-weight: bold;">
-              Lihat &amp; Bayar Invoice
+              ${paid ? "Lihat Invoice &amp; Kwitansi" : "Lihat &amp; Bayar Invoice"}
             </a>
           </p>
           <p style="margin: 0; font-size: 13px; color: #6b7280;">
@@ -122,6 +127,14 @@ export async function sendInvoiceEmail(
     to,
     subject: `Invoice ${doc.invoice_number ?? ""} dari ${issuerName}`.trim(),
     html: invoiceEmailHtml(doc, link, issuerName),
+  });
+  await recordEmailDelivery({
+    entity_id: owner.entity_id,
+    kind: "invoice",
+    target_id: invoiceId,
+    recipient: to,
+    status: result.sent ? "sent" : "failed",
+    detail: result.detail,
   });
   if (!result.sent) return { outcome: "failed", detail: result.detail };
   return { outcome: "sent", to };

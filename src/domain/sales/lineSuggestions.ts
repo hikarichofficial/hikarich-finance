@@ -29,21 +29,22 @@ export function dedupeSuggestions(rows: readonly LineSuggestion[]): LineSuggesti
   return result;
 }
 
-/** What to offer for what has been typed so far: names that start with it first, then names that contain it,
- * each group keeping the recency order of the list. Needs at least two characters. */
+/** What to offer for what has been typed so far. Nothing typed yet: the first few names on file, so the person
+ * can simply click what already exists. One character: names that start with it. Two or more: names that start
+ * with it first, then names that contain it, each group keeping the recency order of the list. */
 export function matchSuggestions(
   typed: string,
   all: readonly LineSuggestion[],
   limit = 6,
 ): LineSuggestion[] {
   const query = normalizeDescription(typed);
-  if (query.length < 2) return [];
+  if (query === "") return all.slice(0, limit);
   const starts: LineSuggestion[] = [];
   const contains: LineSuggestion[] = [];
   for (const item of all) {
     const name = normalizeDescription(item.description);
     if (name.startsWith(query)) starts.push(item);
-    else if (name.includes(query)) contains.push(item);
+    else if (query.length >= 2 && name.includes(query)) contains.push(item);
   }
   return [...starts, ...contains].slice(0, limit);
 }

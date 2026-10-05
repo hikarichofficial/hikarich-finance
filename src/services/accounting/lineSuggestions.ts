@@ -60,13 +60,11 @@ export async function listLineSuggestions(
           default_unit_price: string | number | null;
           default_category_id: string | null;
         }[]
-      )
-        .filter((product) => product.default_unit_price !== null)
-        .map((product) => ({
-          description: product.name,
-          unit_price: String(product.default_unit_price),
-          category_id: product.default_category_id,
-        }));
+      ).map((product) => ({
+        description: product.name,
+        unit_price: product.default_unit_price === null ? "" : String(product.default_unit_price),
+        category_id: product.default_category_id,
+      }));
     }
     const deduped = dedupeSuggestions([...history, ...products]);
     // A product's own default category/price only fills a gap: a product that has never been invoiced shows
