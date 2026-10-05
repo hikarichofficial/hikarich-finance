@@ -15,6 +15,7 @@ import {
   type ReconActionState,
 } from "./reconciliationActions";
 import { idleReconActionState } from "./reconciliationActionsState";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 /** Forms of the reconciliation workspace (decision 251). */
 
@@ -76,22 +77,16 @@ export function NewSessionForm({
       </label>
       <label>
         Saldo awal rekening koran
-        <input
+        <MoneyInput
           name="statement_opening"
           defaultValue={defaults.opening}
-          inputMode="decimal"
           placeholder="contoh 1500000.00"
           required
         />
       </label>
       <label>
         Saldo akhir rekening koran
-        <input
-          name="statement_closing"
-          inputMode="decimal"
-          placeholder="contoh 1750000.00"
-          required
-        />
+        <MoneyInput name="statement_closing" placeholder="contoh 1750000.00" required />
       </label>
       <label>
         Catatan

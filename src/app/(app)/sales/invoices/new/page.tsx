@@ -3,6 +3,7 @@ import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
 import { listContacts } from "@/services/contacts/contacts";
 import { listActiveCategories } from "@/services/accounting/categories";
+import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { InvoiceForm } from "@/features/sales/InvoiceForm";
 
@@ -15,10 +16,11 @@ export default async function NewInvoicePage({
 }) {
   const { entity } = await searchParams;
   const { membership } = await requirePermission("invoices.create", { entityCode: entity });
-  const [contacts, categories, accounts] = await Promise.all([
+  const [contacts, categories, accounts, suggestions] = await Promise.all([
     listContacts(membership.entity_id),
     listActiveCategories(membership.entity_id),
     getMoneyControl(membership.entity_id),
+    listLineSuggestions(membership.entity_id, "invoice"),
   ]);
   const customers = listContactsByRole(contacts, "customer").filter((c) => c.status === "active");
   const backHref = entity
@@ -41,6 +43,7 @@ export default async function NewInvoicePage({
           customers={customers}
           accounts={accounts.filter((a) => a.is_active)}
           categories={categories}
+          suggestions={suggestions}
           entity={entity}
           today={new Date().toISOString().slice(0, 10)}
         />

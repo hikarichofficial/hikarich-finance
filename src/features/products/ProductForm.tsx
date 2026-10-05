@@ -6,6 +6,7 @@ import type { CategoryRow } from "@/schemas/categories";
 import type { ProductRow } from "@/schemas/products";
 import { saveProductAction } from "./actions";
 import { idleProductFormState } from "./actionsState";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 /** Product create/edit form (decision 245). The same form serves both: a `product_id` makes it an edit. */
 export function ProductForm({
@@ -50,9 +51,8 @@ export function ProductForm({
       </label>
       <label>
         Harga Satuan Bawaan (opsional)
-        <input
+        <MoneyInput
           name="default_unit_price"
-          inputMode="decimal"
           placeholder="mis. 150000"
           defaultValue={price === null || price === undefined ? "" : String(price)}
         />

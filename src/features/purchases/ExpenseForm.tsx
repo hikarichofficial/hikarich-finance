@@ -3,6 +3,7 @@
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import type { CategoryRow } from "@/schemas/categories";
+import type { LineSuggestion } from "@/domain/sales/lineSuggestions";
 import type { ContactRow } from "@/schemas/contacts";
 import type { MoneyControlRow } from "@/schemas/money";
 import {
@@ -25,6 +26,7 @@ export function ExpenseForm({
   accounts,
   vendors,
   categories,
+  suggestions = [],
   entity,
   today,
   initial,
@@ -32,6 +34,8 @@ export function ExpenseForm({
   accounts: readonly MoneyControlRow[];
   vendors: readonly ContactRow[];
   categories: readonly CategoryRow[];
+  /** Descriptions used before, for the popup above each line's description (OWNER, 5 October 2026). */
+  suggestions?: readonly LineSuggestion[];
   entity: string | undefined;
   today: string;
   /** Present when editing an existing draft: the same form saves through `update_expense_draft`. */
@@ -124,6 +128,7 @@ export function ExpenseForm({
       <RecurringLinesEditor
         kind="expense"
         categories={categories}
+        suggestions={suggestions}
         rows={rows}
         onChange={setRows}
         taxFields

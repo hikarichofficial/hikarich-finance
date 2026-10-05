@@ -28,6 +28,7 @@ import {
   writeOffObligationAction,
   type FinancingActionState,
 } from "./financingActions";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 /**
  * The financing write forms: create a loan / other receivable or payable / equity event, and the commands
@@ -164,13 +165,7 @@ function MoneyField({
   return (
     <label>
       {label}
-      <input
-        name={name}
-        inputMode="decimal"
-        required={required}
-        defaultValue={defaultValue}
-        placeholder="0"
-      />
+      <MoneyInput name={name} required={required} defaultValue={defaultValue} placeholder="0" />
     </label>
   );
 }

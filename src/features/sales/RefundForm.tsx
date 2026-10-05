@@ -6,6 +6,7 @@ import { trimDecimalText } from "@/domain/money/format";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
 import { createDraftRefundAction, createRefundAction } from "./actions";
 import { idleInvoiceActionState } from "./actionsState";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 export interface RefundOptionView {
   key: string;
@@ -62,7 +63,7 @@ export function RefundForm({
           {option.label} (maksimal {trimDecimalText(option.refundable)})
           <input type="hidden" name={`source_${index}`} value={option.source} />
           <input type="hidden" name={`allocation_${index}`} value={option.allocationId ?? ""} />
-          <input name={`amount_${index}`} inputMode="decimal" placeholder="0" />
+          <MoneyInput name={`amount_${index}`} placeholder="0" />
         </label>
       ))}
       <label>

@@ -5,6 +5,7 @@ import { useActionState, useState } from "react";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { loadOpeningAssetAction, type AssetActionState } from "./assetActions";
 import { DepreciationFields, type AssetAccountOption } from "./AssetForms";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 const idleState: AssetActionState = { status: "idle" };
 
@@ -62,14 +63,8 @@ export function OpeningAssetForm({
         </select>
       </label>
       <label>
-        Harga Perolehan (tanpa titik ribuan)
-        <input
-          name="cost"
-          required
-          inputMode="decimal"
-          value={cost}
-          onChange={(event) => setCost(event.target.value)}
-        />
+        Harga Perolehan
+        <MoneyInput name="cost" required value={cost} onValueChange={setCost} />
       </label>
       <label>
         Tanggal Beli
@@ -85,7 +80,7 @@ export function OpeningAssetForm({
       </label>
       <label>
         Penyusutan yang Sudah Dicatat sampai Tanggal Itu (opsional)
-        <input name="accumulated" inputMode="decimal" placeholder="0" />
+        <MoneyInput name="accumulated" placeholder="0" />
       </label>
       <DepreciationFields depreciable={depreciable} name={name} cost={cost} currency={currency} />
       <label>

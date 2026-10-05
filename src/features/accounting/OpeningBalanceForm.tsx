@@ -7,6 +7,7 @@ import { formatMoney } from "@/domain/money/format";
 import type { LedgerAccountRow } from "@/schemas/accounting";
 import { postOpeningBalancesAction } from "./openingBalanceActions";
 import { idleOpeningActionState } from "./openingBalanceActionsState";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 /**
  * Post Opening Balances (Step 15 §24, decision 245): a cutover date plus a debit/credit grid over
@@ -85,19 +86,17 @@ export function OpeningBalanceForm({
                 </select>
               </td>
               <td className="num">
-                <input
+                <MoneyInput
                   aria-label="Debit"
-                  inputMode="decimal"
                   value={row.debit}
-                  onChange={(e) => update(row.key, "debit", e.target.value)}
+                  onValueChange={(debit) => update(row.key, "debit", debit)}
                 />
               </td>
               <td className="num">
-                <input
+                <MoneyInput
                   aria-label="Kredit"
-                  inputMode="decimal"
                   value={row.credit}
-                  onChange={(e) => update(row.key, "credit", e.target.value)}
+                  onValueChange={(credit) => update(row.key, "credit", credit)}
                 />
               </td>
               <td>

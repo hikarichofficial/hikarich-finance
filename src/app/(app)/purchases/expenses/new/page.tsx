@@ -3,6 +3,7 @@ import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
 import { listContacts } from "@/services/contacts/contacts";
 import { listActiveCategories } from "@/services/accounting/categories";
+import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { ExpenseForm } from "@/features/purchases/ExpenseForm";
 
@@ -15,10 +16,11 @@ export default async function NewExpensePage({
 }) {
   const { entity } = await searchParams;
   const { membership } = await requirePermission("bills.create", { entityCode: entity });
-  const [accounts, contacts, categories] = await Promise.all([
+  const [accounts, contacts, categories, suggestions] = await Promise.all([
     getMoneyControl(membership.entity_id),
     listContacts(membership.entity_id),
     listActiveCategories(membership.entity_id),
+    listLineSuggestions(membership.entity_id, "expense"),
   ]);
   const vendors = listContactsByRole(contacts, "vendor").filter((c) => c.status === "active");
   const backHref = entity
@@ -41,6 +43,7 @@ export default async function NewExpensePage({
           accounts={accounts.filter((a) => a.is_active)}
           vendors={vendors}
           categories={categories}
+          suggestions={suggestions}
           entity={entity}
           today={new Date().toISOString().slice(0, 10)}
         />

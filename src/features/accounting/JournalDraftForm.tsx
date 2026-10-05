@@ -4,6 +4,7 @@ import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import { Decimal, sumDecimals } from "@/domain/money/decimal";
 import { createJournalDraftAction, type JournalDraftState } from "./journalDraftActions";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 const IDLE: JournalDraftState = { status: "idle" };
 
@@ -147,20 +148,16 @@ export function JournalDraftForm({
                     </select>
                   </td>
                   <td className="num" data-label="Debit">
-                    <input
-                      type="text"
-                      inputMode="decimal"
+                    <MoneyInput
                       value={row.debit}
-                      onChange={(event) => updateRow(row.key, { debit: event.target.value })}
+                      onValueChange={(debit) => updateRow(row.key, { debit })}
                       placeholder="0"
                     />
                   </td>
                   <td className="num" data-label="Kredit">
-                    <input
-                      type="text"
-                      inputMode="decimal"
+                    <MoneyInput
                       value={row.credit}
-                      onChange={(event) => updateRow(row.key, { credit: event.target.value })}
+                      onValueChange={(credit) => updateRow(row.key, { credit })}
                       placeholder="0"
                     />
                   </td>

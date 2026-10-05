@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { listContacts } from "@/services/contacts/contacts";
 import { listActiveCategories } from "@/services/accounting/categories";
+import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { BillForm } from "@/features/purchases/BillForm";
 
@@ -14,9 +15,10 @@ export default async function NewBillPage({
 }) {
   const { entity } = await searchParams;
   const { membership } = await requirePermission("bills.create", { entityCode: entity });
-  const [contacts, categories] = await Promise.all([
+  const [contacts, categories, suggestions] = await Promise.all([
     listContacts(membership.entity_id),
     listActiveCategories(membership.entity_id),
+    listLineSuggestions(membership.entity_id, "bill"),
   ]);
   const vendors = listContactsByRole(contacts, "vendor").filter((c) => c.status === "active");
   const backHref = entity
@@ -38,6 +40,7 @@ export default async function NewBillPage({
         <BillForm
           vendors={vendors}
           categories={categories}
+          suggestions={suggestions}
           entity={entity}
           today={new Date().toISOString().slice(0, 10)}
         />

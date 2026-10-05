@@ -6,6 +6,7 @@ import type { RevenueTargetLineRow } from "@/schemas/planning";
 import { setRevenueTargetLinesAction } from "./actions";
 import { idlePlanningActionState } from "./actionsState";
 import { formatMonthLabel } from "./format";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 /**
  * Revenue Target "set lines" editor (P13 Part 3h, fifth increment, Step 09 §18). Unlike Budget lines,
@@ -68,13 +69,9 @@ export function RevenueTargetLinesEditor({
               <tr key={month}>
                 <td>{formatMonthLabel(month)}</td>
                 <td className="num">
-                  <input
-                    type="text"
-                    inputMode="decimal"
+                  <MoneyInput
                     value={amounts[month] ?? ""}
-                    onChange={(event) =>
-                      setAmounts((prev) => ({ ...prev, [month]: event.target.value }))
-                    }
+                    onValueChange={(amount) => setAmounts((prev) => ({ ...prev, [month]: amount }))}
                     placeholder="0"
                   />
                 </td>

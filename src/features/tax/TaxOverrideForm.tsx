@@ -8,6 +8,7 @@ import {
   withdrawTaxOverrideAction,
   type TaxOverrideState,
 } from "./taxOverrideActions";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 const IDLE: TaxOverrideState = { status: "idle" };
 
@@ -51,7 +52,7 @@ export function TaxOverrideForm({
       </label>
       <label>
         Jumlah Pajak yang Benar
-        <input name="amount" required inputMode="decimal" placeholder="0" />
+        <MoneyInput name="amount" required placeholder="0" />
       </label>
       <label>
         Alasan (minimal 10 karakter)

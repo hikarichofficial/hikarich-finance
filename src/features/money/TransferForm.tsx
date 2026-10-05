@@ -5,6 +5,7 @@ import { useActionState } from "react";
 import type { MoneyControlRow } from "@/schemas/money";
 import { createTransferAction } from "./transferActions";
 import { idleTransferFormState } from "./transferActionsState";
+import { MoneyInput } from "@/features/shared/MoneyInput";
 
 /**
  * Transfer create form (P13 Part 3c, Step 09 §13: "Transfer form clearly distinguishes same-Entity transfer
@@ -72,12 +73,12 @@ export function TransferForm({
 
       <label>
         Jumlah Dikirim
-        <input type="text" inputMode="decimal" name="amount_out" required placeholder="0" />
+        <MoneyInput name="amount_out" required placeholder="0" />
       </label>
 
       <label>
         Biaya Bank (opsional)
-        <input type="text" inputMode="decimal" name="fee" placeholder="0" />
+        <MoneyInput name="fee" placeholder="0" />
       </label>
 
       <p className="hint">
@@ -85,12 +86,7 @@ export function TransferForm({
       </p>
       <label>
         Jumlah Diterima (opsional)
-        <input
-          type="text"
-          inputMode="decimal"
-          name="amount_in"
-          placeholder="Samakan dengan Jumlah Dikirim"
-        />
+        <MoneyInput name="amount_in" placeholder="Samakan dengan Jumlah Dikirim" />
       </label>
       <label>
         Kurs Sumber (opsional)
