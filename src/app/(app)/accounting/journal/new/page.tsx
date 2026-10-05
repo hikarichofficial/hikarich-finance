@@ -2,7 +2,13 @@ import Link from "next/link";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { listLedgerAccounts } from "@/services/accounting/ledger";
+import { accountClassLabel } from "@/domain/accounting/coaList";
 import { JournalDraftForm } from "@/features/accounting/JournalDraftForm";
+
+/** Order of the account groups in the picker: what a person records most often (income, costs) first, the
+ * system-protected accounts last. */
+const GROUP_ORDER = ["Pendapatan", "Beban", "Aset", "Liabilitas", "Ekuitas", "Lainnya"] as const;
+const PROTECTED_GROUP = "Akun sistem (dilindungi, hindari)";
 
 /** Jurnal Manual (Step 09 §14), gated `accounting.journal_create` -- the permission `create_journal_draft`
  * itself checks. Only active, non-group accounts are offered; accounts closed to manual posting appear only
@@ -18,14 +24,20 @@ export default async function NewJournalPage({
   });
   const canOverride = can(access, membership.entity_id, "accounting.protected_manage");
   const accounts = await listLedgerAccounts(membership.entity_id);
+  const groupOf = (a: (typeof accounts)[number]): string => {
+    if (!a.allows_manual_posting) return PROTECTED_GROUP;
+    const label = accountClassLabel(a.account_class);
+    return (GROUP_ORDER as readonly string[]).includes(label) ? label : "Lainnya";
+  };
+  const rank = (group: string): number =>
+    group === PROTECTED_GROUP
+      ? GROUP_ORDER.length
+      : (GROUP_ORDER as readonly string[]).indexOf(group);
   const options = accounts
     .filter((a) => a.status === "active" && !a.is_group && (a.allows_manual_posting || canOverride))
-    .map((a) => ({
-      id: a.id,
-      label: a.allows_manual_posting
-        ? `${a.code} · ${a.name}`
-        : `${a.code} · ${a.name} (dilindungi)`,
-    }));
+    .map((a) => ({ id: a.id, label: `${a.code} · ${a.name}`, group: groupOf(a), code: a.code }))
+    .sort((x, y) => rank(x.group) - rank(y.group) || x.code.localeCompare(y.code))
+    .map(({ id, label, group }) => ({ id, label, group }));
   const backHref = entity
     ? `/accounting/journal?entity=${encodeURIComponent(entity)}`
     : "/accounting/journal";
@@ -39,6 +51,11 @@ export default async function NewJournalPage({
         <div>
           <p className="record-detail-eyebrow">Akuntansi</p>
           <h1>Jurnal Manual</h1>
+          <p className="hint">
+            Untuk pembukuan lanjutan. Pendapatan sehari-hari cukup dicatat lewat menu Invoice dan
+            Pembayaran Diterima di bagian Penjualan; pengeluaran lewat menu Beban di bagian
+            Pembelian. Akun dikelompokkan menurut jenisnya; akun sistem ada di paling bawah.
+          </p>
         </div>
       </header>
       <section className="dashboard-section">
