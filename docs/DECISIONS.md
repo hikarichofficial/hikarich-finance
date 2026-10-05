@@ -1976,3 +1976,11 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   `pnpm audit` clean) -- only the shared, pre-existing "Migration clean-rebuild and invariants" CI job is
   affected, by this unrelated pre-existing defect, and it should stop failing once UTC time moves past the
   boundary window for today (and will recur again at next month's end until resolved).
+
+- Kategori screen wording (decision 288, OWNER: "saya tidak mengerti fungsi kategori ini"). Text only, no
+  behaviour change. The page now says a category is the kind of revenue or expense on an invoice/bill line
+  (not a customer or vendor list), and the tax-mapping default option reads "Otomatis dari profil pajak
+  (disarankan)" with a hint that tax is still computed automatically from the Entity's tax profile. Checked
+  in the code: a category is optional on an invoice line (`Tanpa kategori`; revenue then posts to
+  `OTHER_OPERATING_REVENUE`, `resolve_revenue_account`), so an empty category list does not block the first
+  invoice. Seeding standard categories is a separate, OWNER-approved follow-up.

@@ -44,8 +44,9 @@ export default async function CategoriesPage({
         <div>
           <h1>Kategori</h1>
           <p className="list-screen-summary">
-            {rows.length} kategori. Pemetaan pajak dipakai otomatis saat baris invoice/tagihan tidak
-            diisi pajaknya.
+            {rows.length} kategori. Kategori adalah jenis pendapatan atau beban pada baris
+            invoice/tagihan (misalnya Jasa Konsultasi atau Sewa Kantor), bukan daftar pelanggan atau
+            vendor. Pelanggan ada di menu Pelanggan di bagian Penjualan.
           </p>
         </div>
       </header>
