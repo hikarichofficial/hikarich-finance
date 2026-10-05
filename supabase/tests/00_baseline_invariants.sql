@@ -206,6 +206,9 @@ declare
                                          'create_entity',
                                          -- Forecasts (decision 250)
                                          'get_planning_forecast',
+                                         -- Which account kinds may never go negative, in Settings (decision 55,
+                                         -- OWNER answer 4 October 2026)
+                                         'set_negative_balance_block',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];
