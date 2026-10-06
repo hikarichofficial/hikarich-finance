@@ -2333,3 +2333,18 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   withholding PPh 23 / 4(2) / 26, final tax, marketplace PPh 22 and VAT, override and payroll sentences). The
   stored text is unchanged; a sentence without a template still shows as written. No database change. (Closes the
   follow-up of decision 305, TASK #107.)
+
+- Decision 307 (6 October 2026): invoice appearance and payment details, from the OWNER's review of the public invoice
+  (TASK #108-#111). (1) Company logo: `entity_profiles.logo_data_url` (PNG/JPEG/WebP, at most 400,000 characters,
+  stored as an embedded data URL, no file storage needed), set through `set_entity_logo` (needs `system.entity_config`
+  and a recent step-up; the audit entry records only that a logo exists and its size, never the image). The logo is
+  shown live on the invoice, public invoice and receipt pages; the issuer name still comes from the frozen issue
+  snapshot. The name appears once when the OWNER sets "Nama Merek" equal to "Nama Resmi". (2) "Nama pembayar" is now
+  required in the public payment confirmation (`public_submit_payment_claim` raises INVALID when blank); reference
+  and note stay optional. (3) Totals are a right-aligned block under the Total column. (4) "Cara pembayaran" shows
+  the receiving account number and holder, and a new master "Tautan Pembayaran" (`payment_channels` rows with
+  `method_kind = 'payment_link'`, https only, managed at Penjualan → Tautan Pembayaran or added from the invoice
+  form) puts a clickable "Bayar sekarang" link on the invoice; the link is copied into the issued payment snapshot
+  so later edits do not change an issued invoice. Recording a payment stays manual (the OWNER's instruction: no
+  gateway integration for now). Migration 20261006170000; new RPCs `set_entity_logo`, `create_payment_link`,
+  `update_payment_link`.

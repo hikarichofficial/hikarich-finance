@@ -17,6 +17,7 @@ import { SendReceiptEmailForm } from "@/features/sales/SendReceiptEmailForm";
 import { RefundForm } from "@/features/sales/RefundForm";
 import { RefundActionForms } from "@/features/sales/RefundActionForms";
 import { PaymentDetailScreen } from "@/features/sales/PaymentDetailScreen";
+import { getEntityLogo } from "@/services/settings/settings";
 import { formatShortDate } from "@/features/sales/format";
 import type { RefundRow } from "@/schemas/sales";
 import { todayInBusinessZone } from "@/lib/time";
@@ -92,6 +93,7 @@ export default async function PaymentDetailPage({
     <PaymentDetailScreen
       row={row}
       receipt={receipt}
+      logo={await getEntityLogo(membership.entity_id)}
       backHref={backHref}
       emailPanel={
         <>

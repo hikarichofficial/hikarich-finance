@@ -178,7 +178,13 @@
         },
         {
           "title": "Pilih Rekening Tujuan Pembayaran (opsional)",
-          "text": "Pilih rekening PT supaya nama bank, nomor rekening, dan atas nama tercetak di invoice sebagai **Cara pembayaran**. Rekening harus berada dalam mata uang invoice (IDR)."
+          "text": "Pilih rekening PT supaya nama bank, nomor rekening, dan atas nama tercetak di invoice sebagai **Cara pembayaran**. Rekening harus berada dalam mata uang invoice (IDR).",
+          "tip": "Nomor rekening dan atas nama diisi di Kas & Bank saat rekening dibuat. Bila keduanya kosong, invoice hanya menampilkan nama bank."
+        },
+        {
+          "title": "Pilih Tautan Pembayaran (opsional)",
+          "text": "Pilih salah satu **Tautan Pembayaran** bila Anda memakai halaman pembayaran dari penyedia pembayaran (gateway). Di invoice, tautan tampil sebagai tombol **Bayar sekarang** yang bisa diklik pelanggan. Belum ada tautan yang cocok? Tekan **+ Tambah tautan baru**, isi nama dan alamat https://, lalu **Simpan & Gunakan**; tautan langsung terpilih tanpa kehilangan isian invoice.",
+          "tip": "Tautan hanya membawa pelanggan ke halaman pembayaran. Setelah uang masuk, pembayaran tetap Anda catat sendiri (lihat Cara Menerima Pembayaran Invoice)."
         },
         {
           "title": "Isi baris invoice",
@@ -334,7 +340,7 @@
         }
       ],
       "result": [
-        "Pelanggan melihat dokumen INVOICE dengan baris, subtotal, diskon, PPN, total, sudah dibayar, sisa tagihan, pembayaran diterima, cara pembayaran, catatan, serta syarat dan ketentuan.",
+        "Pelanggan melihat dokumen INVOICE dengan logo dan nama PT di kop, baris, subtotal, diskon, PPN, total (di kanan bawah, sejajar kolom Total), sudah dibayar, sisa tagihan, pembayaran diterima, cara pembayaran (rekening dan tombol Bayar sekarang bila ada tautan), catatan, serta syarat dan ketentuan.",
         "Tautan mati otomatis bila invoice dibatalkan (void). Pelanggan yang membuka tautan tidak aktif melihat “Tautan tidak tersedia”."
       ],
       "rules": [
@@ -366,6 +372,65 @@
         }
       ],
       "related": ["buat-terbitkan-invoice", "terima-pembayaran", "konfirmasi-klaim-pembayaran"]
+    },
+    {
+      "slug": "tautan-pembayaran",
+      "title": "Cara Menambah Tautan Pembayaran (Tombol Bayar Sekarang di Invoice)",
+      "summary": "Menyimpan alamat halaman pembayaran dari penyedia pembayaran, lalu memilihnya di invoice supaya pelanggan tinggal klik untuk membayar.",
+      "path": "Penjualan > Tautan Pembayaran; atau + Tambah tautan baru di Penjualan > Invoice > Buat Invoice",
+      "who": "Melihat: izin lihat invoice (invoices.view). Menambah atau mengubah: izin buat invoice (invoices.create). Daftar tautan dibaca dengan izin lihat kas dan bank (money.view), seperti daftar rekening di form invoice.",
+      "quick": "Tautan Pembayaran adalah nama dan alamat https:// halaman pembayaran. Invoice yang memilihnya menampilkan tombol Bayar sekarang. Pencatatan pembayaran tetap manual.",
+      "steps": [
+        {
+          "title": "Buka Penjualan > Tautan Pembayaran",
+          "text": "Halaman menampilkan formulir **Tambah Tautan** dan **Daftar Tautan** (nama, alamat, status Aktif atau Nonaktif)."
+        },
+        {
+          "title": "Isi nama dan alamat",
+          "text": "**Nama Tautan** 2 sampai 120 karakter (misalnya “Xendit - Invoice Umum”). **Alamat Tautan** harus diawali https:// dan tanpa spasi. Tekan **Tambah Tautan**; bila berhasil tampil “Tautan pembayaran tersimpan.”",
+          "warning": "Alamat yang diawali http:// atau tanpa awalan ditolak. Nama yang sama dengan tautan lain (huruf besar atau kecil tidak dibedakan) juga ditolak."
+        },
+        {
+          "title": "Pilih tautan di invoice",
+          "text": "Pada **Buat Invoice** (atau **Ubah Draf**), pilih tautan di **Tautan Pembayaran (opsional)**. Bila belum ada, tekan **+ Tambah tautan baru**, isi nama dan alamat, lalu **Simpan & Gunakan**."
+        },
+        {
+          "title": "Terbitkan dan bagikan invoice",
+          "text": "Saat invoice diterbitkan, alamat tautan disalin ke invoice. Di halaman publik, bagian **Cara pembayaran** menampilkan tombol **Bayar sekarang** yang membuka halaman pembayaran di tab baru, dan alamatnya juga tertulis di bawah tombol supaya terbaca pada hasil cetak."
+        },
+        {
+          "title": "Ubah atau nonaktifkan tautan",
+          "text": "Di **Daftar Tautan**, klik nama tautan untuk membuka formulir ubah: ganti nama atau alamat, atau hapus centang **Aktif**. Tautan nonaktif tidak bisa dipilih di invoice baru.",
+          "tip": "Invoice yang sudah terbit tetap memakai alamat yang tersalin saat diterbitkan; mengubah tautan tidak mengubah invoice lama."
+        },
+        {
+          "title": "Catat pembayaran seperti biasa",
+          "text": "Tautan tidak terhubung otomatis ke penyedia pembayaran. Setelah pelanggan membayar, catat penerimaannya lewat Catat Pembayaran atau konfirmasi klaim pelanggan."
+        }
+      ],
+      "result": [
+        "Invoice menampilkan tombol Bayar sekarang yang bisa diklik pelanggan.",
+        "Status lunas dan jurnal baru berubah setelah Anda mencatat pembayaran."
+      ],
+      "rules": [
+        "Hanya alamat https:// yang diterima dan hanya itu yang menjadi tautan.",
+        "Tautan tidak mengirim atau menerima data apa pun dari penyedia pembayaran."
+      ],
+      "mistakes": [
+        "Mengira pembayaran lewat tautan otomatis tercatat. Pembayaran harus dicatat manual.",
+        "Menempelkan alamat tanpa https://."
+      ],
+      "errors": [
+        {
+          "message": "Tautan tidak dapat disimpan. Nama 2 sampai 120 karakter; alamat harus diawali https:// dan tanpa spasi.",
+          "meaning": "Nama terlalu pendek atau alamat tidak memenuhi syarat."
+        },
+        {
+          "message": "Sudah ada saluran atau tautan pembayaran dengan nama ini.",
+          "meaning": "Nama sudah dipakai; pilih nama lain."
+        }
+      ],
+      "related": ["buat-terbitkan-invoice", "bagikan-invoice", "terima-pembayaran"]
     },
     {
       "slug": "memahami-piutang-pendapatan",
@@ -574,7 +639,7 @@
       "steps": [
         {
           "title": "Pelanggan mengirim klaim",
-          "text": "Di halaman publik invoice, bila sisa tagihan lebih dari nol, pelanggan melihat “Sudah membayar? Beri tahu kami.” Ia mengisi jumlah, tanggal, nama pembayar, referensi, dan catatan, lalu menekan **Saya Sudah Bayar**. Klaim hanya disimpan sebagai “menunggu”; kas, piutang, dan status invoice tidak berubah."
+          "text": "Di halaman publik invoice, bila sisa tagihan lebih dari nol, pelanggan melihat “Sudah membayar? Beri tahu kami.” Ia mengisi jumlah, tanggal, **nama pembayar (wajib)**, serta referensi dan catatan (opsional), lalu menekan **Saya Sudah Bayar**. Klaim hanya disimpan sebagai “menunggu”; kas, piutang, dan status invoice tidak berubah."
         },
         {
           "title": "Buka Penjualan > Klaim Pembayaran",

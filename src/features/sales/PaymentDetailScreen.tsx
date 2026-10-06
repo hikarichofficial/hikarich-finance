@@ -24,6 +24,7 @@ export function PaymentDetailScreen({
   backHref,
   refundPanel,
   emailPanel,
+  logo,
 }: {
   row: PaymentListRow;
   receipt: ReceiptDocument;
@@ -33,6 +34,8 @@ export function PaymentDetailScreen({
   refundPanel?: ReactNode;
   /** Send Bukti Pembayaran form and its delivery history (OWNER, 5 October 2026). */
   emailPanel?: ReactNode;
+  /** The company logo for the receipt (decision 307). */
+  logo?: string | null;
 }) {
   const status = paymentRowStatus(row);
   const refund = refundStatusDisplay(row.refund_status);
@@ -110,7 +113,7 @@ export function PaymentDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Dokumen</h2>
         </div>
-        <ReceiptDocumentView receipt={receipt} />
+        <ReceiptDocumentView receipt={receipt} logo={logo} />
       </section>
       {emailPanel}
 

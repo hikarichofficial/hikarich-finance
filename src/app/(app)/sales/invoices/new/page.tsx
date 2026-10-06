@@ -6,6 +6,7 @@ import { listActiveCategories } from "@/services/accounting/categories";
 import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { InvoiceForm } from "@/features/sales/InvoiceForm";
+import { listPaymentLinks } from "@/services/sales/paymentLinks";
 import { todayInBusinessZone } from "@/lib/time";
 
 /** Create Invoice (Step 09 §11, decision 257), gated `invoices.create` -- the permission
@@ -17,11 +18,12 @@ export default async function NewInvoicePage({
 }) {
   const { entity } = await searchParams;
   const { membership } = await requirePermission("invoices.create", { entityCode: entity });
-  const [contacts, categories, accounts, suggestions] = await Promise.all([
+  const [contacts, categories, accounts, suggestions, paymentLinks] = await Promise.all([
     listContacts(membership.entity_id),
     listActiveCategories(membership.entity_id),
     getMoneyControl(membership.entity_id),
     listLineSuggestions(membership.entity_id, "invoice"),
+    listPaymentLinks(membership.entity_id),
   ]);
   const customers = listContactsByRole(contacts, "customer").filter((c) => c.status === "active");
   const backHref = entity
@@ -45,6 +47,7 @@ export default async function NewInvoicePage({
           accounts={accounts.filter((a) => a.is_active)}
           categories={categories}
           suggestions={suggestions}
+          paymentLinks={paymentLinks.filter((l) => l.is_active)}
           entity={entity}
           today={todayInBusinessZone()}
         />

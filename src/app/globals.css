@@ -521,13 +521,31 @@ body {
   white-space: nowrap;
 }
 
-.doc-totals {
+/* Totals sit under the item table, flush with its right edge (the Total column): each row is a label on the
+ * left and an amount on the right of one 360px block. `.doc .doc-totals` outranks `.doc dl` (a plain two
+ * column grid with no margin), which used to win and left this block at the left edge. */
+.doc .doc-totals {
+  display: block;
   width: min(100%, 360px);
   margin: 20px 0 0 auto;
+  padding-right: 8px;
   font-variant-numeric: tabular-nums;
 }
 
+.doc-totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 4px 0;
+}
+
+.doc-totals dt,
+.doc-totals dd {
+  margin: 0;
+}
+
 .doc-totals .grand {
+  margin-top: 4px;
   padding-top: 8px;
   border-top: 1px solid var(--doc-line);
   font-weight: 600;
@@ -535,6 +553,46 @@ body {
 
 .doc-totals .refund {
   color: var(--doc-tone-attention);
+}
+
+.doc-issuer .doc-logo {
+  display: block;
+  max-width: 180px;
+  max-height: 72px;
+  margin-bottom: 12px;
+  object-fit: contain;
+}
+
+.settings-logo-preview {
+  max-width: 220px;
+  max-height: 96px;
+  object-fit: contain;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.doc-pay {
+  margin-top: 8px;
+}
+
+.doc .doc-pay-link {
+  display: inline-block;
+  padding: 10px 20px;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--doc-ink);
+  border-radius: 999px;
+}
+
+.doc-pay-url {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--doc-text-secondary);
+  word-break: break-all;
 }
 
 .doc-block {
@@ -662,8 +720,14 @@ body {
     color: var(--doc-text-secondary);
   }
 
-  .doc-totals {
+  .doc .doc-totals {
     width: 100%;
+    padding-right: 0;
+  }
+
+  .doc .doc-totals dd {
+    margin-bottom: 0;
+    text-align: right;
   }
 
   /* Sticky, full-width, unmissable payment CTA (§22 Mobile: "sticky/obvious payment CTA") -- reachable
@@ -1395,6 +1459,14 @@ body {
 
   .doc-lines thead {
     display: table-header-group;
+  }
+
+  /* A button's background does not print by default: the link prints as underlined text above its address. */
+  .doc .doc-pay-link {
+    padding: 0;
+    color: var(--doc-ink);
+    text-decoration: underline;
+    background: none;
   }
 
   .doc-lines tr,

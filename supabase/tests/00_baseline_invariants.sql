@@ -203,6 +203,8 @@ declare
                                          'update_entity_time_settings',
                                          -- Entity names, address and contact details in Settings (decision 272)
                                          'update_entity_identity',
+                                         -- The company logo, and the payment links of an invoice (decision 307)
+                                         'set_entity_logo', 'create_payment_link', 'update_payment_link',
                                          -- An OWNER adds an Entity (decision 276)
                                          'create_entity',
                                          -- Forecasts (decision 250)

@@ -255,6 +255,12 @@
           "warning": "Bila tertulis perlu verifikasi ulang, tekan Verifikasi sekarang dulu lalu ulangi."
         },
         {
+          "title": "Pasang logo perusahaan (OWNER)",
+          "text": "Di bagian **Logo Perusahaan**, tekan **Pilih Logo Baru**, pilih gambar PNG, JPEG, atau WebP (maksimal sekitar 280 KB), lalu tekan **Simpan Logo**. Bila berhasil tampil “Logo disimpan. Invoice dan kuitansi menampilkan logo ini.” Logo tampil di kiri atas invoice dan kuitansi, termasuk halaman publik. Tekan **Hapus Logo** untuk melepasnya.",
+          "tip": "Agar kop invoice memakai nama PT saja, isi **Nama Merek** sama dengan **Nama Resmi**: nama hanya tampil sekali. Gambar dengan latar putih atau transparan paling rapi.",
+          "warning": "Perubahan logo memerlukan verifikasi ulang. File SVG tidak diterima."
+        },
+        {
           "title": "Ubah Zona Waktu dan Tahun Buku (OWNER)",
           "text": "Di bagian **Zona Waktu & Tahun Buku**, pilih **Zona waktu** (WIB, WITA, atau WIT), pilih **Awal tahun buku**, isi **Alasan perubahan (minimal 5 karakter)**, lalu tekan **Simpan**. Bila berhasil tampil “Zona waktu dan tahun buku disimpan.” Masa pajak, tanggal jatuh tempo, dan “hari ini” di aplikasi mengikuti zona waktu ini.",
           "tip": "Setelah periode akuntansi dibuat, kolom Awal tahun buku terkunci dengan keterangan “Awal tahun buku terkunci karena periode akuntansi sudah dibuat.” Zona waktu tetap bisa diubah."

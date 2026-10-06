@@ -1,7 +1,7 @@
 import { formatMoney } from "@/domain/money/format";
 import { paymentReceiptStatus } from "@/domain/sales/receiptDocument";
 import type { ReceiptDocument } from "@/schemas/sales";
-import { formatDocumentDate } from "./InvoiceDocumentView";
+import { DocumentLogo, formatDocumentDate } from "./InvoiceDocumentView";
 
 /**
  * A payment receipt as the payer reads it (P13 Part 5, first increment; Step 11 §10, FINAL/LOCKED): what was
@@ -18,7 +18,13 @@ function field(party: Party, key: string): string | null {
   return typeof value === "string" && value.trim() !== "" ? value : null;
 }
 
-export function ReceiptDocumentView({ receipt }: { receipt: ReceiptDocument }) {
+export function ReceiptDocumentView({
+  receipt,
+  logo,
+}: {
+  receipt: ReceiptDocument;
+  logo?: string | null;
+}) {
   const brand =
     field(receipt.issuer, "brand_name") ?? field(receipt.issuer, "legal_name") ?? "Hikarich";
   const method = receipt.method;
@@ -26,7 +32,8 @@ export function ReceiptDocumentView({ receipt }: { receipt: ReceiptDocument }) {
   return (
     <article className="doc" aria-label={`Kwitansi ${receipt.receipt_number}`}>
       <header className="doc-head">
-        <div>
+        <div className="doc-issuer">
+          <DocumentLogo logo={logo} />
           <h1 className="doc-brand">{brand}</h1>
           {field(receipt.issuer, "legal_name") && field(receipt.issuer, "legal_name") !== brand ? (
             <p>{field(receipt.issuer, "legal_name")}</p>

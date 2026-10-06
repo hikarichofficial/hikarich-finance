@@ -2,11 +2,13 @@ import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import {
   entityHasAccountingPeriods,
+  getEntityLogo,
   getEntitySettingsOverview,
 } from "@/services/settings/settings";
 import { SettingsScreen } from "@/features/settings/SettingsScreen";
 import { CreateEntityForm } from "@/features/settings/CreateEntityForm";
 import { EntityIdentityForm } from "@/features/settings/EntityIdentityForm";
+import { EntityLogoForm } from "@/features/settings/EntityLogoForm";
 import { NegativeBalanceBlockForm } from "@/features/settings/NegativeBalanceBlockForm";
 import { TimeSettingsForm } from "@/features/settings/TimeSettingsForm";
 
@@ -24,9 +26,10 @@ export default async function SettingsPage({
   const entityId = membership.entity_id;
   const canEdit = can(access, entityId, "system.entity_config");
 
-  const [overview, hasPeriods] = await Promise.all([
+  const [overview, hasPeriods, logo] = await Promise.all([
     getEntitySettingsOverview(entityId),
     canEdit ? entityHasAccountingPeriods(entityId) : Promise.resolve(null),
+    canEdit ? getEntityLogo(entityId) : Promise.resolve(null),
   ]);
   const here = entity ? `/admin/settings?entity=${encodeURIComponent(entity)}` : "/admin/settings";
   const negativeBalanceValue = overview.settings.find(
@@ -42,14 +45,21 @@ export default async function SettingsPage({
       exampleYear={new Date().getUTCFullYear()}
       identityEditor={
         canEdit ? (
-          <EntityIdentityForm
-            entity={entity}
-            legalName={overview.entity.legal_name}
-            brandName={overview.entity.brand_name}
-            profile={overview.profile}
-            version={overview.entity.version}
-            stepUpHref={`/auth/step-up?next=${encodeURIComponent(here)}`}
-          />
+          <>
+            <EntityIdentityForm
+              entity={entity}
+              legalName={overview.entity.legal_name}
+              brandName={overview.entity.brand_name}
+              profile={overview.profile}
+              version={overview.entity.version}
+              stepUpHref={`/auth/step-up?next=${encodeURIComponent(here)}`}
+            />
+            <EntityLogoForm
+              entity={entity}
+              logo={logo}
+              stepUpHref={`/auth/step-up?next=${encodeURIComponent(here)}`}
+            />
+          </>
         ) : null
       }
       createEntityEditor={

@@ -97,8 +97,22 @@ describe("sales contracts", () => {
   });
 
   it("the public claim accepts only a well-formed token", () => {
-    const claim = { token: TOKEN, amount: "500000", payment_date: "2026-09-18" };
+    const claim = {
+      token: TOKEN,
+      amount: "500000",
+      payment_date: "2026-09-18",
+      payer_name: "Budi Santoso",
+    };
     expect(publicClaimInputSchema.safeParse(claim).success).toBe(true);
+    // the payer name is required (decision 307); the reference and the note are not
+    expect(publicClaimInputSchema.safeParse({ ...claim, payer_name: "   " }).success).toBe(false);
+    expect(
+      publicClaimInputSchema.safeParse({
+        token: TOKEN,
+        amount: "500000",
+        payment_date: "2026-09-18",
+      }).success,
+    ).toBe(false);
     expect(publicClaimInputSchema.safeParse({ ...claim, token: "short" }).success).toBe(false);
     expect(publicClaimInputSchema.safeParse({ ...claim, token: `${TOKEN}/../x` }).success).toBe(
       false,

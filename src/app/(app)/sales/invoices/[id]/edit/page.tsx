@@ -8,6 +8,7 @@ import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
 import { getInvoiceDraftForEdit } from "@/services/sales/sales";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { InvoiceForm } from "@/features/sales/InvoiceForm";
+import { listPaymentLinks } from "@/services/sales/paymentLinks";
 import { todayInBusinessZone } from "@/lib/time";
 
 /** Edit a DRAFT invoice (Step 09 §11, decision 261), gated `invoices.edit` -- the permission
@@ -24,11 +25,12 @@ export default async function EditInvoicePage({
   const { membership } = await requirePermission("invoices.edit", { entityCode: entity });
   const draft = await getInvoiceDraftForEdit(id);
   if (!draft || draft.entity_id !== membership.entity_id) notFound();
-  const [contacts, categories, accounts, suggestions] = await Promise.all([
+  const [contacts, categories, accounts, suggestions, paymentLinks] = await Promise.all([
     listContacts(membership.entity_id),
     listActiveCategories(membership.entity_id),
     getMoneyControl(membership.entity_id),
     listLineSuggestions(membership.entity_id, "invoice"),
+    listPaymentLinks(membership.entity_id),
   ]);
   const customers = listContactsByRole(contacts, "customer").filter(
     (c) => c.status === "active" || c.id === draft.customer_id,
@@ -54,6 +56,7 @@ export default async function EditInvoicePage({
           accounts={accounts.filter((a) => a.is_active)}
           categories={categories}
           suggestions={suggestions}
+          paymentLinks={paymentLinks.filter((l) => l.is_active)}
           entity={entity}
           today={todayInBusinessZone()}
           initial={draft}

@@ -16,7 +16,7 @@ const MESSAGES: Partial<Record<ClaimStatus, string>> = {
   throttled: "Terlalu banyak permintaan. Silakan coba lagi nanti.",
   conflict: "Invoice ini sudah lunas atau tidak lagi menerima pembayaran.",
   invalid:
-    "Data belum sesuai. Periksa jumlah (tidak boleh melebihi sisa tagihan) dan tanggal pembayaran (antara tanggal invoice dan hari ini).",
+    "Data belum sesuai. Periksa nama pembayar (wajib diisi), jumlah (tidak boleh melebihi sisa tagihan), dan tanggal pembayaran (antara tanggal invoice dan hari ini).",
 };
 
 export function PublicClaimForm({
@@ -66,8 +66,8 @@ export function PublicClaimForm({
         />
       </label>
       <label>
-        Nama pembayar (opsional)
-        <input name="payer_name" maxLength={200} autoComplete="name" />
+        Nama pembayar
+        <input name="payer_name" maxLength={200} autoComplete="name" required />
       </label>
       <label>
         Nomor referensi transfer (opsional)

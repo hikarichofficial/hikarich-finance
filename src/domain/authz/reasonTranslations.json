@@ -3199,5 +3199,21 @@
     "Per-employee amounts stay in the payroll module; the tax ledger holds the total",
     "Jumlah per karyawan tetap ada di modul payroll; buku pajak menyimpan totalnya"
   ],
-  ["Recomputed with the current turnover", "Dihitung ulang dengan omzet terkini"]
+  ["Recomputed with the current turnover", "Dihitung ulang dengan omzet terkini"],
+  [
+    "the payment link must be an https address (up to 500 characters)",
+    "tautan pembayaran harus berupa alamat https (maksimal 500 karakter)"
+  ],
+  ["the link name needs 2 to 120 characters", "nama tautan harus 2 sampai 120 karakter"],
+  [
+    "a payment channel or link with this name already exists",
+    "sudah ada saluran atau tautan pembayaran dengan nama ini"
+  ],
+  ["unknown payment link", "tautan pembayaran tidak dikenal"],
+  ["the payer name is required", "nama pembayar wajib diisi"],
+  ["the logo must be a png, jpeg or webp image", "logo harus berupa gambar PNG, JPEG, atau WebP"],
+  [
+    "the logo is too large (about 300 KB at most)",
+    "ukuran logo terlalu besar (maksimal sekitar 280 KB)"
+  ]
 ]
