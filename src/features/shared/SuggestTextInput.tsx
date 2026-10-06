@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useState } from "react";
+import { useId, useState, type ReactNode } from "react";
 import { exactTypeahead, hasTyped, matchTypeahead } from "@/domain/shared/typeahead";
 
 const MAX_SHOWN = 8;
@@ -27,7 +27,7 @@ export function SuggestTextInput({
   placeholder,
 }: {
   /** The visible field label, e.g. "Nama Penerima". */
-  label: string;
+  label: ReactNode;
   name: string;
   /** Names used before, most recent first (already de-duplicated). */
   suggestions: readonly string[];

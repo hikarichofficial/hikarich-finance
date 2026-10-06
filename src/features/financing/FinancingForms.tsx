@@ -2,6 +2,7 @@
 
 import { StepUpLink } from "@/features/feedback/StepUp";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
+import { SuggestTextInput } from "@/features/shared/SuggestTextInput";
 import { useState, type ReactNode } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
 import {
@@ -201,29 +202,26 @@ function PickField({
   );
 }
 
-/** A text field whose value is usually one of a known, finite set (a counterparty already in Contacts) but
- * can still be typed freely for a name not yet on file -- "boleh diklik dan pilih, atau tetap bisa ketik
- * baru" per the owner (5 Oct 2026). Native `<input list>` renders this as a text box with a dropdown of
- * suggestions, so no new component or RPC is needed. */
+/** The counterparty of a loan, an obligation or an equity event: a name usually already on file (Contacts and
+ * earlier records) but free to type for one that is not -- "boleh diklik dan pilih, atau tetap bisa ketik baru"
+ * (OWNER, 5 October 2026). Since 6 October 2026 it is a type-and-pick field like the customer on an invoice: the
+ * list appears only once typing starts, narrows as more is typed, and offers "+ Tambah ... baru" for a new name. */
 function PartyField({
-  listId,
   label,
   knownParties,
 }: {
-  listId: string;
   label: ReactNode;
   knownParties: readonly string[];
 }) {
   return (
-    <label>
-      {label}
-      <input name="counterparty" required maxLength={200} autoComplete="off" list={listId} />
-      <datalist id={listId}>
-        {knownParties.map((name) => (
-          <option key={name} value={name} />
-        ))}
-      </datalist>
-    </label>
+    <SuggestTextInput
+      label={label}
+      name="counterparty"
+      suggestions={knownParties}
+      noun="pihak"
+      required
+      maxLength={200}
+    />
   );
 }
 
@@ -258,7 +256,6 @@ export function LoanCreateForm({
         </select>
       </label>
       <PartyField
-        listId="loan-counterparty-options"
         label={direction === "borrowed" ? "Pemberi Pinjaman" : "Peminjam"}
         knownParties={knownParties}
       />
@@ -343,7 +340,6 @@ export function ObligationCreateForm({
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="kind" value={kind} />
       <PartyField
-        listId="obligation-counterparty-options"
         label={receivable ? "Siapa yang Berutang ke Kita" : "Kepada Siapa Kita Berutang"}
         knownParties={knownParties}
       />
@@ -402,11 +398,7 @@ export function EquityCreateForm({
           ))}
         </select>
       </label>
-      <PartyField
-        listId="equity-counterparty-options"
-        label="Nama Pemilik / Pihak"
-        knownParties={knownParties}
-      />
+      <PartyField label="Nama Pemilik / Pihak" knownParties={knownParties} />
       <label>
         Keterangan
         <input name="purpose" required minLength={3} maxLength={500} autoComplete="off" />

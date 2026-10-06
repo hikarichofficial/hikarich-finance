@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import { getMoneyControl } from "@/services/money/money";
+import { getMoneyControl, listTransferDescriptionSuggestions } from "@/services/money/money";
 import { TransferForm } from "@/features/money/TransferForm";
 
 /** Transfer create form (P13 Part 3c, Step 09 §13). Gated on `money.transfer_create`, the exact permission
@@ -17,7 +17,10 @@ export default async function NewTransferPage({
   const { access, membership } = await requirePermission("money.transfer_create", {
     entityCode: entity,
   });
-  const accounts = await getMoneyControl(membership.entity_id);
+  const [accounts, descriptionSuggestions] = await Promise.all([
+    getMoneyControl(membership.entity_id),
+    listTransferDescriptionSuggestions(membership.entity_id),
+  ]);
 
   return (
     <div className="record-detail">
@@ -41,6 +44,7 @@ export default async function NewTransferPage({
           accounts={accounts}
           entityId={membership.entity_id}
           entity={entity}
+          descriptionSuggestions={descriptionSuggestions}
           canConfirmOnCreate={can(access, membership.entity_id, "money.transfer_approve")}
         />
       </section>

@@ -1,7 +1,10 @@
 import Link from "next/link";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import { listLedgerAccounts } from "@/services/accounting/ledger";
+import {
+  listJournalDescriptionSuggestions,
+  listLedgerAccounts,
+} from "@/services/accounting/ledger";
 import { accountClassLabel } from "@/domain/accounting/coaList";
 import { JournalDraftForm } from "@/features/accounting/JournalDraftForm";
 import { todayInBusinessZone } from "@/lib/time";
@@ -24,7 +27,10 @@ export default async function NewJournalPage({
     entityCode: entity,
   });
   const canOverride = can(access, membership.entity_id, "accounting.protected_manage");
-  const accounts = await listLedgerAccounts(membership.entity_id);
+  const [accounts, descriptionSuggestions] = await Promise.all([
+    listLedgerAccounts(membership.entity_id),
+    listJournalDescriptionSuggestions(membership.entity_id),
+  ]);
   const groupOf = (a: (typeof accounts)[number]): string => {
     if (!a.allows_manual_posting) return PROTECTED_GROUP;
     const label = accountClassLabel(a.account_class);
@@ -65,6 +71,7 @@ export default async function NewJournalPage({
           entity={entity}
           today={todayInBusinessZone()}
           canOverride={canOverride}
+          descriptionSuggestions={descriptionSuggestions}
         />
       </section>
     </div>
