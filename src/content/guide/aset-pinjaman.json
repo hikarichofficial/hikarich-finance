@@ -1,0 +1,1158 @@
+{
+  "key": "aset-pinjaman",
+  "title": "Aset dan Pinjaman",
+  "description": "Mencatat aset tetap dan penyusutannya, pinjaman, modal pemilik, serta utang lain di luar tagihan vendor.",
+  "guides": [
+    {
+      "slug": "catat-aset-tetap",
+      "title": "Cara Mencatat Aset Tetap (dari Pembelian sampai Aktif)",
+      "summary": "Mencatat barang tahan lama seperti laptop atau kendaraan sebagai aset tetap, lalu mengaktifkannya supaya disusutkan tiap bulan.",
+      "path": "Aset & Pendanaan > Aset Tetap > (klik aset) > Aktifkan Aset",
+      "who": "Melihat daftar dan detail: assets.view (OWNER, Finance Admin, Finance Staff, Akuntan, Viewer/Auditor). Mendaftarkan, memecah, mengaktifkan, mengubah, memindahkan, dan membatalkan aset: assets.manage (OWNER dan Finance Admin; Finance Staff hanya melihat). Pembelian sumbernya dicatat dengan izin pembelian.",
+      "quick": "Aset **tidak diketik langsung**. Catat pembelian dengan Perlakuan “Aset”, lalu aset berstatus Draf muncul di **Daftar Aset** dan baru disusutkan setelah Anda menekan **Aktifkan Aset**.",
+      "steps": [
+        {
+          "title": "Catat pembelian dengan Perlakuan “Aset”",
+          "text": "Barang yang dipakai bertahun-tahun (laptop, mesin, kendaraan) dicatat lewat Pengeluaran atau Tagihan Vendor. Pada baris pembelian, pilih **Perlakuan** “Aset”. Caranya ada di [Cara Membuat Biaya](buat-biaya) dan [Cara Mencatat dan Menyetujui Tagihan Vendor](catat-tagihan-vendor). Begitu pengeluaran dikonfirmasi atau tagihan disetujui, sistem otomatis mendaftarkan aset berstatus Draf dari baris itu, tanpa jurnal tambahan.",
+          "tip": "Barang kecil yang habis dipakai dalam sebulan tetap memakai Perlakuan “Beban”."
+        },
+        {
+          "title": "Buka Aset & Pendanaan > Aset Tetap",
+          "text": "Halaman berjudul **Daftar Aset**. Kolomnya **Kode** (berawalan AST), **Nama**, **Tanggal Perolehan**, **Sumber** (Baris Tagihan Pembelian, Baris Beban, atau Saldo Awal), **Status**, **Kondisi**, dan **Nilai Buku**. Saring dengan pilihan **Status** (Semua Status, Draf (belum dipakai), Aktif, Terjual, Dilepas, Dibatalkan) atau kotak “Cari kode atau nama aset…”, lalu tekan **Terapkan**.",
+          "image": {
+            "file": "aset-daftar.jpg",
+            "caption": "Daftar Aset dengan tombol Daftarkan Aset."
+          }
+        },
+        {
+          "title": "Buka detail aset Draf",
+          "text": "Klik **Kode** aset. Bagian **Ringkasan** memuat Tanggal Perolehan, Biaya Perolehan, Akumulasi Penyusutan, dan Nilai Buku. Bagian **Tindakan** berisi tombol pengelolaan dan hanya tampil bila Anda punya izin kelola aset. Di bawahnya ada **Jadwal Penyusutan** dan **Aktivitas** (riwayat kejadian aset)."
+        },
+        {
+          "title": "Pecah Aset bila satu baris berisi beberapa barang (opsional)",
+          "text": "Misalnya satu baris pembelian untuk 3 laptop. Tekan **Pecah Aset**, lalu isi **Nama Bagian** dan **Biaya** untuk tiap bagian. Tekan **+ Tambah Bagian** untuk menambah baris (2 sampai 50 bagian). Tombol **Pecah Aset** baru aktif bila total biaya semua bagian sama persis dengan biaya perolehan aset. Bagian pertama tetap aset ini, bagian lainnya menjadi aset Draf baru.",
+          "warning": "Pecah Aset hanya untuk aset Draf yang berasal dari baris pembelian. Aset Saldo Awal dan aset yang sudah Aktif tidak bisa dipecah."
+        },
+        {
+          "title": "Tekan Aktifkan Aset",
+          "text": "Isi **Mulai Dipakai** (bawaan hari ini). Pilih **Metode Penyusutan**: Garis lurus, Saldo menurun, atau “Tidak disusutkan (mis. tanah)”. Isi **Umur Manfaat (bulan)** dan **Nilai Sisa (opsional)**. Sistem menghitung contoh penyusutan per bulan di bawah isian. **Golongan Fiskal (untuk pajak) (opsional)** terisi otomatis dari nama aset (misalnya laptop masuk Kelompok 1) dan boleh diganti; **Metode Penyusutan Fiskal** ikut tampil. Tekan **Aktifkan Aset**. Hasilnya “Aset aktif. N bulan penyusutan dijadwalkan.”",
+          "tip": "Golongan Fiskal hanya catatan untuk keperluan pajak. Jurnal penyusutan memakai Metode Penyusutan, Umur Manfaat, dan Nilai Sisa yang Anda isi."
+        },
+        {
+          "title": "Rawat data aset setelah aktif",
+          "text": "Di bagian **Tindakan** tersedia **Ubah Data Aset** (Nama Aset, Keterangan, Nomor Seri), **Ubah Kondisi** (Dipakai, Disimpan, Sedang diperbaiki, Rusak, Hilang; **Tanggal** dan **Catatan**, wajib bila Rusak atau Hilang), **Pindahkan Aset** (**Lokasi Baru** dan **Penanggung Jawab Baru**, isi salah satu atau keduanya), dan **Atur Golongan Fiskal**. Perubahan ini hanya mengubah keterangan, bukan nilai di buku. Untuk perubahan estimasi umur atau nilai sisa, lihat [Memahami Penyusutan Aset](penyusutan-aset)."
+        },
+        {
+          "title": "Batalkan aset yang salah didaftarkan (bila perlu)",
+          "text": "Tekan **Batalkan Aset** dan isi **Alasan** (minimal 5 karakter). Hanya bisa bila belum ada penyusutan terposting. Baris pembeliannya kembali menunggu didaftarkan: buka **Daftarkan Aset**, lihat bagian “Pembelian yang Menunggu Didaftarkan”, lalu tekan **Daftarkan sebagai Aset** untuk membuat aset Draf yang baru.",
+          "warning": "Membatalkan aset tidak membatalkan pembeliannya. Jurnal pembelian tetap ada; yang berubah hanya daftar aset."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Apa yang dicatat (contoh laptop Rp 12.000.000 dibayar lewat Pengeluaran)",
+          "columns": ["Kejadian", "Debit", "Kredit"],
+          "rows": [
+            [
+              "Pengeluaran dikonfirmasi dengan Perlakuan “Aset”",
+              "Akun aset tetap, mis. Komputer & Peralatan Elektronik (12.000.000)",
+              "Kas/Bank (12.000.000)"
+            ],
+            ["Aset didaftarkan otomatis (Draf)", "Tidak ada jurnal", "Tidak ada jurnal"],
+            ["Aset diaktifkan", "Tidak ada jurnal", "Tidak ada jurnal"]
+          ]
+        }
+      ],
+      "result": [
+        "Aset berstatus Aktif, lengkap dengan Jadwal Penyusutan per bulan di halaman detailnya.",
+        "Nilai Buku adalah Biaya Perolehan dikurangi Akumulasi Penyusutan. Selama masih Draf, Nilai Buku sama dengan biaya perolehan.",
+        "Penyusutan tiap bulan diposting sendiri, lihat [Memahami Penyusutan Aset](penyusutan-aset)."
+      ],
+      "rules": [
+        "Aset tidak bisa diketik manual. Sumbernya baris pengeluaran atau tagihan ber-Perlakuan “Aset”, atau aset lama lewat [Cara Mengisi Saldo Awal Aset](saldo-awal-aset).",
+        "Mulai Dipakai tidak boleh sebelum tanggal perolehan dan tidak boleh di masa depan. Semua bulan sampai sekarang harus berada di periode akuntansi yang masih terbuka.",
+        "Umur Manfaat 1 sampai 1200 bulan. Nilai Sisa tidak boleh melebihi biaya perolehan. Aset “Tidak disusutkan” tidak punya umur manfaat dan nilai sisa.",
+        "Entity Pribadi hanya bisa memilih “Tidak disusutkan (mis. tanah)”; aset Pribadi dicatat sebesar harga perolehan.",
+        "Sesudah aktif, tidak ada tombol untuk mengubah Mulai Dipakai atau Biaya Perolehan. Perubahan estimasi penyusutan dilakukan lewat Ubah Rencana Penyusutan dan hanya berlaku ke depan.",
+        "Detail aset belum punya bagian lampiran dokumen."
+      ],
+      "mistakes": [
+        "Mencatat laptop sebagai Beban padahal dipakai bertahun-tahun, sehingga seluruh biayanya tercatat sekaligus.",
+        "Mencari tombol untuk mengetik aset baru. Aset muncul sendiri setelah pembelian ber-Perlakuan “Aset” dikonfirmasi.",
+        "Lupa menekan Aktifkan Aset, sehingga aset berstatus Draf dan tidak pernah disusutkan.",
+        "Mencatat aset yang dibeli sebelum memakai aplikasi lewat Pengeluaran baru. Kas ikut berkurang lagi. Pakai Saldo Awal Aset.",
+        "Memilih tanggal Mulai Dipakai di periode yang sudah ditutup."
+      ],
+      "errors": [
+        {
+          "message": "Hanya aset berstatus draf yang bisa diaktifkan (sekarang: <status>)",
+          "meaning": "Aset sudah diaktifkan atau dibatalkan. Muat ulang halaman."
+        },
+        {
+          "message": "tanggal mulai dipakai tidak boleh sebelum tanggal perolehan (<tanggal>) dan tidak boleh di masa depan",
+          "meaning": "Pilih Mulai Dipakai antara tanggal perolehan dan hari ini."
+        },
+        {
+          "message": "Periode <bulan> sudah tidak menerima pencatatan; pilih tanggal mulai dipakai dari periode yang masih terbuka",
+          "meaning": "Ada bulan sejak Mulai Dipakai yang periodenya sudah ditutup. Pilih tanggal yang lebih baru."
+        },
+        {
+          "message": "Masa manfaat harus 1 sampai 1200 bulan",
+          "meaning": "Perbaiki Umur Manfaat (bulan)."
+        },
+        {
+          "message": "Nilai sisa tidak boleh melebihi harga perolehan",
+          "meaning": "Kurangi Nilai Sisa."
+        },
+        {
+          "message": "Aset <kode> sudah memiliki penyusutan atau pelepasan sehingga tidak bisa dibatalkan.",
+          "meaning": "Batalkan Aset hanya untuk aset tanpa penyusutan terposting. Untuk aset lain gunakan pelepasan."
+        },
+        {
+          "message": "total bagian-bagiannya <jumlah> tetapi biaya perolehan aset <biaya>; keduanya harus sama",
+          "meaning": "Total Biaya semua bagian harus sama persis dengan biaya perolehan."
+        },
+        {
+          "message": "Kerusakan atau kehilangan memerlukan catatan yang menjelaskan apa yang terjadi.",
+          "meaning": "Isi Catatan saat memilih kondisi Rusak atau Hilang."
+        },
+        {
+          "message": "Aset tidak dapat didaftarkan dari baris ini.",
+          "meaning": "Baris itu sudah terdaftar atau bukan baris Perlakuan “Aset”."
+        },
+        {
+          "message": "Aset tidak dapat diaktifkan. Periksa tanggal, umur manfaat dan nilai sisa.",
+          "meaning": "Pesan umum saat aktivasi gagal."
+        }
+      ],
+      "related": [
+        "buat-biaya",
+        "catat-tagihan-vendor",
+        "penyusutan-aset",
+        "jual-lepas-aset",
+        "saldo-awal-aset"
+      ]
+    },
+    {
+      "slug": "penyusutan-aset",
+      "title": "Memahami Penyusutan Aset (Posting Bulanan dan Laporan Penyusutan)",
+      "summary": "Penyusutan membagi biaya aset ke tiap bulan pemakaian. Panduan ini menjelaskan jadwal, posting otomatis dan manual, pembatalan satu bulan, dan perubahan rencana.",
+      "path": "Aset & Pendanaan > Penyusutan",
+      "who": "Melihat laporan: assets.view (OWNER, Finance Admin, Finance Staff, Akuntan, Viewer/Auditor). Posting manual, membatalkan penyusutan satu bulan, dan mengubah rencana: assets.manage (OWNER dan Finance Admin). Posting otomatis berjalan saat pengguna dengan assets.manage membuka Aset Tetap atau Penyusutan.",
+      "quick": "Penyusutan tiap bulan **diposting sendiri** setelah bulannya lewat. Anda cukup memantau di **Laporan Penyusutan** dan hanya turun tangan bila ada bulan yang tertahan atau perlu dibatalkan.",
+      "steps": [
+        {
+          "title": "Pahami jadwal yang dibuat saat aset diaktifkan",
+          "text": "Saat menekan **Aktifkan Aset** (lihat [Cara Mencatat Aset Tetap](catat-aset-tetap)), sistem membuat **Jadwal Penyusutan** per bulan mulai bulan **Mulai Dipakai**. Untuk aset Saldo Awal, jadwal mulai bulan setelah tanggal mulai dicatat di aplikasi. **Garis lurus**: (biaya perolehan dikurangi nilai sisa) dibagi umur manfaat, sama tiap bulan, bulan terakhir menyerap pembulatan. **Saldo menurun**: tiap bulan berupa dua kali tarif garis lurus dari nilai buku, sehingga jumlahnya mengecil, dan aset tetap berakhir tepat di nilai sisa.",
+          "tip": "Contoh: laptop Rp 12.000.000, umur 48 bulan, nilai sisa 0, garis lurus: Rp 250.000 per bulan."
+        },
+        {
+          "title": "Buka Aset & Pendanaan > Penyusutan",
+          "text": "Halaman berjudul **Laporan Penyusutan**. Isian **Dari** dan **Sampai** (bawaan 12 bulan terakhir sampai hari ini), kotak “Cari kode atau nama aset…”, lalu **Terapkan**. Bagian **Ringkasan** menampilkan **Total Terposting** dan **Total Terjadwal**. Tabelnya berkolom **Aset**, **Periode**, **Status** (Terjadwal, Terposting, Dibalik, Dibatalkan), **Jurnal** (tautan **Lihat →**), dan **Jumlah**.",
+          "tip": "Bulan-bulan mendatang tidak tampil karena batas Sampai bawaannya hari ini. Ubah Sampai ke tanggal mendatang untuk melihat jadwal ke depan.",
+          "image": {
+            "file": "aset-penyusutan.jpg",
+            "caption": "Laporan Penyusutan dengan bagian Posting Penyusutan Bulanan."
+          }
+        },
+        {
+          "title": "Biarkan posting otomatis bekerja",
+          "text": "Setiap kali pengguna dengan izin kelola aset membuka **Aset Tetap** atau **Penyusutan**, sistem memposting semua bulan yang sudah lewat. Jurnal tiap bulan bertanggal hari terakhir bulan itu, jadi bulan berjalan baru diposting setelah bulannya berakhir. Bila ada bulan yang seharusnya sudah terposting tetapi belum (periodenya masih terbuka), bagian **Perlu Diposting** (kolom **Aset**, **Periode**, **Batas Posting**, **Jumlah**) menampilkannya. Bulan yang periodenya sudah ditutup tidak bisa diposting dan tidak tampil di bagian itu."
+        },
+        {
+          "title": "Posting manual bila ada yang tertahan",
+          "text": "Di bagian **Posting Penyusutan Bulanan**, isi **Posting Sampai Akhir Bulan** (bawaan: hari terakhir bulan lalu), lalu tekan **Posting Penyusutan**. Hasilnya “N baris penyusutan diposting.” atau “Tidak ada penyusutan yang perlu diposting.” Aman diulang; bulan yang sudah terposting tidak diposting lagi.",
+          "warning": "Tanggal harus hari terakhir suatu bulan yang belum di masa depan. Teks bantuan di layar menyebut “sampai akhir bulan berjalan”, tetapi akhir bulan berjalan baru bisa dipilih pada hari terakhir bulan itu."
+        },
+        {
+          "title": "Batalkan penyusutan satu bulan yang salah",
+          "text": "Buka detail aset, tekan **Batalkan Penyusutan Terposting**. Pilih **Bulan Penyusutan**, isi **Tanggal Pembatalan** dan **Alasan** (minimal 5 karakter), lalu **Batalkan Penyusutan**. Jurnal bulan itu dibalik dan barisnya berstatus Dibalik. Bulan yang sama dibuat lagi dengan status Terjadwal.",
+          "warning": "Bulan yang kembali Terjadwal akan diposting lagi otomatis saat Aset Tetap atau Penyusutan dibuka. Bila angkanya memang perlu berbeda, ubah rencananya lebih dulu (langkah berikut)."
+        },
+        {
+          "title": "Ubah Rencana Penyusutan (perubahan estimasi)",
+          "text": "Untuk aset Aktif yang disusutkan, tekan **Ubah Rencana Penyusutan**. Isi **Metode Penyusutan**, **Sisa Umur Manfaat (bulan)**, **Nilai Sisa**, dan **Alasan Perubahan** (minimal 5 karakter), lalu **Simpan Rencana Baru**. Hasilnya “Rencana baru tersimpan: N bulan dijadwalkan.” Bulan yang sudah terposting tidak berubah; sisa nilai buku dibagi ulang ke bulan-bulan berikutnya.",
+          "tip": "Yang diisi adalah sisa umur dari sekarang, bukan umur total sejak pembelian."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal posting satu bulan (contoh laptop, Rp 250.000 per bulan)",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Beban Penyusutan", "250.000", ""],
+            ["Akumulasi Penyusutan", "", "250.000"]
+          ]
+        }
+      ],
+      "result": [
+        "Beban Penyusutan bertambah dan Nilai Buku aset berkurang sebesar jumlah bulan itu. Kas tidak berubah.",
+        "Setiap bulan terposting punya jurnal yang bisa dibuka lewat **Lihat →**."
+      ],
+      "rules": [
+        "Jurnal bertanggal hari terakhir bulan yang bersangkutan, dan periode akuntansinya harus terbuka.",
+        "Penyusutan dimulai di bulan Mulai Dipakai dan dihitung satu bulan penuh, tanpa pemotongan harian.",
+        "Hanya aset Aktif yang metodenya bukan “Tidak disusutkan” yang disusutkan. Aset yang dijual, dilepas, atau dibatalkan tidak disusutkan lagi.",
+        "Ubah Rencana Penyusutan ditolak bila ada bulan Terjadwal yang mendahului bulan terposting terakhir; posting bulan itu dulu.",
+        "Golongan Fiskal hanya catatan pajak dan tidak menghasilkan jurnal."
+      ],
+      "mistakes": [
+        "Mengira posting manual bisa mencakup bulan berjalan sebelum bulannya berakhir.",
+        "Membatalkan penyusutan lalu membiarkannya, padahal bulan itu akan diposting lagi dengan jumlah yang sama.",
+        "Mengisi umur total pada Sisa Umur Manfaat (bulan). Kolom itu berarti sisa bulan dari sekarang.",
+        "Menunggu penyusutan muncul pada aset yang masih Draf. Aset harus Aktif lebih dulu."
+      ],
+      "errors": [
+        {
+          "message": "Posting hanya bisa sampai hari terakhir suatu bulan yang tidak berada di masa depan",
+          "meaning": "Pilih tanggal akhir bulan yang sudah lewat."
+        },
+        {
+          "message": "Penyusutan tidak dapat diposting. Pilih tanggal akhir bulan yang sudah lewat.",
+          "meaning": "Pesan umum saat posting manual gagal."
+        },
+        {
+          "message": "periode akuntansi <tanggal> berstatus <status> dan tidak menerima posting",
+          "meaning": "Periode bulan itu sudah ditutup. Buka kembali periodenya lebih dulu."
+        },
+        {
+          "message": "Hanya aset aktif yang disusutkan yang bisa dijadwalkan ulang penyusutannya",
+          "meaning": "Aset Draf, terjual, atau tidak disusutkan tidak bisa diubah rencananya."
+        },
+        {
+          "message": "Nilai sisa tidak boleh melebihi nilai buku saat ini (<angka>)",
+          "meaning": "Turunkan Nilai Sisa."
+        },
+        {
+          "message": "Ada bulan sebelum penyusutan terakhir yang diposting untuk <kode> yang belum diposting; posting bulan itu dulu",
+          "meaning": "Posting bulan yang tertinggal, lalu ulangi."
+        },
+        {
+          "message": "Masa manfaat <kode> sudah habis tetapi masih ada nilai di atas nilai sisa; tambah sisa bulannya",
+          "meaning": "Naikkan Sisa Umur Manfaat (bulan)."
+        },
+        {
+          "message": "Pembalikan memerlukan tanggal (bukan di masa depan) dan alasan 5 sampai 1000 karakter",
+          "meaning": "Isi Tanggal Pembatalan dan Alasan."
+        },
+        {
+          "message": "Tanggal pembalikan tidak boleh sebelum bulan yang dibalik",
+          "meaning": "Tanggal Pembatalan minimal hari terakhir bulan yang dibalik."
+        },
+        {
+          "message": "Balik dulu pelepasan aset <kode> sebelum membalik penyusutannya",
+          "meaning": "Aset sudah dijual atau dilepas. Batalkan pelepasannya lebih dulu."
+        },
+        {
+          "message": "Rencana penyusutan tidak dapat diubah. Periksa sisa bulan, nilai sisa dan alasan.",
+          "meaning": "Pesan umum saat Ubah Rencana Penyusutan gagal."
+        }
+      ],
+      "related": ["catat-aset-tetap", "jual-lepas-aset", "saldo-awal-aset"]
+    },
+    {
+      "slug": "jual-lepas-aset",
+      "title": "Cara Menjual atau Melepas Aset",
+      "summary": "Mengeluarkan aset dari daftar karena dijual, dibuang, hilang, rusak total, atau disumbangkan, dan mencatat laba atau ruginya.",
+      "path": "Aset & Pendanaan > Aset Tetap > (klik aset Aktif) > Jual / Lepas Aset",
+      "who": "Mencatat dan membatalkan pelepasan: assets.manage (OWNER dan Finance Admin). Melihat hasilnya: assets.view.",
+      "quick": "Pelepasan menghapus biaya perolehan dan akumulasi penyusutan aset dari buku. Selisih antara hasil penjualan dan Nilai Buku menjadi **Laba/Rugi Pelepasan Aset**.",
+      "steps": [
+        {
+          "title": "Pastikan penyusutan sudah sampai bulan sebelum tanggal pelepasan",
+          "text": "Hanya aset berstatus **Aktif** yang bisa dijual atau dilepas. Saat Anda mencatat pelepasan, sistem memposting penyusutan sampai bulan sebelum tanggal pelepasan. Bulan pelepasan itu sendiri tidak disusutkan. Bila penyusutan untuk bulan pelepasan atau sesudahnya sudah terposting, batalkan dulu lewat **Batalkan Penyusutan Terposting** ([Memahami Penyusutan Aset](penyusutan-aset))."
+        },
+        {
+          "title": "Tekan Jual / Lepas Aset",
+          "text": "Buka detail aset, di bagian **Tindakan** tekan **Jual / Lepas Aset**. Pilih **Jenis Pelepasan**: Dijual, Dibuang / dihapus, Hilang, Rusak total, atau Disumbangkan. Isi **Tanggal** dan **Alasan** (minimal 3 karakter)."
+        },
+        {
+          "title": "Untuk penjualan, isi hasilnya",
+          "text": "Pilih **Cara Pembayaran**: “Diterima tunai / transfer” (isi **Harga Jual** dan **Diterima di Rekening**), “Belum dibayar (piutang)” (isi **Harga Jual**, **Nama Pembeli**, dan **Jatuh Tempo (opsional)**), atau “Tanpa hasil”. Jenis selain Dijual tidak punya hasil."
+        },
+        {
+          "title": "Tekan Catat Pelepasan",
+          "text": "Hasilnya “Pelepasan aset tercatat.” Status aset menjadi Terjual (untuk Dijual) atau Dilepas. Bagian **Pelepasan** di detail menampilkan **Jenis**, **Tanggal**, **Hasil Pelepasan**, **Laba/Rugi Pelepasan**, dan tautan **Jurnal**. Penjualan yang belum dibayar menjadi Piutang Lain bersumber “Pelepasan Aset”; penagihannya lewat [Cara Mencatat Piutang Lain](piutang-lain)."
+        },
+        {
+          "title": "Batalkan pelepasan yang salah",
+          "text": "Tekan **Batalkan Pelepasan**, isi **Tanggal Pembatalan** dan **Alasan** (minimal 5 karakter). Jurnal pelepasan dan mutasi kasnya dibalik, aset kembali Aktif, dan jadwal penyusutannya dibuat lagi. Hasilnya “Pelepasan dibatalkan. Aset aktif kembali.”",
+          "warning": "Bila pembeli sudah membayar sebagian, balik dulu pelunasan di Piutang Lain-nya."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal penjualan tunai Rp 10.000.000 (biaya perolehan 12.000.000, akumulasi 3.000.000, Nilai Buku 9.000.000, laba 1.000.000)",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Kas/Bank (rekening penerima)", "10.000.000", ""],
+            ["Akumulasi Penyusutan", "3.000.000", ""],
+            ["Akun aset tetap (mis. Komputer & Peralatan Elektronik)", "", "12.000.000"],
+            ["Laba/Rugi Pelepasan Aset", "", "1.000.000"]
+          ]
+        },
+        {
+          "title": "Jurnal bila dijual Rp 8.000.000 (rugi 1.000.000)",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Kas/Bank (rekening penerima)", "8.000.000", ""],
+            ["Akumulasi Penyusutan", "3.000.000", ""],
+            ["Laba/Rugi Pelepasan Aset", "1.000.000", ""],
+            ["Akun aset tetap (mis. Komputer & Peralatan Elektronik)", "", "12.000.000"]
+          ]
+        }
+      ],
+      "result": [
+        "Aset keluar dari nilai aset tetap dan tidak disusutkan lagi. Sisa jadwal penyusutan dibatalkan.",
+        "Jenis selain Dijual (dibuang, hilang, rusak total, disumbangkan) mencatat seluruh Nilai Buku sebagai rugi pelepasan, tanpa uang masuk.",
+        "Penjualan tunai menambah saldo rekening yang dipilih. Penjualan belum dibayar membuat Piutang Lain."
+      ],
+      "rules": [
+        "Tanggal pelepasan tidak boleh di masa depan dan tidak boleh sebelum tanggal Mulai Dipakai.",
+        "Hanya penjualan yang punya hasil. Bila ada cara pembayaran, Harga Jual harus lebih dari nol; “Tanpa hasil” berarti nol.",
+        "Rekening penerima harus rekening aktif bermata uang dasar Entity.",
+        "Pelepasan tidak bisa diedit, hanya dibatalkan.",
+        "Layar ini tidak menghitung pajak atas penjualan aset."
+      ],
+      "mistakes": [
+        "Mengubah Kondisi aset menjadi Hilang atau Rusak dan mengira asetnya sudah keluar dari buku. Kondisi hanya keterangan; yang mengeluarkan aset adalah Catat Pelepasan.",
+        "Memilih “Tanpa hasil” untuk penjualan yang sebenarnya sudah dibayar, sehingga seluruh Nilai Buku menjadi rugi.",
+        "Mencatat uang penjualan lewat Transfer atau pendapatan lain, bukan lewat Jual / Lepas Aset."
+      ],
+      "errors": [
+        {
+          "message": "Hanya aset aktif yang bisa dijual atau dilepas (sekarang: <status>)",
+          "meaning": "Aset belum diaktifkan atau sudah dilepas."
+        },
+        {
+          "message": "tanggal pelepasan tidak boleh di masa depan dan tidak boleh sebelum tanggal mulai dipakai (<tanggal>)",
+          "meaning": "Perbaiki Tanggal."
+        },
+        {
+          "message": "Penyusutan sudah diposting untuk bulan pelepasan atau sesudahnya; balik dulu penyusutan itu.",
+          "meaning": "Batalkan penyusutan bulan-bulan tersebut, lalu ulangi."
+        },
+        {
+          "message": "Penjualan kredit memerlukan nama pembeli",
+          "meaning": "Isi Nama Pembeli."
+        },
+        {
+          "message": "tanggal jatuh tempo tidak boleh sebelum tanggal pelepasan",
+          "meaning": "Jatuh Tempo harus sama dengan atau setelah Tanggal."
+        },
+        {
+          "message": "Alur ini memakai rekening dalam mata uang dasar Entity (<mata uang>)",
+          "meaning": "Pilih rekening dalam mata uang dasar."
+        },
+        {
+          "message": "Aset tidak dapat dilepas. Periksa tanggal, hasil penjualan, rekening dan alasan.",
+          "meaning": "Pesan umum saat Catat Pelepasan gagal."
+        },
+        {
+          "message": "Hanya pelepasan aset yang sudah diposting yang bisa dibalik (sekarang: <status>)",
+          "meaning": "Pelepasan sudah pernah dibatalkan."
+        },
+        {
+          "message": "pembeli sudah membayar sebagian penjualan ini; balik dulu pelunasan tersebut",
+          "meaning": "Batalkan pelunasan di Piutang Lain, lalu batalkan pelepasan."
+        },
+        {
+          "message": "Pelepasan tidak dapat dibatalkan. Periksa tanggal dan alasan.",
+          "meaning": "Pesan umum saat Batalkan Pelepasan gagal."
+        }
+      ],
+      "related": ["catat-aset-tetap", "penyusutan-aset", "piutang-lain"]
+    },
+    {
+      "slug": "saldo-awal-aset",
+      "title": "Cara Mengisi Saldo Awal Aset (Aset yang Sudah Dimiliki)",
+      "summary": "Memasukkan daftar aset yang sudah dimiliki sebelum memakai aplikasi, lengkap dengan penyusutan yang sudah berjalan.",
+      "path": "Aset & Pendanaan > Aset Tetap > Daftarkan Aset > Catat aset yang sudah dimiliki",
+      "who": "Memerlukan izin impor sistem (system.import): OWNER dan Finance Admin. Hasilnya bisa dilihat di Aset Tetap oleh pemegang assets.view.",
+      "quick": "Layar ini hanya **mencatat daftar aset** (harga, umur, penyusutan yang sudah berjalan). Nilai di buku besar **tidak ikut terposting**; isi juga lewat [Cara Mengisi Saldo Awal Rekening](saldo-awal).",
+      "steps": [
+        {
+          "title": "Siapkan datanya",
+          "text": "Untuk tiap aset siapkan nama, harga perolehan, tanggal beli, tanggal mulai dipakai, umur manfaat, dan total penyusutan yang sudah dicatat sampai tanggal Anda mulai memakai aplikasi ini."
+        },
+        {
+          "title": "Buka halaman Aset yang Sudah Dimiliki",
+          "text": "Halaman ini tidak ada di menu samping. Buka **Aset & Pendanaan > Aset Tetap**, tekan **Daftarkan Aset**, lalu klik tautan **Catat aset yang sudah dimiliki →**. Judul halamannya **Aset yang Sudah Dimiliki**.",
+          "image": {
+            "file": "aset-daftarkan.jpg",
+            "caption": "Halaman Daftarkan Aset; tautan \"Catat aset yang sudah dimiliki\" ada di bagian atas."
+          }
+        },
+        {
+          "title": "Isi data aset",
+          "text": "Isi **Nama Aset**, **Akun Aset Tetap** (pilihannya berbentuk “1510 · Komputer & Peralatan Elektronik”), **Harga Perolehan**, **Tanggal Beli**, **Mulai Dipakai**, dan **Tanggal Mulai Dicatat di Aplikasi Ini** (bawaan hari ini). Isi **Penyusutan yang Sudah Dicatat sampai Tanggal Itu (opsional)** dengan total penyusutan sampai tanggal tersebut."
+        },
+        {
+          "title": "Atur penyusutan ke depan",
+          "text": "Pilih **Metode Penyusutan**, isi **Umur Manfaat (bulan)** dan **Nilai Sisa (opsional)**. Umur Manfaat adalah umur total sejak Mulai Dipakai, bukan sisanya. **Golongan Fiskal (untuk pajak) (opsional)** terisi otomatis dari nama aset dan boleh diganti.",
+          "tip": "Isi Nomor Seri dan Lokasi bila perlu; keduanya opsional."
+        },
+        {
+          "title": "Isi Mata Uang Asal bila dibeli dengan mata uang asing (opsional)",
+          "text": "Ketik kode 3 huruf di **Mata Uang Asal (opsional, kalau aset dibeli dalam mata uang asing)**, misalnya USD. Muncul isian **Harga Perolehan dalam <kode>** dan **Kurs pada Tanggal Beli (<kode> ke <mata uang dasar>)**. Ini hanya catatan, tidak mengubah nilai rupiah di atas dan tidak dihitung ulang."
+        },
+        {
+          "title": "Tekan Simpan Aset",
+          "text": "Anda dibawa ke detail aset yang langsung berstatus **Aktif** dengan Sumber “Saldo Awal”. Jadwal penyusutan dimulai bulan setelah Tanggal Mulai Dicatat di Aplikasi Ini."
+        },
+        {
+          "title": "Posting nilainya di Saldo Awal",
+          "text": "Buka **Akuntansi > Saldo Awal** dan posting harga perolehan sebagai Debit pada akun aset tetap yang sama, serta penyusutan yang sudah berjalan sebagai Kredit pada **Akumulasi Penyusutan**. Caranya ada di [Cara Mengisi Saldo Awal Rekening](saldo-awal). Sesudahnya, tab **Kontrol Aset Tetap** di Laporan > Laporan Keuangan membantu memeriksa kecocokan daftar aset dengan buku besar.",
+          "warning": "Tanpa langkah ini, daftar aset terisi tetapi neraca belum memuat asetnya, sementara penyusutan bulan-bulan berikutnya tetap terposting."
+        }
+      ],
+      "result": [
+        "Aset muncul di Daftar Aset berstatus Aktif dengan Nilai Buku = Harga Perolehan dikurangi penyusutan yang sudah dicatat.",
+        "Penyusutan bulan-bulan berikutnya terjadwal dan diposting otomatis seperti aset lain."
+      ],
+      "rules": [
+        "Tidak ada jurnal yang dibuat di layar ini. Jurnal nilai awal dibuat lewat Akuntansi > Saldo Awal.",
+        "Urutan tanggal: Tanggal Beli, Mulai Dipakai, Tanggal Mulai Dicatat di Aplikasi Ini, lalu hari ini; tidak boleh terbalik.",
+        "Akun Aset Tetap harus akun aset tetap milik Entity.",
+        "Penyusutan yang sudah dicatat tidak boleh melebihi harga perolehan dikurangi nilai sisa. Aset “Tidak disusutkan” tidak punya umur, nilai sisa, atau penyusutan.",
+        "Entity Pribadi hanya bisa memilih “Tidak disusutkan (mis. tanah)”.",
+        "Satu kali Simpan Aset hanya mengisi satu aset.",
+        "Aset Saldo Awal tidak bisa dipecah. Nama, keterangan, dan nomor seri masih bisa diubah di detail aset."
+      ],
+      "mistakes": [
+        "Mengira menyimpan di layar ini sudah mengisi neraca.",
+        "Mencatat aset lama lewat Pengeluaran baru sehingga kas ikut berkurang.",
+        "Mengisi sisa umur pada Umur Manfaat (bulan). Isilah umur total sejak Mulai Dipakai.",
+        "Memposting nilai aset di Saldo Awal tetapi lupa Akumulasi Penyusutannya."
+      ],
+      "errors": [
+        {
+          "message": "akun biaya perolehan untuk <nama> bukan akun aset tetap milik Entity ini",
+          "meaning": "Pilih akun dari daftar Akun Aset Tetap."
+        },
+        {
+          "message": "<nama> memerlukan urutan tanggal: perolehan <= mulai dipakai <= tanggal mulai pencatatan <= hari ini",
+          "meaning": "Perbaiki urutan ketiga tanggal."
+        },
+        {
+          "message": "umur manfaat, nilai sisa, atau akumulasi penyusutan untuk <nama> tidak sesuai dengan biaya perolehannya",
+          "meaning": "Periksa umur dan penyusutan yang sudah dicatat."
+        },
+        {
+          "message": "<nama> tidak disusutkan, jadi tidak punya masa manfaat, nilai sisa, atau akumulasi penyusutan",
+          "meaning": "Kosongkan penyusutan atau pilih metode penyusutan."
+        },
+        {
+          "message": "Permintaan tidak valid. (the FX memo of <nama> does not convert anywhere near its base cost -- check the rate)",
+          "meaning": "Pesan ini tampil dalam bahasa Inggris. Harga asing dikali kurs harus mendekati harga rupiah (selisih maksimal 20%). Periksa kurs."
+        },
+        {
+          "message": "Aset tidak dapat disimpan. Periksa akun, tanggal, harga perolehan dan umur manfaat.",
+          "meaning": "Pesan umum saat Simpan Aset gagal."
+        }
+      ],
+      "related": ["saldo-awal", "catat-aset-tetap", "penyusutan-aset"]
+    },
+    {
+      "slug": "catat-pinjaman",
+      "title": "Cara Mencatat Pinjaman (Diterima atau Diberikan)",
+      "summary": "Mencatat pinjaman berjadwal dengan cicilan dan bunga, baik uang yang Anda terima maupun yang Anda pinjamkan ke pihak lain.",
+      "path": "Aset & Pendanaan > Pinjaman > Tambah Pinjaman",
+      "who": "Melihat: loans.view (OWNER, Finance Admin, Akuntan, Viewer/Auditor; Finance Staff tidak punya menu Pinjaman). Membuat, mengaktifkan, membatalkan draf, dan menautkan aset: loans.manage (OWNER dan Finance Admin).",
+      "quick": "Pinjaman disimpan dulu sebagai **Draf**. Uang baru masuk atau keluar dari rekening setelah Anda menekan **Aktifkan Pinjaman**.",
+      "steps": [
+        {
+          "title": "Buka Aset & Pendanaan > Pinjaman",
+          "text": "Halaman berjudul **Daftar Pinjaman**. Kolomnya **Nomor** (berawalan LN), **Arah**, **Pihak**, **Pokok**, **Outstanding**, **Jatuh Tempo Berikutnya**, dan **Status** (Draf, Berjalan, Lunas, Dibatalkan, ditambah “Terlambat” bila ada cicilan lewat tempo). Saring dengan **Arah** (Semua Arah, Pinjaman diterima, Pinjaman diberikan), **Status**, atau kotak “Cari nomor pinjaman atau pihak…”. Tekan **Tambah Pinjaman**.",
+          "image": {
+            "file": "pinjaman-daftar.jpg",
+            "caption": "Daftar Pinjaman."
+          }
+        },
+        {
+          "title": "Isi data pinjaman",
+          "text": "**Jenis Pinjaman**: “Pinjaman diterima (kita berutang)” atau “Pinjaman diberikan (kita meminjamkan)”. Isi **Pemberi Pinjaman** (untuk pinjaman diterima) atau **Peminjam** (untuk pinjaman diberikan); ada saran dari daftar kontak dan nama baru boleh diketik. Isi **Tujuan Pinjaman** (minimal 3 karakter), **Jumlah Pokok**, dan **Tanggal Perjanjian** (tidak boleh di masa depan). Khusus PT dan pinjaman diterima ada **Jangka Waktu**: “Jangka pendek (sampai 1 tahun)” atau “Jangka panjang (lebih dari 1 tahun)”.",
+          "image": {
+            "file": "pinjaman-form.jpg",
+            "caption": "Form Tambah Pinjaman."
+          }
+        },
+        {
+          "title": "Isi jadwal cicilan",
+          "text": "**Bunga per Tahun (%)** (bawaan 0). **Cara Hitung Cicilan**: “Anuitas (cicilan sama tiap kali)”, “Flat (pokok dan bunga tetap)”, atau “Bunga saja, pokok di akhir”. **Jumlah Cicilan** (1 sampai 600), **Jarak Antar Cicilan** (Tiap bulan, Tiap 3 bulan, Tiap 6 bulan, Tiap tahun), dan **Tanggal Cicilan Pertama**. Tekan **Simpan Pinjaman**.",
+          "warning": "Tanggal Cicilan Pertama tidak boleh sebelum Tanggal Perjanjian, dan nanti tidak boleh jatuh sebelum tanggal uang diterima atau diberikan."
+        },
+        {
+          "title": "Aktifkan pinjaman",
+          "text": "Anda dibawa ke detail pinjaman berstatus Draf. Di bagian **Tindakan** tekan **Aktifkan Pinjaman**, isi **Tanggal Uang Diterima** (atau **Tanggal Uang Diberikan**) dan **Uang Masuk ke Rekening** (atau **Uang Keluar dari Rekening**), lalu tekan **Aktifkan**. Hasilnya “Pinjaman aktif. Uang sudah dicatat.” Status menjadi Berjalan dan Jadwal Cicilan mulai berlaku."
+        },
+        {
+          "title": "Baca halaman detail pinjaman",
+          "text": "**Ringkasan** memuat Tujuan, Tanggal Perjanjian, Tanggal Efektif, Pokok, Pokok Dicairkan, Outstanding, Sumber, Metode, dan Bunga. **Jadwal Cicilan** berkolom #, Jatuh Tempo, Pokok, Bunga, Fee, Outstanding, dan Status (Lunas, Sebagian Lunas, Jatuh Tempo, Terjadwal, Terlambat). **Riwayat Pembayaran** mencatat tiap pembayaran. Mencatat pembayaran dijelaskan di [Cara Mencatat Cicilan Pinjaman](cicilan-pinjaman)."
+        },
+        {
+          "title": "Batalkan draf yang salah, atau tautkan ke aset",
+          "text": "Pada pinjaman Draf, **Batalkan Pinjaman** meminta **Alasan** (minimal 5 karakter). Pinjaman yang sudah Berjalan tidak bisa dibatalkan; selesaikan lewat pembayaran atau **Hapus Sisa Pinjaman**. Untuk pinjaman diterima yang membiayai aset, tombol **Tautkan ke Aset** (atau **Ubah Tautan Aset**) memilih **Aset yang Dibiayai Pinjaman Ini**. Tautan ini hanya penanda dan tidak memengaruhi pencatatan."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal saat pinjaman diaktifkan (contoh Rp 12.000.000)",
+          "columns": ["Kejadian", "Debit", "Kredit"],
+          "rows": [
+            [
+              "Pinjaman diterima (PT, jangka pendek)",
+              "Kas/Bank (12.000.000)",
+              "Pinjaman Jangka Pendek (12.000.000)"
+            ],
+            [
+              "Pinjaman diterima (PT, jangka panjang)",
+              "Kas/Bank (12.000.000)",
+              "Pinjaman Jangka Panjang (12.000.000)"
+            ],
+            ["Pinjaman diberikan", "Piutang Lain-lain (12.000.000)", "Kas/Bank (12.000.000)"]
+          ]
+        }
+      ],
+      "result": [
+        "Saldo rekening bertambah (pinjaman diterima) atau berkurang (pinjaman diberikan) pada tanggal aktivasi, dan mutasinya muncul di Mutasi Kas & Bank.",
+        "Outstanding sama dengan pokok sampai ada pembayaran."
+      ],
+      "rules": [
+        "Menyimpan pinjaman hanya membuat draf. Tidak ada jurnal dan tidak ada perubahan saldo sebelum Aktifkan Pinjaman.",
+        "Tanggal uang diterima tidak boleh di masa depan dan tidak boleh sebelum Tanggal Perjanjian. Cicilan pertama tidak boleh jatuh sebelum tanggal itu.",
+        "Rekening yang dipilih harus rekening aktif bermata uang dasar Entity. Untuk pinjaman bermata uang asing, lihat [Cara Mencatat Pinjaman dalam Mata Uang Asing](pinjaman-mata-uang-asing).",
+        "Jumlah, bunga, dan jadwal tidak bisa diedit setelah pinjaman dibuat. Perubahan jadwal memakai Restrukturisasi Jadwal.",
+        "Jadwal bunga hanyalah rencana. Yang masuk buku adalah bunga yang Anda isi saat mencatat pembayaran.",
+        "Entity Pribadi tidak punya isian Jangka Waktu; pinjaman diterima masuk ke akun Pinjaman Pribadi.",
+        "Pinjaman diberikan tercatat di akun Piutang Lain-lain, tetapi tidak muncul di daftar Piutang Lain yang dipakai untuk catatan sederhana.",
+        "Belum ada isian “dasar hubungan” (untuk pinjaman ke direktur atau pihak berelasi) di form ini, dan jadwal manual tidak ditawarkan."
+      ],
+      "mistakes": [
+        "Mengira Simpan Pinjaman sudah memasukkan uang ke rekening.",
+        "Salah memilih Jenis Pinjaman. Bawaannya “Pinjaman diterima”.",
+        "Salah memilih Jangka Waktu, padahal ini menentukan akun neraca (jangka pendek atau panjang).",
+        "Mengisi Tanggal Cicilan Pertama lebih awal dari tanggal uang diterima.",
+        "Memakai Piutang Lain atau Utang Lain untuk pinjaman yang punya jadwal cicilan dan bunga."
+      ],
+      "errors": [
+        {
+          "message": "Pinjaman tidak dapat disimpan. Periksa jumlah, bunga, jumlah cicilan dan tanggal.",
+          "meaning": "Pesan umum saat menyimpan draf."
+        },
+        {
+          "message": "perjanjian tidak boleh bertanggal di masa depan",
+          "meaning": "Pilih Tanggal Perjanjian hari ini atau sebelumnya."
+        },
+        {
+          "message": "Isi nama pihak lawan (paling banyak 200 karakter) dan tujuannya (3 sampai 500 karakter)",
+          "meaning": "Lengkapi nama pihak dan Tujuan Pinjaman."
+        },
+        {
+          "message": "angsuran pertama tidak boleh jatuh sebelum <tanggal>",
+          "meaning": "Majukan Tanggal Cicilan Pertama."
+        },
+        {
+          "message": "Bunga dan jangka waktu ini membuat ada angsuran tanpa jumlah; ubah jangka waktunya atau gunakan jadwal manual",
+          "meaning": "Kurangi Jumlah Cicilan atau ubah bunga. Jadwal manual belum tersedia di form."
+        },
+        {
+          "message": "angsuran pertama (<tanggal>) jatuh sebelum tanggal pencairan",
+          "meaning": "Saat Aktifkan, tanggal uang diterima tidak boleh melewati cicilan pertama. Pakai tanggal lebih awal."
+        },
+        {
+          "message": "Tanggal penerimaan dana tidak boleh sebelum tanggal perjanjian (<tanggal>)",
+          "meaning": "Pilih tanggal aktivasi pada atau setelah Tanggal Perjanjian."
+        },
+        {
+          "message": "Hanya pinjaman berstatus draf yang bisa diaktifkan (sekarang: <status>)",
+          "meaning": "Pinjaman sudah diaktifkan atau dibatalkan."
+        },
+        {
+          "message": "Alur ini memakai rekening dalam mata uang dasar Entity (<mata uang>)",
+          "meaning": "Pilih rekening dalam mata uang dasar."
+        },
+        {
+          "message": "Pinjaman tidak dapat diaktifkan. Periksa tanggal dan rekening.",
+          "meaning": "Pesan umum saat aktivasi gagal."
+        },
+        {
+          "message": "Hanya pinjaman berstatus draf yang bisa dibatalkan; pinjaman aktif harus dilunasi atau dihapusbukukan (sekarang: <status>)",
+          "meaning": "Pinjaman Berjalan tidak bisa dibatalkan."
+        }
+      ],
+      "related": [
+        "cicilan-pinjaman",
+        "pinjaman-mata-uang-asing",
+        "piutang-lain",
+        "utang-lain",
+        "saldo-awal"
+      ]
+    },
+    {
+      "slug": "cicilan-pinjaman",
+      "title": "Cara Mencatat Cicilan Pinjaman (Bayar, Terima, Hapus Sisa, Restrukturisasi)",
+      "summary": "Mencatat pembayaran cicilan pinjaman yang Anda terima atau cicilan yang Anda terima dari peminjam, termasuk membatalkan, menghapus sisa, dan mengubah jadwal.",
+      "path": "Aset & Pendanaan > Pinjaman > (klik pinjaman Berjalan) > Tindakan",
+      "who": "Semua tindakan di sini: loans.manage (OWNER dan Finance Admin). Hapus Sisa Pinjaman, Restrukturisasi Jadwal, dan membatalkan penghapusan juga perlu verifikasi ulang kode autentikator.",
+      "quick": "Isi **Pokok**, **Bunga**, dan **Biaya / Denda** sesuai bukti bank. Sistem membagi pembayaran ke cicilan yang paling lama belum lunas, dan pinjaman otomatis **Lunas** saat pokoknya habis.",
+      "steps": [
+        {
+          "title": "Buka pinjaman yang Berjalan",
+          "text": "Di **Aset & Pendanaan > Pinjaman**, klik **Nomor** pinjaman. Cek **Outstanding** dan **Jadwal Cicilan** supaya tahu cicilan mana yang jatuh tempo."
+        },
+        {
+          "title": "Catat cicilan",
+          "text": "Di bagian **Tindakan**, tekan **Bayar Cicilan** (pinjaman diterima) atau **Catat Cicilan Diterima** (pinjaman diberikan). Isi **Tanggal Bayar**, **Dibayar dari Rekening** (atau **Uang Masuk ke Rekening**), **Pokok**, **Bunga**, dan **Biaya / Denda**. Isi **Catatan** bila ada bunga atau biaya (wajib). Tekan **Simpan Pembayaran**. Hasilnya “Pembayaran cicilan tersimpan.”",
+          "tip": "Pisahkan angka sesuai bukti bank. Bunga dan denda dicatat sebagai beban (atau pendapatan, untuk pinjaman diberikan), bukan mengurangi pokok."
+        },
+        {
+          "title": "Periksa hasilnya",
+          "text": "Di **Riwayat Pembayaran** muncul baris baru dengan Nomor (berawalan LPY), Tanggal, Jenis “Pembayaran”, Pokok, Bunga, Fee, Status “Aktif”, dan tautan **Jurnal**. Di **Jadwal Cicilan** status cicilan berubah dan **Outstanding** berkurang. Bila pokok yang dibayar sama dengan Outstanding, status pinjaman menjadi **Lunas**."
+        },
+        {
+          "title": "Batalkan pembayaran yang salah",
+          "text": "Tekan **Batalkan Pembayaran**, pilih **Pembayaran** (tampil seperti “LPY-… · tanggal · jumlah pokok”), isi **Tanggal Pembatalan** dan **Alasan** (minimal 5 karakter). Jurnal dan mutasi kasnya dibalik. Pinjaman yang tadinya Lunas kembali Berjalan. Hasilnya “Pembayaran dibatalkan.”",
+          "warning": "Pembayaran dari jadwal lama (sebelum restrukturisasi) sudah menjadi riwayat dan tidak bisa dibatalkan."
+        },
+        {
+          "title": "Hapus Sisa Pinjaman bila sisanya dihapus tanpa uang bergerak",
+          "text": "Tekan **Hapus Sisa Pinjaman**, isi **Tanggal**, **Jumlah Dihapus** (bawaan: seluruh Outstanding), dan **Alasan** (5 sampai 1000 karakter), lalu **Simpan Penghapusan**. Layar meminta verifikasi ulang. Penghapusan tampil di Riwayat Pembayaran dengan Jenis “Penghapusan”, dan bisa dibatalkan lewat **Batalkan Pembayaran**."
+        },
+        {
+          "title": "Restrukturisasi Jadwal bila syarat cicilan berubah",
+          "text": "Tekan **Restrukturisasi Jadwal**. Isi **Tanggal Efektif**, **Bunga per Tahun (%)**, **Cara Hitung Cicilan**, **Jumlah Cicilan (sisa jadwal baru)**, **Jarak Antar Cicilan**, **Tanggal Cicilan Pertama (jadwal baru)**, dan **Alasan**, lalu **Simpan Jadwal Baru**. Layar meminta verifikasi ulang. Jadwal lama berhenti di tanggal efektif dan muncul di **Riwayat Jadwal** (Versi, Metode, Bunga, Berlaku Sejak, Status Berlaku atau Digantikan). Pembayaran yang sudah tercatat tidak berubah, dan tidak ada jurnal baru."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal pembayaran dan penghapusan (contoh pokok 1.000.000, bunga 100.000)",
+          "columns": ["Kejadian", "Debit", "Kredit"],
+          "rows": [
+            [
+              "Bayar Cicilan (pinjaman diterima)",
+              "Pinjaman Jangka Pendek atau Panjang (1.000.000), Beban Bunga (100.000)",
+              "Kas/Bank (1.100.000)"
+            ],
+            [
+              "Catat Cicilan Diterima (pinjaman diberikan)",
+              "Kas/Bank (1.100.000)",
+              "Piutang Lain-lain (1.000.000), Pendapatan Bunga (100.000)"
+            ],
+            [
+              "Biaya / Denda (jika ada)",
+              "Pinjaman diterima: Beban Lain-lain",
+              "Pinjaman diberikan: Pendapatan Lain-lain"
+            ],
+            [
+              "Hapus Sisa, pinjaman diterima",
+              "Pinjaman Jangka Pendek atau Panjang",
+              "Pendapatan Lain-lain"
+            ],
+            ["Hapus Sisa, pinjaman diberikan", "Beban Piutang Tak Tertagih", "Piutang Lain-lain"]
+          ]
+        }
+      ],
+      "result": [
+        "Saldo rekening berubah pada Tanggal Bayar dan muncul sebagai mutasi.",
+        "Outstanding turun sebesar pokok yang dibayar. Pinjaman otomatis Lunas saat Outstanding nol."
+      ],
+      "rules": [
+        "Hanya pinjaman Berjalan yang bisa dibayar, dihapus sisanya, atau direstrukturisasi.",
+        "Minimal salah satu dari Pokok, Bunga, atau Biaya / Denda harus lebih dari nol. Pokok tidak boleh melebihi Outstanding.",
+        "Tanggal tidak boleh di masa depan dan tidak boleh sebelum aktivitas terakhir pada pinjaman itu.",
+        "Jumlah pembayaran tidak harus sama dengan jadwal. Pembayaran dialokasikan ke cicilan yang paling lama belum lunas lebih dulu.",
+        "Rekening harus aktif dan bermata uang dasar Entity.",
+        "Jumlah Dihapus tidak boleh melebihi Outstanding."
+      ],
+      "mistakes": [
+        "Mengisi seluruh pembayaran di Pokok padahal sebagian adalah bunga, sehingga beban bunga tidak tercatat dan sisa pokok terlalu kecil.",
+        "Mengisi bunga atau biaya tanpa Catatan.",
+        "Memakai Hapus Sisa Pinjaman untuk pelunasan padahal ada uang yang dibayar.",
+        "Membuat pinjaman baru untuk syarat yang berubah, padahal cukup Restrukturisasi Jadwal."
+      ],
+      "errors": [
+        {
+          "message": "Pembayaran cicilan tidak dapat disimpan. Periksa jumlah, tanggal dan rekening.",
+          "meaning": "Pesan umum saat Simpan Pembayaran gagal."
+        },
+        {
+          "message": "Pembayaran memerlukan jumlah",
+          "meaning": "Isi minimal satu dari Pokok, Bunga, atau Biaya / Denda."
+        },
+        {
+          "message": "Pokok yang belum lunas <angka>; pokok yang dibayar tidak boleh melebihinya",
+          "meaning": "Kurangi Pokok."
+        },
+        {
+          "message": "Bunga atau biaya memerlukan catatan yang menjelaskannya.",
+          "meaning": "Isi Catatan."
+        },
+        {
+          "message": "tanggal tidak boleh sebelum aktivitas terakhir pada pinjaman ini (<tanggal>)",
+          "meaning": "Pilih tanggal pada atau setelah tanggal itu."
+        },
+        {
+          "message": "Hanya pinjaman aktif yang bisa dilunasi (sekarang: <status>)",
+          "meaning": "Pinjaman sudah Lunas, Draf, atau Dibatalkan."
+        },
+        {
+          "message": "Sisa yang belum lunas <angka>; penghapusan tidak boleh melebihinya",
+          "meaning": "Kurangi Jumlah Dihapus."
+        },
+        {
+          "message": "Penghapusan piutang memerlukan alasan 5 sampai 1000 karakter.",
+          "meaning": "Isi Alasan. Teks ini memakai kata “piutang” walaupun yang dihapus adalah pinjaman."
+        },
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Tekan Verifikasi ulang →, masukkan kode autentikator, lalu ulangi."
+        },
+        {
+          "message": "Pembayaran ini termasuk jadwal yang sudah direstrukturisasi; sekarang menjadi bagian dari riwayat",
+          "meaning": "Pembayaran lama tidak bisa dibatalkan. Catat koreksi dengan pembayaran baru."
+        },
+        {
+          "message": "Restrukturisasi tidak dapat disimpan. Periksa tanggal efektif, bunga, jumlah cicilan dan alasan.",
+          "meaning": "Pesan umum saat restrukturisasi gagal."
+        }
+      ],
+      "related": ["catat-pinjaman", "pinjaman-mata-uang-asing", "transfer-antar-rekening"]
+    },
+    {
+      "slug": "pinjaman-mata-uang-asing",
+      "title": "Cara Mencatat Pinjaman dalam Mata Uang Asing (Revaluasi Kurs)",
+      "summary": "Menandai pinjaman bermata uang asing dan mencatat selisih kurs tiap akhir bulan dengan revaluasi manual.",
+      "path": "Aset & Pendanaan > Pinjaman > (klik pinjaman) > Atur Mata Uang Asing",
+      "who": "loans.manage (OWNER dan Finance Admin) untuk mengatur mata uang, mencatat revaluasi, dan membatalkannya. Melihat: loans.view.",
+      "quick": "Uang masuk, cicilan, dan Outstanding **tetap dicatat dalam mata uang dasar**. Mata uang asing hanya penanda; selisih kurs dicatat tiap akhir bulan lewat **Catat Revaluasi Kurs** ke akun Laba/Rugi Selisih Kurs.",
+      "steps": [
+        {
+          "title": "Catat pinjaman seperti biasa dalam mata uang dasar",
+          "text": "Buat dan aktifkan pinjaman dengan jumlah yang sudah dikonversi ke mata uang dasar, ke rekening bermata uang dasar. Langkahnya ada di [Cara Mencatat Pinjaman](catat-pinjaman). Form Tambah Pinjaman tidak punya isian mata uang."
+        },
+        {
+          "title": "Atur Mata Uang Asing",
+          "text": "Pada pinjaman yang Berjalan atau Lunas, tekan **Atur Mata Uang Asing**. Isi **Kode Mata Uang (ISO 4217, 3 huruf)**, misalnya USD, dan **Catatan** bila perlu, lalu **Simpan**. Hasilnya “Mata uang pinjaman tersimpan.” Tombol berganti menjadi **Ubah Mata Uang Pinjaman**. Kode harus berbeda dari mata uang dasar Entity."
+        },
+        {
+          "title": "Catat Revaluasi Kurs tiap akhir bulan",
+          "text": "Di pinjaman Berjalan yang sudah punya mata uang asing, tekan **Catat Revaluasi Kurs**. Isi **Tanggal (akhir bulan)**, **Saldo Outstanding (USD)** (saldo dalam mata uang asing menurut bank), **Kurs (Rp per 1 USD)**, dan **Catatan**. Tekan **Simpan Revaluasi**. Hasilnya “Revaluasi kurs tersimpan.” Selisih terhadap Outstanding saat ini diposting otomatis ke Laba/Rugi Selisih Kurs.",
+          "warning": "Isian tanggal terisi hari ini, padahal harus hari terakhir suatu bulan dan setelah revaluasi sebelumnya. Ubah tanggalnya lebih dulu."
+        },
+        {
+          "title": "Baca bagian Revaluasi Kurs",
+          "text": "Di detail pinjaman muncul bagian **Revaluasi Kurs (USD)** dengan kolom **Tanggal**, **Saldo FC**, **Kurs**, **Ekuivalen (Rp)**, **Selisih**, **Status** (“Posted” atau “Dibatalkan”), dan **Jurnal** (**Lihat →**, serta **Pembalik →** bila dibatalkan). “Saldo FC” berarti saldo dalam mata uang asing."
+        },
+        {
+          "title": "Batalkan revaluasi terakhir bila salah",
+          "text": "Tekan **Batalkan Revaluasi Terakhir**, isi **Tanggal Pembatalan** dan **Alasan** (minimal 5 karakter), lalu **Batalkan Revaluasi**. Hanya revaluasi terbaru yang bisa dibatalkan. Hasilnya “Revaluasi kurs dibatalkan.”"
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal revaluasi pinjaman diterima (Outstanding Rp 15.000.000, saldo USD 1.000, kurs 16.200)",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Laba/Rugi Selisih Kurs", "1.200.000", ""],
+            ["Pinjaman Jangka Pendek (akun pinjaman itu)", "", "1.200.000"]
+          ]
+        }
+      ],
+      "result": [
+        "Outstanding pinjaman disesuaikan ke nilai saldo asing dikali kurs, dan selisihnya masuk laba rugi bulan itu.",
+        "Bila utang membesar, selisihnya rugi kurs. Bila mengecil, selisihnya laba kurs. Untuk pinjaman diberikan arahnya terbalik."
+      ],
+      "rules": [
+        "Revaluasi dilakukan manual; tidak ada kurs otomatis. Kurs harus lebih dari nol, paling banyak 10 angka desimal.",
+        "Tanggal harus hari terakhir bulan, tidak di masa depan, tidak sebelum tanggal uang diterima, dan setelah revaluasi terakhir yang masih berlaku.",
+        "Selisih lebih dari 20% dari Outstanding ditolak supaya salah ketik kurs tidak menghasilkan laba atau rugi besar.",
+        "Setelah ada revaluasi, kode mata uang terkunci. Catatan masih bisa diperbarui.",
+        "Pembayaran cicilan tetap dalam mata uang dasar; jumlah dalam mata uang asing hanya Anda isi saat revaluasi."
+      ],
+      "mistakes": [
+        "Membiarkan tanggal bawaan (hari ini) sehingga revaluasi ditolak.",
+        "Mengisi Saldo Outstanding dalam rupiah, padahal kolomnya dalam mata uang asing.",
+        "Lupa melakukan revaluasi tiap akhir bulan sehingga nilai utang di neraca tertinggal dari kurs."
+      ],
+      "errors": [
+        {
+          "message": "Mata uang pinjaman tidak dapat disimpan. Kode mata uang harus berbeda dari mata uang dasar Entity.",
+          "meaning": "Pesan umum saat Simpan mata uang gagal."
+        },
+        {
+          "message": "Revaluasi tidak dapat disimpan. Periksa tanggal (akhir bulan, setelah revaluasi terakhir), saldo dan kurs.",
+          "meaning": "Pesan umum saat revaluasi gagal tanpa alasan rinci."
+        },
+        {
+          "message": "Permintaan tidak valid. (a revaluation is dated on the last day of a month)",
+          "meaning": "Pesan ini tampil dalam bahasa Inggris. Tanggal revaluasi harus hari terakhir bulan."
+        },
+        {
+          "message": "Permintaan tidak valid. (the FX difference exceeds 20% of the outstanding balance; check the rate and the outstanding balance)",
+          "meaning": "Pesan ini tampil dalam bahasa Inggris. Selisih lebih dari 20%, periksa kurs dan saldo yang diisi."
+        },
+        {
+          "message": "Permintaan tidak valid. (set this loan's FX currency before revaluing it)",
+          "meaning": "Pesan ini tampil dalam bahasa Inggris. Atur Mata Uang Asing dulu."
+        },
+        {
+          "message": "Data sudah berubah atau tidak dapat diproses dalam keadaan saat ini. Muat ulang lalu coba lagi. (this loan already has an FX revaluation; its currency cannot change any more)",
+          "meaning": "Pesan ini sebagian berbahasa Inggris. Kode mata uang terkunci karena sudah ada revaluasi."
+        },
+        {
+          "message": "Revaluasi tidak dapat dibatalkan. Hanya revaluasi terbaru yang dapat dibatalkan.",
+          "meaning": "Batalkan revaluasi yang paling baru lebih dulu."
+        }
+      ],
+      "related": ["catat-pinjaman", "cicilan-pinjaman", "transfer-antar-rekening"]
+    },
+    {
+      "slug": "setoran-modal",
+      "title": "Cara Mencatat Setoran Modal (PT) dan Penyertaan Modal (Pribadi)",
+      "summary": "Mencatat uang yang pemilik setorkan sebagai modal ke PT, atau penyertaan modal dari Entity Pribadi, lewat draf lalu konfirmasi.",
+      "path": "Aset & Pendanaan > Modal & Ekuitas > Tambah Modal / Ekuitas",
+      "who": "Melihat: equity.view (OWNER, Finance Admin, Akuntan, Viewer/Auditor). Membuat, mengonfirmasi, membatalkan draf, dan membalik: equity.manage (OWNER dan Finance Admin). Setoran modal tidak memerlukan izin persetujuan tambahan atau verifikasi ulang.",
+      "quick": "Menyimpan hanya membuat **Draf** dan tidak mengubah buku atau saldo. Setelah **Konfirmasi**, uang masuk ke rekening dan Modal Disetor bertambah.",
+      "steps": [
+        {
+          "title": "Buka Aset & Pendanaan > Modal & Ekuitas",
+          "text": "Halaman berjudul **Modal & Ekuitas**. Kolomnya **Nomor** (berawalan EQ), **Jenis**, **Tanggal**, **Pihak**, **Jumlah**, dan **Status** (Draf, Terkonfirmasi, Dibalik, Dibatalkan). Saring dengan **Jenis**, **Status**, atau kotak “Cari nomor, pihak atau tujuan…”. Tekan **Tambah Modal / Ekuitas**.",
+          "image": {
+            "file": "ekuitas-daftar.jpg",
+            "caption": "Halaman Modal & Ekuitas."
+          }
+        },
+        {
+          "title": "Isi form",
+          "text": "Pilih **Jenis**. Pada PT pilihannya Setoran modal, Pengembalian modal, dan Dividen. Pada Entity Pribadi pilihannya Penyertaan modal, Pengembalian penyertaan, dan Distribusi diterima. Untuk panduan ini pilih “Setoran modal” (PT) atau “Penyertaan modal” (Pribadi). Isi **Nama Pemilik / Pihak**, **Keterangan** (minimal 3 karakter), **Jumlah**, dan **Tanggal** (tidak boleh di masa depan). Khusus PT ada **Golongan Modal**: “Modal disetor” atau “Tambahan modal”. Tekan **Simpan**.",
+          "image": {
+            "file": "ekuitas-form.jpg",
+            "caption": "Form Tambah Modal / Ekuitas."
+          }
+        },
+        {
+          "title": "Konfirmasi di halaman detail",
+          "text": "Anda dibawa ke detail berstatus Draf. Tekan **Konfirmasi**, pilih **Rekening Kas/Bank**, lalu **Konfirmasi dan Catat**. Hasilnya “Data dikonfirmasi dan dicatat.” Status menjadi Terkonfirmasi dan tautan **Jurnal** muncul di **Ringkasan**."
+        },
+        {
+          "title": "Batalkan draf atau balik pencatatan yang salah",
+          "text": "Pada Draf, **Batalkan Draf** meminta **Alasan** (minimal 5 karakter). Pada yang sudah Terkonfirmasi, **Balik (Salah Catat)** meminta **Tanggal Pembalikan** dan **Alasan**; jurnal dan mutasi kasnya dibalik dan status menjadi Dibalik."
+        },
+        {
+          "title": "Untuk Entity Pribadi: pengembalian dan distribusi",
+          "text": "**Pengembalian penyertaan** mencatat uang yang kembali dari usaha dan tidak boleh melebihi penyertaan yang sudah tercatat. **Distribusi diterima** mencatat dividen atau bagi hasil usaha sebagai pendapatan pribadi. Keduanya memakai form dan konfirmasi yang sama."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal saat Konfirmasi (contoh Rp 50.000.000)",
+          "columns": ["Kejadian", "Debit", "Kredit"],
+          "rows": [
+            [
+              "Setoran modal (PT), Golongan Modal “Modal disetor”",
+              "Kas/Bank (50.000.000)",
+              "Modal Disetor (50.000.000)"
+            ],
+            [
+              "Setoran modal (PT), Golongan Modal “Tambahan modal”",
+              "Kas/Bank (50.000.000)",
+              "Tambahan Modal (50.000.000)"
+            ],
+            [
+              "Penyertaan modal (Pribadi)",
+              "Investasi & Aset Keuangan (50.000.000)",
+              "Kas/Bank (50.000.000)"
+            ],
+            ["Pengembalian penyertaan (Pribadi)", "Kas/Bank", "Investasi & Aset Keuangan"],
+            ["Distribusi diterima (Pribadi)", "Kas/Bank", "Dividen & Bagi Hasil Usaha"]
+          ]
+        }
+      ],
+      "result": [
+        "Saldo rekening berubah pada tanggal transaksi dan muncul sebagai mutasi.",
+        "Setoran modal bukan pendapatan dan bukan beban, sehingga tidak masuk Laba Rugi."
+      ],
+      "rules": [
+        "Pilihan Jenis mengikuti tipe Entity: PT mencatat setoran modal, pengembalian modal, dan dividen; Entity Pribadi mencatat penyertaan, pengembalian penyertaan, dan distribusi diterima.",
+        "Setoran selalu berupa uang lewat rekening kas atau bank aktif bermata uang dasar Entity. Setoran berupa barang atau tanah tidak punya jalur di layar ini.",
+        "Isi draf tidak bisa diubah. Bila salah, Batalkan Draf lalu buat baru.",
+        "Tanggal tidak boleh di masa depan, dan periode akuntansinya harus terbuka.",
+        "Belum ada isian “dasar hubungan” di form ini."
+      ],
+      "mistakes": [
+        "Mengira Simpan sudah memasukkan uang. Uang baru dicatat saat Konfirmasi.",
+        "Mencatat setoran pemilik sebagai pendapatan atau transfer biasa.",
+        "Salah memilih Golongan Modal (Modal disetor atau Tambahan modal).",
+        "Memilih Jenis yang tidak sesuai tipe Entity, misalnya mencari “Penyertaan modal” di PT."
+      ],
+      "errors": [
+        {
+          "message": "Data tidak dapat disimpan. Periksa jumlah, tanggal dan keterangan.",
+          "meaning": "Pesan umum saat menyimpan draf."
+        },
+        {
+          "message": "Tanggal transaksi modal tidak boleh di masa depan.",
+          "meaning": "Pilih tanggal hari ini atau sebelumnya."
+        },
+        {
+          "message": "Isi nama pihak lawan (paling banyak 200 karakter) dan tujuannya (3 sampai 500 karakter)",
+          "meaning": "Lengkapi Nama Pemilik / Pihak dan Keterangan."
+        },
+        {
+          "message": "Data tidak dapat dikonfirmasi. Periksa rekening.",
+          "meaning": "Pilih rekening kas/bank yang aktif dan bermata uang dasar."
+        },
+        {
+          "message": "Hanya transaksi modal berstatus draf yang bisa dikonfirmasi (sekarang: <status>)",
+          "meaning": "Sudah dikonfirmasi, dibalik, atau dibatalkan."
+        },
+        {
+          "message": "Pengembalian melebihi investasi yang tercatat; catat keuntungannya sebagai distribusi yang diterima",
+          "meaning": "Untuk Entity Pribadi, kurangi jumlah atau pilih Distribusi diterima."
+        },
+        {
+          "message": "Hanya transaksi modal yang sudah dikonfirmasi yang bisa dibalik (sekarang: <status>)",
+          "meaning": "Draf dibatalkan, bukan dibalik."
+        },
+        {
+          "message": "Data tidak dapat dibalik. Isi tanggal dan alasan minimal 5 huruf.",
+          "meaning": "Lengkapi Tanggal Pembalikan dan Alasan."
+        }
+      ],
+      "related": ["pengembalian-modal-dividen", "saldo-awal", "lihat-saldo-mutasi"]
+    },
+    {
+      "slug": "pengembalian-modal-dividen",
+      "title": "Cara Mencatat Pengembalian Modal dan Dividen (PT)",
+      "summary": "Mencatat uang yang PT kembalikan ke pemilik, sebagai pengembalian modal atau dividen, lengkap dengan nomor keputusan pemegang saham.",
+      "path": "Aset & Pendanaan > Modal & Ekuitas > Tambah Modal / Ekuitas",
+      "who": "Membuat draf, membatalkan draf, dan membayar dividen: equity.manage (OWNER dan Finance Admin). Mengonfirmasi dan membalik pengembalian modal atau dividen: equity.manage ditambah equity.approve, yang bawaannya hanya dimiliki OWNER, serta verifikasi ulang kode autentikator. Membatalkan pembayaran dividen: equity.manage dan verifikasi ulang.",
+      "quick": "Pengambilan uang oleh pemilik PT tidak dicatat sebagai biaya. Pakai **Pengembalian modal** (mengurangi modal) atau **Dividen** (dari laba). Keduanya wajib **Nomor Keputusan Pemegang Saham (RUPS)**. Tidak ada jenis “prive”.",
+      "steps": [
+        {
+          "title": "Pilih jenis yang sesuai",
+          "text": "**Pengembalian modal** mengurangi Modal Disetor atau Tambahan Modal dan uang keluar saat dikonfirmasi. **Dividen** dibagikan dari laba: diumumkan dulu (menjadi Utang Dividen), lalu dibayar sekali atau beberapa kali. Aplikasi ini tidak punya jenis “prive” untuk PT. Entity Pribadi yang menerima dividen memakai jenis Distribusi diterima ([Cara Mencatat Setoran Modal](setoran-modal))."
+        },
+        {
+          "title": "Buat draf",
+          "text": "Buka **Aset & Pendanaan > Modal & Ekuitas**, tekan **Tambah Modal / Ekuitas**, pilih **Jenis** “Pengembalian modal” atau “Dividen”. Isi **Nama Pemilik / Pihak**, **Keterangan**, **Jumlah**, **Tanggal**, dan **Nomor Keputusan Pemegang Saham (RUPS)** (3 sampai 200 karakter). Untuk Pengembalian modal, pilih juga **Golongan Modal**: “Modal disetor” atau “Tambahan modal”. Tekan **Simpan**."
+        },
+        {
+          "title": "Konfirmasi oleh pengguna yang berwenang",
+          "text": "Di detail Draf, pengguna yang punya equity.approve menekan **Konfirmasi**. Untuk Pengembalian modal pilih **Rekening Kas/Bank**, lalu **Konfirmasi dan Catat**. Untuk Dividen tampil pesan “Dividen diumumkan dulu. Uang dicatat saat dividen dibayar.” dan tidak ada pilihan rekening. Layar meminta verifikasi ulang.",
+          "warning": "Tanpa equity.approve, tombol Konfirmasi tidak tampil dan yang tersedia hanya **Batalkan Draf**. Finance Admin tidak memilikinya secara bawaan."
+        },
+        {
+          "title": "Bayar dividen",
+          "text": "Pada Dividen yang Terkonfirmasi dan masih ada sisa, tekan **Bayar Dividen**. Isi **Tanggal Bayar**, **Dibayar dari Rekening**, **Jumlah** (bawaan: sisa, boleh dicicil), dan **Catatan (opsional)**, lalu **Simpan Pembayaran**. **Belum Dibayar** di **Ringkasan** berkurang dan **Riwayat Pembayaran** bertambah."
+        },
+        {
+          "title": "Periksa Laba Ditahan Tersedia",
+          "text": "Di **Ringkasan** dividen tampil **Laba Ditahan Tersedia** saat konfirmasi. Dividen yang melebihi laba tersedia tetap bisa dicatat, tetapi ditandai **Melebihi Laba Ditahan** di daftar dan detail."
+        },
+        {
+          "title": "Koreksi bila salah",
+          "text": "**Batalkan Pembayaran Dividen** (pilih **Pembayaran**, **Tanggal Pembatalan**, **Alasan**; perlu verifikasi ulang) membalik satu pembayaran. **Balik (Salah Catat)** membalik pengembalian modal atau dividen yang Terkonfirmasi dan belum punya pembayaran aktif; perlu equity.approve dan verifikasi ulang."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal (contoh pengembalian modal Rp 10.000.000 dan dividen Rp 20.000.000)",
+          "columns": ["Kejadian", "Debit", "Kredit"],
+          "rows": [
+            [
+              "Pengembalian modal dikonfirmasi",
+              "Modal Disetor atau Tambahan Modal (10.000.000)",
+              "Kas/Bank (10.000.000)"
+            ],
+            [
+              "Dividen dikonfirmasi (diumumkan)",
+              "Laba Ditahan (20.000.000)",
+              "Utang Dividen (20.000.000)"
+            ],
+            [
+              "Dividen dibayar (misalnya 8.000.000)",
+              "Utang Dividen (8.000.000)",
+              "Kas/Bank (8.000.000)"
+            ]
+          ]
+        }
+      ],
+      "result": [
+        "Pengembalian modal mengurangi saldo rekening dan akun modal pada tanggal transaksi.",
+        "Dividen menambah Utang Dividen saat diumumkan, dan baru mengurangi kas saat dibayar.",
+        "Keduanya bukan beban, sehingga tidak mengurangi laba tahun berjalan."
+      ],
+      "rules": [
+        "Hanya tersedia di Entity PT. Entity Pribadi memakai jenis Penyertaan modal, Pengembalian penyertaan, dan Distribusi diterima.",
+        "Nomor Keputusan Pemegang Saham (RUPS) wajib untuk kedua jenis.",
+        "Pengembalian modal tidak boleh melebihi saldo akun modal yang dipilih.",
+        "Pembayaran dividen tidak boleh melebihi sisa Belum Dibayar, dan tanggalnya tidak boleh sebelum aktivitas terakhir pada dividen itu.",
+        "Dividen yang masih punya pembayaran aktif tidak bisa dibalik; batalkan pembayarannya dulu.",
+        "Rekening harus aktif dan bermata uang dasar Entity.",
+        "Pajak atas dividen atau pengembalian modal tidak dihitung di layar ini."
+      ],
+      "mistakes": [
+        "Mencatat pengambilan uang pemilik sebagai biaya atau Transfer biasa.",
+        "Mengira dividen sudah mengurangi kas saat Konfirmasi. Kas baru berkurang saat Bayar Dividen.",
+        "Lupa menyiapkan nomor keputusan RUPS sebelum membuat draf.",
+        "Menunggu tombol Konfirmasi muncul padahal akun Anda tidak punya equity.approve."
+      ],
+      "errors": [
+        {
+          "message": "Pengembalian modal atau dividen memerlukan nomor referensi keputusannya (3 sampai 200 karakter)",
+          "meaning": "Isi Nomor Keputusan Pemegang Saham (RUPS)."
+        },
+        {
+          "message": "modal yang dikembalikan melebihi saldo akun ekuitas tersebut",
+          "meaning": "Kurangi Jumlah atau pilih Golongan Modal lain."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Akun Anda belum punya izin yang diperlukan, misalnya equity.approve."
+        },
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Tekan Verifikasi ulang →, masukkan kode autentikator, lalu ulangi."
+        },
+        {
+          "message": "Penetapan dividen tidak memindahkan uang; pilih rekening saat dividen dibayar",
+          "meaning": "Dividen tidak memakai rekening saat dikonfirmasi."
+        },
+        {
+          "message": "Dividen yang belum dibayar <angka>; pembayaran tidak boleh melebihinya",
+          "meaning": "Kurangi Jumlah pembayaran."
+        },
+        {
+          "message": "Hanya dividen yang sudah dikonfirmasi yang bisa dibayar",
+          "meaning": "Konfirmasi dividennya dulu."
+        },
+        {
+          "message": "Dividen yang sudah ada pembayarannya tidak bisa dibalik; balik pembayarannya dulu",
+          "meaning": "Gunakan Batalkan Pembayaran Dividen lebih dulu."
+        },
+        {
+          "message": "Pembayaran dividen tidak dapat disimpan. Periksa jumlah, tanggal dan rekening.",
+          "meaning": "Pesan umum saat Bayar Dividen gagal."
+        }
+      ],
+      "related": ["setoran-modal", "saldo-awal", "lihat-saldo-mutasi"]
+    },
+    {
+      "slug": "utang-lain",
+      "title": "Cara Mencatat Utang Lain (Pinjaman dari Pihak Lain)",
+      "summary": "Mencatat uang yang Anda pinjam dari pihak lain di luar tagihan vendor, lalu mencatat pembayarannya.",
+      "path": "Aset & Pendanaan > Utang Lain > Tambah Utang lain-lain",
+      "who": "Melihat: loans.view. Membuat, membayar, menghapus sisa, membatalkan: loans.manage (OWNER dan Finance Admin). Hapus Sisa juga perlu verifikasi ulang kode autentikator.",
+      "quick": "Utang Lain BUKAN untuk tagihan vendor. Tagihan vendor selalu lewat Pembelian > Tagihan supaya beban dan Umur Utang benar. Utang Lain langsung tercatat saat disimpan, tanpa draf.",
+      "steps": [
+        {
+          "title": "Pastikan memang bukan tagihan vendor",
+          "text": "Gunakan ini untuk uang yang Anda pinjam secara sederhana dari pihak lain, tanpa jadwal cicilan. Pembelian barang atau jasa yang belum dibayar memakai [Cara Mencatat dan Menyetujui Tagihan Vendor](catat-tagihan-vendor). Pinjaman berjadwal dengan cicilan dan bunga memakai [Cara Mencatat Pinjaman](catat-pinjaman) dengan jenis “Pinjaman diterima”."
+        },
+        {
+          "title": "Buka Aset & Pendanaan > Utang Lain",
+          "text": "Halaman berjudul **Daftar Utang lain-lain**. Kolomnya **Nomor**, **Pihak**, **Tujuan**, **Jatuh Tempo**, **Pokok**, **Outstanding**, dan **Status** (Berjalan, Lunas, Dibatalkan, Terlambat). Tekan **Tambah Utang lain-lain**.",
+          "image": {
+            "file": "utang-lain-daftar.jpg",
+            "caption": "Daftar Utang lain-lain."
+          }
+        },
+        {
+          "title": "Isi form",
+          "text": "**Kepada Siapa Kita Berutang** (nama pihak, wajib; ada saran dari daftar kontak). **Keterangan** (wajib, 3 sampai 500 karakter). **Jumlah**. **Tanggal** (bawaan hari ini, tidak boleh di masa depan). **Jatuh Tempo (opsional)**. **Uang Masuk ke Rekening** (rekening aktif). Tekan **Simpan**."
+        },
+        {
+          "title": "Periksa hasilnya",
+          "text": "Anda dibawa ke detail. Nomor berawalan OPY, status Berjalan, dan saldo rekening bertambah sebesar jumlah. **Pengakuan** tertulis “Tunai” dan **Sumber** “Manual”."
+        },
+        {
+          "title": "Catat pembayaran",
+          "text": "Di bagian **Tindakan**, tekan **Catat Pembayaran**. Isi **Tanggal**, **Dibayar dari Rekening**, **Jumlah Pokok** (bawaan: sisa), **Bunga (jika ada)**, **Biaya (jika ada)**, dan **Catatan** (wajib, minimal 5 karakter, bila ada bunga atau biaya). Tekan **Simpan Pelunasan**. Bila pokok sama dengan sisa, status menjadi Lunas."
+        },
+        {
+          "title": "Hapus sisa, batalkan, atau batalkan pelunasan",
+          "text": "**Hapus Sisa** (misalnya pemberi pinjaman menghapus utang Anda) meminta **Alasan** (5 sampai 1000 karakter) dan verifikasi ulang. **Batalkan (Salah Catat)** hanya untuk utang yang belum punya pelunasan aktif. **Batalkan Pelunasan** membalik satu pelunasan."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal saat utang lain dicatat, dibayar, dan dihapus",
+          "columns": ["Kejadian", "Debit", "Kredit"],
+          "rows": [
+            ["Dicatat", "Kas/Bank (uang masuk)", "Utang Lain-lain"],
+            [
+              "Dibayar",
+              "Utang Lain-lain (pokok), Beban Bunga, Beban Lain-lain",
+              "Kas/Bank (pokok + bunga + biaya)"
+            ],
+            ["Hapus Sisa", "Utang Lain-lain", "Pendapatan Lain-lain"]
+          ]
+        }
+      ],
+      "result": [
+        "Utang lain tercatat di kewajiban dan tidak masuk Umur Utang tagihan vendor.",
+        "Pembayaran muncul sebagai pengeluaran di Mutasi Kas & Bank."
+      ],
+      "rules": [
+        "Tanggal tidak boleh di masa depan. Jatuh Tempo tidak boleh sebelum Tanggal.",
+        "Pembayaran pokok tidak boleh melebihi sisa, dan tanggalnya tidak boleh sebelum aktivitas terakhir pada utang itu.",
+        "Rekening yang dipakai harus rekening aktif bermata uang dasar Entity. Periode akuntansi harus terbuka.",
+        "Hanya utang Berjalan yang bisa dibayar atau dihapus sisanya.",
+        "Data tidak bisa diedit setelah dibuat. Salah catat dibatalkan lalu dibuat ulang.",
+        "Belum ada kolom “dasar hubungan” untuk menandai pinjaman dari direktur atau pihak berelasi."
+      ],
+      "mistakes": [
+        "Memakai Utang Lain untuk tagihan vendor. Bebannya tidak tercatat dan tidak muncul di Umur Utang.",
+        "Mencatat pinjaman berjadwal (cicilan dan bunga) di sini, bukan di Pinjaman.",
+        "Mengisi bunga atau biaya tanpa catatan.",
+        "Memakai Hapus Sisa untuk pembayaran yang sebenarnya ada uang keluar."
+      ],
+      "errors": [
+        {
+          "message": "Data tidak dapat disimpan. Periksa jumlah, tanggal dan rekening.",
+          "meaning": "Pesan umum saat menyimpan."
+        },
+        {
+          "message": "Tanggal kewajiban tidak boleh di masa depan.",
+          "meaning": "Pilih Tanggal hari ini atau sebelumnya."
+        },
+        {
+          "message": "tanggal jatuh tempo tidak boleh sebelum tanggal kewajiban",
+          "meaning": "Jatuh Tempo harus sama dengan atau setelah Tanggal."
+        },
+        {
+          "message": "Alur ini memakai rekening dalam mata uang dasar Entity (<mata uang>)",
+          "meaning": "Pilih rekening dalam mata uang dasar."
+        },
+        {
+          "message": "Sisa yang belum lunas <angka>; pokok yang dilunasi tidak boleh melebihinya",
+          "meaning": "Kurangi Jumlah Pokok."
+        },
+        {
+          "message": "Bunga atau biaya memerlukan catatan yang menjelaskannya.",
+          "meaning": "Isi Catatan (minimal 5 karakter)."
+        },
+        {
+          "message": "Hanya kewajiban yang masih terbuka yang bisa dilunasi (sekarang: <status>)",
+          "meaning": "Utang sudah Lunas atau Dibatalkan."
+        },
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Tekan Verifikasi ulang →, masukkan kode autentikator, lalu ulangi."
+        },
+        {
+          "message": "Kewajiban yang sudah memiliki pelunasan tidak bisa dibatalkan (void); balik dulu pelunasannya.",
+          "meaning": "Gunakan Batalkan Pelunasan lebih dulu."
+        }
+      ],
+      "related": [
+        "piutang-lain",
+        "catat-pinjaman",
+        "catat-tagihan-vendor",
+        "transfer-antar-rekening"
+      ]
+    }
+  ]
+}

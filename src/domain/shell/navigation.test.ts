@@ -29,6 +29,16 @@ describe("NAVIGATION labels (decision 254)", () => {
 });
 
 describe("activeNavItem", () => {
+  it("marks Piutang Lain or Utang Lain for the shared obligation form and detail pages by their kind", () => {
+    expect(activeNavItem(NAVIGATION, "/assets/obligations/new", "receivable")).toEqual({
+      groupKey: "assets-financing",
+      href: "/assets/other-receivables",
+    });
+    expect(activeNavItem(NAVIGATION, "/assets/obligations/abc", "payable")).toEqual({
+      groupKey: "assets-financing",
+      href: "/assets/other-payables",
+    });
+  });
   it("matches the page itself", () => {
     expect(activeNavItem(NAVIGATION, "/planning/forecasts")).toEqual({
       groupKey: "planning",

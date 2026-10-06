@@ -60,7 +60,9 @@ function errorState(error: unknown, fallback: string): FinancingActionState {
 }
 
 function withEntity(path: string, entity: string): string {
-  return entity ? `${path}?entity=${encodeURIComponent(entity)}` : path;
+  return entity
+    ? `${path}${path.includes("?") ? "&" : "?"}entity=${encodeURIComponent(entity)}`
+    : path;
 }
 
 async function run(
@@ -355,7 +357,9 @@ export async function createObligationAction(
   }
   revalidatePath("/assets/other-receivables");
   revalidatePath("/assets/other-payables");
-  redirect(withEntity(`/assets/obligations/${obligationId}`, entity));
+  redirect(
+    withEntity(`/assets/obligations/${obligationId}?kind=${text(formData, "kind")}`, entity),
+  );
 }
 
 export async function settleObligationAction(

@@ -35,7 +35,17 @@ GUIDE_DIR = os.environ.get(
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import flow_diagrams  # noqa: E402 -- draws the flow diagrams (decision 300); same code as the website's SVG files
 
-GUIDE_FILES = ["mulai.json", "kas-bank.json", "penjualan.json", "pembelian.json", "pajak-lainnya.json"]
+GUIDE_FILES = [
+    "mulai.json",
+    "kas-bank.json",
+    "penjualan.json",
+    "pembelian.json",
+    "pajak-lainnya.json",
+    "akuntansi-laporan.json",
+    "aset-pinjaman.json",
+    "payroll-perencanaan.json",
+    "administrasi-dokumen.json",
+]
 
 # ----------------------------------------------------------------------------
 # Styles

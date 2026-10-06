@@ -2244,3 +2244,18 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   its label because the generic form-label rule outranked the checkbox rule; a checkbox field now stays a row.
   The guide "Cara Menambah Produk dan Jasa" has retaken screenshots of the compact list and the new read-only
   detail page. Open: none for tasks 94 and 95.
+
+- Guide modules for the remaining menus (decision 302, OWNER, 6 October 2026, tasks 82, 96-98). The OWNER asked to
+  continue until every menu has a guide. (1) 38 new guides in four new groups, each written from the code (labels,
+  permissions, error messages and journals taken from the screens, services and migrations, not from memory):
+  Akuntansi dan Laporan (9), Aset dan Pinjaman (10), Payroll dan Perencanaan (8), Administrasi dan Dokumen (11);
+  the groups are registered in `src/domain/guide/guides.ts` and in the PDF generator, so the website and the PDF
+  carry the same text. 40 real screenshots from the live site are attached to steps. (2) Task 82 is closed by
+  the OWNER's answer: customer payments go straight to a PT account, so no new mechanism is needed (revenue is
+  recognised when the invoice is issued; the payment only settles the receivable; no double revenue). The guide
+  "Memahami Piutang dan Pendapatan" now says so. (3) The sidebar marks Piutang Lain or Utang Lain (not Aset Tetap)
+  on the shared obligation form and detail pages: the address carries `kind` and `activeNavItem` reads it
+  (task 96). (4) While writing the guides several real defects were found and recorded as tasks 99-104 (the TER
+  category of PTKP K/0 and K/2 in the seeded PPh 21 rule, payslip BPJS details empty, payroll role unable to pay,
+  English text left on screens, entity time zone still WIB); they are fixed separately, not in this change.
+  No change to data, accounting, tax or authorization.

@@ -35,6 +35,8 @@ export default async function ObligationDetailPage({
   const currency = await getEntityBaseCurrency(membership.entity_id);
   const qs = entity ? `?entity=${encodeURIComponent(entity)}` : "";
   const backHref = `${LIST_HREF[detail.kind]}${qs}`;
+  // The sidebar reads `kind` to mark Piutang Lain or Utang Lain as the current menu.
+  const detailQs = `?kind=${detail.kind}${entity ? `&entity=${encodeURIComponent(entity)}` : ""}`;
   const canManage = can(access, membership.entity_id, "loans.manage");
   const accounts = canManage
     ? (await getMoneyControl(membership.entity_id).catch(() => []))
@@ -67,7 +69,7 @@ export default async function ObligationDetailPage({
             settlements={activeSettlements}
             accounts={accounts}
             today={today}
-            next={`/assets/obligations/${detail.id}${qs}`}
+            next={`/assets/obligations/${detail.id}${detailQs}`}
           />
         ) : undefined
       }

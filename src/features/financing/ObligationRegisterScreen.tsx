@@ -108,8 +108,8 @@ export function ObligationRegisterScreen({
             {rows.map((row) => {
               const statusBadge = obligationStatusBadge(row.status, row.overdue);
               const href = entity
-                ? `/assets/obligations/${row.obligation_id}?entity=${encodeURIComponent(entity)}`
-                : `/assets/obligations/${row.obligation_id}`;
+                ? `/assets/obligations/${row.obligation_id}?kind=${kind}&entity=${encodeURIComponent(entity)}`
+                : `/assets/obligations/${row.obligation_id}?kind=${kind}`;
               return (
                 <tr key={row.obligation_id}>
                   <td>

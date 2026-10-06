@@ -3,6 +3,10 @@ import kasBank from "@/content/guide/kas-bank.json";
 import penjualan from "@/content/guide/penjualan.json";
 import pembelian from "@/content/guide/pembelian.json";
 import pajakLainnya from "@/content/guide/pajak-lainnya.json";
+import akuntansiLaporan from "@/content/guide/akuntansi-laporan.json";
+import asetPinjaman from "@/content/guide/aset-pinjaman.json";
+import payrollPerencanaan from "@/content/guide/payroll-perencanaan.json";
+import administrasiDokumen from "@/content/guide/administrasi-dokumen.json";
 
 /**
  * The step-by-step user guide (decision 299). One content source -- the JSON files under
@@ -64,6 +68,10 @@ export const GUIDE_GROUPS: readonly GuideGroup[] = [
   penjualan,
   pembelian,
   pajakLainnya,
+  akuntansiLaporan,
+  asetPinjaman,
+  payrollPerencanaan,
+  administrasiDokumen,
 ] as readonly GuideGroup[];
 
 export const ALL_GUIDES: readonly Guide[] = GUIDE_GROUPS.flatMap((group) => group.guides);

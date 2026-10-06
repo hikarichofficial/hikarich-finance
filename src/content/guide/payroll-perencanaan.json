@@ -1,0 +1,1008 @@
+{
+  "key": "payroll-perencanaan",
+  "title": "Payroll dan Perencanaan",
+  "description": "Mengelola karyawan, gaji bulanan, slip gaji, dan PPh 21, serta merencanakan anggaran, target pendapatan, transaksi berulang, dan perkiraan.",
+  "guides": [
+    {
+      "slug": "tambah-karyawan",
+      "title": "Cara Menambah Karyawan dan Mengisi Data Gajinya",
+      "summary": "Mendaftarkan karyawan baru, lalu mengisi gaji, data pajak, dan BPJS supaya ia bisa masuk Payroll bulanan.",
+      "path": "Payroll > Karyawan",
+      "who": "Lihat daftar karyawan: payroll.employee_view. Tambah dan ubah data karyawan, catat perubahan jabatan, tandai berhenti: payroll.employee_edit. Atur gaji dan BPJS: payroll.compensation_edit. Lihat gaji dan BPJS: payroll.compensation_view. Lihat data pajak: payroll.tax_view (mengubah data pajak butuh payroll.employee_edit dan payroll.tax_view sekaligus). Semua izin ini dipegang OWNER dan peran Payroll; peran lain tidak punya. Payroll hanya tersedia untuk Entity berbentuk perusahaan.",
+      "quick": "Setelah **Simpan**, karyawan belum bisa digaji dengan benar sampai **Atur Gaji & Komponen** dan **Atur Data Pajak** diisi; **Atur BPJS** diisi bila ia ikut BPJS.",
+      "steps": [
+        {
+          "title": "Buka Payroll > Karyawan",
+          "text": "Halaman berjudul **Karyawan** menampilkan kolom Kode, Nama, Jabatan, Departemen, Jenis, Tanggal Masuk, dan Status (Aktif atau Berhenti). Anda bisa menyaring dengan **Status**, **Jenis**, atau kotak cari, lalu tekan **Terapkan**. Untuk karyawan baru, tekan **Tambah Karyawan**.",
+          "image": {
+            "file": "karyawan-daftar.jpg",
+            "caption": "Daftar Karyawan."
+          }
+        },
+        {
+          "title": "Isi data dasar karyawan",
+          "text": "Isi **Nama Lengkap**, **Tanggal Masuk** (bawaan hari ini), **Jenis Karyawan** (Karyawan tetap, Kontrak, Percobaan, atau Paruh waktu), **Jabatan**, dan **Departemen (opsional)**. Tekan **Simpan**. Anda dibawa ke halaman karyawan itu, dan kode karyawan dibuat otomatis oleh aplikasi.",
+          "tip": "Isi Tanggal Masuk dengan benar. Tanggal ini menentukan bulan pertama karyawan ikut Payroll, dan tidak bisa diubah lagi setelah karyawan masuk Payroll yang sudah diposting.",
+          "image": {
+            "file": "karyawan-form.jpg",
+            "caption": "Form Tambah Karyawan."
+          }
+        },
+        {
+          "title": "Atur gaji dan komponennya",
+          "text": "Di bagian **Tindakan**, tekan **Atur Gaji & Komponen**. Isi **Berlaku Sejak**, lalu untuk tiap komponen isi **Nama**, **Kode (huruf kecil, tanpa spasi)**, **Jenis** (Penghasilan atau Potongan), dan **Jumlah per Bulan**. Dua kotak centang penting: **Dihitung untuk PPh 21** dan **Masuk dasar upah BPJS (hanya penghasilan)**.\n\nBaris pertama sudah berisi “Gaji Pokok” (kode gaji_pokok) dengan kedua kotak tercentang. Tekan **Tambah Komponen** untuk tunjangan atau potongan lain, lalu **Simpan Kompensasi**.",
+          "tip": "Saat gaji berubah, isi hanya komponen yang berubah dengan **Berlaku Sejak** yang baru. Komponen yang tidak Anda isi tetap seperti sebelumnya. Kosongkan nama dan jumlah pada baris yang tidak dipakai."
+        },
+        {
+          "title": "Atur data pajak karyawan",
+          "text": "Tekan **Atur Data Pajak**. Isi **Berlaku Sejak**, **Status NPWP/NIK** (Punya NPWP/NIK, Tidak punya NPWP/NIK, atau Belum diketahui), **Nomor NPWP/NIK (15 atau 16 angka; isi hanya bila punya)**, **Status PTKP** (TK/0 sampai TK/3, K/0 sampai K/3), dan **Metode Pajak**: “Ditanggung karyawan” atau “Ditanggung perusahaan (gross-up)”. Tekan **Simpan Data Pajak**. Arti metode pajak dijelaskan di [Memahami PPh 21 dan Pajak Payroll](memahami-pajak-payroll).",
+          "warning": "Jangan biarkan **Status NPWP/NIK** atau **Status PTKP** di “Belum diketahui”. Payroll karyawan itu akan bertanda “Data pajak karyawan (NPWP/NIK atau status PTKP) belum lengkap.” dan tidak bisa diajukan."
+        },
+        {
+          "title": "Atur BPJS bila karyawan ikut",
+          "text": "Tekan **Atur BPJS**. Isi **Berlaku Sejak**, lalu untuk tiap program (BPJS Kesehatan, BPJS Ketenagakerjaan: JHT, JP, JKK, JKM) pilih **Kepesertaan**: Tidak diubah, Terdaftar, atau Tidak terdaftar. Untuk JKK pilih juga **Tingkat Risiko JKK** (Tingkat 1 sampai Tingkat 5). **Nomor Anggota (opsional)** boleh diisi. Tekan **Simpan BPJS**.\n\nIuran dihitung dari komponen gaji yang bertanda **Masuk dasar upah BPJS**.",
+          "warning": "BPJS Kesehatan dan BPJS Ketenagakerjaan adalah dua badan yang berbeda dan dibayar terpisah. Aplikasi mencatat utang keduanya di dua akun yang berbeda."
+        },
+        {
+          "title": "Isi Saldo Awal Pajak bila perlu",
+          "text": "Hanya untuk karyawan yang sudah digaji sebelum Anda memakai aplikasi ini dan yang Payroll pertamanya di sini bukan bulan Januari. Tekan **Isi Saldo Awal Pajak**, lalu isi **Tahun Pajak**, **Sampai Bulan (1-11)**, **Total Penghasilan Bruto Kena Pajak**, **Total Iuran Pensiun/JHT yang Dipotong**, **Total PPh 21 yang Sudah Dipotong**, dan **Catatan (opsional)**. Tekan **Simpan Saldo Awal Pajak**."
+        },
+        {
+          "title": "Ubah data, catat perubahan jabatan, atau tandai berhenti",
+          "text": "**Ubah Data** mengubah nama dan tanggal masuk. **Catat Perubahan Jabatan** menyimpan jabatan, departemen, atau jenis karyawan baru mulai tanggal **Berlaku Sejak**, dan riwayatnya tampil di bagian **Riwayat Jabatan**. **Karyawan Berhenti** meminta **Tanggal Berhenti** dan **Alasan** (minimal 5 karakter), lalu karyawan berstatus Berhenti dan tidak masuk Payroll bulan berikutnya."
+        }
+      ],
+      "result": [
+        "Karyawan tampil di daftar **Karyawan** berstatus Aktif dan ikut Payroll bulan berikutnya yang Anda buat.",
+        "Halaman karyawan menampilkan bagian Ringkasan, Riwayat Jabatan, Kompensasi, BPJS, dan Pajak. Bagian Kompensasi dan BPJS hanya tampil bagi yang punya izin lihat gaji, dan bagian Pajak hanya bagi yang punya izin lihat pajak.",
+        "Menambah atau mengubah data karyawan tidak membuat jurnal apa pun. Uang baru tercatat saat Payroll diposting."
+      ],
+      "rules": [
+        "Payroll hanya tersedia untuk Entity berbentuk perusahaan.",
+        "Nama Lengkap minimal 2 karakter, dan Jabatan wajib diisi.",
+        "Tiap komponen gaji, data pajak, dan program BPJS berlaku sendiri-sendiri mulai tanggal **Berlaku Sejak**. Tanggalnya tidak boleh sebelum Tanggal Masuk, dan satu simpan memuat paling banyak 30 komponen.",
+        "Hanya komponen berjenis Penghasilan yang boleh bertanda dasar upah BPJS.",
+        "Gaji dihitung penuh setiap bulan. Belum ada hitungan proporsional untuk karyawan yang masuk atau berhenti di tengah bulan; bila perlu, sesuaikan lewat penyesuaian saat membuat Payroll.",
+        "Perubahan gaji, pajak, atau BPJS hanya memengaruhi Payroll yang belum diposting. Payroll yang sudah diposting tidak berubah kecuali dikoreksi.",
+        "Nomor NPWP/NIK yang sudah disimpan tidak ditampilkan lagi (hanya versi disamarkan). Isi ulang nomornya bila Anda menyimpan data pajak baru dengan status Punya NPWP/NIK.",
+        "Belum ada tombol untuk mengaktifkan kembali karyawan yang sudah berstatus Berhenti, dan belum ada tombol untuk menghapus karyawan."
+      ],
+      "mistakes": [
+        "Langsung membuat Payroll tanpa mengisi gaji dan data pajak. Barisnya akan bertanda perlu ditinjau dan Payroll tidak bisa diajukan.",
+        "Memilih “Belum diketahui” untuk NPWP/NIK atau PTKP karena belum punya datanya.",
+        "Mengisi **Berlaku Sejak** setelah bulan Payroll yang ingin dihitung, sehingga komponen belum berlaku di bulan itu dan muncul “Karyawan belum punya komponen gaji pada bulan ini.”",
+        "Lupa mencentang **Dihitung untuk PPh 21** atau **Masuk dasar upah BPJS** pada Gaji Pokok, sehingga pajak atau iuran BPJS keliru.",
+        "Menganggap mengubah gaji akan memperbaiki Payroll yang sudah diposting. Payroll itu harus dikoreksi lebih dulu."
+      ],
+      "errors": [
+        {
+          "message": "Karyawan tidak dapat disimpan. Periksa nama, tanggal masuk dan jabatan.",
+          "meaning": "Isian dasar belum lengkap atau tidak valid. Pastikan Nama Lengkap, Tanggal Masuk, dan Jabatan terisi."
+        },
+        {
+          "message": "Isi minimal satu komponen gaji.",
+          "meaning": "Semua baris komponen kosong. Isi nama dan jumlah pada minimal satu baris."
+        },
+        {
+          "message": "Kompensasi memerlukan tanggal yang tidak sebelum tanggal bergabung.",
+          "meaning": "**Berlaku Sejak** lebih awal dari Tanggal Masuk karyawan. Pilih tanggal yang sama atau lebih baru."
+        },
+        {
+          "message": "Hanya komponen pendapatan yang bisa dihitung sebagai dasar upah BPJS.",
+          "meaning": "Kotak **Masuk dasar upah BPJS** tercentang pada komponen berjenis Potongan. Hilangkan centangnya."
+        },
+        {
+          "message": "Pilih minimal satu program BPJS yang diubah.",
+          "meaning": "Semua program masih “Tidak diubah”. Pilih Terdaftar atau Tidak terdaftar pada program yang berubah."
+        },
+        {
+          "message": "BPJS Kesehatan mulai <tanggal> sudah tercatat; catat perubahan mulai tanggal yang lebih baru.",
+          "meaning": "Program itu sudah punya catatan pada **Berlaku Sejak** yang sama. Pakai tanggal yang lebih baru."
+        },
+        {
+          "message": "Payroll sudah menghitung karyawan ini; tanggal bergabung tidak bisa diubah.",
+          "meaning": "Karyawan sudah masuk Payroll yang diposting, jadi Tanggal Masuk terkunci."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Peran Anda tidak punya izin yang diperlukan, misalnya payroll.compensation_edit untuk gaji dan BPJS."
+        }
+      ],
+      "related": ["jalankan-payroll-bulanan", "memahami-pajak-payroll", "pengaturan-pajak-awal"]
+    },
+    {
+      "slug": "jalankan-payroll-bulanan",
+      "title": "Cara Menjalankan Payroll Bulanan",
+      "summary": "Membuat proses gaji satu bulan, menghitung, mengajukan, menyetujui, memposting ke pembukuan, lalu membayar gaji dan BPJS.",
+      "path": "Payroll > Proses Payroll",
+      "who": "Buat proses, hitung, tambah penyesuaian, ajukan, batalkan proses: payroll.run. Setujui, posting, tutup, buka kembali, koreksi: payroll.approve. Kembalikan ke draf: payroll.run atau payroll.approve. Catat dan batalkan pembayaran: payroll.pay (butuh verifikasi ulang). Melihat daftar dan detail butuh payroll.compensation_view ditambah salah satu dari payroll.run, payroll.approve, atau payroll.pay. OWNER dan peran Payroll memegang semuanya. Daftar rekening di formulir pembayaran hanya terisi bagi pengguna yang juga punya money.view; peran Payroll bawaan tidak punya izin itu, jadi praktisnya pembayaran dilakukan OWNER atau pengguna yang diberi izin tambahan.",
+      "quick": "Satu bulan satu proses. Uang baru berpindah di pembukuan setelah **Posting ke Pembukuan**, dan baru keluar dari rekening setelah **Catat Pembayaran**.",
+      "steps": [
+        {
+          "title": "Siapkan data sebelum membuat proses",
+          "text": "Pastikan setiap karyawan aktif sudah punya gaji, data pajak, dan BPJS (lihat [Cara Menambah Karyawan dan Mengisi Data Gajinya](tambah-karyawan)). Pastikan juga mesin pajak sudah aktif untuk Entity ini ([Cara Mengatur Pajak Awal](pengaturan-pajak-awal)), karena PPh 21 harus masuk buku pajak saat posting."
+        },
+        {
+          "title": "Buka Payroll > Proses Payroll dan buat proses",
+          "text": "Halaman berjudul **Proses Penggajian** menampilkan kolom Nomor, Periode, Tanggal Bayar, Karyawan, Gaji Bersih, dan Status. Tekan **Buat Proses Payroll**, isi **Bulan Gaji (pilih tanggal mana saja di bulan itu)**, **Tanggal Bayar**, dan **Catatan (opsional)**, lalu tekan **Buat**. Anda dibawa ke halaman proses berstatus Draf.",
+          "tip": "Satu bulan hanya boleh punya satu proses yang aktif. Bila salah, gunakan **Batalkan Proses**, lalu buat ulang.",
+          "image": {
+            "file": "payroll-daftar.jpg",
+            "caption": "Halaman Proses Penggajian dengan tombol Buat Proses Payroll."
+          }
+        },
+        {
+          "title": "Tambah penyesuaian bila ada (opsional)",
+          "text": "Untuk bonus, lembur, atau kasbon bulan ini saja, tekan **Tambah Penyesuaian**. Pilih **Karyawan**, **Jenis** (Penghasilan atau Potongan), isi **Nama Penyesuaian** dan **Jumlah**, dan atur kotak **Dihitung untuk PPh 21**. Tekan **Simpan Penyesuaian**. **Hapus Penyesuaian** membuang satu penyesuaian.",
+          "tip": "Penyesuaian hanya bisa diubah saat proses berstatus Draf atau Sudah dihitung. Setelah menambah atau menghapus, hitung ulang Payroll."
+        },
+        {
+          "title": "Hitung Payroll",
+          "text": "Tekan **Hitung Payroll**, lalu **Hitung Sekarang**. Aplikasi menghitung gaji, BPJS, dan PPh 21 semua karyawan dari data terbaru, dan status menjadi “Sudah dihitung”. Hitung lagi kapan pun data berubah selama proses belum diajukan."
+        },
+        {
+          "title": "Periksa hasil hitungan",
+          "text": "Bagian **Ringkasan** memuat Jumlah Karyawan, Gaji Bruto, Tunjangan Pajak, BPJS Karyawan, BPJS Perusahaan, PPh 21, Dasar Pengenaan Pajak, dan Gaji Bersih. Bagian **Baris Gaji Karyawan** memuat rincian tiap orang. Baris yang bermasalah diberi lencana peringatan (lihat tabel peringatan di bawah) dan ringkasan menampilkan **Perlu Ditinjau**. Lencana **Perlu Dihitung Ulang** berarti data karyawan, gaji, pajak, BPJS, atau aturan berubah sesudah Anda menghitung."
+        },
+        {
+          "title": "Ajukan untuk disetujui",
+          "text": "Tekan **Ajukan untuk Disetujui**, lalu **Ajukan**. Status menjadi Diajukan dan angka tidak bisa diubah lagi. Bila ada kesalahan, tekan **Kembalikan ke Draf**, tulis **Alasan** (minimal 5 karakter), lalu perbaiki dan hitung ulang."
+        },
+        {
+          "title": "Setujui Payroll",
+          "text": "Pengguna dengan izin persetujuan menekan **Setujui**, lalu **Setujui Payroll**. Status menjadi Disetujui. Bila aturan persetujuan untuk Payroll aktif di Administrasi > Pengaturan (bagian Aturan Persetujuan), penyetuju harus orang yang berbeda dari yang mengajukan. OWNER dikecualikan dari batasan ini."
+        },
+        {
+          "title": "Posting ke Pembukuan",
+          "text": "Tekan **Posting ke Pembukuan**, lalu **Posting Payroll**. Aplikasi membuat jurnal gaji, utang gaji, BPJS, dan PPh 21, menerbitkan satu slip gaji untuk tiap karyawan, dan mencatat PPh 21 ke buku pajak. Status menjadi Terposting. Tanggal jurnal adalah akhir bulan gaji atau hari ini, mana yang lebih awal.",
+          "warning": "Setelah diposting, Payroll tidak bisa diubah. Satu-satunya jalan adalah **Koreksi Payroll** (lihat langkah terakhir)."
+        },
+        {
+          "title": "Catat pembayaran gaji dan BPJS",
+          "text": "Tekan **Catat Pembayaran**. Pilih **Yang Dibayar**: “Gaji bersih (semua yang belum dibayar)”, “Iuran BPJS Kesehatan (sisa ...)”, atau “Iuran BPJS Ketenagakerjaan: JHT, JP, JKK, JKM (sisa ...)”. Untuk BPJS, isi **Jumlah yang Dibayar** atau kosongkan untuk membayar seluruh sisa. Pilih **Dibayar dari Rekening**, isi **Tanggal Bayar**, **Nomor Referensi Transfer (opsional)**, dan **Catatan (opsional)**, lalu tekan **Simpan Pembayaran**. Status menjadi Dibayar sebagian, lalu Dibayar penuh bila gaji bersih sudah lunas.",
+          "tip": "Pembayaran meminta verifikasi ulang (kode autentikator, berlaku 30 menit). Bila ditolak, lakukan verifikasi ulang lalu ulangi."
+        },
+        {
+          "title": "Tutup Payroll",
+          "text": "Setelah gaji bersih dibayar penuh, tekan **Tutup Payroll**, lalu **Tutup**. Payroll yang gaji bersihnya nol juga bisa ditutup setelah diposting. Status menjadi Ditutup."
+        },
+        {
+          "title": "Salah bayar, salah hitung, atau perlu dibuka lagi",
+          "text": "**Batalkan Pembayaran**: pilih pembayaran, **Tanggal Pembatalan**, dan **Alasan**. **Koreksi Payroll**: isi **Tanggal Jurnal Pembalik** dan **Alasan**; jurnal dibalik, slip gaji dibatalkan, dan revisi baru dibuat sebagai draf (semua pembayarannya harus dibatalkan dulu). **Buka Kembali** membuka Payroll yang sudah ditutup. **Batalkan Proses** membuang proses yang belum diposting. Pembatalan pembayaran, koreksi, dan buka kembali meminta verifikasi ulang."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal saat Posting ke Pembukuan (contoh: Gaji Pokok 10.000.000, status TK/0, ikut semua program BPJS, pajak ditanggung karyawan)",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["6600 Beban Gaji & Tunjangan", "10.000.000", ""],
+            ["6610 Beban BPJS & Biaya Karyawan Lain", "1.024.000", ""],
+            ["2210 Utang Gaji & Karyawan (gaji bersih)", "", "9.338.650"],
+            ["2200 Utang Pajak (PPh 21)", "", "261.350"],
+            ["2221 Utang BPJS Kesehatan", "", "500.000"],
+            ["2220 Utang BPJS Ketenagakerjaan", "", "924.000"]
+          ]
+        },
+        {
+          "title": "Jurnal tiap Catat Pembayaran (contoh pembayaran penuh dari rekening bank)",
+          "columns": ["Yang Dibayar", "Debit", "Kredit"],
+          "rows": [
+            ["Gaji bersih: 2210 Utang Gaji & Karyawan", "9.338.650", ""],
+            ["Gaji bersih: Kas/Bank (rekening pembayar)", "", "9.338.650"],
+            ["Iuran BPJS Kesehatan: 2221 Utang BPJS Kesehatan", "500.000", ""],
+            ["Iuran BPJS Kesehatan: Kas/Bank (rekening pembayar)", "", "500.000"],
+            ["Iuran BPJS Ketenagakerjaan: 2220 Utang BPJS Ketenagakerjaan", "924.000", ""],
+            ["Iuran BPJS Ketenagakerjaan: Kas/Bank (rekening pembayar)", "", "924.000"]
+          ]
+        },
+        {
+          "title": "Urutan status Payroll dan tombol berikutnya",
+          "columns": ["Status", "Artinya", "Tombol yang tersedia"],
+          "rows": [
+            [
+              "Draf",
+              "Baru dibuat atau dikembalikan.",
+              "**Hitung Payroll**, **Tambah Penyesuaian**, **Batalkan Proses**"
+            ],
+            [
+              "Sudah dihitung",
+              "Angka sudah muncul.",
+              "**Hitung Payroll** (ulang), **Ajukan untuk Disetujui**, **Batalkan Proses**"
+            ],
+            [
+              "Diajukan",
+              "Menunggu persetujuan.",
+              "**Setujui**, **Kembalikan ke Draf**, **Batalkan Proses**"
+            ],
+            [
+              "Disetujui",
+              "Siap diposting.",
+              "**Posting ke Pembukuan**, **Kembalikan ke Draf**, **Batalkan Proses**"
+            ],
+            [
+              "Terposting",
+              "Jurnal dan slip gaji sudah dibuat.",
+              "**Catat Pembayaran**, **Koreksi Payroll**"
+            ],
+            [
+              "Dibayar sebagian",
+              "Sebagian pembayaran tercatat.",
+              "**Catat Pembayaran**, **Batalkan Pembayaran**"
+            ],
+            [
+              "Dibayar penuh",
+              "Gaji bersih lunas.",
+              "**Tutup Payroll**, **Catat Pembayaran** (untuk BPJS), **Batalkan Pembayaran**"
+            ],
+            ["Ditutup", "Selesai.", "**Buka Kembali**"],
+            ["Dikoreksi", "Sudah diganti revisi baru.", "Tidak ada"],
+            ["Dibuang", "Proses dibatalkan.", "Tidak ada"]
+          ]
+        },
+        {
+          "title": "Peringatan pada Baris Gaji Karyawan yang menahan tombol Ajukan",
+          "columns": ["Pesan di aplikasi", "Yang perlu dilakukan"],
+          "rows": [
+            [
+              "Karyawan belum punya komponen gaji pada bulan ini.",
+              "Isi **Atur Gaji & Komponen** di halaman karyawan dengan **Berlaku Sejak** yang tidak lebih lambat dari bulan itu."
+            ],
+            [
+              "Data pajak karyawan (NPWP/NIK atau status PTKP) belum lengkap.",
+              "Isi **Atur Data Pajak** di halaman karyawan."
+            ],
+            [
+              "Tidak ada aturan tarif efektif (TER) yang berlaku untuk bulan ini.",
+              "Aturan tarif belum tersedia untuk bulan itu. Hubungi OWNER atau admin pajak."
+            ],
+            [
+              "Tidak ada aturan perhitungan tahunan yang berlaku untuk tahun ini.",
+              "Sama seperti di atas, tetapi untuk perhitungan tahunan."
+            ],
+            [
+              "Data penghasilan dan pajak bulan-bulan sebelumnya belum lengkap; isi saldo awal pajak atau selesaikan bulan sebelumnya.",
+              "Pada bulan pajak terakhir, aplikasi butuh data bulan sebelumnya. Posting bulan sebelumnya atau isi **Isi Saldo Awal Pajak**."
+            ],
+            [
+              "Ada bulan sebelumnya pada tahun pajak yang sama yang belum diposting.",
+              "Posting dulu Payroll bulan sebelumnya."
+            ],
+            [
+              "Belum ada aturan BPJS Kesehatan yang berlaku untuk bulan ini; iuran tidak dihitung.",
+              "Aturan iuran program itu belum tersedia (nama program mengikuti programnya). Hubungi admin."
+            ],
+            [
+              "Pilihan tarif BPJS Ketenagakerjaan: JKK belum diisi pada data BPJS karyawan.",
+              "Pilih **Tingkat Risiko JKK** di **Atur BPJS**."
+            ],
+            [
+              "Perhitungan gross-up tidak konvergen; periksa data karyawan.",
+              "Periksa gaji dan data pajak karyawan itu."
+            ],
+            [
+              "Penghasilan bruto negatif; periksa potongan dan penyesuaian.",
+              "Potongan lebih besar dari penghasilan. Perbaiki komponen atau penyesuaian."
+            ],
+            [
+              "Gaji bersih negatif; periksa potongan dan penyesuaian.",
+              "Potongan, BPJS, dan pajak lebih besar dari penghasilan. Perbaiki lalu hitung ulang."
+            ]
+          ]
+        }
+      ],
+      "result": [
+        "Setelah posting, jurnal gaji muncul di Akuntansi dan tautan **Lihat →** di bagian Ringkasan membuka jurnalnya. Tiap karyawan mendapat satu slip gaji di Payroll > Slip Gaji.",
+        "Setelah pembayaran, saldo rekening berkurang dan Gaji Bersih Terbayar serta kolom terbayar BPJS bertambah. Bagian **Pembayaran** menampilkan nomor, jenis, tanggal, jumlah, dan tautan jurnal tiap pembayaran.",
+        "Kewajiban gaji, BPJS, dan PPh 21 yang belum dibayar terlihat di [Memahami PPh 21 dan Pajak Payroll](memahami-pajak-payroll)."
+      ],
+      "rules": [
+        "Satu bulan hanya boleh punya satu proses yang aktif. Bulan yang belum dimulai tidak bisa diproses, dan Tanggal Bayar tidak boleh sebelum bulan gaji.",
+        "Karyawan ikut proses bila Tanggal Masuk-nya tidak lebih lambat dari akhir bulan itu dan ia belum berhenti sebelum bulan itu dimulai.",
+        "Angka gaji tidak diprorata: karyawan yang masuk atau berhenti di tengah bulan tetap dihitung penuh. Gunakan penyesuaian bila perlu.",
+        "**Ajukan untuk Disetujui** ditolak bila ada baris yang masih bertanda perlu ditinjau atau bila data berubah sejak dihitung. Perbaiki lalu hitung ulang.",
+        "Memposting butuh mesin pajak aktif. Mesin pajak yang baru mulai setelah bulan gaji berakhir tidak mengizinkan posting bulan itu.",
+        "Gaji bersih dibayar sekaligus untuk semua karyawan (semua yang belum dibayar). Membayar sebagian karyawan saja belum tersedia di layar ini. Iuran BPJS boleh dibayar sebagian atau seluruh sisa.",
+        "Pembayaran tidak boleh bertanggal di masa depan atau sebelum tanggal posting, dan harus dari rekening bermata uang dasar Entity.",
+        "Koreksi hanya bisa dilakukan pada Payroll Terposting, dan semua pembayarannya harus dibatalkan lebih dulu. Payroll bulan pajak yang sama yang lebih baru harus dikoreksi lebih dulu.",
+        "Layar ini tidak mencatat setoran PPh 21 ke negara (lihat [Memahami PPh 21 dan Pajak Payroll](memahami-pajak-payroll))."
+      ],
+      "mistakes": [
+        "Menganggap **Setujui** sudah membuat jurnal. Jurnal baru dibuat saat **Posting ke Pembukuan**.",
+        "Menganggap **Posting ke Pembukuan** sudah memotong saldo rekening. Saldo baru berkurang saat **Catat Pembayaran**.",
+        "Mengubah gaji karyawan setelah menghitung lalu lupa menghitung ulang. Tombol ajukan akan menolak dan lencana **Perlu Dihitung Ulang** muncul.",
+        "Mencatat pembayaran BPJS dalam jumlah lebih besar dari sisa yang tertera di pilihan **Yang Dibayar**.",
+        "Mencoba menyetujui proses yang Anda ajukan sendiri padahal aturan persetujuan mewajibkan orang berbeda."
+      ],
+      "errors": [
+        {
+          "message": "Bulan Payroll ini sudah punya proses yang aktif (tidak boleh ada proses final ganda).",
+          "meaning": "Bulan itu sudah punya proses. Buka prosesnya di daftar, atau **Batalkan Proses** lebih dulu bila ingin membuat ulang."
+        },
+        {
+          "message": "Payroll tidak bisa diproses untuk bulan yang belum dimulai.",
+          "meaning": "Pilih bulan berjalan atau bulan yang sudah lewat."
+        },
+        {
+          "message": "Tanggal bayar tidak boleh sebelum bulan Payroll.",
+          "meaning": "Geser **Tanggal Bayar** ke tanggal di bulan gaji atau sesudahnya."
+        },
+        {
+          "message": "<jumlah> baris perlu diperiksa (data pajak, aturan, atau riwayat belum lengkap); lengkapi lalu hitung ulang.",
+          "meaning": "Ada baris bertanda peringatan. Lihat tabel peringatan di atas, perbaiki, lalu **Hitung Payroll** lagi."
+        },
+        {
+          "message": "Kompensasi, data pajak, kepesertaan BPJS, penyesuaian, karyawan, atau aturan sudah berubah sejak Payroll ini dihitung; hitung ulang.",
+          "meaning": "Ada perubahan data setelah perhitungan terakhir. Tekan **Hitung Payroll** lagi."
+        },
+        {
+          "message": "Aktifkan mesin pajak untuk Entity ini sebelum memposting Payroll; PPh 21 harus tercatat di buku pajak.",
+          "meaning": "Mesin pajak belum aktif. Aktifkan lewat Pengaturan Pajak."
+        },
+        {
+          "message": "Proses Payroll tidak cocok jumlahnya (<rincian>).",
+          "meaning": "Total proses tidak sama dengan jumlah barisnya. Hitung ulang; bila tetap muncul, hubungi admin."
+        },
+        {
+          "message": "Balik dulu pembayaran untuk proses Payroll ini.",
+          "meaning": "Koreksi butuh semua pembayaran dibatalkan lebih dulu lewat **Batalkan Pembayaran**."
+        },
+        {
+          "message": "Bulan yang lebih baru di tahun pajak yang sama sudah diposting; koreksi bulan terakhir dulu.",
+          "meaning": "Koreksi harus dimulai dari bulan terbaru."
+        },
+        {
+          "message": "BPJS yang masih terutang <jumlah>; pembayaran <jumlah> melebihinya.",
+          "meaning": "Jumlah pembayaran BPJS melebihi sisa. Kosongkan **Jumlah yang Dibayar** untuk membayar seluruh sisa."
+        },
+        {
+          "message": "Payroll bisa dibayar setelah diposting dan sebelum ditutup (sekarang: <status>).",
+          "meaning": "Pembayaran hanya bisa dicatat pada Payroll berstatus Terposting sampai Dibayar penuh."
+        },
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Belum verifikasi ulang dalam 30 menit terakhir. Lakukan verifikasi ulang lalu ulangi tindakannya."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Izin peran Anda kurang. Pesan yang sama muncul bila aturan persetujuan mewajibkan orang berbeda untuk menyetujui."
+        },
+        {
+          "message": "Perintah tidak dapat dijalankan. Periksa isian (alasan minimal 5 huruf) lalu coba lagi.",
+          "meaning": "Alasan terlalu pendek atau isian lain tidak valid."
+        }
+      ],
+      "related": [
+        "tambah-karyawan",
+        "lihat-slip-gaji",
+        "memahami-pajak-payroll",
+        "pengaturan-pajak-awal"
+      ]
+    },
+    {
+      "slug": "lihat-slip-gaji",
+      "title": "Cara Membaca Slip Gaji",
+      "summary": "Membuka slip gaji tiap karyawan yang terbit otomatis saat Payroll diposting, dan memahami tiap bagiannya.",
+      "path": "Payroll > Slip Gaji",
+      "who": "Lihat daftar dan detail slip: payroll.compensation_view ditambah salah satu dari payroll.run, payroll.approve, atau payroll.pay (OWNER dan peran Payroll). Bagian Pajak pada slip hanya tampil bagi yang punya payroll.tax_view.",
+      "quick": "Slip gaji tidak dibuat manual. Slip terbit otomatis untuk tiap karyawan saat **Posting Payroll**, dan tidak bisa diubah.",
+      "steps": [
+        {
+          "title": "Buka Payroll > Slip Gaji",
+          "text": "Halaman berjudul **Slip Gaji** menampilkan kolom Nomor, Karyawan, Periode, Diterbitkan, Gaji Bersih, dan Status (Diterbitkan atau Dibatalkan). Saring dengan **Status** atau kotak cari (nomor slip, karyawan, atau periode), lalu tekan **Terapkan**.",
+          "image": {
+            "file": "slip-gaji-daftar.jpg",
+            "caption": "Daftar Slip Gaji."
+          }
+        },
+        {
+          "title": "Buka satu slip",
+          "text": "Klik nomor slip. Bagian **Ringkasan** memuat **Proses Penggajian** (nomor proses dan revisinya), **Tanggal Bayar**, **Diterbitkan**, **Gaji Bruto**, **Gaji Bersih**, dan **Gaji Bersih Terbayar**. Pada slip yang dibatalkan tampil juga **Dibatalkan** dan **Alasan Dibatalkan**."
+        },
+        {
+          "title": "Baca komponen dan penyesuaian",
+          "text": "Bagian **Komponen Gaji** memuat Komponen, Jenis, Jumlah, Kena Pajak, dan Dasar BPJS, yaitu gaji pokok dan tunjangan atau potongan tetap pada bulan itu. Bagian **Penyesuaian** (bila ada) memuat bonus, lembur, atau kasbon bulan itu."
+        },
+        {
+          "title": "Baca bagian BPJS dan Pajak",
+          "text": "Bagian **Rincian BPJS** memuat Program, Iuran Karyawan, dan Iuran Perusahaan. Bagian **Pajak** (bagi yang punya izin) memuat **Metode Tarif**, **Metode Penanggungan**, **Dasar Pengenaan Pajak**, **PPh 21**, **Tunjangan Pajak**, dan **Dipotong dari Karyawan**. Arti istilahnya ada di [Memahami PPh 21 dan Pajak Payroll](memahami-pajak-payroll)."
+        },
+        {
+          "title": "Slip yang dibatalkan setelah koreksi",
+          "text": "Saat Payroll dikoreksi, slip lama berstatus **Dibatalkan** dan menyimpan alasannya. Slip revisi baru terbit setelah revisi Payroll itu diposting. Nomor revisi tampil di **Proses Penggajian** pada Ringkasan slip."
+        }
+      ],
+      "result": [
+        "Anda bisa melihat dengan tepat angka yang dipakai pada Payroll bulan itu, termasuk jumlah gaji bersih yang sudah dibayar.",
+        "Slip adalah catatan permanen (salinan) saat posting. Mengubah gaji karyawan sesudahnya tidak mengubah slip lama."
+      ],
+      "rules": [
+        "Slip hanya dibuat saat Payroll diposting, satu untuk tiap karyawan di proses itu.",
+        "Slip tidak bisa diedit atau dihapus. Satu-satunya perubahan adalah dibatalkan lewat koreksi Payroll.",
+        "Daftar hanya memuat 100 slip terbaru. Kotak cari hanya mencari di antara slip yang tampil, jadi slip yang lebih lama tidak ditemukan lewat daftar ini.",
+        "Belum ada tombol cetak, unduh PDF, atau kirim slip ke karyawan.",
+        "Tanpa izin lihat pajak, bagian Pajak pada slip tidak ditampilkan."
+      ],
+      "mistakes": [
+        "Mencari slip sebelum Payroll diposting. Payroll yang masih Draf, Sudah dihitung, Diajukan, atau Disetujui belum punya slip.",
+        "Mengira slip akan berubah setelah gaji karyawan diubah. Perubahan hanya berlaku pada Payroll berikutnya.",
+        "Mencari slip revisi padahal revisi Payroll belum diposting."
+      ],
+      "errors": [
+        {
+          "message": "Tidak ada slip gaji pada saringan ini.",
+          "meaning": "Daftar kosong untuk saringan yang dipilih. Ubah **Status** ke Semua Status atau kosongkan kotak cari."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Peran Anda tidak boleh melihat slip gaji. Minta OWNER memberi izin payroll.compensation_view dan salah satu izin menjalankan Payroll."
+        }
+      ],
+      "related": ["jalankan-payroll-bulanan", "memahami-pajak-payroll"]
+    },
+    {
+      "slug": "memahami-pajak-payroll",
+      "title": "Memahami PPh 21 dan Pajak Payroll",
+      "summary": "Penjelasan sederhana cara PPh 21 karyawan dihitung dan cara membaca halaman Pajak & Kewajiban Payroll.",
+      "path": "Payroll > Pajak & Kewajiban Payroll",
+      "who": "Kewajiban Pembayaran: payroll.compensation_view ditambah salah satu dari payroll.run, payroll.approve, atau payroll.pay. Rekonsiliasi Tahunan dan Buku Besar Pajak Karyawan: ditambah payroll.tax_view. OWNER dan peran Payroll memegang semuanya. Halaman ini hanya untuk dibaca.",
+      "quick": "PPh 21 adalah pajak penghasilan karyawan yang dipotong perusahaan. Aplikasi menghitungnya sendiri saat **Hitung Payroll**; tugas Anda memastikan data pajak tiap karyawan benar.",
+      "steps": [
+        {
+          "title": "Isi data pajak yang dibutuhkan",
+          "text": "Perhitungan memakai tiga data di halaman karyawan (**Atur Data Pajak**): **Status NPWP/NIK**, **Status PTKP**, dan **Metode Pajak**. Tanpa NPWP/NIK, aturan yang berlaku di sistem saat ini mengenakan tarif lebih tinggi. Isinya dijelaskan di [Cara Menambah Karyawan dan Mengisi Data Gajinya](tambah-karyawan)."
+        },
+        {
+          "title": "Pahami dua cara hitung",
+          "text": "Untuk bulan biasa, aplikasi memakai **Tarif efektif bulanan (TER)**: tarif dilihat dari penghasilan bulan itu dan kelompok PTKP karyawan. Pada bulan pajak terakhir, yaitu Desember atau bulan karyawan berhenti, aplikasi memakai **Perhitungan tahunan (Pasal 17)**: pajak setahun dihitung dari seluruh penghasilan yang sebenarnya, lalu dikurangi pajak yang sudah dipotong bulan-bulan sebelumnya. Cara yang dipakai tertulis di slip gaji pada **Metode Tarif**.",
+          "tip": "Tabel tarif tidak diketik di layar mana pun. Tarif adalah data aturan di aplikasi dengan tanggal berlaku, jadi perubahan peraturan ditangani admin tanpa memengaruhi Payroll yang sudah diposting."
+        },
+        {
+          "title": "Tentukan siapa yang menanggung pajak",
+          "text": "**Ditanggung karyawan**: PPh 21 dipotong dari gaji, jadi gaji bersih lebih kecil. **Ditanggung perusahaan (gross-up)**: perusahaan menambahkan **Tunjangan Pajak** sebesar pajaknya sehingga gaji bersih tidak berkurang; tunjangan ini ikut menjadi beban gaji perusahaan. Pada slip, **Dipotong dari Karyawan** adalah PPh 21 dikurangi Tunjangan Pajak."
+        },
+        {
+          "title": "Ketahui apa saja yang menjadi dasar pajak",
+          "text": "**Dasar Pengenaan Pajak** berasal dari komponen yang bertanda **Dihitung untuk PPh 21** dan penyesuaian yang bertanda sama, dikurangi potongan. Selain itu, sebagian iuran BPJS yang dibayar perusahaan ikut dihitung sebagai penghasilan karyawan menurut aturan di sistem. Karena itu dasar pajak bisa lebih besar dari gaji bruto, seperti pada contoh di bawah."
+        },
+        {
+          "title": "Baca bagian Kewajiban Pembayaran",
+          "text": "Buka Payroll > Pajak & Kewajiban Payroll (judul halaman: **Pajak & Kewajiban Penggajian**). Atur **Per Tanggal** lalu tekan **Terapkan**. Tabel memuat Jenis (Gaji bersih, BPJS, atau PPh 21), Periode, Proses, Terutang, Dibayar, dan Sisa. Ini menunjukkan berapa yang masih harus dibayar perusahaan untuk tiap bulan.",
+          "image": {
+            "file": "payroll-pajak.jpg",
+            "caption": "Halaman Pajak & Kewajiban Penggajian."
+          }
+        },
+        {
+          "title": "Baca Rekonsiliasi Tahunan dan Buku Besar Pajak Karyawan",
+          "text": "Isi **Tahun Pajak** lalu **Terapkan**. **Rekonsiliasi Tahunan** memuat Karyawan, Bulan Kerja, Penghasilan Bruto, Pajak Tahunan, Dipotong, Selisih, dan Status: **Sesuai**, **Kurang Potong**, **Lebih Potong**, atau **Data Tidak Lengkap**. **Buku Besar Pajak Karyawan** memuat Karyawan, Periode, Sumber (Proses Penggajian atau Saldo Awal), Proses, Dasar Pajak, PPh 21, Tunjangan, dan Potongan Pensiun. Keduanya hanya muncul bagi yang punya izin lihat pajak."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Contoh hitungan satu karyawan (Gaji Pokok 10.000.000, TK/0, ikut semua BPJS, pajak ditanggung karyawan; bulan biasa)",
+          "columns": ["Komponen", "Jumlah", "Keterangan"],
+          "rows": [
+            ["Gaji Bruto", "10.000.000", "Gaji Pokok."],
+            ["BPJS Karyawan", "400.000", "Dipotong dari gaji."],
+            ["BPJS Perusahaan", "1.024.000", "Ditanggung perusahaan, bukan memotong gaji."],
+            [
+              "Dasar Pengenaan Pajak",
+              "10.454.000",
+              "Gaji bruto ditambah bagian iuran BPJS perusahaan yang dihitung sebagai penghasilan."
+            ],
+            ["PPh 21 (TER)", "261.350", "Tarif efektif untuk dasar pajak itu."],
+            ["Gaji Bersih", "9.338.650", "Gaji bruto dikurangi BPJS Karyawan dan PPh 21."]
+          ]
+        },
+        {
+          "title": "Arti jenis kewajiban pada halaman Pajak & Kewajiban Payroll",
+          "columns": ["Jenis", "Dibayar kepada", "Akun utang"],
+          "rows": [
+            ["Gaji bersih", "Karyawan", "2210 Utang Gaji & Karyawan"],
+            [
+              "BPJS",
+              "BPJS Kesehatan dan BPJS Ketenagakerjaan (dibayar terpisah)",
+              "2221 Utang BPJS Kesehatan dan 2220 Utang BPJS Ketenagakerjaan"
+            ],
+            ["PPh 21", "Negara (melalui setoran pajak)", "2200 Utang Pajak"]
+          ]
+        }
+      ],
+      "result": [
+        "Anda tahu mengapa gaji bersih seorang karyawan berbeda dari gaji brutonya, dan dari mana angka PPh 21 berasal.",
+        "Kewajiban gaji, BPJS, dan PPh 21 yang belum dibayar terlihat per bulan, sehingga tidak ada setoran yang terlewat."
+      ],
+      "rules": [
+        "Tarif dan batas pajak adalah data aturan di aplikasi, berlaku mulai tanggal tertentu, dan tidak diketik di layar karyawan atau Payroll.",
+        "Bulan pajak terakhir (Desember atau bulan berhenti) membutuhkan data penghasilan dan pajak bulan-bulan sebelumnya. Posting bulan sebelumnya atau isi **Isi Saldo Awal Pajak** untuk karyawan yang baru mulai memakai aplikasi di tengah tahun.",
+        "Bila pajak yang sudah dipotong ternyata lebih besar dari hitungan tahunan, kelebihannya tidak dikembalikan lewat penggajian; aplikasi hanya memberi catatan di baris karyawan itu.",
+        "Aplikasi belum menyediakan layar untuk mencatat setoran PPh 21 ke negara. Kolom Dibayar pada baris PPh 21 baru terisi bila ada pembayaran pajak yang tercatat untuk jenis PPh 21 karyawan; selama itu kolom Sisa sama dengan Terutang.",
+        "Buku Besar Pajak Karyawan hanya memuat Payroll yang sudah diposting (dan angka Saldo Awal).",
+        "Aplikasi tidak menghasilkan bukti potong atau SPT. Gunakan angka di sini sebagai dasar mengisinya."
+      ],
+      "mistakes": [
+        "Membiarkan **Status PTKP** atau **Status NPWP/NIK** di “Belum diketahui”, sehingga PPh 21 tidak bisa dihitung.",
+        "Salah memilih **Metode Pajak**. Gross-up menambah beban perusahaan, bukan memotong gaji karyawan.",
+        "Mengira PPh 21 yang tampil di Ringkasan Payroll sudah disetor. Itu baru kewajiban, belum setoran.",
+        "Mengabaikan bulan sebelumnya yang belum diposting, lalu bulan Desember ditandai peringatan."
+      ],
+      "errors": [
+        {
+          "message": "Data pajak karyawan (NPWP/NIK atau status PTKP) belum lengkap.",
+          "meaning": "Lengkapi **Atur Data Pajak** karyawan itu lalu hitung ulang Payroll."
+        },
+        {
+          "message": "Tidak ada aturan tarif efektif (TER) yang berlaku untuk bulan ini.",
+          "meaning": "Aturan tarif untuk bulan itu belum tersedia. Hubungi OWNER atau admin pajak."
+        },
+        {
+          "message": "Data penghasilan dan pajak bulan-bulan sebelumnya belum lengkap; isi saldo awal pajak atau selesaikan bulan sebelumnya.",
+          "meaning": "Perhitungan tahunan butuh data bulan-bulan sebelumnya. Posting bulan sebelumnya atau isi saldo awal pajak."
+        },
+        {
+          "message": "PPh 21 yang sudah dipotong lebih besar <jumlah> dari perhitungan; tidak dikembalikan melalui penggajian.",
+          "meaning": "Hanya catatan. PPh 21 pada bulan itu menjadi nol dan kelebihannya tidak dikembalikan lewat Payroll."
+        },
+        {
+          "message": "Tidak ada kewajiban pada tanggal ini.",
+          "meaning": "Tabel Kewajiban Pembayaran kosong untuk tanggal **Per Tanggal** yang dipilih."
+        },
+        {
+          "message": "Tahun pajak ini sebelum karyawan bergabung.",
+          "meaning": "Pada **Isi Saldo Awal Pajak**, **Tahun Pajak** lebih awal dari Tanggal Masuk karyawan."
+        },
+        {
+          "message": "Payroll tahun pajak itu sudah diposting untuk karyawan ini; angka saldo awal tidak bisa diubah.",
+          "meaning": "Saldo awal terkunci setelah ada Payroll terposting pada tahun pajak itu."
+        }
+      ],
+      "related": [
+        "tambah-karyawan",
+        "jalankan-payroll-bulanan",
+        "pengaturan-pajak-awal",
+        "bayar-pajak"
+      ]
+    },
+    {
+      "slug": "buat-anggaran",
+      "title": "Cara Membuat dan Memantau Anggaran",
+      "summary": "Menyusun anggaran per kategori per bulan, lalu membandingkannya dengan angka yang sebenarnya terjadi.",
+      "path": "Perencanaan > Anggaran",
+      "who": "Lihat anggaran dan laporan Anggaran vs Aktual: planning.view (OWNER, Finance Admin, Finance Staff, Accountant, Viewer / Auditor). Buat anggaran, isi baris, aktifkan, dan tutup: planning.budget_edit (OWNER, Finance Admin, Accountant).",
+      "quick": "Anggaran adalah rencana jumlah per kategori per bulan. Kolom **Aktual** terisi otomatis dari invoice, tagihan, dan pengeluaran yang sudah tercatat.",
+      "steps": [
+        {
+          "title": "Buka Perencanaan > Anggaran",
+          "text": "Halaman berjudul **Anggaran** menampilkan kolom Nama, Jenis Periode, Tahun Fiskal, Periode, dan Status (Draf, Aktif, atau Ditutup). Saring dengan **Status** atau kotak cari, lalu tekan **Terapkan**. Tekan **Buat Anggaran Baru**.",
+          "image": {
+            "file": "anggaran-daftar.jpg",
+            "caption": "Daftar Anggaran."
+          }
+        },
+        {
+          "title": "Isi data anggaran",
+          "text": "Isi **Nama**, **Jenis Periode** (Tahunan, Bulanan, atau Kustom), **Tanggal Mulai** (bawaan hari ini), **Tanggal Akhir**, **Tahun Fiskal (opsional)**, dan **Catatan (opsional)**. Tekan **Simpan Anggaran**. Anda dibawa ke halaman anggaran. Kolom bulan pada tabel ditentukan oleh Tanggal Mulai sampai Tanggal Akhir.",
+          "tip": "Jenis Periode hanya label. Yang menentukan bulan yang bisa diisi adalah tanggal mulai dan tanggal akhir.",
+          "image": {
+            "file": "anggaran-form.jpg",
+            "caption": "Form Buat Anggaran Baru."
+          }
+        },
+        {
+          "title": "Isi baris anggaran",
+          "text": "Di bagian **Atur Baris Anggaran**, tekan **+ Tambah Kategori**, pilih kategori (**Pilih kategori…**), lalu isi jumlah pada tiap kolom bulan. Kategori yang sudah dipakai di baris lain tidak ditawarkan lagi. **Hapus** membuang satu baris. Baris atau bulan yang dikosongkan tidak disimpan. Tekan **Simpan Baris Anggaran**.",
+          "warning": "Menyimpan menggantikan seluruh isi tabel dengan yang tampil di layar. Muat ulang halaman bila ada orang lain yang mungkin mengubah anggaran yang sama."
+        },
+        {
+          "title": "Aktifkan anggaran",
+          "text": "Di bagian Ringkasan, anggaran berstatus Draf punya tombol **Aktifkan Anggaran**. Aktifkan setelah isinya final. Status Aktif adalah penanda; laporan Anggaran vs Aktual tetap dihitung sejak anggaran masih Draf."
+        },
+        {
+          "title": "Baca Anggaran vs Aktual",
+          "text": "Bagian **Anggaran vs Aktual** memuat Bulan, Kategori, Anggaran, Aktual, Komitmen, Sisa, % Terpakai, Varians, dan Perkiraan untuk tiap baris. Contoh cara membacanya ada di tabel di bawah."
+        },
+        {
+          "title": "Tutup anggaran bila periodenya selesai",
+          "text": "Tekan **Tutup Anggaran**, lalu tekan **Tutup Anggaran** lagi pada konfirmasi (**Batal** untuk mundur). Anggaran yang ditutup tidak bisa dibuka atau diedit lagi, tetapi laporannya tetap bisa dilihat."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Contoh satu baris Anggaran vs Aktual (kategori beban bulan ini)",
+          "columns": ["Kolom", "Contoh", "Cara terisi"],
+          "rows": [
+            ["Anggaran", "2.000.000", "Yang Anda isi pada baris anggaran."],
+            [
+              "Aktual",
+              "1.500.000",
+              "Tagihan Disetujui dan pengeluaran Dikonfirmasi pada kategori dan bulan itu. Untuk kategori pendapatan: invoice Diterbitkan."
+            ],
+            [
+              "Komitmen",
+              "300.000",
+              "Tagihan Menunggu persetujuan dan invoice Draf pada kategori dan bulan itu."
+            ],
+            ["Sisa", "200.000", "Anggaran dikurangi Aktual dan Komitmen."],
+            ["% Terpakai", "75%", "Aktual dibagi Anggaran. Tampil kosong bila Anggaran nol."],
+            [
+              "Varians",
+              "-500.000",
+              "Aktual dikurangi Anggaran. Angka positif berarti melebihi anggaran."
+            ],
+            [
+              "Perkiraan",
+              "1.800.000",
+              "Rata-rata 3 bulan penuh sebelum bulan berjalan. Hanya tampil untuk bulan berjalan dan sesudahnya."
+            ]
+          ]
+        }
+      ],
+      "result": [
+        "Anda bisa melihat kategori mana yang sudah melewati rencana dan yang masih punya sisa.",
+        "Membuat atau mengubah anggaran tidak membuat jurnal dan tidak mengubah saldo apa pun."
+      ],
+      "rules": [
+        "Tanggal Akhir tidak boleh sebelum Tanggal Mulai. Satu anggaran memuat paling banyak 2000 baris.",
+        "Jumlah anggaran tidak boleh negatif, dan kategori hanya boleh satu baris per bulan.",
+        "Aktual dihitung per kategori dan per bulan dokumen (tanggal invoice, tagihan, atau pengeluaran) dalam mata uang dasar Entity. Dokumen tanpa kategori tidak dihitung.",
+        "Aktual tidak mencakup gaji dari Payroll, pembelian aset, atau jurnal manual, karena semuanya tidak lewat kategori invoice, tagihan, atau pengeluaran.",
+        "Anggaran berstatus Ditutup tidak bisa diedit atau dibuka lagi. Anggaran Aktif masih boleh diubah barisnya.",
+        "Belum ada tombol menghapus atau menyalin anggaran."
+      ],
+      "mistakes": [
+        "Membandingkan angka Aktual dengan Payroll. Gaji karyawan tidak masuk kolom Aktual.",
+        "Mengisi kategori yang salah sehingga Aktual tidak pernah terisi.",
+        "Mengira Aktual berubah saat invoice masih Draf. Invoice Draf dan tagihan yang menunggu persetujuan masuk kolom Komitmen, bukan Aktual.",
+        "Menutup anggaran sebelum selesai, lalu tidak bisa mengisi baris lagi."
+      ],
+      "errors": [
+        {
+          "message": "Anggaran tidak dapat dibuat.",
+          "meaning": "Isian belum valid. Periksa Nama (minimal 2 karakter), Jenis Periode, dan tanggalnya."
+        },
+        {
+          "message": "Tanggal akhir tidak boleh sebelum tanggal mulai.",
+          "meaning": "Geser **Tanggal Akhir** ke tanggal yang sama atau lebih baru dari **Tanggal Mulai**."
+        },
+        {
+          "message": "Jumlah anggaran tidak boleh negatif.",
+          "meaning": "Isi angka nol atau lebih besar."
+        },
+        {
+          "message": "Anggaran sudah berubah sejak dimuat.",
+          "meaning": "Orang lain menyimpan anggaran yang sama lebih dulu. Muat ulang halaman lalu isi lagi."
+        },
+        {
+          "message": "Anggaran sudah ditutup.",
+          "meaning": "Anggaran itu sudah berstatus Ditutup, jadi **Tutup Anggaran** tidak perlu diulang."
+        },
+        {
+          "message": "Anggaran yang sudah ditutup tidak bisa diubah.",
+          "meaning": "Baris anggaran tidak bisa diedit setelah anggaran ditutup."
+        },
+        {
+          "message": "Hanya anggaran berstatus draf yang bisa diaktifkan.",
+          "meaning": "**Aktifkan Anggaran** hanya untuk anggaran Draf."
+        },
+        {
+          "message": "Anggaran paling banyak 2000 baris.",
+          "meaning": "Kurangi jumlah baris kategori atau bulan."
+        }
+      ],
+      "related": [
+        "buat-target-pendapatan",
+        "memahami-perkiraan",
+        "buat-biaya",
+        "catat-tagihan-vendor"
+      ]
+    },
+    {
+      "slug": "buat-target-pendapatan",
+      "title": "Cara Membuat Target Pendapatan",
+      "summary": "Menetapkan target pendapatan per bulan dan membandingkannya dengan invoice yang sudah diterbitkan.",
+      "path": "Perencanaan > Target Pendapatan",
+      "who": "Lihat target dan laporan Target vs Aktual: planning.view (OWNER, Finance Admin, Finance Staff, Accountant, Viewer / Auditor). Buat target, isi baris, aktifkan, dan tutup: planning.budget_edit (OWNER, Finance Admin, Accountant).",
+      "quick": "Target Pendapatan hanya memuat satu angka per bulan (tanpa kategori), dibandingkan dengan seluruh invoice yang **Diterbitkan** pada bulan itu.",
+      "steps": [
+        {
+          "title": "Buka Perencanaan > Target Pendapatan",
+          "text": "Halaman berjudul **Target Pendapatan** menampilkan kolom Nama, Jenis Periode, Tahun Fiskal, Periode, dan Status (Draf, Aktif, Ditutup). Saring dengan **Status** atau kotak cari, lalu **Terapkan**. Tekan **Buat Target Baru**.",
+          "image": {
+            "file": "target-daftar.jpg",
+            "caption": "Daftar Target Pendapatan."
+          }
+        },
+        {
+          "title": "Isi data target",
+          "text": "Isi **Nama**, **Jenis Periode** (Tahunan, Bulanan, atau Kustom), **Tanggal Mulai**, **Tanggal Akhir**, **Tahun Fiskal (opsional)**, dan **Catatan (opsional)**. Tekan **Simpan Target Pendapatan**. Anda dibawa ke halaman target."
+        },
+        {
+          "title": "Isi target tiap bulan",
+          "text": "Di bagian **Atur Baris Target Pendapatan**, tabel sudah memuat satu baris per bulan antara tanggal mulai dan akhir. Isi kolom **Target**, lalu tekan **Simpan Baris Target Pendapatan**. Bulan yang dikosongkan tidak disimpan."
+        },
+        {
+          "title": "Aktifkan target",
+          "text": "Tekan **Aktifkan Target** pada target berstatus Draf bila angkanya sudah final. Status Aktif adalah penanda; laporan **Target vs Aktual** tetap dihitung sejak target masih Draf."
+        },
+        {
+          "title": "Baca Target vs Aktual",
+          "text": "Bagian **Target vs Aktual** memuat Bulan, Target, Aktual, Piutang Belum Tertagih, Varians, dan Perkiraan. Contoh cara membacanya ada di tabel di bawah."
+        },
+        {
+          "title": "Tutup target bila periodenya selesai",
+          "text": "Tekan **Tutup Target**, lalu **Tutup Target** lagi pada konfirmasi (**Batal** untuk mundur). Target yang ditutup tidak bisa dibuka atau diedit lagi."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Contoh satu baris Target vs Aktual",
+          "columns": ["Kolom", "Contoh", "Cara terisi"],
+          "rows": [
+            ["Target", "100.000.000", "Yang Anda isi untuk bulan itu."],
+            [
+              "Aktual",
+              "80.000.000",
+              "Total semua invoice berstatus Diterbitkan pada bulan itu, dalam mata uang dasar Entity."
+            ],
+            [
+              "Piutang Belum Tertagih",
+              "30.000.000",
+              "Bagian dari invoice bulan itu yang belum dilunasi pelanggan."
+            ],
+            [
+              "Varians",
+              "-20.000.000",
+              "Aktual dikurangi Target. Angka negatif berarti masih di bawah target."
+            ],
+            [
+              "Perkiraan",
+              "75.000.000",
+              "Rata-rata pendapatan 3 bulan penuh sebelum bulan berjalan. Hanya tampil untuk bulan berjalan dan sesudahnya."
+            ]
+          ]
+        }
+      ],
+      "result": [
+        "Anda bisa melihat bulan mana yang sudah mencapai target dan seberapa banyak penjualan bulan itu yang belum tertagih.",
+        "Membuat atau mengubah target tidak membuat jurnal dan tidak mengubah saldo apa pun."
+      ],
+      "rules": [
+        "Tanggal Akhir tidak boleh sebelum Tanggal Mulai. Jumlah target tidak boleh negatif.",
+        "Aktual memakai semua invoice Diterbitkan, tanpa memandang pelanggan atau kategori. Invoice Draf tidak dihitung.",
+        "Aktual dihitung per bulan tanggal invoice, bukan per bulan pembayaran diterima.",
+        "Target yang ditutup tidak bisa diedit atau dibuka lagi. Target Aktif masih boleh diubah barisnya.",
+        "Belum ada tombol menghapus atau menyalin target."
+      ],
+      "mistakes": [
+        "Berharap Aktual ikut bertambah saat uang diterima. Aktual mengikuti tanggal invoice terbit; uang yang diterima mengurangi **Piutang Belum Tertagih**.",
+        "Menghitung invoice yang masih Draf sebagai pendapatan bulan itu.",
+        "Menutup target sebelum bulan terakhir selesai, lalu tidak bisa mengubah barisnya."
+      ],
+      "errors": [
+        {
+          "message": "Target pendapatan tidak dapat dibuat.",
+          "meaning": "Isian belum valid. Periksa Nama, Jenis Periode, dan tanggalnya."
+        },
+        {
+          "message": "Data baris target pendapatan tidak valid.",
+          "meaning": "Ada isi kolom **Target** yang bukan angka. Perbaiki lalu simpan lagi."
+        },
+        {
+          "message": "<bulan> berada di luar rentang tanggal target pendapatan.",
+          "meaning": "Bulan yang disimpan di luar tanggal mulai dan akhir target."
+        },
+        {
+          "message": "Hanya target pendapatan berstatus draf yang bisa diaktifkan.",
+          "meaning": "**Aktifkan Target** hanya untuk target Draf."
+        },
+        {
+          "message": "Target pendapatan sudah ditutup.",
+          "meaning": "Target itu sudah berstatus Ditutup."
+        },
+        {
+          "message": "Target pendapatan yang sudah ditutup tidak bisa diubah.",
+          "meaning": "Baris target tidak bisa diedit setelah target ditutup."
+        },
+        {
+          "message": "Target pendapatan sudah berubah sejak dimuat.",
+          "meaning": "Orang lain menyimpan target yang sama lebih dulu. Muat ulang halaman lalu isi lagi."
+        }
+      ],
+      "related": ["buat-anggaran", "memahami-perkiraan", "buat-terbitkan-invoice", "lihat-piutang"]
+    },
+    {
+      "slug": "atur-transaksi-berulang",
+      "title": "Cara Mengatur Transaksi Berulang",
+      "summary": "Membuat aturan yang menyiapkan draf invoice, tagihan, atau pengeluaran rutin tiap minggu atau bulan.",
+      "path": "Perencanaan > Transaksi Berulang",
+      "who": "Lihat aturan dan riwayatnya: planning.view. Buat, ubah, jeda, lanjutkan, dan akhiri aturan: planning.recurring_edit (OWNER dan Finance Admin). Tombol **Jalankan yang Jatuh Tempo**: planning.recurring_run (OWNER dan Finance Admin).",
+      "quick": "Aturan berulang tidak berjalan sendiri. Draf baru dibuat setiap kali seseorang menekan **Jalankan yang Jatuh Tempo**, dan hasilnya selalu **Draf** yang masih perlu Anda terbitkan atau konfirmasi.",
+      "steps": [
+        {
+          "title": "Buka Perencanaan > Transaksi Berulang",
+          "text": "Halaman berjudul **Aturan Berulang** menampilkan kolom Nama, Jenis, Frekuensi, Berikutnya, Terakhir Dibuat, dan Status (Aktif, Dijeda, Berakhir). Saring dengan **Status** atau kotak cari, lalu **Terapkan**. Tekan **Buat Aturan Baru**.",
+          "image": {
+            "file": "berulang-daftar.jpg",
+            "caption": "Daftar Aturan Berulang."
+          }
+        },
+        {
+          "title": "Pilih jenis dan jadwal",
+          "text": "Pilih **Jenis Template**: “Invoice berulang (pendapatan)”, “Tagihan berulang (pembelian)”, atau “Pengeluaran berulang”. Isi **Nama Aturan**, **Frekuensi** (Mingguan, Bulanan, atau Interval hari kustom), dan **Interval** (kelipatan minggu, kelipatan bulan, atau jumlah hari). Untuk invoice dan tagihan isi juga **Batas Waktu Jatuh Tempo (hari setelah dibuat)**. Isi **Tanggal Mulai**, **Tanggal Berakhir (opsional)**, dan **Catatan Aturan (opsional)**.",
+          "image": {
+            "file": "berulang-form.jpg",
+            "caption": "Form Buat Aturan Baru."
+          }
+        },
+        {
+          "title": "Isi template sesuai jenisnya",
+          "text": "**Invoice**: pilih **Pelanggan** (wajib), lalu **Akun Pembayaran (opsional)**, **Kanal Pembayaran (opsional)**, **Mata Uang (opsional, 3 huruf)**, **Syarat Pembayaran (opsional)**, **Catatan Invoice (opsional)**, **Catatan Internal (opsional)**.\n\n**Tagihan**: pilih **Vendor** (wajib), lalu **Referensi Vendor (opsional)**, **Mata Uang (opsional, 3 huruf)**, **Catatan Tagihan (opsional)**, **Catatan Internal (opsional)**.\n\n**Pengeluaran**: pilih **Akun Pembayar** (wajib), lalu **Penerima (vendor, opsional jika nama diisi)** atau **Nama Penerima (opsional jika vendor dipilih)**, **Referensi Kuitansi (opsional)**, **Catatan Pengeluaran (opsional)**, **Catatan Internal (opsional)**.",
+          "tip": "Pelanggan dan vendor harus sudah terdaftar. Lihat [Cara Menambah Pelanggan](tambah-pelanggan) dan [Cara Menambah Vendor](tambah-vendor)."
+        },
+        {
+          "title": "Isi baris template",
+          "text": "Pada tabel baris, isi **Deskripsi**, **Kuantitas**, **Harga Satuan**, **Perlakuan** (tagihan dan pengeluaran) atau **Diskon** (invoice), dan **Kategori**. Tekan **+ Tambah Baris** untuk baris lain. Baris yang deskripsi atau harga satuannya kosong tidak disimpan. Tekan **Buat Aturan Berulang**."
+        },
+        {
+          "title": "Jalankan yang jatuh tempo",
+          "text": "Di daftar, tekan **Jalankan yang Jatuh Tempo**. Aplikasi membuat satu draf untuk setiap aturan Aktif yang tanggal **Berikutnya**-nya sudah tiba atau lewat. Pesan hasilnya berbunyi “<jumlah> kejadian berhasil dibuat.” atau “Tidak ada kejadian yang jatuh tempo.”",
+          "tip": "Satu tekanan hanya membuat satu draf per aturan. Aturan yang tanggal mulainya sudah lama lewat butuh beberapa kali tekan sampai tanggal berikutnya melewati hari ini."
+        },
+        {
+          "title": "Periksa Riwayat Pembuatan dan selesaikan drafnya",
+          "text": "Buka satu aturan. Bagian **Riwayat Pembuatan** memuat Tanggal, Status (Berhasil dibuat atau Gagal), Percobaan, Terakhir Dicoba, dan Hasil. Tekan **Lihat →** untuk membuka draf yang dibuat. Lalu selesaikan seperti biasa: terbitkan invoice ([Cara Membuat dan Menerbitkan Invoice](buat-terbitkan-invoice)), setujui tagihan ([Cara Mencatat Tagihan Vendor](catat-tagihan-vendor)), atau konfirmasi pengeluaran ([Cara Membuat Biaya](buat-biaya)).",
+          "warning": "Draf yang dibuat belum memengaruhi pembukuan atau saldo. Bila tidak diterbitkan atau dikonfirmasi, tidak ada yang tercatat."
+        },
+        {
+          "title": "Ubah, jeda, lanjutkan, atau akhiri aturan",
+          "text": "Di halaman aturan, **Jeda Aturan** menghentikan sementara (isi **Alasan**, minimal 5 karakter), **Lanjutkan Aturan** mengaktifkan lagi, dan **Akhiri Aturan** menghentikan permanen (juga butuh **Alasan**). Untuk mengubah isi, pakai bagian **Template** lalu **Simpan Perubahan**. Jenis Template, Frekuensi, dan Tanggal Mulai tidak bisa diubah setelah dibuat."
+        }
+      ],
+      "result": [
+        "Setiap penekanan **Jalankan yang Jatuh Tempo** menghasilkan draf invoice, draf tagihan, atau draf pengeluaran, dan tanggal **Berikutnya** pada aturan maju satu jadwal.",
+        "Mengubah aturan tidak mengubah draf yang sudah dibuat sebelumnya."
+      ],
+      "rules": [
+        "Tidak ada penjadwal otomatis. Draf hanya dibuat saat pengguna yang berhak menekan **Jalankan yang Jatuh Tempo**.",
+        "Satu tekanan menghasilkan paling banyak satu draf per aturan, dengan tanggal dokumen sama dengan tanggal **Berikutnya** aturan itu.",
+        "Interval antara 1 dan 365. Mingguan berarti kelipatan 7 hari, Bulanan berarti tanggal yang sama setiap kelipatan bulan, dan Interval hari kustom berarti tiap sekian hari.",
+        "Pada aturan bulanan yang dimulai tanggal 29 sampai 31, bulan yang lebih pendek memakai hari terakhir bulan itu, dan jadwal berikutnya mengikuti tanggal tersebut (misalnya setelah Februari menjadi tanggal 28).",
+        "Batas Waktu Jatuh Tempo bernilai 0 sampai 365 hari dan hanya berlaku untuk invoice dan tagihan.",
+        "Bila pembuatan draf gagal, aturan tidak maju dan percobaan diulang pada tekanan berikutnya.",
+        "Aturan menjadi Berakhir otomatis setelah draf terakhir yang jadwal berikutnya melewati **Tanggal Berakhir**. Aturan Berakhir tidak bisa diubah atau dilanjutkan.",
+        "Aturan hanya membuat draf. Tidak ada invoice, tagihan, atau pengeluaran berulang yang langsung terbit atau diposting."
+      ],
+      "mistakes": [
+        "Menunggu draf muncul sendiri pada tanggalnya. Seseorang harus menekan **Jalankan yang Jatuh Tempo**.",
+        "Mengira draf yang dibuat sudah menjadi invoice atau pengeluaran yang tercatat. Statusnya masih Draf.",
+        "Mengubah aturan berharap draf lama ikut berubah.",
+        "Memilih Mingguan atau Bulanan lalu lupa mengisi **Interval** sesuai kebutuhan, misalnya 3 untuk tiap 3 bulan."
+      ],
+      "errors": [
+        {
+          "message": "Templat Invoice berulang perlu pelanggan yang dikenal.",
+          "meaning": "Pilih **Pelanggan** yang sudah terdaftar."
+        },
+        {
+          "message": "Templat tagihan berulang perlu Vendor yang dikenal.",
+          "meaning": "Pilih **Vendor** yang sudah terdaftar."
+        },
+        {
+          "message": "Templat pengeluaran berulang perlu rekening pembayaran.",
+          "meaning": "Pilih **Akun Pembayar**."
+        },
+        {
+          "message": "Templat pengeluaran berulang perlu penerima pembayaran.",
+          "meaning": "Pilih **Penerima (vendor, opsional jika nama diisi)** atau isi **Nama Penerima**."
+        },
+        {
+          "message": "Tanggal akhir tidak boleh sebelum kejadian berikutnya (<tanggal>).",
+          "meaning": "Saat mengubah aturan, **Tanggal Berakhir** lebih awal dari tanggal **Berikutnya**. Pilih tanggal yang sama atau lebih baru."
+        },
+        {
+          "message": "Aturan berulang sudah berubah sejak dimuat.",
+          "meaning": "Orang lain menyimpan aturan yang sama lebih dulu. Muat ulang halaman lalu ubah lagi."
+        },
+        {
+          "message": "Aturan transaksi berulang yang sudah berakhir tidak bisa diubah.",
+          "meaning": "Aturan berstatus Berakhir hanya bisa dilihat."
+        },
+        {
+          "message": "Hanya aturan transaksi berulang yang aktif yang bisa dijeda.",
+          "meaning": "**Jeda Aturan** hanya untuk aturan Aktif; aturan Dijeda dilanjutkan dengan **Lanjutkan Aturan**."
+        },
+        {
+          "message": "Data baris template tidak valid.",
+          "meaning": "Ada isian baris yang bukan angka atau format yang benar. Periksa Kuantitas dan Harga Satuan."
+        },
+        {
+          "message": "Kejadian berulang tidak dapat dijalankan.",
+          "meaning": "Penjalanan gagal, misalnya karena izin kurang. Pastikan Anda punya izin planning.recurring_run."
+        }
+      ],
+      "related": [
+        "buat-terbitkan-invoice",
+        "catat-tagihan-vendor",
+        "buat-biaya",
+        "tambah-pelanggan",
+        "tambah-vendor"
+      ]
+    },
+    {
+      "slug": "memahami-perkiraan",
+      "title": "Memahami Halaman Perkiraan",
+      "summary": "Membaca perkiraan pendapatan dan beban beberapa bulan ke depan, dan menyesuaikannya dengan anggaran.",
+      "path": "Perencanaan > Perkiraan",
+      "who": "planning.view (OWNER, Finance Admin, Finance Staff, Accountant, Viewer / Auditor). Halaman ini hanya untuk dibaca; tidak ada yang bisa diubah di sini.",
+      "quick": "Perkiraan adalah estimasi, bukan angka aktual. Dasarnya rata-rata 3 bulan terakhir per kategori, atau angka anggaran bila Anda memilih anggaran.",
+      "steps": [
+        {
+          "title": "Buka Perencanaan > Perkiraan",
+          "text": "Halaman berjudul **Perkiraan** menampilkan keterangan “Estimasi perencanaan, bukan angka aktual. Dasar: rata-rata aktual 3 bulan terakhir per kategori.”",
+          "image": {
+            "file": "perkiraan.jpg",
+            "caption": "Halaman Perkiraan."
+          }
+        },
+        {
+          "title": "Pilih lama perkiraan",
+          "text": "Pada **Periode**, pilih 3 bulan, 6 bulan (bawaan), atau 12 bulan, lalu tekan **Terapkan**. Kolom bulan dimulai dari bulan berjalan."
+        },
+        {
+          "title": "Sesuaikan dengan anggaran (opsional)",
+          "text": "Pada **Sesuaikan dengan anggaran**, pilih salah satu anggaran (bawaan **Tanpa anggaran**), lalu **Terapkan**. Untuk kategori dan bulan yang diisi di anggaran itu, perkiraan memakai angka anggarannya dan diberi tanda *. Tautan **ubah anggaran** membuka anggarannya bila ingin mengubah angka."
+        },
+        {
+          "title": "Baca tabelnya",
+          "text": "Baris dikelompokkan menjadi **Pendapatan** dan **Beban**. Tiap baris memuat kategori, perkiraan per bulan, dan kolom **Total**. Baris **Total Pendapatan** dan **Total Beban** menjumlahkan tiap kelompok, dan baris terakhir **Selisih (Pendapatan − Beban)** menunjukkan perkiraan hasil tiap bulan. Arahkan kursor ke satu angka untuk melihat sumbernya: “Rata-rata 3 bulan” atau “Anggaran”."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Contoh cara perkiraan satu kategori beban terbentuk (hari ini bulan Oktober)",
+          "columns": ["Bulan", "Sumber", "Perkiraan"],
+          "rows": [
+            [
+              "Oktober sampai Desember",
+              "Rata-rata Juli, Agustus, September (aktual 1.200.000, 900.000, 1.500.000)",
+              "1.200.000 tiap bulan"
+            ],
+            [
+              "November",
+              "Anggaran dipilih dan memuat baris November sebesar 1.500.000 (diberi tanda *)",
+              "1.500.000"
+            ]
+          ]
+        }
+      ],
+      "result": [
+        "Anda mendapat gambaran kasar pendapatan, beban, dan selisihnya beberapa bulan ke depan untuk merencanakan kas.",
+        "Halaman ini tidak membuat atau mengubah catatan apa pun."
+      ],
+      "rules": [
+        "Rata-rata dihitung dari 3 bulan kalender penuh sebelum bulan berjalan. Bulan tanpa aktivitas dihitung nol.",
+        "Dasar aktual sama dengan laporan Anggaran vs Aktual: invoice Diterbitkan untuk pendapatan, serta tagihan Disetujui dan pengeluaran Dikonfirmasi untuk beban, per kategori dan bulan dokumen.",
+        "Hanya kategori yang punya aktivitas dalam 3 bulan terakhir, atau punya baris di anggaran yang dipilih, yang tampil.",
+        "Gaji dari Payroll tidak ikut karena tidak lewat kategori invoice, tagihan, atau pengeluaran.",
+        "Angka bertanda * mengikuti anggaran. Bila anggaran diubah, perkiraan ikut berubah."
+      ],
+      "mistakes": [
+        "Menganggap perkiraan sebagai janji atau pembukuan. Ini hanya estimasi dari rata-rata.",
+        "Membaca bulan yang aktivitasnya tidak rutin sebagai rata-rata yang wajar, padahal satu transaksi besar bisa menggeser rata-ratanya.",
+        "Lupa memilih anggaran sehingga rencana bulan tertentu tidak tercermin."
+      ],
+      "errors": [
+        {
+          "message": "Belum ada aktivitas dalam 3 bulan terakhir untuk dijadikan dasar perkiraan. Pilih anggaran untuk memakai angka anggaran.",
+          "meaning": "Belum ada invoice, tagihan, atau pengeluaran berkategori dalam 3 bulan terakhir. Pilih anggaran di **Sesuaikan dengan anggaran**."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Peran Anda tidak punya izin planning.view."
+        }
+      ],
+      "related": ["buat-anggaran", "buat-target-pendapatan"]
+    }
+  ]
+}

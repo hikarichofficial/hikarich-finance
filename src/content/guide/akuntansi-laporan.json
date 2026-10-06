@@ -1,0 +1,1034 @@
+{
+  "key": "akuntansi-laporan",
+  "title": "Akuntansi dan Laporan",
+  "description": "Kategori, daftar akun, jurnal manual, penyesuaian, penutupan periode, dan laporan keuangan.",
+  "guides": [
+    {
+      "slug": "kategori-pendapatan-beban",
+      "title": "Cara Mengelola Kategori Pendapatan dan Beban",
+      "summary": "Menambah kategori, mengatur perlakuan pajaknya, memilih akun pembukuan, dan menonaktifkan kategori yang tidak dipakai.",
+      "path": "Akuntansi > Kategori",
+      "who": "Melihat daftar: akses Akuntansi (accounting.view; OWNER, Finance Admin, Accountant, Tax, Viewer / Auditor). Menambah kategori, mengubah perlakuan pajak, dan menonaktifkan: categories.manage (OWNER, Finance Admin). Memilih akun pembukuan kategori: categories.manage dan coa.manage sekaligus, sehingga pada peran bawaan hanya OWNER.",
+      "quick": "Kategori adalah jenis pendapatan atau beban pada baris invoice, tagihan, dan pengeluaran, dan pajaknya sebaiknya dibiarkan **Otomatis dari profil pajak (disarankan)** kecuali kategori itu SELALU punya perlakuan pajak yang sama.",
+      "steps": [
+        {
+          "title": "Buka Akuntansi > Kategori",
+          "text": "Halaman **Kategori** menampilkan jumlah kategori dan tabel dengan kolom **Nama**, **Jenis**, **Perlakuan Pajak**, dan **Akun & Berlaku Sejak**. Entity baru sudah berisi kategori standar (misalnya “Penjualan Produk”, “Pemasaran & Iklan”, “Sewa & Ruang Kerja”) yang sudah terhubung ke akun yang tepat. Kategori yang dinonaktifkan tampil dengan tambahan “(tidak aktif)” di belakang namanya. Bila kosong tampil “Belum ada kategori.”",
+          "tip": "Kategori bukan daftar pelanggan atau vendor. Pelanggan ada di Penjualan > Pelanggan dan vendor di Pembelian > Vendor.",
+          "image": {
+            "file": "kategori-daftar.jpg",
+            "caption": "Daftar kategori pendapatan dan beban."
+          }
+        },
+        {
+          "title": "Isi Nama Kategori dan Jenis",
+          "text": "Di bagian **Tambah Kategori** (hanya tampil bila Anda berhak) isi **Nama Kategori** (maksimal 120 karakter, contoh “Sewa Kantor”). Pilih **Jenis**: Pendapatan, Beban (bawaan), Aset, Kewajiban, Modal, atau Lainnya. Untuk uang masuk dari penjualan pilih Pendapatan, untuk biaya pilih Beban.",
+          "tip": "Pemetaan akun (langkah 5) hanya tersedia untuk jenis Pendapatan dan Beban."
+        },
+        {
+          "title": "Pilih Perlakuan Pajak (opsional)",
+          "text": "**Perlakuan Pajak (opsional)** bawaannya **Otomatis dari profil pajak (disarankan)**: pajak dihitung dari profil pajak Entity (lihat [Cara Mengatur Pajak Awal](pengaturan-pajak-awal)). Pilihan lain dikelompokkan dalam dua bagian.\n\n**Penjualan (PPN)**: “Kena PPN”, “Kena PPN (barang mewah, DPP penuh)”, “PPN dibebaskan / tidak dipungut”, “Bukan objek PPN”, “Rumus PPN khusus (minta ditinjau)”, “Digital / PMSE (minta ditinjau)”.\n\n**Pembelian (potongan PPh)**: “Bukan objek potongan PPh”, “Sewa tanah/bangunan (kantor, toko, gudang)”, “Sewa selain tanah/bangunan (kendaraan, alat)”, “Jasa teknik”, “Jasa manajemen”, “Jasa konstruksi”, “Jasa konsultan”, “Jasa lain yang dipotong PPh”, “Royalti”, “Bunga”, “Hadiah / penghargaan”, “Belum yakin (minta ditinjau)”.",
+          "warning": "Pilih perlakuan lain hanya bila kategori ini SELALU punya perlakuan pajak tertentu. Pilihan ini hanya dipakai bila baris dokumen tidak menyebut pajaknya sendiri."
+        },
+        {
+          "title": "Tekan Tambah Kategori",
+          "text": "Hasil: “Kategori tersimpan.” dan kategori baru muncul di tabel serta bisa dipilih pada baris invoice, tagihan, dan pengeluaran."
+        },
+        {
+          "title": "Ubah perlakuan pajak atau nonaktifkan kategori",
+          "text": "Pada kolom **Perlakuan Pajak** tiap baris ada pilihan perlakuan, kotak **Aktif**, dan tombol **Simpan**. Ubah pilihan lalu tekan **Simpan**; hasilnya “Tersimpan.”. Untuk menonaktifkan, hilangkan centang **Aktif** lalu **Simpan**. Kategori nonaktif tidak ditawarkan lagi pada dokumen baru.",
+          "tip": "Aplikasi tidak punya tombol hapus kategori. Kategori yang tidak dipakai lagi cukup dinonaktifkan."
+        },
+        {
+          "title": "Pilih akun pembukuan kategori (khusus yang berhak)",
+          "text": "Untuk kategori Pendapatan dan Beban, kolom **Akun & Berlaku Sejak** berisi pilihan akun (bentuknya “6800 · Beban Sewa & Ruang Kerja”), tanggal **Berlaku sejak** (bawaan hari ini), dan tombol **Simpan**. Kategori Pendapatan hanya menawarkan akun pendapatan, kategori Beban hanya akun beban. Pilihan **Akun bawaan** mengakhiri pemetaan sehingga kategori memakai akun bawaan Entity. Bagi yang tidak berhak, kolom ini hanya menulis “Dipetakan” atau “Akun bawaan”.",
+          "warning": "Pemetaan baru dipakai oleh dokumen mulai tanggal Berlaku sejak. Dokumen yang sudah diposting tidak berpindah akun dan tidak ada jurnal yang dibuat ulang."
+        }
+      ],
+      "result": [
+        "Kategori baru, perubahan perlakuan pajak, dan perubahan akun tersimpan tanpa membuat jurnal.",
+        "Dokumen yang dibuat atau diposting sesudahnya memakai kategori, perlakuan pajak, dan akun yang baru."
+      ],
+      "rules": [
+        "Kategori dikelola per Entity. PT dan Pribadi punya daftar sendiri-sendiri.",
+        "Nama kategori 1 sampai 120 karakter. Aplikasi tidak menolak nama kembar, jadi periksa daftar dulu agar tidak ada dua kategori yang mirip.",
+        "Perlakuan Pajak pada kategori hanya cadangan. Bila baris dokumen sudah menyebut perlakuan pajaknya sendiri, itu yang dipakai. Nama kategori tidak pernah dibaca untuk menentukan pajak.",
+        "Pemetaan akun hanya untuk jenis Pendapatan dan Beban. Akun yang dipilih harus aktif dan bukan akun grup.",
+        "Tidak ada tombol hapus kategori; pakai kotak Aktif.",
+        "Daftar Akun hanya untuk dilihat. Akun apa saja yang bisa dipilih lihat di [Cara Melihat Daftar Akun](lihat-daftar-akun)."
+      ],
+      "mistakes": [
+        "Memilih perlakuan pajak khusus padahal kategori itu kadang kena pajak dan kadang tidak. Biarkan Otomatis.",
+        "Mengira kategori adalah daftar pelanggan atau vendor.",
+        "Mengubah akun kategori dengan harapan dokumen lama ikut pindah akun.",
+        "Menonaktifkan kategori lalu bingung karena tidak muncul lagi di dokumen baru."
+      ],
+      "errors": [
+        {
+          "message": "Isi nama kategori (maksimal 120 karakter) dan jenisnya.",
+          "meaning": "Nama kosong atau lebih dari 120 karakter, atau Jenis tidak valid."
+        },
+        {
+          "message": "Kategori tidak dapat disimpan. Mungkin namanya sudah dipakai, atau Anda tidak berwenang.",
+          "meaning": "Penyimpanan gagal. Penyebab paling mungkin adalah akun Anda tidak punya izin categories.manage; minta OWNER memeriksa di Administrasi > Pengguna & Peran."
+        },
+        {
+          "message": "Perubahan tidak dapat disimpan.",
+          "meaning": "Perubahan perlakuan pajak atau status Aktif ditolak, biasanya karena tidak ada izin."
+        },
+        {
+          "message": "Kategori pendapatan harus terhubung ke akun pendapatan yang aktif dan bukan akun grup.",
+          "meaning": "Pilih akun pendapatan yang aktif."
+        },
+        {
+          "message": "Kategori pengeluaran harus terhubung ke akun beban yang aktif dan bukan akun induk.",
+          "meaning": "Pilih akun beban yang aktif."
+        },
+        {
+          "message": "Sudah ada pemetaan yang lebih baru; pilih tanggal setelahnya.",
+          "meaning": "Kategori itu sudah punya pemetaan dengan tanggal berlaku lebih baru. Isi Berlaku sejak dengan tanggal sesudahnya."
+        },
+        {
+          "message": "Akun tidak dapat disimpan.",
+          "meaning": "Pemetaan akun ditolak tanpa penjelasan lain; periksa izin Anda dan muat ulang halaman."
+        }
+      ],
+      "related": [
+        "lihat-daftar-akun",
+        "buat-terbitkan-invoice",
+        "buat-biaya",
+        "pengaturan-pajak-awal"
+      ]
+    },
+    {
+      "slug": "lihat-daftar-akun",
+      "title": "Cara Melihat Daftar Akun (Bagan Akun)",
+      "summary": "Melihat semua akun pembukuan, mencari kode atau nama akun, dan mengenali akun grup, akun kontrol, dan akun yang dilindungi.",
+      "path": "Akuntansi > Daftar Akun",
+      "who": "Melihat: akses Akuntansi (accounting.view; OWNER, Finance Admin, Accountant, Tax, Viewer / Auditor). Halaman ini hanya untuk dilihat; tidak ada yang bisa menambah atau mengubah akun dari sini, termasuk OWNER.",
+      "quick": "Halaman ini hanya untuk **melihat**: menambah, mengganti nama, atau menonaktifkan akun belum tersedia, dan akun baru untuk rekening kas atau bank dibuat otomatis saat Anda menambah rekening.",
+      "steps": [
+        {
+          "title": "Buka Akuntansi > Daftar Akun",
+          "text": "Judul halamannya **Bagan Akun** (nama yang sama dengan menu Daftar Akun). Di bawah judul tampil “N akun ditampilkan.”.",
+          "image": {
+            "file": "daftar-akun.jpg",
+            "caption": "Bagan Akun: daftar semua akun pembukuan."
+          }
+        },
+        {
+          "title": "Baca tabel akun",
+          "text": "Kolom: **Kode**, **Nama Akun**, **Kelas**, **Saldo Normal**, **Status**, dan **Indikator**. Kode yang menjorok ke dalam adalah anak dari akun grup di atasnya, diurutkan menurut kode.\n\n**Saldo Normal** (Debit atau Kredit) adalah sisi tempat saldo akun itu biasanya bertambah; ini bukan jumlah uang. **Status** berisi Aktif atau Tidak Aktif.\n\n**Indikator**: “Grup” (judul pengelompokan, tidak bisa dipakai mencatat), “Akun Kontrol” (diurus sistem, misalnya piutang dan utang usaha), dan “Dilindungi” (hanya diisi sistem; jurnal manual butuh alasan khusus dari OWNER).",
+          "tip": "Pada daftar bawaan, angka depan kode menunjukkan kelompok: 1 aset, 2 liabilitas, 3 ekuitas, 4 pendapatan, 5 dan 6 beban, 7 pendapatan dan beban lain-lain, 8 pajak dan penampung saldo awal."
+        },
+        {
+          "title": "Cari atau saring akun",
+          "text": "Pilih **Status** (Semua, Aktif, Tidak Aktif) dan atau ketik di kolom “Cari kode atau nama akun…”, lalu tekan **Terapkan**. Akun induk dari hasil pencarian tetap tampil supaya posisinya jelas. Bila tidak ada yang cocok tampil “Tidak ada akun pada saringan ini.”."
+        },
+        {
+          "title": "Pakai kode akun di tempat lain",
+          "text": "Kode dan nama akun yang sama muncul di pilihan **Akun** pada [Cara Membuat Jurnal Manual](jurnal-manual), pada pemetaan kategori di [Cara Mengelola Kategori](kategori-pendapatan-beban), dan pada tab Buku Besar di [Memahami Laporan Keuangan](laporan-keuangan-utama). Akun kas atau bank dibuat otomatis oleh [Cara Menambah Rekening](tambah-rekening)."
+        }
+      ],
+      "result": ["Baca saja; tidak ada jurnal dan tidak ada data yang berubah."],
+      "rules": [
+        "Halaman ini hanya untuk dilihat. Tidak ada tombol tambah, ubah, atau nonaktifkan akun.",
+        "Akun grup tidak bisa dipakai mencatat. Akun Tidak Aktif tidak ditawarkan di jurnal manual.",
+        "Saldo akun tidak tampil di sini. Untuk saldo lihat Neraca atau Buku Besar di [Memahami Laporan Keuangan](laporan-keuangan-utama).",
+        "Kolom Kelas memakai kata Aset, Liabilitas, Ekuitas, Pendapatan, dan Beban. Akun khusus (pajak, kontra aset, kontra pendapatan, pendapatan atau beban lain-lain, penampung saldo awal) saat ini tampil dengan kode Inggris seperti tax, contra_asset, other_income, dan special; artinya sesuai nama akunnya."
+      ],
+      "mistakes": [
+        "Mencari tombol Tambah Akun di halaman ini.",
+        "Memakai akun berindikator Dilindungi di jurnal manual biasa.",
+        "Mengira kolom Saldo Normal adalah saldo uang di akun."
+      ],
+      "errors": [
+        {
+          "message": "Tidak ada akun pada saringan ini.",
+          "meaning": "Tidak ada akun yang cocok dengan Status atau kata kunci. Pilih Semua dan kosongkan kolom cari."
+        }
+      ],
+      "related": [
+        "jurnal-manual",
+        "kategori-pendapatan-beban",
+        "tambah-rekening",
+        "laporan-keuangan-utama"
+      ]
+    },
+    {
+      "slug": "jurnal-manual",
+      "title": "Cara Membuat, Memposting, dan Membalik Jurnal Manual",
+      "summary": "Mencatat jurnal debit dan kredit sendiri untuk koreksi atau pembukuan lanjutan, memposting draf, dan membalik jurnal yang salah.",
+      "path": "Akuntansi > Jurnal > Jurnal Manual",
+      "who": "Melihat daftar dan detail jurnal: accounting.view. Membuat draf dan membuang draf: accounting.journal_create (OWNER, Accountant). Memposting dan membalik: accounting.journal_post (OWNER, Accountant). Memakai akun yang dilindungi dengan alasan: accounting.protected_manage (OWNER). Finance Admin hanya melihat.",
+      "quick": "Jurnal manual dibuat sebagai **Draf** yang belum mengubah laporan; angkanya baru masuk setelah **Posting Jurnal**, dan jurnal yang sudah diposting tidak bisa diedit, hanya dibalik dengan **Balik Jurnal (Reverse)**.",
+      "steps": [
+        {
+          "title": "Buka Akuntansi > Jurnal",
+          "text": "Halaman **Jurnal** memuat semua jurnal, termasuk yang dibuat otomatis dari invoice, pembayaran, dan modul lain. Kolom: **No. Jurnal**, **Tanggal**, **Sumber**, **Deskripsi**, **Status**. Saringan: **Sumber** (Semua Sumber, Sistem, Manual, Penyesuaian, Pembalik, Saldo Awal, Penutupan), **Status** (Semua Status, Draf, Terposting), **Periode** (per bulan), dan kolom “Cari nomor jurnal, deskripsi…”, lalu **Terapkan**. Jurnal Draf belum bernomor dan tampil sebagai “Draf”; nomor berawalan JV muncul setelah diposting.",
+          "tip": "Pendapatan harian cukup dicatat lewat Invoice dan Pembayaran Diterima, dan pengeluaran lewat Beban. Jurnal manual untuk pembukuan lanjutan.",
+          "image": {
+            "file": "jurnal-daftar.jpg",
+            "caption": "Daftar jurnal dengan tombol Jurnal Manual."
+          }
+        },
+        {
+          "title": "Tekan Jurnal Manual",
+          "text": "Tombol **Jurnal Manual** di kanan atas hanya tampil bagi yang berhak. Halaman **Jurnal Manual** terbuka dengan tautan “← Kembali ke daftar jurnal”."
+        },
+        {
+          "title": "Isi Jenis Jurnal, Tanggal, dan Penjelasan",
+          "text": "**Jenis Jurnal**: “Jurnal manual” (bawaan) atau “Jurnal penyesuaian”. **Tanggal** bawaan hari ini. **Penjelasan** wajib diisi (maksimal 500 karakter); untuk jurnal penyesuaian minimal 10 karakter, misalnya “Memindahkan biaya hosting yang salah kategori”.",
+          "image": {
+            "file": "jurnal-form.jpg",
+            "caption": "Form Jurnal Manual."
+          }
+        },
+        {
+          "title": "Isi baris jurnal",
+          "text": "Tabel dimulai dengan dua baris. Tiap baris: **Akun** (dikelompokkan menurut Pendapatan, Beban, Aset, Liabilitas, Ekuitas, Lainnya; bentuknya “6200 · Beban Software & Langganan”), **Debit** atau **Kredit**, dan **Keterangan Baris** (opsional). Isi satu sisi saja per baris. **+ Tambah Baris** menambah baris dan **Hapus** membuang baris. Baris tanpa akun atau tanpa jumlah tidak disimpan.\n\nDi bawah tabel tampil “Total debit: … · Total kredit: … ·” disusul “Seimbang.” atau “Belum seimbang (selisih …).”.",
+          "tip": "Pemisah ribuan terisi otomatis saat Anda mengetik; koma dipakai untuk desimal.",
+          "warning": "Akun sistem (kas dan bank, piutang, utang, pajak, aset tetap, pinjaman, payroll, ekuitas penutup) ada di kelompok “Akun sistem (dilindungi, hindari)” dan hanya tampil bagi OWNER, bersama kolom “Alasan memakai akun yang dilindungi”. Hindari; mengubahnya lewat jurnal manual membuat saldo di buku besar berbeda dari modul asalnya dan menahan penutupan periode."
+        },
+        {
+          "title": "Tekan Simpan sebagai Draf",
+          "text": "Tombol **Simpan sebagai Draf** baru aktif bila total debit sama dengan total kredit. Anda dibawa ke halaman detail berstatus Draf: judul “Draf”, tabel **Baris Jurnal** (Akun, Deskripsi, Debit, Kredit, Total), dan bagian **Aktivitas** (“Draf dibuat”)."
+        },
+        {
+          "title": "Tekan Posting Jurnal",
+          "text": "Periksa barisnya, lalu tekan **Posting Jurnal**. Status menjadi **Terposting**, jurnal mendapat nomor JV, dan **Aktivitas** menambah “Diposting”. Bila ternyata salah sebelum diposting, tekan **Buang Draf**, baca peringatan “Draf jurnal ini dihapus permanen tanpa dampak akuntansi. Tidak dapat diurungkan.”, lalu tekan **Buang Draf** sekali lagi (atau **Batal**).",
+          "warning": "Draf tidak bisa diedit. Bila salah, buang dan buat ulang."
+        },
+        {
+          "title": "Membalik jurnal yang salah",
+          "text": "Pada jurnal Terposting tekan **Balik Jurnal (Reverse)**. Isi **Tanggal Pembalikan** (bawaan hari ini; tidak boleh sebelum tanggal jurnal asli) dan **Alasan (minimal 5 karakter)**, lalu tekan **Balik Jurnal** (atau **Batal**). Sistem membuat jurnal baru bertipe Pembalik dengan sisi debit dan kredit tertukar. Jurnal asli tetap ada dengan keterangan “Dibalik oleh JV-…” di **Aktivitas**, dan jurnal pembalik menautkan balik lewat “Membalik jurnal lain”.",
+          "warning": "Pembalikan tidak dapat diurungkan dan satu jurnal hanya bisa dibalik sekali. Untuk menggantinya, buat jurnal manual baru yang benar."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Contoh jurnal manual: memindahkan biaya Rp 750.000 yang salah kategori",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["6200 Beban Software & Langganan", "750.000", ""],
+            ["6500 Beban Kantor & Umum", "", "750.000"]
+          ]
+        },
+        {
+          "title": "Jurnal pembalik dari contoh di atas",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["6200 Beban Software & Langganan", "", "750.000"],
+            ["6500 Beban Kantor & Umum", "750.000", ""]
+          ]
+        }
+      ],
+      "result": [
+        "Draf tidak mengubah laporan apa pun. Setelah diposting, jurnal berstatus Terposting dan ikut ke Laba Rugi, Neraca, dan Buku Besar.",
+        "Setelah dibalik, pengaruh jurnal asli hilang dari saldo akun, tetapi kedua jurnal tetap tercatat sebagai riwayat."
+      ],
+      "rules": [
+        "Total debit harus sama dengan total kredit. Tiap baris hanya satu sisi dan jumlahnya lebih dari nol. Minimal dua baris, maksimal 200 baris.",
+        "Tanggal harus antara 1 Januari 2000 dan satu tahun ke depan. Periode akuntansi pada tanggal itu harus Terbuka atau Dibuka Kembali, saat draf dibuat dan lagi saat diposting.",
+        "Hanya jurnal bersumber Manual atau Penyesuaian yang bisa diposting, dibuang, atau dibalik dari sini. Jurnal Sistem (dari invoice, pembayaran, dan lain-lain), Pembalik, Saldo Awal, dan Penutupan dikoreksi lewat dokumen asalnya; jurnal sistem punya tautan “Lihat dokumen sumber →” di bagian **Sumber**.",
+        "Akun grup dan akun Tidak Aktif tidak ditawarkan. Akun dilindungi hanya untuk OWNER.",
+        "Jurnal Draf di suatu bulan menahan penutupan periode bulan itu; posting atau buang dulu (lihat [Memahami Periode Akuntansi dan Cara Menutupnya](periode-dan-tutup-buku)).",
+        "Form ini tidak punya kolom mata uang asing atau kurs. Untuk menambah atau mengurangi saldo rekening kas atau bank pakai [Cara Mencatat Penyesuaian Saldo](penyesuaian-saldo-lanjutan)."
+      ],
+      "mistakes": [
+        "Mengira Simpan sebagai Draf sudah memasukkan angka ke laporan.",
+        "Mengisi debit dan kredit pada baris yang sama.",
+        "Memakai jurnal manual untuk pemasukan atau pengeluaran harian; saldo rekening tidak ikut berubah.",
+        "Membalik jurnal lalu lupa membuat jurnal pengganti yang benar.",
+        "Membuat draf lalu lupa memposting sehingga penutupan periode tertahan."
+      ],
+      "errors": [
+        {
+          "message": "Isi minimal dua baris: akun dan jumlah debit atau kredit.",
+          "meaning": "Kurang dari dua baris yang berisi akun dan jumlah."
+        },
+        {
+          "message": "Jurnal tidak dapat disimpan. Periksa tanggal, penjelasan, akun tiap baris, dan pastikan total debit sama dengan total kredit.",
+          "meaning": "Pesan umum saat simpan gagal; periksa isian sesuai pesan."
+        },
+        {
+          "message": "Jurnal tidak seimbang (debit <jumlah> <> kredit <jumlah>).",
+          "meaning": "Total debit dan kredit berbeda; samakan."
+        },
+        {
+          "message": "Tanggal dan penjelasan wajib diisi (jurnal penyesuaian memerlukan minimal 10 karakter).",
+          "meaning": "Lengkapi penjelasan; jenis Jurnal penyesuaian butuh minimal 10 karakter."
+        },
+        {
+          "message": "Akun <kode> dilindungi; jurnal manual memerlukan alasan koreksi manual dari pihak yang berwenang.",
+          "meaning": "Akun itu hanya untuk sistem. Pilih akun lain, atau minta OWNER."
+        },
+        {
+          "message": "Baris <nomor>: akun <kode> tidak bisa menerima posting.",
+          "meaning": "Akun itu grup atau tidak aktif; pilih akun lain."
+        },
+        {
+          "message": "Periode akuntansi <tanggal> berstatus <status> dan tidak menerima posting.",
+          "meaning": "Bulan itu sedang Tinjauan Penutupan atau Ditutup. Status ditulis dengan kode Inggris (closing_review, closed). Pilih tanggal di periode terbuka atau minta OWNER membuka kembali."
+        },
+        {
+          "message": "<tanggal> berada sebelum periode akuntansi yang sudah ditutup; bulan-bulan sebelumnya sudah dikunci.",
+          "meaning": "Tanggal berada di bulan sebelum periode yang sudah ditutup. Pilih tanggal yang lebih baru."
+        },
+        {
+          "message": "Jurnal sudah diposting.",
+          "meaning": "Draf itu sudah diposting; muat ulang halaman."
+        },
+        {
+          "message": "Pembalikan memerlukan tanggal dan alasan minimal 5 karakter.",
+          "meaning": "Isi tanggal dan alasan yang cukup panjang."
+        },
+        {
+          "message": "Jurnal ini sudah dibalik.",
+          "meaning": "Satu jurnal hanya bisa dibalik sekali."
+        },
+        {
+          "message": "Tanggal pembalikan tidak boleh sebelum tanggal catatan aslinya.",
+          "meaning": "Pilih Tanggal Pembalikan yang sama atau setelah tanggal jurnal asli."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Akun Anda tidak punya izin membuat, memposting, atau membalik jurnal."
+        }
+      ],
+      "related": [
+        "lihat-daftar-akun",
+        "penyesuaian-saldo-lanjutan",
+        "periode-dan-tutup-buku",
+        "laporan-keuangan-utama"
+      ]
+    },
+    {
+      "slug": "penyesuaian-saldo-lanjutan",
+      "title": "Cara Mencatat Penyesuaian Saldo Kas dan Bank (Penyesuaian Lanjutan)",
+      "summary": "Mengoreksi saldo rekening kas atau bank dengan satu pencatatan resmi berisi alasan, bukan dengan mengetik ulang saldo.",
+      "path": "Akuntansi > Penyesuaian Lanjutan",
+      "who": "Izin money.adjust (OWNER, Accountant). Peran lain yang punya akses Akuntansi, misalnya Finance Admin, tetap melihat menunya, tetapi halamannya hanya menampilkan “Terjadi masalah saat memuat halaman ini.” tanpa izin ini.",
+      "quick": "Penyesuaian langsung diposting tanpa draf: saldo rekening naik atau turun sebesar jumlah yang Anda isi, lawannya dicatat ke **Akun Lawan** pilihan Anda, dan tidak ada tombol batal.",
+      "steps": [
+        {
+          "title": "Pastikan memang perlu penyesuaian",
+          "text": "Jangan memakai halaman ini untuk transaksi biasa. Uang masuk dicatat lewat Invoice dan Pembayaran Diterima, uang keluar lewat Beban, dan pindah rekening lewat Transfer. Pakai penyesuaian hanya untuk selisih yang jelas sebabnya, misalnya biaya admin bank atau bunga bank yang belum tercatat, atau saldo awal rekening bermata uang asing (lihat [Cara Mengisi Saldo Awal Rekening](saldo-awal))."
+        },
+        {
+          "title": "Buka Akuntansi > Penyesuaian Lanjutan",
+          "text": "Halaman berjudul **Penyesuaian Lanjutan** (label kecil “Penyesuaian Saldo”). Tautan “← Kembali ke daftar akun” membawa Anda ke Kas & Bank > Rekening."
+        },
+        {
+          "title": "Pilih rekening, arah, tanggal, dan jumlah",
+          "text": "**Akun Kas/Bank**: rekening aktif, tampil seperti “BCA Operasional (IDR)”. **Arah**: “Masuk (menambah saldo akun)” atau “Keluar (mengurangi saldo akun)”. **Tanggal** bawaan hari ini. **Jumlah**: lebih dari nol.\n\n**Kurs (opsional)** diisi hanya bila mata uang rekening berbeda dari mata uang dasar Entity. Untuk rekening rupiah biarkan kosong; untuk rekening bermata uang asing wajib diisi.",
+          "image": {
+            "file": "penyesuaian-form.jpg",
+            "caption": "Form Penyesuaian Lanjutan."
+          }
+        },
+        {
+          "title": "Pilih Akun Lawan",
+          "text": "**Akun Lawan** (tampil berupa kode akun diikuti nama, misalnya 6300 lalu Beban Administrasi Bank) adalah akun yang menampung sisi lain: beban untuk biaya, pendapatan untuk bunga. Akun grup, akun tidak aktif, akun kontrol (kas dan bank, piutang, utang, pajak, aset tetap, dan sejenisnya), dan penampung saldo awal tidak ditawarkan.",
+          "tip": "Ragu memilih akun lawan? Tanyakan akuntan Anda dulu. Salah pilih akun lawan mengubah laba atau neraca."
+        },
+        {
+          "title": "Isi Alasan lalu Catat Penyesuaian",
+          "text": "**Alasan (minimal 10 karakter)** menjadi keterangan jurnal dan tercatat di audit; tulis yang jelas, misalnya “Biaya admin bank September belum dicatat”. Tekan **Catat Penyesuaian**. Anda dibawa ke halaman rekening tersebut dan mutasi “Penyesuaian Saldo” muncul pada tanggal yang Anda pilih."
+        },
+        {
+          "title": "Periksa jurnalnya",
+          "text": "Buka Akuntansi > Jurnal dan cari tanggalnya. Jurnalnya bertipe Sistem, sudah berstatus Terposting, dan deskripsinya berbentuk “Balance adjustment - <nama rekening>: <alasan>” (awalannya masih bahasa Inggris dari sistem)."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Contoh: biaya admin bank Rp 15.000 belum tercatat (Arah Keluar, Akun Lawan 6300)",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["6300 Beban Administrasi Bank", "15.000", ""],
+            ["Akun kas/bank milik rekening yang dipilih", "", "15.000"]
+          ]
+        },
+        {
+          "title": "Contoh: bunga bank Rp 20.000 belum tercatat (Arah Masuk, Akun Lawan 7100)",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Akun kas/bank milik rekening yang dipilih", "20.000", ""],
+            ["7100 Pendapatan Bunga", "", "20.000"]
+          ]
+        }
+      ],
+      "result": [
+        "Saldo rekening berubah sebesar jumlah yang diisi (dalam mata uang rekening) dan mutasi “Penyesuaian Saldo” muncul di rekening.",
+        "Satu jurnal bertipe Sistem terbentuk dan langsung terposting."
+      ],
+      "rules": [
+        "Penyesuaian langsung diposting. Tidak ada draf, persetujuan, tombol ubah, atau tombol batal.",
+        "Periode akuntansi pada Tanggal harus Terbuka atau Dibuka Kembali, dan tanggal antara 1 Januari 2000 dan satu tahun ke depan.",
+        "Rekening nonaktif ditolak. Arah Keluar ditolak bila membuat saldo di bawah nol pada jenis rekening yang diblokir oleh kebijakan Entity (bawaan: rekening Bank).",
+        "Koreksi penyesuaian yang salah dengan penyesuaian baru berarah sebaliknya dan alasan yang jelas.",
+        "Berbeda dengan “Jurnal penyesuaian” di [Cara Membuat Jurnal Manual](jurnal-manual): jurnal manual tidak boleh menyentuh akun kas atau bank dan tidak mengubah saldo rekening, sedangkan halaman ini justru mengubah saldo rekening."
+      ],
+      "mistakes": [
+        "Memakai halaman ini untuk transaksi biasa sehingga tidak ada dokumen pendukungnya.",
+        "Salah memilih Arah, sehingga saldo berubah ke arah yang berlawanan.",
+        "Mengisi Kurs untuk rekening rupiah, atau lupa mengisi Kurs untuk rekening valas.",
+        "Menulis alasan sekadarnya sehingga sulit ditelusuri saat diaudit."
+      ],
+      "errors": [
+        {
+          "message": "Penyesuaian memerlukan alasan minimal 10 karakter.",
+          "meaning": "Perpanjang Alasan."
+        },
+        {
+          "message": "Arah dan jumlah lebih dari nol wajib diisi.",
+          "meaning": "Pilih Arah dan isi Jumlah lebih dari nol."
+        },
+        {
+          "message": "Akun lawan harus akun aktif milik Entity ini dan bukan akun kontrol.",
+          "meaning": "Pilih akun lawan lain."
+        },
+        {
+          "message": "Rekening dengan mata uang dasar tidak memakai kurs.",
+          "meaning": "Kosongkan kolom Kurs untuk rekening rupiah."
+        },
+        {
+          "message": "Rekening mata uang asing memerlukan kurs yang lebih dari nol.",
+          "meaning": "Isi Kurs untuk rekening valas."
+        },
+        {
+          "message": "Ini akan membuat <rekening> di bawah nol, dan itu tidak diizinkan untuk rekening <jenis>.",
+          "meaning": "Penyesuaian keluar melebihi saldo pada jenis rekening yang diblokir negatif."
+        },
+        {
+          "message": "Rekening <nama> nonaktif dan tidak bisa menerima mutasi baru.",
+          "meaning": "Aktifkan rekening lebih dulu."
+        },
+        {
+          "message": "Periode akuntansi <tanggal> berstatus <status> dan tidak menerima posting.",
+          "meaning": "Pilih tanggal di periode yang masih terbuka."
+        },
+        {
+          "message": "Penyesuaian saldo tidak dapat dicatat.",
+          "meaning": "Pesan umum saat gagal; periksa semua isian."
+        },
+        {
+          "message": "Terjadi masalah saat memuat halaman ini.",
+          "meaning": "Akun Anda tidak punya izin money.adjust."
+        }
+      ],
+      "related": ["saldo-awal", "lihat-saldo-mutasi", "jurnal-manual", "periode-dan-tutup-buku"]
+    },
+    {
+      "slug": "periode-dan-tutup-buku",
+      "title": "Memahami Periode Akuntansi dan Cara Menutupnya",
+      "summary": "Membaca daftar bulan pembukuan, memeriksa daftar periksa penutupan, menutup dan membuka kembali bulan, serta menutup tahun buku.",
+      "path": "Akuntansi > Periode Akuntansi",
+      "who": "Melihat: accounting.view. Mulai tinjauan, batalkan tinjauan, Tutup Periode, dan Tutup Tahun Buku: periods.close (OWNER, Accountant). Buka Kembali Periode dan Batalkan Penutupan Tahun: periods.reopen (hanya OWNER) dan wajib verifikasi ulang dengan kode autentikator (berlaku 30 menit). Finance Admin hanya melihat.",
+      "quick": "Satu periode adalah satu bulan kalender dengan alur **Terbuka**, **Tinjauan Penutupan**, lalu **Ditutup**, dan selama Tinjauan Penutupan atau Ditutup tidak ada transaksi baru yang bisa diposting di bulan itu.",
+      "steps": [
+        {
+          "title": "Buka Akuntansi > Periode Akuntansi",
+          "text": "Halaman **Periode Akuntansi** menampilkan “N periode ditampilkan.” dan tabel dengan kolom **Periode** (tanggal awal sampai akhir, tautan ke detail), **Tahun Fiskal**, **Status**, dan **Ditutup**. Bulan terbaru di atas. Status: Terbuka, Tinjauan Penutupan, Ditutup, Dibuka Kembali. Tidak ada tombol tambah periode: bulan dibuat otomatis saat transaksi pertamanya diposting.",
+          "image": {
+            "file": "periode-daftar.jpg",
+            "caption": "Halaman Periode Akuntansi (di sini masih kosong karena belum ada periode)."
+          }
+        },
+        {
+          "title": "Buka detail periode dan baca Daftar Periksa Penutupan",
+          "text": "Klik tanggal periode. Bagian **Ringkasan** berisi Mulai, Berakhir, dan Ditutup Pada (bila pernah dibuka kembali juga Dibuka Kembali Pada dan Alasan Dibuka Kembali). Bagian **Daftar Periksa Penutupan** memuat tiap butir dengan pesan, “N item”, dan lencana **Pemblokir** (menahan penutupan) atau **Peringatan** (hanya pengingat). Bila bersih tampil “Tidak ada pemblokir atau peringatan untuk periode ini.”. Daftar ini bisa dibaca kapan saja, bahkan sebelum meminta penutupan.",
+          "tip": "Pesan daftar periksa ditulis sistem dalam bahasa Inggris. Terjemahan dan tindakannya ada pada dua tabel di bawah."
+        },
+        {
+          "title": "Bereskan semua Pemblokir",
+          "text": "Buka dokumen atau menu yang disebut pada tabel di bawah dan selesaikan, misalnya memposting atau membuang draf jurnal, menyelesaikan saldo awal, atau memposting penyusutan. Peringatan tidak menahan penutupan, tetapi baca dan pertimbangkan satu per satu."
+        },
+        {
+          "title": "Tekan Mulai Tinjauan Penutupan",
+          "text": "Pengguna dengan izin periods.close menekan **Mulai Tinjauan Penutupan**. Status menjadi Tinjauan Penutupan dan transaksi baru bertanggal di bulan itu tidak bisa diposting lagi. Bila ternyata masih ada yang perlu dicatat, tekan **Batalkan Tinjauan** untuk kembali ke Terbuka.",
+          "warning": "Selama Tinjauan Penutupan, invoice, pembayaran, tagihan, jurnal, dan transaksi lain yang bertanggal di bulan itu ditolak."
+        },
+        {
+          "title": "Tekan Tutup Periode",
+          "text": "Tombol **Tutup Periode** memeriksa ulang semua Pemblokir. Bila lolos, status menjadi Ditutup dan kolom **Ditutup** terisi tanggalnya."
+        },
+        {
+          "title": "Membuka kembali periode yang sudah ditutup (OWNER)",
+          "text": "Pada periode Ditutup tekan **Buka Kembali Periode**. Baca petunjuk, isi **Alasan (minimal 10 karakter)**, lalu tekan **Buka Kembali Periode** (atau **Batal**). Status menjadi Dibuka Kembali sehingga bisa diposting lagi. Setelah selesai, ulangi **Mulai Tinjauan Penutupan** dan **Tutup Periode**. Alasan tercatat di Ringkasan dan audit.",
+          "warning": "Bila belum verifikasi ulang tampil “Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.”. Buka halaman **Verifikasi ulang** (alamat /auth/step-up), masukkan kode autentikator, lalu ulangi."
+        },
+        {
+          "title": "Tutup Tahun Buku",
+          "text": "Setelah semua periode di satu tahun berstatus Ditutup, bagian **Penutupan Tahun Buku** di bawah tabel (tampil bagi yang berhak) bisa dipakai. Pilih **Tahun Buku**, tekan **Tutup Tahun Buku**. Sistem membuat satu jurnal bertipe Penutupan yang memindahkan laba atau rugi tahun itu ke Laba Ditahan (untuk Entity Pribadi ke Akumulasi Surplus/Defisit), bertanggal sehari setelah akhir periode terakhir tahun itu. Hasil: “Tahun buku 2026 ditutup. Jurnal penutup sudah dibuat.”. Tahun yang sudah ditutup tercantum di “Tahun yang sudah ditutup: …”."
+        },
+        {
+          "title": "Membatalkan penutupan tahun buku (OWNER)",
+          "text": "Pilih **Tahun Buku yang Sudah Ditutup**, isi **Alasan (minimal 10 karakter)**, lalu tekan **Batalkan Penutupan Tahun**. Hasil: “Penutupan tahun buku 2026 dibatalkan.”. Sistem membuat jurnal pembalik untuk jurnal penutup; periode bulanan tidak ikut dibuka kembali. Bila perlu verifikasi ulang, tautan **Verifikasi ulang →** muncul di samping pesan."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Pemblokir yang paling sering muncul (pesan ditulis dalam bahasa Inggris)",
+          "columns": ["Pesan", "Artinya dan tindakan"],
+          "rows": [
+            [
+              "Draft journals exist in this period and must be posted or discarded",
+              "Ada jurnal Draf di bulan ini. Posting atau Buang Draf di Akuntansi > Jurnal."
+            ],
+            [
+              "Opening balances in this period have not been completed and signed off",
+              "Saldo awal bertanggal bulan ini belum diselesaikan. Selesaikan di Akuntansi > Saldo Awal."
+            ],
+            [
+              "Cash/bank balances from money movements differ from the General Ledger",
+              "Saldo rekening tidak sama dengan buku besar, biasanya karena ada jurnal manual yang menyentuh akun kas atau bank. Periksa jurnal di bulan itu."
+            ],
+            [
+              "Accounts receivable from invoices and payments differs from the General Ledger",
+              "Piutang dari invoice dan pembayaran tidak sama dengan buku besar, biasanya karena jurnal manual pada akun piutang."
+            ],
+            [
+              "Accounts payable from bills and vendor payments differs from the General Ledger",
+              "Utang dari tagihan dan pembayaran tidak sama dengan buku besar, biasanya karena jurnal manual pada akun utang."
+            ],
+            [
+              "Customer advances from payments differ from the General Ledger",
+              "Uang muka pelanggan tidak sama dengan buku besar."
+            ],
+            [
+              "The tax ledger differs from Tax Payable / Tax Asset in the General Ledger",
+              "Buku pajak tidak sama dengan akun pajak di buku besar."
+            ],
+            [
+              "Depreciation due in this period has not been posted",
+              "Penyusutan aset bulan ini belum diposting. Buka Aset & Pendanaan > Penyusutan."
+            ],
+            [
+              "The fixed asset register differs from the fixed asset accounts in the General Ledger",
+              "Daftar aset tetap tidak sama dengan akun aset tetap di buku besar."
+            ],
+            [
+              "Loans, other receivables/payables or dividends payable differ from their accounts in the General Ledger",
+              "Data pinjaman, piutang lain, utang lain, atau utang dividen tidak sama dengan buku besar."
+            ],
+            [
+              "An approved payroll run of this period has not been posted",
+              "Ada proses Payroll yang sudah disetujui tetapi belum diposting."
+            ],
+            [
+              "The payroll liabilities differ from their accounts in the General Ledger",
+              "Utang payroll tidak sama dengan akun di buku besar."
+            ],
+            [
+              "A posted payroll run does not reconcile to its journal, tax ledger or payslips",
+              "Ada proses Payroll terposting yang angkanya tidak cocok dengan jurnal, buku pajak, atau slip gaji."
+            ],
+            [
+              "Posted journals with debit different from credit were found",
+              "Ada jurnal terposting yang tidak seimbang. Sangat jarang; hubungi pengelola aplikasi."
+            ]
+          ]
+        },
+        {
+          "title": "Peringatan yang sering muncul (tidak menahan penutupan)",
+          "columns": ["Pesan", "Artinya dan tindakan"],
+          "rows": [
+            ["The period has no posted journals", "Bulan ini belum ada transaksi terposting."],
+            [
+              "Draft invoices dated in this period are not issued yet and are not in the books",
+              "Ada invoice Draf; terbitkan atau batalkan agar masuk pembukuan."
+            ],
+            [
+              "Customer payment claims dated in this period are still waiting for verification",
+              "Ada klaim pembayaran pelanggan yang belum dikonfirmasi."
+            ],
+            [
+              "Draft or submitted bills dated in this period are not approved yet and are not in the books",
+              "Ada tagihan vendor yang belum disetujui."
+            ],
+            [
+              "Draft or submitted expenses dated in this period are not confirmed yet and are not in the books",
+              "Ada pengeluaran yang belum dikonfirmasi."
+            ],
+            [
+              "Bills and expenses of this period have no supporting document attached",
+              "Ada tagihan atau pengeluaran tanpa lampiran bukti."
+            ],
+            [
+              "Bank statement lines of this period are neither matched nor excluded",
+              "Ada baris rekening koran yang belum dicocokkan di Rekonsiliasi Bank."
+            ],
+            [
+              "Active cash/bank accounts with movements in this period are not reconciled up to its end",
+              "Rekening aktif belum direkonsiliasi sampai akhir bulan."
+            ],
+            [
+              "A cash/bank account has a negative balance at the end of the period",
+              "Ada rekening yang saldonya minus di akhir bulan."
+            ],
+            [
+              "Draft or submitted documents dated in this period need a tax review before they can be recognised",
+              "Ada dokumen yang pajaknya perlu ditinjau."
+            ],
+            [
+              "The final income tax of a completed month in this period is not computed yet",
+              "PPh Final bulan yang sudah selesai belum dihitung."
+            ],
+            [
+              "Payroll of this period is still being prepared: its expense and liabilities are not booked yet",
+              "Payroll bulan ini belum diposting."
+            ],
+            [
+              "Loan installments due by the end of this period are unpaid",
+              "Ada cicilan pinjaman jatuh tempo yang belum dibayar."
+            ]
+          ]
+        },
+        {
+          "title": "Contoh jurnal penutup tahun buku (Pendapatan Rp 10.000.000, Beban Sewa Rp 2.000.000, laba Rp 8.000.000)",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["4100 Pendapatan Produk Digital", "10.000.000", ""],
+            ["6800 Beban Sewa & Ruang Kerja", "", "2.000.000"],
+            ["3300 Laba Ditahan", "", "8.000.000"]
+          ]
+        }
+      ],
+      "result": [
+        "Periode berstatus Ditutup menolak transaksi baru bertanggal di bulan itu, dari modul mana pun.",
+        "Penutupan tahun buku menambah satu jurnal Penutupan di daftar Jurnal; Laba Rugi tahun itu tidak berubah (jurnal penutup tidak ikut dihitung di sana)."
+      ],
+      "rules": [
+        "Satu periode adalah satu bulan kalender. Tahun Fiskal diberi nama menurut tahun kalender tempat tahun fiskal itu dimulai.",
+        "Hanya periode berstatus Terbuka atau Dibuka Kembali yang menerima posting. Tinjauan Penutupan dan Ditutup menolaknya.",
+        "Tidak ada status “Terkunci” tersendiri: Ditutup adalah kunci, dan bulan-bulan sebelum periode yang sudah ditutup juga dikunci sehingga tidak bisa dibuat baru di belakangnya.",
+        "Pemblokir menahan Tutup Periode; Peringatan tidak. Pemeriksaan diulang saat Tutup Periode ditekan.",
+        "Buka Kembali Periode dan Batalkan Penutupan Tahun hanya untuk OWNER, dengan alasan minimal 10 karakter dan verifikasi ulang.",
+        "Tahun buku ditutup berurutan: tahun lama dulu. Pembatalan dilakukan dari tahun terbaru. Tahun tanpa transaksi laba rugi yang diposting tidak bisa ditutup.",
+        "Jurnal penutup tidak mengosongkan Laba Rugi; di Neraca, Laba Tahun Berjalan hanya menampilkan sisa yang belum ditutup."
+      ],
+      "mistakes": [
+        "Menunda memposting atau membuang draf jurnal sampai hari terakhir sehingga penutupan tertahan.",
+        "Menekan Mulai Tinjauan Penutupan padahal masih ada transaksi bulan itu yang belum dicatat.",
+        "Mengira Finance Admin bisa menutup periode atau membukanya kembali.",
+        "Mencoba Tutup Tahun Buku sebelum semua bulan tahun itu Ditutup.",
+        "Mengabaikan peringatan bahwa tagihan atau pengeluaran belum punya bukti."
+      ],
+      "errors": [
+        {
+          "message": "Hanya periode yang terbuka atau dibuka kembali yang bisa masuk ke pemeriksaan penutupan (sekarang: <status>).",
+          "meaning": "Periode itu sudah Tinjauan Penutupan atau Ditutup. Status ditulis dengan kode Inggris: open Terbuka, closing_review Tinjauan Penutupan, closed Ditutup, reopened Dibuka Kembali."
+        },
+        {
+          "message": "Periode harus dalam tinjauan penutupan sebelum bisa ditutup (sekarang <status>).",
+          "meaning": "Tekan Mulai Tinjauan Penutupan lebih dulu."
+        },
+        {
+          "message": "Tutup buku tidak bisa dilakukan: <kode> (<jumlah>), ...",
+          "meaning": "Masih ada Pemblokir. Kode ditulis Inggris, misalnya draft_journals berarti ada jurnal Draf; cocokkan dengan tabel di atas."
+        },
+        {
+          "message": "Hanya periode yang sudah ditutup yang bisa dibuka kembali (sekarang: <status>).",
+          "meaning": "Periode itu belum berstatus Ditutup."
+        },
+        {
+          "message": "Alasan membuka kembali wajib diisi, minimal 10 karakter.",
+          "meaning": "Perpanjang alasan."
+        },
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Lakukan verifikasi ulang di halaman Verifikasi ulang, lalu ulangi."
+        },
+        {
+          "message": "<n> dari <m> periode di tahun buku <tahun> belum ditutup.",
+          "meaning": "Tutup dulu semua bulan di tahun itu."
+        },
+        {
+          "message": "Tahun buku <tahun> sudah ditutup.",
+          "meaning": "Tahun itu sudah punya penutupan yang berlaku."
+        },
+        {
+          "message": "Tahun buku yang lebih baru sudah ditutup; tutup tahun buku secara berurutan.",
+          "meaning": "Batalkan penutupan tahun yang lebih baru dulu, atau tutup mulai dari tahun paling lama."
+        },
+        {
+          "message": "Tahun buku yang lebih baru masih ditutup; balik penutupan tahun buku mulai dari yang paling baru.",
+          "meaning": "Batalkan penutupan dari tahun terbaru."
+        },
+        {
+          "message": "Tahun buku <tahun> tidak memiliki transaksi laba rugi yang sudah diposting untuk ditutup.",
+          "meaning": "Tidak ada pendapatan atau beban terposting di tahun itu."
+        },
+        {
+          "message": "Tahun buku tidak dapat ditutup. Pastikan semua periode di tahun itu sudah ditutup dan tahun itu belum pernah ditutup.",
+          "meaning": "Pesan umum saat penutupan tahun gagal."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Akun Anda tidak punya izin periods.close atau periods.reopen."
+        }
+      ],
+      "related": [
+        "jurnal-manual",
+        "saldo-awal",
+        "penyesuaian-saldo-lanjutan",
+        "laporan-keuangan-utama"
+      ]
+    },
+    {
+      "slug": "laporan-keuangan-utama",
+      "title": "Memahami Laporan Keuangan (Laba Rugi, Neraca, Perubahan Ekuitas, Arus Kas, Buku Besar)",
+      "summary": "Memilih tab laporan, mengatur tanggal, dan membaca Laba Rugi, Neraca, Perubahan Ekuitas, Arus Kas, dan Buku Besar.",
+      "path": "Laporan > Laporan Keuangan; Laporan > Arus Kas",
+      "who": "Izin lihat laporan (reports.view): OWNER, Finance Admin, Accountant, Tax, Viewer / Auditor. Finance Staff dan Approver tidak melihat menu Laporan. Buku Besar juga memerlukan akses Akuntansi. Tab Analisis Konsolidasi memerlukan izin lintas-Entity (reports.cross_entity), yang pada peran bawaan hanya dimiliki OWNER.",
+      "quick": "Semua laporan dihitung dari jurnal yang sudah **terposting**, jadi pilih tab, isi tanggal, lalu tekan **Terapkan**; draf dan dokumen yang belum diterbitkan atau disetujui tidak ikut.",
+      "steps": [
+        {
+          "title": "Buka Laporan > Laporan Keuangan",
+          "text": "Halaman **Laporan Keuangan** berisi “Laporan resmi dari data yang telah diposting.” dan deretan tab: Laba Rugi (tab bawaan), Neraca, Perubahan Ekuitas, Arus Kas, Buku Besar, Laporan Kustom, Analisis Konsolidasi, Pinjaman Jatuh Tempo, Ringkasan Pinjaman, Ringkasan Payroll, Kontrol Payroll, Jadwal Penyusutan Fiskal, Kontrol Aset Tetap, Mutasi/Pelepasan Aset, Umur Piutang, dan Umur Utang. Menu Laporan > Arus Kas membuka tab Arus Kas yang sama.",
+          "image": {
+            "file": "laporan-keuangan.jpg",
+            "caption": "Halaman Laporan Keuangan dengan deretan tab laporan dan pilihan tanggal."
+          }
+        },
+        {
+          "title": "Atur tanggal lalu tekan Terapkan",
+          "text": "Laba Rugi, Perubahan Ekuitas, Arus Kas, dan Buku Besar memakai **Dari** dan **Sampai** (bawaan 1 Januari tahun ini sampai hari ini). Neraca memakai **Per tanggal** (bawaan hari ini). Tanggal yang kosong, tidak valid, atau terbalik diam-diam kembali ke bawaan.",
+          "tip": "Laba Rugi punya **Pembanding dari** dan **Pembanding sampai** untuk membandingkan dua periode. Isi keduanya."
+        },
+        {
+          "title": "Baca tab Laba Rugi",
+          "text": "Kolom **Kode**, **Akun**, **Jumlah**, dikelompokkan menurut Pendapatan, Kontra Pendapatan, Pendapatan Lain-lain, Beban, Beban Lain-lain, Lainnya, dan Pajak, masing-masing dengan “Total …”. Baris paling bawah **Laba Bersih** atau **Rugi Bersih**. Bila Anda mengisi pembanding, muncul kolom **Periode Pembanding** dan **Selisih** (periode utama dikurangi pembanding). Hanya akun yang bergerak di periode itu yang tampil. Bila kosong: “Tidak ada transaksi terposting pada periode ini.”."
+        },
+        {
+          "title": "Baca tab Neraca",
+          "text": "Kolom **Kode**, **Akun**, **Saldo**, dikelompokkan menjadi Aset, Kontra Aset, Liabilitas, dan Ekuitas dengan “Total …”. Di bawah ada **Total Aset**, **Total Liabilitas & Ekuitas**, dan **Status**: **Seimbang** atau **Tidak seimbang**. Akun Laba Tahun Berjalan dihitung otomatis dari seluruh laba rugi sampai tanggal itu. Bila kosong: “Tidak ada saldo pada tanggal ini.”.",
+          "warning": "Neraca bisa tampil Tidak seimbang selama akun Penampung Saldo Awal belum nol, karena akun itu tidak ikut dihitung di Neraca. Selesaikan saldo awal di [Cara Mengisi Saldo Awal Rekening](saldo-awal)."
+        },
+        {
+          "title": "Baca tab Perubahan Ekuitas",
+          "text": "Kolom **Kode**, **Akun**, **Saldo Awal**, **Perubahan Periode**, **Saldo Akhir**, dengan baris **Total Ekuitas Akhir**. Satu baris tanpa kode bertuliskan “Net result for the period” (masih bahasa Inggris) adalah laba atau rugi periode itu. Bila kosong: “Tidak ada akun ekuitas pada Entity ini.”."
+        },
+        {
+          "title": "Baca tab Arus Kas",
+          "text": "Tabel **Kategori** dan **Jumlah**: **Kas Awal**, **Operasi**, **Investasi**, **Pendanaan**, **Kas Akhir**, lalu **Status** “Rekonsiliasi cocok” atau “Tidak cocok”. Investasi berisi pembelian atau pelepasan aset tetap. Pendanaan berisi transfer antar rekening, pembayaran pinjaman, modal, dan dividen. Operasi adalah sisanya (penerimaan dan pembayaran usaha sehari-hari).",
+          "image": {
+            "file": "laporan-arus-kas.jpg",
+            "caption": "Tab Arus Kas."
+          }
+        },
+        {
+          "title": "Baca tab Buku Besar",
+          "text": "Pilih **Akun** (bentuknya “6800 · Beban Sewa & Ruang Kerja”; akun grup tidak ditawarkan) lalu **Terapkan**. Kolom: **Tanggal**, **No. Jurnal** (tautan ke jurnal), **Tipe**, **Deskripsi**, **Debit**, **Kredit**, **Saldo Berjalan**, dengan baris **Total Periode**. Bila kosong: “Tidak ada transaksi terposting untuk akun ini pada periode ini.”."
+        },
+        {
+          "title": "Telusuri angka sampai ke dokumennya",
+          "text": "Dari Buku Besar klik **No. Jurnal**. Pada detail jurnal, bagian **Sumber** punya tautan “Lihat dokumen sumber →” untuk jurnal dari invoice, tagihan, atau transfer. Tab lain di halaman ini dibahas di [Memahami Laporan Pajak, Payroll, Aset, dan Pinjaman](laporan-pajak-payroll-aset-pinjaman), [Cara Memakai Laporan Kustom dan Laporan Tersimpan](laporan-kustom-dan-tersimpan), [Cara Melihat Piutang](lihat-piutang), dan [Cara Melihat Utang](lihat-utang)."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Pertanyaan yang dijawab tiap tab",
+          "columns": ["Tab", "Menjawab", "Tanggal"],
+          "rows": [
+            [
+              "Laba Rugi",
+              "Untung atau rugi berapa dalam satu periode?",
+              "Dari, Sampai, dan Pembanding (opsional)"
+            ],
+            ["Neraca", "Apa yang dimiliki dan dihutang pada satu tanggal?", "Per tanggal"],
+            [
+              "Perubahan Ekuitas",
+              "Bagaimana modal bergerak dari awal ke akhir periode?",
+              "Dari, Sampai"
+            ],
+            ["Arus Kas", "Dari mana uang kas masuk dan ke mana keluar?", "Dari, Sampai"],
+            ["Buku Besar", "Apa saja transaksi di satu akun?", "Akun, Dari, Sampai"]
+          ]
+        }
+      ],
+      "result": ["Baca saja; tidak ada jurnal."],
+      "rules": [
+        "Hanya jurnal Terposting yang dihitung. Invoice, tagihan, atau pengeluaran yang masih Draf atau belum disetujui tidak ikut.",
+        "Angka dalam mata uang dasar Entity (IDR). Jurnal penutup tahun buku tidak dihitung di Laba Rugi.",
+        "Arus Kas dihitung dari mutasi kas dan bank. Mutasi bertipe Saldo Awal tidak ikut, sehingga Kas Awal dan Kas Akhir bisa berbeda dari saldo rekening sebenarnya bila saldo awal sudah diisi. Untuk saldo rekening pakai [Cara Melihat Saldo dan Mutasi Rekening](lihat-saldo-mutasi).",
+        "“Rekonsiliasi cocok” hanya berarti penjumlahan dalam laporan konsisten; bukan berarti cocok dengan rekening koran bank.",
+        "Saldo Berjalan di Buku Besar mulai dari nol pada tanggal Dari; saldo sebelum tanggal itu tidak ikut. Isi Dari dengan tanggal awal pembukuan bila ingin saldo akun yang sebenarnya.",
+        "Tanggal bawaan memakai tanggal hari ini menurut zona waktu UTC server, sehingga dini hari WITA bisa masih menunjukkan kemarin."
+      ],
+      "mistakes": [
+        "Mengira angka sudah masuk padahal jurnal atau dokumennya masih Draf.",
+        "Membaca Neraca per hari ini untuk transaksi yang bertanggal bulan depan.",
+        "Menganggap Rekonsiliasi cocok sama dengan cocok dengan bank.",
+        "Membaca Saldo Berjalan Buku Besar sebagai saldo akun padahal tidak memuat saldo sebelum tanggal Dari."
+      ],
+      "errors": [
+        {
+          "message": "Tidak ada transaksi terposting pada periode ini.",
+          "meaning": "Laba Rugi kosong untuk rentang tanggal itu."
+        },
+        {
+          "message": "Tidak ada saldo pada tanggal ini.",
+          "meaning": "Neraca kosong pada tanggal itu."
+        },
+        {
+          "message": "Tidak ada akun ekuitas pada Entity ini.",
+          "meaning": "Perubahan Ekuitas tidak punya akun untuk ditampilkan."
+        },
+        {
+          "message": "Tidak ada transaksi terposting untuk akun ini pada periode ini.",
+          "meaning": "Akun yang dipilih tidak bergerak di rentang itu."
+        },
+        {
+          "message": "Tidak seimbang",
+          "meaning": "Neraca: total aset berbeda dari total liabilitas dan ekuitas, sering karena Penampung Saldo Awal belum nol."
+        },
+        {
+          "message": "Terjadi masalah saat memuat halaman ini.",
+          "meaning": "Akun Anda tidak punya izin lihat laporan (reports.view), atau data gagal dimuat; tekan Coba Lagi."
+        }
+      ],
+      "related": [
+        "laporan-penjualan-pembelian",
+        "laporan-pajak-payroll-aset-pinjaman",
+        "laporan-kustom-dan-tersimpan",
+        "periode-dan-tutup-buku",
+        "lihat-piutang",
+        "lihat-utang"
+      ]
+    },
+    {
+      "slug": "laporan-penjualan-pembelian",
+      "title": "Cara Membaca Laporan Penjualan dan Pembelian",
+      "summary": "Melihat total penjualan atau pembelian per pelanggan atau vendor, kategori, produk, atau bulan, sebelum dan sesudah pajak.",
+      "path": "Laporan > Penjualan & Pembelian",
+      "who": "Izin lihat laporan (reports.view) ditambah izin sumber: lihat invoice (invoices.view) untuk Penjualan, lihat tagihan (bills.view) untuk Pembelian. Finance Staff dan Approver tidak melihat menu Laporan.",
+      "quick": "Pilih **Jenis** (Penjualan atau Pembelian), cara **Kelompokkan per**, tanggal, lalu **Terapkan**; Penjualan dihitung dari invoice terbit, Pembelian dari tagihan disetujui dan pengeluaran dikonfirmasi.",
+      "steps": [
+        {
+          "title": "Buka Laporan > Penjualan & Pembelian",
+          "text": "Halaman **Laporan Penjualan & Pembelian** menampilkan ringkasan seperti “Penjualan per pelanggan / pemasok, 1 Jan 2026 – 6 Okt 2026. Penjualan: invoice terbit. Pembelian: tagihan disetujui dan beban dikonfirmasi.”.",
+          "image": {
+            "file": "laporan-penjualan-pembelian.jpg",
+            "caption": "Laporan Penjualan & Pembelian."
+          }
+        },
+        {
+          "title": "Pilih Jenis dan pengelompokan",
+          "text": "**Jenis**: Penjualan atau Pembelian. **Kelompokkan per**: Pelanggan / Pemasok, Kategori, Produk / Jasa, atau Bulan. Pilihan Produk / Jasa hanya untuk Penjualan dan tampil abu-abu pada Pembelian.",
+          "tip": "Kategori diatur di [Cara Mengelola Kategori](kategori-pendapatan-beban); makin rapi kategorinya, makin berguna pengelompokan ini."
+        },
+        {
+          "title": "Isi Dari dan Sampai lalu Terapkan",
+          "text": "Bawaan 1 Januari tahun ini sampai hari ini; rentang paling lama 10 tahun. Tekan **Terapkan**."
+        },
+        {
+          "title": "Baca tabel",
+          "text": "Kolom pertama sesuai pengelompokan, lalu **Dokumen** (jumlah dokumen), **Sebelum Pajak**, dan **Termasuk Pajak**, diurutkan dari **Termasuk Pajak** terbesar (untuk Bulan, urut waktu). Baris **Total** ada di bawah. Dokumen tanpa pelanggan atau vendor tampil “Tanpa kontak”, tanpa kategori “Tanpa kategori”, tanpa produk “Tanpa produk”; kelompok Bulan tampil seperti “2026-10”. Bila kosong: “Tidak ada transaksi pada periode ini.”."
+        },
+        {
+          "title": "Simpan atau ulangi dengan pilihan lain",
+          "text": "Ganti **Jenis** atau **Kelompokkan per** lalu **Terapkan** lagi. Untuk menyimpan tampilan yang sering dipakai, buka bagian **Simpan laporan ini** di bawah tabel (lihat [Cara Memakai Laporan Kustom dan Laporan Tersimpan](laporan-kustom-dan-tersimpan))."
+        }
+      ],
+      "result": ["Baca saja; tidak ada jurnal."],
+      "rules": [
+        "Penjualan: hanya invoice berstatus terbit menurut tanggal terbit. Draf dan invoice batal tidak masuk.",
+        "Pembelian: tagihan berstatus Disetujui menurut tanggal tagihan, ditambah pengeluaran berstatus Dikonfirmasi menurut tanggal pengeluaran.",
+        "Angka dalam mata uang dasar Entity; dokumen valas dikonversi dengan kurs dokumennya.",
+        "**Dokumen** menghitung dokumen unik per kelompok. Saat dikelompokkan per kategori atau produk, satu dokumen yang punya beberapa kelompok dihitung di tiap kelompoknya, sehingga jumlah di baris Total bisa lebih besar dari jumlah dokumen sebenarnya.",
+        "Angka di sini bisa berbeda dari Laba Rugi karena jurnal manual, penyusutan, dan jurnal lain yang bukan dari invoice atau tagihan tidak ikut."
+      ],
+      "mistakes": [
+        "Heran karena invoice atau tagihan Draf tidak muncul.",
+        "Menjumlah kolom Dokumen lintas kelompok kategori atau produk.",
+        "Membandingkan total langsung dengan Laba Rugi tanpa memperhitungkan pajak dan jurnal manual."
+      ],
+      "errors": [
+        {
+          "message": "Tidak ada transaksi pada periode ini.",
+          "meaning": "Tidak ada dokumen yang memenuhi jenis dan tanggal itu."
+        },
+        {
+          "message": "Anda tidak memiliki izin melihat data penjualan.",
+          "meaning": "Akun Anda tidak punya izin lihat invoice (invoices.view)."
+        },
+        {
+          "message": "Anda tidak memiliki izin melihat data pembelian.",
+          "meaning": "Akun Anda tidak punya izin lihat tagihan (bills.view)."
+        },
+        {
+          "message": "Terjadi masalah saat memuat halaman ini.",
+          "meaning": "Biasanya rentang tanggal lebih dari 10 tahun, atau tidak ada izin lihat laporan; perkecil rentang lalu Coba Lagi."
+        }
+      ],
+      "related": [
+        "laporan-keuangan-utama",
+        "laporan-kustom-dan-tersimpan",
+        "memahami-piutang-pendapatan",
+        "lihat-utang"
+      ]
+    },
+    {
+      "slug": "laporan-pajak-payroll-aset-pinjaman",
+      "title": "Memahami Laporan Pajak, Payroll, Aset, dan Pinjaman",
+      "summary": "Mengetahui ke mana menu Pajak, Payroll, dan Aset & Pinjaman di Laporan membawa Anda, dan membaca tab pinjaman, payroll, aset, dan konsolidasi.",
+      "path": "Laporan > Pajak; Laporan > Payroll; Laporan > Aset & Pinjaman; tab di Laporan > Laporan Keuangan",
+      "who": "Menu Laporan: reports.view. Pajak: tax.view. Pinjaman: loans.view. Kontrol Aset Tetap: assets.view dan accounting.view; Jadwal Penyusutan Fiskal: assets.view dan tax.view; Mutasi/Pelepasan Aset: assets.view. Payroll: payroll.compensation_view bersama izin menjalankan, menyetujui, atau membayar payroll; Kontrol Payroll juga accounting.view. Pada peran bawaan tab Payroll hanya terbuka untuk OWNER, dan Analisis Konsolidasi (reports.cross_entity) juga hanya OWNER.",
+      "quick": "Menu **Pajak**, **Payroll**, dan **Aset & Pinjaman** di Laporan hanyalah pintasan ke **Buku Besar Pajak**, tab **Ringkasan Payroll**, dan tab **Kontrol Aset Tetap**; tab pinjaman dan lainnya hanya ada di deretan tab Laporan Keuangan.",
+      "steps": [
+        {
+          "title": "Laporan > Pajak membuka Buku Besar Pajak",
+          "text": "Menu **Pajak** di Laporan membawa Anda ke halaman **Buku Besar Pajak** (sama dengan Pajak > Buku Pajak), berisi daftar entri pajak dengan saringan. Ini bukan laporan baru. Ringkasan pajak, PPN, dan pelaporan ada di menu Pajak; lihat [Cara Membayar Pajak](bayar-pajak) dan [Cara Mengatur Pajak Awal](pengaturan-pajak-awal)."
+        },
+        {
+          "title": "Laporan > Payroll membuka Ringkasan Payroll",
+          "text": "Tab **Ringkasan Payroll** memakai **Dari** dan **Sampai**. Kolom: **No. Run**, **Periode**, **Status**, **Jml. Karyawan**, **Gaji Kotor**, **Tunjangan Pajak**, **BPJS Karyawan**, **BPJS Perusahaan**, **PPh 21**, **Gaji Bersih**, **Belum Dibayar**, **BPJS Belum Disetor**, **PPh 21 Belum Disetor**, dan baris **Total**. Kolom pajak berisi tanda strip bila Anda tidak berhak melihat pajak payroll. Bila kosong: “Tidak ada payroll run pada periode ini.”.\n\nTab **Kontrol Payroll** (**Per tanggal**) mencocokkan dua akun, Utang Gaji Karyawan dan Utang BPJS, dengan kolom **Sub-Ledger**, **Ledger (Payroll Run)**, **Ledger (Lainnya)**, **Ledger (Total)**, **Selisih**, dan **Status** (**Seimbang** atau **Tidak Seimbang**)."
+        },
+        {
+          "title": "Laporan > Aset & Pinjaman membuka Kontrol Aset Tetap",
+          "text": "Menu ini membuka tab **Kontrol Aset Tetap** (**Per tanggal**) dengan dua baris, Biaya Perolehan Aset Tetap dan Akumulasi Penyusutan, dan kolom **Sub-Ledger**, **Ledger (Alur Kerja Aset)**, **Ledger (Lainnya)**, **Ledger (Total)**, **Selisih**, **Status**. Seimbang berarti daftar aset sama dengan buku besar.\n\nTab aset lain: **Jadwal Penyusutan Fiskal** (pilih **Aset**; kolom **Tahun Fiskal**, **Nilai Awal**, **Penyusutan**, **Nilai Akhir**, dan baris **Total Penyusutan Fiskal**) serta **Mutasi/Pelepasan Aset** (**Dari**, **Sampai**; kolom **Tanggal**, **Aset**, **Peristiwa**, **Hasil Pelepasan**, **Laba/Rugi**, **Jurnal**, **Status**)."
+        },
+        {
+          "title": "Tab pinjaman",
+          "text": "Menu Aset & Pinjaman tidak membuka pinjaman. Buka Laporan > Laporan Keuangan lalu pilih tab **Pinjaman Jatuh Tempo** (**Sampai Tanggal**; kolom **No. Pinjaman**, **Arah**, **Pihak**, **Cicilan Ke**, **Jatuh Tempo** dengan “(N hari)” bila terlambat, **Pokok Tertunggak**, **Bunga Tertunggak**, **Biaya Tertunggak**, **Status**, dan baris “Total (N terlambat)”) atau **Ringkasan Pinjaman** (**Dari**, **Sampai**; kolom **Pokok Awal**, **Pencairan**, **Pokok Dibayar**, **Pokok Dihapusbukukan**, **Pokok Akhir**, **Bunga Dibayar**, **Biaya Dibayar**). Nomor pinjaman menautkan ke detail pinjaman."
+        },
+        {
+          "title": "Tab Analisis Konsolidasi (OWNER)",
+          "text": "Centang **Entity** yang ingin dilihat dan isi **Per tanggal**. Kolom **Kode**, **Entity**, **Tipe** (Usaha atau Rumah Tangga), **Mata Uang**, **Saldo Kas**. Total hanya dijumlahkan bila semua Entity bermata uang sama; bila tidak, tampil tanda strip dengan keterangan “(mata uang berbeda)”. Buku PT dan Pribadi tidak digabung."
+        }
+      ],
+      "result": ["Baca saja; tidak ada jurnal."],
+      "rules": [
+        "Tab tanpa izin menampilkan pesan izin biasa, bukan galat. Menu Pajak di Laporan tanpa izin tax.view tampil “Terjadi masalah saat memuat halaman ini.”.",
+        "Selisih pada Kontrol Aset Tetap atau Kontrol Payroll adalah Pemblokir saat menutup periode (lihat [Memahami Periode Akuntansi dan Cara Menutupnya](periode-dan-tutup-buku)).",
+        "Semua tab di sini hanya untuk dibaca. Mencatat pajak, payroll, aset, atau pinjaman dilakukan di menu masing-masing.",
+        "Kelompok tanggal sama seperti tab lain: tanggal tidak valid kembali ke bawaan."
+      ],
+      "mistakes": [
+        "Mencari laporan pajak lengkap di Laporan > Pajak; menu itu hanya Buku Besar Pajak.",
+        "Mengira Laporan > Aset & Pinjaman memuat pinjaman.",
+        "Mengira tanda strip pada kolom PPh 21 berarti nol; artinya Anda tidak berhak melihatnya."
+      ],
+      "errors": [
+        {
+          "message": "Anda tidak memiliki izin untuk melihat laporan payroll.",
+          "meaning": "Akun Anda belum punya gabungan izin payroll yang dibutuhkan."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk melihat laporan pinjaman.",
+          "meaning": "Akun Anda tidak punya izin lihat pinjaman (loans.view)."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk melihat kontrol aset tetap.",
+          "meaning": "Butuh assets.view dan accounting.view."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk melihat jadwal penyusutan fiskal.",
+          "meaning": "Butuh assets.view dan tax.view."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk melihat mutasi/pelepasan aset.",
+          "meaning": "Butuh assets.view."
+        },
+        {
+          "message": "Tidak ada cicilan yang jatuh tempo pada rentang ini.",
+          "meaning": "Tidak ada cicilan pinjaman sampai tanggal itu."
+        },
+        {
+          "message": "Aset ini tidak memiliki jadwal penyusutan fiskal.",
+          "meaning": "Aset itu belum punya kelompok fiskal atau masih draf atau dibatalkan."
+        },
+        {
+          "message": "Anda tidak memiliki izin lintas-Entity untuk laporan ini.",
+          "meaning": "Analisis Konsolidasi butuh izin reports.cross_entity."
+        }
+      ],
+      "related": [
+        "laporan-keuangan-utama",
+        "bayar-pajak",
+        "pengaturan-pajak-awal",
+        "periode-dan-tutup-buku",
+        "piutang-lain"
+      ]
+    },
+    {
+      "slug": "laporan-kustom-dan-tersimpan",
+      "title": "Cara Memakai Laporan Kustom dan Laporan Tersimpan",
+      "summary": "Menjumlahkan dokumen per pelanggan atau vendor lewat Laporan Kustom, dan menyimpan tampilan laporan favorit agar mudah dibuka lagi.",
+      "path": "Laporan > Laporan Kustom; Laporan > Laporan Tersimpan",
+      "who": "Laporan Kustom: reports.view ditambah izin sumber tiap dataset (invoices.view untuk penjualan, bills.view untuk pembelian). Menyimpan, membuka, dan menghapus Laporan Tersimpan: reports.view; daftarnya pribadi, hanya terlihat oleh pemiliknya.",
+      "quick": "**Laporan Kustom** menjumlahkan dokumen dari tiga dataset tetap, dan **Simpan laporan ini** di bawah laporan menyimpan tampilannya agar bisa dibuka lagi dari **Laporan Tersimpan**.",
+      "steps": [
+        {
+          "title": "Buka Laporan > Laporan Kustom",
+          "text": "Menu ini membuka tab **Laporan Kustom** di halaman Laporan Keuangan. Pilih **Dataset**. Tiga dataset yang ada, dengan nama yang masih berbahasa Inggris: “Sales by Customer” (invoice terbit per pelanggan), “Expense by Vendor” (tagihan per vendor), dan “Direct Expenses by Payee” (pengeluaran langsung yang dikonfirmasi per penerima). Hanya dataset yang Anda berhak yang tampil. Bila tidak ada: “Tidak ada dataset laporan yang dapat Anda akses.”.",
+          "image": {
+            "file": "laporan-kustom.jpg",
+            "caption": "Laporan Kustom dengan pilihan Dataset."
+          }
+        },
+        {
+          "title": "Atur tanggal dan baca tabel",
+          "text": "Isi **Dari** dan **Sampai** (bawaan 1 Januari tahun ini sampai hari ini), lalu **Terapkan**. Judul tabel adalah deskripsi dataset (bahasa Inggris). Kolomnya: dimensi (Customer, Vendor, atau Payee), **Jumlah Transaksi**, dan jumlah total (Invoice total, Bill total, atau Expense total), dengan baris **Total**. Bila kosong: “Tidak ada data pada periode ini.”."
+        },
+        {
+          "title": "Simpan laporan",
+          "text": "Di bawah laporan ada bagian lipat **Simpan laporan ini** (tersedia di semua tab Laporan Keuangan dan di Penjualan & Pembelian). Buka, isi **Nama laporan** (2 sampai 120 karakter), lalu tekan **Simpan**. Hasil: “Tersimpan di Laporan Tersimpan.”.",
+          "tip": "Bila Anda belum menekan Terapkan, yang tersimpan hanya pilihan tab sehingga laporan nanti selalu memakai awal tahun sampai hari ini. Bila sudah, tanggalnya ikut tersimpan tetap. Penjualan & Pembelian selalu menyimpan tanggal yang tampil."
+        },
+        {
+          "title": "Buka Laporan > Laporan Tersimpan",
+          "text": "Halaman **Laporan Tersimpan** berisi tabel **Nama**, **Disimpan** (tanggal), dan **Tindakan**. Klik nama laporan untuk membukanya lagi dengan filter yang tersimpan di Entity yang sedang aktif. Bila kosong: “Belum ada laporan tersimpan.”.",
+          "image": {
+            "file": "laporan-tersimpan.jpg",
+            "caption": "Daftar Laporan Tersimpan."
+          }
+        },
+        {
+          "title": "Hapus laporan tersimpan",
+          "text": "Tekan **Hapus** di kolom **Tindakan**. Laporan langsung terhapus (“Dihapus.”) tanpa konfirmasi. Laporan tersimpan tidak bisa diedit; untuk mengubahnya, simpan yang baru lalu hapus yang lama."
+        }
+      ],
+      "result": [
+        "Baca saja; menyimpan atau menghapus laporan tidak membuat jurnal dan tidak mengubah data keuangan."
+      ],
+      "rules": [
+        "Dataset hanya tiga dan tetap. Tidak ada pembuat laporan bebas dengan kolom pilihan sendiri.",
+        "Angka Laporan Kustom dihitung dari invoice terbit atau tagihan disetujui dan juga yang sudah dibatalkan (void), sehingga bisa lebih besar dari laporan Penjualan & Pembelian.",
+        "Laporan Tersimpan bersifat pribadi per pengguna dan per Entity, bernama unik, paling banyak 100 per orang, dan tidak dibagikan ke pengguna lain.",
+        "Tombol simpan hanya ada di halaman Laporan Keuangan (semua tab) dan Penjualan & Pembelian."
+      ],
+      "mistakes": [
+        "Mencari tombol Simpan di halaman lain.",
+        "Menyimpan laporan dengan tanggal tetap lalu heran angkanya tidak ikut bergerak bulan depan.",
+        "Mengira laporan tersimpan otomatis terlihat oleh rekan kerja."
+      ],
+      "errors": [
+        {
+          "message": "Nama itu sudah dipakai. Pilih nama lain.",
+          "meaning": "Anda sudah punya laporan tersimpan dengan nama yang sama."
+        },
+        {
+          "message": "Laporan tidak dapat disimpan. Nama 2–120 karakter.",
+          "meaning": "Nama terlalu pendek atau terlalu panjang."
+        },
+        {
+          "message": "Setiap orang paling banyak menyimpan 100 laporan.",
+          "meaning": "Hapus beberapa laporan tersimpan dulu."
+        },
+        {
+          "message": "Laporan tersimpan tidak dapat dihapus.",
+          "meaning": "Penghapusan gagal; muat ulang halaman."
+        },
+        {
+          "message": "Tidak ada dataset laporan yang dapat Anda akses.",
+          "meaning": "Akun Anda tidak punya izin lihat invoice maupun tagihan."
+        }
+      ],
+      "related": ["laporan-keuangan-utama", "laporan-penjualan-pembelian"]
+    }
+  ]
+}
