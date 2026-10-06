@@ -196,7 +196,11 @@
         },
         {
           "title": "Tekan Terbitkan Invoice",
-          "text": "Tombol **Terbitkan Invoice** tidak meminta konfirmasi tambahan. Dalam satu kali tekan sistem: memberi nomor (misalnya HKD-2026-0001), membekukan salinan data penerbit, pelanggan, dan rekening tujuan, memposting jurnal, membuat tautan publik, dan mengubah status menjadi Diterbitkan."
+          "text": "Tombol **Terbitkan Invoice** tidak meminta konfirmasi tambahan. Dalam satu kali tekan sistem: memberi nomor (misalnya HKD-2026-0001), membekukan salinan data penerbit, pelanggan, dan rekening tujuan, memposting jurnal, membuat tautan publik, dan mengubah status menjadi Diterbitkan.",
+          "image": {
+            "file": "invoice-detail-draf-v2.jpg",
+            "caption": "Invoice berstatus Draf dengan tombol Terbitkan Invoice dan Batalkan Draf."
+          }
         },
         {
           "title": "Setelah terbit: invoice otomatis menjadi piutang",
