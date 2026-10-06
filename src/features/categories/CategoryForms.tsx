@@ -1,5 +1,6 @@
 "use client";
 
+import { CATEGORY_KIND_LABELS } from "./kindLabels";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "react";
 import { VAT_TREATMENT_LABELS, WHT_OBJECT_LABELS } from "@/domain/tax/tax";
@@ -11,15 +12,6 @@ import {
 } from "./categoryActions";
 
 const IDLE: CategoryActionState = { status: "idle" };
-
-export const CATEGORY_KIND_LABELS: Readonly<Record<string, string>> = {
-  revenue: "Pendapatan",
-  expense: "Beban",
-  asset: "Aset",
-  liability: "Kewajiban",
-  equity: "Modal",
-  other: "Lainnya",
-};
 
 function TaxKeyOptions() {
   return (

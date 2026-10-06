@@ -2302,3 +2302,14 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   timezone migration `20261006150000`, which selected `entity_type = 'personal'`, changed nothing in production
   (checked after the merge). Migration `20261006160000` selects the Entity by its code `hikarich` and makes the
   WITA change that was agreed. PT stays on WIB.
+
+- Decision 304 (6 October 2026): guide screenshots and two label bugs found by looking at the production site.
+  (1) About 30 of the 74 guide screenshots showed a different page than their caption (the batch that saved them
+  matched files by time order). Each caption now points to a `-v2` file whose content was checked page by page
+  against the caption; the old files are left in place (unused). Pages that changed since (Jejak Audit in WITA,
+  Kalender Pajak, Laporan Kustom, Bagan Akun) and the missing ones (Ubah Produk, Laporan Penjualan & Pembelian,
+  Anggaran) were retaken. (2) Finding #104 had not really been fixed: the Kategori table still printed the stored
+  word (`expense`) because `CATEGORY_KIND_LABELS` was exported from a `"use client"` module, which a server page
+  receives as an unusable client reference. The same happened with the Marketplace platform names. Both label
+  maps now live in plain modules, and `src/lib/clientBoundary.test.ts` fails when a server file imports an
+  upper-case constant from a `"use client"` module. No database change.

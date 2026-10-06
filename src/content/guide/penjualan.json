@@ -112,7 +112,11 @@
         },
         {
           "title": "Menonaktifkan produk",
-          "text": "Buka detail produk, tekan **Ubah**, hilangkan centang **Aktif**, lalu **Simpan Perubahan**. Produk nonaktif tidak lagi muncul sebagai saran. Tidak ada tombol hapus karena produk mungkin sudah dipakai invoice."
+          "text": "Buka detail produk, tekan **Ubah**, hilangkan centang **Aktif**, lalu **Simpan Perubahan**. Produk nonaktif tidak lagi muncul sebagai saran. Tidak ada tombol hapus karena produk mungkin sudah dipakai invoice.",
+          "image": {
+            "file": "produk-ubah.jpg",
+            "caption": "Form Ubah Produk. Hilangkan centang Aktif lalu tekan Simpan Perubahan."
+          }
         }
       ],
       "result": [

@@ -20,7 +20,7 @@
           "title": "Buka Aset & Pendanaan > Aset Tetap",
           "text": "Halaman berjudul **Daftar Aset**. Kolomnya **Kode** (berawalan AST), **Nama**, **Tanggal Perolehan**, **Sumber** (Baris Tagihan Pembelian, Baris Beban, atau Saldo Awal), **Status**, **Kondisi**, dan **Nilai Buku**. Saring dengan pilihan **Status** (Semua Status, Draf (belum dipakai), Aktif, Terjual, Dilepas, Dibatalkan) atau kotak “Cari kode atau nama aset…”, lalu tekan **Terapkan**.",
           "image": {
-            "file": "aset-daftar.jpg",
+            "file": "aset-daftar-v2.jpg",
             "caption": "Daftar Aset dengan tombol Daftarkan Aset."
           }
         },
@@ -151,7 +151,7 @@
           "text": "Halaman berjudul **Laporan Penyusutan**. Isian **Dari** dan **Sampai** (bawaan 12 bulan terakhir sampai hari ini), kotak “Cari kode atau nama aset…”, lalu **Terapkan**. Bagian **Ringkasan** menampilkan **Total Terposting** dan **Total Terjadwal**. Tabelnya berkolom **Aset**, **Periode**, **Status** (Terjadwal, Terposting, Dibalik, Dibatalkan), **Jurnal** (tautan **Lihat →**), dan **Jumlah**.",
           "tip": "Bulan-bulan mendatang tidak tampil karena batas Sampai bawaannya hari ini. Ubah Sampai ke tanggal mendatang untuk melihat jadwal ke depan.",
           "image": {
-            "file": "aset-penyusutan.jpg",
+            "file": "aset-penyusutan-v2.jpg",
             "caption": "Laporan Penyusutan dengan bagian Posting Penyusutan Bulanan."
           }
         },
@@ -379,7 +379,7 @@
           "title": "Buka halaman Aset yang Sudah Dimiliki",
           "text": "Halaman ini tidak ada di menu samping. Buka **Aset & Pendanaan > Aset Tetap**, tekan **Daftarkan Aset**, lalu klik tautan **Catat aset yang sudah dimiliki →**. Judul halamannya **Aset yang Sudah Dimiliki**.",
           "image": {
-            "file": "aset-daftarkan.jpg",
+            "file": "aset-daftarkan-v2.jpg",
             "caption": "Halaman Daftarkan Aset; tautan \"Catat aset yang sudah dimiliki\" ada di bagian atas."
           }
         },
@@ -465,7 +465,7 @@
           "title": "Buka Aset & Pendanaan > Pinjaman",
           "text": "Halaman berjudul **Daftar Pinjaman**. Kolomnya **Nomor** (berawalan LN), **Arah**, **Pihak**, **Pokok**, **Outstanding**, **Jatuh Tempo Berikutnya**, dan **Status** (Draf, Berjalan, Lunas, Dibatalkan, ditambah “Terlambat” bila ada cicilan lewat tempo). Saring dengan **Arah** (Semua Arah, Pinjaman diterima, Pinjaman diberikan), **Status**, atau kotak “Cari nomor pinjaman atau pihak…”. Tekan **Tambah Pinjaman**.",
           "image": {
-            "file": "pinjaman-daftar.jpg",
+            "file": "pinjaman-daftar-v2.jpg",
             "caption": "Daftar Pinjaman."
           }
         },
@@ -473,7 +473,7 @@
           "title": "Isi data pinjaman",
           "text": "**Jenis Pinjaman**: “Pinjaman diterima (kita berutang)” atau “Pinjaman diberikan (kita meminjamkan)”. Isi **Pemberi Pinjaman** (untuk pinjaman diterima) atau **Peminjam** (untuk pinjaman diberikan); ada saran dari daftar kontak dan nama baru boleh diketik. Isi **Tujuan Pinjaman** (minimal 3 karakter), **Jumlah Pokok**, dan **Tanggal Perjanjian** (tidak boleh di masa depan). Khusus PT dan pinjaman diterima ada **Jangka Waktu**: “Jangka pendek (sampai 1 tahun)” atau “Jangka panjang (lebih dari 1 tahun)”.",
           "image": {
-            "file": "pinjaman-form.jpg",
+            "file": "pinjaman-form-v2.jpg",
             "caption": "Form Tambah Pinjaman."
           }
         },
@@ -819,7 +819,7 @@
           "title": "Buka Aset & Pendanaan > Modal & Ekuitas",
           "text": "Halaman berjudul **Modal & Ekuitas**. Kolomnya **Nomor** (berawalan EQ), **Jenis**, **Tanggal**, **Pihak**, **Jumlah**, dan **Status** (Draf, Terkonfirmasi, Dibalik, Dibatalkan). Saring dengan **Jenis**, **Status**, atau kotak “Cari nomor, pihak atau tujuan…”. Tekan **Tambah Modal / Ekuitas**.",
           "image": {
-            "file": "ekuitas-daftar.jpg",
+            "file": "ekuitas-daftar-v2.jpg",
             "caption": "Halaman Modal & Ekuitas."
           }
         },
@@ -827,7 +827,7 @@
           "title": "Isi form",
           "text": "Pilih **Jenis**. Pada PT pilihannya Setoran modal, Pengembalian modal, dan Dividen. Pada Entity Pribadi pilihannya Penyertaan modal, Pengembalian penyertaan, dan Distribusi diterima. Untuk panduan ini pilih “Setoran modal” (PT) atau “Penyertaan modal” (Pribadi). Isi **Nama Pemilik / Pihak**, **Keterangan** (minimal 3 karakter), **Jumlah**, dan **Tanggal** (tidak boleh di masa depan). Khusus PT ada **Golongan Modal**: “Modal disetor” atau “Tambahan modal”. Tekan **Simpan**.",
           "image": {
-            "file": "ekuitas-form.jpg",
+            "file": "ekuitas-form-v2.jpg",
             "caption": "Form Tambah Modal / Ekuitas."
           }
         },
@@ -1055,7 +1055,7 @@
           "title": "Buka Aset & Pendanaan > Utang Lain",
           "text": "Halaman berjudul **Daftar Utang lain-lain**. Kolomnya **Nomor**, **Pihak**, **Tujuan**, **Jatuh Tempo**, **Pokok**, **Outstanding**, dan **Status** (Berjalan, Lunas, Dibatalkan, Terlambat). Tekan **Tambah Utang lain-lain**.",
           "image": {
-            "file": "utang-lain-daftar.jpg",
+            "file": "utang-lain-daftar-v2.jpg",
             "caption": "Daftar Utang lain-lain."
           }
         },

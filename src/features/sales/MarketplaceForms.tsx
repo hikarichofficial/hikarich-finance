@@ -1,5 +1,6 @@
 "use client";
 
+import { MARKETPLACE_PLATFORM_LABELS } from "./marketplaceLabels";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState, useState } from "react";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
@@ -12,16 +13,6 @@ import {
 import { MoneyInput } from "@/features/shared/MoneyInput";
 
 const IDLE: MarketplaceActionState = { status: "idle" };
-
-export const MARKETPLACE_PLATFORM_LABELS: Readonly<Record<string, string>> = {
-  shopee: "Shopee",
-  tokopedia: "Tokopedia",
-  lazada: "Lazada",
-  blibli: "Blibli",
-  tiktok_shop: "TikTok Shop",
-  bukalapak: "Bukalapak",
-  other: "Lainnya",
-};
 
 function Feedback({ state }: { state: MarketplaceActionState }) {
   if (state.status === "ok") return <p className="hint">{state.message}</p>;
