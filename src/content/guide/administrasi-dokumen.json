@@ -257,8 +257,14 @@
         {
           "title": "Pasang logo perusahaan (OWNER)",
           "text": "Di bagian **Logo Perusahaan**, tekan **Pilih Logo Baru**, pilih gambar PNG, JPEG, atau WebP (maksimal 4 MB), lalu tekan **Simpan Logo**. Gambar otomatis diperkecil menjadi WebP kecil (sekitar 5 sampai 60 KB, paling besar 600 × 240 piksel) dan berkas aslinya tidak disimpan, jadi penyimpanan tetap hemat. Bila berhasil tampil “Logo disimpan dan diperkecil otomatis (… KB). Invoice dan kuitansi menampilkan logo ini.” Logo tampil di kiri atas invoice dan kuitansi, termasuk halaman publik. Tekan **Hapus Logo** untuk melepasnya.",
-          "tip": "Agar kop invoice memakai nama PT saja, isi **Nama Merek** sama dengan **Nama Resmi**: nama hanya tampil sekali. Gambar dengan latar putih atau transparan paling rapi.",
+          "tip": "Di kop invoice, **Nama Resmi** (misalnya PT) tampil di atas dan **Nama Merek** di bawahnya. Agar nama hanya tampil sekali, isi **Nama Merek** sama dengan **Nama Resmi**. Gambar dengan latar putih atau transparan paling rapi.",
           "warning": "Perubahan logo memerlukan verifikasi ulang. File SVG tidak diterima."
+        },
+        {
+          "title": "Atur tampilan invoice (OWNER)",
+          "text": "Buka **Administrasi > Tampilan Invoice**. Halaman menampilkan contoh invoice (dengan data rekaan) yang bagian-bagiannya bisa diseret: logo, nama perusahaan, judul dan nomor, ditagihkan kepada, tanggal, tabel item, total, pembayaran diterima, cara pembayaran, catatan, dan syarat. Seret sebuah bagian lalu lepas di atas atau bawah bagian lain untuk menukar urutan, atau lepas di tepi kiri atau kanan bagian lain untuk menaruhnya sebaris. Klik sebuah bagian, lalu di panel **Bagian terpilih** atur **Perataan** (Kiri, Tengah, Kanan), **Lebar** (Setengah atau Penuh), atau tekan **Naik**/**Turun** di layar sentuh. **Ukuran logo** (Kecil, Sedang, Besar) ada di panel yang sama. Tekan **Simpan Tampilan**; bila berhasil tampil “Tampilan invoice disimpan. Berlaku untuk invoice yang diterbitkan berikutnya.” Tekan **Kembalikan ke Bawaan** untuk memulai dari susunan awal.",
+          "tip": "Catatan, syarat, logo, pembayaran diterima, dan cara pembayaran bisa disembunyikan lewat **Sembunyikan bagian ini**; bagian yang disembunyikan muncul di daftar **Bagian yang disembunyikan** dan bisa ditampilkan lagi dengan **Tampilkan**.",
+          "warning": "Judul dan nomor, nama perusahaan, ditagihkan kepada, tanggal, tabel item, dan total tidak bisa disembunyikan. Tampilan baru hanya berlaku untuk invoice yang diterbitkan setelah disimpan (draf yang belum terbit ikut memakainya); invoice yang sudah terbit tetap seperti saat diterbitkan. Menyimpan memerlukan verifikasi ulang."
         },
         {
           "title": "Ubah Zona Waktu dan Tahun Buku (OWNER)",

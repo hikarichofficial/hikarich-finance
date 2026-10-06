@@ -8,8 +8,14 @@ import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { isFiscalYearLockedMessage } from "@/domain/settings/settings";
 import { requirePermission } from "@/services/identity/access";
 import {
+  type InvoiceLayout,
+  isDefaultLayout,
+  parseInvoiceLayout,
+} from "@/domain/sales/invoiceLayout";
+import {
   createEntity,
   setEntityLogo,
+  setInvoiceLayout,
   setNegativeBalanceBlock,
   updateEntityIdentity,
   updateEntityTimeSettings,
@@ -219,4 +225,41 @@ export async function createEntityAction(
   revalidatePath("/", "layout");
   await setFlash("Entity dibuat.");
   redirect(`/admin/settings?entity=${encodeURIComponent(code)}`);
+}
+
+/** Settings write (decision 310): save the arrangement of the invoice document. The standard arrangement is
+ * stored as "none". It applies to invoices issued from now on; an invoice already issued keeps its own look. */
+export async function saveInvoiceLayoutAction(
+  _previous: TimeSettingsState,
+  formData: FormData,
+): Promise<TimeSettingsState> {
+  let layout: InvoiceLayout;
+  try {
+    layout = parseInvoiceLayout(JSON.parse(text(formData, "layout")));
+  } catch {
+    return {
+      status: "error",
+      message: "Tampilan tidak terbaca. Muat ulang halaman lalu coba lagi.",
+    };
+  }
+  try {
+    const { membership } = await requirePermission("system.entity_config", {
+      entityCode: text(formData, "entity"),
+    });
+    await setInvoiceLayout(membership.entity_id, isDefaultLayout(layout) ? null : layout);
+  } catch (error) {
+    if (error instanceof AuthzError) {
+      return {
+        status: "error",
+        message: describeAuthzError(error),
+        stepUp: error.code === "STEP_UP_REQUIRED",
+      };
+    }
+    return { status: "error", message: "Tampilan invoice tidak dapat disimpan. Coba lagi." };
+  }
+  revalidatePath("/", "layout");
+  return {
+    status: "ok",
+    message: "Tampilan invoice disimpan. Berlaku untuk invoice yang diterbitkan berikutnya.",
+  };
 }

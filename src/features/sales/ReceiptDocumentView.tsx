@@ -1,7 +1,7 @@
 import { formatMoney } from "@/domain/money/format";
 import { paymentReceiptStatus } from "@/domain/sales/receiptDocument";
 import type { ReceiptDocument } from "@/schemas/sales";
-import { DocumentLogo, formatDocumentDate } from "./InvoiceDocumentView";
+import { DocumentLogo, formatDocumentDate, issuerNames } from "./InvoiceDocumentView";
 
 /**
  * A payment receipt as the payer reads it (P13 Part 5, first increment; Step 11 §10, FINAL/LOCKED): what was
@@ -25,8 +25,7 @@ export function ReceiptDocumentView({
   receipt: ReceiptDocument;
   logo?: string | null;
 }) {
-  const brand =
-    field(receipt.issuer, "brand_name") ?? field(receipt.issuer, "legal_name") ?? "Hikarich";
+  const names = issuerNames(receipt.issuer);
   const method = receipt.method;
   const status = paymentReceiptStatus(receipt);
   return (
@@ -34,10 +33,8 @@ export function ReceiptDocumentView({
       <header className="doc-head">
         <div className="doc-issuer">
           <DocumentLogo logo={logo} />
-          <h1 className="doc-brand">{brand}</h1>
-          {field(receipt.issuer, "legal_name") && field(receipt.issuer, "legal_name") !== brand ? (
-            <p>{field(receipt.issuer, "legal_name")}</p>
-          ) : null}
+          <h1 className="doc-brand">{names.primary}</h1>
+          {names.secondary ? <p>{names.secondary}</p> : null}
         </div>
         <div className="doc-title">
           <p className="doc-kind">KWITANSI</p>

@@ -345,7 +345,11 @@ begin
   perform public.cancel_invoice(v_tmp, 'key-p5-is-10', 'Tax not supported yet');
   perform test_helpers.logout();
 
-  -- issue A
+  -- issue A (the owner has arranged the invoice document: the title block first)
+  insert into public.entity_profiles (entity_id, invoice_layout)
+  values (pt, jsonb_build_object('v', 1, 'blocks', (select jsonb_agg(jsonb_build_object('key', t.id, 'show', true, 'align', 'left', 'width', 'full') order by t.ord)
+    from unnest(array['title','issuer','logo','customer','dates','lines','totals','payments','instructions','notes','terms']) with ordinality as t(id, ord))))
+  on conflict (entity_id) do update set invoice_layout = excluded.invoice_layout;
   perform test_helpers.login(v_admin);
   v_ar_before := test_helpers.bal(pt, 'ACCOUNTS_RECEIVABLE');
   perform test_helpers.assert(public.issue_invoice(v_a, 'key-p5-is-11') = v_a, 'issue returns the invoice');
@@ -370,6 +374,10 @@ begin
     and (select bool_and(revenue_account_id is not null) from public.invoice_lines where invoice_id = v_a), 'each line keeps its base amount and revenue account');
   perform test_helpers.assert(i.issuer_snapshot ->> 'legal_name' = 'P5 PT (synthetic)' and i.customer_snapshot ->> 'display_name' = 'Alfa Customer'
     and not (i.customer_snapshot ? 'tax_identifier') and i.payment_snapshot ->> 'institution_name' = 'BCA', 'issuer, customer and payment facts are frozen; no customer tax identifier');
+  perform test_helpers.assert(i.issuer_snapshot -> 'layout' -> 'blocks' -> 0 ->> 'key' = 'title', 'the arrangement of the document is frozen into the issuer snapshot');
+  delete from public.entity_profiles where entity_id = pt; -- the later invoices of this file are issued without a profile
+  perform test_helpers.assert((select issuer_snapshot -> 'layout' -> 'blocks' -> 0 ->> 'key' from public.invoices where id = v_a) = 'title',
+    'removing or changing the arrangement later does not touch an invoice already issued');
   perform test_helpers.assert((select count(*) from public.invoice_public_links where invoice_id = v_a and status = 'active') = 1
     and exists (select 1 from public.outbox_events where aggregate_id = v_a and event_type = 'InvoiceIssued'), 'an active public link and an outbox event appear');
 

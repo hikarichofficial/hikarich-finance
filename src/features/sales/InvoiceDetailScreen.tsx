@@ -8,6 +8,7 @@ import type { InvoiceDocument } from "@/schemas/sales";
 import { InvoiceActions, type InvoiceActionPermissions } from "./InvoiceActions";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
 import { RecordPaymentForm } from "./RecordPaymentForm";
+import type { InvoiceLayout } from "@/domain/sales/invoiceLayout";
 import { InvoiceDocumentView, formatDocumentDate } from "./InvoiceDocumentView";
 import { formatShortDate } from "./format";
 
@@ -29,6 +30,7 @@ export function InvoiceDetailScreen({
   canEdit = false,
   email,
   logo,
+  layout,
 }: {
   invoiceId: string;
   doc: InvoiceDocument;
@@ -44,6 +46,8 @@ export function InvoiceDetailScreen({
   email?: { configured: boolean; defaultEmail: string | null };
   /** The company logo for the document section (decision 307). */
   logo?: string | null;
+  /** The current arrangement, used to preview a draft (an issued invoice carries its own). */
+  layout?: InvoiceLayout | null;
 }) {
   const status = invoiceDocumentStatus(doc);
   const timeline = invoiceActivityTimeline(doc);
@@ -172,7 +176,11 @@ export function InvoiceDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Dokumen</h2>
         </div>
-        <InvoiceDocumentView doc={doc} logo={logo} />
+        <InvoiceDocumentView
+          doc={doc}
+          logo={logo}
+          layout={doc.status === "draft" ? layout : null}
+        />
       </section>
 
       <section className="dashboard-section">

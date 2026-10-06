@@ -555,12 +555,257 @@ body {
   color: var(--doc-tone-attention);
 }
 
-.doc-issuer .doc-logo {
+.doc-issuer .doc-logo,
+.doc-cell .doc-logo {
   display: block;
   max-width: 180px;
   max-height: 72px;
-  margin-bottom: 12px;
   object-fit: contain;
+}
+
+.doc-issuer .doc-logo {
+  margin-bottom: 12px;
+}
+
+.doc-cell .doc-logo[data-size="sm"] {
+  max-width: 120px;
+  max-height: 48px;
+}
+
+.doc-cell .doc-logo[data-size="lg"] {
+  max-width: 280px;
+  max-height: 120px;
+}
+
+/* The invoice document is a stack of rows (decision 310); a row holds one block, or two half-width blocks side
+ * by side. Each block is aligned left, centre or right inside its cell. */
+.doc-rows {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.doc-row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 24px;
+}
+
+.doc-row-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+.doc-row-rule {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--doc-line);
+}
+
+.doc-row-1 > .doc-cell[data-width="half"] {
+  width: calc(50% - 12px);
+}
+
+.doc-row-1 > .doc-cell[data-width="half"][data-align="center"] {
+  margin-inline: auto;
+}
+
+.doc-row-1 > .doc-cell[data-width="half"][data-align="right"] {
+  margin-left: auto;
+}
+
+.doc-cell[data-align="center"] {
+  text-align: center;
+}
+
+.doc-cell[data-align="right"] {
+  text-align: right;
+}
+
+.doc-cell[data-align="center"] .doc-logo {
+  margin-inline: auto;
+}
+
+.doc-cell[data-align="right"] .doc-logo {
+  margin-left: auto;
+}
+
+.doc-cell .doc-dates {
+  width: fit-content;
+}
+
+.doc-cell[data-align="center"] .doc-dates {
+  margin-inline: auto;
+}
+
+.doc-cell[data-align="right"] .doc-dates {
+  margin-left: auto;
+}
+
+.doc-cell .doc-block {
+  margin-top: 0;
+}
+
+.doc-cell[data-align="center"] .doc-block ul,
+.doc-cell[data-align="right"] .doc-block ul {
+  padding-left: 0;
+  list-style-position: inside;
+}
+
+.doc .doc-cell .doc-totals {
+  margin-top: 0;
+}
+
+.doc .doc-cell[data-align="left"] .doc-totals {
+  margin-inline: 0 auto;
+}
+
+.doc .doc-cell[data-align="center"] .doc-totals {
+  margin-inline: auto;
+}
+
+@media (max-width: 640px) {
+  .doc-row-2 {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .doc-row-1 > .doc-cell[data-width="half"] {
+    width: 100%;
+  }
+}
+
+/* The layout editor (decision 310): the document with draggable blocks beside a settings panel. */
+.lay-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.lay-preview {
+  min-width: 0;
+}
+
+.lay-panel {
+  position: sticky;
+  top: 16px;
+}
+
+.lay-group {
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.lay-group legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.lay-segment {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.lay-segment button {
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.lay-segment button[aria-pressed="true"] {
+  color: #fff;
+  background: var(--foreground);
+  border-color: var(--foreground);
+}
+
+.lay-segment button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.lay-hidden-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.lay-block {
+  position: relative;
+  min-width: 0;
+  padding: 6px;
+  margin: -6px;
+  border: 2px dashed transparent;
+  border-radius: 8px;
+  cursor: grab;
+}
+
+.lay-block:hover {
+  border-color: #c9c2b6;
+}
+
+.lay-block[data-selected="true"] {
+  border-color: #2563eb;
+  background: rgba(37, 99, 235, 0.04);
+}
+
+.lay-block[data-dragging="true"] {
+  opacity: 0.4;
+}
+
+.lay-block[data-drop="top"] {
+  box-shadow: 0 -4px 0 0 #2563eb;
+}
+
+.lay-block[data-drop="bottom"] {
+  box-shadow: 0 4px 0 0 #2563eb;
+}
+
+.lay-block[data-drop="left"] {
+  box-shadow: -4px 0 0 0 #2563eb;
+}
+
+.lay-block[data-drop="right"] {
+  box-shadow: 4px 0 0 0 #2563eb;
+}
+
+.lay-tag {
+  position: absolute;
+  top: -10px;
+  left: 8px;
+  display: none;
+  padding: 1px 8px;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: #fff;
+  background: #2563eb;
+  border-radius: 999px;
+  white-space: nowrap;
+  z-index: 2;
+}
+
+.lay-block:hover > .lay-tag,
+.lay-block[data-selected="true"] > .lay-tag {
+  display: block;
+}
+
+@media (max-width: 960px) {
+  .lay-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .lay-panel {
+    position: static;
+  }
 }
 
 .settings-logo-preview {
@@ -1472,6 +1717,7 @@ body {
   .doc-lines tr,
   .doc-head,
   .doc-meta,
+  .doc-row,
   .doc-totals,
   .doc-block {
     break-inside: avoid;

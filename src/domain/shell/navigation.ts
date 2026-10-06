@@ -256,6 +256,7 @@ export const NAVIGATION: readonly NavGroup[] = [
       { label: "Jejak Audit", href: "/admin/audit", permission: ["audit.view"] },
       { label: "Pengguna & Peran", href: "/admin/users", permission: ["users.view"] },
       { label: "Pengaturan", href: "/admin/settings", permission: ["settings.view"] },
+      { label: "Tampilan Invoice", href: "/admin/invoice-layout", permission: ["settings.view"] },
       { label: "Keamanan", href: "/admin/security", permission: ["security.view"] },
       {
         label: "Backup & Restore",
