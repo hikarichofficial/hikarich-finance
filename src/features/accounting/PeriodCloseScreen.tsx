@@ -1,3 +1,4 @@
+import { closeCheckText } from "@/domain/accounting/closeCheckText";
 import Link from "next/link";
 import { periodStatusDisplay } from "@/domain/accounting/periodsList";
 import type { AccountingPeriodRow, PeriodCheck } from "@/schemas/accounting";
@@ -90,7 +91,9 @@ export function PeriodCloseScreen({
             {[...blockers, ...warnings].map((check) => (
               <li key={check.code} className="dashboard-list-item">
                 <div>
-                  <p className="dashboard-list-item-title">{check.message}</p>
+                  <p className="dashboard-list-item-title">
+                    {closeCheckText(check.code, check.message)}
+                  </p>
                   <p className="dashboard-list-item-detail">{check.item_count} item</p>
                 </div>
                 <div className="dashboard-list-item-end">

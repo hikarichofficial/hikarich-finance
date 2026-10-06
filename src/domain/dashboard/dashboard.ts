@@ -1,4 +1,5 @@
 import { Decimal, sumDecimals } from "@/domain/money/decimal";
+import { businessClock } from "@/lib/time";
 import { naturalAmount, type AccountClass } from "@/domain/reports/reports";
 import type { EquityChangeRow, ProfitAndLossRow } from "@/schemas/reports";
 import type { MoneyControlRow, ReconciliationStatusRow } from "@/schemas/money";
@@ -60,8 +61,9 @@ export function resolveDashboardPeriod(
   reference: Date = new Date(),
 ): DashboardPeriod {
   const match = requested ? MONTH_PATTERN.exec(requested) : null;
-  const year = match ? Number(match[1]) : reference.getUTCFullYear();
-  const month = match ? Number(match[2]) : reference.getUTCMonth() + 1;
+  const local = businessClock(reference);
+  const year = match ? Number(match[1]) : local.getUTCFullYear();
+  const month = match ? Number(match[2]) : local.getUTCMonth() + 1;
   const monthText = String(month).padStart(2, "0");
   return {
     month: `${year}-${monthText}`,

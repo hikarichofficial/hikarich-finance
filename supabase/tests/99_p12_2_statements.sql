@@ -173,6 +173,16 @@ begin
     (select source_type from public.general_ledger(v_pt, v_bank, '2024-01-01', '2024-12-31') where journal_id = v_j3) = 'test'
     and (select entry_type from public.general_ledger(v_pt, v_bank, '2024-01-01', '2024-12-31') where journal_id = v_j3) = 'system',
     'test_helpers.simple_journal stamps entry_type=system, source_type=test (test_helpers.draft_journal''s own fixture marker), carried through by the General Ledger drill-down unchanged');
+  -- decision 303: a start date no longer restarts the running balance from zero -- January's 1,000,000 is carried in.
+  perform test_helpers.assert(
+    (select count(*) from public.general_ledger(v_pt, v_bank, '2024-02-01', '2024-12-31')) = 4,
+    'a range from 1 Feb lists only the four later lines');
+  perform test_helpers.assert(
+    (select running_balance::numeric from public.general_ledger(v_pt, v_bank, '2024-02-01', '2024-12-31') order by entry_date desc limit 1) = 11000000,
+    'the last line of the shorter range still shows the real 11,000,000 balance');
+  perform test_helpers.assert(
+    (select running_balance::numeric - (debit::numeric - credit::numeric) from public.general_ledger(v_pt, v_bank, '2024-02-01', '2024-12-31') order by entry_date, journal_number limit 1) = 1000000,
+    'the balance carried into the range is January''s 1,000,000');
   perform test_helpers.logout();
 end
 $$;

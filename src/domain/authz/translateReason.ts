@@ -59,3 +59,13 @@ export function translateReason(reason: string): string | null {
   }
   return null;
 }
+
+/**
+ * A reason stored as text by a background job (`sqlerrm` of a failed recurring occurrence): the same
+ * `INVALID:` / `CONFLICT:` shape the screens translate. A text nobody wrote a template for is returned as it is.
+ */
+export function translateStoredError(message: string): string {
+  const reason = /^(?:INVALID|CONFLICT):\s*([\s\S]+)$/.exec(message)?.[1]?.trim();
+  if (!reason) return message;
+  return translateReason(reason) ?? message;
+}

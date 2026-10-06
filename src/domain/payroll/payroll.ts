@@ -184,6 +184,10 @@ const FLAG_TEXT: Readonly<Record<string, string>> = {
   gross_up_not_converged: "Perhitungan gross-up tidak konvergen; periksa data karyawan.",
   negative_gross_pay: "Penghasilan bruto negatif; periksa potongan dan penyesuaian.",
   negative_net_pay: "Gaji bersih negatif; periksa potongan dan penyesuaian.",
+  joined_during_month:
+    "Karyawan mulai bekerja di tengah bulan ini. Gaji dihitung penuh satu bulan (belum diprorata); sesuaikan lewat penyesuaian bila perlu.",
+  left_during_month:
+    "Karyawan berhenti di tengah bulan ini. Gaji dihitung penuh satu bulan (belum diprorata); sesuaikan lewat penyesuaian bila perlu.",
 };
 
 /**
@@ -211,7 +215,11 @@ export function describePayrollFlag(flag: string): string {
 
 /** True when the flag only informs (nothing blocks posting). */
 export function isInfoFlag(flag: string): boolean {
-  return flag.startsWith("tax_overwithheld:");
+  return (
+    flag.startsWith("tax_overwithheld:") ||
+    flag === "joined_during_month" ||
+    flag === "left_during_month"
+  );
 }
 
 /**

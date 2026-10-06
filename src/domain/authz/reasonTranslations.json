@@ -2778,5 +2778,93 @@
   [
     "this account is still used by other records (for example a payment channel, invoice or loan); disable it instead",
     "rekening ini masih dipakai data lain (misalnya saluran pembayaran, invoice, atau pinjaman) sehingga tidak bisa dihapus; nonaktifkan saja"
-  ]
+  ],
+  [
+    "a name, address or contact detail is too long",
+    "nama, alamat, atau detail kontak terlalu panjang"
+  ],
+  [
+    "a revaluation cannot be dated before the proceeds (%)",
+    "revaluasi tidak boleh bertanggal sebelum pencairan ({1})"
+  ],
+  ["a revaluation cannot be dated in the future", "revaluasi tidak boleh bertanggal di masa depan"],
+  [
+    "a revaluation is dated on the last day of a month",
+    "revaluasi bertanggal pada hari terakhir bulan"
+  ],
+  [
+    "a revaluation must be dated after the last one (%)",
+    "revaluasi harus bertanggal setelah revaluasi terakhir ({1})"
+  ],
+  [
+    "a reversal cannot be dated before the revaluation it reverses",
+    "pembatalan tidak boleh bertanggal sebelum revaluasi yang dibatalkan"
+  ],
+  [
+    "a reversal needs a date that is not in the future",
+    "pembatalan butuh tanggal yang tidak di masa depan"
+  ],
+  [
+    "give a list of account kinds (an empty list blocks none)",
+    "berikan daftar jenis akun (daftar kosong berarti tidak ada yang diblokir)"
+  ],
+  ["kind, status and recipient are required", "jenis, status, dan penerima wajib diisi"],
+  ["nothing is outstanding on this loan at %", "tidak ada sisa pinjaman pada {1}"],
+  [
+    "only a posted FX revaluation can be reversed (now %)",
+    "hanya revaluasi kurs yang sudah diposting yang bisa dibatalkan (status sekarang {1})"
+  ],
+  [
+    "only an active loan can be revalued (now %)",
+    "hanya pinjaman yang aktif yang bisa direvaluasi (status sekarang {1})"
+  ],
+  [
+    "only an active or closed loan can be set to a foreign currency",
+    "hanya pinjaman yang aktif atau sudah lunas yang bisa diatur ke mata uang asing"
+  ],
+  [
+    "only the most recent FX revaluation of a loan can be reversed",
+    "hanya revaluasi kurs terbaru dari satu pinjaman yang bisa dibatalkan"
+  ],
+  [
+    "set this loan's FX currency before revaluing it",
+    "atur mata uang asing pinjaman ini sebelum merevaluasinya"
+  ],
+  [
+    "the FX currency must differ from the Entity base currency (%)",
+    "mata uang asing harus berbeda dari mata uang dasar Entity ({1})"
+  ],
+  [
+    "the FX difference exceeds 20%% of the outstanding balance; check the rate and the outstanding balance",
+    "selisih kurs melebihi 20% dari sisa pinjaman; periksa kurs dan sisa pinjaman"
+  ],
+  ["the FX memo currency of % is unknown", "mata uang memo kurs {1} tidak dikenal"],
+  [
+    "the FX memo currency of % must differ from the base currency",
+    "mata uang memo kurs {1} harus berbeda dari mata uang dasar"
+  ],
+  [
+    "the FX memo of % does not convert anywhere near its base cost -- check the rate",
+    "memo kurs {1} hasil konversinya jauh dari biaya dasar; periksa kurs"
+  ],
+  [
+    "the FX memo rate of % must be a positive number with at most 10 decimals",
+    "kurs memo {1} harus angka positif dengan maksimal 10 angka desimal"
+  ],
+  ["the document does not belong to this Entity", "dokumen ini bukan milik Entity ini"],
+  ["the email address is not valid", "alamat email tidak valid"],
+  ["the exchange rate is not a valid number", "kurs bukan angka yang benar"],
+  ["the exchange rate is required", "kurs wajib diisi"],
+  [
+    "the exchange rate must be a positive number with up to 10 decimals",
+    "kurs harus angka positif dengan maksimal 10 angka desimal"
+  ],
+  ["the legal name must be 1 to 200 characters", "nama badan hukum harus 1 sampai 200 karakter"],
+  ["the note allows up to 1000 characters", "catatan maksimal 1000 karakter"],
+  ["the note allows up to 500 characters", "catatan maksimal 500 karakter"],
+  [
+    "this loan already has an FX revaluation; its currency cannot change any more",
+    "pinjaman ini sudah punya revaluasi kurs; mata uangnya tidak bisa diubah lagi"
+  ],
+  ["unknown account kind %", "jenis akun {1} tidak dikenal"]
 ]

@@ -443,8 +443,8 @@
           "meaning": "Kosongkan penyusutan atau pilih metode penyusutan."
         },
         {
-          "message": "Permintaan tidak valid. (the FX memo of <nama> does not convert anywhere near its base cost -- check the rate)",
-          "meaning": "Pesan ini tampil dalam bahasa Inggris. Harga asing dikali kurs harus mendekati harga rupiah (selisih maksimal 20%). Periksa kurs."
+          "message": "Memo kurs <nilai> hasil konversinya jauh dari biaya dasar; periksa kurs.",
+          "meaning": "Harga asing dikali kurs harus mendekati harga rupiah (selisih maksimal 20%). Periksa kurs."
         },
         {
           "message": "Aset tidak dapat disimpan. Periksa akun, tanggal, harga perolehan dan umur manfaat.",
@@ -785,20 +785,20 @@
           "meaning": "Pesan umum saat revaluasi gagal tanpa alasan rinci."
         },
         {
-          "message": "Permintaan tidak valid. (a revaluation is dated on the last day of a month)",
-          "meaning": "Pesan ini tampil dalam bahasa Inggris. Tanggal revaluasi harus hari terakhir bulan."
+          "message": "Revaluasi bertanggal pada hari terakhir bulan.",
+          "meaning": "Isi tanggal revaluasi dengan hari terakhir bulan."
         },
         {
-          "message": "Permintaan tidak valid. (the FX difference exceeds 20% of the outstanding balance; check the rate and the outstanding balance)",
-          "meaning": "Pesan ini tampil dalam bahasa Inggris. Selisih lebih dari 20%, periksa kurs dan saldo yang diisi."
+          "message": "Selisih kurs melebihi 20% dari sisa pinjaman; periksa kurs dan sisa pinjaman.",
+          "meaning": "Selisih lebih dari 20%, periksa kurs dan saldo yang diisi."
         },
         {
-          "message": "Permintaan tidak valid. (set this loan's FX currency before revaluing it)",
-          "meaning": "Pesan ini tampil dalam bahasa Inggris. Atur Mata Uang Asing dulu."
+          "message": "Atur mata uang asing pinjaman ini sebelum merevaluasinya.",
+          "meaning": "Atur Mata Uang Asing dulu."
         },
         {
-          "message": "Data sudah berubah atau tidak dapat diproses dalam keadaan saat ini. Muat ulang lalu coba lagi. (this loan already has an FX revaluation; its currency cannot change any more)",
-          "meaning": "Pesan ini sebagian berbahasa Inggris. Kode mata uang terkunci karena sudah ada revaluasi."
+          "message": "Pinjaman ini sudah punya revaluasi kurs; mata uangnya tidak bisa diubah lagi.",
+          "meaning": "Kode mata uang terkunci karena sudah ada revaluasi."
         },
         {
           "message": "Revaluasi tidak dapat dibatalkan. Hanya revaluasi terbaru yang dapat dibatalkan.",

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { translateStoredError } from "@/domain/authz/translateReason";
 import {
   RECURRING_FREQUENCY_LABELS,
   RECURRING_KIND_LABELS,
@@ -231,7 +232,9 @@ export function RecurringRuleDetailScreen({
                         if (occurrence.generated_table && occurrence.generated_id) {
                           return "Dibuat";
                         }
-                        return occurrence.last_error ?? "—";
+                        return occurrence.last_error
+                          ? translateStoredError(occurrence.last_error)
+                          : "—";
                       })()}
                     </td>
                   </tr>

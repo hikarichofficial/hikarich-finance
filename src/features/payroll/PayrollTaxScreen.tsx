@@ -1,8 +1,10 @@
+import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import { PAYROLL_LIABILITY_LABELS, payrollPeriodName } from "@/domain/payroll/payroll";
 import {
   TAX_LEDGER_SOURCE_LABELS,
   annualReconciliationStatusBadge,
+  pph21DepositHref,
 } from "@/domain/payroll/taxLiabilities";
 import type { AnnualReconciliationRow, PayrollLiabilityRow, TaxLedgerRow } from "@/schemas/payroll";
 import { formatShortDate } from "./format";
@@ -51,7 +53,7 @@ export function PayrollTaxScreen({
     <div className="list-screen">
       <header className="list-screen-header">
         <div>
-          <h1>Pajak & Kewajiban Penggajian</h1>
+          <h1>Pajak & Kewajiban Payroll</h1>
         </div>
       </header>
 
@@ -98,6 +100,7 @@ export function PayrollTaxScreen({
                 <th scope="col" className="num">
                   Sisa
                 </th>
+                <th scope="col">Tindakan</th>
               </tr>
             </thead>
             <tbody>
@@ -114,6 +117,13 @@ export function PayrollTaxScreen({
                   </td>
                   <td className="num" data-label="Sisa">
                     {formatMoney(row.outstanding, currency)}
+                  </td>
+                  <td data-label="Tindakan">
+                    {row.liability === "pph21" && Number(row.outstanding) > 0 ? (
+                      <Link href={pph21DepositHref(row.period_start, entity)}>Setor →</Link>
+                    ) : (
+                      "—"
+                    )}
                   </td>
                 </tr>
               ))}

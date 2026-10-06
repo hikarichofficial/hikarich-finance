@@ -1,4 +1,5 @@
 import { Decimal, sumDecimals } from "@/domain/money/decimal";
+import { businessClock } from "@/lib/time";
 
 /**
  * Presentation rules for the canonical financial statements and reporting screens (P12, Step 12 §3-§5,
@@ -163,8 +164,9 @@ export function resolveReportRange(
   if (validFrom && validTo && validFrom <= validTo) {
     return { from: validFrom, to: validTo };
   }
-  const to = toIsoDate(reference);
-  const from = `${reference.getUTCFullYear()}-01-01`;
+  const local = businessClock(reference);
+  const to = toIsoDate(local);
+  const from = `${local.getUTCFullYear()}-01-01`;
   return { from, to };
 }
 
@@ -174,7 +176,9 @@ export function resolveAsOfDate(
   requested: string | undefined,
   reference: Date = new Date(),
 ): string {
-  return requested && ISO_DATE_PATTERN.test(requested) ? requested : toIsoDate(reference);
+  return requested && ISO_DATE_PATTERN.test(requested)
+    ? requested
+    : toIsoDate(businessClock(reference));
 }
 
 /** The Profit & Loss comparison-period filter (Step 12 §3, `profit_and_loss`'s own `p_compare_start`/
@@ -458,10 +462,9 @@ export interface GeneralLedgerTotals {
 
 /** Period debit/credit sums plus the closing balance -- the sums are a display-only total of exactly the
  * figures already in each row, and the closing balance is simply the last row's own `running_balance`
- * (the RPC's own windowed sum, ordered `entry_date, created_at, line_no`), never a second computation. Note
- * this is the balance *within the requested range*, not a true carried-forward opening-adjusted balance --
- * `general_ledger` has no opening-balance parameter, so a `start_date` filter genuinely restarts the running
- * sum from zero at that date; this function reflects that faithfully rather than papering over it. */
+ * (the RPC's own windowed sum, ordered `entry_date, created_at, line_no`), never a second computation. Since
+ * decision 303 that running balance is carried forward from before the start date, so it is the account's real
+ * balance, not a sum restarted at the start date. */
 export function generalLedgerTotals(
   rows: readonly { debit: string; credit: string; running_balance: string }[],
 ): GeneralLedgerTotals {
@@ -567,7 +570,7 @@ export function resolveLoanDueThrough(
   reference: Date = new Date(),
 ): string {
   if (requested && ISO_DATE_PATTERN.test(requested)) return requested;
-  const through = new Date(reference);
+  const through = businessClock(reference);
   through.setUTCDate(through.getUTCDate() + 30);
   return toIsoDate(through);
 }
@@ -837,4 +840,21 @@ export function assetControlSummary(rows: readonly { difference: string }[]): As
 /** The same per-row zero-check `payrollControlRowBalanced` exposes, for this report's own table. */
 export function assetControlRowBalanced(row: { difference: string }): boolean {
   return Decimal.parse(row.difference).isZero();
+}
+
+/** The balance an account carried into the first line of a General Ledger list: that line's running balance
+ * less its own movement (in the account's natural direction). `null` when the range has no line, since then
+ * the list says nothing about the balance. Since decision 303 the running balance is carried forward from before
+ * the start date, so this is the real opening balance of the range. */
+export function generalLedgerOpeningBalance(
+  rows: readonly { debit: string; credit: string; running_balance: string }[],
+  normalBalance: "debit" | "credit",
+): Decimal | null {
+  if (rows.length === 0) return null;
+  const first = rows[0];
+  const movement =
+    normalBalance === "debit"
+      ? Decimal.parse(first.debit).sub(Decimal.parse(first.credit))
+      : Decimal.parse(first.credit).sub(Decimal.parse(first.debit));
+  return Decimal.parse(first.running_balance).sub(movement);
 }

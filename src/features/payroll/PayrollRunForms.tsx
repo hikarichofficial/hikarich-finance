@@ -89,14 +89,14 @@ const COMMAND_COPY: Readonly<Record<PayrollRunCommand, CommandCopy>> = {
   reopen: {
     openLabel: "Buka Kembali",
     submitLabel: "Buka Kembali Payroll",
-    hint: "Payroll yang sudah ditutup dibuka lagi. Perlu verifikasi ulang (step-up).",
+    hint: "Payroll yang sudah ditutup dibuka lagi. Perlu verifikasi ulang.",
     needsReason: true,
     needsDate: false,
   },
   correct: {
     openLabel: "Koreksi Payroll",
     submitLabel: "Koreksi",
-    hint: "Jurnal dibalik, slip gaji dibatalkan dan revisi baru dibuat sebagai draf. Batalkan dulu semua pembayarannya. Perlu verifikasi ulang (step-up).",
+    hint: "Jurnal dibalik, slip gaji dibatalkan dan revisi baru dibuat sebagai draf. Batalkan dulu semua pembayarannya. Perlu verifikasi ulang.",
     needsReason: true,
     needsDate: true,
   },
@@ -287,7 +287,7 @@ export function PayrollPaymentForm({
         Catatan (opsional)
         <input name="note" maxLength={1000} />
       </label>
-      <p className="hint">Perlu verifikasi ulang (step-up) sebelum menyimpan pembayaran.</p>
+      <p className="hint">Perlu verifikasi ulang sebelum menyimpan pembayaran.</p>
     </PayrollToggleForm>
   );
 }
@@ -330,7 +330,7 @@ export function ReversePayrollPaymentForm({
         Alasan
         <input name="reason" required minLength={5} maxLength={500} />
       </label>
-      <p className="hint">Perlu verifikasi ulang (step-up) sebelum membatalkan pembayaran.</p>
+      <p className="hint">Perlu verifikasi ulang sebelum membatalkan pembayaran.</p>
     </PayrollToggleForm>
   );
 }

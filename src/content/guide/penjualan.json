@@ -265,7 +265,7 @@
         },
         {
           "message": "Penentuan pajak Invoice ini perlu ditinjau sebelum bisa diterbitkan: <alasan>",
-          "meaning": "Lengkapi Perlakuan PPN di baris yang disebut (alasan bisa tampil dalam bahasa Inggris)."
+          "meaning": "Lengkapi Perlakuan PPN di baris yang disebut."
         },
         {
           "message": "Periode akuntansi <tanggal> berstatus <status> dan tidak menerima posting.",

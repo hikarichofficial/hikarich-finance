@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
   ANNUAL_RECONCILIATION_STATUS_LABELS,
   annualReconciliationStatusBadge,
+  pph21DepositHref,
   resolveAsOfDate,
   resolveTaxYear,
 } from "./taxLiabilities";
@@ -39,5 +40,16 @@ describe("annualReconciliationStatusBadge", () => {
     expect(annualReconciliationStatusBadge("under_withheld").tone).toBe("attention");
     expect(annualReconciliationStatusBadge("over_withheld").tone).toBe("attention");
     expect(annualReconciliationStatusBadge("incomplete").tone).toBe("neutral");
+  });
+});
+
+describe("pph21DepositHref", () => {
+  it("opens Filing & Evidence for PPh 21 of the month, keeping the Entity", () => {
+    expect(pph21DepositHref("2026-09-01", "pt")).toBe(
+      "/tax/filing?type=wht_pph21&period=2026-09&entity=pt",
+    );
+    expect(pph21DepositHref("2026-09-01", undefined)).toBe(
+      "/tax/filing?type=wht_pph21&period=2026-09",
+    );
   });
 });

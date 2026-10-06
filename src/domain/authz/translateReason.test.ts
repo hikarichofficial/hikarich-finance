@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { AuthzError, describeAuthzError } from "./errors";
 import translations from "./reasonTranslations.json";
-import { translateReason } from "./translateReason";
+import { translateReason, translateStoredError } from "./translateReason";
 
 describe("translateReason", () => {
   it("translates a fixed reason", () => {
@@ -40,9 +40,32 @@ describe("describeAuthzError", () => {
     expect(describeAuthzError(error)).toContain("(something nobody wrote a template for)");
   });
 
+  it("explains the approval rule instead of a missing permission", () => {
+    const error = new AuthzError(
+      "FORBIDDEN",
+      "FORBIDDEN: an approval rule requires a different person to approve this bill",
+    );
+    expect(describeAuthzError(error)).toMatch(/orang lain/);
+    expect(describeAuthzError(error)).not.toMatch(/approve/);
+  });
+
+  it("keeps any other FORBIDDEN reason generic", () => {
+    const error = new AuthzError("FORBIDDEN", "FORBIDDEN: missing invoices.view");
+    expect(describeAuthzError(error)).toBe("Anda tidak memiliki izin untuk tindakan ini.");
+  });
+
   it("never shows a reason for other codes", () => {
     expect(describeAuthzError(new AuthzError("FORBIDDEN", "FORBIDDEN: missing tax.view"))).toBe(
       "Anda tidak memiliki izin untuk tindakan ini.",
     );
+  });
+});
+
+describe("translateStoredError", () => {
+  it("translates a stored INVALID reason and leaves other text as it is", () => {
+    expect(translateStoredError("INVALID: a payment cannot be dated in the future")).toMatch(
+      /masa depan/i,
+    );
+    expect(translateStoredError("division by zero")).toBe("division by zero");
   });
 });

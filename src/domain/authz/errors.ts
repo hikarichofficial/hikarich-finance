@@ -63,9 +63,26 @@ export function authzErrorMessage(code: AuthzErrorCode): string {
  */
 export function describeAuthzError(error: AuthzError): string {
   const base = authzErrorMessage(error.code);
+  if (error.code === "FORBIDDEN") return forbiddenReasonText(error.message) ?? base;
   if (error.code !== "INVALID" && error.code !== "CONFLICT") return base;
   const match = /^(?:INVALID|CONFLICT):\s*([\s\S]+)$/.exec(error.message);
   const reason = match?.[1]?.trim();
   if (!reason) return base;
   return translateReason(reason) ?? `${base} (${reason})`;
+}
+
+/**
+ * Two refusals are not about a missing permission, and the generic "no permission" text would send the person to the
+ * wrong place: the approval rule (the person who prepared something may not also confirm it) and a user changing
+ * their own access. Only these fixed Indonesian sentences are shown; any other FORBIDDEN stays generic.
+ */
+function forbiddenReasonText(message: string): string | null {
+  const reason = /^FORBIDDEN:\s*([\s\S]+)$/.exec(message)?.[1]?.trim() ?? "";
+  if (reason.startsWith("an approval rule requires a different person")) {
+    return "Aturan persetujuan mengharuskan orang lain yang melakukan langkah ini, bukan Anda yang menyiapkannya. Minta pengguna lain yang berhak untuk menyelesaikannya.";
+  }
+  if (/^users cannot (change their own|grant themselves)/.test(reason)) {
+    return "Pengguna tidak boleh mengubah akses atau izinnya sendiri. Minta OWNER lain untuk melakukannya.";
+  }
+  return null;
 }

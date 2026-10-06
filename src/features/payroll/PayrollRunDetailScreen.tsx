@@ -3,6 +3,7 @@ import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import {
   COMPENSATION_KIND_LABELS,
+  PAYROLL_PAYMENT_KIND_LABELS,
   describePayrollFlag,
   payrollPeriodName,
 } from "@/domain/payroll/payroll";
@@ -60,7 +61,7 @@ export function PayrollRunDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke Proses Penggajian</Link>
+        <Link href={backHref}>← Kembali ke Proses Payroll</Link>
       </p>
 
       <header className="record-detail-header">
@@ -334,9 +335,7 @@ export function PayrollRunDetailScreen({
                 return (
                   <tr key={payment.payment_id}>
                     <td>{payment.payment_number}</td>
-                    <td data-label="Jenis">
-                      {payment.kind === "net_pay" ? "Gaji Bersih" : "BPJS"}
-                    </td>
+                    <td data-label="Jenis">{PAYROLL_PAYMENT_KIND_LABELS[payment.kind]}</td>
                     <td data-label="Tanggal">{formatShortDate(payment.payment_date)}</td>
                     <td className="num" data-label="Jumlah">
                       {formatMoney(payment.amount, currency)}
