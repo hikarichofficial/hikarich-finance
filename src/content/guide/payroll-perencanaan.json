@@ -15,7 +15,7 @@
           "title": "Buka Payroll > Karyawan",
           "text": "Halaman berjudul **Karyawan** menampilkan kolom Kode, Nama, Jabatan, Departemen, Jenis, Tanggal Masuk, dan Status (Aktif atau Berhenti). Anda bisa menyaring dengan **Status**, **Jenis**, atau kotak cari, lalu tekan **Terapkan**. Untuk karyawan baru, tekan **Tambah Karyawan**.",
           "image": {
-            "file": "karyawan-daftar.jpg",
+            "file": "karyawan-daftar-v2.jpg",
             "caption": "Daftar Karyawan."
           }
         },
@@ -24,7 +24,7 @@
           "text": "Isi **Nama Lengkap**, **Tanggal Masuk** (bawaan hari ini), **Jenis Karyawan** (Karyawan tetap, Kontrak, Percobaan, atau Paruh waktu), **Jabatan**, dan **Departemen (opsional)**. Tekan **Simpan**. Anda dibawa ke halaman karyawan itu, dan kode karyawan dibuat otomatis oleh aplikasi.",
           "tip": "Isi Tanggal Masuk dengan benar. Tanggal ini menentukan bulan pertama karyawan ikut Payroll, dan tidak bisa diubah lagi setelah karyawan masuk Payroll yang sudah diposting.",
           "image": {
-            "file": "karyawan-form.jpg",
+            "file": "karyawan-form-v2.jpg",
             "caption": "Form Tambah Karyawan."
           }
         },
@@ -391,7 +391,7 @@
           "title": "Buka Payroll > Slip Gaji",
           "text": "Halaman berjudul **Slip Gaji** menampilkan kolom Nomor, Karyawan, Periode, Diterbitkan, Gaji Bersih, dan Status (Diterbitkan atau Dibatalkan). Saring dengan **Status** atau kotak cari (nomor slip, karyawan, atau periode), lalu tekan **Terapkan**.",
           "image": {
-            "file": "slip-gaji-daftar.jpg",
+            "file": "slip-gaji-daftar-v2.jpg",
             "caption": "Daftar Slip Gaji."
           }
         },
@@ -585,7 +585,7 @@
           "text": "Isi **Nama**, **Jenis Periode** (Tahunan, Bulanan, atau Kustom), **Tanggal Mulai** (bawaan hari ini), **Tanggal Akhir**, **Tahun Fiskal (opsional)**, dan **Catatan (opsional)**. Tekan **Simpan Anggaran**. Anda dibawa ke halaman anggaran. Kolom bulan pada tabel ditentukan oleh Tanggal Mulai sampai Tanggal Akhir.",
           "tip": "Jenis Periode hanya label. Yang menentukan bulan yang bisa diisi adalah tanggal mulai dan tanggal akhir.",
           "image": {
-            "file": "anggaran-form.jpg",
+            "file": "anggaran-form-v2.jpg",
             "caption": "Form Buat Anggaran Baru."
           }
         },
@@ -823,7 +823,7 @@
           "title": "Buka Perencanaan > Transaksi Berulang",
           "text": "Halaman berjudul **Aturan Berulang** menampilkan kolom Nama, Jenis, Frekuensi, Berikutnya, Terakhir Dibuat, dan Status (Aktif, Dijeda, Berakhir). Saring dengan **Status** atau kotak cari, lalu **Terapkan**. Tekan **Buat Aturan Baru**.",
           "image": {
-            "file": "berulang-daftar.jpg",
+            "file": "berulang-daftar-v2.jpg",
             "caption": "Daftar Aturan Berulang."
           }
         },
@@ -831,7 +831,7 @@
           "title": "Pilih jenis dan jadwal",
           "text": "Pilih **Jenis Template**: “Invoice berulang (pendapatan)”, “Tagihan berulang (pembelian)”, atau “Pengeluaran berulang”. Isi **Nama Aturan**, **Frekuensi** (Mingguan, Bulanan, atau Interval hari kustom), dan **Interval** (kelipatan minggu, kelipatan bulan, atau jumlah hari). Untuk invoice dan tagihan isi juga **Batas Waktu Jatuh Tempo (hari setelah dibuat)**. Isi **Tanggal Mulai**, **Tanggal Berakhir (opsional)**, dan **Catatan Aturan (opsional)**.",
           "image": {
-            "file": "berulang-form.jpg",
+            "file": "berulang-form-v2.jpg",
             "caption": "Form Buat Aturan Baru."
           }
         },
@@ -941,7 +941,7 @@
           "title": "Buka Perencanaan > Perkiraan",
           "text": "Halaman berjudul **Perkiraan** menampilkan keterangan “Estimasi perencanaan, bukan angka aktual. Dasar: rata-rata aktual 3 bulan terakhir per kategori.”",
           "image": {
-            "file": "perkiraan.jpg",
+            "file": "perkiraan-v2.jpg",
             "caption": "Halaman Perkiraan."
           }
         },

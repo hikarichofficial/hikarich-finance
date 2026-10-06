@@ -112,7 +112,7 @@
           "title": "Buka Akuntansi > Daftar Akun",
           "text": "Judul halamannya **Bagan Akun** (nama yang sama dengan menu Daftar Akun). Di bawah judul tampil “N akun ditampilkan.”.",
           "image": {
-            "file": "daftar-akun.jpg",
+            "file": "daftar-akun-v2.jpg",
             "caption": "Bagan Akun: daftar semua akun pembukuan."
           }
         },
@@ -168,7 +168,7 @@
           "text": "Halaman **Jurnal** memuat semua jurnal, termasuk yang dibuat otomatis dari invoice, pembayaran, dan modul lain. Kolom: **No. Jurnal**, **Tanggal**, **Sumber**, **Deskripsi**, **Status**. Saringan: **Sumber** (Semua Sumber, Sistem, Manual, Penyesuaian, Pembalik, Saldo Awal, Penutupan), **Status** (Semua Status, Draf, Terposting), **Periode** (per bulan), dan kolom “Cari nomor jurnal, deskripsi…”, lalu **Terapkan**. Jurnal Draf belum bernomor dan tampil sebagai “Draf”; nomor berawalan JV muncul setelah diposting.",
           "tip": "Pendapatan harian cukup dicatat lewat Invoice dan Pembayaran Diterima, dan pengeluaran lewat Beban. Jurnal manual untuk pembukuan lanjutan.",
           "image": {
-            "file": "jurnal-daftar.jpg",
+            "file": "jurnal-daftar-v2.jpg",
             "caption": "Daftar jurnal dengan tombol Jurnal Manual."
           }
         },
@@ -180,7 +180,7 @@
           "title": "Isi Jenis Jurnal, Tanggal, dan Penjelasan",
           "text": "**Jenis Jurnal**: “Jurnal manual” (bawaan) atau “Jurnal penyesuaian”. **Tanggal** bawaan hari ini. **Penjelasan** wajib diisi (maksimal 500 karakter); untuk jurnal penyesuaian minimal 10 karakter, misalnya “Memindahkan biaya hosting yang salah kategori”.",
           "image": {
-            "file": "jurnal-form.jpg",
+            "file": "jurnal-form-v2.jpg",
             "caption": "Form Jurnal Manual."
           }
         },
@@ -432,7 +432,7 @@
           "title": "Buka Akuntansi > Periode Akuntansi",
           "text": "Halaman **Periode Akuntansi** menampilkan “N periode ditampilkan.” dan tabel dengan kolom **Periode** (tanggal awal sampai akhir, tautan ke detail), **Tahun Fiskal**, **Status**, dan **Ditutup**. Bulan terbaru di atas. Status: Terbuka, Tinjauan Penutupan, Ditutup, Dibuka Kembali. Tidak ada tombol tambah periode: bulan dibuat otomatis saat transaksi pertamanya diposting.",
           "image": {
-            "file": "periode-daftar.jpg",
+            "file": "periode-daftar-v2.jpg",
             "caption": "Halaman Periode Akuntansi (di sini masih kosong karena belum ada periode)."
           }
         },
@@ -689,7 +689,7 @@
           "title": "Buka Laporan > Laporan Keuangan",
           "text": "Halaman **Laporan Keuangan** berisi “Laporan resmi dari data yang telah diposting.” dan deretan tab: Laba Rugi (tab bawaan), Neraca, Perubahan Ekuitas, Arus Kas, Buku Besar, Laporan Kustom, Analisis Konsolidasi, Pinjaman Jatuh Tempo, Ringkasan Pinjaman, Ringkasan Payroll, Kontrol Payroll, Jadwal Penyusutan Fiskal, Kontrol Aset Tetap, Mutasi/Pelepasan Aset, Umur Piutang, dan Umur Utang. Menu Laporan > Arus Kas membuka tab Arus Kas yang sama.",
           "image": {
-            "file": "laporan-keuangan.jpg",
+            "file": "laporan-keuangan-v2.jpg",
             "caption": "Halaman Laporan Keuangan dengan deretan tab laporan dan pilihan tanggal."
           }
         },
@@ -715,7 +715,7 @@
           "title": "Baca tab Arus Kas",
           "text": "Tabel **Kategori** dan **Jumlah**: **Kas Awal**, **Operasi**, **Investasi**, **Pendanaan**, **Kas Akhir**, lalu **Status** “Rekonsiliasi cocok” atau “Tidak cocok”. Investasi berisi pembelian atau pelepasan aset tetap. Pendanaan berisi transfer antar rekening, pembayaran pinjaman, modal, dan dividen. Operasi adalah sisanya (penerimaan dan pembayaran usaha sehari-hari).",
           "image": {
-            "file": "laporan-arus-kas.jpg",
+            "file": "laporan-arus-kas-v2.jpg",
             "caption": "Tab Arus Kas."
           }
         },
@@ -811,7 +811,7 @@
           "title": "Buka Laporan > Penjualan & Pembelian",
           "text": "Halaman **Laporan Penjualan & Pembelian** menampilkan ringkasan seperti “Penjualan per pelanggan / pemasok, 1 Jan 2026 – 6 Okt 2026. Penjualan: invoice terbit. Pembelian: tagihan disetujui dan beban dikonfirmasi.”.",
           "image": {
-            "file": "laporan-penjualan-pembelian.jpg",
+            "file": "laporan-penjualan-pembelian-v2.jpg",
             "caption": "Laporan Penjualan & Pembelian."
           }
         },
@@ -966,7 +966,7 @@
           "title": "Buka Laporan > Laporan Kustom",
           "text": "Menu ini membuka tab **Laporan Kustom** di halaman Laporan Keuangan. Pilih **Dataset**. Tiga dataset yang ada: “Penjualan per Pelanggan” (invoice terbit per pelanggan), “Pengeluaran per Vendor” (tagihan per vendor), dan “Pengeluaran Langsung per Penerima” (pengeluaran langsung yang dikonfirmasi per penerima). Hanya dataset yang Anda berhak yang tampil. Bila tidak ada: “Tidak ada dataset laporan yang dapat Anda akses.”.",
           "image": {
-            "file": "laporan-kustom.jpg",
+            "file": "laporan-kustom-v2.jpg",
             "caption": "Laporan Kustom dengan pilihan Dataset."
           }
         },

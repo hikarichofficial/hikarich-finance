@@ -6,11 +6,11 @@ import {
 } from "@/services/accounting/categories";
 import { listLedgerAccounts } from "@/services/accounting/ledger";
 import {
-  CATEGORY_KIND_LABELS,
   CategoryAccountForm,
   CategoryCreateForm,
   CategoryRowForm,
 } from "@/features/categories/CategoryForms";
+import { CATEGORY_KIND_LABELS } from "@/features/categories/kindLabels";
 import { todayInBusinessZone } from "@/lib/time";
 
 /** Categories (Step 03 §6, decision 262): every member may read them; adding one or changing its tax

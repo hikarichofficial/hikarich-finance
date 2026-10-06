@@ -19,7 +19,7 @@
           "title": "Buka Administrasi > Pengguna & Peran",
           "text": "Halaman berjudul **Pengguna & Peran** dengan ringkasan “N anggota entitas ini.” Tabel memuat **Nama**, **Peran**, dan **Status** (Aktif atau Nonaktif). Akun Anda ditandai “(Anda)”. Klik nama untuk membuka detail anggota.",
           "image": {
-            "file": "pengguna-peran.jpg",
+            "file": "pengguna-peran-v2.jpg",
             "caption": "Halaman Pengguna & Peran."
           }
         },
@@ -245,7 +245,7 @@
           "title": "Periksa Profil Entitas",
           "text": "Bagian **Profil Entitas** menampilkan **Nama Resmi**, **Nama Merek**, **Kode**, **Jenis** (Buku usaha, Buku rumah tangga, atau Lainnya), **Mata Uang Dasar**, **Zona Waktu**, **Awal Tahun Fiskal**, **Alamat**, **Email**, **Telepon**, dan **Situs Web**.",
           "image": {
-            "file": "pengaturan.jpg",
+            "file": "pengaturan-v2.jpg",
             "caption": "Halaman Pengaturan: Profil Entitas dan form Ubah Nama & Profil."
           }
         },
@@ -342,7 +342,7 @@
           "title": "Buka Administrasi > Jejak Audit",
           "text": "Halaman berjudul **Log Audit** dengan ringkasan “Kejadian 1–50, terbaru lebih dulu.” Jejak Audit memuat semua perubahan data pada Entity aktif, bukan hanya yang penting.",
           "image": {
-            "file": "jejak-audit.jpg",
+            "file": "jejak-audit-v2.jpg",
             "caption": "Halaman Log Audit dengan tab Semua, Dibuat, Diubah, Dihapus."
           }
         },
@@ -408,7 +408,7 @@
           "title": "Buka Administrasi > Backup & Restore",
           "text": "Halaman berjudul “Backup & Restore Center”. Backup dibuat per Entity, jadi PT dan Pribadi masing-masing perlu dibackup. Bila perlu pengingat, tampil “Belum pernah ada backup untuk Entity ini. Disarankan membuat Backup Penuh sekarang.” atau “Backup terakhir N hari yang lalu. Disarankan membuat backup baru.”",
           "image": {
-            "file": "backup.jpg",
+            "file": "backup-v2.jpg",
             "caption": "Backup & Restore Center."
           }
         },
@@ -501,7 +501,7 @@
           "title": "Buka Administrasi > Impor Data",
           "text": "Halaman pertama berjudul **Riwayat Impor**. Tabelnya memuat **Berkas Sumber**, **Jenis**, **Tanggal**, **Baris**, dan **Status** (Persiapan, Sudah Divalidasi, Sudah Diterapkan, atau Dibatalkan). Tab penyaring: **Semua**, **Kontak**, **Piutang Terbuka (Data Awal)**, **Utang Terbuka (Data Awal)**. Tekan tombol **Impor Data**.",
           "image": {
-            "file": "impor-daftar.jpg",
+            "file": "impor-daftar-v2.jpg",
             "caption": "Riwayat Impor dengan tombol Impor Data."
           }
         },
@@ -694,7 +694,7 @@
           "title": "Buka Pajak > Kalender Pajak",
           "text": "Halaman berjudul **Kalender Pajak** dengan ringkasan “N langkah pada rentang ini.” Rentang awalnya satu bulan sebelum bulan ini sampai dua bulan ke depan.",
           "image": {
-            "file": "pajak-kalender.jpg",
+            "file": "pajak-kalender-v2.jpg",
             "caption": "Kalender Pajak."
           }
         },
@@ -795,7 +795,7 @@
           "title": "Mulai dari Pajak > Ringkasan Pajak",
           "text": "Di bawah judul tertulis “Mesin pajak aktif sejak …” atau “Mesin pajak belum diaktifkan untuk Entity ini.” Bagian **Kewajiban Terutang** menampilkan pajak yang masih harus dibayar per jenis. Bila ada dokumen yang belum bisa dihitung pajaknya tertulis “N transaksi perlu ditinjau untuk penentuan pajak.” Bagian **Profil Pajak Entity** menampilkan **Berlaku Sejak**, **Jenis Wajib Pajak**, **Domisili**, **Rezim Pajak Penghasilan**, **Status PPN**, dan **Pemotong Pajak**. Bagian **Tenggat Terdekat** menampilkan langkah yang Perlu dikerjakan atau Terlambat.",
           "image": {
-            "file": "pajak-ringkasan.jpg",
+            "file": "pajak-ringkasan-v2.jpg",
             "caption": "Ringkasan Pajak."
           }
         },
@@ -886,7 +886,7 @@
           "title": "Buka Pajak > Buku Pajak",
           "text": "Halaman berjudul **Buku Besar Pajak** dengan ringkasan “N entri ditampilkan.” Yang dimuat paling banyak 1000 entri terbaru.",
           "image": {
-            "file": "pajak-buku.jpg",
+            "file": "pajak-buku-v2.jpg",
             "caption": "Buku Besar Pajak."
           }
         },
@@ -967,7 +967,7 @@
           "title": "Buka Pajak > Aturan Pajak",
           "text": "Halaman berjudul **Aturan Pajak / Konfigurasi** dengan ringkasan “N versi aturan ditampilkan.” Aturan ini berlaku sama untuk semua Entity (PT dan Pribadi).",
           "image": {
-            "file": "pajak-aturan.jpg",
+            "file": "pajak-aturan-v2.jpg",
             "caption": "Aturan Pajak / Konfigurasi."
           }
         },

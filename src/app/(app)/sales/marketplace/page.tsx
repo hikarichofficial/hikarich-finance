@@ -5,11 +5,11 @@ import { getMoneyControl } from "@/services/money/money";
 import { listMarketplaceSettlements, listMarketplaceStores } from "@/services/sales/sales";
 import { formatShortDate } from "@/features/sales/format";
 import {
-  MARKETPLACE_PLATFORM_LABELS,
   MarketplaceSettlementForm,
   MarketplaceStoreForm,
   ReverseSettlementForm,
 } from "@/features/sales/MarketplaceForms";
+import { MARKETPLACE_PLATFORM_LABELS } from "@/features/sales/marketplaceLabels";
 import { todayInBusinessZone } from "@/lib/time";
 
 /** Marketplace (decision 260): the Entity's stores and their settlements (payouts). Viewing needs
