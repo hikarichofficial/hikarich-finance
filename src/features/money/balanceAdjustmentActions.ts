@@ -2,6 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { recordBalanceAdjustment } from "@/services/money/money";
 
@@ -52,6 +53,7 @@ export async function recordBalanceAdjustmentAction(
     }
     return { status: "error", message: "Penyesuaian saldo tidak dapat dicatat." };
   }
+  await setFlash("Penyesuaian saldo tercatat.");
   redirect(
     entity
       ? `/money/accounts/${accountId}?entity=${encodeURIComponent(entity)}`

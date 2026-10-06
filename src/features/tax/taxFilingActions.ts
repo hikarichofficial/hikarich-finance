@@ -2,6 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import type { EvidencePurpose, FilingTaxType } from "@/domain/tax/tax";
 import {
@@ -45,9 +46,15 @@ function errorState(error: unknown, fallback: string): TaxFilingActionState {
   return { status: "error", message: fallback };
 }
 
-function backToFiling(entity: string, taxType: string, period: string): never {
+async function backToFiling(
+  entity: string,
+  taxType: string,
+  period: string,
+  notice: string,
+): Promise<never> {
   const qs = new URLSearchParams({ type: taxType, period: period.slice(0, 7) });
   if (entity) qs.set("entity", entity);
+  await setFlash(notice);
   redirect(`/tax/filing?${qs.toString()}`);
 }
 
@@ -75,7 +82,7 @@ export async function recordTaxPaymentAction(
   } catch (error) {
     return errorState(error, "Pembayaran pajak tidak dapat dicatat.");
   }
-  backToFiling(entity, taxType, period);
+  return backToFiling(entity, taxType, period, "Pembayaran pajak tercatat.");
 }
 
 export async function reverseTaxPaymentAction(
@@ -95,7 +102,7 @@ export async function reverseTaxPaymentAction(
   } catch (error) {
     return errorState(error, "Pembayaran pajak tidak dapat dibatalkan.");
   }
-  backToFiling(entity, taxType, period);
+  return backToFiling(entity, taxType, period, "Pembayaran pajak dibalik.");
 }
 
 export async function recordTaxFilingAction(
@@ -122,7 +129,7 @@ export async function recordTaxFilingAction(
   } catch (error) {
     return errorState(error, "Pelaporan pajak tidak dapat dicatat.");
   }
-  backToFiling(entity, taxType, period);
+  return backToFiling(entity, taxType, period, "Pelaporan pajak tercatat.");
 }
 
 export async function reconcileTaxPeriodAction(
@@ -143,7 +150,7 @@ export async function reconcileTaxPeriodAction(
   } catch (error) {
     return errorState(error, "Periode ini tidak dapat direkonsiliasi.");
   }
-  backToFiling(entity, taxType, period);
+  return backToFiling(entity, taxType, period, "Rekonsiliasi masa pajak tersimpan.");
 }
 
 export async function linkTaxEvidenceAction(
@@ -163,5 +170,5 @@ export async function linkTaxEvidenceAction(
   } catch (error) {
     return errorState(error, "Dokumen tidak dapat dilampirkan.");
   }
-  backToFiling(entity, taxType, period);
+  return backToFiling(entity, taxType, period, "Bukti pajak ditautkan.");
 }

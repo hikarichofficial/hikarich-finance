@@ -2,7 +2,7 @@
 
 import { translateReason } from "@/domain/authz/translateReason";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { formatMoney } from "@/domain/money/format";
 import {
   DETERMINATION_STATUS_LABELS,

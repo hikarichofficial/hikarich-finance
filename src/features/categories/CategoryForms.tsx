@@ -2,7 +2,7 @@
 
 import { CATEGORY_KIND_LABELS } from "./kindLabels";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { VAT_TREATMENT_LABELS, WHT_OBJECT_LABELS } from "@/domain/tax/tax";
 import {
   createCategoryAction,

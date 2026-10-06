@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { mapImportTable, parseDelimited } from "@/domain/imports/csv";
 import { importDomainSchema } from "@/schemas/imports";
@@ -78,6 +79,7 @@ export async function stageImportAction(
     return errorState(error, "Data tidak dapat disiapkan untuk impor. Periksa isi tabel.");
   }
   revalidatePath("/admin/imports");
+  await setFlash("Berkas impor diterima. Periksa barisnya sebelum diproses.");
   redirect(detailPath(batchId, entity));
 }
 

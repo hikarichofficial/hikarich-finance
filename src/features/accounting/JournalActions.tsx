@@ -1,7 +1,8 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { discardJournalAction, postJournalAction, reverseJournalAction } from "./actions";
 import { idleJournalActionState } from "./actionsState";
 import { todayInBusinessZone } from "@/lib/time";

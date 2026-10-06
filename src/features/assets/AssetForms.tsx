@@ -1,7 +1,7 @@
 "use client";
 
+import { StepUpLink } from "@/features/feedback/StepUp";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import Link from "next/link";
 import {
   FISCAL_CLASSES,
   findFiscalClass,
@@ -10,7 +10,8 @@ import {
 } from "@/domain/assets/fiscalClasses";
 import { formatMoney } from "@/domain/money/format";
 import { Decimal, sumDecimals } from "@/domain/money/decimal";
-import { useActionState, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import {
   activateAssetAction,
   cancelAssetAction,
@@ -56,7 +57,9 @@ function Feedback({ state, next }: { state: AssetActionState; next: string }) {
     <p role="alert" className="error">
       {state.message}{" "}
       {state.stepUp ? (
-        <Link href={`/auth/step-up?next=${encodeURIComponent(next)}`}>Verifikasi ulang →</Link>
+        <StepUpLink href={`/auth/step-up?next=${encodeURIComponent(next)}`}>
+          Verifikasi ulang →
+        </StepUpLink>
       ) : null}
     </p>
   );

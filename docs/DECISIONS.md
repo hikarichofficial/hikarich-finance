@@ -2348,3 +2348,19 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   so later edits do not change an issued invoice. Recording a payment stays manual (the OWNER's instruction: no
   gateway integration for now). Migration 20261006170000; new RPCs `set_entity_logo`, `create_payment_link`,
   `update_payment_link`.
+
+- Decision 308 (6 October 2026): two interaction changes from the OWNER, applied to every screen. (1) Re-verification
+  (the authenticator code needed for sensitive actions, valid 30 minutes) is a popup on the same page instead of a
+  jump to `/auth/step-up`: `StepUpProvider`/`StepUpLink` (`src/features/feedback/StepUp.tsx`) and the new
+  `verifyStepUpAction`, which answers instead of redirecting. The popup opens by itself when a form is refused for
+  want of a fresh code (`stepUp` flag or the database's own "verifikasi ulang" copy), closes on success, shows
+  "Verifikasi berhasil." and sends the refused form again with the same button, so the person neither leaves the page
+  nor retypes anything; a wrong code stays in the popup with an error. The `/auth/step-up` page remains as the
+  fallback of the link (scripts off, new tab). The restore-from-backup screen reloads instead of re-sending (the
+  chosen file is not sent twice). The database still enforces the rule; the popup is only the way to satisfy it.
+  (2) Every action announces its result as a notice in the corner of the screen (`ToastProvider`): all forms use
+  `useActionState` from `src/features/feedback/useActionState.ts`, which shows the action's own message (or
+  "Berhasil: <button pressed>") on success and the reason on failure; an action that redirects after success leaves a
+  one-line cookie through `setFlash` (`src/lib/flash.ts`) that the next page shows once. `src/lib/feedbackGuard.test.ts`
+  fails when a form uses React's `useActionState` directly, a link goes to the step-up page, or a redirecting action
+  forgets `setFlash`. No database change.

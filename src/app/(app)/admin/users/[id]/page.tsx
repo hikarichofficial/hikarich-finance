@@ -1,3 +1,4 @@
+import { StepUpLink } from "@/features/feedback/StepUp";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
@@ -89,7 +90,10 @@ export default async function MemberDetailPage({
       {anyAction && !access.recent_step_up ? (
         <p className="hint">
           Perubahan akses memerlukan verifikasi ulang.{" "}
-          <Link href={`/auth/step-up?next=${encodeURIComponent(here)}`}>Verifikasi sekarang</Link>.
+          <StepUpLink href={`/auth/step-up?next=${encodeURIComponent(here)}`}>
+            Verifikasi sekarang
+          </StepUpLink>
+          .
         </p>
       ) : null}
 

@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { useActionState } from "react";
+import { StepUpLink } from "@/features/feedback/StepUp";
+import { useActionState } from "@/features/feedback/useActionState";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { createEntityAction } from "./actions";
 import { idleTimeSettingsState } from "./actionsState";
@@ -16,7 +16,7 @@ export function CreateEntityForm({ stepUpHref }: { stepUpHref: string }) {
       <p className="hint">
         Untuk usaha atau buku baru yang pembukuannya terpisah. Entity baru langsung mendapat daftar
         akun standar dan Anda menjadi pemiliknya. Memerlukan verifikasi ulang.{" "}
-        <Link href={stepUpHref}>Verifikasi sekarang</Link>.
+        <StepUpLink href={stepUpHref}>Verifikasi sekarang</StepUpLink>.
       </p>
       <label>
         Jenis

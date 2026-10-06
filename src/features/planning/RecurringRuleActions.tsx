@@ -1,7 +1,8 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { recurringRuleActions, type RecurringStatus } from "@/domain/planning/planning";
 import {
   endRecurringRuleAction,

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { RuleActionResult } from "./TaxRuleForm";
 import { discardRuleAction, publishRuleAction } from "./taxRuleActions";
 import { idleRuleActionState } from "./taxRuleActionsState";

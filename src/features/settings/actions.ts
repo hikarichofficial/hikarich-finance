@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { isFiscalYearLockedMessage } from "@/domain/settings/settings";
 import { requirePermission } from "@/services/identity/access";
@@ -216,5 +217,6 @@ export async function createEntityAction(
     };
   }
   revalidatePath("/", "layout");
+  await setFlash("Entity dibuat.");
   redirect(`/admin/settings?entity=${encodeURIComponent(code)}`);
 }

@@ -2,6 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { revalidatePath } from "next/cache";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import {
@@ -93,6 +94,7 @@ export async function discardJournalAction(
     return errorState(error, "Draf jurnal tidak dapat dibuang.");
   }
   revalidatePath("/accounting/journal");
+  await setFlash("Draf jurnal dibuang.");
   redirect(
     entity ? `/accounting/journal?entity=${encodeURIComponent(entity)}` : "/accounting/journal",
   );

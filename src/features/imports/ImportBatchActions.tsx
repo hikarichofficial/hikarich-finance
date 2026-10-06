@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { importBatchActions } from "@/domain/imports/imports";
 import type { ImportBatchStatus } from "@/schemas/imports";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";

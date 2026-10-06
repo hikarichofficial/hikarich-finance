@@ -1,7 +1,7 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import type { PermissionRow, RoleRow } from "@/schemas/admin";
 import {
   changeRoleAction,

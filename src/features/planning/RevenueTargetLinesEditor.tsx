@@ -1,7 +1,8 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import type { RevenueTargetLineRow } from "@/schemas/planning";
 import { setRevenueTargetLinesAction } from "./actions";
 import { idlePlanningActionState } from "./actionsState";

@@ -4,6 +4,7 @@ import { translateReason } from "@/domain/authz/translateReason";
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { parseStatementText } from "@/domain/money/reconciliationSession";
 import { requirePermission } from "@/services/identity/access";
@@ -92,6 +93,7 @@ export async function createSessionAction(
     );
   }
   refresh(id);
+  await setFlash("Sesi rekonsiliasi dibuat.");
   redirect(sessionHref(id, entity));
 }
 
@@ -136,6 +138,7 @@ export async function matchLineAction(
     return fail(error, "Baris tidak dapat dicocokkan. Total pergerakan harus sama persis.");
   }
   refresh(sessionId);
+  await setFlash("Baris dicocokkan.");
   redirect(sessionHref(sessionId, entity));
 }
 
@@ -233,6 +236,7 @@ export async function discardSessionAction(
     return fail(error, "Sesi tidak dapat dibuang.");
   }
   revalidatePath("/money/reconciliation");
+  await setFlash("Sesi rekonsiliasi dibuang.");
   redirect(
     entity ? `/money/reconciliation?entity=${encodeURIComponent(entity)}` : "/money/reconciliation",
   );

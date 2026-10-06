@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
@@ -52,6 +53,7 @@ export async function createAccountAction(
     };
   }
   revalidatePath("/money/accounts");
+  await setFlash("Rekening tersimpan.");
   redirect(
     entity
       ? `/money/accounts/${accountId}?entity=${encodeURIComponent(entity)}`
@@ -97,6 +99,7 @@ export async function deleteAccountAction(
     };
   }
   revalidatePath("/money/accounts");
+  await setFlash("Rekening dihapus.");
   redirect(entity ? `/money/accounts?entity=${encodeURIComponent(entity)}` : "/money/accounts");
 }
 

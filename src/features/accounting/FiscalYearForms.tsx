@@ -1,8 +1,8 @@
 "use client";
 
+import { StepUpLink } from "@/features/feedback/StepUp";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import {
   closeFiscalYearAction,
   reverseFiscalYearClosingAction,
@@ -18,7 +18,9 @@ function Feedback({ state, next }: { state: FiscalYearState; next: string }) {
     <p role="alert" className="error">
       {state.message}{" "}
       {state.stepUp ? (
-        <Link href={`/auth/step-up?next=${encodeURIComponent(next)}`}>Verifikasi ulang →</Link>
+        <StepUpLink href={`/auth/step-up?next=${encodeURIComponent(next)}`}>
+          Verifikasi ulang →
+        </StepUpLink>
       ) : null}
     </p>
   );

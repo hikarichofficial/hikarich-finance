@@ -2,6 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { computeFinalTax } from "@/services/tax/tax";
 
@@ -49,5 +50,6 @@ export async function computeFinalTaxAction(
   }
   const qs = new URLSearchParams({ period: period.slice(0, 7) });
   if (entity) qs.set("entity", entity);
+  await setFlash("Pajak final dihitung.");
   redirect(`/tax/pph?${qs.toString()}`);
 }

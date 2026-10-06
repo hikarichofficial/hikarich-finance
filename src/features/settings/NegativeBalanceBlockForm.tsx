@@ -1,8 +1,8 @@
 "use client";
 
+import { StepUpLink } from "@/features/feedback/StepUp";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { setNegativeBalanceBlockAction } from "./actions";
 import { idleTimeSettingsState } from "./actionsState";
 
@@ -37,7 +37,7 @@ export function NegativeBalanceBlockForm({
         Jenis akun yang dicentang tidak akan pernah bisa minus: transaksi yang membuat saldonya di
         bawah nol akan ditolak sistem. Tidak dicentang berarti hanya peringatan, transaksi tetap
         boleh jalan. Perubahan memerlukan verifikasi ulang dalam 30 menit terakhir.{" "}
-        <Link href={stepUpHref}>Verifikasi sekarang</Link>.
+        <StepUpLink href={stepUpHref}>Verifikasi sekarang</StepUpLink>.
       </p>
       {KIND_OPTIONS.map((option) => (
         <label key={option.value}>
@@ -64,7 +64,7 @@ export function NegativeBalanceBlockForm({
           {state.stepUp ? (
             <>
               {" "}
-              <Link href={stepUpHref}>Verifikasi sekarang</Link>.
+              <StepUpLink href={stepUpHref}>Verifikasi sekarang</StepUpLink>.
             </>
           ) : null}
         </p>

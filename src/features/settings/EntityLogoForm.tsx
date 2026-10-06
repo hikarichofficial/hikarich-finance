@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { useActionState } from "react";
+import { StepUpLink } from "@/features/feedback/StepUp";
+import { useActionState } from "@/features/feedback/useActionState";
 import { updateEntityLogoAction } from "./actions";
 import { idleTimeSettingsState } from "./actionsState";
 
@@ -24,7 +24,7 @@ export function EntityLogoForm({
       <p className="hint">
         Logo tampil di kiri atas invoice dan kuitansi. Format PNG, JPEG, atau WebP, maksimal sekitar
         280 KB. Perubahan memerlukan verifikasi ulang.{" "}
-        <Link href={stepUpHref}>Verifikasi sekarang</Link>.
+        <StepUpLink href={stepUpHref}>Verifikasi sekarang</StepUpLink>.
       </p>
       {logo ? (
         // eslint-disable-next-line @next/next/no-img-element -- an embedded data: image, not optimizable
@@ -62,7 +62,7 @@ export function EntityLogoForm({
           {state.stepUp ? (
             <>
               {" "}
-              <Link href={stepUpHref}>Verifikasi sekarang</Link>.
+              <StepUpLink href={stepUpHref}>Verifikasi sekarang</StepUpLink>.
             </>
           ) : null}
         </p>

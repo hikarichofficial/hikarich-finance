@@ -1,9 +1,10 @@
 "use client";
 
+import { StepUpLink } from "@/features/feedback/StepUp";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
-import { useActionState, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import type { PayrollActionState } from "./payrollActions";
 
 const IDLE: PayrollActionState = { status: "idle" };
@@ -54,9 +55,9 @@ export function PayrollToggleForm({
         <p role="alert" className="error">
           {state.message}{" "}
           {state.stepUp ? (
-            <Link href={`/auth/step-up?next=${encodeURIComponent(stepUpNext)}`}>
+            <StepUpLink href={`/auth/step-up?next=${encodeURIComponent(stepUpNext)}`}>
               Verifikasi ulang →
-            </Link>
+            </StepUpLink>
           ) : null}
         </p>
       ) : null}

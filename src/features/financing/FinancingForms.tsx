@@ -1,8 +1,9 @@
 "use client";
 
+import { StepUpLink } from "@/features/feedback/StepUp";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import Link from "next/link";
-import { useActionState, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import {
   activateLoanAction,
   cancelEquityEventAction,
@@ -55,7 +56,9 @@ function Feedback({ state, next }: { state: FinancingActionState; next: string }
     <p role="alert" className="error">
       {state.message}{" "}
       {state.stepUp ? (
-        <Link href={`/auth/step-up?next=${encodeURIComponent(next)}`}>Verifikasi ulang →</Link>
+        <StepUpLink href={`/auth/step-up?next=${encodeURIComponent(next)}`}>
+          Verifikasi ulang →
+        </StepUpLink>
       ) : null}
     </p>
   );

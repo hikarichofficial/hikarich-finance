@@ -101,3 +101,32 @@ export async function verifyTotpAction(_prev: FormState, formData: FormData): Pr
   if (error) return { error: GENERIC_CODE_ERROR };
   redirect(nextFrom(formData));
 }
+
+export interface StepUpResult {
+  ok: boolean;
+  error?: string;
+}
+
+/**
+ * Step-up re-verification from the popup (OWNER, 6 October 2026: the code is typed in a popup, not on another
+ * page). Same check as `verifyTotpAction`, but it answers instead of redirecting, so the page underneath keeps
+ * everything the person typed.
+ */
+export async function verifyStepUpAction(code: string): Promise<StepUpResult> {
+  const parsed = otpCodeSchema.safeParse(code);
+  if (!parsed.success) return { ok: false, error: GENERIC_CODE_ERROR };
+
+  const supabase = await createSupabaseServerClient();
+  const { data: factors } = await supabase.auth.mfa.listFactors();
+  const totp = factors?.totp?.[0];
+  if (!totp) {
+    return { ok: false, error: "Akun ini belum memakai autentikator. Keluar lalu masuk kembali." };
+  }
+
+  const { error } = await supabase.auth.mfa.challengeAndVerify({
+    factorId: totp.id,
+    code: parsed.data,
+  });
+  if (error) return { ok: false, error: GENERIC_CODE_ERROR };
+  return { ok: true };
+}

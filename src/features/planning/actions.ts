@@ -2,6 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { revalidatePath } from "next/cache";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import type { PlanPeriodType, RecurringFrequency, RecurringKind } from "@/domain/planning/planning";
@@ -262,6 +263,7 @@ export async function createRecurringRuleAction(
     return errorState(error, "Aturan berulang tidak dapat dibuat.");
   }
   revalidatePath("/planning/recurring");
+  await setFlash("Aturan berulang tersimpan.");
   redirect(
     entity
       ? `/planning/recurring/${ruleId}?entity=${encodeURIComponent(entity)}`
@@ -328,6 +330,7 @@ export async function createBudgetAction(
     return errorState(error, "Anggaran tidak dapat dibuat.");
   }
   revalidatePath("/planning/budgets");
+  await setFlash("Anggaran tersimpan.");
   redirect(
     entity
       ? `/planning/budgets/${budgetId}?entity=${encodeURIComponent(entity)}`
@@ -409,6 +412,7 @@ export async function createRevenueTargetAction(
     return errorState(error, "Target pendapatan tidak dapat dibuat.");
   }
   revalidatePath("/planning/targets");
+  await setFlash("Target pendapatan tersimpan.");
   redirect(
     entity
       ? `/planning/targets/${targetId}?entity=${encodeURIComponent(entity)}`

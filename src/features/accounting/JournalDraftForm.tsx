@@ -1,7 +1,8 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState, useState } from "react";
+import { useState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { Decimal, sumDecimals } from "@/domain/money/decimal";
 import { createJournalDraftAction, type JournalDraftState } from "./journalDraftActions";
 import { MoneyInput } from "@/features/shared/MoneyInput";

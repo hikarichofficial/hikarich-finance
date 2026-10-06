@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
@@ -129,6 +130,7 @@ export async function createLoanAction(
     );
   }
   revalidatePath("/assets/loans");
+  await setFlash("Pinjaman tersimpan.");
   redirect(withEntity(`/assets/loans/${loanId}`, entity));
 }
 
@@ -357,6 +359,7 @@ export async function createObligationAction(
   }
   revalidatePath("/assets/other-receivables");
   revalidatePath("/assets/other-payables");
+  await setFlash("Kewajiban tersimpan.");
   redirect(
     withEntity(`/assets/obligations/${obligationId}?kind=${text(formData, "kind")}`, entity),
   );
@@ -465,6 +468,7 @@ export async function createEquityEventAction(
     return errorState(error, "Data tidak dapat disimpan. Periksa jumlah, tanggal dan keterangan.");
   }
   revalidatePath("/assets/equity");
+  await setFlash("Peristiwa ekuitas tersimpan.");
   redirect(withEntity(`/assets/equity/${eventId}`, entity));
 }
 

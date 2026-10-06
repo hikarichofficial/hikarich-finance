@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import type { ContactRow } from "@/schemas/contacts";
 import { updateContactAction } from "./contactActions";

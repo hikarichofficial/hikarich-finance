@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
@@ -103,6 +104,7 @@ export async function createEmployeeAction(
     );
   }
   revalidatePath("/payroll/employees");
+  await setFlash("Karyawan tersimpan.");
   redirect(
     entity
       ? `/payroll/employees/${employeeId}?entity=${encodeURIComponent(entity)}`
@@ -334,6 +336,7 @@ export async function createPayrollRunAction(
     );
   }
   revalidatePath("/payroll/runs");
+  await setFlash("Penggajian dibuat.");
   redirect(
     entity
       ? `/payroll/runs/${runId}?entity=${encodeURIComponent(entity)}`

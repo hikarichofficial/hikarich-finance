@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { parseRuleParams, ruleProblemDetail } from "@/domain/tax/ruleAuthoring";
 import { discardRule, publishRule, saveRuleDraft } from "@/services/tax/tax";
@@ -71,6 +72,7 @@ export async function saveRuleDraftAction(
     return fail(error, "Draf aturan tidak dapat disimpan. Periksa isian lalu coba lagi.");
   }
   revalidatePath("/tax/rules");
+  await setFlash("Draf aturan pajak tersimpan.");
   redirect(ruleHref(id, entity));
 }
 
@@ -86,6 +88,7 @@ export async function publishRuleAction(
     return fail(error, "Aturan tidak dapat diterbitkan.");
   }
   revalidatePath("/tax/rules");
+  await setFlash("Aturan pajak diterbitkan.");
   redirect(ruleHref(id, entity));
 }
 
@@ -101,5 +104,6 @@ export async function discardRuleAction(
     return fail(error, "Draf tidak dapat dibatalkan. Alasan minimal 5 karakter.");
   }
   revalidatePath("/tax/rules");
+  await setFlash("Draf aturan pajak dibuang.");
   redirect(ruleHref(ruleId, entity));
 }
