@@ -56,6 +56,20 @@ export default async function InvoiceLayoutPage({
           saved={layout}
           logo={logo}
           sample={sample}
+          issuer={{
+            values: {
+              legal_name: overview.entity.legal_name,
+              brand_name: overview.entity.brand_name ?? "",
+              address_line: profile?.address_line ?? "",
+              city: profile?.city ?? "",
+              province: profile?.province ?? "",
+              postal_code: profile?.postal_code ?? "",
+              contact_email: profile?.contact_email ?? "",
+              contact_phone: profile?.contact_phone ?? "",
+            },
+            website: profile?.website ?? "",
+            version: overview.entity.version,
+          }}
           stepUpHref={`/auth/step-up?next=${encodeURIComponent(here)}`}
         />
       ) : (

@@ -2432,3 +2432,14 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      payment-claim form. That page is open to anyone without signing in, so offering names that earlier payers typed
      would show one customer's name to another; it stays a plain field. "Keterangan Baris" on a manual journal line and
      the "purpose" fields on financing forms are not offered either (not named as in scope; say so if wanted).
+
+313. **Company data typed straight into Tampilan Invoice (p48, 6 October 2026).** The OWNER: "untuk data data bawaan, bisa
+     langsung diketik dan diganti disini, dan datanya otomatis konek dengan menu lainnya yang terkait". On
+     `/admin/invoice-layout` the company's legal name, brand name, address, city, province, postal code, email and phone
+     are now fields above the preview (`InvoiceIssuerFields`); every keystroke shows in the preview at once. Saving uses
+     the same action as Pengaturan → Nama & Profil (`updateEntityIdentityAction`: same permission `system.entity_config`,
+     step-up and version check, website sent back unchanged), so there is one copy of the data: Pengaturan, new invoices,
+     receipts and emails read what is saved here, and invoices already issued keep the name they were issued with
+     (decision 272). The preview's customer, items, payments, notes and terms stay made-up examples: they belong to each
+     invoice (customer, lines) or to the payment links and accounts (payment instructions), which are edited in their own
+     menus. No database change, no amount, tax or workflow change.
