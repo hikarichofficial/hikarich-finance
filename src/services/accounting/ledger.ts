@@ -2,6 +2,7 @@ import "server-only";
 import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
+import { dedupeNames } from "@/domain/shared/typeahead";
 import { entityCurrencyRowSchema } from "@/schemas/dashboard";
 import { openingBatchListSchema, type OpeningBatchRow } from "@/schemas/openingBalances";
 import {
@@ -336,4 +337,28 @@ export async function listOpeningBatches(entityId: string): Promise<OpeningBatch
   const parsed = openingBatchListSchema.safeParse(data);
   if (!parsed.success) throw new Error("Respons saldo awal tidak dikenali.");
   return parsed.data;
+}
+
+/**
+ * Explanations written on earlier manual and adjusting journals, newest first, for the type-and-pick field on the
+ * manual journal form (OWNER, 6 October 2026). Journals posted by the system (invoices, payments, ...) carry
+ * generated text and are left out. Best effort: a failed read returns no suggestions, because a convenience must
+ * never stop the form from opening.
+ */
+export async function listJournalDescriptionSuggestions(entityId: string): Promise<string[]> {
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data } = await supabase
+      .from("journal_entries")
+      .select("description")
+      .eq("entity_id", uuidResultSchema.parse(entityId))
+      .in("entry_type", ["manual", "adjusting"])
+      .order("created_at", { ascending: false })
+      .limit(600);
+    return dedupeNames(
+      ((data ?? []) as { description: string | null }[]).map((r) => r.description),
+    );
+  } catch {
+    return [];
+  }
 }

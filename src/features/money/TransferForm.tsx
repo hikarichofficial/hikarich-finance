@@ -6,6 +6,7 @@ import type { MoneyControlRow } from "@/schemas/money";
 import { createTransferAction } from "./transferActions";
 import { idleTransferFormState } from "./transferActionsState";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { SuggestTextInput } from "@/features/shared/SuggestTextInput";
 import { todayInBusinessZone } from "@/lib/time";
 
 /**
@@ -23,11 +24,14 @@ export function TransferForm({
   entityId,
   entity,
   canConfirmOnCreate,
+  descriptionSuggestions = [],
 }: {
   accounts: readonly MoneyControlRow[];
   entityId: string;
   entity: string | undefined;
   canConfirmOnCreate: boolean;
+  /** Descriptions used on earlier transfers, newest first, offered while typing. */
+  descriptionSuggestions?: readonly string[];
 }) {
   const [state, action, pending] = useActionState(createTransferAction, idleTransferFormState);
   const actionForm = usePreservingForm(action, state);
@@ -98,10 +102,13 @@ export function TransferForm({
         <input type="text" inputMode="decimal" name="rate_in" />
       </label>
 
-      <label>
-        Deskripsi (opsional)
-        <input type="text" name="description" maxLength={500} />
-      </label>
+      <SuggestTextInput
+        label="Deskripsi (opsional)"
+        name="description"
+        suggestions={descriptionSuggestions}
+        noun="deskripsi"
+        maxLength={500}
+      />
       <label>
         Referensi (opsional)
         <input type="text" name="reference" maxLength={120} />

@@ -6,6 +6,7 @@ import { useActionState } from "@/features/feedback/useActionState";
 import { Decimal, sumDecimals } from "@/domain/money/decimal";
 import { createJournalDraftAction, type JournalDraftState } from "./journalDraftActions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { SuggestTextInput } from "@/features/shared/SuggestTextInput";
 
 const IDLE: JournalDraftState = { status: "idle" };
 
@@ -61,11 +62,14 @@ export function JournalDraftForm({
   entity,
   today,
   canOverride,
+  descriptionSuggestions = [],
 }: {
   accounts: readonly JournalAccountOption[];
   entity: string | undefined;
   today: string;
   canOverride: boolean;
+  /** Explanations used on earlier manual journals, newest first, offered while typing. */
+  descriptionSuggestions?: readonly string[];
 }) {
   const [state, action, pending] = useActionState(createJournalDraftAction, IDLE);
   const actionForm = usePreservingForm(action, state);
@@ -100,10 +104,14 @@ export function JournalDraftForm({
         Tanggal
         <input type="date" name="entry_date" required defaultValue={today} />
       </label>
-      <label>
-        Penjelasan (jurnal penyesuaian minimal 10 karakter)
-        <input name="description" required maxLength={500} />
-      </label>
+      <SuggestTextInput
+        label="Penjelasan (jurnal penyesuaian minimal 10 karakter)"
+        name="description"
+        suggestions={descriptionSuggestions}
+        noun="penjelasan"
+        required
+        maxLength={500}
+      />
 
       <div className="plan-lines-editor">
         <p className="hint">

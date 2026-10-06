@@ -2,6 +2,7 @@ import "server-only";
 import { z, type ZodType } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
+import { dedupeNames } from "@/domain/shared/typeahead";
 import { uuidResultSchema, signedDecimalTextSchema, isoDateSchema } from "@/schemas/accounting";
 import {
   accountActivitySchema,
@@ -549,4 +550,27 @@ export async function listFinancialAccountLinks(
       currency: String(r.currency),
     }),
   );
+}
+
+/**
+ * Descriptions written on earlier transfers, newest first, for the type-and-pick field on the transfer form
+ * (OWNER, 6 October 2026). Best effort: a failed read returns no suggestions, because a convenience must never
+ * stop the form from opening.
+ */
+export async function listTransferDescriptionSuggestions(entityId: string): Promise<string[]> {
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data } = await supabase
+      .from("transfers")
+      .select("description")
+      .eq("entity_id", uuidResultSchema.parse(entityId))
+      .not("description", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(600);
+    return dedupeNames(
+      ((data ?? []) as { description: string | null }[]).map((r) => r.description),
+    );
+  } catch {
+    return [];
+  }
 }

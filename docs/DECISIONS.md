@@ -2418,3 +2418,17 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   not decided here; until answered, names are remembered from saved documents only. Not touched, listed for the
   OWNER: other free-text fields that may repeat (payer name on payment claims, counterparty on financing/asset
   forms, the description on a manual journal and on a transfer); they were not named as in scope.
+
+312. **Type-and-pick on the remaining repeating fields (p45, 6 October 2026).** Follow-up to decision 311 on the
+     OWNER's "berlaku untuk semua jenis isian kolom seperti ini" and "lanjutkan". (1) The counterparty on a new loan,
+     obligation and equity event (`PartyField`) was a native `<input list>`, which offers its list on click; it is now a
+     `SuggestTextInput` fed by the same known parties (Contacts and earlier records), so it opens only after typing and
+     ends with "+ Tambah "..." sebagai pihak baru". (2) "Penjelasan" on a manual / adjusting journal is a
+     `SuggestTextInput` fed by `listJournalDescriptionSuggestions` (explanations of earlier manual and adjusting
+     journals only; system-posted journals carry generated text and are left out). (3) "Deskripsi" on a new transfer is
+     a `SuggestTextInput` fed by `listTransferDescriptionSuggestions`. Both reads are best-effort direct RLS-scoped
+     reads that return no suggestions on failure; no database change. The typed text is what is saved. Presentation
+     only: no amount, tax, posting or workflow changes. **Deliberately not changed**: the payer name on the public
+     payment-claim form. That page is open to anyone without signing in, so offering names that earlier payers typed
+     would show one customer's name to another; it stays a plain field. "Keterangan Baris" on a manual journal line and
+     the "purpose" fields on financing forms are not offered either (not named as in scope; say so if wanted).
