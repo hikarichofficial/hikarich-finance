@@ -381,14 +381,17 @@ export function outstandingTax(accrued: string, paid: string): Decimal {
 
 // ---- Filing & Evidence (P13 unbuilt-screens backlog, decision 238)
 /** The types the Filing & Evidence screen offers for `tax_record_payment`/`tax_record_filing`/
- * `tax_reconcile_period` -- `wht_pph21` (the employee-withholding type) is settled through Payroll's own tax
- * ledger instead, never through this screen. PPh 4(2) and PPh 26 joined in decision 256. */
-export type FilingTaxType = "vat" | "wht_pph23" | "wht_pph4_2" | "wht_pph26" | "final_umkm";
+ * `tax_reconcile_period`. PPh 4(2) and PPh 26 joined in decision 256; PPh 21 (the tax withheld from employees)
+ * joined in decision 303, since its payment, filing and reconciliation already ran through the same RPCs (P9)
+ * but no screen offered them. */
+export type FilingTaxType =
+  "vat" | "wht_pph23" | "wht_pph4_2" | "wht_pph26" | "wht_pph21" | "final_umkm";
 export const FILING_TAX_TYPES: readonly FilingTaxType[] = [
   "vat",
   "wht_pph23",
   "wht_pph4_2",
   "wht_pph26",
+  "wht_pph21",
   "final_umkm",
 ];
 

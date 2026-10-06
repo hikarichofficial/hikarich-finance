@@ -25,7 +25,7 @@
         },
         {
           "title": "Buka Pajak > Pelaporan & Bukti",
-          "text": "Pilih **Jenis Pajak** (PPN, PPh 23 (dipotong), PPh 4(2) sewa tanah/bangunan, PPh 26 (luar negeri), PPh Final UMKM) dan **Masa Pajak**, lalu **Terapkan**. PPh 21 dicatat lewat Payroll, bukan layar ini.",
+          "text": "Pilih **Jenis Pajak** (PPN, PPh 23 (dipotong), PPh 4(2) sewa tanah/bangunan, PPh 26 (luar negeri), PPh 21 (karyawan), PPh Final UMKM) dan **Masa Pajak**, lalu **Terapkan**. Untuk PPh 21 Anda juga bisa sampai ke sini dari Payroll > Pajak & Kewajiban Payroll dengan menekan **Setor →** pada baris PPh 21.",
           "image": {
             "file": "pajak-pelaporan.jpg",
             "caption": "Halaman Pelaporan & Bukti."

@@ -2284,3 +2284,16 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   (labelled) instead of UTC; the stored instant is unchanged. The timezone of the two existing Entities is still
   changed by the OWNER in Administrasi > Pengaturan (decision 248); only new Entities default to WITA.
   No change to accounting rules, tax law inputs other than the TER correction, or authorization.
+
+- Follow-up to decision 303 (OWNER, 6 October 2026, answers to the open points). (1) Custom Reports follow the
+  recommendation: cancelled (void) invoices and bills are no longer counted (migration `20261006140000`).
+  (2) The Personal Entity moves to WITA (Asia/Makassar) by migration `20261006150000` (audited, system actor,
+  reason recorded); the PT Entity is left on WIB for now. (3) The OWNER's rule about recurring transactions is:
+  the same kind of transaction may happen several times, even on the same day; what must never happen is ONE
+  transaction being recorded twice. The recurring engine already guarantees the second (one occurrence per rule
+  per date, unique key, retries reuse the same row, idempotency keys on every write); no automatic scheduler is
+  added yet. (4) The PPh 21 deposit screen: payment, filing and reconciliation of PPh 21 already ran through the
+  tax layer (P9) but no screen offered them. Pajak > Pelaporan & Bukti now offers "PPh 21 (karyawan)" and the
+  Payroll > Pajak & Kewajiban Payroll PPh 21 rows with an outstanding amount have a "Setor →" link to it. No
+  change to the rules of the tax layer. (5) CI: the dependency audit failed on a new advisory in
+  `source-map-js` (through Next.js); an override to the patched version 1.2.2 is set in `pnpm-workspace.yaml`.

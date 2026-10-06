@@ -305,7 +305,7 @@
         "Gaji bersih dibayar sekaligus untuk semua karyawan (semua yang belum dibayar). Membayar sebagian karyawan saja belum tersedia di layar ini. Iuran BPJS boleh dibayar sebagian atau seluruh sisa.",
         "Pembayaran tidak boleh bertanggal di masa depan atau sebelum tanggal posting, dan harus dari rekening bermata uang dasar Entity.",
         "Koreksi hanya bisa dilakukan pada Payroll Terposting, dan semua pembayarannya harus dibatalkan lebih dulu. Payroll bulan pajak yang sama yang lebih baru harus dikoreksi lebih dulu.",
-        "Layar ini tidak mencatat setoran PPh 21 ke negara (lihat [Memahami PPh 21 dan Pajak Payroll](memahami-pajak-payroll))."
+        "Setoran PPh 21 ke negara tidak dicatat di layar Payroll ini, tetapi di Pajak > Pelaporan & Bukti dengan Jenis Pajak PPh 21 (karyawan) (lihat [Memahami PPh 21 dan Pajak Payroll](memahami-pajak-payroll))."
       ],
       "mistakes": [
         "Menganggap **Setujui** sudah membuat jurnal. Jurnal baru dibuat saat **Posting ke Pembukuan**.",
@@ -467,7 +467,7 @@
         },
         {
           "title": "Baca bagian Kewajiban Pembayaran",
-          "text": "Buka Payroll > Pajak & Kewajiban Payroll. Atur **Per Tanggal** lalu tekan **Terapkan**. Tabel memuat Jenis (Gaji bersih, BPJS, atau PPh 21), Periode, Proses, Terutang, Dibayar, dan Sisa. Ini menunjukkan berapa yang masih harus dibayar perusahaan untuk tiap bulan.",
+          "text": "Buka Payroll > Pajak & Kewajiban Payroll. Atur **Per Tanggal** lalu tekan **Terapkan**. Tabel memuat Jenis (Gaji bersih, BPJS, atau PPh 21), Periode, Proses, Terutang, Dibayar, Sisa, dan Tindakan. Ini menunjukkan berapa yang masih harus dibayar perusahaan untuk tiap bulan. Pada baris PPh 21 yang masih bersisa, tekan **Setor →** untuk membuka Pajak > Pelaporan & Bukti pada bulan itu, lalu catat setoran PPh 21 ke negara di sana.",
           "image": {
             "file": "payroll-pajak.jpg",
             "caption": "Halaman Pajak & Kewajiban Payroll."
@@ -517,7 +517,7 @@
         "Tarif dan batas pajak adalah data aturan di aplikasi, berlaku mulai tanggal tertentu, dan tidak diketik di layar karyawan atau Payroll.",
         "Bulan pajak terakhir (Desember atau bulan berhenti) membutuhkan data penghasilan dan pajak bulan-bulan sebelumnya. Posting bulan sebelumnya atau isi **Isi Saldo Awal Pajak** untuk karyawan yang baru mulai memakai aplikasi di tengah tahun.",
         "Bila pajak yang sudah dipotong ternyata lebih besar dari hitungan tahunan, kelebihannya tidak dikembalikan lewat penggajian; aplikasi hanya memberi catatan di baris karyawan itu.",
-        "Aplikasi belum menyediakan layar untuk mencatat setoran PPh 21 ke negara. Kolom Dibayar pada baris PPh 21 baru terisi bila ada pembayaran pajak yang tercatat untuk jenis PPh 21 karyawan; selama itu kolom Sisa sama dengan Terutang.",
+        "Setoran PPh 21 ke negara dicatat di Pajak > Pelaporan & Bukti (Jenis Pajak PPh 21 (karyawan)), atau lewat tautan **Setor →** pada baris PPh 21. Kolom Dibayar pada baris PPh 21 terisi setelah setoran itu tercatat; sebelum itu kolom Sisa sama dengan Terutang.",
         "Buku Besar Pajak Karyawan hanya memuat Payroll yang sudah diposting (dan angka Saldo Awal).",
         "Aplikasi tidak menghasilkan bukti potong atau SPT. Gunakan angka di sini sebagai dasar mengisinya."
       ],

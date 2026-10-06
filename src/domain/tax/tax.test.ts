@@ -86,6 +86,10 @@ describe("resolveFilingTaxType", () => {
     expect(resolveFilingTaxType("wht_pph26")).toBe("wht_pph26");
   });
 
+  it("offers PPh 21 for payment and filing (decision 303)", () => {
+    expect(resolveFilingTaxType("wht_pph21")).toBe("wht_pph21");
+  });
+
   it("resolves the withholding screen's tax type, defaulting to PPh 23", () => {
     expect(resolveWithholdingTaxType("wht_pph4_2")).toBe("wht_pph4_2");
     expect(resolveWithholdingTaxType("wht_pph26")).toBe("wht_pph26");
@@ -98,10 +102,6 @@ describe("resolveFilingTaxType", () => {
     expect(Object.keys(VAT_TREATMENT_LABELS).sort()).toEqual(
       [...vatTreatmentSchema.options].sort(),
     );
-  });
-
-  it("falls back to vat for wht_pph21 (settled through Payroll's own tax ledger instead)", () => {
-    expect(resolveFilingTaxType("wht_pph21")).toBe("vat");
   });
 
   it("falls back to vat for anything absent or unrecognised", () => {
