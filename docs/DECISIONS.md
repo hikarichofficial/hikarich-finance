@@ -2313,3 +2313,14 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   receives as an unusable client reference. The same happened with the Marketplace platform names. Both label
   maps now live in plain modules, and `src/lib/clientBoundary.test.ts` fails when a server file imports an
   upper-case constant from a `"use client"` module. No database change.
+
+- Decision 305 (6 October 2026): taking the remaining guide screenshots in production (with the OWNER's approval: one
+  sample invoice HKD-2026-0001 for "Penjualan Umum", one sample bill BILL-2026-0001 for the vendor "CONTOH PANDUAN
+  Vendor", to be removed with the other test data, finding #77) showed English sentences from the tax engine on the
+  invoice and bill pages ("No output VAT...", "Line 1 has no withholding classification...", "Nothing is withheld...").
+  The reasons and consequences of the tax determination are now shown in Indonesian through the same display-only
+  templates as the other database reasons (`reasonTranslations.json`, +27 templates); the stored text is unchanged.
+  The step-by-step trace on the determination detail page is still English (follow-up). The guide gained seven
+  screenshots (invoice draft/issued/public, payment form, quick-add vendor, approved bill, pay-bill form) and a note
+  that "Objek potongan PPh" must be chosen on a bill line whose category has no tax mapping, otherwise the bill stays
+  "Perlu ditinjau" and cannot be approved.
