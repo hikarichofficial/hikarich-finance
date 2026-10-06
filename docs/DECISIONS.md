@@ -2364,3 +2364,13 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   one-line cookie through `setFlash` (`src/lib/flash.ts`) that the next page shows once. `src/lib/feedbackGuard.test.ts`
   fails when a form uses React's `useActionState` directly, a link goes to the step-up page, or a redirecting action
   forgets `setFlash`. No database change.
+
+- Decision 309 (6 October 2026): the company logo is compressed on upload (OWNER: "logo yang di upload dikompres
+  supaya tidak membebani storage"). `src/lib/logoImage.ts` (library `sharp`, now a direct dependency) decides by the
+  file's real content, not its name or declared type, that it is a PNG, JPEG or WebP (an SVG is refused), turns a
+  rotated photo upright, shrinks it to fit 600x240 px (never enlarged), keeps transparency, stores a WebP and steps the
+  quality down until it is at most 60 KB (typically 5-40 KB). The upload limit is now 4 MB (it was 280 KB, because
+  nothing shrank the picture); the original is never stored, so the database holds only the small WebP. Also confirmed:
+  every sensitive action opens the re-verification popup right after Simpan/Submit, because the popup is triggered by
+  the action's own refusal (`needsStepUp`, `src/features/feedback/stepUpState.ts`), not by a link the person must find;
+  an action inside the 30-minute window goes straight through, as Step 06 specifies. No database change.

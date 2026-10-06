@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { setFlash } from "@/lib/flash";
+import { LOGO_MAX_UPLOAD_BYTES, LogoImageError, compressLogo } from "@/lib/logoImage";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { isFiscalYearLockedMessage } from "@/domain/settings/settings";
 import { requirePermission } from "@/services/identity/access";
@@ -136,15 +137,12 @@ export async function updateEntityIdentityAction(
   return { status: "ok", message: "Nama dan profil disimpan." };
 }
 
-/** The most a logo file may be (raw bytes): the database stores it as text, up to 400,000 characters. */
-const MAX_LOGO_BYTES = 286_720;
-const LOGO_TYPES = new Set(["image/png", "image/jpeg", "image/webp"]);
-
 /** Settings write (decision 307): upload or remove the company logo shown on invoices and receipts. */
 export async function updateEntityLogoAction(
   _previous: TimeSettingsState,
   formData: FormData,
 ): Promise<TimeSettingsState> {
+  let storedKb = 0;
   try {
     const { membership } = await requirePermission("system.entity_config", {
       entityCode: text(formData, "entity"),
@@ -156,17 +154,13 @@ export async function updateEntityLogoAction(
       if (!(file instanceof File) || file.size === 0) {
         return { status: "error", message: "Pilih file logo (PNG, JPEG, atau WebP) lebih dulu." };
       }
-      if (!LOGO_TYPES.has(file.type)) {
-        return { status: "error", message: "Logo harus berupa gambar PNG, JPEG, atau WebP." };
+      if (file.size > LOGO_MAX_UPLOAD_BYTES) {
+        return { status: "error", message: "Ukuran file terlalu besar. Maksimal 4 MB." };
       }
-      if (file.size > MAX_LOGO_BYTES) {
-        return { status: "error", message: "Ukuran logo terlalu besar. Maksimal sekitar 280 KB." };
-      }
-      const bytes = Buffer.from(await file.arrayBuffer());
-      await setEntityLogo(
-        membership.entity_id,
-        `data:${file.type};base64,${bytes.toString("base64")}`,
-      );
+      // The picture is shrunk to a small WebP before it is stored; the original is not kept.
+      const compressed = await compressLogo(Buffer.from(await file.arrayBuffer()));
+      await setEntityLogo(membership.entity_id, compressed.dataUrl);
+      storedKb = Math.max(1, Math.round(compressed.bytes / 1024));
     }
   } catch (error) {
     if (error instanceof AuthzError) {
@@ -174,6 +168,12 @@ export async function updateEntityLogoAction(
         status: "error",
         message: describeAuthzError(error),
         stepUp: error.code === "STEP_UP_REQUIRED",
+      };
+    }
+    if (error instanceof LogoImageError) {
+      return {
+        status: "error",
+        message: "File bukan gambar PNG, JPEG, atau WebP yang valid (maksimal 4 MB).",
       };
     }
     return { status: "error", message: "Logo tidak dapat disimpan. Coba gambar yang lebih kecil." };
@@ -184,7 +184,7 @@ export async function updateEntityLogoAction(
     message:
       text(formData, "remove") === "1"
         ? "Logo dihapus."
-        : "Logo disimpan. Invoice dan kuitansi menampilkan logo ini.",
+        : `Logo disimpan dan diperkecil otomatis (${storedKb} KB). Invoice dan kuitansi menampilkan logo ini.`,
   };
 }
 
