@@ -2432,3 +2432,13 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      payment-claim form. That page is open to anyone without signing in, so offering names that earlier payers typed
      would show one customer's name to another; it stays a plain field. "Keterangan Baris" on a manual journal line and
      the "purpose" fields on financing forms are not offered either (not named as in scope; say so if wanted).
+
+313. **Type-and-pick on "Keterangan Baris" and the financing purpose (p46, 6 October 2026).** The OWNER answered "ya" to
+     extending decision 312. (1) Each line of a manual journal ("Keterangan Baris") now uses `LineDescriptionInput`, the
+     same field as an invoice line, fed by `listJournalLineDescriptionSuggestions` (lines of earlier manual and adjusting
+     journals only; two small RLS-scoped reads, no join; best effort). It offers no price (a journal line has none). (2)
+     "Tujuan Pinjaman" (loan) and "Keterangan" (obligation, equity event) are `SuggestTextInput` fed by
+     `listPurposeSuggestions`, one shared list over the purposes of earlier loans, other obligations and equity events of
+     the Entity. Both open only after typing and end with "+ Tambah ... baru", like decisions 311-312. Presentation only:
+     no database change, no amount, tax or workflow change; the typed text is what is saved. Still plain fields on
+     purpose: the payer name on the public payment-claim form (open to anyone, decision 312).

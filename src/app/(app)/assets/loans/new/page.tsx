@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { listContacts } from "@/services/contacts/contacts";
+import { listPurposeSuggestions } from "@/services/financing/purposeSuggestions";
 import { LoanCreateForm } from "@/features/financing/FinancingForms";
 import { todayInBusinessZone } from "@/lib/time";
 
@@ -15,6 +16,7 @@ export default async function NewLoanPage({
   const { membership } = await requirePermission("loans.manage", { entityCode: entity });
   const backHref = entity ? `/assets/loans?entity=${encodeURIComponent(entity)}` : "/assets/loans";
   const knownParties = (await listContacts(membership.entity_id)).map((c) => c.display_name);
+  const knownPurposes = await listPurposeSuggestions(membership.entity_id);
 
   return (
     <div className="record-detail">
@@ -34,6 +36,7 @@ export default async function NewLoanPage({
           isCompany={membership.entity_type === "company"}
           today={todayInBusinessZone()}
           knownParties={knownParties}
+          knownPurposes={knownPurposes}
         />
       </section>
     </div>

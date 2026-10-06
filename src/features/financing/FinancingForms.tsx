@@ -231,11 +231,14 @@ export function LoanCreateForm({
   isCompany,
   today,
   knownParties,
+  knownPurposes = [],
 }: {
   entity: string | undefined;
   isCompany: boolean;
   today: string;
   knownParties: readonly string[];
+  /** Purposes written on earlier loans, obligations and equity events, offered while typing. */
+  knownPurposes?: readonly string[];
 }) {
   const [state, action, pending] = useActionState(createLoanAction, idleFinancingActionState);
   const actionForm = usePreservingForm(action, state);
@@ -259,10 +262,14 @@ export function LoanCreateForm({
         label={direction === "borrowed" ? "Pemberi Pinjaman" : "Peminjam"}
         knownParties={knownParties}
       />
-      <label>
-        Tujuan Pinjaman
-        <input name="purpose" required minLength={3} maxLength={500} autoComplete="off" />
-      </label>
+      <SuggestTextInput
+        label="Tujuan Pinjaman"
+        name="purpose"
+        suggestions={knownPurposes}
+        noun="keterangan"
+        required
+        maxLength={500}
+      />
       <MoneyField name="principal" label="Jumlah Pokok" required />
       <label>
         Tanggal Perjanjian
@@ -324,12 +331,15 @@ export function ObligationCreateForm({
   accounts,
   today,
   knownParties,
+  knownPurposes = [],
 }: {
   entity: string | undefined;
   kind: "receivable" | "payable";
   accounts: readonly FinancingOption[];
   today: string;
   knownParties: readonly string[];
+  /** Purposes written on earlier loans, obligations and equity events, offered while typing. */
+  knownPurposes?: readonly string[];
 }) {
   const [state, action, pending] = useActionState(createObligationAction, idleFinancingActionState);
   const actionForm = usePreservingForm(action, state);
@@ -343,10 +353,14 @@ export function ObligationCreateForm({
         label={receivable ? "Siapa yang Berutang ke Kita" : "Kepada Siapa Kita Berutang"}
         knownParties={knownParties}
       />
-      <label>
-        Keterangan
-        <input name="purpose" required minLength={3} maxLength={500} autoComplete="off" />
-      </label>
+      <SuggestTextInput
+        label="Keterangan"
+        name="purpose"
+        suggestions={knownPurposes}
+        noun="keterangan"
+        required
+        maxLength={500}
+      />
       <MoneyField name="amount" label="Jumlah" required />
       <DateField label="Tanggal" today={today} />
       <label>
@@ -370,11 +384,14 @@ export function EquityCreateForm({
   kinds,
   today,
   knownParties,
+  knownPurposes = [],
 }: {
   entity: string | undefined;
   kinds: readonly FinancingOption[];
   today: string;
   knownParties: readonly string[];
+  /** Purposes written on earlier loans, obligations and equity events, offered while typing. */
+  knownPurposes?: readonly string[];
 }) {
   const [state, action, pending] = useActionState(
     createEquityEventAction,
@@ -399,10 +416,14 @@ export function EquityCreateForm({
         </select>
       </label>
       <PartyField label="Nama Pemilik / Pihak" knownParties={knownParties} />
-      <label>
-        Keterangan
-        <input name="purpose" required minLength={3} maxLength={500} autoComplete="off" />
-      </label>
+      <SuggestTextInput
+        label="Keterangan"
+        name="purpose"
+        suggestions={knownPurposes}
+        noun="keterangan"
+        required
+        maxLength={500}
+      />
       <MoneyField name="amount" label="Jumlah" required />
       <DateField label="Tanggal" today={today} />
       {hasClass ? (

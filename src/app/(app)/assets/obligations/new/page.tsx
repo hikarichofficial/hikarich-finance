@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
 import { listContacts } from "@/services/contacts/contacts";
+import { listPurposeSuggestions } from "@/services/financing/purposeSuggestions";
 import { obligationKindTitle } from "@/domain/financing/obligationList";
 import { ObligationCreateForm } from "@/features/financing/FinancingForms";
 import { todayInBusinessZone } from "@/lib/time";
@@ -30,6 +31,7 @@ export default async function NewObligationPage({
     .filter((a) => a.is_active)
     .map((a) => ({ id: a.financial_account_id, label: `${a.name} (${a.currency})` }));
   const knownParties = (await listContacts(membership.entity_id)).map((c) => c.display_name);
+  const knownPurposes = await listPurposeSuggestions(membership.entity_id);
 
   return (
     <div className="record-detail">
@@ -50,6 +52,7 @@ export default async function NewObligationPage({
           accounts={accounts}
           today={todayInBusinessZone()}
           knownParties={knownParties}
+          knownPurposes={knownPurposes}
         />
       </section>
     </div>

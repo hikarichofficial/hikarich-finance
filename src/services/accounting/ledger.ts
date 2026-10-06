@@ -362,3 +362,38 @@ export async function listJournalDescriptionSuggestions(entityId: string): Promi
     return [];
   }
 }
+
+/**
+ * Line descriptions ("Keterangan Baris") written on earlier manual and adjusting journals, newest first, for the
+ * type-and-pick field on each line of the manual journal form (OWNER, 6 October 2026). Lines of system-posted
+ * journals carry generated text and are left out. Two small reads (the latest manual journals, then their lines)
+ * rather than a join, so it stays a plain RLS-scoped read. Best effort: returns no suggestions on failure.
+ */
+export async function listJournalLineDescriptionSuggestions(entityId: string): Promise<string[]> {
+  try {
+    const supabase = await createSupabaseServerClient();
+    const entity = uuidResultSchema.parse(entityId);
+    const { data: entries } = await supabase
+      .from("journal_entries")
+      .select("id")
+      .eq("entity_id", entity)
+      .in("entry_type", ["manual", "adjusting"])
+      .order("created_at", { ascending: false })
+      .limit(150);
+    const ids = ((entries ?? []) as { id: string }[]).map((e) => e.id);
+    if (ids.length === 0) return [];
+    const { data: lines } = await supabase
+      .from("journal_lines")
+      .select("description, created_at")
+      .eq("entity_id", entity)
+      .in("journal_id", ids)
+      .not("description", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(600);
+    return dedupeNames(
+      ((lines ?? []) as { description: string | null }[]).map((r) => r.description),
+    );
+  } catch {
+    return [];
+  }
+}
