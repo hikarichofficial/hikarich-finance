@@ -2443,3 +2443,11 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      (decision 272). The preview's customer, items, payments, notes and terms stay made-up examples: they belong to each
      invoice (customer, lines) or to the payment links and accounts (payment instructions), which are edited in their own
      menus. No database change, no amount, tax or workflow change.
+
+314. **Guide updated; CI runners pinned (p49, 6 October 2026).** (1) The in-app guide (Panduan, decision 299) gains
+     "Cara Memakai Kolom Ketik-dan-Pilih" (group Mulai Memakai) covering decisions 311-313, and its "Atur tampilan invoice"
+     step now describes typing the company's details straight into Tampilan Invoice (decision 315). Content only. (2)
+     GitHub announced that `ubuntu-latest` moves to Ubuntu 26 on 19 October 2026; both workflows now name
+     `ubuntu-24.04` so a runner change cannot surprise the migration job or CI, and can be moved on purpose later. The
+     "Node.js 20 is deprecated" notice (checkout, setup-cli) is informational: GitHub already runs those actions on
+     Node 24, so no action version was changed. No application, database or workflow-logic change.
