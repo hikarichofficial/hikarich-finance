@@ -2866,5 +2866,110 @@
     "this loan already has an FX revaluation; its currency cannot change any more",
     "pinjaman ini sudah punya revaluasi kurs; mata uangnya tidak bisa diubah lagi"
   ],
-  ["unknown account kind %", "jenis akun {1} tidak dikenal"]
+  ["unknown account kind %", "jenis akun {1} tidak dikenal"],
+  [
+    "The Entity has no tax profile in force on %.",
+    "Entity belum punya profil pajak yang berlaku pada {1}."
+  ],
+  [
+    "The Entity's VAT status (PKP or not) is not recorded for %.",
+    "Status PPN Entity (PKP atau bukan) belum dicatat untuk {1}."
+  ],
+  [
+    "Line % has no VAT treatment: choose one on the line or map its category.",
+    "Baris {1} belum punya perlakuan PPN: pilih di baris itu atau petakan kategorinya."
+  ],
+  [
+    "Line % uses a special VAT treatment (%) that the engine does not compute; review it.",
+    "Baris {1} memakai perlakuan PPN khusus ({2}) yang tidak dihitung otomatis; mohon ditinjau."
+  ],
+  [
+    "No VAT rule is in force on %; the rate is never guessed.",
+    "Belum ada aturan PPN yang berlaku pada {1}; tarif tidak pernah ditebak."
+  ],
+  ["No VAT rule is in force on %.", "Belum ada aturan PPN yang berlaku pada {1}."],
+  [
+    "VAT is computed in rupiah on a rupiah invoice; a foreign-currency invoice needs the statutory exchange rate and goes to review.",
+    "PPN dihitung dalam rupiah pada invoice rupiah; invoice mata uang asing butuh kurs resmi dan masuk ke peninjauan."
+  ],
+  [
+    "Input VAT on a foreign-currency document needs the statutory exchange rate and goes to review.",
+    "PPN masukan pada dokumen mata uang asing butuh kurs resmi dan masuk ke peninjauan."
+  ],
+  [
+    "Line % carries VAT but no tax-invoice reference: enter the vendor's tax-invoice number, or mark the line not creditable.",
+    "Baris {1} memuat PPN tetapi belum ada nomor faktur pajak: isi nomor faktur pajak vendor, atau tandai baris tidak dapat dikreditkan."
+  ],
+  [
+    "Line % has no withholding classification: choose \"not a withholding object\" or the object on the line, or map its category.",
+    "Baris {1} belum punya klasifikasi pemotongan: pilih “Bukan objek potongan PPh” atau objeknya di baris, atau petakan kategorinya."
+  ],
+  [
+    "Line % is marked \"not sure\" and waits for a tax review.",
+    "Baris {1} ditandai “Belum yakin” dan menunggu peninjauan pajak."
+  ],
+  [
+    "A line carries a withholding object but the Entity is recorded as not being a withholding agent; review the profile or the line.",
+    "Ada baris dengan objek potongan, tetapi Entity tercatat bukan pemotong pajak; tinjau profil atau barisnya."
+  ],
+  [
+    "Withholding on a foreign-currency document needs the statutory exchange rate and goes to review.",
+    "Pemotongan pada dokumen mata uang asing butuh kurs resmi dan masuk ke peninjauan."
+  ],
+  [
+    "The payee is not a contact of the Entity, so its tax facts are unknown; register the payee and record its tax facts.",
+    "Penerima pembayaran bukan kontak Entity, jadi data pajaknya tidak diketahui; daftarkan penerima dan catat data pajaknya."
+  ],
+  [
+    "No tax facts are recorded for the payee on %.",
+    "Belum ada data pajak penerima pembayaran yang tercatat pada {1}."
+  ],
+  [
+    "The payee is not recorded as a resident taxpayer; non-resident withholding (PPh 26 / treaties) is not computed and needs review.",
+    "Penerima pembayaran tidak tercatat sebagai wajib pajak dalam negeri; pemotongan untuk non-residen (PPh 26 / P3B) tidak dihitung otomatis dan perlu ditinjau."
+  ],
+  [
+    "No single withholding rule covers line % (%) on %.",
+    "Tidak ada satu aturan pemotongan yang berlaku untuk baris {1} ({2}) pada {3}."
+  ],
+  [
+    "Line % (%) is paid to an individual; whether income-tax article 23 or 21 applies is a legal classification that needs review.",
+    "Baris {1} ({2}) dibayarkan kepada perorangan; apakah berlaku PPh Pasal 23 atau 21 adalah klasifikasi hukum yang perlu ditinjau."
+  ],
+  [
+    "No output VAT: the invoice total is unchanged and no tax liability is created.",
+    "Tidak ada PPN keluaran: total invoice tidak berubah dan tidak ada kewajiban pajak yang timbul."
+  ],
+  [
+    "Output VAT of % is added to the invoice total and credited to Tax Payables; it accrues in the VAT ledger for %.",
+    "PPN keluaran {1} ditambahkan ke total invoice dan dicatat sebagai Utang Pajak; tercatat di buku PPN untuk masa {2}."
+  ],
+  [
+    "No creditable input VAT: the VAT charged is part of the cost.",
+    "Tidak ada PPN masukan yang dapat dikreditkan: PPN yang ditagih menjadi bagian dari biaya."
+  ],
+  [
+    "% is debited to Tax Assets as creditable input VAT and accrues in the VAT ledger for %; % stays in the cost.",
+    "{1} dicatat ke Aset Pajak sebagai PPN masukan yang dapat dikreditkan dan tercatat di buku PPN untuk masa {2}; {3} tetap menjadi biaya."
+  ],
+  [
+    "% is debited to Tax Assets as creditable input VAT and accrues in the VAT ledger for %.",
+    "{1} dicatat ke Aset Pajak sebagai PPN masukan yang dapat dikreditkan dan tercatat di buku PPN untuk masa {2}."
+  ],
+  [
+    "Nothing is withheld: the vendor is owed the full amount.",
+    "Tidak ada yang dipotong: vendor ditagih penuh sesuai jumlahnya."
+  ],
+  [
+    "% is withheld from the payee: the vendor is owed that much less, and it is credited to Tax Payables and accrues in the % ledger for %. The gross expense is unchanged.",
+    "{1} dipotong dari penerima: vendor menerima sebesar itu lebih sedikit, dicatat sebagai Utang Pajak dan tercatat di buku {2} untuk masa {3}. Beban bruto tidak berubah."
+  ],
+  [
+    "The final income tax of the month is a tax expense and a liability to pay by the deadline of the following month",
+    "PPh Final bulan ini menjadi beban pajak dan kewajiban yang harus dibayar paling lambat pada tenggat bulan berikutnya"
+  ],
+  [
+    "Output VAT of % is credited to Tax Payables and accrues in the VAT ledger.",
+    "PPN keluaran {1} dicatat sebagai Utang Pajak dan tercatat di buku PPN."
+  ]
 ]

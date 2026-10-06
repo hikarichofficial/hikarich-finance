@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { translateReason } from "@/domain/authz/translateReason";
 import { formatMoney } from "@/domain/money/format";
 import { DETERMINATION_STATUS_LABELS, DETERMINATION_STATUS_TONE } from "@/domain/tax/tax";
 import { formatTaxRate, taxKindLabel, taxSourceDocumentHref } from "@/domain/tax/taxLedgerList";
@@ -136,7 +137,7 @@ function DeterminationSection({
         {determination.consequence ? (
           <div>
             <dt>Konsekuensi</dt>
-            <dd>{determination.consequence}</dd>
+            <dd>{translateReason(determination.consequence) ?? determination.consequence}</dd>
           </div>
         ) : null}
         <div>

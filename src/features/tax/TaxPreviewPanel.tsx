@@ -1,3 +1,4 @@
+import { translateReason } from "@/domain/authz/translateReason";
 import { formatMoney } from "@/domain/money/format";
 import { DETERMINATION_STATUS_LABELS, TAX_KIND_LABELS, type TaxKind } from "@/domain/tax/tax";
 import type { TaxPreview } from "@/schemas/tax";
@@ -18,7 +19,8 @@ function overrideIdOf(result: unknown): string | null {
  * What the tax engine would decide for a document that is not recognised yet (Step 05 §14-§15, decision
  * 262): each tax result with its amount, the reasons when a person must decide first, and the engine's own
  * explanation. With `tax.override` the OWNER can replace a result (override) with a reason and evidence;
- * the database requires a recent step-up. The explanation text comes from the database as written.
+ * the database requires a recent step-up. The explanation text comes from the database in English and is
+ * shown translated by `translateReason` (display only; a sentence nobody wrote a template for stays as written).
  */
 export function TaxPreviewPanel({
   preview,
@@ -55,7 +57,7 @@ export function TaxPreviewPanel({
               <p>Dokumen ini belum bisa dicatat sampai hal berikut diselesaikan:</p>
               <ul>
                 {preview.reasons.map((reason) => (
-                  <li key={reason}>{reason}</li>
+                  <li key={reason}>{translateReason(reason) ?? reason}</li>
                 ))}
               </ul>
             </div>
@@ -73,7 +75,9 @@ export function TaxPreviewPanel({
                     Angka ini hasil koreksi manual; hitungan otomatis sebelumnya tidak dipakai.
                   </p>
                 ) : text(result.consequence) ? (
-                  <p className="hint">{text(result.consequence)}</p>
+                  <p className="hint">
+                    {translateReason(text(result.consequence) ?? "") ?? text(result.consequence)}
+                  </p>
                 ) : null}
                 {canOverride && result.status === "overridden" && overrideIdOf(result) ? (
                   <TaxOverrideWithdrawForm

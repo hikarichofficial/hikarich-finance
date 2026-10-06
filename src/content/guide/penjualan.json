@@ -200,7 +200,11 @@
         },
         {
           "title": "Setelah terbit: invoice otomatis menjadi piutang",
-          "text": "Sisa tagihan sudah tercatat sebagai Piutang Usaha. Status di daftar menjadi “Belum dibayar” (atau “Jatuh tempo N hari” bila sudah lewat). Selanjutnya bagikan invoice ([Cara Membagikan Invoice](bagikan-invoice)) dan catat pembayarannya saat uang masuk ([Cara Menerima Pembayaran Invoice](terima-pembayaran))."
+          "text": "Sisa tagihan sudah tercatat sebagai Piutang Usaha. Status di daftar menjadi “Belum dibayar” (atau “Jatuh tempo N hari” bila sudah lewat). Selanjutnya bagikan invoice ([Cara Membagikan Invoice](bagikan-invoice)) dan catat pembayarannya saat uang masuk ([Cara Menerima Pembayaran Invoice](terima-pembayaran)).",
+          "image": {
+            "file": "invoice-detail-terbit.jpg",
+            "caption": "Invoice setelah terbit: nomor otomatis, status Belum dibayar, dan tombol Catat Pembayaran."
+          }
         }
       ],
       "tables": [
@@ -297,7 +301,11 @@
         },
         {
           "title": "Salin tautan publik",
-          "text": "Tekan **Salin Tautan Publik**. Alamat muncul di kolom baca-saja dengan tombol **Salin** (berubah menjadi “Tersalin”). Kirim tautan itu lewat WhatsApp atau cara lain. Bentuk alamatnya https://finance.hikarichgroup.com/i/ diikuti kode acak panjang."
+          "text": "Tekan **Salin Tautan Publik**. Alamat muncul di kolom baca-saja dengan tombol **Salin** (berubah menjadi “Tersalin”). Kirim tautan itu lewat WhatsApp atau cara lain. Bentuk alamatnya https://finance.hikarichgroup.com/i/ diikuti kode acak panjang.",
+          "image": {
+            "file": "invoice-publik.jpg",
+            "caption": "Halaman invoice publik yang dilihat pelanggan, lengkap dengan formulir konfirmasi pembayaran."
+          }
         },
         {
           "title": "Kirim invoice lewat email",
@@ -460,7 +468,11 @@
         },
         {
           "title": "Pilih rekening penerima",
-          "text": "Pada **Diterima di Rekening** pilih rekening PT tempat uang benar-benar masuk. Rekening harus bermata uang sama dengan invoice."
+          "text": "Pada **Diterima di Rekening** pilih rekening PT tempat uang benar-benar masuk. Rekening harus bermata uang sama dengan invoice.",
+          "image": {
+            "file": "invoice-pembayaran-form.jpg",
+            "caption": "Form Catat Pembayaran: rekening penerima, tanggal, jumlah, referensi, dan catatan."
+          }
         },
         {
           "title": "Isi tanggal dana masuk",

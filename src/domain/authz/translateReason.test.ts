@@ -69,3 +69,41 @@ describe("translateStoredError", () => {
     expect(translateStoredError("division by zero")).toBe("division by zero");
   });
 });
+
+describe("tax determination sentences", () => {
+  it("translates the reasons and consequences shown on invoice and bill pages", () => {
+    expect(
+      translateReason(
+        'Line 1 has no withholding classification: choose "not a withholding object" or the object on the line, or map its category.',
+      ),
+    ).toContain("Baris 1 belum punya klasifikasi pemotongan");
+    expect(
+      translateReason(
+        "No output VAT: the invoice total is unchanged and no tax liability is created.",
+      ),
+    ).toBe(
+      "Tidak ada PPN keluaran: total invoice tidak berubah dan tidak ada kewajiban pajak yang timbul.",
+    );
+    expect(translateReason("Nothing is withheld: the vendor is owed the full amount.")).toContain(
+      "Tidak ada yang dipotong",
+    );
+  });
+
+  it("puts the amounts and the period into the sentence", () => {
+    expect(
+      translateReason(
+        "Output VAT of 55000 is added to the invoice total and credited to Tax Payables; it accrues in the VAT ledger for 2026-10.",
+      ),
+    ).toContain("PPN keluaran 55000");
+    expect(
+      translateReason(
+        "50000 is debited to Tax Assets as creditable input VAT and accrues in the VAT ledger for 2026-10; 5000 stays in the cost.",
+      ),
+    ).toContain("5000 tetap menjadi biaya");
+    expect(
+      translateReason(
+        "30000 is withheld from the payee: the vendor is owed that much less, and it is credited to Tax Payables and accrues in the PPh 23 ledger for 2026-10. The gross expense is unchanged.",
+      ),
+    ).toContain("buku PPh 23 untuk masa 2026-10");
+  });
+});

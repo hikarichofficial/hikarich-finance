@@ -38,7 +38,11 @@
         },
         {
           "title": "Tambah cepat dari form Tagihan",
-          "text": "Di **Catat Tagihan**, klik kolom **Vendor**, ketik nama, lalu pilih baris **+ Tambah “nama” sebagai vendor baru**. Isi **Email** dan **Telepon** di panel, tekan **Simpan & Gunakan**. Vendor baru langsung terpilih."
+          "text": "Di **Catat Tagihan**, klik kolom **Vendor**, ketik nama, lalu pilih baris **+ Tambah “nama” sebagai vendor baru**. Isi **Email** dan **Telepon** di panel, tekan **Simpan & Gunakan**. Vendor baru langsung terpilih.",
+          "image": {
+            "file": "vendor-cepat-tagihan.jpg",
+            "caption": "Panel Tambah Vendor Baru di form Catat Tagihan."
+          }
         },
         {
           "title": "Isi Data Pajak vendor bila perlu",
@@ -189,7 +193,7 @@
         },
         {
           "title": "Isi baris tagihan",
-          "text": "Sama seperti pengeluaran: **Deskripsi**, **Kuantitas**, **Harga Satuan**, **Perlakuan** (Beban, Aset, Dibayar di Muka), **Kategori**, serta kolom pajak **Objek potongan PPh**, **PPN ditagih vendor**, dan **No. Faktur Pajak**. Potongan PPh dan PPN dihitung otomatis dari isian pajak tiap baris dan Data Pajak vendor; hasilnya terlihat di halaman tagihan sebelum disetujui."
+          "text": "Sama seperti pengeluaran: **Deskripsi**, **Kuantitas**, **Harga Satuan**, **Perlakuan** (Beban, Aset, Dibayar di Muka), **Kategori**, serta kolom pajak **Objek potongan PPh**, **PPN ditagih vendor**, dan **No. Faktur Pajak**. Potongan PPh dan PPN dihitung otomatis dari isian pajak tiap baris dan Data Pajak vendor; hasilnya terlihat di halaman tagihan sebelum disetujui.\n\nPenting: bila kategori baris belum punya pemetaan pajak, **Objek potongan PPh** wajib dipilih (pilih “Bukan objek potongan PPh” bila memang tidak ada potongan). Kalau kosong, halaman tagihan menampilkan status “Perlu ditinjau” dan tagihan belum bisa disetujui."
         },
         {
           "title": "Simpan sebagai Draf",
@@ -270,7 +274,11 @@
       "steps": [
         {
           "title": "Buka tagihan berstatus Disetujui",
-          "text": "Buka **Pembelian > Tagihan** dan klik tagihan yang sudah disetujui dengan sisa lebih dari nol. Bila belum disetujui, tombol pembayaran tidak muncul."
+          "text": "Buka **Pembelian > Tagihan** dan klik tagihan yang sudah disetujui dengan sisa lebih dari nol. Bila belum disetujui, tombol pembayaran tidak muncul.",
+          "image": {
+            "file": "tagihan-detail-disetujui.jpg",
+            "caption": "Tagihan berstatus Disetujui dengan tombol Bayar Tagihan."
+          }
         },
         {
           "title": "Tekan Bayar Tagihan",
@@ -278,7 +286,11 @@
         },
         {
           "title": "Isi form",
-          "text": "**Dibayar dari Rekening** (rekening aktif yang bermata uang sama dengan tagihan). **Tanggal** (bawaan hari ini; tidak boleh di masa depan atau sebelum tanggal tagihan). **Jumlah** (bawaan seluruh sisa; kecilkan untuk bayar sebagian). **Nomor Referensi / Bukti Transfer (opsional)**. **Catatan (opsional)**."
+          "text": "**Dibayar dari Rekening** (rekening aktif yang bermata uang sama dengan tagihan). **Tanggal** (bawaan hari ini; tidak boleh di masa depan atau sebelum tanggal tagihan). **Jumlah** (bawaan seluruh sisa; kecilkan untuk bayar sebagian). **Nomor Referensi / Bukti Transfer (opsional)**. **Catatan (opsional)**.",
+          "image": {
+            "file": "tagihan-bayar-form.jpg",
+            "caption": "Form Bayar Tagihan: rekening sumber, tanggal, jumlah, referensi, dan catatan."
+          }
         },
         {
           "title": "Tekan Simpan Pembayaran",

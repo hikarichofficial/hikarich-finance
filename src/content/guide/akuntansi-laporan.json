@@ -16,7 +16,7 @@
           "text": "Halaman **Kategori** menampilkan jumlah kategori dan tabel dengan kolom **Nama**, **Jenis**, **Perlakuan Pajak**, dan **Akun & Berlaku Sejak**. Entity baru sudah berisi kategori standar (misalnya “Penjualan Produk”, “Pemasaran & Iklan”, “Sewa & Ruang Kerja”) yang sudah terhubung ke akun yang tepat. Kategori yang dinonaktifkan tampil dengan tambahan “(tidak aktif)” di belakang namanya. Bila kosong tampil “Belum ada kategori.”",
           "tip": "Kategori bukan daftar pelanggan atau vendor. Pelanggan ada di Penjualan > Pelanggan dan vendor di Pembelian > Vendor.",
           "image": {
-            "file": "kategori-daftar.jpg",
+            "file": "kategori-daftar-v2.jpg",
             "caption": "Daftar kategori pendapatan dan beban."
           }
         },
