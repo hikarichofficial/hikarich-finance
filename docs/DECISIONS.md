@@ -2324,3 +2324,5 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   screenshots (invoice draft/issued/public, payment form, quick-add vendor, approved bill, pay-bill form) and a note
   that "Objek potongan PPh" must be chosen on a bill line whose category has no tax mapping, otherwise the bill stays
   "Perlu ditinjau" and cannot be approved.
+  A second sample invoice was saved as a DRAFT (not issued, "CONTOH PANDUAN - Jasa konsultasi", Rp 500.000, Penjualan
+  Umum) to take the draft-detail screenshot with the Indonesian tax text; it is removed with the other test data (#77).
