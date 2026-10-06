@@ -111,6 +111,17 @@ begin
   perform test_helpers.assert(not has_schema_privilege('anon', 'app_private', 'USAGE'), 'anon has no app_private usage');
   perform test_helpers.assert(not has_schema_privilege('authenticated', 'app_private', 'USAGE'),
     'authenticated has no app_private usage');
+
+  -- Every internal function pins its search_path (decision 314): none is left to the caller.
+  select string_agg(n.nspname || '.' || p.proname, ', ') into v_bad
+  from pg_proc p
+  join pg_namespace n on n.oid = p.pronamespace
+  where n.nspname in ('app_private', 'app_authz')
+    and p.prokind in ('f', 'p')
+    and not exists (select 1 from unnest(coalesce(p.proconfig, '{}'::text[])) as c where c like 'search_path=%')
+    and not exists (select 1 from pg_depend d
+                    where d.classid = 'pg_proc'::regclass and d.objid = p.oid and d.deptype = 'e');
+  perform test_helpers.assert(v_bad is null, 'internal functions without a pinned search_path: ' || coalesce(v_bad, ''));
 end
 $$;
 
