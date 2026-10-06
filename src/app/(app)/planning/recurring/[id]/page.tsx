@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { listActiveCategories } from "@/services/accounting/categories";
+import { listPayeeNameSuggestions } from "@/services/purchases/expenses";
 import {
   listActiveContacts,
   listActiveFinancialAccounts,
@@ -41,18 +42,20 @@ export default async function RecurringRuleDetailPage({
   const rule = entries.find((row) => row.id === id);
   if (!rule) notFound();
 
-  const [occurrences, customers, vendors, accounts, channels, categories] = await Promise.all([
-    listRecurringOccurrences({ rule_id: id }),
-    rule.kind === "invoice" ? listActiveContacts(entityId, "customer") : Promise.resolve([]),
-    rule.kind === "bill" || rule.kind === "expense"
-      ? listActiveContacts(entityId, "vendor")
-      : Promise.resolve([]),
-    rule.kind === "invoice" || rule.kind === "expense"
-      ? listActiveFinancialAccounts(entityId)
-      : Promise.resolve([]),
-    rule.kind === "invoice" ? listActivePaymentChannels(entityId) : Promise.resolve([]),
-    listActiveCategories(entityId),
-  ]);
+  const [occurrences, customers, vendors, accounts, channels, categories, payeeSuggestions] =
+    await Promise.all([
+      listRecurringOccurrences({ rule_id: id }),
+      rule.kind === "invoice" ? listActiveContacts(entityId, "customer") : Promise.resolve([]),
+      rule.kind === "bill" || rule.kind === "expense"
+        ? listActiveContacts(entityId, "vendor")
+        : Promise.resolve([]),
+      rule.kind === "invoice" || rule.kind === "expense"
+        ? listActiveFinancialAccounts(entityId)
+        : Promise.resolve([]),
+      rule.kind === "invoice" ? listActivePaymentChannels(entityId) : Promise.resolve([]),
+      listActiveCategories(entityId),
+      rule.kind === "expense" ? listPayeeNameSuggestions(entityId) : Promise.resolve([]),
+    ]);
   const backHref = entity
     ? `/planning/recurring?entity=${encodeURIComponent(entity)}`
     : "/planning/recurring";
@@ -69,6 +72,7 @@ export default async function RecurringRuleDetailPage({
       accounts={accounts}
       channels={channels}
       categories={categories}
+      payeeSuggestions={payeeSuggestions}
       permissions={{
         canManage: can(access, membership.entity_id, "planning.recurring_edit"),
       }}

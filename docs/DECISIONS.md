@@ -2391,3 +2391,30 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   before this keeps the standard look; a draft previews the current layout. Presentation only: no amount, tax or
   number is touched. Migration 20261007100000; new RPC `set_invoice_layout`; the JSON field is `key`, not `id`,
   because the public-view test refuses the word "id".
+
+- Decision 311 (6 October 2026): fields that repeat from one record to the next are "type and pick" fields, and the
+  popup waits for typing (OWNER, on the Catat Pengeluaran screen: "Nama Penerima ... harus bisa diketik manual, akan
+  muncul popup yang sesuai ketikan, dan bisa diklik dipilih"; "deskripsi juga pada semua bagian harusnya punya sistem
+  seperti pengisian tambah pelanggan"; the popup "akan muncul ketika ketikan dimulai ... bukan saat kursor disiapkan
+  pada kolom", narrowing as the text grows; "berlaku untuk semua jenis isian kolom seperti ini"). (1) One rule for every
+  such field, in `src/domain/shared/typeahead.ts`: nothing is offered until a character is typed (a click, or a field
+  that already shows its saved name, opens no list); one character offers names that start with it, two or more add
+  names that contain it, starts first, recency order kept; spaces alone do not count. `matchContacts`
+  (`ContactPicker`) and `matchSuggestions` (line descriptions) now delegate to it, so the three fields cannot drift.
+  Behaviour change: the customer/vendor picker used to list the first names on click and matched "contains" from
+  one character; it now follows the same rule as the others. (2) `ContactPicker`, `LineDescriptionInput` and the new
+  `SuggestTextInput` open only after typing. (3) "Nama Penerima" on a new/edited expense and on a recurring-expense
+  template is a `SuggestTextInput` fed by the recipient names already on this Entity's expenses
+  (`listPayeeNameSuggestions`, a best-effort direct read like `listLineSuggestions`; no database change). (4) The
+  expense "Vendor (opsional)" list is now a `ContactPicker` (`optional`) with "+ Tambah vendor baru" through the same
+  quick-add drawer a bill uses; an optional vendor with typed text that is neither picked, added nor cleared blocks
+  submit with a message, so a half-typed name is never silently dropped. (5) Every such field ends with "+ Tambah
+  "..." sebagai ... baru" (vendor, penerima, deskripsi). For a vendor that creates the contact record. For a recipient
+  name or a description it keeps the typed text and says so: those are not records of their own, they are remembered
+  through the document they are saved on and offered from the next time. Presentation only: no amount, tax or workflow
+  changes; the saved values are exactly what was typed. **OWNER QUESTION**: should "tambah penerima" and "tambah
+  deskripsi" instead be saved as their own lists (a recipient/description catalogue to manage, with rename and
+  archive, like Produk & Jasa)? That is new tables and permissions and changes who can maintain the lists, so it is
+  not decided here; until answered, names are remembered from saved documents only. Not touched, listed for the
+  OWNER: other free-text fields that may repeat (payer name on payment claims, counterparty on financing/asset
+  forms, the description on a manual journal and on a transfer); they were not named as in scope.

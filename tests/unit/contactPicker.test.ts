@@ -9,8 +9,13 @@ const contacts = [
 ];
 
 describe("matchContacts", () => {
-  it("lists the first names when nothing is typed", () => {
-    expect(matchContacts("", contacts, 2).map((c) => c.id)).toEqual(["1", "2"]);
+  it("lists nothing until something is typed, so clicking into the field never opens the list", () => {
+    expect(matchContacts("", contacts, 2)).toEqual([]);
+    expect(matchContacts("   ", contacts, 2)).toEqual([]);
+  });
+
+  it("offers only names that start with a single typed character", () => {
+    expect(matchContacts("b", contacts).map((c) => c.id)).toEqual(["4"]);
   });
 
   it("narrows to names matching the letters, names starting with them first", () => {

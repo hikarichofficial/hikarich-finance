@@ -3,6 +3,9 @@
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useState } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
+import { ContactPicker } from "@/features/contacts/ContactPicker";
+import { QuickAddContactDrawer } from "@/features/contacts/QuickAddContactDrawer";
+import { SuggestTextInput } from "@/features/shared/SuggestTextInput";
 import type { CategoryRow } from "@/schemas/categories";
 import type { LineSuggestion } from "@/domain/sales/lineSuggestions";
 import type { ContactRow } from "@/schemas/contacts";
@@ -22,12 +25,17 @@ import { idleExpenseActionState } from "./expenseActionsState";
  * Creates a draft through `create_expense_draft`; confirming (posting) is the next step on its Detail page,
  * so a mistyped amount never reaches the ledger in the same click. Lines reuse `RecurringLinesEditor` with
  * kind `expense`, whose category/treatment pairing is exactly what `purchase_prepare_lines` validates.
+ *
+ * Fields that repeat from one expense to the next are type-and-pick fields (OWNER, 6 October 2026), the same
+ * system as the customer on an invoice: the vendor (`ContactPicker`, with "+ Tambah vendor baru"), the recipient's
+ * name (`SuggestTextInput`) and each line's description (`LineDescriptionInput`). The popup opens when typing starts.
  */
 export function ExpenseForm({
   accounts,
   vendors,
   categories,
   suggestions = [],
+  payeeSuggestions = [],
   entity,
   today,
   initial,
@@ -37,6 +45,8 @@ export function ExpenseForm({
   categories: readonly CategoryRow[];
   /** Descriptions used before, for the popup above each line's description (OWNER, 5 October 2026). */
   suggestions?: readonly LineSuggestion[];
+  /** Recipient names typed on earlier expenses, for the popup under "Nama Penerima" (OWNER, 6 October 2026). */
+  payeeSuggestions?: readonly string[];
   entity: string | undefined;
   today: string;
   /** Present when editing an existing draft: the same form saves through `update_expense_draft`. */
@@ -60,94 +70,117 @@ export function ExpenseForm({
       : [newRecurringLineRow(1)],
   );
   const [payeeId, setPayeeId] = useState(initial?.payee_id ?? "");
+  // Local copy so a vendor added on the spot is picked straight away without reloading the form.
+  const [vendorList, setVendorList] = useState<{ id: string; display_name: string }[]>(
+    vendors.map((v) => ({ id: v.id, display_name: v.display_name })),
+  );
+  const [addingVendor, setAddingVendor] = useState(false);
+  const [newVendorName, setNewVendorName] = useState("");
 
   return (
-    <form {...actionForm} className="record-form record-form-wide">
-      <input type="hidden" name="entity" value={entity ?? ""} />
-      <input type="hidden" name="lines" value={buildRecurringLinesJson(rows, "expense")} />
-      {initial ? (
-        <>
-          <input type="hidden" name="expense_id" value={initial.id} />
-          <input type="hidden" name="version" value={initial.version} />
-        </>
-      ) : null}
+    <>
+      <form {...actionForm} className="record-form record-form-wide">
+        <input type="hidden" name="entity" value={entity ?? ""} />
+        <input type="hidden" name="lines" value={buildRecurringLinesJson(rows, "expense")} />
+        {initial ? (
+          <>
+            <input type="hidden" name="expense_id" value={initial.id} />
+            <input type="hidden" name="version" value={initial.version} />
+          </>
+        ) : null}
 
-      <label>
-        Dibayar dari Rekening
-        <select name="account_id" required defaultValue={initial?.account_id ?? ""}>
-          <option value="" disabled>
-            Pilih rekening kas/bank
-          </option>
-          {accounts.map((account) => (
-            <option key={account.financial_account_id} value={account.financial_account_id}>
-              {account.name} ({account.currency})
-            </option>
-          ))}
-        </select>
-      </label>
-      <label>
-        Tanggal
-        <input
-          type="date"
-          name="expense_date"
-          required
-          defaultValue={initial?.expense_date ?? today}
-        />
-      </label>
-      <label>
-        Vendor (opsional)
-        <select name="payee_id" value={payeeId} onChange={(e) => setPayeeId(e.target.value)}>
-          <option value="">— Bukan vendor terdaftar —</option>
-          {vendors.map((vendor) => (
-            <option key={vendor.id} value={vendor.id}>
-              {vendor.display_name}
-            </option>
-          ))}
-        </select>
-      </label>
-      {payeeId === "" ? (
         <label>
-          Nama Penerima
+          Dibayar dari Rekening
+          <select name="account_id" required defaultValue={initial?.account_id ?? ""}>
+            <option value="" disabled>
+              Pilih rekening kas/bank
+            </option>
+            {accounts.map((account) => (
+              <option key={account.financial_account_id} value={account.financial_account_id}>
+                {account.name} ({account.currency})
+              </option>
+            ))}
+          </select>
+        </label>
+        <label>
+          Tanggal
           <input
+            type="date"
+            name="expense_date"
+            required
+            defaultValue={initial?.expense_date ?? today}
+          />
+        </label>
+        <ContactPicker
+          label="Vendor (opsional)"
+          name="payee_id"
+          noun="vendor"
+          contacts={vendorList}
+          value={payeeId}
+          optional
+          onChange={setPayeeId}
+          onAddNew={(typedName) => {
+            setNewVendorName(typedName);
+            setAddingVendor(true);
+          }}
+        />
+        {payeeId === "" ? (
+          <SuggestTextInput
+            label="Nama Penerima"
             name="payee_name"
+            noun="penerima"
+            suggestions={payeeSuggestions}
             required
             maxLength={200}
             placeholder="mis. Toko Bangunan Jaya"
             defaultValue={initial?.payee_name ?? ""}
           />
+        ) : null}
+        <label>
+          Nomor Struk / Nota (opsional)
+          <input
+            name="receipt_reference"
+            maxLength={100}
+            defaultValue={initial?.receipt_reference ?? ""}
+          />
         </label>
-      ) : null}
-      <label>
-        Nomor Struk / Nota (opsional)
-        <input
-          name="receipt_reference"
-          maxLength={100}
-          defaultValue={initial?.receipt_reference ?? ""}
+
+        <RecurringLinesEditor
+          kind="expense"
+          categories={categories}
+          suggestions={suggestions}
+          rows={rows}
+          onChange={setRows}
+          taxFields
         />
-      </label>
 
-      <RecurringLinesEditor
-        kind="expense"
-        categories={categories}
-        suggestions={suggestions}
-        rows={rows}
-        onChange={setRows}
-        taxFields
+        <label>
+          Catatan (opsional)
+          <textarea name="notes" maxLength={2000} defaultValue={initial?.notes ?? ""} />
+        </label>
+
+        {state.status === "error" ? (
+          <p role="alert" className="error">
+            {state.message}
+          </p>
+        ) : null}
+        <button type="submit" className="btn-primary" disabled={pending}>
+          {pending ? "Menyimpan…" : initial ? "Simpan Perubahan" : "Simpan sebagai Draf"}
+        </button>
+      </form>
+      {/* Outside the form: a form inside a form is invalid HTML (see InvoiceForm). */}
+      <QuickAddContactDrawer
+        contactKind="vendor"
+        entity={entity}
+        initialName={newVendorName}
+        open={addingVendor}
+        onClose={() => setAddingVendor(false)}
+        onCreated={(contact) => {
+          setVendorList((list) => [...list, contact]);
+          setPayeeId(contact.id);
+          setAddingVendor(false);
+        }}
       />
-
-      <label>
-        Catatan (opsional)
-        <textarea name="notes" maxLength={2000} defaultValue={initial?.notes ?? ""} />
-      </label>
-
-      {state.status === "error" ? (
-        <p role="alert" className="error">
-          {state.message}
-        </p>
-      ) : null}
-      <button type="submit" className="btn-primary" disabled={pending}>
-        {pending ? "Menyimpan…" : initial ? "Simpan Perubahan" : "Simpan sebagai Draf"}
-      </button>
-    </form>
+    </>
   );
 }

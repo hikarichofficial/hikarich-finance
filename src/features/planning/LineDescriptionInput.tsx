@@ -3,7 +3,12 @@
 import { useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { formatPlain } from "@/domain/money/format";
-import { matchSuggestions, type LineSuggestion } from "@/domain/sales/lineSuggestions";
+import { hasTyped } from "@/domain/shared/typeahead";
+import {
+  exactSuggestion,
+  matchSuggestions,
+  type LineSuggestion,
+} from "@/domain/sales/lineSuggestions";
 
 interface PopupPosition {
   left: number;
@@ -13,11 +18,14 @@ interface PopupPosition {
 }
 
 /**
- * The description of a line, with the popup above it (OWNER, 5 October 2026): as soon as the field is focused (and as
- * more is typed), names already used before appear with the price they were last used at. Clicking one (or arrow keys +
- * Enter) fills the description and its price; carrying on typing, with the same name or a different one,
- * just works -- nothing is forced. The popup is drawn on the page itself (not inside the table), so a
- * scrolling table can never clip it, and it opens above the field unless there is no room there.
+ * The description of a line, with the popup above it (OWNER, 5 October 2026): names already used before appear with
+ * the price they were last used at. Since 6 October 2026 the popup waits for the first typed character -- clicking
+ * into the field shows nothing -- then follows what is typed and narrows as it gets longer. Clicking a name (or arrow
+ * keys + Enter) fills the description and its price; carrying on typing, with the same name or a different one,
+ * just works -- nothing is forced. A name not on file offers "+ Tambah ... sebagai deskripsi baru" as the last row,
+ * like a customer does: it keeps the typed text, which is remembered with the document and offered from then on.
+ * The popup is drawn on the page itself (not inside the table), so a scrolling table can never clip it, and it opens
+ * above the field unless there is no room there.
  */
 export function LineDescriptionInput({
   value,
@@ -38,8 +46,11 @@ export function LineDescriptionInput({
   const [position, setPosition] = useState<PopupPosition | null>(null);
 
   const matches = matchSuggestions(value, suggestions);
-  // The popup opens whenever the field is focused, even with nothing on file, so it is never mistaken for broken.
-  const open = focused && !dismissed;
+  const typed = hasTyped(value);
+  const showAdd = typed && exactSuggestion(value, suggestions) === undefined;
+  const rowCount = matches.length + (showAdd ? 1 : 0);
+  // Open only once something has been typed (OWNER, 6 October 2026): a click into the field shows no list.
+  const open = focused && !dismissed && typed;
 
   useLayoutEffect(() => {
     if (!open || !ref.current) return;
@@ -48,7 +59,7 @@ export function LineDescriptionInput({
       const rect = ref.current.getBoundingClientRect();
       const width = Math.max(rect.width, 280);
       const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
-      const needed = 40 + Math.max(1, matches.length) * 44;
+      const needed = 72 + Math.max(1, rowCount) * 44;
       setPosition(
         rect.top > needed
           ? { left, width, bottom: window.innerHeight - rect.top + 4 }
@@ -62,11 +73,22 @@ export function LineDescriptionInput({
       window.removeEventListener("resize", place);
       window.removeEventListener("scroll", place, true);
     };
-  }, [open, matches.length]);
+  }, [open, rowCount]);
 
   function pick(suggestion: LineSuggestion) {
     onPick(suggestion);
     setDismissed(true);
+  }
+
+  // "+ Tambah ... baru": the typed text stays as it is; it is remembered once the document is saved.
+  function addNew() {
+    setDismissed(true);
+    setActive(-1);
+  }
+
+  function chooseRow(index: number) {
+    if (index < matches.length) pick(matches[index]);
+    else if (showAdd) addNew();
   }
 
   return (
@@ -90,16 +112,16 @@ export function LineDescriptionInput({
         onFocus={() => setFocused(true)}
         onBlur={() => setFocused(false)}
         onKeyDown={(event) => {
-          if (!open || matches.length === 0) return;
+          if (!open || rowCount === 0) return;
           if (event.key === "ArrowDown") {
             event.preventDefault();
-            setActive((index) => (index + 1) % matches.length);
+            setActive((index) => (index + 1) % rowCount);
           } else if (event.key === "ArrowUp") {
             event.preventDefault();
-            setActive((index) => (index <= 0 ? matches.length - 1 : index - 1));
+            setActive((index) => (index <= 0 ? rowCount - 1 : index - 1));
           } else if (event.key === "Enter" && active >= 0) {
             event.preventDefault();
-            pick(matches[active]);
+            chooseRow(active);
           } else if (event.key === "Escape") {
             setDismissed(true);
           }
@@ -118,12 +140,10 @@ export function LineDescriptionInput({
             >
               <p className="line-suggest-title">
                 {matches.length > 0
-                  ? value.trim() === ""
-                    ? "Pilih yang sudah ada, atau ketik nama baru."
-                    : "Sesuai huruf yang diketik. Klik untuk memakai, atau lanjut mengetik."
+                  ? "Sesuai huruf yang diketik. Klik untuk memakai, atau lanjut mengetik."
                   : suggestions.length === 0
-                    ? "Belum ada produk atau baris tersimpan. Ketik nama sendiri, atau daftarkan produk di menu Penjualan > Produk & Jasa agar muncul di sini."
-                    : "Tidak ada yang cocok dengan huruf ini. Lanjutkan mengetik untuk memakai nama baru."}
+                    ? "Belum ada deskripsi tersimpan. Pilih “+ Tambah” di bawah untuk memakai tulisan ini; deskripsi yang sudah dipakai akan muncul di sini lain kali."
+                    : "Tidak ada deskripsi dengan huruf ini. Pilih “+ Tambah” di bawah, atau lanjutkan mengetik."}
               </p>
               <ul id={listId} role="listbox">
                 {matches.map((item, index) => (
@@ -149,6 +169,23 @@ export function LineDescriptionInput({
                   </li>
                 ))}
               </ul>
+              {showAdd ? (
+                <button
+                  type="button"
+                  className={
+                    active === matches.length
+                      ? "contact-picker-add is-active"
+                      : "contact-picker-add"
+                  }
+                  // mouse down (not click) so the field does not lose focus and close the popup first
+                  onMouseDown={(event) => {
+                    event.preventDefault();
+                    addNew();
+                  }}
+                >
+                  {`+ Tambah “${value.trim()}” sebagai deskripsi baru`}
+                </button>
+              ) : null}
             </div>,
             document.body,
           )
