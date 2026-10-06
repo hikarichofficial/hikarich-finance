@@ -2433,7 +2433,30 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      would show one customer's name to another; it stays a plain field. "Keterangan Baris" on a manual journal line and
      the "purpose" fields on financing forms are not offered either (not named as in scope; say so if wanted).
 
-313. **Company data typed straight into Tampilan Invoice (p48, 6 October 2026).** The OWNER: "untuk data data bawaan, bisa
+313. **Type-and-pick on "Keterangan Baris" and the financing purpose (p46, 6 October 2026).** The OWNER answered "ya" to
+     extending decision 312. (1) Each line of a manual journal ("Keterangan Baris") now uses `LineDescriptionInput`, the
+     same field as an invoice line, fed by `listJournalLineDescriptionSuggestions` (lines of earlier manual and adjusting
+     journals only; two small RLS-scoped reads, no join; best effort). It offers no price (a journal line has none). (2)
+     "Tujuan Pinjaman" (loan) and "Keterangan" (obligation, equity event) are `SuggestTextInput` fed by
+     `listPurposeSuggestions`, one shared list over the purposes of earlier loans, other obligations and equity events of
+     the Entity. Both open only after typing and end with "+ Tambah ... baru", like decisions 311-312. Presentation only:
+     no database change, no amount, tax or workflow change; the typed text is what is saved. Still plain fields on
+     purpose: the payer name on the public payment-claim form (open to anyone, decision 312).
+
+314. **Internal functions pin their search_path (p47, 6 October 2026).** The OWNER answered "ya" to closing the Supabase
+     security advisor finding "Function Search Path Mutable": 299 functions in the internal schemas `app_private` and
+     `app_authz` left the search_path to the caller (identical on dev and production). They are not reachable from the
+     browser (the schemas are closed to `anon` and `authenticated`), so the risk was low; migration
+     `20261007110000_p18_internal_function_search_path.sql` gives each of them `search_path = pg_catalog, public`, the
+     same pinned path the rest of the code uses. Only the setting changes: no body, signature, grant, owner or security
+     mode; functions that already pin a path or belong to an extension are skipped, so it is safe to run twice.
+     `supabase/tests/10_structure.sql` now fails if any such function is left without a pinned path, so a future function
+     cannot slip through. Confirmed on production after the migration ran: the finding count went from 299 to 0. Already
+     checked and unchanged: the three public functions callable without signing in (`public_invoice_view`,
+     `public_receipt_view`, `public_submit_payment_claim`) are by design; the 15 tables with RLS and no policy are reached
+     only through functions. Leaked-password protection in Supabase Auth needs the Pro plan; the OWNER chose to leave it off.
+
+315. **Company data typed straight into Tampilan Invoice (p48, 6 October 2026).** The OWNER: "untuk data data bawaan, bisa
      langsung diketik dan diganti disini, dan datanya otomatis konek dengan menu lainnya yang terkait". On
      `/admin/invoice-layout` the company's legal name, brand name, address, city, province, postal code, email and phone
      are now fields above the preview (`InvoiceIssuerFields`); every keystroke shows in the preview at once. Saving uses
@@ -2444,10 +2467,12 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      invoice (customer, lines) or to the payment links and accounts (payment instructions), which are edited in their own
      menus. No database change, no amount, tax or workflow change.
 
-314. **Guide updated; CI runners pinned (p49, 6 October 2026).** (1) The in-app guide (Panduan, decision 299) gains
-     "Cara Memakai Kolom Ketik-dan-Pilih" (group Mulai Memakai) covering decisions 311-313, and its "Atur tampilan invoice"
-     step now describes typing the company's details straight into Tampilan Invoice (decision 315). Content only. (2)
-     GitHub announced that `ubuntu-latest` moves to Ubuntu 26 on 19 October 2026; both workflows now name
-     `ubuntu-24.04` so a runner change cannot surprise the migration job or CI, and can be moved on purpose later. The
-     "Node.js 20 is deprecated" notice (checkout, setup-cli) is informational: GitHub already runs those actions on
-     Node 24, so no action version was changed. No application, database or workflow-logic change.
+316. **Guide updated (p49, 6 October 2026).** The in-app guide (Panduan, decision 299) gains "Cara Memakai Kolom
+     Ketik-dan-Pilih" (group Mulai Memakai) covering decisions 311-313, and its "Atur tampilan invoice" step now describes
+     typing the company's details straight into Tampilan Invoice (decision 315). Content only. Also in this change, the
+     decision entries 313 and 314 (and the numbering of 315) are restored: an earlier merge (#155) dropped them from this
+     file by mistake while the code and the migration they describe were unaffected. Left for the OWNER: GitHub announced
+     that `ubuntu-latest` moves to Ubuntu 26 on 19 October 2026; naming `ubuntu-24.04` in the three `runs-on` lines of
+     `.github/workflows/ci.yml` and `production-migrations.yml` keeps the runner fixed, but the token used to push from
+     here may not change workflow files, so it is not part of this change. The "Node.js 20 is deprecated" notice
+     (checkout, setup-cli) is informational: GitHub already runs those actions on Node 24.
