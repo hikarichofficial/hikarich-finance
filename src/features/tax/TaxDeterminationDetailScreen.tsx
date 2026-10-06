@@ -12,6 +12,14 @@ const SOURCE_TYPE_LABELS: Readonly<Record<string, string>> = {
   expense: "Beban",
 };
 
+/** A breakdown label is not a sentence: shown translated without the full stop `translateReason` adds. */
+function translateLabel(label: string): string {
+  const translated = translateReason(label);
+  return translated === null || label.endsWith(".")
+    ? (translated ?? label)
+    : translated.replace(/\.$/, "");
+}
+
 /**
  * Tax Determination Detail (P13 Part 3e, Step 09 §15): "what tax, why, rule/version, basis, rate/formula,
  * amount and source transaction" for one document. `listTaxDeterminations` returns every determination ever
@@ -147,7 +155,9 @@ function DeterminationSection({
         {determination.superseded_reason ? (
           <div>
             <dt>Alasan Digantikan</dt>
-            <dd>{determination.superseded_reason}</dd>
+            <dd>
+              {translateReason(determination.superseded_reason) ?? determination.superseded_reason}
+            </dd>
           </div>
         ) : null}
       </dl>
@@ -177,7 +187,7 @@ function DeterminationSection({
           <ul className="record-activity-list">
             {determination.components.map((component, index) => (
               <li key={`${component.label}-${index}`} className="record-activity-item">
-                <span>{component.label}</span>
+                <span>{translateLabel(component.label)}</span>
               </li>
             ))}
           </ul>
@@ -190,7 +200,7 @@ function DeterminationSection({
           <ul className="record-activity-list">
             {determination.trace.map((entry) => (
               <li key={entry.n} className="record-activity-item">
-                <span>{entry.text}</span>
+                <span>{translateReason(entry.text) ?? entry.text}</span>
               </li>
             ))}
           </ul>
