@@ -2374,3 +2374,20 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   every sensitive action opens the re-verification popup right after Simpan/Submit, because the popup is triggered by
   the action's own refusal (`needsStepUp`, `src/features/feedback/stepUpState.ts`), not by a link the person must find;
   an action inside the 30-minute window goes straight through, as Step 06 specifies. No database change.
+
+- Decision 310 (7 October 2026): (1) On an invoice (and receipt) the legal name leads and the brand name sits below it
+  (`issuerNames` in `InvoiceDocumentView.tsx`); a brand that is the only name, or equal to the legal name, shows once
+  (OWNER: "PT HIKARICH KITANA DIGITAL di atas, nama brand di bawah"). (2) New Settings page "Tampilan Invoice"
+  (`/admin/invoice-layout`): the invoice document is a stack of eleven blocks (logo, issuer, title, customer, dates,
+  lines, totals, payments, instructions, notes, terms) the OWNER arranges by dragging (above/below another block to
+  reorder, left/right of it to share a row), with alignment (left/centre/right), width (half/full), hide/show and the
+  logo size (`src/domain/sales/invoiceLayout.ts`, `InvoiceLayoutEditor.tsx`; buttons Naik/Turun for touch screens).
+  Per the OWNER's answers: blocks, not free pixel placement (a free layout would let a long item table overlap other
+  parts), and it applies to NEW invoices only. Stored in `entity_profiles.invoice_layout` (jsonb, null = standard),
+  changed by `set_invoice_layout` (needs `system.entity_config` and a recent step-up; audited as
+  `entities.invoice_layout_changed`); validated by `app_private.valid_invoice_layout` and a table check. The six blocks
+  that carry the number, parties, dates, lines and amounts can be moved but never hidden. Issuing copies the layout
+  into the frozen issuer snapshot (`issuer_snapshot.layout`), so an issued invoice keeps its look; an invoice issued
+  before this keeps the standard look; a draft previews the current layout. Presentation only: no amount, tax or
+  number is touched. Migration 20261007100000; new RPC `set_invoice_layout`; the JSON field is `key`, not `id`,
+  because the public-view test refuses the word "id".

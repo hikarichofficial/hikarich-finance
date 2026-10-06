@@ -1,7 +1,15 @@
 import { Decimal } from "@/domain/money/decimal";
 import { formatMoney, formatMoneyExact, formatPlain } from "@/domain/money/format";
 import { invoiceDocumentStatus } from "@/domain/sales/invoiceList";
+import {
+  type InvoiceBlockId,
+  type InvoiceBlockSetting,
+  type InvoiceLayout,
+  layoutRows,
+  parseInvoiceLayout,
+} from "@/domain/sales/invoiceLayout";
 import type { InvoiceDocument } from "@/schemas/sales";
+import { Fragment, type ReactNode } from "react";
 
 /**
  * The invoice as a customer reads it (P13 Part 5, first increment; Step 11 -- Invoice/Receipt Visual
@@ -52,87 +60,117 @@ export function formatDocumentDate(isoDate: string): string {
 }
 
 /** The company logo (an embedded image the OWNER uploaded in Settings), shown beside the issuer's name. */
-export function DocumentLogo({ logo }: { logo: string | null | undefined }) {
+export function DocumentLogo({
+  logo,
+  size,
+}: {
+  logo: string | null | undefined;
+  size?: "sm" | "md" | "lg";
+}) {
   if (!logo || !logo.startsWith("data:image/")) return null;
   return (
     // eslint-disable-next-line @next/next/no-img-element -- an embedded data: image, not optimizable
-    <img className="doc-logo" src={logo} alt="" />
+    <img className="doc-logo" data-size={size ?? "md"} src={logo} alt="" />
   );
+}
+
+/** The legal name leads and the brand name sits below it (OWNER, 6 October 2026). A brand that is the only name
+ * (or equal to the legal name) is shown once. */
+export function issuerNames(issuer: Party): { primary: string; secondary: string | null } {
+  const legal = field(issuer, "legal_name");
+  const brand = field(issuer, "brand_name");
+  const primary = legal ?? brand ?? "Hikarich";
+  return { primary, secondary: brand && brand !== primary ? brand : null };
+}
+
+/** Which arrangement a document uses: an explicit one (draft preview, the editor), else the one frozen into the
+ * issued invoice, else the standard. An invoice issued before layouts existed keeps the standard look. */
+export function documentLayout(
+  doc: InvoiceDocument,
+  explicit?: InvoiceLayout | null,
+): InvoiceLayout {
+  if (explicit) return parseInvoiceLayout(explicit);
+  const frozen = (doc.issuer as Record<string, unknown> | null | undefined)?.layout;
+  return parseInvoiceLayout(frozen ?? null);
 }
 
 export function InvoiceDocumentView({
   doc,
   logo,
+  layout,
+  wrapBlock,
   receiptHref,
 }: {
   doc: InvoiceDocument;
   /** The company logo, when one is set (`entity_profiles.logo_data_url`). */
   logo?: string | null;
+  /** An explicit arrangement (a draft shows the current one, the settings editor its work in progress). */
+  layout?: InvoiceLayout | null;
+  /** The settings editor wraps every block to make it draggable; the document itself never uses this. */
+  wrapBlock?: (setting: InvoiceBlockSetting, node: ReactNode) => ReactNode;
   /** Builds the link of a payment receipt from its number (customer page only). */
   receiptHref?: (receiptNumber: string) => string;
 }) {
   const { issuer, customer, payment_instructions: instructions } = doc;
+  const arrangement = documentLayout(doc, layout);
   const status = invoiceDocumentStatus(doc);
   const showDiscount = doc.lines.some((line) => line.discount_type !== "none");
   const showTax = !Decimal.parse(doc.tax_total).isZero();
   const showRefund = !Decimal.parse(doc.refunded).isZero();
-  const brand = field(issuer, "brand_name") ?? field(issuer, "legal_name") ?? "Hikarich";
-  const legal = field(issuer, "legal_name");
+  const names = issuerNames(issuer);
   // Only an https address becomes a link (the database refuses anything else; checked again here).
   const rawUrl = field(instructions, "payment_url");
   const paymentUrl = rawUrl?.startsWith("https://") ? rawUrl : null;
 
-  return (
-    <article
-      className="doc"
-      aria-label={`Invoice ${doc.invoice_number ?? ""}`}
-      data-watermark={doc.status === "void" ? "void" : undefined}
-    >
-      <header className="doc-head">
-        <div className="doc-issuer">
-          <DocumentLogo logo={logo} />
-          <h1 className="doc-brand">{brand}</h1>
-          {legal && legal !== brand ? <p>{legal}</p> : null}
-          {addressLines(issuer).map((line) => (
+  const content: Record<InvoiceBlockId, ReactNode> = {
+    logo: logo ? <DocumentLogo logo={logo} size={arrangement.logo_size} /> : null,
+    issuer: (
+      <div className="doc-issuer">
+        <h1 className="doc-brand">{names.primary}</h1>
+        {names.secondary ? <p>{names.secondary}</p> : null}
+        {addressLines(issuer).map((line) => (
+          <p key={line}>{line}</p>
+        ))}
+        {[field(issuer, "contact_email"), field(issuer, "contact_phone")]
+          .filter(Boolean)
+          .map((line) => (
             <p key={line}>{line}</p>
           ))}
-          {[field(issuer, "contact_email"), field(issuer, "contact_phone")]
-            .filter(Boolean)
-            .map((line) => (
-              <p key={line}>{line}</p>
-            ))}
-        </div>
-        <div className="doc-title">
-          <p className="doc-kind">INVOICE</p>
-          <p className="doc-number">{doc.invoice_number ?? "—"}</p>
-          <span className={`doc-status doc-status-${status.tone}`}>{status.text}</span>
-        </div>
-      </header>
-
-      <section className="doc-meta">
-        <div>
-          <h2>Ditagihkan kepada</h2>
-          <p>
-            <strong>{field(customer, "display_name")}</strong>
-          </p>
-          {field(customer, "legal_name") &&
-          field(customer, "legal_name") !== field(customer, "display_name") ? (
-            <p>{field(customer, "legal_name")}</p>
-          ) : null}
-          {addressLines(customer).map((line) => (
-            <p key={line}>{line}</p>
-          ))}
-        </div>
-        <dl>
-          <dt>Tanggal invoice</dt>
-          <dd>{formatDocumentDate(doc.issue_date)}</dd>
-          <dt>Jatuh tempo</dt>
-          <dd>{formatDocumentDate(doc.due_date)}</dd>
-          <dt>Mata uang</dt>
-          <dd>{doc.currency}</dd>
-        </dl>
-      </section>
-
+      </div>
+    ),
+    title: (
+      <div className="doc-title-block">
+        <p className="doc-kind">INVOICE</p>
+        <p className="doc-number">{doc.invoice_number ?? "—"}</p>
+        <span className={`doc-status doc-status-${status.tone}`}>{status.text}</span>
+      </div>
+    ),
+    customer: (
+      <div>
+        <h2>Ditagihkan kepada</h2>
+        <p>
+          <strong>{field(customer, "display_name")}</strong>
+        </p>
+        {field(customer, "legal_name") &&
+        field(customer, "legal_name") !== field(customer, "display_name") ? (
+          <p>{field(customer, "legal_name")}</p>
+        ) : null}
+        {addressLines(customer).map((line) => (
+          <p key={line}>{line}</p>
+        ))}
+      </div>
+    ),
+    dates: (
+      <dl className="doc-dates">
+        <dt>Tanggal invoice</dt>
+        <dd>{formatDocumentDate(doc.issue_date)}</dd>
+        <dt>Jatuh tempo</dt>
+        <dd>{formatDocumentDate(doc.due_date)}</dd>
+        <dt>Mata uang</dt>
+        <dd>{doc.currency}</dd>
+      </dl>
+    ),
+    lines: (
       <table className="doc-lines">
         <thead>
           <tr>
@@ -177,7 +215,8 @@ export function InvoiceDocumentView({
           ))}
         </tbody>
       </table>
-
+    ),
+    totals: (
       <dl className="doc-totals">
         <div>
           <dt>Subtotal</dt>
@@ -218,8 +257,9 @@ export function InvoiceDocumentView({
           </div>
         ) : null}
       </dl>
-
-      {doc.payments.length > 0 ? (
+    ),
+    payments:
+      doc.payments.length > 0 ? (
         <section className="doc-block">
           <h2>Pembayaran diterima</h2>
           <ul>
@@ -238,9 +278,9 @@ export function InvoiceDocumentView({
             ))}
           </ul>
         </section>
-      ) : null}
-
-      {instructions && doc.status === "issued" && doc.settlement_status !== "paid" ? (
+      ) : null,
+    instructions:
+      instructions && doc.status === "issued" && doc.settlement_status !== "paid" ? (
         <section className="doc-block">
           <h2>Cara pembayaran</h2>
           {field(instructions, "institution_name") ? (
@@ -270,20 +310,59 @@ export function InvoiceDocumentView({
           ) : null}
           {doc.payment_note ? <p>{doc.payment_note}</p> : null}
         </section>
-      ) : null}
+      ) : null,
+    notes: doc.notes ? (
+      <section className="doc-block">
+        <h2>Catatan</h2>
+        <p>{doc.notes}</p>
+      </section>
+    ) : null,
+    terms: doc.terms ? (
+      <section className="doc-block">
+        <h2>Syarat &amp; ketentuan</h2>
+        <p>{doc.terms}</p>
+      </section>
+    ) : null,
+  };
 
-      {doc.notes ? (
-        <section className="doc-block">
-          <h2>Catatan</h2>
-          <p>{doc.notes}</p>
-        </section>
-      ) : null}
-      {doc.terms ? (
-        <section className="doc-block">
-          <h2>Syarat &amp; ketentuan</h2>
-          <p>{doc.terms}</p>
-        </section>
-      ) : null}
+  // A block with nothing to show (no logo, no notes, ...) takes no place; the others fill the rows.
+  const rows = layoutRows({
+    ...arrangement,
+    blocks: arrangement.blocks.filter((block) => content[block.key] !== null),
+  });
+
+  return (
+    <article
+      className="doc"
+      aria-label={`Invoice ${doc.invoice_number ?? ""}`}
+      data-watermark={doc.status === "void" ? "void" : undefined}
+    >
+      <div className="doc-rows">
+        {rows.map((row) => (
+          <div
+            key={row.map((block) => block.key).join("+")}
+            className={`doc-row doc-row-${row.length}${
+              row.some((block) => block.key === "title") ? " doc-row-rule" : ""
+            }`}
+          >
+            {row.map((block) => {
+              const cell = (
+                <div
+                  className="doc-cell"
+                  data-block={block.key}
+                  data-align={block.align}
+                  data-width={block.width}
+                >
+                  {content[block.key]}
+                </div>
+              );
+              return (
+                <Fragment key={block.key}>{wrapBlock ? wrapBlock(block, cell) : cell}</Fragment>
+              );
+            })}
+          </div>
+        ))}
+      </div>
     </article>
   );
 }

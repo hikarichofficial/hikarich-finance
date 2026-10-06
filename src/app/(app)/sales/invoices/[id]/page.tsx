@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { getInvoiceDocument, getInvoiceOwner } from "@/services/sales/sales";
-import { getEntityLogo } from "@/services/settings/settings";
+import { getEntityLogo, getInvoiceLayout } from "@/services/settings/settings";
 import { getContact } from "@/services/contacts/contacts";
 import { emailDeliveryEnabled } from "@/services/email/resend";
 import { listEmailDeliveries } from "@/services/email/deliveries";
@@ -72,6 +72,7 @@ export default async function InvoiceDetailPage({
         invoiceId={id}
         doc={doc}
         logo={await getEntityLogo(entityId)}
+        layout={doc.status === "draft" ? await getInvoiceLayout(entityId) : null}
         backHref={backHref}
         taxPanel={
           taxPreview ? (

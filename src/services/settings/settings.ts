@@ -1,6 +1,7 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
+import { type InvoiceLayout, parseInvoiceLayout } from "@/domain/sales/invoiceLayout";
 import {
   approvalRuleListSchema,
   createEntityInputSchema,
@@ -238,6 +239,36 @@ export async function getEntityLogo(entityId: string): Promise<string | null> {
   if (error || !data) return null;
   const logo = (data as { logo_data_url: string | null }).logo_data_url;
   return typeof logo === "string" && logo.startsWith("data:image/") ? logo : null;
+}
+
+/** The saved invoice arrangement (decision 310): always a usable layout, the standard one when none is saved. */
+export async function getInvoiceLayout(entityId: string): Promise<InvoiceLayout> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("entity_profiles")
+    .select("invoice_layout")
+    .eq("entity_id", entityId)
+    .maybeSingle();
+  if (error || !data) return parseInvoiceLayout(null);
+  return parseInvoiceLayout((data as { invoice_layout: unknown }).invoice_layout);
+}
+
+/** Saves the invoice arrangement (`null` restores the standard) through `set_invoice_layout`, which checks
+ * `system.entity_config` and a recent step-up, validates the layout and audits that it changed. */
+export async function setInvoiceLayout(
+  entityId: string,
+  layout: InvoiceLayout | null,
+): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("set_invoice_layout", {
+    p_entity: entityId,
+    p_layout: layout,
+  });
+  if (error) {
+    const code = parseAuthzCode(error.message);
+    if (code) throw new AuthzError(code, error.message);
+    throw new Error("Tampilan invoice tidak dapat disimpan.");
+  }
 }
 
 /** Sets or removes (`null`) the company logo through `set_entity_logo`, which checks

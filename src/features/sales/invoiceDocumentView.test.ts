@@ -1,6 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
+import { DEFAULT_INVOICE_LAYOUT, moveBlock } from "@/domain/sales/invoiceLayout";
 import { InvoiceDocumentView } from "./InvoiceDocumentView";
 import type { InvoiceDocument } from "@/schemas/sales";
 
@@ -91,5 +92,64 @@ describe("InvoiceDocumentView (decision 307)", () => {
     const html = render(doc());
     expect(html).toContain('<dl class="doc-totals"><div><dt>Subtotal</dt><dd>');
     expect(html.indexOf("<dt>Subtotal</dt>")).toBeLessThan(html.indexOf("<dt>Total</dt>"));
+  });
+
+  it("shows the legal name first and the brand name below it (OWNER, 6 October 2026)", () => {
+    const html = render(
+      doc({
+        issuer: { legal_name: "PT Hikarich Kitana Digital", brand_name: "Kamar Kajian Market" },
+      }),
+    );
+    expect(html.indexOf("PT Hikarich Kitana Digital")).toBeLessThan(
+      html.indexOf("Kamar Kajian Market"),
+    );
+    expect(html).toMatch(
+      /<h1 class="doc-brand">PT Hikarich Kitana Digital<\/h1><p>Kamar Kajian Market<\/p>/,
+    );
+    // a brand without a legal name still leads
+    expect(render(doc({ issuer: { brand_name: "Merek Saja" } }))).toContain(">Merek Saja</h1>");
+  });
+});
+
+describe("InvoiceDocumentView layout (decision 310)", () => {
+  function order(html: string): string[] {
+    return [...html.matchAll(/data-block="([a-z]+)"/g)].map((match) => match[1]!);
+  }
+
+  it("uses the standard arrangement when nothing is set", () => {
+    const html = render(doc(), LOGO);
+    expect(order(html).slice(0, 4)).toEqual(["logo", "issuer", "title", "customer"]);
+    expect(html).toContain("doc-row-2");
+  });
+
+  it("follows the arrangement frozen into an issued invoice, not the standard", () => {
+    const frozen = moveBlock(DEFAULT_INVOICE_LAYOUT, "title", 0);
+    const html = render(doc({ issuer: { legal_name: "PT A", layout: frozen } as never }), LOGO);
+    expect(order(html)[0]).toBe("title");
+  });
+
+  it("an explicit arrangement (a draft preview) wins over the frozen one", () => {
+    const frozen = moveBlock(DEFAULT_INVOICE_LAYOUT, "title", 0);
+    const explicit = moveBlock(DEFAULT_INVOICE_LAYOUT, "dates", 0);
+    const html = renderToStaticMarkup(
+      createElement(InvoiceDocumentView, {
+        doc: doc({ issuer: { legal_name: "PT A", layout: frozen } as never }),
+        layout: explicit,
+      }),
+    );
+    expect(order(html)[0]).toBe("dates");
+  });
+
+  it("never lets a stored layout hide the amounts, and skips blocks that have nothing to show", () => {
+    const hostile = {
+      v: 1,
+      blocks: DEFAULT_INVOICE_LAYOUT.blocks.map((block) => ({ ...block, show: false })),
+    };
+    const html = render(doc({ issuer: { legal_name: "PT A", layout: hostile } as never }));
+    expect(order(html)).toEqual(
+      expect.arrayContaining(["issuer", "title", "customer", "dates", "lines", "totals"]),
+    );
+    expect(order(html)).not.toContain("notes"); // no notes on this invoice
+    expect(order(html)).not.toContain("logo"); // no logo passed
   });
 });
