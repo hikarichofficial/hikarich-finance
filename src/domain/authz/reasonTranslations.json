@@ -2971,5 +2971,233 @@
   [
     "Output VAT of % is credited to Tax Payables and accrues in the VAT ledger.",
     "PPN keluaran {1} dicatat sebagai Utang Pajak dan tercatat di buku PPN."
-  ]
+  ],
+  [
+    "The Entity's VAT status on % is % (profile effective %).",
+    "Status PPN entitas pada {1} adalah {2} (profil berlaku sejak {3})."
+  ],
+  [
+    "The Entity is not PKP on this date, so no output VAT is collected even where a supply is taxable in nature (Step 05 §11).",
+    "Entitas bukan PKP pada tanggal ini, jadi tidak ada PPN keluaran yang dipungut meskipun penyerahannya pada dasarnya kena pajak (Step 05 §11)."
+  ],
+  [
+    "Standard supplies: DPP = % x %/%; VAT = DPP x %",
+    "Penyerahan standar: DPP = {1} x {2}/{3}; PPN = DPP x {4}"
+  ],
+  [
+    "Standard supplies: DPP = % x %/%; VAT = DPP x % = % (rounded per rule % v%).",
+    "Penyerahan standar: DPP = {1} x {2}/{3}; PPN = DPP x {4} = {5} (dibulatkan menurut aturan {6} v{7})."
+  ],
+  [
+    "Full-DPP supplies: DPP = %; VAT = DPP x %",
+    "Penyerahan dengan DPP penuh: DPP = {1}; PPN = DPP x {2}"
+  ],
+  [
+    "Full-DPP supplies: DPP = %; VAT = DPP x % = % (rounded per rule % v%).",
+    "Penyerahan dengan DPP penuh: DPP = {1}; PPN = DPP x {2} = {3} (dibulatkan menurut aturan {4} v{5})."
+  ],
+  [
+    "% of the invoice is exempt or not a VAT object and creates no output VAT.",
+    "{1} dari invoice dibebaskan atau bukan objek PPN, jadi tidak menimbulkan PPN keluaran."
+  ],
+  [
+    "The Entity is not PKP on this date, so input VAT cannot be credited; the whole amount is part of the cost.",
+    "Entitas bukan PKP pada tanggal ini, jadi PPN masukan tidak bisa dikreditkan; seluruh jumlahnya menjadi bagian dari biaya."
+  ],
+  [
+    "The vendor charged % VAT on a base of %; the standard formula of rule % v% would give % (for information only: the charged amount is the fact).",
+    "Vendor menagih PPN {1} atas dasar {2}; rumus standar aturan {3} v{4} akan menghasilkan {5} (hanya sebagai informasi: jumlah yang ditagih adalah faktanya)."
+  ],
+  [
+    "% is creditable: the Entity is PKP, a tax-invoice reference is recorded and no restriction is asserted.",
+    "{1} dapat dikreditkan: entitas berstatus PKP, referensi faktur pajak tercatat, dan tidak ada pembatasan yang dinyatakan."
+  ],
+  [
+    "% is not creditable and is added to the cost of the purchase.",
+    "{1} tidak dapat dikreditkan dan ditambahkan ke biaya pembelian."
+  ],
+  ["Creditable input VAT", "PPN masukan yang dapat dikreditkan"],
+  ["Not creditable (part of the cost)", "Tidak dapat dikreditkan (bagian dari biaya)"],
+  [
+    "Withholding role of the Entity on %: withholding agent (profile effective %).",
+    "Peran entitas sebagai pemotong pada {1}: pemotong pajak (profil berlaku sejak {2})."
+  ],
+  [
+    "Withholding role of the Entity on %: not a withholding agent (profile effective %).",
+    "Peran entitas sebagai pemotong pada {1}: bukan pemotong pajak (profil berlaku sejak {2})."
+  ],
+  [
+    "Withholding role of the Entity on %: not recorded (profile effective %).",
+    "Peran entitas sebagai pemotong pada {1}: belum dicatat (profil berlaku sejak {2})."
+  ],
+  [
+    "Payee facts on %: individual, resident, has a tax number, exemption certificate on file.",
+    "Data penerima pada {1}: orang pribadi, residen, punya NPWP, surat keterangan bebas pemotongan ada."
+  ],
+  [
+    "Payee facts on %: individual, resident, has a tax number, exemption certificate none.",
+    "Data penerima pada {1}: orang pribadi, residen, punya NPWP, surat keterangan bebas pemotongan tidak ada."
+  ],
+  [
+    "Payee facts on %: individual, resident, no tax number, exemption certificate on file.",
+    "Data penerima pada {1}: orang pribadi, residen, tidak punya NPWP, surat keterangan bebas pemotongan ada."
+  ],
+  [
+    "Payee facts on %: individual, resident, no tax number, exemption certificate none.",
+    "Data penerima pada {1}: orang pribadi, residen, tidak punya NPWP, surat keterangan bebas pemotongan tidak ada."
+  ],
+  [
+    "Payee facts on %: company, resident, has a tax number, exemption certificate on file.",
+    "Data penerima pada {1}: badan usaha, residen, punya NPWP, surat keterangan bebas pemotongan ada."
+  ],
+  [
+    "Payee facts on %: company, resident, has a tax number, exemption certificate none.",
+    "Data penerima pada {1}: badan usaha, residen, punya NPWP, surat keterangan bebas pemotongan tidak ada."
+  ],
+  [
+    "Payee facts on %: company, resident, no tax number, exemption certificate on file.",
+    "Data penerima pada {1}: badan usaha, residen, tidak punya NPWP, surat keterangan bebas pemotongan ada."
+  ],
+  [
+    "Payee facts on %: company, resident, no tax number, exemption certificate none.",
+    "Data penerima pada {1}: badan usaha, residen, tidak punya NPWP, surat keterangan bebas pemotongan tidak ada."
+  ],
+  [
+    "Payee facts on %: government, resident, has a tax number, exemption certificate on file.",
+    "Data penerima pada {1}: instansi pemerintah, residen, punya NPWP, surat keterangan bebas pemotongan ada."
+  ],
+  [
+    "Payee facts on %: government, resident, has a tax number, exemption certificate none.",
+    "Data penerima pada {1}: instansi pemerintah, residen, punya NPWP, surat keterangan bebas pemotongan tidak ada."
+  ],
+  [
+    "Payee facts on %: government, resident, no tax number, exemption certificate on file.",
+    "Data penerima pada {1}: instansi pemerintah, residen, tidak punya NPWP, surat keterangan bebas pemotongan ada."
+  ],
+  [
+    "Payee facts on %: government, resident, no tax number, exemption certificate none.",
+    "Data penerima pada {1}: instansi pemerintah, residen, tidak punya NPWP, surat keterangan bebas pemotongan tidak ada."
+  ],
+  [
+    "Payee facts on %: unknown, resident, has a tax number, exemption certificate on file.",
+    "Data penerima pada {1}: belum diketahui, residen, punya NPWP, surat keterangan bebas pemotongan ada."
+  ],
+  [
+    "Payee facts on %: unknown, resident, has a tax number, exemption certificate none.",
+    "Data penerima pada {1}: belum diketahui, residen, punya NPWP, surat keterangan bebas pemotongan tidak ada."
+  ],
+  [
+    "Payee facts on %: unknown, resident, no tax number, exemption certificate on file.",
+    "Data penerima pada {1}: belum diketahui, residen, tidak punya NPWP, surat keterangan bebas pemotongan ada."
+  ],
+  [
+    "Payee facts on %: unknown, resident, no tax number, exemption certificate none.",
+    "Data penerima pada {1}: belum diketahui, residen, tidak punya NPWP, surat keterangan bebas pemotongan tidak ada."
+  ],
+  [
+    "Payee facts on %: non-resident taxpayer, so income-tax article 26 applies to every withholding object.",
+    "Data penerima pada {1}: wajib pajak bukan residen, jadi PPh Pasal 26 berlaku untuk setiap objek pemotongan."
+  ],
+  [
+    "The payee holds a withholding exemption certificate, so nothing is withheld on % (the certificate is evidence to keep).",
+    "Penerima memegang surat keterangan bebas pemotongan, jadi tidak ada yang dipotong atas {1} (surat keterangan itu adalah bukti yang harus disimpan)."
+  ],
+  [
+    "Withholding on % at % = % (rule % v%, rounded).",
+    "Pemotongan atas {1} dengan tarif {2} = {3} (aturan {4} v{5}, dibulatkan)."
+  ],
+  [
+    "No line is a withholding object (the Entity is not a withholding agent); nothing is withheld.",
+    "Tidak ada baris yang menjadi objek pemotongan (entitas bukan pemotong pajak); tidak ada yang dipotong."
+  ],
+  [
+    "No line is a withholding object (every line is classified as not a withholding object); nothing is withheld.",
+    "Tidak ada baris yang menjadi objek pemotongan (setiap baris diklasifikasikan bukan objek pemotongan); tidak ada yang dipotong."
+  ],
+  ["% v%: % of the gross amount", "{1} v{2}: {3} dari jumlah bruto"],
+  [
+    "% v%: % of the gross amount (payee has no tax number: rate x %)",
+    "{1} v{2}: {3} dari jumlah bruto (penerima tidak punya NPWP: tarif x {4})"
+  ],
+  [
+    "The payee's exemption certificate concerns income-tax article 23; it does not cover the final tax on rent of land or buildings, which is still withheld (a separate exemption letter is entered as an override with its evidence).",
+    "Surat keterangan bebas penerima menyangkut PPh Pasal 23; surat itu tidak mencakup pajak final atas sewa tanah atau bangunan, yang tetap dipotong (surat bebas yang terpisah dimasukkan sebagai koreksi manual beserta buktinya)."
+  ],
+  [
+    "This is the statutory rate. A lower tax-treaty rate applies only with the payee's certificate of domicile (DGT form): enter it as an override with that evidence.",
+    "Ini adalah tarif menurut undang-undang. Tarif yang lebih rendah menurut perjanjian penghindaran pajak berganda hanya berlaku dengan surat keterangan domisili penerima (formulir DGT): masukkan sebagai koreksi manual beserta buktinya."
+  ],
+  [
+    "Overridden by an authorised user to % (the engine had asked for review). Reason: %",
+    "Dikoreksi manual oleh pengguna yang berwenang menjadi {1} (mesin pajak tadinya meminta ditinjau). Alasan: {2}"
+  ],
+  [
+    "Overridden by an authorised user to % (the engine computed %). Reason: %",
+    "Dikoreksi manual oleh pengguna yang berwenang menjadi {1} (hitungan mesin pajak {2}). Alasan: {3}"
+  ],
+  [
+    "Taxpayer profile in force on %: kind %, income-tax regime %",
+    "Profil wajib pajak yang berlaku pada {1}: jenis {2}, rezim pajak penghasilan {3}"
+  ],
+  [
+    "Gross turnover of %: %; earlier this year: %; turnover outside this system counted toward the ceiling: %",
+    "Omzet bruto {1}: {2}; sebelumnya tahun ini: {3}; omzet di luar sistem ini yang dihitung terhadap batas: {4}"
+  ],
+  [
+    "The first % of the year's turnover is not taxed for an individual; taxable turnover of the month: %",
+    "{1} pertama dari omzet setahun tidak dikenai pajak bagi orang pribadi; omzet kena pajak bulan ini: {2}"
+  ],
+  [
+    "No exempt band applies to a taxpayer of kind \"%\"; taxable turnover of the month: %",
+    "Tidak ada bagian omzet yang dibebaskan untuk wajib pajak berjenis \"{1}\"; omzet kena pajak bulan ini: {2}"
+  ],
+  [
+    "PPh Final = % x % = % (rounded % to % decimals)",
+    "PPh Final = {1} x {2} = {3} (dibulatkan {4} ke {5} desimal)"
+  ],
+  [
+    "Marketplace settlements of the month: turnover % (included above); PPh 22 already collected by the marketplaces % is part of the settlement of the final tax, so % remains to pay",
+    "Penyelesaian marketplace bulan ini: omzet {1} (sudah termasuk di atas); PPh 22 yang sudah dipungut marketplace sebesar {2} menjadi bagian dari penyelesaian pajak final, jadi tersisa {3} untuk dibayar"
+  ],
+  [
+    "Marketplace settlements of the month: turnover % (included above); PPh 22 already collected by the marketplaces % is part of the settlement of the final tax, so % remains to pay (% more was collected than the final tax of the month; the excess is not carried automatically)",
+    "Penyelesaian marketplace bulan ini: omzet {1} (sudah termasuk di atas); PPh 22 yang sudah dipungut marketplace sebesar {2} menjadi bagian dari penyelesaian pajak final, jadi tersisa {3} untuk dibayar ({4} lebih banyak dipungut daripada pajak final bulan ini; kelebihan itu tidak dibawa otomatis)"
+  ],
+  [
+    "No marketplace collection rule is in force on %: nothing is computed.",
+    "Tidak ada aturan pemungutan marketplace yang berlaku pada {1}: tidak ada yang dihitung."
+  ],
+  [
+    "% is not a designated collector under rule % v%: nothing is computed.",
+    "{1} bukan pemungut yang ditunjuk menurut aturan {2} v{3}: tidak ada yang dihitung."
+  ],
+  [
+    "The store is recorded as exempt (statement letter given to the marketplace): nothing is computed.",
+    "Toko dicatat sebagai dibebaskan (surat pernyataan sudah diberikan ke marketplace): tidak ada yang dihitung."
+  ],
+  [
+    "PPh 22 collected by the marketplace = % x % = % (rule % v%).",
+    "PPh 22 yang dipungut marketplace = {1} x {2} = {3} (aturan {4} v{5})."
+  ],
+  [
+    "The Entity is PKP on %: output VAT = % x %/% x % = % (rule % v%).",
+    "Entitas berstatus PKP pada {1}: PPN keluaran = {2} x {3}/{4} x {5} = {6} (aturan {7} v{8})."
+  ],
+  [
+    "No output VAT: the Entity is not PKP on this date (or the tax engine is not active yet).",
+    "Tidak ada PPN keluaran: entitas bukan PKP pada tanggal ini (atau mesin pajak belum aktif)."
+  ],
+  [
+    "The payout report states % collected; the rule would give %. The stated amount is the fact that is booked.",
+    "Laporan pencairan menyatakan {1} dipungut; aturan akan menghasilkan {2}. Jumlah yang tertulis adalah fakta yang dibukukan."
+  ],
+  [
+    "PPh 21 of payroll % for % was computed per employee from the rule versions listed",
+    "PPh 21 payroll {1} untuk {2} dihitung per karyawan dari versi aturan yang tercantum"
+  ],
+  [
+    "Per-employee amounts stay in the payroll module; the tax ledger holds the total",
+    "Jumlah per karyawan tetap ada di modul payroll; buku pajak menyimpan totalnya"
+  ],
+  ["Recomputed with the current turnover", "Dihitung ulang dengan omzet terkini"]
 ]

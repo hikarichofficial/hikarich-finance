@@ -106,4 +106,36 @@ describe("tax determination sentences", () => {
       ),
     ).toContain("buku PPh 23 untuk masa 2026-10");
   });
+  it("translates the engine's step-by-step explanation", () => {
+    expect(
+      translateReason(
+        "Standard supplies: DPP = 100000 x 11/12; VAT = DPP x 0.12 = 11000 (rounded per rule PPN_STANDARD v1).",
+      ),
+    ).toBe(
+      "Penyerahan standar: DPP = 100000 x 11/12; PPN = DPP x 0.12 = 11000 (dibulatkan menurut aturan PPN_STANDARD v1).",
+    );
+    expect(translateReason("Standard supplies: DPP = 100000 x 11/12; VAT = DPP x 0.12")).toBe(
+      "Penyerahan standar: DPP = 100000 x 11/12; PPN = DPP x 0.12.",
+    );
+    expect(
+      translateReason(
+        "Payee facts on 2026-10-01: company, resident, has a tax number, exemption certificate none.",
+      ),
+    ).toBe(
+      "Data penerima pada 2026-10-01: badan usaha, residen, punya NPWP, surat keterangan bebas pemotongan tidak ada.",
+    );
+    expect(
+      translateReason("Withholding on 1000000 at 0.02 = 20000 (rule PPH23_JASA v1, rounded)."),
+    ).toContain("tarif 0.02 = 20000");
+    expect(
+      translateReason("PPH23_JASA v1: 2% of the gross amount (payee has no tax number: rate x 2)"),
+    ).toContain("penerima tidak punya NPWP");
+    expect(
+      translateReason(
+        "Overridden by an authorised user to 5000 (the engine computed 4000). Reason: salah hitung",
+      ),
+    ).toBe(
+      "Dikoreksi manual oleh pengguna yang berwenang menjadi 5000 (hitungan mesin pajak 4000). Alasan: salah hitung.",
+    );
+  });
 });

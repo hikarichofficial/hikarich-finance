@@ -2326,3 +2326,10 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   "Perlu ditinjau" and cannot be approved.
   A second sample invoice was saved as a DRAFT (not issued, "CONTOH PANDUAN - Jasa konsultasi", Rp 500.000, Penjualan
   Umum) to take the draft-detail screenshot with the Indonesian tax text; it is removed with the other test data (#77).
+
+- Decision 306 (6 October 2026): the step-by-step explanation ("Penjelasan Mesin Pajak"), the amount-breakdown labels
+  ("Rincian Perhitungan") and the "Alasan Digantikan" on the tax determination detail page are now shown in
+  Indonesian through the same display-only templates (`reasonTranslations.json`, +60 templates: VAT, input VAT,
+  withholding PPh 23 / 4(2) / 26, final tax, marketplace PPh 22 and VAT, override and payroll sentences). The
+  stored text is unchanged; a sentence without a template still shows as written. No database change. (Closes the
+  follow-up of decision 305, TASK #107.)
