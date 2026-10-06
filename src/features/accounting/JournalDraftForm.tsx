@@ -7,6 +7,8 @@ import { Decimal, sumDecimals } from "@/domain/money/decimal";
 import { createJournalDraftAction, type JournalDraftState } from "./journalDraftActions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
 import { SuggestTextInput } from "@/features/shared/SuggestTextInput";
+import { LineDescriptionInput } from "@/features/planning/LineDescriptionInput";
+import type { LineSuggestion } from "@/domain/sales/lineSuggestions";
 
 const IDLE: JournalDraftState = { status: "idle" };
 
@@ -63,6 +65,7 @@ export function JournalDraftForm({
   today,
   canOverride,
   descriptionSuggestions = [],
+  lineDescriptionSuggestions = [],
 }: {
   accounts: readonly JournalAccountOption[];
   entity: string | undefined;
@@ -70,7 +73,14 @@ export function JournalDraftForm({
   canOverride: boolean;
   /** Explanations used on earlier manual journals, newest first, offered while typing. */
   descriptionSuggestions?: readonly string[];
+  /** Line descriptions used on earlier manual journals, newest first, offered while typing a line. */
+  lineDescriptionSuggestions?: readonly string[];
 }) {
+  const lineSuggestions: LineSuggestion[] = lineDescriptionSuggestions.map((description) => ({
+    description,
+    unit_price: "",
+    category_id: null,
+  }));
   const [state, action, pending] = useActionState(createJournalDraftAction, IDLE);
   const actionForm = usePreservingForm(action, state);
   const [rows, setRows] = useState<JournalLineRowState[]>([newRow(1), newRow(2)]);
@@ -171,12 +181,11 @@ export function JournalDraftForm({
                     />
                   </td>
                   <td data-label="Keterangan Baris">
-                    <input
-                      type="text"
-                      maxLength={500}
+                    <LineDescriptionInput
                       value={row.description}
-                      onChange={(event) => updateRow(row.key, { description: event.target.value })}
-                      placeholder="Opsional"
+                      suggestions={lineSuggestions}
+                      onChange={(description) => updateRow(row.key, { description })}
+                      onPick={(picked) => updateRow(row.key, { description: picked.description })}
                     />
                   </td>
                   <td>

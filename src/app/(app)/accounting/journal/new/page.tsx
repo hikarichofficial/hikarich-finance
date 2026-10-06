@@ -3,6 +3,7 @@ import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import {
   listJournalDescriptionSuggestions,
+  listJournalLineDescriptionSuggestions,
   listLedgerAccounts,
 } from "@/services/accounting/ledger";
 import { accountClassLabel } from "@/domain/accounting/coaList";
@@ -27,9 +28,10 @@ export default async function NewJournalPage({
     entityCode: entity,
   });
   const canOverride = can(access, membership.entity_id, "accounting.protected_manage");
-  const [accounts, descriptionSuggestions] = await Promise.all([
+  const [accounts, descriptionSuggestions, lineDescriptionSuggestions] = await Promise.all([
     listLedgerAccounts(membership.entity_id),
     listJournalDescriptionSuggestions(membership.entity_id),
+    listJournalLineDescriptionSuggestions(membership.entity_id),
   ]);
   const groupOf = (a: (typeof accounts)[number]): string => {
     if (!a.allows_manual_posting) return PROTECTED_GROUP;
@@ -72,6 +74,7 @@ export default async function NewJournalPage({
           today={todayInBusinessZone()}
           canOverride={canOverride}
           descriptionSuggestions={descriptionSuggestions}
+          lineDescriptionSuggestions={lineDescriptionSuggestions}
         />
       </section>
     </div>

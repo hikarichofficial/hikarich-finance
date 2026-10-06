@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { listContacts } from "@/services/contacts/contacts";
+import { listPurposeSuggestions } from "@/services/financing/purposeSuggestions";
 import { EQUITY_KIND_LABELS } from "@/domain/financing/financing";
 import { EquityCreateForm } from "@/features/financing/FinancingForms";
 import { todayInBusinessZone } from "@/lib/time";
@@ -29,6 +30,7 @@ export default async function NewEquityEventPage({
     membership.entity_type === "company" ? COMPANY_KINDS : PERSONAL_KINDS;
   const kinds = kindIds.map((kind) => ({ id: kind, label: EQUITY_KIND_LABELS[kind] }));
   const knownParties = (await listContacts(membership.entity_id)).map((c) => c.display_name);
+  const knownPurposes = await listPurposeSuggestions(membership.entity_id);
 
   return (
     <div className="record-detail">
@@ -48,6 +50,7 @@ export default async function NewEquityEventPage({
           kinds={kinds}
           today={todayInBusinessZone()}
           knownParties={knownParties}
+          knownPurposes={knownPurposes}
         />
       </section>
     </div>
