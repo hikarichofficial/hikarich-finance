@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { setContactStatusAction } from "./contactActions";
 import { idleContactActionState } from "./contactActionsState";
 

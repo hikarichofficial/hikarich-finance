@@ -2,6 +2,7 @@
 
 import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { revalidatePath } from "next/cache";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import {
@@ -69,6 +70,7 @@ export async function createTransferAction(
     return errorState(error, "Transfer tidak dapat dibuat.");
   }
   revalidatePath("/money/transfers");
+  await setFlash("Transfer tersimpan.");
   redirect(
     entity
       ? `/money/transfers/${transferId}?entity=${encodeURIComponent(entity)}`

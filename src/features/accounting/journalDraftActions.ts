@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import { createJournalDraft } from "@/services/accounting/ledger";
@@ -65,6 +66,7 @@ export async function createJournalDraftAction(
     };
   }
   revalidatePath("/accounting/journal");
+  await setFlash("Draf jurnal tersimpan.");
   redirect(
     entity
       ? `/accounting/journal/${journalId}?entity=${encodeURIComponent(entity)}`

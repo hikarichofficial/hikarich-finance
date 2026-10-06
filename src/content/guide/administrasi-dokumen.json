@@ -30,7 +30,7 @@
         },
         {
           "title": "Lakukan verifikasi ulang bila diminta",
-          "text": "Bila tertulis “Perubahan akses memerlukan verifikasi ulang.”, tekan **Verifikasi sekarang**, isi kode 6 digit dari aplikasi autentikator, lalu Anda kembali ke halaman ini. Verifikasi berlaku 30 menit. Lihat [Cara Memakai Verifikasi Dua Langkah dan Verifikasi Ulang](keamanan-akun)."
+          "text": "Bila tertulis “Perubahan akses memerlukan verifikasi ulang.”, jendela kecil **Verifikasi ulang** terbuka dengan sendirinya. Isi kode 6 digit dari aplikasi autentikator lalu tekan **Verifikasi**. Jendela tertutup, tampil notifikasi “Verifikasi berhasil.”, dan perubahan Anda otomatis disimpan; Anda tidak berpindah halaman. Verifikasi berlaku 30 menit. Lihat [Cara Memakai Verifikasi Dua Langkah dan Verifikasi Ulang](keamanan-akun)."
         },
         {
           "title": "Ubah peran",
@@ -139,7 +139,7 @@
       "slug": "keamanan-akun",
       "title": "Cara Memakai Verifikasi Dua Langkah dan Verifikasi Ulang",
       "summary": "Mengaktifkan autentikator, memahami kapan aplikasi meminta kode lagi (verifikasi ulang), dan memakai halaman Keamanan.",
-      "path": "Halaman Verifikasi dua langkah dan Verifikasi ulang (muncul otomatis); Administrasi > Keamanan",
+      "path": "Halaman Verifikasi dua langkah (saat masuk) dan jendela Verifikasi ulang (muncul otomatis); Administrasi > Keamanan",
       "who": "Verifikasi dua langkah: semua akun OWNER, dan peran lain bila Entity mewajibkan MFA. Verifikasi ulang: siapa pun yang melakukan tindakan sensitif. Melihat halaman Keamanan: security.view (pada bawaan hanya OWNER). Mencabut perangkat milik orang lain: security.manage dan verifikasi ulang; perangkat milik sendiri boleh dicabut sendiri.",
       "quick": "Kode 6 digit dari aplikasi autentikator dipakai dua kali: saat masuk, dan saat tindakan sensitif meminta **verifikasi ulang** (berlaku 30 menit).",
       "steps": [
@@ -158,7 +158,7 @@
         },
         {
           "title": "Lakukan verifikasi ulang saat diminta",
-          "text": "Tindakan sensitif meminta kode terbaru walau Anda sudah masuk. Aplikasi menampilkan tautan **Verifikasi sekarang** atau halaman **Verifikasi ulang** dengan teks “Tindakan sensitif memerlukan kode autentikator terbaru (berlaku 30 menit).” Isi kode lalu tekan **Lanjutkan**. Anda kembali ke halaman semula; ulangi tindakannya.",
+          "text": "Tindakan sensitif meminta kode terbaru walau Anda sudah masuk. Setelah Anda menekan tombol simpan, jendela kecil **Verifikasi ulang** terbuka di halaman yang sama dengan teks “Tindakan ini memerlukan kode terbaru dari aplikasi autentikator Anda (berlaku 30 menit).” Isi kode 6 digit lalu tekan **Verifikasi**. Bila benar, jendela tertutup, tampil notifikasi “Verifikasi berhasil.”, dan tindakan tadi dijalankan ulang otomatis sehingga hasilnya langsung tampil. Bila kode salah, pesan kesalahan tampil di jendela dan Anda bisa mencoba lagi; tombol **Batal** menutup jendela tanpa menjalankan apa pun.",
           "tip": "Contoh tindakan yang meminta verifikasi ulang: mengubah akses pengguna, menyimpan Pengaturan, Tambah Entity, mengaktifkan mesin pajak, menerbitkan aturan pajak, Hapus Sisa piutang lain, memulihkan backup, dan mencabut perangkat orang lain. Membuat backup tidak memintanya."
         },
         {
@@ -252,7 +252,7 @@
         {
           "title": "Ubah nama dan profil (OWNER)",
           "text": "Di bagian **Ubah Nama & Profil**, ubah **Nama Resmi**, **Nama Merek (opsional)**, **Alamat (opsional)**, **Kota (opsional)**, **Provinsi (opsional)**, **Kode Pos (opsional)**, **Email (opsional)**, **Telepon (opsional)**, atau **Situs Web (opsional)**, lalu tekan **Simpan Nama & Profil**. Bila berhasil tampil “Nama dan profil disimpan.” Invoice dan kuitansi yang sudah terbit tetap memakai nama lama; dokumen baru memakai nama baru.",
-          "warning": "Bila tertulis perlu verifikasi ulang, tekan Verifikasi sekarang dulu lalu ulangi."
+          "warning": "Bila jendela Verifikasi ulang muncul, isi kode dari aplikasi autentikator; penyimpanan dijalankan ulang otomatis."
         },
         {
           "title": "Pasang logo perusahaan (OWNER)",

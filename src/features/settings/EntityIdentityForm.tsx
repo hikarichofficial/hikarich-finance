@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
-import { useActionState } from "react";
+import { StepUpLink } from "@/features/feedback/StepUp";
+import { useActionState } from "@/features/feedback/useActionState";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import type { EntityProfileRow } from "@/schemas/settings";
 import { updateEntityIdentityAction } from "./actions";
@@ -36,7 +36,7 @@ export function EntityIdentityForm({
       <p className="hint">
         Nama dan merek bisa diganti kapan saja. Invoice dan kuitansi yang sudah terbit tetap memakai
         nama lama; dokumen baru memakai nama di sini. Perubahan memerlukan verifikasi ulang.{" "}
-        <Link href={stepUpHref}>Verifikasi sekarang</Link>.
+        <StepUpLink href={stepUpHref}>Verifikasi sekarang</StepUpLink>.
       </p>
       <label>
         Nama Resmi
@@ -93,7 +93,7 @@ export function EntityIdentityForm({
           {state.stepUp ? (
             <>
               {" "}
-              <Link href={stepUpHref}>Verifikasi sekarang</Link>.
+              <StepUpLink href={stepUpHref}>Verifikasi sekarang</StepUpLink>.
             </>
           ) : null}
         </p>

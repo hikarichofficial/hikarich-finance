@@ -1,3 +1,4 @@
+import { StepUpLink } from "@/features/feedback/StepUp";
 import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { getEntitySettingsOverview } from "@/services/settings/settings";
@@ -134,7 +135,9 @@ export default async function SecurityPage({
         {canManage ? (
           <p className="hint">
             Mencabut perangkat pengguna lain memerlukan verifikasi ulang dalam 30 menit terakhir.{" "}
-            <Link href={`/auth/step-up?next=${encodeURIComponent(here)}`}>Verifikasi sekarang</Link>
+            <StepUpLink href={`/auth/step-up?next=${encodeURIComponent(here)}`}>
+              Verifikasi sekarang
+            </StepUpLink>
             .
           </p>
         ) : null}

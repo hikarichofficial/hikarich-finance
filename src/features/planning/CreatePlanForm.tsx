@@ -1,7 +1,7 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { PLAN_PERIOD_TYPE_LABELS, type PlanPeriodType } from "@/domain/planning/planning";
 import { createBudgetAction, createRevenueTargetAction } from "./actions";
 import { idlePlanningActionState } from "./actionsState";

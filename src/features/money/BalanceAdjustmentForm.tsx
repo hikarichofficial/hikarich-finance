@@ -1,7 +1,7 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import type { LedgerAccountRow } from "@/schemas/accounting";
 import type { MoneyControlRow } from "@/schemas/money";
 import { eligibleCounterAccounts } from "@/domain/money/balanceAdjustment";

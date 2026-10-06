@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
@@ -72,6 +73,7 @@ export async function registerPendingAssetAction(
   }
   revalidatePath("/assets");
   revalidatePath("/assets/new");
+  await setFlash("Aset tersimpan.");
   redirect(
     entity ? `/assets/${assetId}?entity=${encodeURIComponent(entity)}` : `/assets/${assetId}`,
   );
@@ -423,6 +425,7 @@ export async function loadOpeningAssetAction(
   revalidatePath("/assets");
   revalidatePath("/assets/depreciation");
   if (!assetId) return { status: "ok", message: "Aset tersimpan." };
+  await setFlash("Aset saldo awal tersimpan.");
   redirect(
     entity ? `/assets/${assetId}?entity=${encodeURIComponent(entity)}` : `/assets/${assetId}`,
   );

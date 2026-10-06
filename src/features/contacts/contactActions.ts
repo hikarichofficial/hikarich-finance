@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import { getContact, setContactStatus, updateContact } from "@/services/contacts/contacts";
@@ -65,6 +66,7 @@ export async function createContactAction(
     );
   }
   revalidatePath(basePath);
+  await setFlash("Kontak tersimpan.");
   redirect(
     entity
       ? `${basePath}/${contactId}?entity=${encodeURIComponent(entity)}`
@@ -200,6 +202,7 @@ export async function updateContactAction(
     return errorState(error, "Perubahan tidak dapat disimpan. Periksa isian.");
   }
   revalidatePath(basePath);
+  await setFlash("Perubahan kontak tersimpan.");
   redirect(
     entity
       ? `${basePath}/${contactId}?entity=${encodeURIComponent(entity)}`

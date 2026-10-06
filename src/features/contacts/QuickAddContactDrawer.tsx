@@ -1,6 +1,7 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { Drawer } from "@/features/shell/Drawer";
 import { quickCreateCustomerAction, quickCreateVendorAction } from "./contactActions";
 import { idleQuickCreateContactState } from "./contactActionsState";

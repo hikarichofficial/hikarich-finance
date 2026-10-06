@@ -1,8 +1,8 @@
 "use client";
 
+import { StepUpLink } from "@/features/feedback/StepUp";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { monthName, timezoneOptions } from "@/domain/settings/settings";
 import { updateTimeSettingsAction } from "./actions";
 import { idleTimeSettingsState } from "./actionsState";
@@ -35,7 +35,7 @@ export function TimeSettingsForm({
       <p className="hint">
         Masa dan tahun pajak dihitung dengan zona waktu dan tahun buku Entity ini (bawaan: WIB,
         Januari–Desember, sesuai tahun takwim). Perubahan memerlukan verifikasi ulang dalam 30 menit
-        terakhir. <Link href={stepUpHref}>Verifikasi sekarang</Link>.
+        terakhir. <StepUpLink href={stepUpHref}>Verifikasi sekarang</StepUpLink>.
       </p>
       <label>
         Zona waktu
@@ -85,7 +85,7 @@ export function TimeSettingsForm({
           {state.stepUp ? (
             <>
               {" "}
-              <Link href={stepUpHref}>Verifikasi sekarang</Link>.
+              <StepUpLink href={stepUpHref}>Verifikasi sekarang</StepUpLink>.
             </>
           ) : null}
         </p>

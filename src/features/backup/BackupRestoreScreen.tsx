@@ -1,7 +1,8 @@
 "use client";
 
+import { StepUpLink } from "@/features/feedback/StepUp";
+import { useToast } from "@/features/feedback/Toast";
 import { useRef, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
   BACKUP_KIND_DESCRIPTIONS,
@@ -43,6 +44,7 @@ function triggerFileDownload(file: string, kind: BackupKind): void {
 
 function ExportButtons({ entityId }: { entityId: string }) {
   const router = useRouter();
+  const { show } = useToast();
   const [pendingKind, setPendingKind] = useState<BackupKind | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -53,9 +55,11 @@ function ExportButtons({ entityId }: { entityId: string }) {
     setPendingKind(null);
     if (result.status === "error") {
       setError(result.message);
+      show(result.message, "error");
       return;
     }
     triggerFileDownload(result.file, result.kind);
+    show("Backup dibuat dan diunduh.", "success");
     router.refresh();
   }
 
@@ -178,6 +182,7 @@ function RestoreFromFile({
   stepUpHref: string;
 }) {
   const router = useRouter();
+  const { show } = useToast();
   const inputRef = useRef<HTMLInputElement>(null);
   const [fileText, setFileText] = useState<string | null>(null);
   const [fileName, setFileName] = useState<string | null>(null);
@@ -245,8 +250,10 @@ function RestoreFromFile({
     if (outcome.status === "error") {
       setError(outcome.message);
       setNeedsStepUp(outcome.code === "STEP_UP_REQUIRED");
+      if (outcome.code !== "STEP_UP_REQUIRED") show(outcome.message, "error");
       return;
     }
+    show("Pemulihan selesai.", "success");
     setResult(outcome.result);
     reset();
     router.refresh();
@@ -280,7 +287,10 @@ function RestoreFromFile({
           {needsStepUp ? (
             <>
               {" "}
-              <Link href={stepUpHref}>Verifikasi sekarang</Link>.
+              <StepUpLink href={stepUpHref} retry={false} auto>
+                Verifikasi sekarang
+              </StepUpLink>
+              .
             </>
           ) : null}
         </p>
@@ -320,7 +330,10 @@ function RestoreFromFile({
           {readiness === "step_up" ? (
             <p role="alert" className="error">
               Pemulihan memerlukan verifikasi ulang (30 menit terakhir).{" "}
-              <Link href={stepUpHref}>Verifikasi sekarang</Link>, lalu pilih berkas lagi.
+              <StepUpLink href={stepUpHref} retry={false}>
+                Verifikasi sekarang
+              </StepUpLink>
+              , lalu pilih berkas lagi.
             </p>
           ) : null}
           {readiness === "ready" ? (

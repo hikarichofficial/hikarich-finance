@@ -1,7 +1,7 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import type { MoneyControlRow } from "@/schemas/money";
 import { createTransferAction } from "./transferActions";
 import { idleTransferFormState } from "./transferActionsState";

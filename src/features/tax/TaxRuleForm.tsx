@@ -1,8 +1,9 @@
 "use client";
 
+import { StepUpLink } from "@/features/feedback/StepUp";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import Link from "next/link";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { RULE_FAMILY_LABELS } from "@/domain/tax/tax";
 import type { RuleFormDefaults } from "@/domain/tax/ruleAuthoring";
 import { ruleFamilyLabel } from "@/domain/tax/taxRulesList";
@@ -24,7 +25,7 @@ export function RuleActionResult({
         {state.stepUp ? (
           <>
             {" "}
-            <Link href={stepUpHref}>Verifikasi sekarang</Link>.
+            <StepUpLink href={stepUpHref}>Verifikasi sekarang</StepUpLink>.
           </>
         ) : null}
       </p>

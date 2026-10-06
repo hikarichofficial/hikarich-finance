@@ -1,7 +1,8 @@
 "use client";
 
-import Link from "next/link";
-import { useActionState, useState } from "react";
+import { StepUpLink } from "@/features/feedback/StepUp";
+import { useState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { loadOpeningAssetAction, type AssetActionState } from "./assetActions";
 import { DepreciationFields, type AssetAccountOption } from "./AssetForms";
@@ -121,7 +122,9 @@ export function OpeningAssetForm({
         <p role="alert" className="error">
           {state.message}{" "}
           {state.stepUp ? (
-            <Link href={`/auth/step-up?next=${encodeURIComponent(next)}`}>Verifikasi ulang →</Link>
+            <StepUpLink href={`/auth/step-up?next=${encodeURIComponent(next)}`}>
+              Verifikasi ulang →
+            </StepUpLink>
           ) : null}
         </p>
       ) : null}

@@ -1,7 +1,7 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import { submitClaimAction, type ClaimState, type ClaimStatus } from "./publicActions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
 

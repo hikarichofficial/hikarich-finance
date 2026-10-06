@@ -13,7 +13,8 @@
       "steps": [
         {
           "title": "Masuk ke aplikasi dan pilih Entity yang benar",
-          "text": "Buka https://finance.hikarichgroup.com, masuk dengan email dan kata sandi, lalu periksa pemilih Entity di kiri atas. Pastikan tertulis **PT** untuk pembukuan PT Hikarich Kitana Digital, atau **Pribadi** untuk pembukuan pribadi. Data kedua Entity tidak pernah digabung.\n\nPanduan lengkap: [Cara Masuk dan Berpindah Entity](masuk-dan-ganti-entitas)."
+          "text": "Buka https://finance.hikarichgroup.com, masuk dengan email dan kata sandi, lalu periksa pemilih Entity di kiri atas. Pastikan tertulis **PT** untuk pembukuan PT Hikarich Kitana Digital, atau **Pribadi** untuk pembukuan pribadi. Data kedua Entity tidak pernah digabung.\n\nPanduan lengkap: [Cara Masuk dan Berpindah Entity](masuk-dan-ganti-entitas).",
+          "tip": "Setiap kali Anda menyimpan, mengubah, atau menghapus sesuatu, notifikasi muncul di pojok kanan bawah layar: garis hijau berarti berhasil, garis merah berarti gagal (alasannya tertulis). Notifikasi hilang sendiri setelah beberapa detik; tekan X untuk menutupnya lebih cepat."
         },
         {
           "title": "Isi Pengaturan Pajak (sekali per Entity)",

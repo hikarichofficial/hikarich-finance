@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { requirePermission } from "@/services/identity/access";
 import { createProduct, ProductConflictError, updateProduct } from "@/services/products/products";
 import { productInputSchema } from "@/schemas/products";
@@ -70,5 +71,6 @@ export async function saveProductAction(
 
   revalidatePath("/sales/products");
   revalidatePath(`/sales/products/${savedId}`);
+  await setFlash("Produk tersimpan.");
   redirect(detailHref(savedId, entity));
 }

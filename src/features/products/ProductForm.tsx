@@ -1,7 +1,7 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState } from "react";
+import { useActionState } from "@/features/feedback/useActionState";
 import type { CategoryRow } from "@/schemas/categories";
 import type { ProductRow } from "@/schemas/products";
 import { saveProductAction } from "./actions";

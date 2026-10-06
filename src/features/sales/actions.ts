@@ -3,6 +3,7 @@
 import { randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
@@ -137,6 +138,7 @@ export async function createInvoiceAction(
     );
   }
   revalidatePath("/sales/invoices");
+  await setFlash("Invoice tersimpan sebagai draf.");
   redirect(
     entity
       ? `/sales/invoices/${invoiceId}?entity=${encodeURIComponent(entity)}`
