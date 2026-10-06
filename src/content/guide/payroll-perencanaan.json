@@ -124,11 +124,11 @@
         },
         {
           "title": "Buka Payroll > Proses Payroll dan buat proses",
-          "text": "Halaman berjudul **Proses Penggajian** menampilkan kolom Nomor, Periode, Tanggal Bayar, Karyawan, Gaji Bersih, dan Status. Tekan **Buat Proses Payroll**, isi **Bulan Gaji (pilih tanggal mana saja di bulan itu)**, **Tanggal Bayar**, dan **Catatan (opsional)**, lalu tekan **Buat**. Anda dibawa ke halaman proses berstatus Draf.",
+          "text": "Halaman berjudul **Proses Payroll** menampilkan kolom Nomor, Periode, Tanggal Bayar, Karyawan, Gaji Bersih, dan Status. Tekan **Buat Proses Payroll**, isi **Bulan Gaji (pilih tanggal mana saja di bulan itu)**, **Tanggal Bayar**, dan **Catatan (opsional)**, lalu tekan **Buat**. Anda dibawa ke halaman proses berstatus Draf.",
           "tip": "Satu bulan hanya boleh punya satu proses yang aktif. Bila salah, gunakan **Batalkan Proses**, lalu buat ulang.",
           "image": {
             "file": "payroll-daftar.jpg",
-            "caption": "Halaman Proses Penggajian dengan tombol Buat Proses Payroll."
+            "caption": "Halaman Proses Payroll dengan tombol Buat Proses Payroll."
           }
         },
         {
@@ -397,7 +397,7 @@
         },
         {
           "title": "Buka satu slip",
-          "text": "Klik nomor slip. Bagian **Ringkasan** memuat **Proses Penggajian** (nomor proses dan revisinya), **Tanggal Bayar**, **Diterbitkan**, **Gaji Bruto**, **Gaji Bersih**, dan **Gaji Bersih Terbayar**. Pada slip yang dibatalkan tampil juga **Dibatalkan** dan **Alasan Dibatalkan**."
+          "text": "Klik nomor slip. Bagian **Ringkasan** memuat **Proses Payroll** (nomor proses dan revisinya), **Tanggal Bayar**, **Diterbitkan**, **Gaji Bruto**, **Gaji Bersih**, dan **Gaji Bersih Terbayar**. Pada slip yang dibatalkan tampil juga **Dibatalkan** dan **Alasan Dibatalkan**."
         },
         {
           "title": "Baca komponen dan penyesuaian",
@@ -409,7 +409,7 @@
         },
         {
           "title": "Slip yang dibatalkan setelah koreksi",
-          "text": "Saat Payroll dikoreksi, slip lama berstatus **Dibatalkan** dan menyimpan alasannya. Slip revisi baru terbit setelah revisi Payroll itu diposting. Nomor revisi tampil di **Proses Penggajian** pada Ringkasan slip."
+          "text": "Saat Payroll dikoreksi, slip lama berstatus **Dibatalkan** dan menyimpan alasannya. Slip revisi baru terbit setelah revisi Payroll itu diposting. Nomor revisi tampil di **Proses Payroll** pada Ringkasan slip."
         }
       ],
       "result": [
@@ -467,15 +467,15 @@
         },
         {
           "title": "Baca bagian Kewajiban Pembayaran",
-          "text": "Buka Payroll > Pajak & Kewajiban Payroll (judul halaman: **Pajak & Kewajiban Penggajian**). Atur **Per Tanggal** lalu tekan **Terapkan**. Tabel memuat Jenis (Gaji bersih, BPJS, atau PPh 21), Periode, Proses, Terutang, Dibayar, dan Sisa. Ini menunjukkan berapa yang masih harus dibayar perusahaan untuk tiap bulan.",
+          "text": "Buka Payroll > Pajak & Kewajiban Payroll. Atur **Per Tanggal** lalu tekan **Terapkan**. Tabel memuat Jenis (Gaji bersih, BPJS, atau PPh 21), Periode, Proses, Terutang, Dibayar, dan Sisa. Ini menunjukkan berapa yang masih harus dibayar perusahaan untuk tiap bulan.",
           "image": {
             "file": "payroll-pajak.jpg",
-            "caption": "Halaman Pajak & Kewajiban Penggajian."
+            "caption": "Halaman Pajak & Kewajiban Payroll."
           }
         },
         {
           "title": "Baca Rekonsiliasi Tahunan dan Buku Besar Pajak Karyawan",
-          "text": "Isi **Tahun Pajak** lalu **Terapkan**. **Rekonsiliasi Tahunan** memuat Karyawan, Bulan Kerja, Penghasilan Bruto, Pajak Tahunan, Dipotong, Selisih, dan Status: **Sesuai**, **Kurang Potong**, **Lebih Potong**, atau **Data Tidak Lengkap**. **Buku Besar Pajak Karyawan** memuat Karyawan, Periode, Sumber (Proses Penggajian atau Saldo Awal), Proses, Dasar Pajak, PPh 21, Tunjangan, dan Potongan Pensiun. Keduanya hanya muncul bagi yang punya izin lihat pajak."
+          "text": "Isi **Tahun Pajak** lalu **Terapkan**. **Rekonsiliasi Tahunan** memuat Karyawan, Bulan Kerja, Penghasilan Bruto, Pajak Tahunan, Dipotong, Selisih, dan Status: **Sesuai**, **Kurang Potong**, **Lebih Potong**, atau **Data Tidak Lengkap**. **Buku Besar Pajak Karyawan** memuat Karyawan, Periode, Sumber (Proses Payroll atau Saldo Awal), Proses, Dasar Pajak, PPh 21, Tunjangan, dan Potongan Pensiun. Keduanya hanya muncul bagi yang punya izin lihat pajak."
         }
       ],
       "tables": [

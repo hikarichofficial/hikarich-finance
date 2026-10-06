@@ -43,8 +43,11 @@ export function PayrollRunRegisterScreen({
     <div className="list-screen">
       <header className="list-screen-header">
         <div>
-          <h1>Proses Penggajian</h1>
-          <p className="list-screen-summary">{rows.length} proses ditampilkan.</p>
+          <h1>Proses Payroll</h1>
+          <p className="list-screen-summary">
+            {rows.length} proses ditampilkan
+            {rows.length >= 100 ? " (batas 100 data terbaru; persempit dengan saringan)" : ""}.
+          </p>
         </div>
         {actionsPanel}
       </header>
@@ -107,7 +110,7 @@ export function PayrollRunRegisterScreen({
                     <RecordPreviewLink
                       href={href}
                       label={row.run_number}
-                      eyebrow="Proses Penggajian"
+                      eyebrow="Proses Payroll"
                       title={row.run_number}
                       badges={[{ tone: badge.tone, text: badge.text }]}
                       fields={[

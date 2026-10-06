@@ -326,7 +326,7 @@ begin
 
   perform test_helpers.login(v_admin);
   v_count := public.run_due_recurring_occurrences(pt, v_next_bill);
-  perform test_helpers.assert(v_count = 1, 'the one due (bill) rule is processed; the invoice and expense rules stay paused');
+  perform test_helpers.assert(v_count = 0, 'the one due (bill) rule is attempted but failed, so it is not counted as generated (decision 303)');
   perform test_helpers.logout();
 
   select * into o from test_helpers.occ(v_rule_bill, v_next_bill);

@@ -72,7 +72,7 @@ export function PayslipDetailScreen({
         </div>
         <dl className="record-summary-grid">
           <div>
-            <dt>Proses Penggajian</dt>
+            <dt>Proses Payroll</dt>
             <dd>
               {detail.run_number} (revisi {detail.revision})
             </dd>
@@ -194,23 +194,25 @@ export function PayslipDetailScreen({
               </tr>
             </thead>
             <tbody>
-              {Object.keys(BPJS_COMPONENT_LABELS)
+              {/* The payslip snapshot keys the shares by program ("kes", "jht", ...), not by the component code. */}
+              {(Object.keys(BPJS_COMPONENT_LABELS) as BpjsComponent[])
+                .map((component) => ({ component, key: component.replace(/^bpjs_/, "") }))
                 .filter(
-                  (component) =>
-                    detail.bpjs_employee[component] !== undefined ||
-                    detail.bpjs_employer[component] !== undefined,
+                  ({ key }) =>
+                    detail.bpjs_employee[key] !== undefined ||
+                    detail.bpjs_employer[key] !== undefined,
                 )
-                .map((component) => (
+                .map(({ component, key }) => (
                   <tr key={component}>
-                    <td>{BPJS_COMPONENT_LABELS[component as BpjsComponent]}</td>
+                    <td>{BPJS_COMPONENT_LABELS[component]}</td>
                     <td className="num" data-label="Iuran Karyawan">
-                      {detail.bpjs_employee[component]
-                        ? formatMoney(detail.bpjs_employee[component], currency)
+                      {detail.bpjs_employee[key]
+                        ? formatMoney(detail.bpjs_employee[key], currency)
                         : "—"}
                     </td>
                     <td className="num" data-label="Iuran Perusahaan">
-                      {detail.bpjs_employer[component]
-                        ? formatMoney(detail.bpjs_employer[component], currency)
+                      {detail.bpjs_employer[key]
+                        ? formatMoney(detail.bpjs_employer[key], currency)
                         : "—"}
                     </td>
                   </tr>

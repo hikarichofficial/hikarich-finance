@@ -2259,3 +2259,28 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   category of PTKP K/0 and K/2 in the seeded PPh 21 rule, payslip BPJS details empty, payroll role unable to pay,
   English text left on screens, entity time zone still WIB); they are fixed separately, not in this change.
   No change to data, accounting, tax or authorization.
+
+- Fixes for the findings of tasks 99-104 (decision 303, OWNER, 6 October 2026: "kerjakan semuanya dan usahakan di
+  merge sekaligus"). (1) Task 99: PPh 21 TER category. The seeded rule (version 1) put PTKP K/0 and K/2 in the wrong
+  TER category; a published rule is never edited, so a NEW version 2 (effective 2024-01-02) carries the corrected
+  map (A: TK/0, TK/1, K/0; B: TK/2, TK/3, K/1, K/2; C: K/3). Payroll reads the rule by the period end, so every
+  month from January 2024 on uses version 2; already-posted runs keep their snapshot. (2) Task 100: the payslip
+  BPJS table now reads the snapshot keys (`kes`, `jht`, ...); the "joined/left during the month" flags are shown
+  as information (full month pay, no proration yet); the payment kind uses its Indonesian label. The Payroll role
+  still lacks money.view (documented, not changed: authorization). (3) Task 101/104: Indonesian text for 31 more
+  database reasons (FX revaluation, memo rate, entity details, documents); the 31 period-close checks, the Tax
+  Calendar sentences and the account classes (contra_asset ...) are translated on the screen; the Custom Report
+  datasets are renamed by migration (keys and permissions unchanged); the equity statement row "Net result for the
+  period" reads "Laba (Rugi) Periode Berjalan"; a failed recurring occurrence shows its reason in Indonesian;
+  payroll forms offer the "Verifikasi ulang" link when a fresh verification is required; an approval-rule refusal
+  (maker-checker) says that another person must finish the step instead of "no permission"; payroll page titles are
+  "Proses Payroll" and "Pajak & Kewajiban Payroll". (4) Task 102: a monthly recurring rule keeps the day it started
+  on (31 Jan -> 28 Feb -> 31 Mar, not stuck on the 28th); "Generate now" counts only occurrences that were
+  generated; the General Ledger running balance now carries the balance forward from before the start date and
+  the screen shows an "Saldo Awal" row; default report dates (year start, today, month, calendar window) follow
+  the business time zone WITA instead of UTC; the payslip and payroll-run lists say when they hit the 100-row
+  limit. Not changed (needs the OWNER): whether the Custom Reports should leave out void invoices/bills, the
+  scheduler for recurring rules, and a PPh 21 deposit screen. (5) Task 103: the Audit Log shows times in WITA
+  (labelled) instead of UTC; the stored instant is unchanged. The timezone of the two existing Entities is still
+  changed by the OWNER in Administrasi > Pengaturan (decision 248); only new Entities default to WITA.
+  No change to accounting rules, tax law inputs other than the TER correction, or authorization.

@@ -1,4 +1,5 @@
 import { Decimal } from "@/domain/money/decimal";
+import { businessClock } from "@/lib/time";
 
 /**
  * Vocabulary and exact arithmetic that screens use for early feedback on the tax layer (P7). This module holds
@@ -299,9 +300,8 @@ export function resolveTaxPeriod(
       return requested;
     }
   }
-  const previousMonth = new Date(
-    Date.UTC(reference.getUTCFullYear(), reference.getUTCMonth() - 1, 1),
-  );
+  const local = businessClock(reference);
+  const previousMonth = new Date(Date.UTC(local.getUTCFullYear(), local.getUTCMonth() - 1, 1));
   const year = previousMonth.getUTCFullYear();
   const month = String(previousMonth.getUTCMonth() + 1).padStart(2, "0");
   return `${year}-${month}-01`;

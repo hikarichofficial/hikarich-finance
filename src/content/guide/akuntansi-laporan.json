@@ -135,7 +135,7 @@
         "Halaman ini hanya untuk dilihat. Tidak ada tombol tambah, ubah, atau nonaktifkan akun.",
         "Akun grup tidak bisa dipakai mencatat. Akun Tidak Aktif tidak ditawarkan di jurnal manual.",
         "Saldo akun tidak tampil di sini. Untuk saldo lihat Neraca atau Buku Besar di [Memahami Laporan Keuangan](laporan-keuangan-utama).",
-        "Kolom Kelas memakai kata Aset, Liabilitas, Ekuitas, Pendapatan, dan Beban. Akun khusus (pajak, kontra aset, kontra pendapatan, pendapatan atau beban lain-lain, penampung saldo awal) saat ini tampil dengan kode Inggris seperti tax, contra_asset, other_income, dan special; artinya sesuai nama akunnya."
+        "Kolom Kelas memakai kata Aset, Liabilitas, Ekuitas, Pendapatan, dan Beban. Akun khusus tampil dengan kelas Kontra Aset, Kontra Pendapatan, Pendapatan Lain-lain, Beban Lain-lain, Pajak, Khusus, atau Lainnya."
       ],
       "mistakes": [
         "Mencari tombol Tambah Akun di halaman ini.",
@@ -439,7 +439,7 @@
         {
           "title": "Buka detail periode dan baca Daftar Periksa Penutupan",
           "text": "Klik tanggal periode. Bagian **Ringkasan** berisi Mulai, Berakhir, dan Ditutup Pada (bila pernah dibuka kembali juga Dibuka Kembali Pada dan Alasan Dibuka Kembali). Bagian **Daftar Periksa Penutupan** memuat tiap butir dengan pesan, “N item”, dan lencana **Pemblokir** (menahan penutupan) atau **Peringatan** (hanya pengingat). Bila bersih tampil “Tidak ada pemblokir atau peringatan untuk periode ini.”. Daftar ini bisa dibaca kapan saja, bahkan sebelum meminta penutupan.",
-          "tip": "Pesan daftar periksa ditulis sistem dalam bahasa Inggris. Terjemahan dan tindakannya ada pada dua tabel di bawah."
+          "tip": "Tabel di bawah menjelaskan arti dan tindakan untuk pesan yang paling sering muncul."
         },
         {
           "title": "Bereskan semua Pemblokir",
@@ -470,63 +470,63 @@
       ],
       "tables": [
         {
-          "title": "Pemblokir yang paling sering muncul (pesan ditulis dalam bahasa Inggris)",
+          "title": "Pemblokir dan peringatan yang paling sering muncul",
           "columns": ["Pesan", "Artinya dan tindakan"],
           "rows": [
             [
-              "Draft journals exist in this period and must be posted or discarded",
+              "Ada jurnal draf pada periode ini; harus diposting atau dibuang.",
               "Ada jurnal Draf di bulan ini. Posting atau Buang Draf di Akuntansi > Jurnal."
             ],
             [
-              "Opening balances in this period have not been completed and signed off",
+              "Saldo awal pada periode ini belum diselesaikan dan disahkan.",
               "Saldo awal bertanggal bulan ini belum diselesaikan. Selesaikan di Akuntansi > Saldo Awal."
             ],
             [
-              "Cash/bank balances from money movements differ from the General Ledger",
+              "Saldo kas/bank dari mutasi uang berbeda dari Buku Besar.",
               "Saldo rekening tidak sama dengan buku besar, biasanya karena ada jurnal manual yang menyentuh akun kas atau bank. Periksa jurnal di bulan itu."
             ],
             [
-              "Accounts receivable from invoices and payments differs from the General Ledger",
+              "Piutang usaha dari invoice dan pembayaran berbeda dari Buku Besar.",
               "Piutang dari invoice dan pembayaran tidak sama dengan buku besar, biasanya karena jurnal manual pada akun piutang."
             ],
             [
-              "Accounts payable from bills and vendor payments differs from the General Ledger",
+              "Utang usaha dari tagihan dan pembayaran vendor berbeda dari Buku Besar.",
               "Utang dari tagihan dan pembayaran tidak sama dengan buku besar, biasanya karena jurnal manual pada akun utang."
             ],
             [
-              "Customer advances from payments differ from the General Ledger",
+              "Uang muka pelanggan dari pembayaran berbeda dari Buku Besar.",
               "Uang muka pelanggan tidak sama dengan buku besar."
             ],
             [
-              "The tax ledger differs from Tax Payable / Tax Asset in the General Ledger",
+              "Buku pajak berbeda dari Utang Pajak / Aset Pajak di Buku Besar.",
               "Buku pajak tidak sama dengan akun pajak di buku besar."
             ],
             [
-              "Depreciation due in this period has not been posted",
+              "Penyusutan yang jatuh tempo pada periode ini belum diposting.",
               "Penyusutan aset bulan ini belum diposting. Buka Aset & Pendanaan > Penyusutan."
             ],
             [
-              "The fixed asset register differs from the fixed asset accounts in the General Ledger",
+              "Daftar aset tetap berbeda dari akun aset tetap di Buku Besar.",
               "Daftar aset tetap tidak sama dengan akun aset tetap di buku besar."
             ],
             [
-              "Loans, other receivables/payables or dividends payable differ from their accounts in the General Ledger",
+              "Pinjaman, piutang/utang lain, atau dividen terutang berbeda dari akunnya di Buku Besar.",
               "Data pinjaman, piutang lain, utang lain, atau utang dividen tidak sama dengan buku besar."
             ],
             [
-              "An approved payroll run of this period has not been posted",
+              "Ada payroll yang sudah disetujui pada periode ini tetapi belum diposting.",
               "Ada proses Payroll yang sudah disetujui tetapi belum diposting."
             ],
             [
-              "The payroll liabilities differ from their accounts in the General Ledger",
+              "Kewajiban payroll berbeda dari akunnya di Buku Besar.",
               "Utang payroll tidak sama dengan akun di buku besar."
             ],
             [
-              "A posted payroll run does not reconcile to its journal, tax ledger or payslips",
+              "Ada payroll terposting yang tidak cocok dengan jurnal, buku pajak, atau slip gajinya.",
               "Ada proses Payroll terposting yang angkanya tidak cocok dengan jurnal, buku pajak, atau slip gaji."
             ],
             [
-              "Posted journals with debit different from credit were found",
+              "Ditemukan jurnal terposting dengan debit tidak sama dengan kredit.",
               "Ada jurnal terposting yang tidak seimbang. Sangat jarang; hubungi pengelola aplikasi."
             ]
           ]
@@ -709,7 +709,7 @@
         },
         {
           "title": "Baca tab Perubahan Ekuitas",
-          "text": "Kolom **Kode**, **Akun**, **Saldo Awal**, **Perubahan Periode**, **Saldo Akhir**, dengan baris **Total Ekuitas Akhir**. Satu baris tanpa kode bertuliskan “Net result for the period” (masih bahasa Inggris) adalah laba atau rugi periode itu. Bila kosong: “Tidak ada akun ekuitas pada Entity ini.”."
+          "text": "Kolom **Kode**, **Akun**, **Saldo Awal**, **Perubahan Periode**, **Saldo Akhir**, dengan baris **Total Ekuitas Akhir**. Satu baris tanpa kode bertuliskan “Laba (Rugi) Periode Berjalan” adalah laba atau rugi periode itu. Bila kosong: “Tidak ada akun ekuitas pada Entity ini.”."
         },
         {
           "title": "Baca tab Arus Kas",
@@ -964,7 +964,7 @@
       "steps": [
         {
           "title": "Buka Laporan > Laporan Kustom",
-          "text": "Menu ini membuka tab **Laporan Kustom** di halaman Laporan Keuangan. Pilih **Dataset**. Tiga dataset yang ada, dengan nama yang masih berbahasa Inggris: “Sales by Customer” (invoice terbit per pelanggan), “Expense by Vendor” (tagihan per vendor), dan “Direct Expenses by Payee” (pengeluaran langsung yang dikonfirmasi per penerima). Hanya dataset yang Anda berhak yang tampil. Bila tidak ada: “Tidak ada dataset laporan yang dapat Anda akses.”.",
+          "text": "Menu ini membuka tab **Laporan Kustom** di halaman Laporan Keuangan. Pilih **Dataset**. Tiga dataset yang ada: “Penjualan per Pelanggan” (invoice terbit per pelanggan), “Pengeluaran per Vendor” (tagihan per vendor), dan “Pengeluaran Langsung per Penerima” (pengeluaran langsung yang dikonfirmasi per penerima). Hanya dataset yang Anda berhak yang tampil. Bila tidak ada: “Tidak ada dataset laporan yang dapat Anda akses.”.",
           "image": {
             "file": "laporan-kustom.jpg",
             "caption": "Laporan Kustom dengan pilihan Dataset."
@@ -972,7 +972,7 @@
         },
         {
           "title": "Atur tanggal dan baca tabel",
-          "text": "Isi **Dari** dan **Sampai** (bawaan 1 Januari tahun ini sampai hari ini), lalu **Terapkan**. Judul tabel adalah deskripsi dataset (bahasa Inggris). Kolomnya: dimensi (Customer, Vendor, atau Payee), **Jumlah Transaksi**, dan jumlah total (Invoice total, Bill total, atau Expense total), dengan baris **Total**. Bila kosong: “Tidak ada data pada periode ini.”."
+          "text": "Isi **Dari** dan **Sampai** (bawaan 1 Januari tahun ini sampai hari ini), lalu **Terapkan**. Judul tabel adalah deskripsi dataset. Kolomnya: dimensi (Pelanggan, Vendor, atau Penerima), **Jumlah Transaksi**, dan jumlah total (Total invoice, Total tagihan, atau Total pengeluaran), dengan baris **Total**. Bila kosong: “Tidak ada data pada periode ini.”."
         },
         {
           "title": "Simpan laporan",

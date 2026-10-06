@@ -41,6 +41,8 @@ import {
 export interface PayrollActionState {
   status: "idle" | "ok" | "error";
   message?: string;
+  /** The database asked for a fresh verification (step-up): the form offers the link to do it. */
+  stepUp?: boolean;
 }
 
 function text(formData: FormData, name: string): string {
@@ -54,7 +56,11 @@ function checked(formData: FormData, name: string): boolean {
 
 function errorState(error: unknown, fallback: string): PayrollActionState {
   if (error instanceof AuthzError) {
-    return { status: "error", message: describeAuthzError(error) };
+    return {
+      status: "error",
+      message: describeAuthzError(error),
+      stepUp: error.code === "STEP_UP_REQUIRED",
+    };
   }
   return { status: "error", message: fallback };
 }

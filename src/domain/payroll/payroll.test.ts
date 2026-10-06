@@ -78,6 +78,13 @@ describe("flags", () => {
     expect(isInfoFlag("tax_facts_missing")).toBe(false);
   });
 
+  it("explains a mid-month join or leave as information, not a blocker", () => {
+    expect(describePayrollFlag("joined_during_month")).toMatch(/prorata/);
+    expect(describePayrollFlag("left_during_month")).toMatch(/prorata/);
+    expect(isInfoFlag("joined_during_month")).toBe(true);
+    expect(isInfoFlag("left_during_month")).toBe(true);
+  });
+
   it("shows an unknown flag as it came, so nothing the database says is hidden", () => {
     expect(describePayrollFlag("something_new:1")).toBe("something_new:1");
   });

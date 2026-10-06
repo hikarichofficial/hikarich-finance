@@ -1,4 +1,5 @@
 import type { CalendarState } from "@/domain/tax/tax";
+import { businessClock } from "@/lib/time";
 
 /**
  * Pure helpers for the Tax Calendar screen (P13 unbuilt-screens backlog, "Tax Calendar" nav item, Step 09 §15,
@@ -41,8 +42,9 @@ export function resolveTaxCalendarRange(
   if (validFrom && validTo && validFrom <= validTo) {
     return { from: validFrom, to: validTo };
   }
-  const from = new Date(Date.UTC(reference.getUTCFullYear(), reference.getUTCMonth() - 1, 1));
-  const to = new Date(Date.UTC(reference.getUTCFullYear(), reference.getUTCMonth() + 2, 1));
+  const local = businessClock(reference);
+  const from = new Date(Date.UTC(local.getUTCFullYear(), local.getUTCMonth() - 1, 1));
+  const to = new Date(Date.UTC(local.getUTCFullYear(), local.getUTCMonth() + 2, 1));
   return { from: toIsoDate(from), to: toIsoDate(to) };
 }
 

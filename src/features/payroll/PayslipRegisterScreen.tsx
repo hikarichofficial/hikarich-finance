@@ -41,7 +41,10 @@ export function PayslipRegisterScreen({
       <header className="list-screen-header">
         <div>
           <h1>Slip Gaji</h1>
-          <p className="list-screen-summary">{rows.length} slip gaji ditampilkan.</p>
+          <p className="list-screen-summary">
+            {rows.length} slip gaji ditampilkan
+            {rows.length >= 100 ? " (batas 100 data terbaru; persempit dengan saringan)" : ""}.
+          </p>
         </div>
       </header>
 

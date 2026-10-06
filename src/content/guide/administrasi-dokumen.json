@@ -763,7 +763,7 @@
         "Kalender hanya memuat tiga jenis pajak: PPN, PPh 23 (dipotong), dan PPh Final UMKM. PPh 4(2), PPh 26, dan PPh 21 tidak masuk kalender.",
         "Baris hanya muncul untuk masa yang relevan: ada pajak yang diakui atau dibayar, sudah ada pelaporan, atau Entity berstatus PKP atau PPh Final UMKM sejak mesin pajak aktif.",
         "Tanggal jatuh tempo berasal dari aturan tenggat di menu Aturan Pajak.",
-        "Kolom Keterangan memakai kalimat dari sistem yang masih berbahasa Inggris (misalnya “Paid” atau “The return of the period is not recorded as filed”).",
+        "Kolom Keterangan menjelaskan langkahnya dalam kalimat singkat (misalnya “Sudah dibayar.” atau “SPT masa ini belum tercatat sudah dilaporkan.”).",
         "Mesin pajak harus aktif; kalender kosong bila belum."
       ],
       "mistakes": [

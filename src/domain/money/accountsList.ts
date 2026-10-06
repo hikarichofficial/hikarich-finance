@@ -1,4 +1,5 @@
 import { Decimal } from "@/domain/money/decimal";
+import { businessClock } from "@/lib/time";
 import type { MoneyControlRow, ReconciliationStatusRow } from "@/schemas/money";
 
 /**
@@ -150,8 +151,9 @@ export function resolveActivityRange(
   if (validFrom && validTo && validFrom <= validTo) {
     return { from: validFrom, to: validTo };
   }
-  const to = toIsoDate(reference);
-  const from = toIsoDate(new Date(reference.getTime() - 29 * 24 * 60 * 60 * 1000));
+  const local = businessClock(reference);
+  const to = toIsoDate(local);
+  const from = toIsoDate(new Date(local.getTime() - 29 * 24 * 60 * 60 * 1000));
   return { from, to };
 }
 

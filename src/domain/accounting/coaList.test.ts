@@ -110,6 +110,20 @@ describe("accountClassLabel", () => {
     expect(accountClassLabel("expense")).toBe("Beban");
   });
 
+  it("names every account class the database can hold in Indonesian", () => {
+    for (const accountClass of [
+      "contra_asset",
+      "contra_revenue",
+      "other_income",
+      "other_expense",
+      "tax",
+      "special",
+      "other",
+    ]) {
+      expect(accountClassLabel(accountClass)).not.toBe(accountClass);
+    }
+  });
+
   it("falls back to the raw value for an unknown account_class", () => {
     expect(accountClassLabel("mystery")).toBe("mystery");
   });

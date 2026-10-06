@@ -117,6 +117,13 @@ export const ACCOUNT_CLASS_LABELS: Record<string, string> = {
   equity: "Ekuitas",
   revenue: "Pendapatan",
   expense: "Beban",
+  contra_asset: "Kontra Aset",
+  contra_revenue: "Kontra Pendapatan",
+  other_income: "Pendapatan Lain-lain",
+  other_expense: "Beban Lain-lain",
+  tax: "Pajak",
+  special: "Khusus",
+  other: "Lainnya",
 };
 
 export function accountClassLabel(accountClass: string): string {

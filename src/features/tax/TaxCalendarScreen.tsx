@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
+import { calendarDetailText } from "@/domain/tax/calendarDetailText";
 import { CALENDAR_STATE_BADGE_TONE, type TaxCalendarRange } from "@/domain/tax/taxCalendarList";
 import {
   CALENDAR_STATE_LABELS,
@@ -95,7 +96,9 @@ export function TaxCalendarScreen({
                     {CALENDAR_STATE_LABELS[row.state]}
                   </span>
                 </td>
-                <td data-label="Keterangan">{row.detail ?? "—"}</td>
+                <td data-label="Keterangan">
+                  {calendarDetailText(row.detail, currency, formatShortDate)}
+                </td>
                 <td className="num" data-label="Kekurangan">
                   {row.outstanding !== null ? formatMoney(row.outstanding, currency) : "—"}
                 </td>

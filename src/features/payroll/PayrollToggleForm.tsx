@@ -1,6 +1,8 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
+import Link from "next/link";
+import { usePathname, useSearchParams } from "next/navigation";
 import { useActionState, useState, type ReactNode } from "react";
 import type { PayrollActionState } from "./payrollActions";
 
@@ -28,6 +30,9 @@ export function PayrollToggleForm({
   const [state, formAction, pending] = useActionState(action, IDLE);
   const formActionForm = usePreservingForm(formAction, state);
   const [open, setOpen] = useState(false);
+  const pathname = usePathname();
+  const search = useSearchParams().toString();
+  const stepUpNext = search === "" ? pathname : `${pathname}?${search}`;
 
   if (!open) {
     return (
@@ -47,7 +52,12 @@ export function PayrollToggleForm({
       {children}
       {state.status === "error" ? (
         <p role="alert" className="error">
-          {state.message}
+          {state.message}{" "}
+          {state.stepUp ? (
+            <Link href={`/auth/step-up?next=${encodeURIComponent(stepUpNext)}`}>
+              Verifikasi ulang →
+            </Link>
+          ) : null}
         </p>
       ) : null}
       {state.status === "ok" ? <p className="hint">{state.message}</p> : null}

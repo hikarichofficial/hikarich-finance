@@ -23,6 +23,7 @@ import {
   equityClosingTotal,
   equityRowAmounts,
   fiscalScheduleTotalDepreciation,
+  generalLedgerOpeningBalance,
   generalLedgerTotals,
   groupByAccountClass,
   hasPnlComparison,
@@ -730,7 +731,7 @@ function EquityTable({ rows, currency }: { rows: readonly EquityChangeRow[]; cur
           return (
             <tr key={row.account_id ?? "net-result"}>
               <td>{row.code ?? "—"}</td>
-              <td>{row.name}</td>
+              <td>{row.account_id === null ? "Laba (Rugi) Periode Berjalan" : row.name}</td>
               <td className="num">{formatMoney(amounts.opening.toString(), currency)}</td>
               <td className="num">{formatMoney(amounts.period.toString(), currency)}</td>
               <td className="num">{formatMoney(amounts.closing.toString(), currency)}</td>
@@ -836,6 +837,7 @@ function GeneralLedgerTable({
     );
   }
   const totals = generalLedgerTotals(rows);
+  const opening = account ? generalLedgerOpeningBalance(rows, account.normal_balance) : null;
   return (
     <table className="record-table">
       <thead>
@@ -861,6 +863,14 @@ function GeneralLedgerTable({
         </tr>
       </thead>
       <tbody>
+        {opening !== null ? (
+          <tr>
+            <th scope="row" colSpan={6}>
+              Saldo Awal
+            </th>
+            <td className="num">{formatMoney(opening.toString(), currency)}</td>
+          </tr>
+        ) : null}
         {rows.map((row, index) => {
           const journalHref = entity
             ? `/accounting/journal/${row.journal_id}?entity=${encodeURIComponent(entity)}`

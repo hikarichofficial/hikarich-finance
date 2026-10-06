@@ -14,6 +14,7 @@ import {
   customReportTotals,
   equityClosingTotal,
   equityRowAmounts,
+  generalLedgerOpeningBalance,
   generalLedgerTotals,
   groupByAccountClass,
   hasPnlComparison,
@@ -450,6 +451,25 @@ describe("generalLedgerTotals", () => {
     expect(totals.debit.toString()).toBe("0");
     expect(totals.credit.toString()).toBe("0");
     expect(totals.closingBalance.toString()).toBe("0");
+  });
+});
+
+describe("generalLedgerOpeningBalance", () => {
+  it("is the first running balance less the first line's own movement", () => {
+    const rows = [
+      { debit: "200.0000", credit: "0.0000", running_balance: "1200.0000" },
+      { debit: "0.0000", credit: "100.0000", running_balance: "1100.0000" },
+    ];
+    expect(generalLedgerOpeningBalance(rows, "debit")?.toString()).toBe("1000.0000");
+  });
+
+  it("reads a credit-normal account the other way round", () => {
+    const rows = [{ debit: "0.0000", credit: "300.0000", running_balance: "800.0000" }];
+    expect(generalLedgerOpeningBalance(rows, "credit")?.toString()).toBe("500.0000");
+  });
+
+  it("is null when the range has no line", () => {
+    expect(generalLedgerOpeningBalance([], "debit")).toBeNull();
   });
 });
 

@@ -1,3 +1,5 @@
+import { businessClock } from "@/lib/time";
+
 /**
  * Pure helpers for the Payroll Tax & Liabilities screen (P13 Part 3g, fourth increment, Step 09 §17).
  * Nothing here calls the database: `getPayrollLiabilities`/`getAnnualReconciliation`/`getEmployeeTaxLedger`
@@ -24,7 +26,7 @@ export function resolveAsOfDate(
   reference: Date = new Date(),
 ): string {
   if (requested && ISO_DATE_PATTERN.test(requested)) return requested;
-  return toIsoDate(reference);
+  return toIsoDate(businessClock(reference));
 }
 
 const MIN_TAX_YEAR = 2000;
@@ -39,7 +41,7 @@ export function resolveTaxYear(
 ): number {
   const parsed = requested ? Number.parseInt(requested, 10) : NaN;
   if (Number.isInteger(parsed) && parsed >= MIN_TAX_YEAR && parsed <= MAX_TAX_YEAR) return parsed;
-  return reference.getUTCFullYear();
+  return businessClock(reference).getUTCFullYear();
 }
 
 export type AnnualReconciliationStatus =
@@ -84,6 +86,6 @@ export function annualReconciliationStatusBadge(
 }
 
 export const TAX_LEDGER_SOURCE_LABELS: Readonly<Record<"run" | "opening", string>> = {
-  run: "Proses Penggajian",
+  run: "Proses Payroll",
   opening: "Saldo Awal",
 };

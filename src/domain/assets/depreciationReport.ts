@@ -1,4 +1,5 @@
 import { Decimal, sumDecimals } from "@/domain/money/decimal";
+import { businessClock } from "@/lib/time";
 import type { DepreciationDueRow, DepreciationLineRow } from "@/schemas/assets";
 
 /**
@@ -36,8 +37,9 @@ export function resolveDepreciationRange(
   if (validFrom && validTo && validFrom <= validTo) {
     return { from: validFrom, to: validTo };
   }
-  const to = toIsoDate(reference);
-  const from = toIsoDate(new Date(reference.getTime() - 364 * 24 * 60 * 60 * 1000));
+  const local = businessClock(reference);
+  const to = toIsoDate(local);
+  const from = toIsoDate(new Date(local.getTime() - 364 * 24 * 60 * 60 * 1000));
   return { from, to };
 }
 

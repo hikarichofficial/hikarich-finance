@@ -51,7 +51,7 @@ export function PayrollTaxScreen({
     <div className="list-screen">
       <header className="list-screen-header">
         <div>
-          <h1>Pajak & Kewajiban Penggajian</h1>
+          <h1>Pajak & Kewajiban Payroll</h1>
         </div>
       </header>
 
