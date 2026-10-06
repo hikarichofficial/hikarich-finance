@@ -326,7 +326,7 @@ export const publicClaimInputSchema = z.object({
   token: publicTokenSchema,
   amount: moneyTextSchema,
   payment_date: isoDateSchema,
-  payer_name: z.string().trim().max(200).optional(),
+  payer_name: z.string().trim().min(1).max(200),
   reference: z.string().trim().max(200).optional(),
   note: z.string().trim().max(1000).optional(),
 });
@@ -481,6 +481,8 @@ export const publicInvoiceViewSchema = z.discriminatedUnion("state", [
   z.object({
     state: z.literal("ok"),
     invoice: invoiceDocumentSchema,
+    /** The company logo as an embedded image (`entity_profiles.logo_data_url`), when one is set. */
+    logo: z.string().nullable().optional(),
     pending_claim: z.boolean(),
     can_claim: z.boolean(),
   }),
@@ -510,6 +512,10 @@ export type ReceiptDocument = z.infer<typeof receiptDocumentSchema>;
 
 export const publicReceiptViewSchema = z.discriminatedUnion("state", [
   z.object({ state: z.literal("unavailable") }),
-  z.object({ state: z.literal("ok"), receipt: receiptDocumentSchema }),
+  z.object({
+    state: z.literal("ok"),
+    receipt: receiptDocumentSchema,
+    logo: z.string().nullable().optional(),
+  }),
 ]);
 export type PublicReceiptView = z.infer<typeof publicReceiptViewSchema>;

@@ -51,11 +51,23 @@ export function formatDocumentDate(isoDate: string): string {
   return DATE_FORMAT.format(new Date(`${isoDate}T00:00:00Z`));
 }
 
+/** The company logo (an embedded image the OWNER uploaded in Settings), shown beside the issuer's name. */
+export function DocumentLogo({ logo }: { logo: string | null | undefined }) {
+  if (!logo || !logo.startsWith("data:image/")) return null;
+  return (
+    // eslint-disable-next-line @next/next/no-img-element -- an embedded data: image, not optimizable
+    <img className="doc-logo" src={logo} alt="" />
+  );
+}
+
 export function InvoiceDocumentView({
   doc,
+  logo,
   receiptHref,
 }: {
   doc: InvoiceDocument;
+  /** The company logo, when one is set (`entity_profiles.logo_data_url`). */
+  logo?: string | null;
   /** Builds the link of a payment receipt from its number (customer page only). */
   receiptHref?: (receiptNumber: string) => string;
 }) {
@@ -66,6 +78,9 @@ export function InvoiceDocumentView({
   const showRefund = !Decimal.parse(doc.refunded).isZero();
   const brand = field(issuer, "brand_name") ?? field(issuer, "legal_name") ?? "Hikarich";
   const legal = field(issuer, "legal_name");
+  // Only an https address becomes a link (the database refuses anything else; checked again here).
+  const rawUrl = field(instructions, "payment_url");
+  const paymentUrl = rawUrl?.startsWith("https://") ? rawUrl : null;
 
   return (
     <article
@@ -74,7 +89,8 @@ export function InvoiceDocumentView({
       data-watermark={doc.status === "void" ? "void" : undefined}
     >
       <header className="doc-head">
-        <div>
+        <div className="doc-issuer">
+          <DocumentLogo logo={logo} />
           <h1 className="doc-brand">{brand}</h1>
           {legal && legal !== brand ? <p>{legal}</p> : null}
           {addressLines(issuer).map((line) => (
@@ -163,35 +179,43 @@ export function InvoiceDocumentView({
       </table>
 
       <dl className="doc-totals">
-        <dt>Subtotal</dt>
-        <dd>{formatMoney(doc.subtotal, doc.currency)}</dd>
+        <div>
+          <dt>Subtotal</dt>
+          <dd>{formatMoney(doc.subtotal, doc.currency)}</dd>
+        </div>
         {showDiscount ? (
-          <>
+          <div>
             <dt>Diskon</dt>
             <dd>-{formatMoney(doc.discount_total, doc.currency)}</dd>
-          </>
+          </div>
         ) : null}
         {showTax ? (
-          <>
+          <div>
             <dt>PPN</dt>
             <dd>{formatMoney(doc.tax_total, doc.currency)}</dd>
-          </>
+          </div>
         ) : null}
-        <dt className="grand">Total</dt>
-        <dd className="grand">{formatMoney(doc.total, doc.currency)}</dd>
+        <div className="grand">
+          <dt>Total</dt>
+          <dd>{formatMoney(doc.total, doc.currency)}</dd>
+        </div>
         {doc.payments.length > 0 ? (
           <>
-            <dt>Sudah dibayar</dt>
-            <dd>{formatMoney(doc.settled, doc.currency)}</dd>
-            <dt className="grand">Sisa tagihan</dt>
-            <dd className="grand">{formatMoney(doc.outstanding, doc.currency)}</dd>
+            <div>
+              <dt>Sudah dibayar</dt>
+              <dd>{formatMoney(doc.settled, doc.currency)}</dd>
+            </div>
+            <div className="grand">
+              <dt>Sisa tagihan</dt>
+              <dd>{formatMoney(doc.outstanding, doc.currency)}</dd>
+            </div>
           </>
         ) : null}
         {showRefund ? (
-          <>
-            <dt className="refund">Dikembalikan (refund)</dt>
-            <dd className="refund">{formatMoney(doc.refunded, doc.currency)}</dd>
-          </>
+          <div className="refund">
+            <dt>Dikembalikan (refund)</dt>
+            <dd>{formatMoney(doc.refunded, doc.currency)}</dd>
+          </div>
         ) : null}
       </dl>
 
@@ -228,8 +252,21 @@ export function InvoiceDocumentView({
           {field(instructions, "account_holder") ? (
             <p>a.n. {field(instructions, "account_holder")}</p>
           ) : null}
-          {field(instructions, "channel_name") ? (
+          {field(instructions, "channel_name") && !paymentUrl ? (
             <p>{field(instructions, "channel_name")}</p>
+          ) : null}
+          {paymentUrl ? (
+            <p className="doc-pay">
+              <a
+                className="doc-pay-link"
+                href={paymentUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                Bayar sekarang
+              </a>
+              <span className="doc-pay-url">{paymentUrl}</span>
+            </p>
           ) : null}
           {doc.payment_note ? <p>{doc.payment_note}</p> : null}
         </section>

@@ -28,7 +28,7 @@ export default async function PublicReceiptPage({
         <a href={`/i/${token}`}>← Kembali ke invoice</a>
         <PrintButton />
       </div>
-      <ReceiptDocumentView receipt={view.receipt} />
+      <ReceiptDocumentView receipt={view.receipt} logo={view.logo} />
     </main>
   );
 }

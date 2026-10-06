@@ -96,6 +96,7 @@ describe("visibleNavigation", () => {
       "/sales/payments",
       "/sales/claims",
       "/sales/marketplace",
+      "/sales/payment-links",
     ]);
   });
 

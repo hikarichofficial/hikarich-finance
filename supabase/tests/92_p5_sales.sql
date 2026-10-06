@@ -399,6 +399,7 @@ begin
   perform test_helpers.assert((select customer_snapshot ->> 'display_name' from public.invoices where id = v_a) = 'Alfa Customer'
     and app_private.invoice_document_json(v_a, false) #>> '{customer,display_name}' = 'Alfa Customer', 'a renamed customer does not change the issued invoice document');
   update public.contacts set display_name = 'Alfa Customer' where id = v_alfa;
+
 end
 $$;
 
@@ -758,6 +759,9 @@ begin
   perform test_helpers.expect_msg(format('select public.public_submit_payment_claim(%L, 1000001, %L, ''x'', ''y'', ''z'', %L)', v_tok, v_today, v_client), 'INVALID', 'a claim above what is outstanding');
   perform test_helpers.expect_msg(format('select public.public_submit_payment_claim(%L, 100, %L, ''x'', ''y'', ''z'', %L)', v_tok, v_today + 2, v_client), 'INVALID', 'a future-dated claim');
   perform test_helpers.expect_msg(format('select public.public_submit_payment_claim(%L, 100, %L, ''x'', ''y'', ''z'', ''short'')', v_tok, v_today), 'INVALID', 'a request without a client fingerprint');
+  perform test_helpers.expect_msg(format('select public.public_submit_payment_claim(%L, 100, %L, '''', ''y'', ''z'', %L)', v_tok, v_today, v_client), 'INVALID', 'a claim without a payer name');
+  perform test_helpers.expect_msg(format('select public.public_submit_payment_claim(%L, 100, %L, E''  \x01 '', ''y'', ''z'', %L)', v_tok, v_today, v_client), 'INVALID', 'a payer name of spaces and control characters only');
+  perform test_helpers.expect_msg(format('select public.public_submit_payment_claim(%L, 100, %L, null, ''y'', ''z'', %L)', v_tok, v_today, v_client), 'INVALID', 'a null payer name');
   perform test_helpers.expect_msg(format('select public.public_submit_payment_claim(%L, 100, %L, ''x'', ''y'', ''z'', %L)', repeat('B', 43), v_today, v_client), 'UNAVAILABLE', 'an unknown token');
   perform test_helpers.expect_msg(format('select public.public_submit_payment_claim(null, 100, %L, ''x'', ''y'', ''z'', %L)', v_today, v_client), 'UNAVAILABLE', 'a missing token');
   perform test_helpers.logout();
@@ -1756,6 +1760,56 @@ begin
   perform test_helpers.assert(app_private.prorate_remaining(123456789012.3457, 987654321098765.4321, 23456789012.3456, 2) = 187654313808764.7, 'a long mixed case');
   perform test_helpers.assert(app_private.prorate_remaining(4, 12345.67, 4, 2) = 12345.67, 'the last part takes exactly what is left');
   perform test_helpers.expect_msg('select app_private.prorate_remaining(3, 5, 4, 0)', 'INVALID', 'a part above the remainder is refused');
+end
+$$;
+
+-- ================================================================ 8. payment links on the invoice (decision 307)
+-- Last, so the invoice it issues does not change the counts the sections above check.
+do $$
+declare
+  pt uuid := test_helpers.entity('p5_pt');
+  v_admin uuid := 'c0000000-0000-0000-0000-000000000002';
+  v_viewer uuid := 'c0000000-0000-0000-0000-000000000004';
+  v_alfa uuid := test_helpers.g('alfa');
+  v_today date := test_helpers.today(pt);
+  v_link uuid;
+  v_a2 uuid;
+begin
+  -- decision 307: a payment link (gateway page) is chosen on the invoice and copied into the frozen payment details
+  perform test_helpers.login(v_viewer);
+  perform test_helpers.expect_msg(format('select public.create_payment_link(%L, ''key-p16-link-00'', ''Link Gagal'', ''https://pay.example.test/x'')', pt),
+    'FORBIDDEN', 'a viewer cannot add a payment link');
+  perform test_helpers.logout();
+  perform test_helpers.login(v_admin);
+  perform test_helpers.expect_msg(format('select public.create_payment_link(%L, ''key-p16-link-01'', ''Link Buruk'', ''http://pay.example.test/x'')', pt),
+    'INVALID', 'a payment link must be https');
+  perform test_helpers.expect_msg(format('select public.create_payment_link(%L, ''key-p16-link-02'', ''Link Buruk'', ''https://pay.example.test/a b'')', pt),
+    'INVALID', 'a payment link cannot contain spaces');
+  perform test_helpers.expect_msg(format('select public.create_payment_link(%L, ''key-p16-link-03'', ''x'', ''https://pay.example.test/x'')', pt),
+    'INVALID', 'a link name needs two characters');
+  v_link := public.create_payment_link(pt, 'key-p16-link-04', 'Link Xendit', 'https://pay.example.test/abc');
+  perform test_helpers.assert(public.create_payment_link(pt, 'key-p16-link-04', 'Link Xendit', 'https://pay.example.test/abc') = v_link,
+    'adding a link replays on the same key');
+  perform test_helpers.expect_msg(format('select public.create_payment_link(%L, ''key-p16-link-05'', ''link xendit'', ''https://pay.example.test/other'')', pt),
+    'CONFLICT', 'a link name is unique per Entity, whatever its case');
+  v_a2 := public.create_invoice_draft(pt, 'key-p16-inv-01', v_alfa, v_today, v_today + 7,
+    '[{"description":"Linked","unit_price":10000}]', null, null, null, null, null, null, null, v_link);
+  perform public.issue_invoice(v_a2, 'key-p16-inv-02');
+  perform test_helpers.assert((select payment_snapshot ->> 'payment_url' = 'https://pay.example.test/abc'
+      and payment_snapshot ->> 'channel_name' = 'Link Xendit' and payment_snapshot ->> 'channel_kind' = 'payment_link'
+      from public.invoices where id = v_a2),
+    'the link is copied into the payment details even when no receiving account is chosen');
+  perform public.update_payment_link(pt, v_link, 'Link Xendit', 'https://pay.example.test/new', true);
+  perform test_helpers.assert((select payment_snapshot ->> 'payment_url' from public.invoices where id = v_a2) = 'https://pay.example.test/abc'
+    and (select payment_url from public.payment_channels where id = v_link) = 'https://pay.example.test/new',
+    'changing the link later does not rewrite an issued invoice');
+  perform test_helpers.expect_msg(format('select public.update_payment_link(%L, %L, ''Link Xendit'', ''ftp://pay.example.test/x'', true)', pt, v_link),
+    'INVALID', 'an updated link must stay https');
+  perform public.update_payment_link(pt, v_link, 'Link Xendit', 'https://pay.example.test/new', false);
+  perform test_helpers.assert(not (select is_active from public.payment_channels where id = v_link), 'a link can be switched off');
+  perform test_helpers.expect_msg(format('select public.create_invoice_draft(%L, ''key-p16-inv-03'', %L, %L, %L, ''[{"description":"x","unit_price":1}]'', null, null, null, null, null, null, null, %L)', pt, v_alfa, v_today, v_today, v_link),
+    'INVALID', 'a switched-off link cannot be chosen on a new invoice');
+  perform test_helpers.logout();
 end
 $$;
 

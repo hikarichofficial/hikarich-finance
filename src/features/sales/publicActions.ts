@@ -50,7 +50,7 @@ export async function submitClaimAction(
       token,
       amount,
       payment_date: text(formData, "payment_date") ?? "",
-      payer_name: text(formData, "payer_name"),
+      payer_name: text(formData, "payer_name") ?? "",
       reference: text(formData, "reference"),
       note: text(formData, "note"),
     },

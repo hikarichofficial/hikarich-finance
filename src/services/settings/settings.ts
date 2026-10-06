@@ -225,3 +225,32 @@ export async function createEntity(input: CreateEntityInput): Promise<string> {
   if (typeof data !== "string") throw new Error("Respons pengaturan tidak dikenali.");
   return data;
 }
+
+/** The company logo as an embedded image (decision 307), or `null`. A direct RLS-governed read of the
+ * Entity's profile row; shown beside the issuer's name on invoices and receipts. */
+export async function getEntityLogo(entityId: string): Promise<string | null> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("entity_profiles")
+    .select("logo_data_url")
+    .eq("entity_id", entityId)
+    .maybeSingle();
+  if (error || !data) return null;
+  const logo = (data as { logo_data_url: string | null }).logo_data_url;
+  return typeof logo === "string" && logo.startsWith("data:image/") ? logo : null;
+}
+
+/** Sets or removes (`null`) the company logo through `set_entity_logo`, which checks
+ * `system.entity_config` and a recent step-up, validates the image and audits that it changed. */
+export async function setEntityLogo(entityId: string, logo: string | null): Promise<void> {
+  const supabase = await createSupabaseServerClient();
+  const { error } = await supabase.rpc("set_entity_logo", {
+    p_entity: entityId,
+    p_logo: logo,
+  });
+  if (error) {
+    const code = parseAuthzCode(error.message);
+    if (code) throw new AuthzError(code, error.message);
+    throw new Error("Logo tidak dapat disimpan.");
+  }
+}

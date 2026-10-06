@@ -41,7 +41,7 @@ export default async function PublicInvoicePage({
       <div className="doc-actions no-print">
         <PrintButton />
       </div>
-      <InvoiceDocumentView doc={invoice} receiptHref={receiptHref} />
+      <InvoiceDocumentView doc={invoice} logo={view.logo} receiptHref={receiptHref} />
       <section className="doc-claim no-print">
         {view.pending_claim ? (
           <p role="status" className="notice">

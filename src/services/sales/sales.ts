@@ -823,6 +823,7 @@ export interface InvoiceDraftForEdit {
   issue_date: string;
   due_date: string;
   payment_account_id: string | null;
+  payment_channel_id: string | null;
   notes: string | null;
   terms: string | null;
   lines: Record<string, unknown>[];
@@ -837,7 +838,7 @@ export async function getInvoiceDraftForEdit(
   const { data, error } = await supabase
     .from("invoices")
     .select(
-      "id, entity_id, version, status, customer_id, issue_date, due_date, payment_account_id, notes, terms",
+      "id, entity_id, version, status, customer_id, issue_date, due_date, payment_account_id, payment_channel_id, notes, terms",
     )
     .eq("id", uuid(invoiceId))
     .maybeSingle();
@@ -858,6 +859,7 @@ export async function getInvoiceDraftForEdit(
     issue_date: String(data.issue_date),
     due_date: String(data.due_date),
     payment_account_id: (data.payment_account_id as string | null) ?? null,
+    payment_channel_id: (data.payment_channel_id as string | null) ?? null,
     notes: (data.notes as string | null) ?? null,
     terms: (data.terms as string | null) ?? null,
     lines: ((lines ?? []) as unknown as Record<string, unknown>[]).map(editableLine),

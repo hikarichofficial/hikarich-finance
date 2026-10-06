@@ -15,6 +15,7 @@ import {
 } from "@/features/planning/RecurringLinesEditor";
 import { ContactPicker } from "@/features/contacts/ContactPicker";
 import { QuickAddContactDrawer } from "@/features/contacts/QuickAddContactDrawer";
+import { QuickAddPaymentLinkDrawer } from "./QuickAddPaymentLinkDrawer";
 import { createInvoiceAction } from "./actions";
 import { idleInvoiceActionState } from "./actionsState";
 
@@ -29,6 +30,7 @@ export function InvoiceForm({
   accounts,
   categories,
   suggestions = [],
+  paymentLinks = [],
   entity,
   today,
   initial,
@@ -38,6 +40,8 @@ export function InvoiceForm({
   categories: readonly CategoryRow[];
   /** Descriptions used before, for the popup above each line's description (OWNER, 5 October 2026). */
   suggestions?: readonly LineSuggestion[];
+  /** The active payment links (Tautan Pembayaran, decision 307) offered below the receiving account. */
+  paymentLinks?: readonly { id: string; name: string }[];
   entity: string | undefined;
   today: string;
   /** Present when editing an existing draft (decision 261): the same form saves through
@@ -49,6 +53,7 @@ export function InvoiceForm({
     issue_date: string;
     due_date: string;
     payment_account_id: string | null;
+    payment_channel_id?: string | null;
     notes: string | null;
     terms: string | null;
     lines: readonly Record<string, unknown>[];
@@ -70,6 +75,12 @@ export function InvoiceForm({
   const [customerId, setCustomerId] = useState(initial?.customer_id ?? "");
   const [addingCustomer, setAddingCustomer] = useState(false);
   const [newCustomerName, setNewCustomerName] = useState("");
+  // Same idea for payment links: a link added on the spot is appended and selected without losing the lines.
+  const [linkList, setLinkList] = useState<{ id: string; name: string }[]>(
+    paymentLinks.map((l) => ({ id: l.id, name: l.name })),
+  );
+  const [linkId, setLinkId] = useState(initial?.payment_channel_id ?? "");
+  const [addingLink, setAddingLink] = useState(false);
 
   return (
     <>
@@ -119,6 +130,28 @@ export function InvoiceForm({
             ))}
           </select>
         </label>
+        <label>
+          Tautan Pembayaran (opsional)
+          <select
+            name="payment_channel_id"
+            value={linkId}
+            onChange={(event) => setLinkId(event.target.value)}
+          >
+            <option value="">— Tanpa tautan —</option>
+            {linkList.map((link) => (
+              <option key={link.id} value={link.id}>
+                {link.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p className="hint">
+          Pelanggan bisa menekan tombol “Bayar sekarang” di invoice untuk membuka halaman
+          pembayaran.{" "}
+          <button type="button" className="btn-ghost" onClick={() => setAddingLink(true)}>
+            + Tambah tautan baru
+          </button>
+        </p>
 
         <RecurringLinesEditor
           kind="invoice"
@@ -149,6 +182,16 @@ export function InvoiceForm({
       </form>
       {/* Outside the form on purpose: a form inside a form is invalid HTML, and the panel's own Save button
         was submitting the invoice instead of the new customer. */}
+      <QuickAddPaymentLinkDrawer
+        entity={entity}
+        open={addingLink}
+        onClose={() => setAddingLink(false)}
+        onCreated={(link) => {
+          setLinkList((list) => [...list, link]);
+          setLinkId(link.id);
+          setAddingLink(false);
+        }}
+      />
       <QuickAddContactDrawer
         contactKind="customer"
         entity={entity}

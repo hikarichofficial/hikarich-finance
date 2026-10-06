@@ -28,6 +28,7 @@ export function InvoiceDetailScreen({
   taxPanel,
   canEdit = false,
   email,
+  logo,
 }: {
   invoiceId: string;
   doc: InvoiceDocument;
@@ -41,6 +42,8 @@ export function InvoiceDetailScreen({
   canEdit?: boolean;
   /** Send Invoice via Email (decision 279's open item); forwarded to `InvoiceActions` unchanged. */
   email?: { configured: boolean; defaultEmail: string | null };
+  /** The company logo for the document section (decision 307). */
+  logo?: string | null;
 }) {
   const status = invoiceDocumentStatus(doc);
   const timeline = invoiceActivityTimeline(doc);
@@ -169,7 +172,7 @@ export function InvoiceDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Dokumen</h2>
         </div>
-        <InvoiceDocumentView doc={doc} />
+        <InvoiceDocumentView doc={doc} logo={logo} />
       </section>
 
       <section className="dashboard-section">
