@@ -2297,3 +2297,8 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
   Payroll > Pajak & Kewajiban Payroll PPh 21 rows with an outstanding amount have a "Setor →" link to it. No
   change to the rules of the tax layer. (5) CI: the dependency audit failed on a new advisory in
   `source-map-js` (through Next.js); an override to the patched version 1.2.2 is set in `pnpm-workspace.yaml`.
+
+- Correction to decision 303 (6 October 2026). The Personal Entity is stored with `entity_type = 'company'`, so the
+  timezone migration `20261006150000`, which selected `entity_type = 'personal'`, changed nothing in production
+  (checked after the merge). Migration `20261006160000` selects the Entity by its code `hikarich` and makes the
+  WITA change that was agreed. PT stays on WIB.
