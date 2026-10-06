@@ -196,6 +196,44 @@
         }
       ],
       "related": ["urutan-langkah-awal", "buat-terbitkan-invoice", "bayar-pajak"]
+    },
+    {
+      "slug": "kolom-ketik-dan-pilih",
+      "title": "Cara Memakai Kolom Ketik-dan-Pilih (Pelanggan, Vendor, Penerima, Deskripsi)",
+      "summary": "Mengisi kolom nama dan deskripsi dengan cepat: ketik beberapa huruf, pilih dari daftar yang muncul, atau tambahkan yang baru bila belum ada.",
+      "path": "Muncul di banyak form: Penjualan > Invoice (Pelanggan dan deskripsi baris), Pembelian > Beban (Vendor dan Nama Penerima), Pembelian > Tagihan, Kas & Bank > Transfer, Akuntansi > Jurnal Manual, Aset & Pendanaan (pinjaman, utang-piutang, ekuitas)",
+      "who": "Semua pengguna yang boleh mengisi form tersebut. Tidak ada izin khusus; daftar yang muncul hanya berasal dari data Entity yang sedang aktif.",
+      "quick": "Daftar pilihan tidak muncul saat kolom hanya diklik. Daftar baru muncul setelah Anda mengetik, mulai dari huruf pertama, dan makin pendek seiring ketikan bertambah.",
+      "steps": [
+        {
+          "title": "Klik kolomnya, lalu mulai mengetik",
+          "text": "Mengklik kolom hanya menaruh kursor; belum ada daftar yang terbuka. Ketik satu huruf atau lebih. Pada satu huruf, daftar menampilkan nama yang diawali huruf itu. Mulai dua huruf, nama yang memuat huruf itu di bagian mana pun ikut tampil, dengan yang diawali huruf Anda di atas.",
+          "tip": "Makin banyak yang diketik, makin pendek daftarnya. Ketik “bud” untuk menemukan “Pak Budi” tanpa menggulir."
+        },
+        {
+          "title": "Pilih dari daftar",
+          "text": "Klik nama yang Anda maksud, atau tekan tombol panah bawah/atas lalu **Enter**. Kolom terisi dengan pilihan itu. Pada deskripsi baris invoice, harga terakhir yang dipakai ikut terisi dan tetap bisa Anda ubah."
+        },
+        {
+          "title": "Tambahkan bila belum ada",
+          "text": "Bila yang Anda ketik belum ada, baris terakhir daftar menawarkan **+ Tambah “…” sebagai … baru**. Untuk **Pelanggan** dan **Vendor**, ini membuka panel kecil untuk menyimpan kontak baru tanpa meninggalkan form. Untuk **Nama Penerima**, **deskripsi**, **penjelasan**, dan **tujuan/keterangan**, tulisan Anda dipakai apa adanya dan tersimpan bersama dokumen; nama itu muncul di daftar pada pengisian berikutnya."
+        },
+        {
+          "title": "Tetap boleh menulis sendiri",
+          "text": "Daftar hanyalah bantuan. Anda boleh mengabaikannya dan menulis sesuatu yang lain. Pada kolom Vendor yang opsional, tulisan yang belum dipilih atau ditambahkan akan ditolak dengan pesan agar Anda memilih, menambah, atau mengosongkannya, supaya tidak ada nama setengah jadi yang tersimpan.",
+          "warning": "Formulir klaim pembayaran publik (yang diisi pelanggan tanpa masuk) sengaja memakai kolom biasa tanpa daftar, agar nama pembayar lain tidak terlihat."
+        }
+      ],
+      "rules": [
+        "Daftar tidak pernah terbuka hanya karena kolom diklik; ia muncul setelah ada huruf yang diketik.",
+        "Daftar hanya berisi data Entity yang sedang aktif; PT dan Pribadi tidak saling melihat.",
+        "Yang tersimpan selalu tulisan yang ada di kolom saat Anda menyimpan."
+      ],
+      "mistakes": [
+        "Menunggu daftar muncul tanpa mengetik: ketik satu huruf dulu.",
+        "Mengetik nama vendor lalu langsung menyimpan tanpa memilihnya: pilih dari daftar atau tambahkan sebagai vendor baru."
+      ],
+      "related": ["buat-terbitkan-invoice", "buat-biaya", "tambah-pelanggan", "tambah-vendor"]
     }
   ]
 }
