@@ -1,6 +1,7 @@
 "use client";
 
 import { ContactPicker } from "@/features/contacts/ContactPicker";
+import { SuggestTextInput } from "@/features/shared/SuggestTextInput";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useState } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
@@ -73,6 +74,7 @@ export function RecurringRuleForm({
   accounts,
   channels,
   categories,
+  payeeSuggestions = [],
 }: {
   mode: "create" | "edit";
   entityId: string;
@@ -84,6 +86,8 @@ export function RecurringRuleForm({
   accounts: readonly FinancialAccountPickerRow[];
   channels: readonly PaymentChannelPickerRow[];
   categories: readonly CategoryRow[];
+  /** Recipient names typed on earlier expenses, for the popup under "Nama Penerima" (OWNER, 6 October 2026). */
+  payeeSuggestions?: readonly string[];
 }) {
   const [state, action, pending] = useActionState(
     mode === "create" ? createRecurringRuleAction : updateRecurringRuleAction,
@@ -385,15 +389,14 @@ export function RecurringRuleForm({
                 ))}
               </select>
             </label>
-            <label>
-              Nama Penerima (opsional jika vendor dipilih)
-              <input
-                type="text"
-                name="payee_name"
-                maxLength={200}
-                defaultValue={templateField(template, "payee_name")}
-              />
-            </label>
+            <SuggestTextInput
+              label="Nama Penerima (opsional jika vendor dipilih)"
+              name="payee_name"
+              noun="penerima"
+              suggestions={payeeSuggestions}
+              maxLength={200}
+              defaultValue={templateField(template, "payee_name")}
+            />
             <label>
               Referensi Kuitansi (opsional)
               <input

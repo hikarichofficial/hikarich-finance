@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { listActiveCategories } from "@/services/accounting/categories";
+import { listPayeeNameSuggestions } from "@/services/purchases/expenses";
 import {
   listActiveContacts,
   listActiveFinancialAccounts,
@@ -25,12 +26,13 @@ export default async function NewRecurringRulePage({
   const { membership } = await requirePermission("planning.recurring_edit", { entityCode: entity });
   const entityId = membership.entity_id;
 
-  const [customers, vendors, accounts, channels, categories] = await Promise.all([
+  const [customers, vendors, accounts, channels, categories, payeeSuggestions] = await Promise.all([
     listActiveContacts(entityId, "customer"),
     listActiveContacts(entityId, "vendor"),
     listActiveFinancialAccounts(entityId),
     listActivePaymentChannels(entityId),
     listActiveCategories(entityId),
+    listPayeeNameSuggestions(entityId),
   ]);
 
   return (
@@ -62,6 +64,7 @@ export default async function NewRecurringRulePage({
           accounts={accounts}
           channels={channels}
           categories={categories}
+          payeeSuggestions={payeeSuggestions}
         />
       </section>
     </div>

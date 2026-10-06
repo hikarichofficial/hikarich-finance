@@ -1,5 +1,6 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { dedupeNames } from "@/domain/shared/typeahead";
 import {
   expenseLineListSchema,
   expenseListSchema,
@@ -56,4 +57,26 @@ export async function getExpenseLines(expenseId: string): Promise<ExpenseLineRow
   const parsed = expenseLineListSchema.safeParse(data);
   if (!parsed.success) throw new Error("Respons baris pengeluaran tidak dikenali.");
   return parsed.data;
+}
+
+/**
+ * Recipient names already typed on earlier expenses of this Entity (newest first, one per name), for the popup
+ * under "Nama Penerima" (OWNER, 6 October 2026). A direct RLS-scoped read -- the same access that already lets the
+ * person open those expenses -- and best effort: a failed read returns an empty list, because a missing
+ * convenience must never stop a form from opening.
+ */
+export async function listPayeeNameSuggestions(entityId: string): Promise<string[]> {
+  try {
+    const supabase = await createSupabaseServerClient();
+    const { data } = await supabase
+      .from("expenses")
+      .select("payee_name")
+      .eq("entity_id", entityId)
+      .not("payee_name", "is", null)
+      .order("created_at", { ascending: false })
+      .limit(600);
+    return dedupeNames(((data ?? []) as { payee_name: string | null }[]).map((r) => r.payee_name));
+  } catch {
+    return [];
+  }
 }

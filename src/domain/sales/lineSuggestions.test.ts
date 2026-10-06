@@ -29,11 +29,9 @@ describe("dedupeSuggestions", () => {
 
 describe("matchSuggestions", () => {
   const all = [s("Penjualan E-book"), s("E-book Panduan"), s("Jasa Desain"), s("Ebook Lama")];
-  it("offers the first names on file when nothing is typed yet", () => {
-    expect(matchSuggestions("", all, 2).map((r) => r.description)).toEqual([
-      "Penjualan E-book",
-      "E-book Panduan",
-    ]);
+  it("offers nothing until something is typed, so clicking into the field never opens the list", () => {
+    expect(matchSuggestions("", all, 2)).toEqual([]);
+    expect(matchSuggestions("   ", all, 2)).toEqual([]);
   });
   it("matches only the start of a name for one character, start or inside from two", () => {
     expect(matchSuggestions("e", all).map((r) => r.description)).toEqual([

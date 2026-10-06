@@ -66,6 +66,7 @@ export function RecurringRuleDetailScreen({
   accounts,
   channels,
   categories,
+  payeeSuggestions = [],
   permissions,
 }: {
   rule: RecurringRuleRow;
@@ -78,6 +79,8 @@ export function RecurringRuleDetailScreen({
   accounts: readonly FinancialAccountPickerRow[];
   channels: readonly PaymentChannelPickerRow[];
   categories: readonly CategoryRow[];
+  /** Recipient names typed on earlier expenses, for the template's "Nama Penerima" popup. */
+  payeeSuggestions?: readonly string[];
   permissions: RecurringRuleActionPermissions;
 }) {
   const statusBadge = recurringStatusBadge(rule.status);
@@ -182,6 +185,7 @@ export function RecurringRuleDetailScreen({
             accounts={accounts}
             channels={channels}
             categories={categories}
+            payeeSuggestions={payeeSuggestions}
           />
         </section>
       ) : null}
