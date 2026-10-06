@@ -1486,6 +1486,7 @@ body {
   flex-direction: column;
   gap: var(--space-6);
   max-width: 1400px;
+  margin-inline: auto;
 }
 
 .dashboard-hero {
@@ -1914,6 +1915,9 @@ a.kpi-card:hover {
   flex-direction: column;
   gap: var(--space-5);
   max-width: 1100px;
+  /* Centred in the content area: with only a max-width the page hugged the left edge and the right side
+   * looked far wider (finding #114). */
+  margin-inline: auto;
 }
 
 .list-screen-header,
@@ -2852,6 +2856,7 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
 /* Panduan (decision 299): the step-by-step guide pages. */
 .guide-screen {
   max-width: 900px;
+  margin-inline: auto;
 }
 
 .guide-search {

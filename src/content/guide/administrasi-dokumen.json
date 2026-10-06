@@ -256,7 +256,7 @@
         },
         {
           "title": "Pasang logo perusahaan (OWNER)",
-          "text": "Di bagian **Logo Perusahaan**, tekan **Pilih Logo Baru**, pilih gambar PNG, JPEG, atau WebP (maksimal sekitar 280 KB), lalu tekan **Simpan Logo**. Bila berhasil tampil “Logo disimpan. Invoice dan kuitansi menampilkan logo ini.” Logo tampil di kiri atas invoice dan kuitansi, termasuk halaman publik. Tekan **Hapus Logo** untuk melepasnya.",
+          "text": "Di bagian **Logo Perusahaan**, tekan **Pilih Logo Baru**, pilih gambar PNG, JPEG, atau WebP (maksimal 4 MB), lalu tekan **Simpan Logo**. Gambar otomatis diperkecil menjadi WebP kecil (sekitar 5 sampai 60 KB, paling besar 600 × 240 piksel) dan berkas aslinya tidak disimpan, jadi penyimpanan tetap hemat. Bila berhasil tampil “Logo disimpan dan diperkecil otomatis (… KB). Invoice dan kuitansi menampilkan logo ini.” Logo tampil di kiri atas invoice dan kuitansi, termasuk halaman publik. Tekan **Hapus Logo** untuk melepasnya.",
           "tip": "Agar kop invoice memakai nama PT saja, isi **Nama Merek** sama dengan **Nama Resmi**: nama hanya tampil sekali. Gambar dengan latar putih atau transparan paling rapi.",
           "warning": "Perubahan logo memerlukan verifikasi ulang. File SVG tidak diterima."
         },

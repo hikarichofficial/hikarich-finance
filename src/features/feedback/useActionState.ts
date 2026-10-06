@@ -1,8 +1,8 @@
 "use client";
 
 import { useActionState as reactUseActionState, useEffect, useRef } from "react";
-import { authzErrorMessage } from "@/domain/authz/errors";
 import { useStepUp } from "./StepUp";
+import { needsStepUp } from "./stepUpState";
 import { getLastSubmitLabel, getLastSubmitter, useToast } from "./Toast";
 
 /**
@@ -40,13 +40,9 @@ export function useActionState<State, Payload>(
     if (seen.current === state) return;
     seen.current = state;
     if (typeof state !== "object" || state === null) return;
-    const { status, message, stepUp } = state as {
-      status?: unknown;
-      message?: unknown;
-      stepUp?: unknown;
-    };
+    const { status, message } = state as { status?: unknown; message?: unknown };
     const text = typeof message === "string" && message.trim() !== "" ? message : null;
-    if (stepUp === true || (status === "error" && text === authzErrorMessage("STEP_UP_REQUIRED"))) {
+    if (needsStepUp(state)) {
       const button = getLastSubmitter();
       stepUpPopup.open({
         next: null,

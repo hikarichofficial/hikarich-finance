@@ -22,9 +22,9 @@ export function EntityLogoForm({
       <input type="hidden" name="entity" value={entity ?? ""} />
       <h3 className="dashboard-section-title">Logo Perusahaan</h3>
       <p className="hint">
-        Logo tampil di kiri atas invoice dan kuitansi. Format PNG, JPEG, atau WebP, maksimal sekitar
-        280 KB. Perubahan memerlukan verifikasi ulang.{" "}
-        <StepUpLink href={stepUpHref}>Verifikasi sekarang</StepUpLink>.
+        Logo tampil di kiri atas invoice dan kuitansi. Format PNG, JPEG, atau WebP, maksimal 4 MB.
+        Gambar otomatis diperkecil saat disimpan supaya hemat penyimpanan. Perubahan memerlukan
+        verifikasi ulang. <StepUpLink href={stepUpHref}>Verifikasi sekarang</StepUpLink>.
       </p>
       {logo ? (
         // eslint-disable-next-line @next/next/no-img-element -- an embedded data: image, not optimizable
