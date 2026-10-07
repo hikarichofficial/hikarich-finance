@@ -1,43 +1,53 @@
 import { describe, expect, it } from "vitest";
-import { alignmentGuides } from "./invoiceGuides";
-import { DEFAULT_INVOICE_LAYOUT, dropBlock, setPlacement } from "./invoiceLayout";
+import { snapAxis } from "./invoiceGuides";
 
-describe("alignment guides (decision 319)", () => {
-  it("says when a block is exactly in the middle of the page", () => {
-    const centred = setPlacement(
-      dropBlock(DEFAULT_INVOICE_LAYOUT, "notes", { mode: "row", at: "after", row: 4, col: 7 }),
-      "notes",
-      { col: 7, span: 12 },
+const PAGE = [
+  { at: 0, label: "Tepi kiri halaman" },
+  { at: 50, label: "Tengah halaman" },
+  { at: 100, label: "Tepi kanan halaman" },
+];
+
+describe("snapAxis (decision 321)", () => {
+  it("snaps the middle of a block onto the middle of the page", () => {
+    const snap = snapAxis(
+      [
+        { at: 29, part: "start" },
+        { at: 49.6, part: "middle" },
+        { at: 70.2, part: "end" },
+      ],
+      PAGE,
+      1,
     );
-    expect(alignmentGuides(centred, "notes")).toContainEqual({
-      edge: "center",
-      at: 12,
-      label: "Tepat di tengah halaman",
-    });
+    expect(snap?.delta).toBeCloseTo(0.4, 5);
+    expect(snap?.hits).toEqual([{ at: 50, labels: ["Tengah halaman"] }]);
   });
 
-  it("says when a block touches the page edges", () => {
-    const guides = alignmentGuides(DEFAULT_INVOICE_LAYOUT, "customer");
-    expect(guides).toContainEqual({ edge: "left", at: 0, label: "Tepi kiri halaman" });
-    expect(alignmentGuides(DEFAULT_INVOICE_LAYOUT, "title")).toContainEqual({
-      edge: "right",
-      at: 24,
-      label: "Tepi kanan halaman",
-    });
-  });
-
-  it("lines a block up with other blocks, but not with the blocks of its own lane", () => {
-    // the dates start where the totals start (column 13): lined up on the left
-    const guides = alignmentGuides(DEFAULT_INVOICE_LAYOUT, "dates");
-    expect(guides.some((guide) => guide.edge === "left" && guide.label.includes("Total"))).toBe(
-      true,
+  it("reports every line the block ends up on", () => {
+    const snap = snapAxis(
+      [
+        { at: 0.3, part: "start" },
+        { at: 30, part: "end" },
+      ],
+      [...PAGE, { at: 0, label: "Tepi kiri Logo" }],
+      1,
     );
-    // the notes share a lane with the payments: that is not reported
-    const notes = alignmentGuides(DEFAULT_INVOICE_LAYOUT, "notes");
-    expect(notes.some((guide) => guide.label.includes("Pembayaran diterima"))).toBe(false);
+    expect(snap?.hits).toEqual([{ at: 0, labels: ["Tepi kiri halaman", "Tepi kiri Logo"] }]);
   });
 
-  it("reports nothing for a hidden or unknown block", () => {
-    expect(alignmentGuides({ ...DEFAULT_INVOICE_LAYOUT, blocks: [] }, "logo")).toEqual([]);
+  it("takes the closest target when several are in reach", () => {
+    const snap = snapAxis(
+      [{ at: 10, part: "start" }],
+      [
+        { at: 8, label: "a" },
+        { at: 11, label: "b" },
+      ],
+      3,
+    );
+    expect(snap?.delta).toBe(1);
+    expect(snap?.hits).toEqual([{ at: 11, labels: ["b"] }]);
+  });
+
+  it("does nothing when nothing is close", () => {
+    expect(snapAxis([{ at: 20, part: "start" }], PAGE, 1)).toBeNull();
   });
 });

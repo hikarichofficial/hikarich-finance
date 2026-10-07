@@ -2549,3 +2549,38 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      company name (and what is stacked under it) moves to the left edge instead of leaving empty columns. Looks only: no
      text, amount or rule of the data changes; issued invoices keep the arrangement they were issued with and take the new
      styling.
+
+321. **Free invoice page, no grid; the original look is back (p55, 7 October 2026).** The OWNER, after trying decisions
+     319 and 320: still not professional; the content must be widenable to the left and right and downwards, for every
+     block (logo and the others); payments received, notes, how to pay and terms must run down the page again as at the
+     start; all grids removed and the editor made free drag and drop, but with alignment aids and, if needed, a choice
+     of font size; "restore the original look" (the invoice of 6 October 2026). The grid, lanes and stacks of decisions
+     318-320 are removed. The invoice page is now three zones from top to bottom (above the item table, the item table,
+     below it). A block is placed by its left edge `x` and width `w` (percent of the page width, 0.1 steps, `w` at least
+     8, `x + w` at most 100), `y` (whole pixels from the top of its zone, or from the bottom of the block it follows)
+     and a minimum height `h` (whole pixels, 0 = as the content), and carries its text alignment, the vertical position
+     of its content, a text size (xs, sm, md, lg, xl; 0.8 to 1.35 times, also the logo) and optionally `after`, the block
+     of the same zone it follows (never itself, never the item table, no loops). A follower is drawn inside the node of
+     the block it follows, so it always sits under it whatever its height (the company name under any logo, the closing
+     blocks under any totals box); a block with nothing to show (no logo, no notes) takes no place and its follower
+     takes the slot. All blocks of a zone share one CSS grid cell, so a zone is as tall as its lowest block and the
+     item table never collides with what is under it. The standard arrangement is the original look: logo, company name
+     under it and INVOICE with number and status at the right; the customer left and the dates right; the item table
+     (compact, decision 317); the totals in a box at the right; then payments received, how to pay, notes and terms one
+     under the other over the full width. The editor drags a block live (it follows the pointer, with the blocks that
+     follow it), snaps to guides within six pixels (page edges and centre, edges and centres of other blocks, the top of
+     the page and of the area under the table; Alt holds the snap off, or a checkbox switches it off) and draws red lines
+     with labels where it lines up, with a percent ruler and the page centre on top; the selected block has grips on its
+     left, right and bottom edges and lower corners; a block let go right under another one (within 18 pixels,
+     overlapping at least 30 percent) follows it, and the "Mengikuti" choice in the panel detaches or re-attaches it;
+     a block dropped above or below the middle of the item table goes to the area above or below it. The panel has
+     numeric fields (x, w, y, h), page-align buttons, text alignment, vertical position, five text sizes, and a list to
+     pick blocks that lie on top of each other; arrow keys nudge the focused block. Two blocks drawn over each other raise
+     a red warning above the preview. On a narrow screen the blocks run one under the other. Printing: A4, page number
+     "Halaman X dari Y", the item table breaks between items and repeats its header, no other block is cut in half.
+     Layouts of version 1 (every layout stored by decisions 310-320, also those frozen into issued invoices) are not
+     converted: they are read as the standard arrangement, so after this change the owner presses "Kembalikan ke Bawaan"
+     or arranges the page again; no data is touched. The database rule `valid_invoice_layout` (migration `20261007150000`,
+     helper `valid_invoice_layout_v2`) accepts version 2 with exactly these keys and ranges and still accepts version 1,
+     so migrations 20261007120000-140000 stay. Presentation only: no amount, tax, number or text is affected, the six
+     blocks that carry them cannot be hidden, and issued invoices keep the arrangement they were issued with.

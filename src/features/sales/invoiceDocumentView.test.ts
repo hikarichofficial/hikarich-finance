@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { DEFAULT_INVOICE_LAYOUT, dropBlock } from "@/domain/sales/invoiceLayout";
+import { DEFAULT_INVOICE_LAYOUT, updateBlock } from "@/domain/sales/invoiceLayout";
 import { InvoiceDocumentView } from "./InvoiceDocumentView";
 import type { InvoiceDocument } from "@/schemas/sales";
 
@@ -111,67 +111,79 @@ describe("InvoiceDocumentView (decision 307)", () => {
   });
 });
 
-describe("InvoiceDocumentView layout (decision 310)", () => {
+describe("InvoiceDocumentView layout (decision 321)", () => {
   function order(html: string): string[] {
     return [...html.matchAll(/data-block="([a-z]+)"/g)].map((match) => match[1]!);
   }
 
-  it("uses the standard arrangement when nothing is set", () => {
+  it("uses the standard arrangement when nothing is set: the original look", () => {
     const html = render(doc(), LOGO);
-    expect(order(html).slice(0, 4)).toEqual(["logo", "issuer", "title", "customer"]);
-    // the logo, the company and the title share the first row, each on its own columns
-    expect(html).toContain("--col:6;--span:11");
-    expect(html).toContain("--col:17;--span:8");
+    // (drawn in the order of the page: a block, what follows it, then the next block)
+    expect(order(html).slice(0, 5)).toEqual(["logo", "issuer", "customer", "dates", "title"]);
+    // the company name sits under the logo, the title at the right of it
+    expect(html).toMatch(/data-node="title" style="--x:60;--w:40;--y:8;--z:1"/);
+    expect(html).toMatch(/data-node="issuer" style="--x:0;--w:52;--y:8;--z:1"/);
+    // the item table is the whole width in a zone of its own
+    expect(html).toMatch(/data-zone="table"[^>]*><div class="doc-node" data-node="lines"/);
   });
 
-  it("without a logo the company name starts at the left edge, with what is stacked under it", () => {
-    const stacked = dropBlock(DEFAULT_INVOICE_LAYOUT, "customer", {
-      mode: "stack",
-      at: "after",
-      target: "issuer",
-    });
-    const html = renderToStaticMarkup(
-      createElement(InvoiceDocumentView, { doc: doc(), layout: stacked }),
+  it("draws a block that follows another one inside it, so it stays under it whatever its height", () => {
+    const html = render(doc(), LOGO);
+    const logo = html.indexOf('data-node="logo"');
+    const issuer = html.indexOf('data-node="issuer"');
+    const children = html.indexOf('class="doc-children"');
+    expect(logo).toBeLessThan(children);
+    expect(children).toBeLessThan(issuer);
+  });
+
+  it("without a logo the company name takes the logo's place at the top", () => {
+    const html = render(doc());
+    expect(html).not.toContain('data-node="logo"');
+    // issuer and title are now blocks of the zone itself, at the logo's own offset
+    expect(html).toMatch(
+      /data-zone="head"[^>]*><div class="doc-node" data-node="issuer" style="--x:0;--w:52;--y:0/,
     );
-    // the issuer lane now starts where the logo's lane started, customer included (one lane, not two overlapping)
-    expect(html).not.toContain("--col:6;--span:11");
-    expect(html.match(/--col:1;--span:16/g)).toHaveLength(1);
-    expect(html).toContain('data-block="customer"');
+  });
+
+  it("sets the text size and the minimum height of a block", () => {
+    const layout = updateBlock(
+      updateBlock(DEFAULT_INVOICE_LAYOUT, "customer", { size: "xl", h: 120, valign: "middle" }),
+      "totals",
+      { size: "sm" },
+    );
+    const html = renderToStaticMarkup(createElement(InvoiceDocumentView, { doc: doc(), layout }));
+    expect(html).toContain('data-node="customer" style="--x:0;--w:48;--y:24;--z:1.35"');
+    expect(html).toContain('data-valign="middle" style="--bh:120px"');
+    expect(html).toContain("--z:0.9");
   });
 
   it("follows the arrangement frozen into an issued invoice, not the standard", () => {
-    const frozen = dropBlock(DEFAULT_INVOICE_LAYOUT, "title", {
-      mode: "row",
-      at: "before",
-      row: 1,
-    });
+    const frozen = updateBlock(DEFAULT_INVOICE_LAYOUT, "title", { x: 10, w: 30 });
     const html = render(doc({ issuer: { legal_name: "PT A", layout: frozen } as never }), LOGO);
-    expect(order(html)[0]).toBe("title");
+    expect(html).toContain('data-node="title" style="--x:10;--w:30');
   });
 
   it("an explicit arrangement (a draft preview) wins over the frozen one", () => {
-    const frozen = dropBlock(DEFAULT_INVOICE_LAYOUT, "title", {
-      mode: "row",
-      at: "before",
-      row: 1,
-    });
-    const explicit = dropBlock(DEFAULT_INVOICE_LAYOUT, "dates", {
-      mode: "row",
-      at: "before",
-      row: 1,
-    });
+    const frozen = updateBlock(DEFAULT_INVOICE_LAYOUT, "title", { x: 10, w: 30 });
+    const explicit = updateBlock(DEFAULT_INVOICE_LAYOUT, "title", { x: 20, w: 20 });
     const html = renderToStaticMarkup(
       createElement(InvoiceDocumentView, {
         doc: doc({ issuer: { legal_name: "PT A", layout: frozen } as never }),
         layout: explicit,
       }),
     );
-    expect(order(html)[0]).toBe("dates");
+    expect(html).toContain('data-node="title" style="--x:20;--w:20');
+  });
+
+  it("shows the standard for an invoice frozen with the old grid layout (version 1)", () => {
+    const old = { v: 1, grid: 24, blocks: [] };
+    const html = render(doc({ issuer: { legal_name: "PT A", layout: old } as never }), LOGO);
+    expect(html).toMatch(/data-node="title" style="--x:60;--w:40;--y:8/);
   });
 
   it("never lets a stored layout hide the amounts, and skips blocks that have nothing to show", () => {
     const hostile = {
-      v: 1,
+      v: 2,
       blocks: DEFAULT_INVOICE_LAYOUT.blocks.map((block) => ({ ...block, show: false })),
     };
     const html = render(doc({ issuer: { legal_name: "PT A", layout: hostile } as never }));
