@@ -2399,6 +2399,26 @@
     "the type is sale, scrapped, lost, damaged or donated; the proceeds are cash, receivable or none",
     "Jenis harus sale, scrapped, lost, damaged, atau donated; hasilnya harus cash, receivable, atau none"
   ],
+  ["the year of manufacture of % is not a number", "Tahun pembuatan {1} harus berupa angka"],
+  ["the condition of % is new or used", "Kondisi {1} harus Baru atau Bekas"],
+  [
+    "the year of manufacture of % is before 1900 or after the year it was bought",
+    "Tahun pembuatan {1} tidak boleh sebelum 1900 atau setelah tahun pembeliannya"
+  ],
+  [
+    "% was bought used, so its year of manufacture is needed",
+    "{1} dibeli bekas, jadi tahun pembuatannya wajib diisi"
+  ],
+  ["the condition is new or used", "Kondisi harus Baru atau Bekas"],
+  [
+    "the year of manufacture is before 1900 or after the year it was bought",
+    "Tahun pembuatan tidak boleh sebelum 1900 atau setelah tahun pembelian"
+  ],
+  [
+    "an asset bought used needs its year of manufacture",
+    "Aset bekas wajib diisi tahun pembuatannya"
+  ],
+  ["changing an asset needs assets.manage", "Mengubah aset memerlukan izin assets.manage"],
   ["the useful life is 1 to 1200 months", "Masa manfaat harus 1 sampai 1200 bulan"],
   [
     "the useful life of % is used up but a value above the residual remains; give more remaining months",

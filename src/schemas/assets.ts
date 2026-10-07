@@ -72,6 +72,16 @@ export const setAssetConditionInputSchema = z.object({
   note: optionalText(1000),
 });
 
+/** Where an asset came from: bought new, or bought used (then the year it was made is needed). */
+export const acquiredConditionSchema = z.enum(["new", "used"]);
+export const manufactureYearSchema = z.number().int().min(1900).max(2100);
+
+export const setAssetOriginInputSchema = z.object({
+  asset_id: z.uuid(),
+  condition: acquiredConditionSchema,
+  manufacture_year: manufactureYearSchema.nullable().optional(),
+});
+
 export const splitAssetInputSchema = z.object({
   asset_id: z.uuid(),
   idempotency_key: idempotencyKeySchema,
@@ -208,6 +218,9 @@ export const openingAssetSchema = z
       .regex(/^[a-z][a-z0-9_]{1,40}$/)
       .optional(),
     fiscal_method: fiscalMethodSchema.optional(),
+    /** New or used when bought, and the year it was made (needed for a used asset); decision 343. */
+    condition: acquiredConditionSchema.optional(),
+    manufacture_year: manufactureYearSchema.optional(),
     /** The FX memo (decision 282, the fixed-asset half of the OWNER's foreign-currency confirmation): what this
      * asset actually cost, in the currency it was actually bought in, at the acquisition-date rate. Historical-rate
      * only -- `cost` above stays the base-currency figure and is never recomputed from this; there is no revaluation. */
@@ -293,6 +306,8 @@ export const assetDetailSchema = z.object({
     plan_version: z.number().int().nonnegative(),
     fiscal_class_key: z.string().nullable(),
     fiscal_method: fiscalMethodSchema.nullable(),
+    acquired_condition: acquiredConditionSchema.optional(),
+    manufacture_year: z.number().int().nullable().optional(),
     fx_currency: currencyCodeSchema.nullable(),
     fx_cost: signedDecimalTextSchema.nullable(),
     fx_rate: signedDecimalTextSchema.nullable(),

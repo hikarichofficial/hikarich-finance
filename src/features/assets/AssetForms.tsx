@@ -8,9 +8,10 @@ import {
   monthlyStraightLine,
   suggestFiscalClass,
 } from "@/domain/assets/fiscalClasses";
+import { accountDefault, originProblem, usedAssetLifeMonths } from "@/domain/assets/assetFormGuide";
 import { formatMoney } from "@/domain/money/format";
 import { Decimal, sumDecimals } from "@/domain/money/decimal";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
 import {
   activateAssetAction,
@@ -29,6 +30,7 @@ import {
   type AssetActionState,
 } from "./assetActions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { AssetOriginFields, FieldProblem, FormProblem, invalidClass } from "./AssetFormHelp";
 
 /**
  * The fixed-asset write forms (P8 RPCs, all `assets.manage`). Each is a small form that opens from a
@@ -43,6 +45,8 @@ type AssetAction = (previous: AssetActionState, formData: FormData) => Promise<A
 export interface AssetAccountOption {
   id: string;
   label: string;
+  /** The account code (1531 = vehicles, ...), which points at the usual golongan of that kind of asset. */
+  code?: string;
 }
 
 export interface AssetLineOption {
@@ -73,13 +77,16 @@ function ActionForm({
   openLabel,
   submitLabel,
   children,
+  renderChildren,
 }: {
   action: AssetAction;
   assetId: string;
   next: string;
   openLabel: string;
   submitLabel: string;
-  children: ReactNode;
+  children?: ReactNode;
+  /** Instead of `children`, for a form that marks the field the last refusal was about. */
+  renderChildren?: (state: AssetActionState) => ReactNode;
 }) {
   const [state, formAction, pending] = useActionState(action, idleAssetActionState);
   const formActionForm = usePreservingForm(formAction, state);
@@ -99,8 +106,15 @@ function ActionForm({
   return (
     <form {...formActionForm} className="record-form">
       <input type="hidden" name="asset_id" value={assetId} />
-      {children}
-      <Feedback state={state} next={next} />
+      {renderChildren ? renderChildren(state) : children}
+      {renderChildren ? (
+        <>
+          {state.status === "ok" ? <p className="hint">{state.message}</p> : null}
+          <FormProblem state={state} next={next} />
+        </>
+      ) : (
+        <Feedback state={state} next={next} />
+      )}
       <button type="submit" className="btn-primary" disabled={pending}>
         {pending ? "Menyimpan…" : submitLabel}
       </button>
@@ -162,104 +176,304 @@ export function FiscalFields({
   );
 }
 
+/** The figures the depreciation fields settle on, for a form that wants to suggest the accumulated depreciation. */
+export interface DepreciationFigures {
+  method: string;
+  life: string;
+  residual: string;
+}
+
 /**
- * Method, useful life and residual value, with the fiscal group. The group is suggested from the asset's
- * name (`suggestFiscalClass`) and the useful life from the group, so in the common case the person types
- * nothing; both can still be changed. The hint shows the monthly amount straight line gives:
- * (cost − residual) ÷ months. The database computes the plan that is actually posted.
+ * Golongan, method, useful life and residual value (decision 343). The person gives the kind of asset (the golongan,
+ * suggested from the name and from the account) and, for a used asset, the year it was made; everything else is
+ * worked out: straight line, the life of the golongan (shortened by the age of a used asset for the financial
+ * statements, the full life for tax), no residual value. Land and assets still being built are not depreciated.
+ * A plain explanation sits in a fold-out; "Ubah manual" opens the figures for the rare asset that differs. The
+ * hint shows the monthly amount; the database computes the plan that is actually posted.
  */
 export function DepreciationFields({
   depreciable,
   name,
   cost,
   currency,
+  accountCode,
+  condition = "new",
+  manufactureYear = "",
+  serviceDate = "",
+  problems = {},
+  onFigures,
 }: {
   /** False for a Personal ledger, whose assets are tracked at cost. */
   depreciable: boolean;
-  /** The asset's name, from which the fiscal group is suggested. */
+  /** The asset's name, from which the golongan is suggested. */
   name?: string;
   /** The asset's cost when it is already known (activation); the opening form passes what was typed. */
   cost?: string;
   currency?: string;
+  /** The code of the chosen cost account (1531 = vehicles, ...), which also points at a golongan. */
+  accountCode?: string | null;
+  condition?: "new" | "used";
+  manufactureYear?: string;
+  /** The date it was put in service, to age a used asset. */
+  serviceDate?: string;
+  /** Problems to mark, by field name (from the database's last refusal or from the form's own checks). */
+  problems?: Record<string, string>;
+  /** Told the figures settled on, so a form can suggest the depreciation already taken. */
+  onFigures?: (figures: DepreciationFigures) => void;
 }) {
-  const suggestion = suggestFiscalClass(name ?? "");
-  const [method, setMethod] = useState(depreciable ? "straight_line" : "none");
+  const fromAccount = accountDefault(accountCode);
+  const suggestion = suggestFiscalClass(name ?? "") ?? fromAccount?.fiscalClass ?? null;
+  const [manual, setManual] = useState(false);
   // `null` means "not touched": the suggestion (and the life that goes with the group) is used.
   const [pickedClass, setPickedClass] = useState<string | null>(null);
+  const [typedMethod, setTypedMethod] = useState<string | null>(null);
   const [typedLife, setTypedLife] = useState<string | null>(null);
   const [residual, setResidual] = useState("");
+  const [fiscalMethod, setFiscalMethod] = useState("straight_line");
+
   const fiscalClass = pickedClass ?? suggestion?.key ?? "";
-  const classLife = findFiscalClass(fiscalClass)?.lifeMonths;
-  const life = typedLife ?? (classLife ? String(classLife) : "");
+  const picked = findFiscalClass(fiscalClass);
+  const classLife = picked?.lifeMonths ?? null;
+  const notDepreciated =
+    !depreciable || fromAccount?.notDepreciated === true || fiscalClass === "land";
+  const usedYear = Number(manufactureYear);
+  const isUsed = condition === "used" && Number.isInteger(usedYear) && usedYear >= 1900;
+  const autoLife =
+    classLife === null
+      ? null
+      : isUsed && serviceDate
+        ? usedAssetLifeMonths(classLife, usedYear, serviceDate)
+        : classLife;
+  // Without a golongan there is no life to work out, so the person fills the figures in.
+  const showManual = manual || (!notDepreciated && autoLife === null);
+  const method =
+    showManual && typedMethod !== null ? typedMethod : notDepreciated ? "none" : "straight_line";
+  const life = showManual && typedLife !== null ? typedLife : autoLife ? String(autoLife) : "";
+  const residualValue = showManual ? residual : "";
   const monthly =
-    method === "straight_line" && cost ? monthlyStraightLine(cost, residual, life) : null;
+    method === "straight_line" && cost ? monthlyStraightLine(cost, residualValue, life) : null;
+
+  useEffect(() => {
+    onFigures?.({ method, life, residual: residualValue });
+  }, [onFigures, method, life, residualValue]);
 
   return (
     <>
-      <FiscalFields
-        fiscalClass={null}
-        fiscalMethod={null}
-        optional
-        value={fiscalClass}
-        onClassChange={(key) => {
-          setPickedClass(key);
-          setTypedLife(null);
-        }}
-      />
+      <label className={invalidClass(problems.fiscal_class)}>
+        Jenis Aset (golongan)
+        <select
+          name="fiscal_class"
+          value={fiscalClass}
+          onChange={(event) => {
+            setPickedClass(event.target.value);
+            setTypedLife(null);
+            setTypedMethod(null);
+          }}
+        >
+          <option value="">Belum ditentukan</option>
+          {FISCAL_CLASSES.map((option) => (
+            <option key={option.key} value={option.key}>
+              {option.label} — {option.examples}
+            </option>
+          ))}
+        </select>
+        <FieldProblem message={problems.fiscal_class} />
+      </label>
       {pickedClass === null && suggestion ? (
         <p className="hint">
-          Golongan dipilih otomatis dari nama aset: {suggestion.label}. Ubah bila tidak sesuai.
+          Dipilih otomatis dari nama atau akun aset: {suggestion.label}. Ubah bila tidak sesuai.
         </p>
       ) : null}
-      {fiscalClass === "" ? (
+      {fiscalClass === "" && !notDepreciated ? (
         <p className="hint">
-          Golongan belum dikenali dari nama aset. Pilih yang paling mirip; contoh barang ada di tiap
-          pilihan.
+          Pilih jenis yang paling mirip; contoh barang ada di tiap pilihan. Umur manfaat dan
+          penyusutannya dihitung otomatis dari jenis ini.
         </p>
       ) : null}
-      <label>
-        Metode Penyusutan
-        <select name="method" value={method} onChange={(event) => setMethod(event.target.value)}>
-          {depreciable ? <option value="straight_line">Garis lurus</option> : null}
-          {depreciable ? <option value="declining_balance">Saldo menurun</option> : null}
-          <option value="none">Tidak disusutkan (mis. tanah)</option>
-        </select>
-      </label>
-      {method !== "none" ? (
-        <>
-          <label>
-            Umur Manfaat (bulan)
-            <input
-              name="life_months"
-              inputMode="numeric"
-              required
-              placeholder="mis. 48"
-              maxLength={4}
-              value={life}
-              onChange={(event) => setTypedLife(event.target.value)}
-            />
-          </label>
-          <label>
-            Nilai Sisa (opsional)
-            <MoneyInput
-              name="residual"
-              placeholder="0"
-              value={residual}
-              onValueChange={setResidual}
-            />
-          </label>
-          <p className="hint">
-            {monthly !== null && currency
-              ? `Penyusutan per bulan: ${formatMoney(monthly.toFixed(2), currency)} = (harga perolehan − nilai sisa) ÷ umur manfaat.`
-              : "Garis lurus: (harga perolehan − nilai sisa) ÷ umur manfaat, sama tiap bulan. Saldo menurun: tarif tetap dari nilai buku, makin kecil tiap tahun."}
+      <details className="form-explain">
+        <summary>Apa itu golongan, penyusutan, dan penyusutan fiskal?</summary>
+        <p>
+          Barang seperti laptop atau mobil dipakai bertahun-tahun, jadi harganya dibagi rata ke tiap
+          bulan pemakaian. Itu yang disebut penyusutan. Aplikasi menghitungnya sendiri.
+        </p>
+        <p>
+          Golongan adalah pengelompokan barang menurut aturan pajak. Tiap golongan punya umur
+          manfaat tetap: Kelompok 1 = 4 tahun, Kelompok 2 = 8 tahun, Kelompok 3 = 16 tahun, Kelompok
+          4 = 20 tahun, bangunan permanen = 20 tahun, tidak permanen = 10 tahun. Tanah tidak
+          disusutkan.
+        </p>
+        <p>
+          Penyusutan fiskal adalah penyusutan versi pajak, dihitung dari golongan itu. Penyusutan
+          untuk laporan keuangan biasanya sama; hanya untuk barang bekas umur sisanya lebih pendek,
+          sedangkan pajak tetap memakai umur penuh golongannya.
+        </p>
+        <p>
+          Nilai sisa adalah perkiraan harga barang di akhir umurnya. Biarkan 0 bila tidak yakin.
+        </p>
+      </details>
+      {notDepreciated ? (
+        <div className="depreciation-summary">
+          <p>
+            Tanah dan aset yang masih dibangun tidak disusutkan, jadi tidak perlu umur manfaat atau
+            nilai sisa.
           </p>
-        </>
+        </div>
+      ) : (
+        <div className="depreciation-summary">
+          {autoLife !== null ? (
+            <>
+              <p>
+                Penyusutan otomatis: garis lurus selama {autoLife} bulan ({formatYears(autoLife)}),
+                nilai sisa 0.
+                {monthly !== null && currency
+                  ? ` Sekitar ${formatMoney(monthly.toFixed(2), currency)} per bulan.`
+                  : ""}
+              </p>
+              {isUsed && classLife !== null && autoLife !== classLife ? (
+                <p>
+                  Karena dibeli bekas (dibuat {usedYear}), umurnya dikurangi dari {classLife} bulan
+                  menjadi {autoLife} bulan. Untuk pajak tetap memakai umur penuh golongannya.
+                </p>
+              ) : null}
+            </>
+          ) : (
+            <p>Pilih jenis aset di atas agar umur manfaat dan penyusutan terisi otomatis.</p>
+          )}
+        </div>
+      )}
+      {!notDepreciated ? (
+        <label className="checkbox-field">
+          <input
+            type="checkbox"
+            checked={manual}
+            onChange={(event) => {
+              setManual(event.target.checked);
+              setTypedLife(null);
+              setTypedMethod(null);
+            }}
+          />
+          Ubah manual (metode, umur manfaat, nilai sisa)
+        </label>
       ) : null}
+      {showManual && !notDepreciated ? (
+        <>
+          <label className={invalidClass(problems.method)}>
+            Metode Penyusutan
+            <select
+              name="method"
+              value={method}
+              onChange={(event) => setTypedMethod(event.target.value)}
+            >
+              <option value="straight_line">Garis lurus</option>
+              <option value="declining_balance">Saldo menurun</option>
+              <option value="none">Tidak disusutkan</option>
+            </select>
+            <FieldProblem message={problems.method} />
+          </label>
+          {method !== "none" ? (
+            <>
+              <label className={invalidClass(problems.life_months)}>
+                Umur Manfaat (bulan)
+                <input
+                  name="life_months"
+                  inputMode="numeric"
+                  required
+                  placeholder="mis. 48"
+                  maxLength={4}
+                  value={life}
+                  onChange={(event) => setTypedLife(event.target.value)}
+                />
+                <FieldProblem message={problems.life_months} />
+              </label>
+              <label className={invalidClass(problems.residual)}>
+                Nilai Sisa (opsional)
+                <MoneyInput
+                  name="residual"
+                  placeholder="0"
+                  value={residual}
+                  onValueChange={setResidual}
+                />
+                <FieldProblem message={problems.residual} />
+              </label>
+              <label className={invalidClass(problems.fiscal_method)}>
+                Metode Penyusutan Fiskal
+                <select
+                  name="fiscal_method"
+                  value={fiscalMethod}
+                  onChange={(event) => setFiscalMethod(event.target.value)}
+                >
+                  <option value="straight_line">Garis lurus</option>
+                  <option value="declining_balance">Saldo menurun (bukan untuk bangunan)</option>
+                </select>
+                <FieldProblem message={problems.fiscal_method} />
+              </label>
+            </>
+          ) : null}
+        </>
+      ) : (
+        <>
+          <input type="hidden" name="method" value={method} />
+          <input type="hidden" name="life_months" value={method === "none" ? "" : life} />
+          <input type="hidden" name="residual" value="" />
+          <input type="hidden" name="fiscal_method" value="straight_line" />
+        </>
+      )}
     </>
   );
 }
 
-/** Activate a draft asset: in-service date, method and life; the database writes the monthly plan. */
+function formatYears(months: number): string {
+  const years = months / 12;
+  return Number.isInteger(years) ? `${years} tahun` : `${years.toFixed(1).replace(".", ",")} tahun`;
+}
+
+/** The in-service date, with a tick for "same as the purchase date" (the usual case). */
+export function InServiceDateField({
+  acquisitionDate,
+  today,
+  value,
+  onChange,
+  same,
+  onSameChange,
+  problem,
+}: {
+  acquisitionDate: string;
+  today: string;
+  value: string;
+  onChange: (value: string) => void;
+  same: boolean;
+  onSameChange: (same: boolean) => void;
+  problem?: string;
+}) {
+  return (
+    <>
+      <label className="checkbox-field">
+        <input
+          type="checkbox"
+          checked={same}
+          onChange={(event) => onSameChange(event.target.checked)}
+        />
+        Mulai dipakai sama dengan tanggal beli
+      </label>
+      <label className={invalidClass(problem)}>
+        Mulai Dipakai
+        <input
+          type="date"
+          name="in_service_date"
+          required
+          max={today}
+          min={acquisitionDate || undefined}
+          readOnly={same}
+          value={same ? acquisitionDate : value}
+          onChange={(event) => onChange(event.target.value)}
+        />
+        <FieldProblem message={problem} />
+      </label>
+    </>
+  );
+}
+
+/** Activate a draft asset: in-service date, golongan and origin; the database writes the monthly plan. */
 export function ActivateAssetForm({
   assetId,
   next,
@@ -268,6 +482,8 @@ export function ActivateAssetForm({
   name,
   cost,
   currency,
+  acquisitionDate,
+  accountCode,
 }: {
   assetId: string;
   next: string;
@@ -277,7 +493,16 @@ export function ActivateAssetForm({
   name?: string;
   cost?: string;
   currency?: string;
+  /** The purchase date, for "same as the purchase date". */
+  acquisitionDate?: string;
+  accountCode?: string | null;
 }) {
+  const [same, setSame] = useState(Boolean(acquisitionDate));
+  const [serviceDate, setServiceDate] = useState(today);
+  const [condition, setCondition] = useState<"new" | "used">("new");
+  const [year, setYear] = useState("");
+  const effectiveService = same && acquisitionDate ? acquisitionDate : serviceDate;
+  const yearProblem = originProblem(condition, year, effectiveService);
   return (
     <ActionForm
       action={activateAssetAction}
@@ -285,13 +510,40 @@ export function ActivateAssetForm({
       next={next}
       openLabel="Aktifkan Aset"
       submitLabel="Aktifkan Aset"
-    >
-      <label>
-        Mulai Dipakai
-        <input type="date" name="in_service_date" required defaultValue={today} max={today} />
-      </label>
-      <DepreciationFields depreciable={depreciable} name={name} cost={cost} currency={currency} />
-    </ActionForm>
+      renderChildren={(state) => (
+        <>
+          <InServiceDateField
+            acquisitionDate={acquisitionDate ?? ""}
+            today={today}
+            value={serviceDate}
+            onChange={setServiceDate}
+            same={same && Boolean(acquisitionDate)}
+            onSameChange={setSame}
+            problem={state.field === "in_service_date" ? state.fix : undefined}
+          />
+          <AssetOriginFields
+            condition={condition}
+            year={year}
+            onConditionChange={setCondition}
+            onYearChange={setYear}
+            yearProblem={
+              yearProblem ?? (state.field === "manufacture_year" ? state.fix : undefined)
+            }
+          />
+          <DepreciationFields
+            depreciable={depreciable}
+            name={name}
+            cost={cost}
+            currency={currency}
+            accountCode={accountCode}
+            condition={condition}
+            manufactureYear={year}
+            serviceDate={effectiveService}
+            problems={state.field ? { [state.field]: state.fix ?? "" } : {}}
+          />
+        </>
+      )}
+    />
   );
 }
 

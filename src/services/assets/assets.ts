@@ -29,6 +29,7 @@ import {
   reverseDisposalInputSchema,
   setAssetConditionInputSchema,
   setFiscalClassInputSchema,
+  setAssetOriginInputSchema,
   splitAssetInputSchema,
   transferAssetInputSchema,
   updateAssetDetailsInputSchema,
@@ -182,6 +183,18 @@ export async function cancelAsset(input: z.input<typeof cancelAssetInputSchema>)
     "asset_cancel",
     { p_asset: v.asset_id, p_key: v.idempotency_key, p_reason: v.reason },
     count,
+  );
+}
+
+/** Records whether the asset was bought new or used, and the year it was made (needed for a used one). */
+export async function setAssetOrigin(
+  input: z.input<typeof setAssetOriginInputSchema>,
+): Promise<void> {
+  const v = setAssetOriginInputSchema.parse(input);
+  await callRpc(
+    "asset_set_origin",
+    { p_asset: v.asset_id, p_condition: v.condition, p_year: v.manufacture_year ?? null },
+    nothing,
   );
 }
 

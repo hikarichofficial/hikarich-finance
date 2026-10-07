@@ -131,7 +131,7 @@ declare
                                          'obligation_create', 'obligation_settle', 'obligation_write_off',
                                          'obligation_reverse_settlement', 'obligation_void', 'obligation_list',
                                          'obligation_detail',
-                                         'asset_load_opening', 'asset_update_details', 'asset_transfer', 'asset_set_condition',
+                                         'asset_load_opening', 'asset_update_details', 'asset_set_origin', 'asset_transfer', 'asset_set_condition',
                                          'asset_split', 'asset_activate', 'asset_replan', 'asset_cancel',
                                          'asset_register_pending', 'asset_post_depreciation', 'asset_reverse_depreciation',
                                          'asset_dispose', 'asset_reverse_disposal', 'asset_set_fiscal_class',

@@ -37,7 +37,7 @@ export default async function OpeningAssetPage({
         ((a.system_key !== null && FIXED_ASSET_KEYS.has(a.system_key)) ||
           (a.system_key === null && a.parent_id !== null && a.parent_id === equipmentParent)),
     )
-    .map((a) => ({ id: a.id, label: `${a.code} · ${a.name}` }));
+    .map((a) => ({ id: a.id, label: `${a.code} · ${a.name}`, code: a.code }));
   const qs = entity ? `?entity=${encodeURIComponent(entity)}` : "";
 
   return (

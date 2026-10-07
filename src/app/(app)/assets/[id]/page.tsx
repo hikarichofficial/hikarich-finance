@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { getAsset, getEntityBaseCurrency } from "@/services/assets/assets";
+import { listLedgerAccounts } from "@/services/accounting/ledger";
 import { getMoneyControl } from "@/services/money/money";
 import { AssetDetailScreen } from "@/features/assets/AssetDetailScreen";
 import {
@@ -50,6 +51,12 @@ export default async function AssetDetailPage({
   const postedLines = schedule
     .filter((line) => line.status === "posted")
     .map((line) => ({ id: line.id, label: formatMonth(line.month) }));
+  const costAccountCode =
+    canManage && isDraft
+      ? ((await listLedgerAccounts(membership.entity_id).catch(() => [])).find(
+          (a) => a.id === asset.cost_account_id,
+        )?.code ?? null)
+      : null;
   const accounts =
     canManage && isActive ? await getMoneyControl(membership.entity_id).catch(() => []) : [];
 
@@ -71,6 +78,8 @@ export default async function AssetDetailPage({
                 name={asset.name}
                 cost={asset.acquisition_cost}
                 currency={currency}
+                acquisitionDate={asset.acquisition_date}
+                accountCode={costAccountCode}
               />
             ) : null}
             {isDraft && asset.source_type !== "opening" ? (
