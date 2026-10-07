@@ -1,0 +1,103 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 478 1210" width="478" height="1210" role="img" aria-label="Ada Karyawan Baru: Daftarkan Sampai Siap Digaji" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:a5740e7a7a24272b (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<title>Ada Karyawan Baru: Daftarkan Sampai Siap Digaji</title>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="134" y="18" width="210" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="239" y="36.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Ada karyawan baru yang akan digaji</text>
+<text x="239" y="50" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">(Entity PT)</text>
+<polyline points="239,61 239,84" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,89 234.5,81 243.5,81" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="89" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="144" y="102" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="144" y="118.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Tambah Karyawan</text>
+<text x="144" y="133.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Payroll &gt; Karyawan &gt; Tambah</text>
+<text x="144" y="145.5" font-size="9" fill="#1a4d8f" text-anchor="start">Karyawan</text>
+<text x="144" y="160.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Hanya OWNER dan peran Payroll. Isi nama,</text>
+<text x="144" y="172" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">tanggal masuk, jabatan</text>
+<polyline points="239,182.5 239,205.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,210.5 234.5,202.5 243.5,202.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="210.5" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="144" y="223.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="144" y="240" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Atur Gaji &amp; Komponen</text>
+<text x="144" y="255" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Payroll &gt; Karyawan &gt; (klik karyawan) &gt;</text>
+<text x="144" y="267" font-size="9" fill="#1a4d8f" text-anchor="start">Atur Gaji &amp; Komponen</text>
+<text x="144" y="282" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Centang Dihitung untuk PPh 21 dan Masuk</text>
+<text x="144" y="293.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dasar upah BPJS</text>
+<polyline points="239,304 239,327" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,332 234.5,324 243.5,324" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="332" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="144" y="345" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="144" y="361.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Atur Data Pajak</text>
+<text x="144" y="376.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Payroll &gt; Karyawan &gt; (klik karyawan) &gt;</text>
+<text x="144" y="388.5" font-size="9" fill="#1a4d8f" text-anchor="start">Atur Data Pajak</text>
+<text x="144" y="403.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Isi Status NPWP/NIK, Status PTKP, Metode</text>
+<text x="144" y="415" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pajak. Jangan Belum diketahui</text>
+<polyline points="239,425.5 239,448.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,453.5 234.5,445.5 243.5,445.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="239,453.5 389,488.5 239,523.5 89,488.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="239" y="492" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Karyawan ikut BPJS?</text>
+<polyline points="239,523.5 239,539.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,539.5 355,539.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,539.5 123,568.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,573.5 118.5,565.5 127.5,565.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="573.5" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="586.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="603" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Atur BPJS</text>
+<text x="28" y="618" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Payroll &gt; Karyawan &gt; (klik karyawan) &gt;</text>
+<text x="28" y="630" font-size="9" fill="#1a4d8f" text-anchor="start">Atur BPJS</text>
+<text x="28" y="645" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pilih Kepesertaan tiap program dan Tingkat</text>
+<text x="28" y="656.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Risiko JKK</text>
+<rect x="111.8" y="548.5" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="559.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<rect x="337.9" y="548.5" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="559.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
+<polyline points="123,667 123,687" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,539.5 355,687" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,687 355,687" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,687 239,710" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,715 234.5,707 243.5,707" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="239,715 389,758 239,801 89,758" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="239" y="748.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Sudah digaji sebelum memakai</text>
+<text x="239" y="761.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">aplikasi, dan bukan mulai</text>
+<text x="239" y="774.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Januari?</text>
+<polyline points="239,801 239,817" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,817 355,817" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,817 123,846" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,851 118.5,843 127.5,843" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="851" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="864" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="880.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Isi Saldo Awal Pajak</text>
+<text x="28" y="895.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Payroll &gt; Karyawan &gt; (klik karyawan) &gt;</text>
+<text x="28" y="907.5" font-size="9" fill="#1a4d8f" text-anchor="start">Isi Saldo Awal Pajak</text>
+<text x="28" y="922.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Isi penghasilan bruto dan PPh 21 yang sudah</text>
+<text x="28" y="934" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dipotong</text>
+<rect x="111.8" y="826" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="837" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<rect x="337.9" y="826" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="837" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
+<polyline points="123,944.5 123,964.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,817 355,964.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,964.5 355,964.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,964.5 239,987.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,992.5 234.5,984.5 243.5,984.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="992.5" width="210" height="80" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="144" y="1005.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="144" y="1022" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Karyawan Aktif dan ikut Payroll</text>
+<text x="144" y="1035.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">bulan berikutnya</text>
+<text x="144" y="1050.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Belum ada jurnal. Uang baru tercatat saat</text>
+<text x="144" y="1062" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Payroll diposting</text>
+<polyline points="239,1072.5 239,1095.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,1100.5 234.5,1092.5 243.5,1092.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="1100.5" width="210" height="55.5" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="239" y="1119" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="239" y="1132.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Berhenti bekerja: Karyawan Berhenti. Pindah</text>
+<text x="239" y="1144" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">jabatan: Catat Perubahan Jabatan</text>
+<rect x="66.95" y="1182" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="82.95" y="1190" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="137.2" y="1182" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="153.2" y="1190" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="259.91" y="1182" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="275.91" y="1190" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="360.14,1181 366.14,1187 360.14,1193 354.14,1187" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="370.14" y="1190" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+</svg>

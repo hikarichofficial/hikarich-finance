@@ -1,0 +1,94 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 478 1079" width="478" height="1079" role="img" aria-label="Menutup Tahun Buku: Setelah Semua Bulan Ditutup" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:a5740e7a7a24272b (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<title>Menutup Tahun Buku: Setelah Semua Bulan Ditutup</title>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="134" y="18" width="210" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="239" y="36.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Akhir tahun: semua bulan sudah</text>
+<text x="239" y="50" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">ditutup</text>
+<polyline points="239,61 239,84" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,89 234.5,81 243.5,81" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="239,89 389,124 239,159 89,124" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="239" y="121" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Semua periode tahun itu</text>
+<text x="239" y="134" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">berstatus Ditutup?</text>
+<polyline points="239,159 239,175" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,175 355,175" fill="none" stroke="#444444" stroke-width="1.4"/>
+<rect x="111.8" y="184" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="195" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<polyline points="355,175 355,204" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,209 350.5,201 359.5,201" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="209" width="210" height="81.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="222" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="238.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Tutup dulu bulan yang tersisa</text>
+<text x="260" y="253.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Periode Akuntansi</text>
+<text x="260" y="268.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Lihat diagram Menutup Bulan; tahun lama harus</text>
+<text x="260" y="280" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">ditutup lebih dulu</text>
+<rect x="336.01" y="184" width="37.98" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="195" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Belum</text>
+<polyline points="123,175 123,310.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,290.5 355,310.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,310.5 355,310.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,310.5 239,333.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,338.5 234.5,330.5 243.5,330.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="338.5" width="210" height="107" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="144" y="351.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="144" y="368" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih Tahun Buku, tekan Tutup</text>
+<text x="144" y="381.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Tahun Buku</text>
+<text x="144" y="396.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Periode Akuntansi (bagian</text>
+<text x="144" y="408.5" font-size="9" fill="#1a4d8f" text-anchor="start">Penutupan Tahun Buku)</text>
+<text x="144" y="423.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">OWNER atau Accountant. Tahun tanpa laba</text>
+<text x="144" y="435" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">rugi terposting tidak bisa ditutup</text>
+<polyline points="239,445.5 239,468.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,473.5 234.5,465.5 243.5,465.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="473.5" width="210" height="108.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="144" y="486.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="144" y="503" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Satu jurnal Penutupan dibuat,</text>
+<text x="144" y="516.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">bertanggal sehari setelah akhir</text>
+<text x="144" y="530" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">tahun</text>
+<text x="144" y="545" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Jurnal</text>
+<text x="144" y="560" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Laba atau rugi pindah ke Laba Ditahan; Pribadi:</text>
+<text x="144" y="571.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Akumulasi Surplus/Defisit</text>
+<polyline points="239,582 239,605" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,610 234.5,602 243.5,602" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="239,610 389,645 239,680 89,645" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="239" y="642" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Penutupan tahun ternyata</text>
+<text x="239" y="655" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">salah?</text>
+<polyline points="239,680 239,696" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,696 355,696" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,696 123,725" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,730 118.5,722 127.5,722" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="730" width="210" height="95" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="743" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="759.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">OWNER menekan Batalkan</text>
+<text x="28" y="773" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Penutupan Tahun</text>
+<text x="28" y="788" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Periode Akuntansi</text>
+<text x="28" y="803" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pilih tahun terbaru; Alasan minimal 10 karakter</text>
+<text x="28" y="814.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dan verifikasi ulang</text>
+<polyline points="123,825 123,848" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,853 118.5,845 127.5,845" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="853" width="210" height="68.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="28" y="866" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="28" y="882.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Jurnal pembalik untuk jurnal</text>
+<text x="28" y="896" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">penutup dibuat</text>
+<text x="28" y="911" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Periode bulanan tidak ikut dibuka kembali</text>
+<rect x="111.8" y="705" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="716" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<rect x="337.9" y="705" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="716" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
+<polyline points="123,921.5 123,941.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,696 355,941.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,941.5 355,941.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,941.5 239,964.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,969.5 234.5,961.5 243.5,961.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="969.5" width="210" height="55.5" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="239" y="988" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="239" y="1001.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Laba Rugi tahun itu tidak berubah; jurnal</text>
+<text x="239" y="1013" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">penutup tidak dihitung di sana</text>
+<rect x="66.95" y="1051" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="82.95" y="1059" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="137.2" y="1051" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="153.2" y="1059" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="259.91" y="1051" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="275.91" y="1059" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="360.14,1050 366.14,1056 360.14,1062 354.14,1056" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="370.14" y="1059" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+</svg>

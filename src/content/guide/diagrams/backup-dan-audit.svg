@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 742 999" width="742" height="999" role="img" aria-label="Mengamankan Data dan Menelusuri Perubahan yang Janggal" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:a5740e7a7a24272b (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<title>Mengamankan Data dan Menelusuri Perubahan yang Janggal</title>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="291" y="18" width="160" height="56.5" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="371" y="36.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Ingin mengamankan data,</text>
+<text x="371" y="50" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">atau ada angka yang</text>
+<text x="371" y="63.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">tampak janggal</text>
+<polyline points="371,74.5 371,97.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="371,102.5 366.5,94.5 375.5,94.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="371,102.5 521,137.5 371,172.5 221,137.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="371" y="141" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Apa tujuan Anda?</text>
+<polyline points="371,172.5 371,188.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="189,188.5 553,188.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="189,188.5 189,217.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="189,222.5 184.5,214.5 193.5,214.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="109" y="222.5" width="160" height="105" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="119" y="235.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="119" y="252" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Unduh Backup Penuh</text>
+<text x="119" y="267" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Administrasi &gt; Backup &amp;</text>
+<text x="119" y="279" font-size="9" fill="#1a4d8f" text-anchor="start">Restore &gt; Unduh Backup Penuh</text>
+<text x="119" y="294" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Hanya OWNER. PT dan Pribadi</text>
+<text x="119" y="305.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">masing-masing. Tidak otomatis,</text>
+<text x="119" y="317" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">ulangi rutin</text>
+<polyline points="189,327.5 189,350.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="189,355.5 184.5,347.5 193.5,347.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="109" y="355.5" width="160" height="80" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="119" y="368.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="119" y="385" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Simpan berkas di luar</text>
+<text x="119" y="398.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">aplikasi</text>
+<text x="119" y="413.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Jangan dibuka lalu disimpan ulang.</text>
+<text x="119" y="425" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Isi berkas lampiran tidak ikut</text>
+<polyline points="189,435.5 189,458.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="189,463.5 184.5,455.5 193.5,455.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="189,463.5 339,498.5 189,533.5 39,498.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="189" y="502" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Perlu memulihkan data?</text>
+<polyline points="189,533.5 189,549.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="98,549.5 280,549.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="98,549.5 98,578.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="98,583.5 93.5,575.5 102.5,575.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="583.5" width="160" height="107" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="596.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="613" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih berkas di Pulihkan</text>
+<text x="28" y="626.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">dari Berkas</text>
+<text x="28" y="641.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Administrasi &gt; Backup &amp;</text>
+<text x="28" y="653.5" font-size="9" fill="#1a4d8f" text-anchor="start">Restore &gt; Pulihkan dari Berkas</text>
+<text x="28" y="668.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Hanya ke Entity yang masih</text>
+<text x="28" y="680" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">kosong. Berkas diperiksa dulu</text>
+<polyline points="98,690.5 98,713.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="98,718.5 93.5,710.5 102.5,710.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="718.5" width="160" height="91.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="731.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="748" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Verifikasi ulang, ketik kode</text>
+<text x="28" y="761.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Entity, Pulihkan sekarang</text>
+<text x="28" y="776.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Satu transaksi: bila gagal tidak ada</text>
+<text x="28" y="788" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">data tertulis. Atur ulang akses</text>
+<text x="28" y="799.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">pengguna</text>
+<rect x="86.8" y="558.5" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="98" y="569.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<rect x="262.9" y="558.5" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="280" y="569.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
+<polyline points="98,810 98,830" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="280,549.5 280,830" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="98,830 280,830" fill="none" stroke="#444444" stroke-width="1.4"/>
+<rect x="143.56" y="197.5" width="90.88" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="189" y="208.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Mengamankan data</text>
+<polyline points="553,188.5 553,217.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="553,222.5 548.5,214.5 557.5,214.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="473" y="222.5" width="160" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="483" y="235.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="483" y="252" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Lihat Aktivitas Terbaru</text>
+<text x="483" y="267" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Ringkasan &gt; Aktivitas</text>
+<text x="483" y="279" font-size="9" fill="#1a4d8f" text-anchor="start">Terbaru</text>
+<text x="483" y="294" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Hanya pembayaran terkonfirmasi</text>
+<text x="483" y="305.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dan invoice terbit</text>
+<polyline points="553,316 553,339" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="553,344 548.5,336 557.5,336" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="473" y="344" width="160" height="106.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="483" y="357" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="483" y="373.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Buka Jejak Audit dan</text>
+<text x="483" y="387" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">saring</text>
+<text x="483" y="402" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Administrasi &gt; Jejak Audit</text>
+<text x="483" y="417" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Hanya OWNER dan Viewer /</text>
+<text x="483" y="428.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Auditor. Tab Dibuat, Diubah,</text>
+<text x="483" y="440" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Dihapus</text>
+<polyline points="553,450.5 553,473.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="553,478.5 548.5,470.5 557.5,470.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="473" y="478.5" width="160" height="80" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="483" y="491.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="483" y="508" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Baca Pelaku, Field</text>
+<text x="483" y="521.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Berubah, dan Alasan</text>
+<text x="483" y="536.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Waktu dalam UTC. Nilai lama tidak</text>
+<text x="483" y="548" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">ditampilkan</text>
+<rect x="511.81" y="197.5" width="82.38" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="553" y="208.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ada yang janggal</text>
+<polyline points="189,830 189,850" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="553,558.5 553,850" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="189,850 553,850" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="371,850 371,873" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="371,878 366.5,870 375.5,870" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="291" y="878" width="160" height="67" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="371" y="896.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="371" y="910" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Jejak Audit hanya dibaca:</text>
+<text x="371" y="921.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">catatannya tidak bisa diedit atau</text>
+<text x="371" y="933" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">dihapus</text>
+<rect x="198.95" y="971" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="214.95" y="979" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="269.2" y="971" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="285.2" y="979" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="391.91" y="971" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="407.91" y="979" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="492.14,970 498.14,976 492.14,982 486.14,976" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="502.14" y="979" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+</svg>

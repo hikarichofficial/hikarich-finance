@@ -1,0 +1,168 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 742 1483.5" width="742" height="1483.5" role="img" aria-label="Beli Laptop atau Kendaraan: dari Pencatatan Aset sampai Dijual" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:a5740e7a7a24272b (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<title>Beli Laptop atau Kendaraan: dari Pencatatan Aset sampai Dijual</title>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="291" y="18" width="160" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="371" y="36.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Ada barang tahan lama:</text>
+<text x="371" y="50" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">laptop, mesin, kendaraan</text>
+<polyline points="371,61 371,84" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="371,89 366.5,81 375.5,81" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="371,89 521,124 371,159 221,124" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="371" y="121" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Barangnya dibeli sebelum Anda</text>
+<text x="371" y="134" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">memakai aplikasi?</text>
+<polyline points="371,159 371,175" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="189,175 553,175" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="189,175 189,204" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="189,209 184.5,201 193.5,201" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="109" y="209" width="160" height="130.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="119" y="222" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="119" y="238.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Catat aset yang sudah</text>
+<text x="119" y="252" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">dimiliki</text>
+<text x="119" y="267" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Aset &amp; Pendanaan &gt; Aset</text>
+<text x="119" y="279" font-size="9" fill="#1a4d8f" text-anchor="start">Tetap &gt; Daftarkan Aset &gt; Catat</text>
+<text x="119" y="291" font-size="9" fill="#1a4d8f" text-anchor="start">aset yang sudah dimiliki</text>
+<text x="119" y="306" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Isi harga, umur, dan penyusutan</text>
+<text x="119" y="317.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">yang sudah berjalan; langsung</text>
+<text x="119" y="329" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Aktif</text>
+<polyline points="189,339.5 189,362.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="189,367.5 184.5,359.5 193.5,359.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="109" y="367.5" width="160" height="95" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="119" y="380.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="119" y="397" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Posting nilainya di Saldo</text>
+<text x="119" y="410.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Awal</text>
+<text x="119" y="425.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Saldo Awal</text>
+<text x="119" y="440.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Tanpa ini neraca belum memuat</text>
+<text x="119" y="452" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">asetnya</text>
+<rect x="156.07" y="184" width="65.86" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="189" y="195" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya, aset lama</text>
+<polyline points="553,175 553,204" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="553,209 548.5,201 557.5,201" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="473" y="209" width="160" height="131" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="483" y="222" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="483" y="238.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Catat pembelian dengan</text>
+<text x="483" y="252" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Perlakuan "Aset"</text>
+<text x="483" y="267" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pembelian &gt; Beban &gt;</text>
+<text x="483" y="279" font-size="9" fill="#1a4d8f" text-anchor="start">Catat Pengeluaran (atau</text>
+<text x="483" y="291" font-size="9" fill="#1a4d8f" text-anchor="start">Pembelian &gt; Tagihan &gt; Catat</text>
+<text x="483" y="303" font-size="9" fill="#1a4d8f" text-anchor="start">Tagihan)</text>
+<text x="483" y="318" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Barang kecil yang habis sebulan</text>
+<text x="483" y="329.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">tetap Beban</text>
+<polyline points="553,340 553,363" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="553,368 548.5,360 557.5,360" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="473" y="368" width="160" height="118.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="483" y="381" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="483" y="397.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Aset berstatus Draf</text>
+<text x="483" y="411" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">muncul di Daftar Aset</text>
+<text x="483" y="426" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Aset &amp; Pendanaan &gt; Aset</text>
+<text x="483" y="438" font-size="9" fill="#1a4d8f" text-anchor="start">Tetap</text>
+<text x="483" y="453" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Setelah pengeluaran dikonfirmasi</text>
+<text x="483" y="464.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">atau tagihan disetujui. Belum</text>
+<text x="483" y="476" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">disusutkan</text>
+<polyline points="553,486.5 553,509.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="553,514.5 548.5,506.5 557.5,506.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="553,514.5 703,549.5 553,584.5 403,549.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="553" y="546.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Akun Anda berhak mengelola</text>
+<text x="553" y="559.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">aset?</text>
+<polyline points="553,584.5 553,600.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="462,600.5 644,600.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="462,600.5 462,629.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="462,634.5 457.5,626.5 466.5,626.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="382" y="634.5" width="160" height="105" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="392" y="647.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="392" y="664" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Aktifkan Aset</text>
+<text x="392" y="679" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Aset &amp; Pendanaan &gt; Aset</text>
+<text x="392" y="691" font-size="9" fill="#1a4d8f" text-anchor="start">Tetap &gt; (klik aset) &gt; Aktifkan Aset</text>
+<text x="392" y="706" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Isi Mulai Dipakai, Metode</text>
+<text x="392" y="717.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Penyusutan, Umur Manfaat, Nilai</text>
+<text x="392" y="729" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Sisa</text>
+<rect x="450.8" y="609.5" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="462" y="620.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<polyline points="644,600.5 644,629.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="644,634.5 639.5,626.5 648.5,626.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="564" y="634.5" width="160" height="80" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="574" y="647.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="574" y="664" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Minta Owner atau Finance</text>
+<text x="574" y="677.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Admin mengaktifkan</text>
+<text x="574" y="692.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Finance Staff hanya bisa melihat</text>
+<text x="574" y="704" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">daftar aset</text>
+<rect x="626.9" y="609.5" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="644" y="620.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
+<polyline points="462,739.5 462,759.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="644,714.5 644,759.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="462,759.5 644,759.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<rect x="515.82" y="184" width="74.36" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="553" y="195" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak, beli baru</text>
+<polyline points="189,462.5 189,779.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="553,759.5 553,779.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="189,779.5 553,779.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="371,779.5 371,802.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="371,807.5 366.5,799.5 375.5,799.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="291" y="807.5" width="160" height="120.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="301" y="820.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="301" y="837" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Penyusutan diposting</text>
+<text x="301" y="850.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">sendiri setelah bulannya</text>
+<text x="301" y="864" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">lewat</text>
+<text x="301" y="879" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Aset &amp; Pendanaan &gt;</text>
+<text x="301" y="891" font-size="9" fill="#1a4d8f" text-anchor="start">Penyusutan</text>
+<text x="301" y="906" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Beban Penyusutan naik, Nilai Buku</text>
+<text x="301" y="917.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">turun, kas tidak berubah</text>
+<polyline points="371,928 371,951" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="371,956 366.5,948 375.5,948" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="371,956 521,991 371,1026 221,991" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="371" y="994.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Apa kelanjutan asetnya?</text>
+<polyline points="371,1026 371,1042" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="280,1042 462,1042" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="280,1042 280,1071" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="280,1076 275.5,1068 284.5,1068" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="200" y="1076" width="160" height="118.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="210" y="1089" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="210" y="1105.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pantau di Laporan</text>
+<text x="210" y="1119" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Penyusutan</text>
+<text x="210" y="1134" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Aset &amp; Pendanaan &gt;</text>
+<text x="210" y="1146" font-size="9" fill="#1a4d8f" text-anchor="start">Penyusutan</text>
+<text x="210" y="1161" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Bulan tertahan: Posting</text>
+<text x="210" y="1172.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Penyusutan. Bulan salah: Batalkan</text>
+<text x="210" y="1184" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Penyusutan Terposting</text>
+<rect x="246.13" y="1051" width="67.74" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="280" y="1062" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Masih dipakai</text>
+<polyline points="462,1042 462,1071" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="462,1076 457.5,1068 466.5,1068" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="382" y="1076" width="160" height="105.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="392" y="1089" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="392" y="1105.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Jual / Lepas Aset</text>
+<text x="392" y="1120.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Aset &amp; Pendanaan &gt; Aset</text>
+<text x="392" y="1132.5" font-size="9" fill="#1a4d8f" text-anchor="start">Tetap &gt; (klik aset Aktif) &gt; Jual /</text>
+<text x="392" y="1144.5" font-size="9" fill="#1a4d8f" text-anchor="start">Lepas Aset</text>
+<text x="392" y="1159.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pilih jenis, tanggal, alasan, dan</text>
+<text x="392" y="1171" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">cara pembayaran</text>
+<polyline points="462,1181.5 462,1204.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="462,1209.5 457.5,1201.5 466.5,1201.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="382" y="1209.5" width="160" height="93.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="392" y="1222.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="392" y="1239" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Aset keluar dari buku,</text>
+<text x="392" y="1252.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">selisihnya jadi Laba/Rugi</text>
+<text x="392" y="1266" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pelepasan</text>
+<text x="392" y="1281" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Dijual belum dibayar: menjadi</text>
+<text x="392" y="1292.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Piutang Lain</text>
+<rect x="418.68" y="1051" width="86.64" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="462" y="1062" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Dijual atau dilepas</text>
+<polyline points="280,1194.5 280,1323" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="462,1303 462,1323" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="280,1323 462,1323" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="371,1323 371,1346" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="371,1351 366.5,1343 375.5,1343" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="291" y="1351" width="160" height="78.5" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="371" y="1369.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="371" y="1383" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Salah lepas? Batalkan Pelepasan,</text>
+<text x="371" y="1394.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">aset kembali Aktif. Salah daftar</text>
+<text x="371" y="1406" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">sebelum ada penyusutan?</text>
+<text x="371" y="1417.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Batalkan Aset</text>
+<rect x="198.95" y="1455.5" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="214.95" y="1463.5" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="269.2" y="1455.5" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="285.2" y="1463.5" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="391.91" y="1455.5" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="407.91" y="1463.5" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="492.14,1454.5 498.14,1460.5 492.14,1466.5 486.14,1460.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="502.14" y="1463.5" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+</svg>

@@ -9,7 +9,11 @@ import {
   allNodes,
   describeNode,
   findFlow,
+  flowNeighbours,
+  flowNumber,
   flowOutline,
+  flowPageUrl,
+  flowStages,
   flowsForGuide,
 } from "@/domain/guide/flows";
 import { ALL_GUIDES, findGuide } from "@/domain/guide/guides";
@@ -111,5 +115,54 @@ describe("flow diagrams (decision 300)", () => {
     expect(outline.some((l) => l.text.startsWith("Jika: "))).toBe(true);
     const first = flow?.items[0];
     expect(first && first.kind !== "choice" ? describeNode(first) : "").toMatch(/^Pelanggan: /);
+  });
+
+  it("orders the diagrams as the journey: first use, then each menu (decision 328)", () => {
+    const stages = flowStages();
+    expect(stages.map((stage) => stage.title)).toEqual([
+      "Tahap 1 · Memulai",
+      "Tahap 2 · Penjualan",
+      "Tahap 3 · Pembelian",
+      "Tahap 4 · Kas & Bank",
+      "Tahap 5 · Pembukuan (Akuntansi)",
+      "Tahap 6 · Pajak",
+      "Tahap 7 · Aset & Pendanaan",
+      "Tahap 8 · Payroll",
+      "Tahap 9 · Perencanaan",
+      "Tahap 10 · Laporan",
+      "Tahap 11 · Dokumen & Administrasi",
+    ]);
+    expect(stages.flatMap((stage) => stage.flows).length).toBe(FLOWS.length);
+    expect(FLOWS[0]?.id).toBe("masuk-pertama-kali");
+    for (const flow of FLOWS) expect(flow.stage, flow.id).toMatch(/^Tahap \d+ · /);
+  });
+
+  it("gives every diagram its own page with a previous and a next one", () => {
+    expect(flowNumber(FLOWS[0]?.id ?? "")).toBe(1);
+    expect(flowNeighbours(FLOWS[0]?.id ?? "").prev).toBeUndefined();
+    expect(flowNeighbours(FLOWS.at(-1)?.id ?? "").next).toBeUndefined();
+    const second = FLOWS[1];
+    expect(flowNeighbours(second?.id ?? "").prev?.id).toBe(FLOWS[0]?.id);
+    expect(flowNeighbours(second?.id ?? "").next?.id).toBe(FLOWS[2]?.id);
+    expect(flowPageUrl("uang-masuk")).toBe("/guide/alur-kerja/uang-masuk");
+  });
+
+  it("covers every menu of the journey with at least one diagram", () => {
+    const covered = new Set(FLOWS.flatMap((flow) => flow.guides));
+    for (const slug of [
+      "masuk-dan-ganti-entitas",
+      "tambah-rekening",
+      "buat-terbitkan-invoice",
+      "catat-tagihan-vendor",
+      "transfer-antar-rekening",
+      "jurnal-manual",
+      "bayar-pajak",
+      "catat-aset-tetap",
+      "jalankan-payroll-bulanan",
+      "atur-transaksi-berulang",
+      "laporan-keuangan-utama",
+      "backup-restore",
+    ])
+      expect(covered.has(slug), slug).toBe(true);
   });
 });

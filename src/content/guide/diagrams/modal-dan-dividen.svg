@@ -1,0 +1,134 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 880.5" width="710" height="880.5" role="img" aria-label="Pemilik Menyetor Modal, Menarik Modal, atau Menerima Dividen" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:a5740e7a7a24272b (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<title>Pemilik Menyetor Modal, Menarik Modal, atau Menerima Dividen</title>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="250" y="18" width="210" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="355" y="36.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Pemilik menyetor uang, atau PT</text>
+<text x="355" y="50" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">mengembalikannya</text>
+<polyline points="355,61 355,84" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,89 350.5,81 359.5,81" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="89" width="210" height="82" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="102" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="118.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Buka Tambah Modal / Ekuitas</text>
+<text x="260" y="133.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Aset &amp; Pendanaan &gt; Modal &amp; Ekuitas</text>
+<text x="260" y="145.5" font-size="9" fill="#1a4d8f" text-anchor="start">&gt; Tambah Modal / Ekuitas</text>
+<text x="260" y="160.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Hanya Owner dan Finance Admin</text>
+<polyline points="355,171 355,194" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,199 350.5,191 359.5,191" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="355,199 505,234 355,269 205,234" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="355" y="237.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Apa yang dicatat?</text>
+<polyline points="355,269 355,285" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,285 587,285" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,285 123,314" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,319 118.5,311 127.5,311" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="319" width="210" height="80" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="332" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="348.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih Setoran modal (PT) atau</text>
+<text x="28" y="362" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Penyertaan modal (Pribadi)</text>
+<text x="28" y="377" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Isi pihak, keterangan, jumlah, tanggal. PT: pilih</text>
+<text x="28" y="388.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Golongan Modal</text>
+<polyline points="123,399 123,422" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,427 118.5,419 127.5,419" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="427" width="210" height="55" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="28" y="440" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="28" y="456.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Tersimpan sebagai Draf</text>
+<text x="28" y="471.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Belum ada jurnal, saldo belum berubah</text>
+<polyline points="123,482 123,505" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,510 118.5,502 127.5,502" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="510" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="523" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="539.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Konfirmasi dan pilih rekening</text>
+<text x="28" y="554.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Modal &amp; Ekuitas &gt; (klik data) &gt;</text>
+<text x="28" y="566.5" font-size="9" fill="#1a4d8f" text-anchor="start">Konfirmasi</text>
+<text x="28" y="581.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pilih Rekening Kas/Bank, lalu Konfirmasi dan</text>
+<text x="28" y="593" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Catat</text>
+<polyline points="123,603.5 123,626.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,631.5 118.5,623.5 127.5,623.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="631.5" width="210" height="80" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="28" y="644.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="28" y="661" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">PT: saldo naik dan Modal Disetor</text>
+<text x="28" y="674.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">bertambah</text>
+<text x="28" y="689.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pribadi: saldo turun, jadi Investasi. Bukan</text>
+<text x="28" y="701" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">pendapatan</text>
+<rect x="87.48" y="294" width="71.04" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="305" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Setoran modal</text>
+<polyline points="355,285 355,314" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,319 350.5,311 359.5,311" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="319" width="210" height="80" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="332" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="348.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih Pengembalian modal, isi Nomor</text>
+<text x="260" y="362" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">RUPS</text>
+<text x="260" y="377" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Nomor Keputusan wajib. Pilih Golongan Modal,</text>
+<text x="260" y="388.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Simpan sebagai Draf</text>
+<polyline points="355,399 355,422" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,427 350.5,419 359.5,419" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="427" width="210" height="107" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="440" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="456.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">OWNER menekan Konfirmasi dan</text>
+<text x="260" y="470" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">memilih rekening</text>
+<text x="260" y="485" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Modal &amp; Ekuitas &gt; (klik data) &gt;</text>
+<text x="260" y="497" font-size="9" fill="#1a4d8f" text-anchor="start">Konfirmasi</text>
+<text x="260" y="512" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Perlu verifikasi ulang. Tanpa izin hanya ada</text>
+<text x="260" y="523.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Batalkan Draf</text>
+<polyline points="355,534 355,557" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,562 350.5,554 359.5,554" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="562" width="210" height="68.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="260" y="575" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="260" y="591.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Saldo rekening dan akun modal</text>
+<text x="260" y="605" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">berkurang</text>
+<text x="260" y="620" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Bukan beban, tidak mengurangi laba</text>
+<rect x="297.04" y="294" width="115.91" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="305" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Pengembalian modal (PT)</text>
+<polyline points="587,285 587,314" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="587,319 582.5,311 591.5,311" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="482" y="319" width="210" height="66.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="492" y="332" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="492" y="348.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih Dividen, isi Nomor RUPS</text>
+<text x="492" y="363.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Nomor Keputusan Pemegang Saham wajib.</text>
+<text x="492" y="375" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Simpan sebagai Draf</text>
+<polyline points="587,385.5 587,408.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="587,413.5 582.5,405.5 591.5,405.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="482" y="413.5" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="492" y="426.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="492" y="443" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">OWNER menekan Konfirmasi</text>
+<text x="492" y="458" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Modal &amp; Ekuitas &gt; (klik data) &gt;</text>
+<text x="492" y="470" font-size="9" fill="#1a4d8f" text-anchor="start">Konfirmasi</text>
+<text x="492" y="485" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Perlu verifikasi ulang. Dividen diumumkan dulu,</text>
+<text x="492" y="496.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">kas belum berubah</text>
+<polyline points="587,507 587,530" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="587,535 582.5,527 591.5,527" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="482" y="535" width="210" height="66.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="492" y="548" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="492" y="564.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Tercatat sebagai Utang Dividen</text>
+<text x="492" y="579.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Dividen melebihi laba ditahan ditandai Melebihi</text>
+<text x="492" y="591" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Laba Ditahan</text>
+<polyline points="587,601.5 587,624.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="587,629.5 582.5,621.5 591.5,621.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="482" y="629.5" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="492" y="642.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="492" y="659" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Bayar Dividen</text>
+<text x="492" y="674" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Modal &amp; Ekuitas &gt; (klik dividen) &gt;</text>
+<text x="492" y="686" font-size="9" fill="#1a4d8f" text-anchor="start">Bayar Dividen</text>
+<text x="492" y="701" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Boleh dicicil. Saldo rekening berkurang saat</text>
+<text x="492" y="712.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dibayar</text>
+<rect x="556.21" y="294" width="61.59" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="587" y="305" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Dividen (PT)</text>
+<polyline points="123,711.5 123,743" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,630.5 355,743" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="587,723 587,743" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,743 587,743" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,743 355,766" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,771 350.5,763 359.5,763" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="771" width="210" height="55.5" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="355" y="789.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="355" y="803" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Draf salah: Batalkan Draf. Terkonfirmasi salah:</text>
+<text x="355" y="814.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Balik (Salah Catat). Tidak ada jenis prive</text>
+<rect x="182.95" y="852.5" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="198.95" y="860.5" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="253.2" y="852.5" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="269.2" y="860.5" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="375.91" y="852.5" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="391.91" y="860.5" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="476.14,851.5 482.14,857.5 476.14,863.5 470.14,857.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="486.14" y="860.5" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+</svg>
