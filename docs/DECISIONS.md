@@ -2492,3 +2492,20 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      ever reached the database, while the page gave no usable reason. The refusal is now named in Indonesian (data changed
      elsewhere, email not valid, too long, legal name missing, other) and the database's own text is logged for the
      developer; the form also says "Belum disimpan" while what is typed differs from what is stored.
+
+318. **The invoice sits on a twelve-column grid with a ruler (p52, 7 October 2026).** The OWNER, after trying decision 317:
+     the page should not look empty on the right, every part must be movable freely, and there should be a ruler to
+     check that left and right match. The OWNER chose "free placement on a 12-column grid with a ruler" over fully free
+     pixel coordinates (which can overlap, and a growing item table could cover the part below it). Each block of the
+     layout now has `row`, `col` (1-12) and `span` (1-12, never past column 12) instead of the full/half/fit width of
+     decisions 310 and 317; blocks on the same row sit side by side and never overlap. Layouts saved earlier are converted
+     when read (full, half and fit give the same look as before), and the database rule `valid_invoice_layout` (migration
+     `20261007130000`) accepts both forms. In Tampilan Invoice a part can be dragged anywhere (above or below a row for a
+     new row, or into a row at the column under the pointer, made narrower when the gap is smaller), resized by its blue
+     edge handles, or placed with "Mulai kolom" and "Lebar (kolom)", "Tengahkan" and "Selebar halaman" in the panel; the
+     panel says how many columns are free on each side and marks "seimbang" when they are equal. A ruler (columns 1-12 and
+     percentages), faint column lines, a dashed line at the page centre and a band over the selected part can be switched
+     off. The item table and the totals box stay full width. Also fixed: in the editor the rows had shrunk to their
+     content because each part is wrapped for dragging (PR #159). The standard arrangement is unchanged in look: logo
+     (columns 1-2), company (3-8), title (9-12, right-aligned). Presentation only: no amount, tax or number is affected, and
+     issued invoices keep the arrangement they were issued with.

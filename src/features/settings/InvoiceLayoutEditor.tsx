@@ -1,21 +1,36 @@
 "use client";
 
-import { useMemo, useState, type DragEvent, type ReactNode } from "react";
+import {
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+  type DragEvent,
+  type KeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+  type ReactNode,
+} from "react";
 import { StepUpLink } from "@/features/feedback/StepUp";
 import { useActionState } from "@/features/feedback/useActionState";
-import { InvoiceDocumentView } from "@/features/sales/InvoiceDocumentView";
+import { InvoiceDocumentView, placementStyle } from "@/features/sales/InvoiceDocumentView";
 import {
   BLOCK_INFO,
+  GRID_COLUMNS,
   LOGO_SIZE_LABEL,
   type BlockAlign,
-  type BlockWidth,
+  type DropTarget,
   type InvoiceBlockId,
   type InvoiceBlockSetting,
   type InvoiceLayout,
   type LogoSize,
+  centerBlock,
+  dropBlock,
   isDefaultLayout,
-  moveBlock,
+  pageMargins,
   parseInvoiceLayout,
+  placementBounds,
+  setPlacement,
+  shiftRow,
   updateBlock,
 } from "@/domain/sales/invoiceLayout";
 import type { InvoiceDocument } from "@/schemas/sales";
@@ -23,14 +38,16 @@ import { saveInvoiceLayoutAction } from "./actions";
 import { InvoiceIssuerFields, type IssuerDraft } from "./InvoiceIssuerFields";
 import { idleTimeSettingsState } from "./actionsState";
 
-type DropSide = "left" | "right" | "top" | "bottom";
+/** The gap between two grid columns of the document, in pixels (`--doc-gap` in the stylesheet). */
+const GAP = 16;
 
 const ALIGN_LABEL: Record<BlockAlign, string> = { left: "Kiri", center: "Tengah", right: "Kanan" };
-const WIDTH_LABEL: Record<BlockWidth, string> = {
-  fit: "Sesuai isi",
-  half: "Setengah",
-  full: "Penuh",
-};
+
+/** What the person is about to do with the dragged block, and the box that shows it on the page. */
+interface DropPreview {
+  drop: DropTarget | { mode: "self"; col: number };
+  box: CSSProperties;
+}
 
 /** A grey stand-in so the preview shows where the logo goes when none is uploaded yet. */
 const PLACEHOLDER_LOGO =
@@ -42,11 +59,12 @@ const PLACEHOLDER_LOGO =
   );
 
 /**
- * The invoice layout editor (decision 310): the real invoice document drawn from sample data, every block of
- * which can be dragged (above or below another block, or to the left or right of it to share a row), plus a
- * side panel for the selected block (alignment, width, up/down for touch screens, hide) and the logo size.
- * Nothing is stored until "Simpan Tampilan"; saving needs a recent step-up and applies to invoices issued from
- * then on.
+ * The invoice layout editor (decisions 310, 318): the real invoice document drawn from sample data on a grid of
+ * twelve columns. Every block can be dragged anywhere (above or below a row, or into a row at the column the
+ * pointer is over), resized from its left and right edges, or placed with the numbers in the side panel; it snaps
+ * to the columns so blocks never overlap. A ruler and guide lines (the columns, the page centre, the selected
+ * block) show whether left and right are even. Nothing is stored until "Simpan Tampilan"; saving needs a recent
+ * step-up and applies to invoices issued from then on.
  */
 export function InvoiceLayoutEditor({
   entity,
@@ -84,55 +102,174 @@ export function InvoiceLayoutEditor({
   );
   const [selected, setSelected] = useState<InvoiceBlockId>("issuer");
   const [dragging, setDragging] = useState<InvoiceBlockId | null>(null);
-  const [drop, setDrop] = useState<{ id: InvoiceBlockId; side: DropSide } | null>(null);
+  const [preview, setPreview] = useState<DropPreview | null>(null);
+  const [guides, setGuides] = useState(true);
   const [state, action, pending] = useActionState(saveInvoiceLayoutAction, idleTimeSettingsState);
+  const areaRef = useRef<HTMLDivElement>(null);
 
   const dirty =
     JSON.stringify(parseInvoiceLayout(layout)) !== JSON.stringify(parseInvoiceLayout(saved));
   const current = layout.blocks.find((block) => block.key === selected)!;
   const info = BLOCK_INFO[selected];
-  const index = layout.blocks.findIndex((block) => block.key === selected);
   const hidden = layout.blocks.filter((block) => !block.show);
   const serialized = useMemo(() => JSON.stringify(layout), [layout]);
+  const bounds = placementBounds(layout, selected);
+  const margins = pageMargins(layout, selected);
 
-  function dropOn(target: InvoiceBlockId, side: DropSide) {
-    if (!dragging || dragging === target) return;
-    const targetIndexBefore = layout.blocks.findIndex((block) => block.key === target);
-    const draggedIndex = layout.blocks.findIndex((block) => block.key === dragging);
-    // The index of the target once the dragged block has been taken out of the list.
-    const targetIndex = targetIndexBefore - (draggedIndex < targetIndexBefore ? 1 : 0);
-    const after = side === "right" || side === "bottom";
-    let next = moveBlock(layout, dragging, targetIndex + (after ? 1 : 0));
-    if (side === "left" || side === "right") {
-      // Sharing a row needs both blocks to be narrower than the row (the item table and totals cannot be):
-      // a logo takes only its own width so the name can sit right beside it, the others take half.
-      next = updateBlock(next, dragging, { width: dragging === "logo" ? "fit" : "half" });
-      next = updateBlock(next, target, { width: target === "logo" ? "fit" : "half" });
-    }
-    setLayout(next);
-    setSelected(dragging);
+  /** The grid column (1-12) under a horizontal pointer position, from where the document's rows are on screen. */
+  function columnAt(clientX: number): number {
+    const rows = areaRef.current?.querySelector(".doc-rows");
+    if (!rows) return 1;
+    const box = rows.getBoundingClientRect();
+    const column = (box.width - GAP * (GRID_COLUMNS - 1)) / GRID_COLUMNS;
+    const at = Math.floor((clientX - box.left + GAP / 2) / (column + GAP)) + 1;
+    return Math.max(1, Math.min(GRID_COLUMNS, at));
   }
 
-  function sideOf(event: DragEvent<HTMLElement>, target: InvoiceBlockId): DropSide {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const x = (event.clientX - rect.left) / Math.max(1, rect.width);
-    const y = (event.clientY - rect.top) / Math.max(1, rect.height);
-    const canShare = !BLOCK_INFO[target].fixedWidth && !BLOCK_INFO[dragging!].fixedWidth;
-    if (canShare && x < 0.25) return "left";
-    if (canShare && x > 0.75) return "right";
-    return y < 0.5 ? "top" : "bottom";
+  /** Works out what dropping at this pointer position would do, and where to draw it. */
+  function locate(clientX: number, clientY: number, id: InvoiceBlockId): DropPreview | null {
+    const area = areaRef.current;
+    const rowsEl = area?.querySelector(".doc-rows");
+    if (!area || !rowsEl) return null;
+    const rowEls = Array.from(rowsEl.querySelectorAll<HTMLElement>(".doc-row"));
+    if (rowEls.length === 0) return null;
+    const areaBox = area.getBoundingClientRect();
+    const rowsBox = rowsEl.getBoundingClientRect();
+    let best: { el: HTMLElement; distance: number } | null = null;
+    for (const el of rowEls) {
+      const box = el.getBoundingClientRect();
+      const distance =
+        clientY < box.top ? box.top - clientY : clientY > box.bottom ? clientY - box.bottom : 0;
+      if (!best || distance < best.distance) best = { el, distance };
+    }
+    const rowEl = best!.el;
+    const box = rowEl.getBoundingClientRect();
+    const keys = (rowEl.dataset.blocks ?? "").split(" ") as InvoiceBlockId[];
+    const others = keys.filter((key) => key !== id);
+    const column = columnAt(clientX);
+    const columnWidth = (rowsBox.width - GAP * (GRID_COLUMNS - 1)) / GRID_COLUMNS;
+    const place = (col: number, span: number): CSSProperties => ({
+      left: rowsBox.left - areaBox.left + (col - 1) * (columnWidth + GAP),
+      width: span * columnWidth + (span - 1) * GAP,
+      top: box.top - areaBox.top,
+      height: box.height,
+    });
+    const line = (above: boolean): CSSProperties => ({
+      left: rowsBox.left - areaBox.left,
+      width: rowsBox.width,
+      top: (above ? box.top - GAP / 2 : box.bottom + GAP / 2) - areaBox.top - 2,
+      height: 4,
+    });
+
+    if (others.length === 0) {
+      // The block is alone in this row: it can only slide sideways (the item table and totals cannot).
+      if (BLOCK_INFO[id].fixedWidth) return null;
+      const next = setPlacement(layout, id, { col: column });
+      const moved = next.blocks.find((entry) => entry.key === id)!;
+      return { drop: { mode: "self", col: column }, box: place(moved.col, moved.span) };
+    }
+    const target = others[0]!;
+    const relative = (clientY - box.top) / Math.max(1, box.height);
+    const rowIsFull = others.some((key) => BLOCK_INFO[key].fixedWidth) || BLOCK_INFO[id].fixedWidth;
+    const mode: "before" | "after" | "into" = rowIsFull
+      ? relative < 0.5
+        ? "before"
+        : "after"
+      : relative < 0.25
+        ? "before"
+        : relative > 0.75
+          ? "after"
+          : "into";
+    if (mode === "before" || mode === "after") {
+      return { drop: { mode, target, col: column }, box: line(mode === "before") };
+    }
+    const drop: DropTarget = { mode: "into", target, col: column };
+    const result = dropBlock(layout, id, drop);
+    const moved = result.blocks.find((entry) => entry.key === id)!;
+    const anchor = result.blocks.find((entry) => entry.key === target)!;
+    // When the wanted columns were taken the block went to a row of its own below: show that as a line.
+    return { drop, box: moved.row === anchor.row ? place(moved.col, moved.span) : line(false) };
+  }
+
+  function applyDrop(id: InvoiceBlockId, result: DropPreview) {
+    setLayout((previous) =>
+      result.drop.mode === "self"
+        ? setPlacement(previous, id, { col: result.drop.col })
+        : dropBlock(previous, id, result.drop),
+    );
+    setSelected(id);
+  }
+
+  function onAreaDragOver(event: DragEvent<HTMLElement>) {
+    if (!dragging) return;
+    event.preventDefault();
+    event.dataTransfer.dropEffect = "move";
+    const next = locate(event.clientX, event.clientY, dragging);
+    if (JSON.stringify(next) !== JSON.stringify(preview)) setPreview(next);
+  }
+
+  function onAreaDrop(event: DragEvent<HTMLElement>) {
+    if (!dragging) return;
+    event.preventDefault();
+    const result = locate(event.clientX, event.clientY, dragging);
+    if (result) applyDrop(dragging, result);
+    setDragging(null);
+    setPreview(null);
+  }
+
+  /** Drags the left or right edge of the selected block; the block snaps to whole columns. */
+  function startResize(edge: "left" | "right", event: ReactPointerEvent<HTMLElement>) {
+    event.preventDefault();
+    event.stopPropagation();
+    const id = selected;
+    const move = (pointer: PointerEvent) => {
+      const column = columnAt(pointer.clientX);
+      setLayout((previous) => {
+        const me = previous.blocks.find((entry) => entry.key === id);
+        if (!me) return previous;
+        const limits = placementBounds(previous, id);
+        const end = me.col + me.span - 1;
+        if (edge === "left") {
+          const col = Math.max(limits.min, Math.min(column, end));
+          return setPlacement(previous, id, { col, span: end - col + 1 });
+        }
+        const last = Math.max(me.col, Math.min(column, limits.max));
+        return setPlacement(previous, id, { span: last - me.col + 1 });
+      });
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+  }
+
+  /** The same edge change from the keyboard: the arrow keys move the focused edge one column. */
+  function nudgeEdge(edge: "left" | "right", event: KeyboardEvent<HTMLElement>) {
+    const step = event.key === "ArrowLeft" ? -1 : event.key === "ArrowRight" ? 1 : 0;
+    if (step === 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    setLayout((previous) => {
+      const me = previous.blocks.find((entry) => entry.key === selected);
+      if (!me) return previous;
+      return edge === "left"
+        ? setPlacement(previous, selected, { col: me.col + step, span: me.span - step })
+        : setPlacement(previous, selected, { span: me.span + step });
+    });
   }
 
   function wrap(setting: InvoiceBlockSetting, node: ReactNode): ReactNode {
     const id = setting.key;
-    const over = drop?.id === id ? drop.side : undefined;
+    const resizable = selected === id && !BLOCK_INFO[id].fixedWidth;
     return (
       <div
         className="lay-block"
+        style={placementStyle(setting)}
         data-selected={selected === id ? "true" : undefined}
         data-dragging={dragging === id ? "true" : undefined}
-        data-drop={over}
-        data-width={setting.width}
+        data-block={id}
         draggable
         tabIndex={0}
         role="button"
@@ -152,34 +289,51 @@ export function InvoiceLayoutEditor({
         }}
         onDragEnd={() => {
           setDragging(null);
-          setDrop(null);
-        }}
-        onDragOver={(event) => {
-          if (!dragging || dragging === id) return;
-          event.preventDefault();
-          event.dataTransfer.dropEffect = "move";
-          const side = sideOf(event, id);
-          if (drop?.id !== id || drop.side !== side) setDrop({ id, side });
-        }}
-        onDragLeave={(event) => {
-          if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDrop(null);
-        }}
-        onDrop={(event) => {
-          event.preventDefault();
-          if (drop) dropOn(id, drop.side);
-          setDragging(null);
-          setDrop(null);
+          setPreview(null);
         }}
       >
-        <span className="lay-tag">{BLOCK_INFO[id].label}</span>
+        <span className="lay-tag">
+          {BLOCK_INFO[id].label} · kolom {setting.col}–{setting.col + setting.span - 1}
+        </span>
         {node}
+        {resizable ? (
+          <>
+            <button
+              type="button"
+              className="lay-handle"
+              data-edge="left"
+              title="Tarik untuk mengubah lebar (atau tekan panah kiri/kanan)"
+              aria-label={`Ubah tepi kiri ${BLOCK_INFO[id].label}`}
+              onMouseDown={(event) => event.preventDefault()}
+              onPointerDown={(event) => startResize("left", event)}
+              onKeyDown={(event) => nudgeEdge("left", event)}
+            />
+            <button
+              type="button"
+              className="lay-handle"
+              data-edge="right"
+              title="Tarik untuk mengubah lebar (atau tekan panah kiri/kanan)"
+              aria-label={`Ubah tepi kanan ${BLOCK_INFO[id].label}`}
+              onMouseDown={(event) => event.preventDefault()}
+              onPointerDown={(event) => startResize("right", event)}
+              onKeyDown={(event) => nudgeEdge("right", event)}
+            />
+          </>
+        ) : null}
       </div>
     );
   }
 
-  function change(next: Partial<Pick<InvoiceBlockSetting, "show" | "align" | "width">>) {
+  function change(next: Partial<Pick<InvoiceBlockSetting, "show" | "align">>) {
     setLayout((previous) => updateBlock(previous, selected, next));
   }
+
+  function place(next: { col?: number; span?: number }) {
+    setLayout((previous) => setPlacement(previous, selected, next));
+  }
+
+  const columns = Array.from({ length: GRID_COLUMNS }, (_, index) => index + 1);
+  const balanced = margins.left === margins.right;
 
   return (
     <div className="lay-editor">
@@ -195,15 +349,85 @@ export function InvoiceLayoutEditor({
         />
         <p className="hint">
           Contoh tampilan: data perusahaan di atas asli, pelanggan dan rincian hanya contoh. Seret
-          bagian mana pun: lepas di atas atau bawah bagian lain untuk menukar urutan, atau di tepi
-          kiri/kanan untuk menaruhnya sebaris. Klik bagian untuk mengatur perataan dan lebarnya.
+          bagian mana pun ke posisi yang diinginkan: lepas di atas atau bawah baris untuk membuat
+          baris baru, atau di dalam baris pada kolom yang dituju. Tarik tepi kiri/kanan bagian yang
+          dipilih untuk mengubah lebarnya. Semua menempel ke 12 kolom sehingga selalu rapi dan tidak
+          bertumpuk.
         </p>
-        <InvoiceDocumentView
-          doc={liveSample}
-          logo={logo ?? PLACEHOLDER_LOGO}
-          layout={layout}
-          wrapBlock={wrap}
-        />
+        <label className="lay-guides-toggle">
+          <input
+            type="checkbox"
+            checked={guides}
+            onChange={(event) => setGuides(event.target.checked)}
+          />{" "}
+          Tampilkan penggaris dan garis bantu
+        </label>
+        <div
+          className="lay-area"
+          ref={areaRef}
+          onDragOver={onAreaDragOver}
+          onDrop={onAreaDrop}
+          onDragLeave={(event) => {
+            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPreview(null);
+          }}
+        >
+          {guides ? (
+            <div className="lay-ruler" aria-hidden="true">
+              <div className="lay-ruler-cols">
+                {columns.map((column) => (
+                  <span
+                    key={column}
+                    data-active={
+                      column >= current.col && column <= current.col + current.span - 1
+                        ? "true"
+                        : undefined
+                    }
+                  >
+                    {column}
+                  </span>
+                ))}
+              </div>
+              <div className="lay-ruler-pct">
+                {[0, 25, 50, 75, 100].map((percent) => (
+                  <span key={percent} style={{ left: `${percent}%` }}>
+                    {percent}%
+                  </span>
+                ))}
+              </div>
+            </div>
+          ) : null}
+          <div className="lay-doc-wrap">
+            <InvoiceDocumentView
+              doc={liveSample}
+              logo={logo ?? PLACEHOLDER_LOGO}
+              layout={layout}
+              wrapBlock={wrap}
+            />
+            {guides ? (
+              <div className="lay-grid" aria-hidden="true">
+                <div className="lay-grid-cols">
+                  {columns.map((column) => (
+                    <span key={column} style={{ gridColumn: column }} />
+                  ))}
+                  <span
+                    className="lay-band"
+                    style={{ gridColumn: `${current.col} / span ${current.span}` }}
+                  />
+                </div>
+                <span className="lay-center" />
+              </div>
+            ) : null}
+            {preview ? (
+              <div
+                className="lay-drop"
+                data-kind={
+                  preview.drop.mode === "before" || preview.drop.mode === "after" ? "line" : "box"
+                }
+                style={preview.box}
+              />
+            ) : null}
+          </div>
+        </div>
       </div>
 
       <form action={action} className="record-form lay-panel">
@@ -218,7 +442,73 @@ export function InvoiceLayoutEditor({
         </p>
 
         <fieldset className="lay-group">
-          <legend>Perataan</legend>
+          <legend>Posisi di halaman (12 kolom)</legend>
+          {info.fixedWidth ? (
+            <p className="hint">
+              Bagian ini selalu selebar halaman (tabel) atau selebar kotak total; pindahkan naik
+              atau turun saja.
+            </p>
+          ) : (
+            <>
+              <div className="lay-stepper">
+                <span>Mulai kolom</span>
+                <button
+                  type="button"
+                  aria-label="Mulai satu kolom lebih ke kiri"
+                  disabled={current.col <= bounds.min}
+                  onClick={() => place({ col: current.col - 1 })}
+                >
+                  −
+                </button>
+                <output>{current.col}</output>
+                <button
+                  type="button"
+                  aria-label="Mulai satu kolom lebih ke kanan"
+                  disabled={current.col + current.span - 1 >= bounds.max}
+                  onClick={() => place({ col: current.col + 1 })}
+                >
+                  +
+                </button>
+              </div>
+              <div className="lay-stepper">
+                <span>Lebar (kolom)</span>
+                <button
+                  type="button"
+                  aria-label="Lebar satu kolom lebih sempit"
+                  disabled={current.span <= 1}
+                  onClick={() => place({ span: current.span - 1 })}
+                >
+                  −
+                </button>
+                <output>{current.span}</output>
+                <button
+                  type="button"
+                  aria-label="Lebar satu kolom lebih lebar"
+                  disabled={current.col + current.span - 1 >= bounds.max}
+                  onClick={() => place({ span: current.span + 1 })}
+                >
+                  +
+                </button>
+              </div>
+              <div className="lay-segment">
+                <button type="button" onClick={() => setLayout(centerBlock(layout, selected))}>
+                  Tengahkan
+                </button>
+                <button type="button" onClick={() => place({ col: 1, span: GRID_COLUMNS })}>
+                  Selebar halaman
+                </button>
+              </div>
+            </>
+          )}
+          <p className="hint" data-balanced={balanced ? "true" : "false"}>
+            Kolom {current.col}–{current.col + current.span - 1}. Ruang kosong di kiri{" "}
+            {margins.left} kolom, di kanan {margins.right} kolom
+            {balanced ? " — seimbang." : "."}
+          </p>
+        </fieldset>
+
+        <fieldset className="lay-group">
+          <legend>Perataan teks</legend>
           <div className="lay-segment">
             {(["left", "center", "right"] as const).map((value) => (
               <button
@@ -235,42 +525,12 @@ export function InvoiceLayoutEditor({
         </fieldset>
 
         <fieldset className="lay-group">
-          <legend>Lebar</legend>
-          <div className="lay-segment">
-            {(["fit", "half", "full"] as const).map((value) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={current.width === value}
-                disabled={info.fixedWidth}
-                onClick={() => change({ width: value })}
-              >
-                {WIDTH_LABEL[value]}
-              </button>
-            ))}
-          </div>
-          {info.fixedWidth ? (
-            <p className="hint">
-              Bagian ini selalu selebar halaman (tabel) atau selebar kotak total.
-            </p>
-          ) : null}
-        </fieldset>
-
-        <fieldset className="lay-group">
           <legend>Urutan (untuk layar sentuh)</legend>
           <div className="lay-segment">
-            <button
-              type="button"
-              disabled={index <= 0}
-              onClick={() => setLayout(moveBlock(layout, selected, index - 1))}
-            >
+            <button type="button" onClick={() => setLayout(shiftRow(layout, selected, "up"))}>
               Naik
             </button>
-            <button
-              type="button"
-              disabled={index >= layout.blocks.length - 1}
-              onClick={() => setLayout(moveBlock(layout, selected, index + 1))}
-            >
+            <button type="button" onClick={() => setLayout(shiftRow(layout, selected, "down"))}>
               Turun
             </button>
           </div>

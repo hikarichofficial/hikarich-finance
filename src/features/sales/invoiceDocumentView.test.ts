@@ -1,7 +1,7 @@
 import { createElement } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
-import { DEFAULT_INVOICE_LAYOUT, moveBlock } from "@/domain/sales/invoiceLayout";
+import { DEFAULT_INVOICE_LAYOUT, dropBlock } from "@/domain/sales/invoiceLayout";
 import { InvoiceDocumentView } from "./InvoiceDocumentView";
 import type { InvoiceDocument } from "@/schemas/sales";
 
@@ -119,18 +119,20 @@ describe("InvoiceDocumentView layout (decision 310)", () => {
   it("uses the standard arrangement when nothing is set", () => {
     const html = render(doc(), LOGO);
     expect(order(html).slice(0, 4)).toEqual(["logo", "issuer", "title", "customer"]);
-    expect(html).toContain("doc-row-2");
+    // the logo, the company and the title share the first row, each on its own columns
+    expect(html).toContain("--col:3;--span:6");
+    expect(html).toContain("--col:9;--span:4");
   });
 
   it("follows the arrangement frozen into an issued invoice, not the standard", () => {
-    const frozen = moveBlock(DEFAULT_INVOICE_LAYOUT, "title", 0);
+    const frozen = dropBlock(DEFAULT_INVOICE_LAYOUT, "title", { mode: "before", target: "logo" });
     const html = render(doc({ issuer: { legal_name: "PT A", layout: frozen } as never }), LOGO);
     expect(order(html)[0]).toBe("title");
   });
 
   it("an explicit arrangement (a draft preview) wins over the frozen one", () => {
-    const frozen = moveBlock(DEFAULT_INVOICE_LAYOUT, "title", 0);
-    const explicit = moveBlock(DEFAULT_INVOICE_LAYOUT, "dates", 0);
+    const frozen = dropBlock(DEFAULT_INVOICE_LAYOUT, "title", { mode: "before", target: "logo" });
+    const explicit = dropBlock(DEFAULT_INVOICE_LAYOUT, "dates", { mode: "before", target: "logo" });
     const html = renderToStaticMarkup(
       createElement(InvoiceDocumentView, {
         doc: doc({ issuer: { legal_name: "PT A", layout: frozen } as never }),

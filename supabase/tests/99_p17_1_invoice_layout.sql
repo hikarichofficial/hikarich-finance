@@ -42,6 +42,12 @@ begin
   perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_good, '{logo_size}', '"huge"'::jsonb)), '0.10 an unknown logo size is refused');
   perform test_helpers.assert(not app_private.valid_invoice_layout(v_good || '{"html":"<b>x</b>"}'::jsonb), '0.11 extra keys are refused');
   perform test_helpers.assert(app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0,width}', '"fit"'::jsonb)), '0.13 a block can be as wide as its content (the logo beside the company name)');
+  -- the grid (decision 318): `row`, `col` and `span` come together and stay inside the twelve columns
+  perform test_helpers.assert(app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0}', (v_good -> 'blocks' -> 0) - 'width' || '{"row":1,"col":1,"span":2}'::jsonb)), '0.14 a block placed on the grid (without a width) is valid');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0}', (v_good -> 'blocks' -> 0) || '{"row":1,"col":1}'::jsonb)), '0.15 row, col and span come together');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0}', (v_good -> 'blocks' -> 0) || '{"row":1,"col":8,"span":6}'::jsonb)), '0.16 a block cannot run past column 12');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0}', (v_good -> 'blocks' -> 0) || '{"row":1,"col":0,"span":2}'::jsonb)), '0.17 the first column is 1');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0}', (v_good -> 'blocks' -> 0) || '{"row":1,"col":1.5,"span":2}'::jsonb)), '0.18 columns are whole numbers');
   perform test_helpers.assert(not app_private.valid_invoice_layout('"text"'::jsonb) and not app_private.valid_invoice_layout('[]'::jsonb), '0.12 only an object is valid');
 
   perform test_helpers.login(v_admin);
