@@ -155,7 +155,13 @@ body {
   margin: 0;
   padding: 0;
   max-width: 100vw;
-  overflow-x: hidden;
+}
+
+/* `overflow-x: hidden` on <body> turns it into its own scroll container, which silently disables every
+ * `position: sticky` below it (the left menu and the top bar scrolled away with the page, decision 329).
+ * `clip` cuts off horizontal overflow without creating a scroll container, so sticky keeps working. */
+body {
+  overflow-x: clip;
 }
 
 body {

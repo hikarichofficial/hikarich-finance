@@ -2690,3 +2690,11 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      and each flow has a `stage`. The PDF chapter follows the same order with stage headings, numbers and a list of
      diagrams. Content only: no database or behaviour change. The recurring-transactions diagram describes the
      automatic daily run of decision 327.
+
+329. **The left menu and the top bar stay on screen while the page scrolls (p63, 7 October 2026).** Owner report:
+     scrolling a long page down made the left menu disappear, so the Owner had to scroll back up to find it.
+     Cause: `html, body { overflow-x: hidden }` made `<body>` its own scroll container, which silently disables
+     `position: sticky` for everything inside it (the menu and the top bar were already marked sticky). Fix:
+     `body { overflow-x: clip }` (cuts horizontal overflow without creating a scroll container). Checked in
+     Chromium: with the old rule the menu moved to -1200px after a 1200px scroll; with `clip` it stays at 0.
+     Styling only, no behaviour or database change.
