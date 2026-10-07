@@ -27,6 +27,9 @@ describe("searchResultHref", () => {
     expect(searchResultHref({ target_type: "journal_entry", target_id: TARGET_ID })).toBe(
       `/accounting/journal/${TARGET_ID}`,
     );
+    expect(searchResultHref({ target_type: "product", target_id: TARGET_ID })).toBe(
+      `/sales/products/${TARGET_ID}`,
+    );
   });
 
   it("returns null for the two kinds with no Detail screen yet, never a guessed route", () => {

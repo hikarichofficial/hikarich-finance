@@ -244,6 +244,7 @@ export const NAVIGATION: readonly NavGroup[] = [
     href: "/admin/settings",
     permission: [
       "settings.view",
+      "products.sku_settings",
       "audit.view",
       "users.view",
       "security.view",
@@ -257,6 +258,7 @@ export const NAVIGATION: readonly NavGroup[] = [
       { label: "Pengguna & Peran", href: "/admin/users", permission: ["users.view"] },
       { label: "Pengaturan", href: "/admin/settings", permission: ["settings.view"] },
       { label: "Tampilan Invoice", href: "/admin/invoice-layout", permission: ["settings.view"] },
+      { label: "Konfigurasi SKU", href: "/admin/sku", permission: ["products.sku_settings"] },
       { label: "Keamanan", href: "/admin/security", permission: ["security.view"] },
       {
         label: "Backup & Restore",

@@ -15,7 +15,7 @@ import {
  */
 
 const PRODUCT_COLUMNS =
-  "id, entity_id, kind, sku, name, description, unit, default_unit_price::text, default_currency, default_category_id, is_active, version";
+  "id, entity_id, kind, sku, name, description, unit, default_unit_price::text, default_currency, default_category_id, is_active, version, brand_id, product_type_id, sku_number, parent_product_id, variant_id, sku_manual";
 
 export class ProductConflictError extends Error {
   constructor() {
@@ -59,8 +59,17 @@ export async function createProduct(entityId: string, input: ProductInput): Prom
     .insert({ entity_id: entityId, ...input })
     .select("id")
     .single();
-  if (error || !data) throw new Error("Produk tidak dapat disimpan.");
+  if (error || !data) throw new ProductSaveError(error?.message ?? "", error?.code);
   return String(data.id);
+}
+
+/** A refusal from the database while saving a product (duplicate SKU, no right to type a SKU, ...). */
+export class ProductSaveError extends Error {
+  readonly sqlState: string | undefined;
+  constructor(message: string, sqlState?: string) {
+    super(message);
+    this.sqlState = sqlState;
+  }
 }
 
 export async function updateProduct(
@@ -70,13 +79,19 @@ export async function updateProduct(
   input: ProductInput,
 ): Promise<void> {
   const supabase = await createSupabaseServerClient();
+  // The SKU, brand and type are never changed by this form: a SKU changes only through `set_product_sku`
+  // (Owner), brand and type stay as they were when the SKU was made (decision 324).
+  const { sku: _sku, brand_id: _brand, product_type_id: _type, ...editable } = input;
+  void _sku;
+  void _brand;
+  void _type;
   const { data, error } = await supabase
     .from("products")
-    .update(input)
+    .update(editable)
     .eq("entity_id", entityId)
     .eq("id", productId)
     .eq("version", expectedVersion)
     .select("id");
-  if (error) throw new Error("Produk tidak dapat disimpan.");
+  if (error) throw new ProductSaveError(error.message, error.code);
   if (!data || data.length === 0) throw new ProductConflictError();
 }

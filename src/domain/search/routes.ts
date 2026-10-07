@@ -27,6 +27,8 @@ export function searchResultHref(
       return `/assets/equity/${row.target_id}`;
     case "journal_entry":
       return `/accounting/journal/${row.target_id}`;
+    case "product":
+      return `/sales/products/${row.target_id}`;
     case "contact":
     case "expense":
       return null;

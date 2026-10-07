@@ -35,6 +35,7 @@ export function ProductsListScreen({
   entity,
   baseCurrency,
   canCreate,
+  canConfigureSku = false,
 }: {
   rows: readonly ProductRow[];
   activeFilter: ProductFilter | undefined;
@@ -42,6 +43,8 @@ export function ProductsListScreen({
   entity: string | undefined;
   baseCurrency: string;
   canCreate: boolean;
+  /** Owner: link to Konfigurasi SKU (decision 324). */
+  canConfigureSku?: boolean;
 }) {
   const newHref = entity
     ? `/sales/products/new?entity=${encodeURIComponent(entity)}`
@@ -54,6 +57,14 @@ export function ProductsListScreen({
           <h1>Produk &amp; Jasa</h1>
           <p className="list-screen-summary">{rows.length} item ditampilkan.</p>
         </div>
+        {canConfigureSku ? (
+          <Link
+            href={entity ? `/admin/sku?entity=${encodeURIComponent(entity)}` : "/admin/sku"}
+            className="btn-secondary"
+          >
+            Konfigurasi SKU
+          </Link>
+        ) : null}
         {canCreate ? (
           <Link href={newHref} className="btn-primary">
             Tambah Produk

@@ -4032,3 +4032,59 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
   gap: var(--space-2);
   justify-content: flex-end;
 }
+
+/* SKU generator (decision 324) */
+.sku-preview {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+}
+.sku-components {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.sku-component {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: 12px;
+  background: var(--surface, rgba(255, 255, 255, 0.6));
+}
+.sku-component-move {
+  display: inline-flex;
+  gap: 6px;
+}
+.sku-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.sku-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: flex-start;
+}
+.sku-state-form {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sku-search {
+  max-width: 320px;
+}
+.sku-master {
+  display: grid;
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .sku-component {
+    grid-template-columns: 1fr 1fr;
+  }
+}

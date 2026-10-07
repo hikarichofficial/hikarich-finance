@@ -212,6 +212,10 @@ declare
                                          -- Which account kinds may never go negative, in Settings (decision 55,
                                          -- OWNER answer 4 October 2026)
                                          'set_negative_balance_block',
+                                         -- The SKU generator (decision 324)
+                                         'preview_product_sku', 'set_product_sku', 'sku_master_in_use',
+                                         'product_used_on_documents', 'save_sku_master', 'set_sku_master_state',
+                                         'save_sku_settings',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];
