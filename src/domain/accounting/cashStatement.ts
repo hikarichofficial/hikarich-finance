@@ -48,3 +48,41 @@ export function monthLabel(isoDate: string): string {
   const [year, month] = isoDate.split("-");
   return `${MONTH_NAMES[Number(month) - 1]} ${year}`;
 }
+
+/** The year from the address ("2026"); anything invalid falls back to `fallback` (the current year). */
+export function parseStatementYear(value: string | undefined, fallback: number): number {
+  const parsed = /^\d{4}$/.test(value ?? "") ? Number.parseInt(value ?? "", 10) : NaN;
+  return Number.isFinite(parsed) && parsed >= 2000 && parsed <= 2100 ? parsed : fallback;
+}
+
+/** "2026-10" moved by `delta` months ("2026-12" + 1 = "2027-01"). */
+export function shiftMonth(monthKey: string, delta: number): string {
+  const [year, month] = monthKey.split("-").map(Number);
+  const index = year * 12 + (month - 1) + delta;
+  const nextYear = Math.floor(index / 12);
+  return `${nextYear}-${String((index % 12) + 1).padStart(2, "0")}`;
+}
+
+/** The years to offer in the year picker: a few before and after, always including the chosen one. */
+export function yearOptions(selected: number, currentYear: number): number[] {
+  const first = Math.min(selected, currentYear - 5);
+  const last = Math.max(selected, currentYear + 1);
+  return Array.from({ length: last - first + 1 }, (_, i) => last - i);
+}
+
+/** Totals of a year's twelve months (oldest first): opening, money in, money out, closing. */
+export function yearTotals(
+  months: readonly { masuk: string; keluar: string; saldo_akhir: string }[],
+): { opening: number; totalIn: number; totalOut: number; closing: number } {
+  const first = months[0];
+  const last = months[months.length - 1];
+  if (!first || !last) return { opening: 0, totalIn: 0, totalOut: 0, closing: 0 };
+  const totalIn = months.reduce((sum, m) => sum + Number(m.masuk), 0);
+  const totalOut = months.reduce((sum, m) => sum + Number(m.keluar), 0);
+  return {
+    opening: Number(first.saldo_akhir) - Number(first.masuk) + Number(first.keluar),
+    totalIn,
+    totalOut,
+    closing: Number(last.saldo_akhir),
+  };
+}

@@ -59,6 +59,10 @@ export function RecurringRuleRegisterScreen({
         <div>
           <h1>Transaksi Berulang</h1>
           <p className="list-screen-summary">{rows.length} transaksi berulang ditampilkan.</p>
+          <p className="list-screen-summary">
+            Draf dibuat otomatis setiap hari pada tanggalnya. Setelah itu, terbitkan atau setujui
+            draf tersebut seperti biasa.
+          </p>
         </div>
         <div className="invoice-actions">
           {canCreate ? (

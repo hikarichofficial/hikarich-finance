@@ -306,22 +306,26 @@
     {
       "slug": "rekening-koran",
       "title": "Cara Membaca Rekening Koran (Uang Masuk dan Keluar per Bulan)",
-      "summary": "Melihat uang masuk dan keluar kas dan bank bulan demi bulan seperti rekening koran bank, lengkap dengan saldo awal, saldo berjalan, dan saldo akhir.",
+      "summary": "Melihat ringkasan uang masuk dan keluar kas dan bank 12 bulan dalam satu tahun, lalu membuka rincian satu bulan seperti rekening koran bank, lengkap dengan saldo awal, saldo berjalan, dan saldo akhir.",
       "path": "Akuntansi > Rekening Koran",
       "who": "Lihat: accounting.view (OWNER, Finance Admin, Accountant, dan peran yang boleh melihat akuntansi).",
       "quick": "Halaman ini hanya membaca. Angkanya berasal dari jurnal yang **sudah diposting**: draf jurnal belum dihitung. **Masuk** = sisi debit kas/bank, **Keluar** = sisi kredit.",
       "steps": [
         {
           "title": "Buka Akuntansi > Rekening Koran",
-          "text": "Halaman menampilkan bulan berjalan untuk semua kas dan bank. Empat kartu di atas memuat **Saldo Awal**, **Uang Masuk**, **Uang Keluar**, dan **Saldo Akhir** bulan itu."
+          "text": "Halaman utama menampilkan ringkasan 12 bulan (Januari sampai Desember) tahun berjalan untuk semua kas dan bank. Empat kartu di atas memuat **Saldo Awal**, **Uang Masuk**, **Uang Keluar**, dan **Saldo Akhir** tahun itu; tabelnya memuat uang masuk, uang keluar, dan saldo akhir tiap bulan."
         },
         {
           "title": "Pilih rekening dan bulan",
-          "text": "Pilih **Rekening** (satu rekening, atau **Semua Kas & Bank**) dan **Bulan**, lalu tekan **Terapkan**."
+          "text": "Pilih **Rekening** (satu rekening, atau **Semua Kas & Bank**) dan **Tahun**, lalu tekan **Terapkan**. Tombol **‹ tahun sebelumnya** dan **tahun berikutnya ›** juga tersedia."
+        },
+        {
+          "title": "Klik nama bulan untuk rincian",
+          "text": "Klik nama bulan di tabel (mis. **September 2026**) untuk membuka halaman rekening koran bulan itu, dengan **Saldo Awal**, **Uang Masuk**, **Uang Keluar**, dan **Saldo Akhir** bulan itu. Tombol di atas memindahkan ke bulan sebelumnya atau berikutnya, dan tautan **‹ Rekening Koran tahun** kembali ke ringkasan."
         },
         {
           "title": "Baca tabel mutasi",
-          "text": "Setiap baris memuat **Tanggal**, **No. Jurnal** (klik untuk membuka jurnalnya), **Keterangan**, **Rekening** (bila semua rekening dipilih), **Masuk**, **Keluar**, dan **Saldo** berjalan setelah baris itu. Baris pertama dimulai dari Saldo Awal, baris terakhir berakhir di Saldo Akhir."
+          "text": "Pada halaman bulan, setiap baris memuat **Tanggal**, **No. Jurnal** (klik untuk membuka jurnalnya), **Keterangan**, **Rekening** (bila semua rekening dipilih), **Masuk**, **Keluar**, dan **Saldo** berjalan setelah baris itu. Baris pertama dimulai dari Saldo Awal, baris terakhir berakhir di Saldo Akhir."
         },
         {
           "title": "Pindah halaman",
@@ -330,7 +334,7 @@
         },
         {
           "title": "Pantau bulan demi bulan",
-          "text": "Bagian **Ringkasan 12 Bulan** menampilkan uang masuk, uang keluar, dan saldo akhir 12 bulan terakhir. Klik nama bulan untuk membuka rekening koran bulan itu."
+          "text": "Dari halaman bulan, tombol di atas tabel memindahkan ke bulan sebelumnya atau berikutnya. Dari ringkasan tahun, ganti **Tahun** untuk melihat tahun lain."
         }
       ],
       "result": [

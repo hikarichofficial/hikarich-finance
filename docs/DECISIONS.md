@@ -2660,3 +2660,21 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      preview panel that opens from a list row no longer starts the page-loading bar or spinner, because it opens
      from data already on the page; (b) `staleTimes` in the Next.js config lets the browser reuse a page it already
      has for 30 seconds on back/forward and repeat visits, and any save clears it (speed, owner request).
+
+327. **Recurring transactions run by themselves; Rekening Koran becomes a year overview with a page per month
+     (p60, 7 October 2026).** Owner request: once a rule is set up (for example the Indihome bill, starting
+     tomorrow), on its date the invoice / expense / bill must simply be there as a draft, and the Owner or staff
+     posts it later when it is paid; and the Rekening Koran main page must show only the 12-month summary of a
+     chosen year, with each month opening its own detail page. (a) Migration `20261007210000` adds
+     `app_private.run_all_due_recurring()`, which runs the existing engine (`run_due_recurring_occurrences`, on its
+     structurally authorized service path) for every active Entity, each Entity isolated so one failure cannot
+     block the others, and schedules it with pg_cron at 15:10, 16:10 and 17:10 UTC (just after midnight in WIT,
+     WITA, WIB). A run with nothing due does nothing; a failed occurrence is recorded and retried on the next day's
+     run, exactly as before. What is generated is unchanged: drafts only, never posted, one occurrence per rule per
+     run (a rule far in the past catches up one schedule per day; the manual button still catches up faster).
+     Where pg_cron is not available (the bare test database) the migration only prints a notice. This supersedes
+     the "no automatic scheduler" note of decision 325. The manual button "Jalankan yang Jatuh Tempo" stays. (b)
+     `/accounting/statement` now shows the twelve months of a chosen year (January to December) with year and
+     account pickers and previous/next-year buttons; each month name opens `/accounting/statement/YYYY-MM`, a page
+     with that month's four cards, its lines in pages of 20, and previous/next-month buttons. No database change
+     for (b): the existing `cash_statement` already returns the twelve months ending at the month asked for.
