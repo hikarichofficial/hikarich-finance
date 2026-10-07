@@ -355,8 +355,8 @@
       "title": "Cara Mencatat Tagihan Rutin Bulanan (Indihome, IPL) sampai Lunas",
       "summary": "Menyiapkan draf tagihan atau pengeluaran rutin tiap bulan dengan aturan berulang, lalu menyetujui dan membayarnya sampai berstatus Lunas.",
       "path": "Perencanaan > Transaksi Berulang; lalu Pembelian > Tagihan",
-      "who": "Buat aturan dan tekan Jalankan yang Jatuh Tempo: planning.recurring_edit dan planning.recurring_run (OWNER, Finance Admin). Setujui tagihan: bills.approve. Bayar: bills.pay (OWNER, Finance Admin).",
-      "quick": "Transaksi berulang hanya menyiapkan **draf**; ia tidak berjalan dan tidak membayar sendiri. Tiap bulan: tekan **Jalankan yang Jatuh Tempo**, setujui draf tagihannya, lalu **Bayar Tagihan**. Status **Lunas** terisi otomatis setelah pembayaran dicatat.",
+      "who": "Buat aturan: planning.recurring_edit (OWNER, Finance Admin). Tombol Jalankan yang Jatuh Tempo (opsional): planning.recurring_run. Setujui tagihan: bills.approve. Bayar: bills.pay (OWNER, Finance Admin).",
+      "quick": "Transaksi berulang membuat **draf** sendiri pada tanggalnya, tetapi tidak menyetujui atau membayar sendiri. Tiap bulan: setujui draf tagihannya, lalu **Bayar Tagihan**. Status **Lunas** terisi otomatis setelah pembayaran dicatat.",
       "steps": [
         {
           "title": "Pilih cara yang cocok",
@@ -372,9 +372,9 @@
           "tip": "Tagihan yang jumlahnya berubah tiap bulan (mis. pulsa atau listrik) tetap bisa: ubah **Harga Satuan** pada draf sebelum disetujui."
         },
         {
-          "title": "Setiap bulan: jalankan aturan",
-          "text": "Pada tanggal tagihan, buka **Perencanaan > Transaksi Berulang** dan tekan **Jalankan yang Jatuh Tempo**. Sistem membuat satu draf tagihan untuk tiap aturan yang jatuh tempo. Buka aturannya dan **Riwayat Pembuatan** untuk menekan **Lihat →** ke drafnya.",
-          "warning": "Draf tidak muncul sendiri. Bila lupa menekan tombol itu, belum ada draf bulan itu."
+          "title": "Setiap bulan: draf muncul sendiri",
+          "text": "Pada tanggal tagihan, tepat lewat tengah malam, sistem membuat sendiri satu draf tagihan untuk tiap aturan yang tanggalnya tiba; Anda tidak perlu menekan apa pun. Draf ada di **Pembelian > Tagihan**; atau buka aturannya, **Riwayat Pembuatan**, lalu **Lihat →**.",
+          "warning": "Draf itu belum tercatat sebagai utang sampai tagihannya disetujui. Bila ingin menjalankan lebih awal, tombol **Jalankan yang Jatuh Tempo** ada di daftar Transaksi Berulang."
         },
         {
           "title": "Periksa dan setujui",
@@ -394,7 +394,7 @@
         "Tiap bulan ada satu tagihan baru yang tinggal Anda setujui dan bayar; setelah pembayaran dicatat statusnya otomatis Lunas dan terlihat di Pembayaran Keluar dan Umur Utang."
       ],
       "rules": [
-        "Aturan berulang tidak berjalan sendiri: draf dibuat hanya saat **Jalankan yang Jatuh Tempo** ditekan, satu draf per aturan per tekanan.",
+        "Draf dibuat otomatis setiap hari tepat lewat tengah malam, satu draf per aturan per jalan. Tombol **Jalankan yang Jatuh Tempo** menjalankan hal yang sama lebih awal.",
         "Draf belum memengaruhi pembukuan. Utang baru tercatat setelah tagihan disetujui, dan kas baru berkurang setelah pembayaran dicatat.",
         "Status Lunas tidak diisi manual; ia mengikuti pembayaran yang tercatat.",
         "Pengeluaran berulang tidak punya langkah bayar terpisah: kas berkurang saat pengeluaran dikonfirmasi."

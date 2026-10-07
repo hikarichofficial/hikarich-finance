@@ -817,7 +817,7 @@
       "summary": "Membuat aturan yang menyiapkan draf invoice, tagihan, atau pengeluaran rutin tiap minggu atau bulan.",
       "path": "Perencanaan > Transaksi Berulang",
       "who": "Lihat aturan dan riwayatnya: planning.view. Buat, ubah, jeda, lanjutkan, dan akhiri aturan: planning.recurring_edit (OWNER dan Finance Admin). Tombol **Jalankan yang Jatuh Tempo**: planning.recurring_run (OWNER dan Finance Admin).",
-      "quick": "Aturan berulang tidak berjalan sendiri. Draf baru dibuat setiap kali seseorang menekan **Jalankan yang Jatuh Tempo**, dan hasilnya selalu **Draf** yang masih perlu Anda terbitkan atau konfirmasi.",
+      "quick": "Aturan berulang berjalan sendiri: setiap hari, tepat lewat tengah malam, aplikasi membuat draf untuk aturan yang tanggalnya tiba. Hasilnya selalu **Draf** yang masih perlu Anda terbitkan, setujui, atau konfirmasi. Tombol **Jalankan yang Jatuh Tempo** hanya untuk menjalankan lebih awal.",
       "steps": [
         {
           "title": "Buka Perencanaan > Transaksi Berulang",
@@ -845,9 +845,9 @@
           "text": "Pada tabel baris, isi **Deskripsi**, **Kuantitas**, **Harga Satuan**, **Perlakuan** (tagihan dan pengeluaran) atau **Diskon** (invoice), dan **Kategori**. Tekan **+ Tambah Baris** untuk baris lain. Baris yang deskripsi atau harga satuannya kosong tidak disimpan. Tekan **Buat Transaksi Berulang**."
         },
         {
-          "title": "Jalankan yang jatuh tempo",
-          "text": "Di daftar, tekan **Jalankan yang Jatuh Tempo**. Aplikasi membuat satu draf untuk setiap aturan Aktif yang tanggal **Berikutnya**-nya sudah tiba atau lewat. Pesan hasilnya berbunyi “<jumlah> kejadian berhasil dibuat.” atau “Tidak ada kejadian yang jatuh tempo.”",
-          "tip": "Satu tekanan hanya membuat satu draf per aturan. Aturan yang tanggal mulainya sudah lama lewat butuh beberapa kali tekan sampai tanggal berikutnya melewati hari ini."
+          "title": "Draf muncul sendiri pada tanggalnya",
+          "text": "Anda tidak perlu menekan apa pun. Setiap hari tepat lewat tengah malam (waktu Entity), aplikasi membuat draf untuk aturan yang tanggalnya tiba. Bila ingin menjalankan lebih awal, tekan **Jalankan yang Jatuh Tempo** di daftar. Aplikasi membuat satu draf untuk setiap aturan Aktif yang tanggal **Berikutnya**-nya sudah tiba atau lewat. Pesan hasilnya berbunyi “<jumlah> kejadian berhasil dibuat.” atau “Tidak ada kejadian yang jatuh tempo.”",
+          "tip": "Satu kali jalan hanya membuat satu draf per aturan. Aturan yang tanggal mulainya sudah lama lewat mengejar satu jadwal per hari."
         },
         {
           "title": "Periksa Riwayat Pembuatan dan selesaikan drafnya",
@@ -860,21 +860,21 @@
         }
       ],
       "result": [
-        "Setiap penekanan **Jalankan yang Jatuh Tempo** menghasilkan draf invoice, draf tagihan, atau draf pengeluaran, dan tanggal **Berikutnya** pada aturan maju satu jadwal.",
+        "Pada tanggalnya, aplikasi menghasilkan draf invoice, draf tagihan, atau draf pengeluaran, dan tanggal **Berikutnya** pada aturan maju satu jadwal.",
         "Mengubah aturan tidak mengubah draf yang sudah dibuat sebelumnya."
       ],
       "rules": [
-        "Tidak ada penjadwal otomatis. Draf hanya dibuat saat pengguna yang berhak menekan **Jalankan yang Jatuh Tempo**.",
-        "Satu tekanan menghasilkan paling banyak satu draf per aturan, dengan tanggal dokumen sama dengan tanggal **Berikutnya** aturan itu.",
+        "Draf dibuat otomatis setiap hari tepat lewat tengah malam. Tombol **Jalankan yang Jatuh Tempo** (hanya pengguna yang berhak) menjalankan hal yang sama lebih awal.",
+        "Satu kali jalan menghasilkan paling banyak satu draf per aturan, dengan tanggal dokumen sama dengan tanggal **Berikutnya** aturan itu.",
         "Interval antara 1 dan 365. Mingguan berarti kelipatan 7 hari, Bulanan berarti tanggal yang sama setiap kelipatan bulan, dan Interval hari kustom berarti tiap sekian hari.",
         "Pada aturan bulanan yang dimulai tanggal 29 sampai 31, bulan yang lebih pendek memakai hari terakhir bulan itu, dan jadwal berikutnya mengikuti tanggal tersebut (misalnya setelah Februari menjadi tanggal 28).",
         "Jatuh tempo hanya berlaku untuk invoice dan tagihan. Dengan **Tanggal tetap**, tanggal 1–31 dipakai tiap bulan (bulan pendek memakai hari terakhirnya); bila tanggal itu sudah lewat dari tanggal dokumen, jatuh tempo jatuh di bulan berikutnya. Dengan **Beberapa hari setelah dibuat**, nilainya 0 sampai 365 hari.",
-        "Bila pembuatan draf gagal, aturan tidak maju dan percobaan diulang pada tekanan berikutnya.",
+        "Bila pembuatan draf gagal, aturan tidak maju dan percobaan diulang pada jalan berikutnya (otomatis keesokan harinya).",
         "Aturan menjadi Berakhir otomatis setelah draf terakhir yang jadwal berikutnya melewati **Tanggal Berakhir**. Aturan Berakhir tidak bisa diubah atau dilanjutkan.",
         "Aturan hanya membuat draf. Tidak ada invoice, tagihan, atau pengeluaran berulang yang langsung terbit atau diposting."
       ],
       "mistakes": [
-        "Menunggu draf muncul sendiri pada tanggalnya. Seseorang harus menekan **Jalankan yang Jatuh Tempo**.",
+        "Mengira draf yang muncul sendiri sudah tercatat. Anda tetap harus menerbitkan, menyetujui, atau mengonfirmasinya.",
         "Mengira draf yang dibuat sudah menjadi invoice atau pengeluaran yang tercatat. Statusnya masih Draf.",
         "Mengubah aturan berharap draf lama ikut berubah.",
         "Memilih Mingguan atau Bulanan lalu lupa mengisi **Interval** sesuai kebutuhan, misalnya 3 untuk tiap 3 bulan."

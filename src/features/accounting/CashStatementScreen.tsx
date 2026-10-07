@@ -1,13 +1,18 @@
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
-import { monthLabel, pageWindow, STATEMENT_PAGE_SIZE } from "@/domain/accounting/cashStatement";
+import {
+  monthLabel,
+  pageWindow,
+  shiftMonth,
+  STATEMENT_PAGE_SIZE,
+} from "@/domain/accounting/cashStatement";
 import type { CashAccountOption, CashStatement } from "@/schemas/cashStatement";
 import { formatShortDate } from "./format";
 
 /**
- * "Rekening Koran" (decision 326): the cash and bank accounts month by month, like a bank statement. Opening
- * balance, money in, money out and closing balance of the chosen month, then its lines with a running balance,
- * in pages of 20 that are reached with page-number buttons, plus a 12-month overview to jump between months.
+ * One month of the "Rekening Koran" (decisions 326-327), on its own page for focus: opening balance, money in,
+ * money out and closing balance of the month, then its lines with a running balance, in pages of 20 that are
+ * reached with page-number buttons. The 12-month overview lives on the main Rekening Koran page.
  */
 export function CashStatementScreen({
   statement,
@@ -27,13 +32,21 @@ export function CashStatementScreen({
   const monthKey = statement.month_start.slice(0, 7);
   const totalPages = Math.max(1, Math.ceil(statement.total_rows / STATEMENT_PAGE_SIZE));
 
+  const yearHref = (() => {
+    const params = new URLSearchParams();
+    if (entity) params.set("entity", entity);
+    if (accountId) params.set("account", accountId);
+    params.set("year", monthKey.slice(0, 4));
+    return `/accounting/statement?${params.toString()}`;
+  })();
+
   function href(options: { month?: string; page?: number }): string {
     const params = new URLSearchParams();
     if (entity) params.set("entity", entity);
     if (accountId) params.set("account", accountId);
-    params.set("month", options.month ?? monthKey);
     if (options.page && options.page > 1) params.set("page", String(options.page));
-    return `/accounting/statement?${params.toString()}`;
+    const query = params.toString();
+    return `/accounting/statement/${options.month ?? monthKey}${query ? `?${query}` : ""}`;
   }
 
   const money = (value: string) => formatMoney(value, currency);
@@ -42,36 +55,27 @@ export function CashStatementScreen({
     <div className="list-screen">
       <header className="list-screen-header">
         <div>
-          <h1>Rekening Koran</h1>
           <p className="list-screen-summary">
-            Uang masuk dan keluar kas &amp; bank per bulan, dari jurnal yang sudah diposting.
+            <Link href={yearHref}>‹ Rekening Koran {monthKey.slice(0, 4)}</Link>
+          </p>
+          <h1>Rekening Koran {monthLabel(statement.month_start)}</h1>
+          <p className="list-screen-summary">
+            {accountId
+              ? (accounts.find((account) => account.id === accountId)?.name ?? "Satu rekening")
+              : "Semua Kas & Bank"}{" "}
+            · dari jurnal yang sudah diposting.
           </p>
         </div>
       </header>
 
-      <div className="list-screen-toolbar">
-        <form method="get" className="list-search-form">
-          {entity ? <input type="hidden" name="entity" value={entity} /> : null}
-          <label>
-            Rekening
-            <select name="account" defaultValue={accountId ?? ""}>
-              <option value="">Semua Kas &amp; Bank</option>
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.name}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label>
-            Bulan
-            <input type="month" name="month" defaultValue={monthKey} />
-          </label>
-          <button type="submit" className="btn-secondary">
-            Terapkan
-          </button>
-        </form>
-      </div>
+      <nav className="stmt-pager" aria-label="Pindah bulan">
+        <Link className="stmt-page" href={href({ month: shiftMonth(monthKey, -1) })}>
+          ‹ {monthLabel(`${shiftMonth(monthKey, -1)}-01`)}
+        </Link>
+        <Link className="stmt-page" href={href({ month: shiftMonth(monthKey, 1) })}>
+          {monthLabel(`${shiftMonth(monthKey, 1)}-01`)} ›
+        </Link>
+      </nav>
 
       <section
         className="stmt-summary"
@@ -95,7 +99,6 @@ export function CashStatementScreen({
         </div>
       </section>
 
-      <h2 className="dashboard-section-title">{monthLabel(statement.month_start)}</h2>
       {statement.rows.length === 0 ? (
         <div className="list-empty">
           <p>Tidak ada uang masuk atau keluar pada bulan ini.</p>
@@ -184,47 +187,6 @@ export function CashStatementScreen({
           </span>
         </nav>
       ) : null}
-
-      <h2 className="dashboard-section-title">Ringkasan 12 Bulan</h2>
-      <table className="record-table record-table-stacked">
-        <thead>
-          <tr>
-            <th scope="col">Bulan</th>
-            <th scope="col" className="num">
-              Uang Masuk
-            </th>
-            <th scope="col" className="num">
-              Uang Keluar
-            </th>
-            <th scope="col" className="num">
-              Saldo Akhir
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {[...statement.months].reverse().map((month) => (
-            <tr
-              key={month.month}
-              className={month.month === statement.month_start ? "stmt-current-month" : undefined}
-            >
-              <td data-label="Bulan">
-                <Link href={href({ month: month.month.slice(0, 7) })}>
-                  {monthLabel(month.month)}
-                </Link>
-              </td>
-              <td data-label="Uang Masuk" className="num stmt-in">
-                {money(month.masuk)}
-              </td>
-              <td data-label="Uang Keluar" className="num stmt-out">
-                {money(month.keluar)}
-              </td>
-              <td data-label="Saldo Akhir" className="num">
-                {money(month.saldo_akhir)}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
     </div>
   );
 }
