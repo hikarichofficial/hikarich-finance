@@ -1,15 +1,23 @@
 import Link from "next/link";
-import { FLOWS, FLOW_INTRO, FLOW_PAGE_TITLE, QUICK_LOOKUP } from "@/domain/guide/flows";
+import {
+  FLOW_INTRO,
+  FLOW_PAGE_TITLE,
+  QUICK_LOOKUP,
+  flowNumber,
+  flowPageUrl,
+  flowStages,
+} from "@/domain/guide/flows";
 import { findGuide } from "@/domain/guide/guides";
-import { FlowDiagram } from "@/features/guide/FlowDiagram";
 
 export const metadata = { title: `${FLOW_PAGE_TITLE} · Panduan` };
 
 /**
- * Alur Kerja (decision 300): the guide's flow diagrams -- "when this happens, which menu do I open and what
- * comes next" -- plus a quick lookup table. Same content as the PDF's flow chapter.
+ * Alur Kerja (decisions 300, 328): the index of the guide's flow diagrams. Every diagram has its own page;
+ * here they are listed in the order of the owner's journey, from the first time using the app to every
+ * menu, grouped by stage, plus a quick lookup table. Same content as the PDF's flow chapter.
  */
 export default function FlowOverviewPage() {
+  const stages = flowStages();
   return (
     <article className="record-detail guide-screen guide-page">
       <nav className="guide-breadcrumb" aria-label="Jejak halaman">
@@ -21,16 +29,24 @@ export default function FlowOverviewPage() {
         <p className="list-screen-summary">{FLOW_INTRO}</p>
       </header>
 
-      <nav className="guide-flow-toc" aria-label="Daftar diagram">
-        <h2>Diagram yang tersedia</h2>
-        <ul className="guide-list">
-          {FLOWS.map((flow) => (
-            <li key={flow.id}>
-              <a href={`#alur-${flow.id}`}>{flow.title}</a>
-            </li>
-          ))}
-        </ul>
-      </nav>
+      {stages.map((stage) => (
+        <section key={stage.title} className="guide-flow-stage" aria-label={stage.title}>
+          <h2>{stage.title}</h2>
+          <ol className="guide-flow-cards">
+            {stage.flows.map((flow) => (
+              <li key={flow.id}>
+                <Link className="guide-flow-card" href={flowPageUrl(flow.id)}>
+                  <span className="guide-flow-card-number">{flowNumber(flow.id)}</span>
+                  <span className="guide-flow-card-body">
+                    <strong>{flow.title}</strong>
+                    <span>{flow.summary}</span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
 
       <section className="guide-table-section" aria-labelledby="alur-cepat">
         <h2 id="alur-cepat">Saya mau ... buka menu apa?</h2>
@@ -60,10 +76,6 @@ export default function FlowOverviewPage() {
           </table>
         </div>
       </section>
-
-      {FLOWS.map((flow) => (
-        <FlowDiagram key={flow.id} flow={flow} headingLevel={2} />
-      ))}
     </article>
   );
 }

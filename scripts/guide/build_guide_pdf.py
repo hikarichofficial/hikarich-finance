@@ -1030,15 +1030,32 @@ def flow_chapter(titles):
     story = [Paragraph("Alur Kerja (Diagram)", styles["GuideGroupHeading"])]
     story += paras(data["intro"])
     story.append(Spacer(1, 4))
+    story.append(Paragraph("Daftar diagram, urut dari pertama kali memakai aplikasi", styles["GuideH3"]))
+    listed_stage = None
+    for number, fl in enumerate(data["flows"], start=1):
+        if fl.get("stage") != listed_stage:
+            listed_stage = fl.get("stage")
+            story.append(Paragraph("<b>%s</b>" % _plain(listed_stage or ""), styles["GuideBody"]))
+        story.append(Paragraph('&nbsp;&nbsp;&bull;&nbsp; <a href="#f-%s" color="#1a4d8f"><u>%d. %s</u></a>'
+                               % (fl["id"], number, _plain(fl["title"])), styles["GuideCell"]))
+    story.append(Spacer(1, 6))
     story.append(Paragraph("Saya mau ... buka menu apa?", styles["GuideH3"]))
     rows = []
     for row in data["quick"]:
         rows.append([row["want"], row["menu"], "[%s](%s)" % (titles.get(row["guide"], row["guide"]), row["guide"])])
     story.append(data_table(["Saya mau", "Buka menu", "Panduan lengkap"], rows, [150, 170, 120]))
     story.append(PageBreak())
-    for fl in data["flows"]:
-        pieces = flow_diagrams.to_drawings(fl, 440, 600)
-        head = [Paragraph('<a name="f-%s"/>%s' % (fl["id"], _plain(fl["title"])), styles["GuideHeading"])]
+    current_stage = None
+    for number, fl in enumerate(data["flows"], start=1):
+        for draw_width in (440, 400, 360, 320):  # a flow with one very tall decision is shrunk until it fits a page
+            pieces = flow_diagrams.to_drawings(fl, draw_width, 600)
+            if all(piece.height <= 640 for piece in pieces):
+                break
+        if fl.get("stage") != current_stage:
+            current_stage = fl.get("stage")
+            story.append(CondPageBreak(pieces[0].height + 140))
+            story.append(Paragraph(_plain(current_stage or ""), styles["GuideGroupHeading"]))
+        head = [Paragraph('<a name="f-%s"/>%d. %s' % (fl["id"], number, _plain(fl["title"])), styles["GuideHeading"])]
         head += paras(fl["summary"])
         head.append(Spacer(1, 4))
         story.append(CondPageBreak(pieces[0].height + 90))

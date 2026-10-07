@@ -32,6 +32,8 @@ export type FlowItem = FlowNode | FlowChoice;
 
 export interface Flow {
   readonly id: string;
+  /** "Tahap 3 · Pembelian": the stage of the owner's journey this diagram belongs to (decision 328). */
+  readonly stage: string;
   readonly title: string;
   readonly summary: string;
   readonly guides: readonly string[];
@@ -60,6 +62,43 @@ export function flowDiagramUrl(id: string): string {
 
 export function findFlow(id: string): Flow | undefined {
   return FLOWS.find((flow) => flow.id === id);
+}
+
+export interface FlowStage {
+  readonly title: string;
+  readonly flows: readonly Flow[];
+}
+
+/**
+ * The diagrams grouped by stage, in the order of the journey (decision 328): first time using the app, then
+ * sales, purchases, cash and bank, bookkeeping, tax, assets, payroll, planning, reports, documents and
+ * administration. The order of `alur.json` IS the order shown; stages are the runs of equal `stage`.
+ */
+export function flowStages(): readonly FlowStage[] {
+  const stages: { title: string; flows: Flow[] }[] = [];
+  for (const flow of FLOWS) {
+    const last = stages.at(-1);
+    if (last && last.title === flow.stage) last.flows.push(flow);
+    else stages.push({ title: flow.stage, flows: [flow] });
+  }
+  return stages;
+}
+
+/** 1-based position of a diagram in the journey. */
+export function flowNumber(id: string): number {
+  return FLOWS.findIndex((flow) => flow.id === id) + 1;
+}
+
+/** The diagram before and after this one in the journey. */
+export function flowNeighbours(id: string): { prev?: Flow; next?: Flow } {
+  const index = FLOWS.findIndex((flow) => flow.id === id);
+  if (index < 0) return {};
+  return { prev: FLOWS[index - 1], next: FLOWS[index + 1] };
+}
+
+/** The address of one diagram's own page. */
+export function flowPageUrl(id: string): string {
+  return `/guide/alur-kerja/${id}`;
 }
 
 /** Diagrams that explain a given guide, shown above its steps. */

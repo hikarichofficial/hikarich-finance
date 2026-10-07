@@ -2678,3 +2678,15 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      account pickers and previous/next-year buttons; each month name opens `/accounting/statement/YYYY-MM`, a page
      with that month's four cards, its lines in pages of 20, and previous/next-month buttons. No database change
      for (b): the existing `cash_statement` already returns the twelve months ending at the month asked for.
+
+328. **Alur Kerja: one page per diagram, in the order of the owner's journey (p61, 7 October 2026).** Owner
+     request: every flow diagram gets its own page so the diagrams are never mixed, and they are ordered from the
+     first time the website is used through every menu and purpose of the app. `/guide/alur-kerja` is now an index:
+     the diagrams listed as numbered cards grouped by stage, then the "Saya mau ... buka menu apa?" lookup table.
+     Each diagram opens at `/guide/alur-kerja/<id>` with its number ("Diagram 8 dari 30"), the picture, the text
+     version, the step-by-step guides it relates to, and previous/next buttons that walk the journey. The set grew
+     from 7 to 30 diagrams in 11 stages: Memulai, Penjualan, Pembelian, Kas & Bank, Pembukuan, Pajak, Aset &
+     Pendanaan, Payroll, Perencanaan, Laporan, Dokumen & Administrasi. The order of `alur.json` is the order shown
+     and each flow has a `stage`. The PDF chapter follows the same order with stage headings, numbers and a list of
+     diagrams. Content only: no database or behaviour change. The recurring-transactions diagram describes the
+     automatic daily run of decision 327.

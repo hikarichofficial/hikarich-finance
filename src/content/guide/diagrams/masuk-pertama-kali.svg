@@ -1,0 +1,124 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 1272" width="710" height="1272" role="img" aria-label="Pertama Kali Masuk: Kata Sandi, Kode Autentikator, dan Memilih Entity" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:a5740e7a7a24272b (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<title>Pertama Kali Masuk: Kata Sandi, Kode Autentikator, dan Memilih Entity</title>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="250" y="18" width="210" height="29.5" rx="14.75" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="355" y="36.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Buka alamat aplikasi, belum masuk</text>
+<polyline points="355,47.5 355,70.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,75.5 350.5,67.5 359.5,67.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="75.5" width="210" height="107" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="88.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="105" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Isi Email dan Kata sandi, tekan</text>
+<text x="260" y="118.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Masuk</text>
+<text x="260" y="133.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Halaman Masuk &gt; Email, Kata sandi &gt;</text>
+<text x="260" y="145.5" font-size="9" fill="#1a4d8f" text-anchor="start">Masuk</text>
+<text x="260" y="160.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Akun dibuat OWNER; tidak ada Daftar atau</text>
+<text x="260" y="172" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Lupa Kata Sandi</text>
+<polyline points="355,182.5 355,205.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,210.5 350.5,202.5 359.5,202.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="355,210.5 505,245.5 355,280.5 205,245.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="355" y="242.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Aplikasi meminta kode</text>
+<text x="355" y="255.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">autentikator?</text>
+<polyline points="355,280.5 355,296.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,296.5 587,296.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,296.5 123,325.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,330.5 118.5,322.5 127.5,322.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="330.5" width="210" height="107" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="343.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="360" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Atur autentikator, pindai QR, isi</text>
+<text x="28" y="373.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">kode 6 digit, Aktifkan</text>
+<text x="28" y="388.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Verifikasi dua langkah &gt; Atur</text>
+<text x="28" y="400.5" font-size="9" fill="#1a4d8f" text-anchor="start">autentikator</text>
+<text x="28" y="415.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Tidak ada kode cadangan; simpan aplikasi</text>
+<text x="28" y="427" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">autentikator baik-baik</text>
+<rect x="84.64" y="305.5" width="76.73" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="316.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya, pertama kali</text>
+<polyline points="355,296.5 355,325.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,330.5 350.5,322.5 359.5,322.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="330.5" width="210" height="95" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="343.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="360" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Isi Kode autentikator (6 digit), tekan</text>
+<text x="260" y="373.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Verifikasi</text>
+<text x="260" y="388.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Verifikasi dua langkah</text>
+<text x="260" y="403.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Kode berganti tiap 30 detik; bila ditolak, tunggu</text>
+<text x="260" y="415" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">kode baru</text>
+<rect x="313.57" y="305.5" width="82.86" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="316.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya, sudah pernah</text>
+<rect x="553.6" y="305.5" width="66.79" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="587" y="316.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak diminta</text>
+<polyline points="123,437.5 123,457.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,425.5 355,457.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="587,296.5 587,457.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,457.5 587,457.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,457.5 355,480.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,485.5 350.5,477.5 359.5,477.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="485.5" width="210" height="66.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="260" y="498.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="260" y="515" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Dashboard terbuka</text>
+<text x="260" y="530" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Menu yang tidak diizinkan untuk peran Anda</text>
+<text x="260" y="541.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">tidak tampil</text>
+<polyline points="355,552 355,575" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,580 350.5,572 359.5,572" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="355,580 505,615 355,650 205,615" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="355" y="612" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Label Entity di kiri atas sudah</text>
+<text x="355" y="625" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">yang Anda kerjakan?</text>
+<polyline points="355,650 355,666" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,666 471,666" fill="none" stroke="#444444" stroke-width="1.4"/>
+<rect x="227.8" y="675" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="239" y="686" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<polyline points="471,666 471,695" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="471,700 466.5,692 475.5,692" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="366" y="700" width="210" height="83.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="376" y="713" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="376" y="729.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Klik pemilih Entity, pilih PT atau</text>
+<text x="376" y="743" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pribadi</text>
+<text x="376" y="758" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pemilih Entity di bilah atas</text>
+<text x="376" y="773" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Data PT dan Pribadi tidak pernah digabung</text>
+<rect x="452.01" y="675" width="37.98" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="471" y="686" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Belum</text>
+<polyline points="239,666 239,803.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="471,783.5 471,803.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,803.5 471,803.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,803.5 355,826.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,831.5 350.5,823.5 359.5,823.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="355,831.5 505,866.5 355,901.5 205,866.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="355" y="863.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Anda menyimpan tindakan</text>
+<text x="355" y="876.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">sensitif (mis. Pengaturan)?</text>
+<polyline points="355,901.5 355,917.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,917.5 471,917.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,917.5 239,946.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,951.5 234.5,943.5 243.5,943.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="951.5" width="210" height="55" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="144" y="964.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="144" y="981" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Jendela Verifikasi ulang terbuka</text>
+<text x="144" y="996" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Muncul bila kode terakhir lebih dari 30 menit lalu</text>
+<polyline points="239,1006.5 239,1029.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,1034.5 234.5,1026.5 243.5,1026.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="1034.5" width="210" height="80" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="144" y="1047.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="144" y="1064" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Isi kode 6 digit terbaru, tekan</text>
+<text x="144" y="1077.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Verifikasi</text>
+<text x="144" y="1092.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Tindakan dijalankan ulang otomatis; berlaku 30</text>
+<text x="144" y="1104" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">menit</text>
+<rect x="227.8" y="926.5" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="239" y="937.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<rect x="453.9" y="926.5" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="471" y="937.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
+<polyline points="239,1114.5 239,1134.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="471,917.5 471,1134.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,1134.5 471,1134.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,1134.5 355,1157.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,1162.5 350.5,1154.5 359.5,1154.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="1162.5" width="210" height="55.5" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="355" y="1181" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="355" y="1194.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Cek label Entity sebelum menyimpan. Keluar</text>
+<text x="355" y="1206" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">lewat ikon Keluar di kanan atas</text>
+<rect x="182.95" y="1244" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="198.95" y="1252" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="253.2" y="1244" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="269.2" y="1252" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="375.91" y="1244" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="391.91" y="1252" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="476.14,1243 482.14,1249 476.14,1255 470.14,1249" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="486.14" y="1252" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+</svg>

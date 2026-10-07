@@ -4151,3 +4151,90 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
   font-size: 0.85rem;
   opacity: 0.7;
 }
+
+/* Flow diagrams: one page per diagram, listed by stage (decision 328) */
+.guide-flow-image-wide {
+  max-width: 960px;
+}
+.guide-flow-position {
+  margin: 0 0 var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.guide-flow-stage {
+  margin: var(--space-4) 0;
+}
+.guide-flow-cards {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.guide-flow-card {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface, #fff);
+  text-decoration: none;
+  color: inherit;
+}
+.guide-flow-card:hover {
+  border-color: var(--accent-strong);
+}
+.guide-flow-card-number {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.guide-flow-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.guide-flow-card-body span {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.guide-flow-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin: var(--space-5, 32px) 0 var(--space-3);
+}
+.guide-flow-nav-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: inherit;
+}
+.guide-flow-nav-link span {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.guide-flow-nav-next {
+  text-align: right;
+  grid-column: 2;
+}
+@media (max-width: 640px) {
+  .guide-flow-nav {
+    grid-template-columns: 1fr;
+  }
+  .guide-flow-nav-next {
+    grid-column: 1;
+  }
+}

@@ -1,0 +1,148 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 1418" width="710" height="1418" role="img" aria-label="Mengatur Siapa Boleh Mengerjakan Apa: Pengguna dan Peran" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:a5740e7a7a24272b (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<title>Mengatur Siapa Boleh Mengerjakan Apa: Pengguna dan Peran</title>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="250" y="18" width="210" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="355" y="36.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Ada orang yang perlu akses ke</text>
+<text x="355" y="50" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Entity, atau aksesnya berubah</text>
+<polyline points="355,61 355,84" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,89 350.5,81 359.5,81" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="89" width="210" height="80" rx="8" fill="#fdf2e3" stroke="#b5791a" stroke-width="1.4"/>
+<text x="260" y="102" font-size="7" font-weight="bold" fill="#8a5a00" text-anchor="start">PELANGGAN</text>
+<text x="260" y="118.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pengelola teknis menyiapkan akun</text>
+<text x="260" y="132" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">login dan keanggotaan</text>
+<text x="260" y="147" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Tidak ada tombol Undang atau Tambah</text>
+<text x="260" y="158.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pengguna di aplikasi</text>
+<polyline points="355,169 355,192" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,197 350.5,189 359.5,189" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="355,197 505,232 355,267 205,232" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="355" y="235.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Akun Anda OWNER?</text>
+<polyline points="355,267 355,283" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,283 471,283" fill="none" stroke="#444444" stroke-width="1.4"/>
+<rect x="227.8" y="292" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="239" y="303" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<polyline points="471,283 471,312" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="471,317 466.5,309 475.5,309" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="366" y="317" width="210" height="66.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="376" y="330" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="376" y="346.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Minta OWNER mengatur akses</text>
+<text x="376" y="361.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Finance Admin dan peran lain tidak punya izin</text>
+<text x="376" y="373" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">pengguna</text>
+<rect x="453.9" y="292" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="471" y="303" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
+<polyline points="239,283 239,403.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="471,383.5 471,403.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,403.5 471,403.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,403.5 355,426.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,431.5 350.5,423.5 359.5,423.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="431.5" width="210" height="95" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="444.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="461" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih Entity yang benar, klik nama</text>
+<text x="260" y="474.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">anggota</text>
+<text x="260" y="489.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Administrasi &gt; Pengguna &amp; Peran</text>
+<text x="260" y="504.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Peran diatur per Entity; akun sendiri tidak bisa</text>
+<text x="260" y="516" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">diubah</text>
+<polyline points="355,526.5 355,549.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,554.5 350.5,546.5 359.5,546.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="355,554.5 505,589.5 355,624.5 205,589.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="355" y="593" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Orang itu perlu bisa apa?</text>
+<polyline points="355,624.5 355,640.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,640.5 587,640.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,640.5 123,669.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,674.5 118.5,666.5 127.5,666.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="674.5" width="210" height="80" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="687.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="704" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih Finance Staff atau Finance</text>
+<text x="28" y="717.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Admin</text>
+<text x="28" y="732.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Staff menyiapkan draf; Admin juga menyetujui</text>
+<text x="28" y="744" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dan membayar</text>
+<rect x="71.41" y="649.5" width="103.17" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="660.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Kerja keuangan harian</text>
+<polyline points="355,640.5 355,669.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,674.5 350.5,666.5 359.5,666.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="674.5" width="210" height="55" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="687.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="704" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih Accountant, Tax, atau Payroll</text>
+<text x="260" y="719" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Akuntansi, pajak, atau payroll saja</text>
+<rect x="318.54" y="649.5" width="72.93" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="660.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Bidang khusus</text>
+<polyline points="587,640.5 587,669.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="587,674.5 582.5,666.5 591.5,666.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="482" y="674.5" width="210" height="55" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="492" y="687.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="492" y="704" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih Approver atau Viewer / Auditor</text>
+<text x="492" y="719" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Approver menyetujui; Viewer hanya membaca</text>
+<rect x="532.82" y="649.5" width="108.36" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="587" y="660.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Menyetujui atau melihat</text>
+<polyline points="123,754.5 123,774.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,729.5 355,774.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="587,729.5 587,774.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,774.5 587,774.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,774.5 355,797.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,802.5 350.5,794.5 359.5,794.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="802.5" width="210" height="95" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="815.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="832" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Isi Alasan (min. 5 karakter), tekan</text>
+<text x="260" y="845.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Ubah Peran</text>
+<text x="260" y="860.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Detail anggota &gt; Ubah Peran</text>
+<text x="260" y="875.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Bila jendela Verifikasi ulang muncul, isi kode 6</text>
+<text x="260" y="887" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">digit lalu Verifikasi</text>
+<polyline points="355,897.5 355,920.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,925.5 350.5,917.5 359.5,917.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="925.5" width="210" height="80" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="260" y="938.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="260" y="955" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Peran baru langsung berlaku dan</text>
+<text x="260" y="968.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">tercatat</text>
+<text x="260" y="983.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Menu yang tidak diizinkan tidak tampil; tercatat</text>
+<text x="260" y="995" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">di Jejak Audit</text>
+<polyline points="355,1005.5 355,1028.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,1033.5 350.5,1025.5 359.5,1025.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="355,1033.5 505,1068.5 355,1103.5 205,1068.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="355" y="1072" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Perlu pengaturan tambahan?</text>
+<polyline points="355,1103.5 355,1119.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,1119.5 587,1119.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,1119.5 123,1148.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,1153.5 118.5,1145.5 127.5,1145.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="1153.5" width="210" height="107" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="1166.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="1183" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih Izin dan Efek, isi alasan,</text>
+<text x="28" y="1196.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Simpan Pengecualian</text>
+<text x="28" y="1211.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Detail anggota &gt; Atur Pengecualian</text>
+<text x="28" y="1223.5" font-size="9" fill="#1a4d8f" text-anchor="start">Izin</text>
+<text x="28" y="1238.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Berikan, Tolak, atau Hapus; pakai untuk kasus</text>
+<text x="28" y="1250" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">khusus saja</text>
+<rect x="93.85" y="1128.5" width="58.29" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="1139.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Izin khusus</text>
+<polyline points="355,1119.5 355,1148.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,1153.5 350.5,1145.5 359.5,1145.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="1153.5" width="210" height="107" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="1166.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="1183" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Isi alasan, tekan Nonaktifkan</text>
+<text x="260" y="1196.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Keanggotaan</text>
+<text x="260" y="1211.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Detail anggota &gt; Nonaktifkan</text>
+<text x="260" y="1223.5" font-size="9" fill="#1a4d8f" text-anchor="start">Keanggotaan</text>
+<text x="260" y="1238.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Hanya Entity ini; minimal satu OWNER aktif</text>
+<text x="260" y="1250" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">harus tetap ada</text>
+<rect x="312.16" y="1128.5" width="85.68" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="1139.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Orang itu berhenti</text>
+<rect x="558.33" y="1128.5" width="57.35" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="587" y="1139.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak perlu</text>
+<polyline points="123,1260.5 123,1280.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,1260.5 355,1280.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="587,1119.5 587,1280.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,1280.5 587,1280.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,1280.5 355,1303.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,1308.5 350.5,1300.5 359.5,1300.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="1308.5" width="210" height="55.5" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="355" y="1327" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="355" y="1340.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Salah atur? Ubah Peran lagi atau tekan Aktifkan</text>
+<text x="355" y="1352" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Keanggotaan di detail anggota</text>
+<rect x="182.95" y="1390" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="198.95" y="1398" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="253.2" y="1390" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="269.2" y="1398" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="375.91" y="1390" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="391.91" y="1398" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="476.14,1389 482.14,1395 476.14,1401 470.14,1395" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="486.14" y="1398" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+</svg>

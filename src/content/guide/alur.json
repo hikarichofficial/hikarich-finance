@@ -1,6 +1,6 @@
 {
   "title": "Alur Kerja (Diagram)",
-  "intro": "Diagram ini menjawab pertanyaan \"kalau terjadi X, saya harus buka menu apa, lalu apa?\". Baca dari atas ke bawah mengikuti panah. Belah ketupat adalah pertanyaan: pilih jalur yang sesuai dengan keadaan Anda. Setiap kotak menyebut siapa yang bertindak, apa yang dilakukan, dan menu yang dibuka.",
+  "intro": "Setiap diagram punya halaman sendiri dan diurutkan dari pertama kali memakai aplikasi sampai semua kebutuhan sehari-hari, mengikuti urutan menu. Diagram menjawab pertanyaan \"kalau terjadi X, saya harus buka menu apa, lalu apa?\". Baca dari atas ke bawah mengikuti panah. Belah ketupat adalah pertanyaan: pilih jalur yang sesuai dengan keadaan Anda. Setiap kotak menyebut siapa yang bertindak, apa yang dilakukan, dan menu yang dibuka.",
   "quick": [
     {
       "want": "Ada pelanggan yang mau atau sudah membayar invoice",
@@ -71,11 +71,874 @@
       "want": "Mengisi saldo awal rekening",
       "menu": "Akuntansi > Saldo Awal",
       "guide": "saldo-awal"
+    },
+    {
+      "want": "Masuk pertama kali dan memilih Entity (PT atau Pribadi)",
+      "menu": "Halaman Masuk (/login); pemilih Entity di kiri atas",
+      "guide": "masuk-dan-ganti-entitas"
+    },
+    {
+      "want": "Menambah pelanggan, vendor, atau produk",
+      "menu": "Penjualan > Pelanggan; Pembelian > Vendor; Penjualan > Produk & Jasa",
+      "guide": "produk-dan-jasa"
+    },
+    {
+      "want": "Mengatur siapa boleh mengerjakan apa",
+      "menu": "Administrasi > Pengguna & Peran",
+      "guide": "kelola-pengguna-peran"
+    },
+    {
+      "want": "Mencatat tagihan rutin bulanan (Indihome, IPL)",
+      "menu": "Perencanaan > Transaksi Berulang",
+      "guide": "tagihan-rutin"
+    },
+    {
+      "want": "Mengoreksi pembukuan dengan jurnal",
+      "menu": "Akuntansi > Jurnal > Jurnal Manual",
+      "guide": "jurnal-manual"
+    },
+    {
+      "want": "Menutup bulan atau tahun buku",
+      "menu": "Akuntansi > Periode Akuntansi",
+      "guide": "periode-dan-tutup-buku"
+    },
+    {
+      "want": "Melihat uang masuk dan keluar tiap bulan",
+      "menu": "Akuntansi > Rekening Koran",
+      "guide": "rekening-koran"
+    },
+    {
+      "want": "Mencatat aset tetap (laptop, kendaraan)",
+      "menu": "Aset & Pendanaan > Aset Tetap",
+      "guide": "catat-aset-tetap"
+    },
+    {
+      "want": "Mencatat pinjaman dan cicilannya",
+      "menu": "Aset & Pendanaan > Pinjaman",
+      "guide": "catat-pinjaman"
+    },
+    {
+      "want": "Menggaji karyawan tiap bulan",
+      "menu": "Payroll > Proses Payroll",
+      "guide": "jalankan-payroll-bulanan"
+    },
+    {
+      "want": "Menyusun anggaran",
+      "menu": "Perencanaan > Anggaran",
+      "guide": "buat-anggaran"
+    },
+    {
+      "want": "Memilih laporan yang tepat",
+      "menu": "Laporan > Laporan Keuangan",
+      "guide": "laporan-keuangan-utama"
+    },
+    {
+      "want": "Menyimpan nota atau bukti transaksi",
+      "menu": "Dokumen > Pusat Dokumen",
+      "guide": "dokumen-lampiran"
+    },
+    {
+      "want": "Mengamankan data (backup)",
+      "menu": "Administrasi > Backup & Restore",
+      "guide": "backup-restore"
     }
   ],
   "flows": [
     {
+      "id": "masuk-pertama-kali",
+      "stage": "Tahap 1 · Memulai",
+      "title": "Pertama Kali Masuk: Kata Sandi, Kode Autentikator, dan Memilih Entity",
+      "summary": "Dari membuka halaman Masuk sampai Dashboard tampil di Entity yang benar (PT atau Pribadi), termasuk saat aplikasi meminta verifikasi ulang.",
+      "guides": ["masuk-dan-ganti-entitas", "keamanan-akun", "urutan-langkah-awal"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Buka alamat aplikasi, belum masuk"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Isi Email dan Kata sandi, tekan Masuk",
+          "menu": "Halaman Masuk > Email, Kata sandi > Masuk",
+          "note": "Akun dibuat OWNER; tidak ada Daftar atau Lupa Kata Sandi"
+        },
+        {
+          "kind": "choice",
+          "question": "Aplikasi meminta kode autentikator?",
+          "branches": [
+            {
+              "label": "Ya, pertama kali",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Atur autentikator, pindai QR, isi kode 6 digit, Aktifkan",
+                  "menu": "Verifikasi dua langkah > Atur autentikator",
+                  "note": "Tidak ada kode cadangan; simpan aplikasi autentikator baik-baik"
+                }
+              ]
+            },
+            {
+              "label": "Ya, sudah pernah",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Isi Kode autentikator (6 digit), tekan Verifikasi",
+                  "menu": "Verifikasi dua langkah",
+                  "note": "Kode berganti tiap 30 detik; bila ditolak, tunggu kode baru"
+                }
+              ]
+            },
+            {
+              "label": "Tidak diminta",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Dashboard terbuka",
+          "note": "Menu yang tidak diizinkan untuk peran Anda tidak tampil"
+        },
+        {
+          "kind": "choice",
+          "question": "Label Entity di kiri atas sudah yang Anda kerjakan?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": []
+            },
+            {
+              "label": "Belum",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Klik pemilih Entity, pilih PT atau Pribadi",
+                  "menu": "Pemilih Entity di bilah atas",
+                  "note": "Data PT dan Pribadi tidak pernah digabung"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "question": "Anda menyimpan tindakan sensitif (mis. Pengaturan)?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Jendela Verifikasi ulang terbuka",
+                  "note": "Muncul bila kode terakhir lebih dari 30 menit lalu"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Isi kode 6 digit terbaru, tekan Verifikasi",
+                  "note": "Tindakan dijalankan ulang otomatis; berlaku 30 menit"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Cek label Entity sebelum menyimpan. Keluar lewat ikon Keluar di kanan atas"
+        }
+      ]
+    },
+    {
+      "id": "persiapan-awal",
+      "stage": "Tahap 1 · Memulai",
+      "title": "Persiapan Pertama Kali Memakai Aplikasi",
+      "summary": "Lakukan satu kali per Entity (PT dan Pribadi), supaya saat membuat invoice atau mencatat pengeluaran semuanya tinggal dipilih.",
+      "guides": [
+        "urutan-langkah-awal",
+        "pengaturan-pajak-awal",
+        "tambah-rekening",
+        "saldo-awal",
+        "tambah-pelanggan",
+        "tambah-vendor",
+        "produk-dan-jasa"
+      ],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Pertama kali memakai aplikasi"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Pilih Entity yang dikerjakan",
+          "menu": "Pemilih Entity di bilah atas",
+          "note": "PT atau Pribadi"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Isi Pengaturan Pajak",
+          "menu": "Pajak > Pengaturan Pajak"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Tambah rekening kas dan bank",
+          "menu": "Kas & Bank > Rekening > Tambah Akun"
+        },
+        {
+          "kind": "choice",
+          "question": "Rekening sudah berisi uang sebelum memakai aplikasi?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Isi Saldo Awal",
+                  "menu": "Akuntansi > Saldo Awal"
+                }
+              ]
+            },
+            {
+              "label": "Belum",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Tambah pelanggan, vendor, dan produk atau jasa",
+          "menu": "Penjualan > Pelanggan, Pembelian > Vendor, Penjualan > Produk & Jasa"
+        },
+        {
+          "kind": "end",
+          "title": "Siap membuat invoice pertama",
+          "note": "Lanjut ke diagram: Menagih Pelanggan"
+        }
+      ]
+    },
+    {
+      "id": "pengaturan-awal",
+      "stage": "Tahap 1 · Memulai",
+      "title": "Pengaturan yang Dikerjakan Sekali Sebelum Transaksi Pertama",
+      "summary": "Mengaktifkan mesin pajak sebelum ada dokumen, memeriksa zona waktu dan batas saldo minus, lalu meninjau Kategori dan Daftar Akun.",
+      "guides": [
+        "pengaturan-pajak-awal",
+        "pengaturan-aplikasi",
+        "kategori-pendapatan-beban",
+        "lihat-daftar-akun"
+      ],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Entity siap dipakai, belum ada transaksi"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Isi Profil Pajak Entitas, tekan Simpan Profil Pajak",
+          "menu": "Pajak > Pengaturan Pajak",
+          "note": "Isi Jenis Wajib Pajak, Skema PPh, Status PPN, Wajib Memotong PPh"
+        },
+        {
+          "kind": "choice",
+          "question": "Akun Anda OWNER?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Isi tanggal mulai, tekan Aktifkan Mesin Pajak",
+                  "menu": "Pajak > Pengaturan Pajak > Mesin Pajak",
+                  "note": "Pakai hari pertama pajak dihitung; bisa diminta verifikasi ulang"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Minta OWNER mengaktifkan mesin pajak",
+                  "note": "Hanya OWNER yang bisa; kerjakan sebelum ada dokumen"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "question": "Mesin pajak berhasil aktif?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Pajak dihitung otomatis sejak tanggal mulai",
+                  "note": "Tertulis \"Mesin pajak aktif sejak ...\" di Pajak > Ringkasan Pajak"
+                }
+              ]
+            },
+            {
+              "label": "Ditolak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Lengkapi profil atau pilih tanggal yang lebih baru",
+                  "note": "Ditolak bila ada dokumen pada atau setelah tanggal itu"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "question": "Akun Anda OWNER?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Atur Zona waktu dan jenis rekening yang tidak boleh minus",
+                  "menu": "Administrasi > Pengaturan",
+                  "note": "Bagian Zona Waktu & Tahun Buku dan Pengaturan Lain; isi alasan perubahan"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Hanya melihat; minta OWNER bila perlu diubah",
+                  "menu": "Administrasi > Pengaturan"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Tinjau kategori; tambah bila perlu",
+          "menu": "Akuntansi > Kategori > Tambah Kategori",
+          "note": "Kategori standar sudah ada; biarkan Perlakuan Pajak di Otomatis"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Lihat daftar akun pembukuan",
+          "menu": "Akuntansi > Daftar Akun",
+          "note": "Hanya untuk dilihat; akun rekening dibuat otomatis"
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Ulangi untuk Entity satunya. Lanjut ke rekening dan saldo awal"
+        }
+      ]
+    },
+    {
+      "id": "rekening-dan-saldo-awal",
+      "stage": "Tahap 1 · Memulai",
+      "title": "Mendaftarkan Rekening dan Mengisi Uang yang Sudah Ada di Dalamnya",
+      "summary": "Dari mendaftarkan rekening bank, kas, atau e-wallet sampai saldo awal terposting dan muncul sebagai saldo rekening.",
+      "guides": ["tambah-rekening", "saldo-awal", "nonaktif-hapus-rekening"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Punya rekening bank, kas tunai, atau e-wallet"
+        },
+        {
+          "kind": "choice",
+          "question": "Akun Anda berhak menambah rekening?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Isi Jenis, Nama Rekening, Mata Uang, tekan Simpan",
+                  "menu": "Kas & Bank > Rekening > Tambah Akun",
+                  "note": "Jenis dan Mata Uang tidak bisa diubah setelah disimpan"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Minta OWNER menambahkan rekening",
+                  "note": "Perlu izin kelola rekening dan Daftar Akun; praktisnya OWNER"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Rekening tersimpan dengan saldo 0",
+          "note": "Akun buku besar 11xx dibuat otomatis; belum ada jurnal"
+        },
+        {
+          "kind": "choice",
+          "question": "Rekening sudah berisi uang saat mulai pembukuan?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Isi Tanggal Cutover dan Debit di akun rekening, tekan Posting",
+                  "menu": "Akuntansi > Saldo Awal > Posting Saldo Awal",
+                  "note": "Pilih akun \"(rekening kas/bank)\". Mata uang asing: pakai Penyesuaian Lanjutan"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Jurnal Saldo Awal: Debit rekening, Kredit 8900",
+                  "note": "Mutasi \"Saldo Awal\" muncul, saldo rekening bertambah"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Tekan Selesaikan Saldo Awal bila semua sudah masuk",
+                  "menu": "Akuntansi > Saldo Awal > Selesaikan",
+                  "note": "Setelah selesai tidak bisa diposting lagi; koreksi lewat Penyesuaian Lanjutan"
+                }
+              ]
+            },
+            {
+              "label": "Belum, saldo nol",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "question": "Rekening sudah tidak dipakai lagi?",
+          "branches": [
+            {
+              "label": "Tidak",
+              "items": []
+            },
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Nonaktifkan (saldo harus nol) atau Hapus Rekening",
+                  "menu": "Kas & Bank > Rekening > (klik rekening) > Kelola Rekening",
+                  "note": "Nonaktif: alasan min. 5 karakter. Hapus: ketik nama lalu centang konfirmasi"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Rekening siap dipakai",
+          "note": "Muncul di Terima Pembayaran, Bayar Tagihan, Transfer, dan Catat Pengeluaran"
+        }
+      ]
+    },
+    {
+      "id": "data-master",
+      "stage": "Tahap 1 · Memulai",
+      "title": "Mendaftarkan Pelanggan, Vendor, Produk, dan Jasa",
+      "summary": "Memasukkan data pokok satu per satu atau sekaligus dari tabel lama, supaya saat membuat invoice dan tagihan semuanya tinggal dipilih.",
+      "guides": [
+        "tambah-pelanggan",
+        "tambah-vendor",
+        "produk-dan-jasa",
+        "sku-otomatis",
+        "varian-produk",
+        "impor-data",
+        "kolom-ketik-dan-pilih"
+      ],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Mau mendaftarkan pelanggan, vendor, produk, atau jasa"
+        },
+        {
+          "kind": "choice",
+          "question": "Ada banyak kontak lama untuk dimasukkan sekaligus?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pilih Kontak, tempel tabel, tekan Periksa Data",
+                  "menu": "Administrasi > Impor Data > Impor Data",
+                  "note": "Maksimal 5000 baris; baris Duplikat dilewati"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Baca status tiap baris, tekan Terapkan ke Pembukuan",
+                  "note": "Piutang atau Utang Terbuka hanya catatan, bukan invoice"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Cari dulu, lalu Tambah Pelanggan",
+                  "menu": "Penjualan > Pelanggan > Tambah Pelanggan",
+                  "note": "Cukup isi Nama; email, telepon, NPWP sama ditolak"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Tambah vendor dengan cara yang sama",
+                  "menu": "Pembelian > Vendor > Tambah Vendor",
+                  "note": "Kontak terlewat bisa ditambah dari kolom Pelanggan atau Vendor"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "question": "Daftar Brand dan Jenis Produk sudah terisi?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": []
+            },
+            {
+              "label": "Belum",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Owner mengisi Brand, Jenis Produk, dan Variant",
+                  "menu": "Administrasi > Konfigurasi SKU",
+                  "note": "Hanya Owner; staf cukup memilih dari daftar"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Isi Jenis, Nama, Brand, Jenis Produk, Satuan, Simpan Produk",
+          "menu": "Penjualan > Produk & Jasa > Tambah Produk",
+          "note": "Staf tidak mengetik SKU; Pratinjau SKU tampil di bawah pilihan"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "SKU dibuat otomatis, mis. KEA-EA-001",
+          "note": "Nomor tidak pernah kembar dan tidak dipakai ulang"
+        },
+        {
+          "kind": "choice",
+          "question": "Produk punya versi lain (masa berlaku, paket)?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pilih Variant, tekan Tambah Variant",
+                  "menu": "Penjualan > Produk & Jasa > (klik produk) > Variant",
+                  "note": "SKU = SKU produk + kode variant, mis. KEA-EA-001-1B"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Tidak ada jurnal. Pelanggan, vendor, dan produk aktif bisa dipilih di dokumen baru"
+        }
+      ]
+    },
+    {
+      "id": "pengguna-dan-peran",
+      "stage": "Tahap 1 · Memulai",
+      "title": "Mengatur Siapa Boleh Mengerjakan Apa: Pengguna dan Peran",
+      "summary": "Dari akun orang tersebut sudah disiapkan sampai peran, izin khusus, atau status keanggotaannya diatur OWNER untuk satu Entity.",
+      "guides": ["kelola-pengguna-peran", "keamanan-akun"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ada orang yang perlu akses ke Entity, atau aksesnya berubah"
+        },
+        {
+          "kind": "step",
+          "actor": "pelanggan",
+          "title": "Pengelola teknis menyiapkan akun login dan keanggotaan",
+          "note": "Tidak ada tombol Undang atau Tambah Pengguna di aplikasi"
+        },
+        {
+          "kind": "choice",
+          "question": "Akun Anda OWNER?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": []
+            },
+            {
+              "label": "Tidak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Minta OWNER mengatur akses",
+                  "note": "Finance Admin dan peran lain tidak punya izin pengguna"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Pilih Entity yang benar, klik nama anggota",
+          "menu": "Administrasi > Pengguna & Peran",
+          "note": "Peran diatur per Entity; akun sendiri tidak bisa diubah"
+        },
+        {
+          "kind": "choice",
+          "question": "Orang itu perlu bisa apa?",
+          "branches": [
+            {
+              "label": "Kerja keuangan harian",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pilih Finance Staff atau Finance Admin",
+                  "note": "Staff menyiapkan draf; Admin juga menyetujui dan membayar"
+                }
+              ]
+            },
+            {
+              "label": "Bidang khusus",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pilih Accountant, Tax, atau Payroll",
+                  "note": "Akuntansi, pajak, atau payroll saja"
+                }
+              ]
+            },
+            {
+              "label": "Menyetujui atau melihat",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pilih Approver atau Viewer / Auditor",
+                  "note": "Approver menyetujui; Viewer hanya membaca"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Isi Alasan (min. 5 karakter), tekan Ubah Peran",
+          "menu": "Detail anggota > Ubah Peran",
+          "note": "Bila jendela Verifikasi ulang muncul, isi kode 6 digit lalu Verifikasi"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Peran baru langsung berlaku dan tercatat",
+          "note": "Menu yang tidak diizinkan tidak tampil; tercatat di Jejak Audit"
+        },
+        {
+          "kind": "choice",
+          "question": "Perlu pengaturan tambahan?",
+          "branches": [
+            {
+              "label": "Izin khusus",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pilih Izin dan Efek, isi alasan, Simpan Pengecualian",
+                  "menu": "Detail anggota > Atur Pengecualian Izin",
+                  "note": "Berikan, Tolak, atau Hapus; pakai untuk kasus khusus saja"
+                }
+              ]
+            },
+            {
+              "label": "Orang itu berhenti",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Isi alasan, tekan Nonaktifkan Keanggotaan",
+                  "menu": "Detail anggota > Nonaktifkan Keanggotaan",
+                  "note": "Hanya Entity ini; minimal satu OWNER aktif harus tetap ada"
+                }
+              ]
+            },
+            {
+              "label": "Tidak perlu",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Salah atur? Ubah Peran lagi atau tekan Aktifkan Keanggotaan di detail anggota"
+        }
+      ]
+    },
+    {
+      "id": "buat-invoice",
+      "stage": "Tahap 2 · Penjualan",
+      "title": "Menagih Pelanggan: dari Invoice sampai Menjadi Piutang",
+      "summary": "Membuat invoice, memeriksanya, menerbitkannya, dan mengirimnya. Invoice yang belum dibayar menjadi piutang otomatis.",
+      "guides": [
+        "buat-terbitkan-invoice",
+        "bagikan-invoice",
+        "tambah-pelanggan",
+        "produk-dan-jasa"
+      ],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ada penjualan yang harus ditagih"
+        },
+        {
+          "kind": "choice",
+          "question": "Pelanggan dan produknya sudah terdaftar?",
+          "branches": [
+            {
+              "label": "Belum",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Daftarkan dulu",
+                  "menu": "Penjualan > Pelanggan dan Penjualan > Produk & Jasa",
+                  "note": "Pelanggan juga bisa ditambah langsung di form invoice"
+                }
+              ]
+            },
+            {
+              "label": "Sudah",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Buat Invoice",
+          "menu": "Penjualan > Invoice > Buat Invoice",
+          "note": "Pilih pelanggan, tanggal, jatuh tempo, rekening tujuan, lalu isi baris"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Simpan sebagai Draf",
+          "note": "Belum bernomor dan belum menjadi piutang"
+        },
+        {
+          "kind": "choice",
+          "question": "Isi draf sudah benar?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": []
+            },
+            {
+              "label": "Belum",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Perbaiki draf",
+                  "menu": "Buka draf > Ubah Draf"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Terbitkan Invoice"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Nomor diberikan, pendapatan diakui, sisa tagihan otomatis menjadi Piutang Usaha"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Bagikan ke pelanggan",
+          "menu": "Buka invoice > Salin Tautan Publik atau Kirim via Email"
+        },
+        {
+          "kind": "end",
+          "title": "Tunggu pembayaran",
+          "note": "Lanjut ke diagram: Ada Pelanggan yang Mau atau Sudah Membayar"
+        }
+      ]
+    },
+    {
       "id": "uang-masuk",
+      "stage": "Tahap 2 · Penjualan",
       "title": "Ada Pelanggan yang Mau atau Sudah Membayar: Harus ke Menu Mana?",
       "summary": "Dari pelanggan berkata \"saya mau bayar\" sampai uang tercatat di rekening PT dan piutang berkurang.",
       "guides": [
@@ -199,72 +1062,49 @@
       ]
     },
     {
-      "id": "buat-invoice",
-      "title": "Menagih Pelanggan: dari Invoice sampai Menjadi Piutang",
-      "summary": "Membuat invoice, memeriksanya, menerbitkannya, dan mengirimnya. Invoice yang belum dibayar menjadi piutang otomatis.",
+      "id": "tagih-piutang",
+      "stage": "Tahap 2 · Penjualan",
+      "title": "Invoice Belum Dibayar: Bagaimana Menagihnya sampai Lunas?",
+      "summary": "Dari melihat siapa yang belum membayar, mengingatkan pelanggan lewat tautan invoice, sampai pembayaran dicatat dan piutang berkurang.",
       "guides": [
-        "buat-terbitkan-invoice",
+        "lihat-piutang",
+        "memahami-piutang-pendapatan",
+        "tautan-pembayaran",
         "bagikan-invoice",
-        "tambah-pelanggan",
-        "produk-dan-jasa"
+        "konfirmasi-klaim-pembayaran",
+        "terima-pembayaran"
       ],
       "items": [
         {
           "kind": "start",
           "actor": "anda",
-          "title": "Ada penjualan yang harus ditagih"
+          "title": "Ingin tahu invoice mana yang belum dibayar"
         },
         {
           "kind": "choice",
-          "question": "Pelanggan dan produknya sudah terdaftar?",
-          "branches": [
-            {
-              "label": "Belum",
-              "items": [
-                {
-                  "kind": "step",
-                  "actor": "anda",
-                  "title": "Daftarkan dulu",
-                  "menu": "Penjualan > Pelanggan dan Penjualan > Produk & Jasa",
-                  "note": "Pelanggan juga bisa ditambah langsung di form invoice"
-                }
-              ]
-            },
-            {
-              "label": "Sudah",
-              "items": []
-            }
-          ]
-        },
-        {
-          "kind": "step",
-          "actor": "anda",
-          "title": "Buat Invoice",
-          "menu": "Penjualan > Invoice > Buat Invoice",
-          "note": "Pilih pelanggan, tanggal, jatuh tempo, rekening tujuan, lalu isi baris"
-        },
-        {
-          "kind": "step",
-          "actor": "anda",
-          "title": "Simpan sebagai Draf",
-          "note": "Belum bernomor dan belum menjadi piutang"
-        },
-        {
-          "kind": "choice",
-          "question": "Isi draf sudah benar?",
+          "question": "Akun Anda punya menu Laporan?",
           "branches": [
             {
               "label": "Ya",
-              "items": []
-            },
-            {
-              "label": "Belum",
               "items": [
                 {
                   "kind": "step",
                   "actor": "anda",
-                  "title": "Perbaiki draf",
-                  "menu": "Buka draf > Ubah Draf"
+                  "title": "Buka laporan Umur Piutang",
+                  "menu": "Laporan > Laporan Keuangan > tab Umur Piutang",
+                  "note": "Per pelanggan, dari Belum Jatuh Tempo sampai >90 Hari"
+                }
+              ]
+            },
+            {
+              "label": "Tidak (Finance Staff)",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Lihat kartu Piutang Usaha di Dashboard",
+                  "menu": "Ringkasan > Dashboard",
+                  "note": "Total piutang dan jumlah yang jatuh tempo"
                 }
               ]
             }
@@ -273,28 +1113,102 @@
         {
           "kind": "step",
           "actor": "anda",
-          "title": "Terbitkan Invoice"
+          "title": "Buka invoice pelanggan yang akan ditagih",
+          "menu": "Penjualan > Invoice > tab Terbuka atau Jatuh Tempo",
+          "note": "Cek Sisa Tagihan. Bisa cari nama pelanggan"
+        },
+        {
+          "kind": "choice",
+          "question": "Akun Anda berhak membagikan invoice?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Kirim ulang tautan invoice",
+                  "menu": "Buka invoice > Salin Tautan Publik atau Kirim via Email",
+                  "note": "Email hanya membawa tautan, bukan PDF"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Minta Owner atau Finance Admin yang mengirim",
+                  "note": "Finance Staff tidak melihat tombol berbagi"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "pelanggan",
+          "title": "Pelanggan membuka tautan lalu membayar",
+          "note": "Transfer, atau Bayar sekarang bila ada Tautan Pembayaran. Tidak tercatat otomatis"
+        },
+        {
+          "kind": "choice",
+          "question": "Dari mana Anda tahu uangnya masuk?",
+          "branches": [
+            {
+              "label": "Pelanggan memberi tahu",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "pelanggan",
+                  "title": "Menekan Saya Sudah Bayar di halaman invoice"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Klaim tercatat menunggu",
+                  "note": "Saldo, piutang, dan status belum berubah"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Cek mutasi bank lalu Konfirmasi Pembayaran",
+                  "menu": "Penjualan > Klaim Pembayaran > Konfirmasi",
+                  "note": "Ubah tanggal dan jumlah sesuai uang yang masuk"
+                }
+              ]
+            },
+            {
+              "label": "Terlihat di bank",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Catat pembayaran di invoice",
+                  "menu": "Penjualan > Invoice > (klik invoice) > Catat Pembayaran",
+                  "note": "Isi rekening penerima, tanggal uang masuk, jumlah"
+                }
+              ]
+            }
+          ]
         },
         {
           "kind": "step",
           "actor": "sistem",
-          "title": "Nomor diberikan, pendapatan diakui, sisa tagihan otomatis menjadi Piutang Usaha"
-        },
-        {
-          "kind": "step",
-          "actor": "anda",
-          "title": "Bagikan ke pelanggan",
-          "menu": "Buka invoice > Salin Tautan Publik atau Kirim via Email"
+          "title": "Pembayaran tercatat dengan nomor kwitansi RCP",
+          "note": "Piutang berkurang, saldo bertambah. Lunas, atau Dibayar sebagian bila kurang"
         },
         {
           "kind": "end",
-          "title": "Tunggu pembayaran",
-          "note": "Lanjut ke diagram: Ada Pelanggan yang Mau atau Sudah Membayar"
+          "title": "Selesai",
+          "note": "Masih Dibayar sebagian? Tagih sisanya. Salah catat? Balik Pembayaran, catat ulang"
         }
       ]
     },
     {
       "id": "koreksi-invoice",
+      "stage": "Tahap 2 · Penjualan",
       "title": "Invoice atau Pembayaran Salah: Dibatalkan, Dikoreksi, atau Dibalik?",
       "summary": "Pilih jalur sesuai keadaan invoice. Invoice yang sudah ada pembayarannya tidak bisa dibatalkan sebelum pembayarannya dibalik.",
       "guides": ["batalkan-koreksi-invoice", "balik-pembayaran-refund"],
@@ -367,6 +1281,7 @@
     },
     {
       "id": "pengeluaran",
+      "stage": "Tahap 3 · Pembelian",
       "title": "Mau Mencatat Pengeluaran atau Membayar Vendor: Pakai Menu yang Mana?",
       "summary": "Pengeluaran yang sudah dibayar langsung dicatat sebagai Pengeluaran. Tagihan dari vendor dicatat sebagai Tagihan lalu dibayar.",
       "guides": ["buat-biaya", "catat-tagihan-vendor", "bayar-tagihan-vendor"],
@@ -437,7 +1352,243 @@
       ]
     },
     {
+      "id": "tagihan-vendor",
+      "stage": "Tahap 3 · Pembelian",
+      "title": "Tagihan dari Vendor: dari Dicatat sampai Dibayar Lunas",
+      "summary": "Dari tagihan vendor yang diterima, dicatat sebagai draf, disetujui sehingga menjadi utang usaha, sampai dibayar dan berstatus Lunas.",
+      "guides": ["catat-tagihan-vendor", "bayar-tagihan-vendor", "lihat-utang", "tambah-vendor"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "pelanggan",
+          "title": "Vendor mengirim tagihan yang belum dibayar"
+        },
+        {
+          "kind": "choice",
+          "question": "Vendornya sudah terdaftar?",
+          "branches": [
+            {
+              "label": "Sudah",
+              "items": []
+            },
+            {
+              "label": "Belum",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Tambah vendor",
+                  "menu": "Pembelian > Vendor > Tambah Vendor",
+                  "note": "Cukup nama. Bisa juga langsung dari form Catat Tagihan"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Catat tagihan sebagai draf",
+          "menu": "Pembelian > Tagihan > Catat Tagihan > Simpan sebagai Draf",
+          "note": "Draf belum bernomor, belum ada jurnal, utang belum bertambah"
+        },
+        {
+          "kind": "choice",
+          "question": "Akun Anda berhak menyetujui tagihan?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Tekan Setujui Tagihan langsung dari draf",
+                  "menu": "Pembelian > Tagihan > (klik tagihan)",
+                  "note": "Perlu ditinjau? Lengkapi isian pajak atau Data Pajak vendor dulu"
+                }
+              ]
+            },
+            {
+              "label": "Tidak (Finance Staff)",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Ajukan untuk Persetujuan; penyetuju memeriksa",
+                  "note": "Disetujui lewat Setujui Tagihan. Tolak Tagihan mengembalikan ke pengaju"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Tagihan bernomor BILL dan menjadi utang usaha",
+          "note": "Utang Usaha naik, kas belum berubah. Masuk Umur Utang"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Bayar tagihan ke vendor",
+          "menu": "Pembelian > Tagihan > (klik tagihan Disetujui) > Bayar Tagihan",
+          "note": "Hanya Owner dan Finance Admin. Isi rekening pembayar, Tanggal, Jumlah"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Pembayaran bernomor PAY tercatat",
+          "note": "Saldo rekening dan Utang Usaha berkurang. Lihat di Pembelian > Pembayaran Keluar"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Status menjadi Lunas, atau Dibayar sebagian bila kurang",
+          "note": "Sisa tetap utang; bayar lagi lewat Bayar Tagihan"
+        },
+        {
+          "kind": "choice",
+          "question": "Ada yang salah?",
+          "branches": [
+            {
+              "label": "Tidak ada",
+              "items": []
+            },
+            {
+              "label": "Pembayaran salah",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Balik pembayaran, lalu catat ulang",
+                  "menu": "Pembelian > Pembayaran Keluar > (klik pembayaran) > Balik Pembayaran",
+                  "note": "Isi Tanggal Pembalikan dan alasan. Tagihan kembali terbuka"
+                }
+              ]
+            },
+            {
+              "label": "Tagihan salah",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Batalkan atau koreksi tagihan",
+                  "menu": "Pembelian > Tagihan > (klik tagihan)",
+                  "note": "Draf: Batalkan Tagihan. Sudah disetujui: Owner pilih Void atau Koreksi"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Tagihan Lunas tidak lagi tampil di Umur Utang"
+        }
+      ]
+    },
+    {
+      "id": "tagihan-rutin-bulanan",
+      "stage": "Tahap 3 · Pembelian",
+      "title": "Tagihan Tetap Tiap Bulan (Indihome, IPL): Cukup Diatur Sekali",
+      "summary": "Atur Transaksi Berulang satu kali, lalu tiap bulan sistem menyiapkan draf sendiri dan Anda tinggal memeriksa, menyetujui, dan membayarnya sampai Lunas.",
+      "guides": [
+        "tagihan-rutin",
+        "atur-transaksi-berulang",
+        "catat-tagihan-vendor",
+        "bayar-tagihan-vendor"
+      ],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ada tagihan tetap tiap bulan dari vendor yang sama"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Buat aturan berulang (sekali)",
+          "menu": "Perencanaan > Transaksi Berulang > Buat Transaksi Berulang",
+          "note": "Vendor harus sudah terdaftar. Bulanan, Interval 1, Jatuh Tempo: Tanggal tetap setiap bulan"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Pada tanggalnya, draf tagihan dibuat sendiri tiap tengah malam",
+          "note": "Jalankan yang Jatuh Tempo hanya untuk lebih awal. Draf belum memengaruhi pembukuan"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Buka draf dari Riwayat Pembuatan",
+          "menu": "Perencanaan > Transaksi Berulang > (klik aturan) > Lihat →",
+          "note": "Riwayat Pembuatan memuat tanggal, status, dan tautan ke draf"
+        },
+        {
+          "kind": "choice",
+          "question": "Aturan yang Anda pilih jenis apa?",
+          "branches": [
+            {
+              "label": "Tagihan berulang",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Cocokkan jumlah dengan tagihan asli, lalu Setujui Tagihan",
+                  "menu": "Pembelian > Tagihan > (klik draf)",
+                  "note": "Beda? Ubah Harga Satuan dulu. Ajukan untuk Persetujuan bila ada alur persetujuan"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Tagihan bernomor BILL dan menjadi utang usaha",
+                  "note": "Kas belum berubah sampai dibayar"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Bayar ke vendor, lalu catat",
+                  "menu": "Pembelian > Tagihan > (klik tagihan) > Bayar Tagihan",
+                  "note": "Isi rekening pembayar, Tanggal, Jumlah, lalu Simpan Pembayaran"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Status otomatis Lunas",
+                  "note": "Dibayar sebagian bila jumlah lebih kecil. Tidak diubah manual"
+                }
+              ]
+            },
+            {
+              "label": "Pengeluaran berulang",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Konfirmasi draf pengeluaran",
+                  "menu": "Pembelian > Beban > (klik draf) > Konfirmasi & Posting",
+                  "note": "Pengeluaran berulang membuat pengeluaran, bukan tagihan"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Pengeluaran langsung terbayar",
+                  "note": "Saldo rekening berkurang saat dikonfirmasi. Tanpa langkah Bayar Tagihan"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Berhenti berlangganan: Akhiri Aturan. Libur sementara: Jeda Aturan"
+        }
+      ]
+    },
+    {
       "id": "transfer",
+      "stage": "Tahap 4 · Kas & Bank",
       "title": "Memindahkan Uang Antar Rekening",
       "summary": "Transfer antar dua rekening dalam Entity yang sama. Draf transfer belum memindahkan uang; saldo berubah saat dikonfirmasi.",
       "guides": ["transfer-antar-rekening"],
@@ -499,7 +1650,610 @@
       ]
     },
     {
+      "id": "pantau-kas-bank",
+      "stage": "Tahap 4 · Kas & Bank",
+      "title": "Di Mana Saya Melihat Uang Kas dan Bank, dan Kalau Saldo Terlihat Salah?",
+      "summary": "Memilih halaman yang tepat untuk melihat saldo dan mutasi, memeriksa saldo yang tidak cocok, serta menonaktifkan atau menghapus rekening yang tidak dipakai.",
+      "guides": [
+        "lihat-saldo-mutasi",
+        "rekening-koran",
+        "penyesuaian-saldo-lanjutan",
+        "nonaktif-hapus-rekening"
+      ],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ingin melihat posisi uang di rekening PT"
+        },
+        {
+          "kind": "choice",
+          "question": "Apa yang ingin Anda lihat?",
+          "branches": [
+            {
+              "label": "Satu rekening",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buka detail rekening",
+                  "menu": "Kas & Bank > Rekening > (klik nama rekening)",
+                  "note": "Atur Dari dan Sampai lalu Terapkan. Bawaan hanya 30 hari. Ada Saldo Berjalan"
+                }
+              ]
+            },
+            {
+              "label": "Semua rekening",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buka Mutasi Kas & Bank",
+                  "menu": "Kas & Bank > Mutasi Kas & Bank",
+                  "note": "Pilih Akun atau Semua akun, tanggal, kata kunci. Tanpa saldo berjalan"
+                }
+              ]
+            },
+            {
+              "label": "Per bulan",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Lihat ringkasan 12 bulan",
+                  "menu": "Akuntansi > Rekening Koran",
+                  "note": "Uang masuk, keluar, dan saldo akhir tiap bulan"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Klik nama bulan untuk membuka halaman bulan itu",
+                  "note": "Baris mutasi dibagi per 20 baris. Klik No. Jurnal untuk melihat jurnalnya"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Bandingkan Saldo Sistem dan Saldo Buku Besar",
+          "menu": "Kas & Bank > Rekening",
+          "note": "Bila beda, status menampilkan Selisih dengan Buku Besar"
+        },
+        {
+          "kind": "choice",
+          "question": "Saldo terlihat tidak sesuai?",
+          "branches": [
+            {
+              "label": "Sudah sesuai",
+              "items": []
+            },
+            {
+              "label": "Transaksi salah/belum ada",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Catat atau koreksi lewat dokumen asalnya",
+                  "menu": "Penjualan > Pembayaran Diterima, Pembelian > Beban, atau Kas & Bank > Transfer",
+                  "note": "Pembayaran salah: Balik Pembayaran. Transfer salah: Balik Transfer"
+                }
+              ]
+            },
+            {
+              "label": "Selisih kecil (biaya bank)",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Owner atau Accountant mencatat penyesuaian",
+                  "menu": "Akuntansi > Penyesuaian Lanjutan",
+                  "note": "Isi rekening, Arah, Jumlah, Akun Lawan, dan Alasan minimal 10 karakter"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Jurnal Sistem langsung Terposting",
+                  "note": "Saldo berubah sebesar jumlahnya. Tidak ada tombol batal; koreksi dengan arah sebaliknya"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "question": "Ada rekening yang tidak dipakai lagi?",
+          "branches": [
+            {
+              "label": "Tidak ada",
+              "items": []
+            },
+            {
+              "label": "Sembunyikan",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Nonaktifkan Rekening",
+                  "menu": "Kas & Bank > Rekening > (klik nama) > Kelola Rekening",
+                  "note": "Saldo harus nol dan alasan minimal 5 karakter. Bisa Aktifkan Kembali"
+                }
+              ]
+            },
+            {
+              "label": "Hapus",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Ketik nama rekening, lalu centang konfirmasi akhir",
+                  "menu": "Kas & Bank > Rekening > (klik nama) > Hapus Rekening",
+                  "note": "Praktisnya Owner. Saldo tidak harus nol"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Rekening hilang dari semua daftar",
+                  "note": "Bila sudah bertransaksi, riwayat dan jurnalnya tetap tersimpan"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Semua halaman di atas hanya membaca, kecuali penyesuaian, nonaktif, dan hapus"
+        }
+      ]
+    },
+    {
+      "id": "jurnal-manual",
+      "stage": "Tahap 5 · Pembukuan (Akuntansi)",
+      "title": "Perlu Mengoreksi Pembukuan: Kapan Memakai Jurnal Manual?",
+      "summary": "Jurnal Manual hanya untuk pembukuan lanjutan. Dibuat sebagai Draf, baru mengubah laporan setelah Posting, dan bila salah dikoreksi dengan Balik Jurnal.",
+      "guides": ["jurnal-manual", "penyesuaian-saldo-lanjutan"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ada angka pembukuan yang perlu dicatat atau dikoreksi"
+        },
+        {
+          "kind": "choice",
+          "question": "Ini uang masuk, uang keluar, atau selisih saldo bank?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Uang masuk, keluar, atau pindah rekening: pakai menu aslinya",
+                  "menu": "Penjualan > Invoice, Pembelian > Beban, atau Kas & Bank > Transfer",
+                  "note": "Jurnal manual tidak mengubah saldo rekening"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Biaya admin atau bunga bank belum tercatat: Penyesuaian Lanjutan",
+                  "menu": "Akuntansi > Penyesuaian Lanjutan",
+                  "note": "Langsung diposting tanpa draf dan tanpa tombol batal"
+                },
+                {
+                  "kind": "end",
+                  "title": "Jurnal manual tidak diperlukan"
+                }
+              ]
+            },
+            {
+              "label": "Bukan, koreksi lanjutan",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buka Jurnal Manual",
+                  "menu": "Akuntansi > Jurnal > Jurnal Manual",
+                  "note": "Hanya OWNER dan Accountant yang bisa membuat draf"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Isi Jenis Jurnal, Tanggal, Penjelasan, dan baris jurnal",
+                  "note": "Satu sisi per baris; total debit harus sama dengan total kredit"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Simpan sebagai Draf",
+                  "note": "Draf belum mengubah laporan dan belum bernomor"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "question": "Isi draf sudah benar?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Posting Jurnal",
+                  "menu": "Akuntansi > Jurnal > (klik draf)",
+                  "note": "Periode bulan itu harus Terbuka atau Dibuka Kembali"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Status Terposting, bernomor JV, ikut ke laporan",
+                  "note": "Laba Rugi, Neraca, dan Buku Besar berubah"
+                }
+              ]
+            },
+            {
+              "label": "Salah",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buang Draf",
+                  "note": "Dihapus permanen tanpa dampak akuntansi"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "question": "Jurnal yang sudah diposting ternyata salah?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Balik Jurnal (Reverse)",
+                  "menu": "Akuntansi > Jurnal > (klik jurnal Terposting)",
+                  "note": "Isi Tanggal Pembalikan dan Alasan (minimal 5 karakter)"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Jurnal Pembalik dibuat, debit dan kredit tertukar",
+                  "note": "Jurnal asli tetap tercatat sebagai riwayat"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buat Jurnal Manual pengganti yang benar",
+                  "menu": "Akuntansi > Jurnal > Jurnal Manual"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Draf yang dibiarkan menahan penutupan periode bulan itu: posting atau buang"
+        }
+      ]
+    },
+    {
+      "id": "tutup-periode",
+      "stage": "Tahap 5 · Pembukuan (Akuntansi)",
+      "title": "Menutup Bulan: Langkah dari Cek sampai Tutup Periode",
+      "summary": "Cek laporan, bereskan Pemblokir pada Daftar Periksa Penutupan, mulai tinjauan, lalu Tutup Periode. Setelah semua bulan Ditutup, tahun buku bisa ditutup.",
+      "guides": ["periode-dan-tutup-buku", "laporan-keuangan-utama"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Bulan berakhir, saatnya menutup periode"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Cek Laba Rugi dan Neraca bulan ini",
+          "menu": "Laporan > Laporan Keuangan",
+          "note": "Hanya jurnal Terposting yang dihitung"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Buka detail periode, baca Daftar Periksa Penutupan",
+          "menu": "Akuntansi > Periode Akuntansi > (klik periode)",
+          "note": "Pemblokir menahan penutupan; Peringatan hanya pengingat"
+        },
+        {
+          "kind": "choice",
+          "question": "Ada Pemblokir atau yang belum dicatat?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Bereskan di menu asalnya",
+                  "menu": "Mis. Akuntansi > Jurnal (posting atau buang draf)",
+                  "note": "Atau selesaikan Saldo Awal, posting Penyusutan"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Mulai Tinjauan Penutupan",
+          "menu": "Akuntansi > Periode Akuntansi > (klik periode)",
+          "note": "OWNER atau Accountant. Bulan itu tidak bisa diposting lagi. Ada yang kurang? Batalkan Tinjauan"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Tekan Tutup Periode",
+          "note": "Pemblokir diperiksa ulang"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Status Ditutup; bulan itu menolak transaksi baru"
+        },
+        {
+          "kind": "choice",
+          "question": "Perlu mengoreksi bulan Ditutup?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "OWNER menekan Buka Kembali Periode",
+                  "note": "Alasan minimal 10 karakter dan verifikasi ulang. Setelah selesai, tutup lagi seperti di atas"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Akhir tahun dan semua bulan sudah Ditutup? Lanjut ke diagram Menutup Tahun Buku"
+        }
+      ]
+    },
+    {
+      "id": "tutup-tahun-buku",
+      "stage": "Tahap 5 · Pembukuan (Akuntansi)",
+      "title": "Menutup Tahun Buku: Setelah Semua Bulan Ditutup",
+      "summary": "Penutupan tahun buku memindahkan laba atau rugi tahun itu ke Laba Ditahan lewat satu jurnal Penutupan. Bisa dibatalkan oleh OWNER bila salah.",
+      "guides": ["periode-dan-tutup-buku", "laporan-keuangan-utama"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Akhir tahun: semua bulan sudah ditutup"
+        },
+        {
+          "kind": "choice",
+          "question": "Semua periode tahun itu berstatus Ditutup?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": []
+            },
+            {
+              "label": "Belum",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Tutup dulu bulan yang tersisa",
+                  "menu": "Akuntansi > Periode Akuntansi",
+                  "note": "Lihat diagram Menutup Bulan; tahun lama harus ditutup lebih dulu"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Pilih Tahun Buku, tekan Tutup Tahun Buku",
+          "menu": "Akuntansi > Periode Akuntansi (bagian Penutupan Tahun Buku)",
+          "note": "OWNER atau Accountant. Tahun tanpa laba rugi terposting tidak bisa ditutup"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Satu jurnal Penutupan dibuat, bertanggal sehari setelah akhir tahun",
+          "menu": "Akuntansi > Jurnal",
+          "note": "Laba atau rugi pindah ke Laba Ditahan; Pribadi: Akumulasi Surplus/Defisit"
+        },
+        {
+          "kind": "choice",
+          "question": "Penutupan tahun ternyata salah?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "OWNER menekan Batalkan Penutupan Tahun",
+                  "menu": "Akuntansi > Periode Akuntansi",
+                  "note": "Pilih tahun terbaru; Alasan minimal 10 karakter dan verifikasi ulang"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Jurnal pembalik untuk jurnal penutup dibuat",
+                  "note": "Periode bulanan tidak ikut dibuka kembali"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Laba Rugi tahun itu tidak berubah; jurnal penutup tidak dihitung di sana"
+        }
+      ]
+    },
+    {
+      "id": "pantau-pajak",
+      "stage": "Tahap 6 · Pajak",
+      "title": "Memantau Pajak: Di Mana Melihat Tenggat dan Posisi Pajak?",
+      "summary": "Tempat memeriksa pajak secara rutin: Ringkasan Pajak, Kalender Pajak, posisi per masa, lalu Buku Pajak dan Aturan Pajak bila perlu penjelasan.",
+      "guides": [
+        "kalender-pajak",
+        "posisi-ppn-pph",
+        "buku-besar-pajak",
+        "aturan-pajak",
+        "bayar-pajak",
+        "pengaturan-pajak-awal"
+      ],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ingin memastikan tidak ada pajak yang terlewat"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Buka Ringkasan Pajak",
+          "menu": "Pajak > Ringkasan Pajak",
+          "note": "Lihat Kewajiban Terutang, Profil Pajak Entity, dan Tenggat Terdekat"
+        },
+        {
+          "kind": "choice",
+          "question": "Tertulis \"Mesin pajak aktif sejak ...\"?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": []
+            },
+            {
+              "label": "Belum aktif",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Isi profil pajak, lalu OWNER mengaktifkan mesin pajak",
+                  "menu": "Pajak > Pengaturan Pajak",
+                  "note": "Tanpa mesin pajak tidak ada pajak diakui dan Kalender kosong"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Lihat tenggat di Kalender Pajak",
+          "menu": "Pajak > Kalender Pajak",
+          "note": "Langkah Hitung, Bayar, Lapor, Bukti dengan Jatuh Tempo dan Status. Hanya PPN, PPh 23, PPh Final UMKM"
+        },
+        {
+          "kind": "choice",
+          "question": "Ada langkah Perlu dikerjakan atau Terlambat?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buka posisi pajak masanya",
+                  "menu": "Pajak > PPN, Pajak > Pemotongan PPh, atau Pajak > PPh Final",
+                  "note": "Pilih Masa Pajak; yang dibayar adalah Sisa Kekurangan"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Kerjakan langkahnya",
+                  "menu": "Pajak > Pelaporan & Bukti",
+                  "note": "PPh Final: Hitung dulu di Pajak > PPh Final. Lihat diagram Membayar dan Melaporkan Pajak"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "question": "Ada angka pajak yang janggal atau perlu dijelaskan?",
+          "branches": [
+            {
+              "label": "Asal angkanya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Telusuri di Buku Pajak",
+                  "menu": "Pajak > Buku Pajak > (klik Deskripsi)",
+                  "note": "Lihat dokumen sumber, Aturan yang Diterapkan, dan Rincian Perhitungan"
+                }
+              ]
+            },
+            {
+              "label": "Tarif atau tenggat",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Periksa Aturan Pajak",
+                  "menu": "Pajak > Aturan Pajak",
+                  "note": "Lihat Berlaku Sejak dan Sumber Hukum; versi baru hanya dibuat OWNER"
+                }
+              ]
+            },
+            {
+              "label": "Tidak ada",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "PPh yang dipotong dibayar paling lambat tanggal 15 bulan berikutnya; cek Tenggat Terdekat berkala"
+        }
+      ]
+    },
+    {
       "id": "pajak",
+      "stage": "Tahap 6 · Pajak",
       "title": "Membayar dan Melaporkan Pajak (Tiap Masa Pajak)",
       "summary": "Lihat posisi pajak, bayar sebesar yang sudah diakui, catat pelaporan, lalu lampirkan bukti. Mesin pajak harus aktif lebih dulu.",
       "guides": ["bayar-pajak", "pengaturan-pajak-awal"],
@@ -564,46 +2318,460 @@
       ]
     },
     {
-      "id": "persiapan-awal",
-      "title": "Persiapan Pertama Kali Memakai Aplikasi",
-      "summary": "Lakukan satu kali per Entity (PT dan Pribadi), supaya saat membuat invoice atau mencatat pengeluaran semuanya tinggal dipilih.",
-      "guides": [
-        "urutan-langkah-awal",
-        "pengaturan-pajak-awal",
-        "tambah-rekening",
-        "saldo-awal",
-        "tambah-pelanggan",
-        "tambah-vendor",
-        "produk-dan-jasa"
-      ],
+      "id": "aset-tetap",
+      "stage": "Tahap 7 · Aset & Pendanaan",
+      "title": "Beli Laptop atau Kendaraan: dari Pencatatan Aset sampai Dijual",
+      "summary": "Dari barang tahan lama dibeli (atau sudah dimiliki sebelum memakai aplikasi) sampai disusutkan tiap bulan dan akhirnya dijual atau dilepas.",
+      "guides": ["catat-aset-tetap", "penyusutan-aset", "jual-lepas-aset", "saldo-awal-aset"],
+      "width": 160,
       "items": [
         {
           "kind": "start",
           "actor": "anda",
-          "title": "Pertama kali memakai aplikasi"
-        },
-        {
-          "kind": "step",
-          "actor": "anda",
-          "title": "Pilih Entity yang dikerjakan",
-          "menu": "Pemilih Entity di bilah atas",
-          "note": "PT atau Pribadi"
-        },
-        {
-          "kind": "step",
-          "actor": "anda",
-          "title": "Isi Pengaturan Pajak",
-          "menu": "Pajak > Pengaturan Pajak"
-        },
-        {
-          "kind": "step",
-          "actor": "anda",
-          "title": "Tambah rekening kas dan bank",
-          "menu": "Kas & Bank > Rekening > Tambah Akun"
+          "title": "Ada barang tahan lama: laptop, mesin, kendaraan"
         },
         {
           "kind": "choice",
-          "question": "Rekening sudah berisi uang sebelum memakai aplikasi?",
+          "question": "Barangnya dibeli sebelum Anda memakai aplikasi?",
+          "branches": [
+            {
+              "label": "Ya, aset lama",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Catat aset yang sudah dimiliki",
+                  "menu": "Aset & Pendanaan > Aset Tetap > Daftarkan Aset > Catat aset yang sudah dimiliki",
+                  "note": "Isi harga, umur, dan penyusutan yang sudah berjalan; langsung Aktif"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Posting nilainya di Saldo Awal",
+                  "menu": "Akuntansi > Saldo Awal",
+                  "note": "Tanpa ini neraca belum memuat asetnya"
+                }
+              ]
+            },
+            {
+              "label": "Tidak, beli baru",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Catat pembelian dengan Perlakuan \"Aset\"",
+                  "menu": "Pembelian > Beban > Catat Pengeluaran (atau Pembelian > Tagihan > Catat Tagihan)",
+                  "note": "Barang kecil yang habis sebulan tetap Beban"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Aset berstatus Draf muncul di Daftar Aset",
+                  "menu": "Aset & Pendanaan > Aset Tetap",
+                  "note": "Setelah pengeluaran dikonfirmasi atau tagihan disetujui. Belum disusutkan"
+                },
+                {
+                  "kind": "choice",
+                  "question": "Akun Anda berhak mengelola aset?",
+                  "branches": [
+                    {
+                      "label": "Ya",
+                      "items": [
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Aktifkan Aset",
+                          "menu": "Aset & Pendanaan > Aset Tetap > (klik aset) > Aktifkan Aset",
+                          "note": "Isi Mulai Dipakai, Metode Penyusutan, Umur Manfaat, Nilai Sisa"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Tidak",
+                      "items": [
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Minta Owner atau Finance Admin mengaktifkan",
+                          "note": "Finance Staff hanya bisa melihat daftar aset"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Penyusutan diposting sendiri setelah bulannya lewat",
+          "menu": "Aset & Pendanaan > Penyusutan",
+          "note": "Beban Penyusutan naik, Nilai Buku turun, kas tidak berubah"
+        },
+        {
+          "kind": "choice",
+          "question": "Apa kelanjutan asetnya?",
+          "branches": [
+            {
+              "label": "Masih dipakai",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pantau di Laporan Penyusutan",
+                  "menu": "Aset & Pendanaan > Penyusutan",
+                  "note": "Bulan tertahan: Posting Penyusutan. Bulan salah: Batalkan Penyusutan Terposting"
+                }
+              ]
+            },
+            {
+              "label": "Dijual atau dilepas",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Jual / Lepas Aset",
+                  "menu": "Aset & Pendanaan > Aset Tetap > (klik aset Aktif) > Jual / Lepas Aset",
+                  "note": "Pilih jenis, tanggal, alasan, dan cara pembayaran"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Aset keluar dari buku, selisihnya jadi Laba/Rugi Pelepasan",
+                  "note": "Dijual belum dibayar: menjadi Piutang Lain"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Salah lepas? Batalkan Pelepasan, aset kembali Aktif. Salah daftar sebelum ada penyusutan? Batalkan Aset"
+        }
+      ]
+    },
+    {
+      "id": "pinjaman",
+      "stage": "Tahap 7 · Aset & Pendanaan",
+      "title": "Meminjam atau Meminjamkan Uang: Catat Pinjaman dan Cicilannya",
+      "summary": "Dari uang dipinjam atau dipinjamkan sampai tercatat di rekening, dicicil, dan lunas. Pinjaman sederhana tanpa jadwal punya jalur sendiri.",
+      "guides": [
+        "catat-pinjaman",
+        "cicilan-pinjaman",
+        "pinjaman-mata-uang-asing",
+        "utang-lain",
+        "piutang-lain"
+      ],
+      "width": 160,
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ada uang yang dipinjam dari atau dipinjamkan ke pihak lain"
+        },
+        {
+          "kind": "choice",
+          "question": "Ada jadwal cicilan dan bunga?",
+          "branches": [
+            {
+              "label": "Ya, berjadwal",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Tambah Pinjaman",
+                  "menu": "Aset & Pendanaan > Pinjaman > Tambah Pinjaman",
+                  "note": "Isi Jenis Pinjaman, pokok, bunga, jumlah cicilan. Hanya Owner dan Finance Admin"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Pinjaman tersimpan sebagai Draf",
+                  "note": "Belum ada jurnal dan saldo rekening belum berubah"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Aktifkan Pinjaman",
+                  "menu": "Pinjaman > (klik pinjaman) > Aktifkan Pinjaman",
+                  "note": "Isi tanggal dan rekening tempat uang masuk atau keluar"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Uang tercatat di rekening, status Berjalan",
+                  "note": "Diterima: saldo naik dan utang. Diberikan: saldo turun dan Piutang Lain-lain"
+                },
+                {
+                  "kind": "choice",
+                  "question": "Pinjaman dalam mata uang asing?",
+                  "branches": [
+                    {
+                      "label": "Ya",
+                      "items": [
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Atur Mata Uang Asing",
+                          "menu": "Pinjaman > (klik pinjaman) > Atur Mata Uang Asing",
+                          "note": "Uang dan cicilan tetap dicatat dalam mata uang dasar"
+                        },
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Tiap akhir bulan: Catat Revaluasi Kurs",
+                          "menu": "Pinjaman > (klik pinjaman) > Catat Revaluasi Kurs",
+                          "note": "Selisih kurs masuk ke Laba/Rugi Selisih Kurs"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Tidak",
+                      "items": []
+                    }
+                  ]
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Catat tiap cicilan",
+                  "menu": "Pinjaman > (klik pinjaman) > Bayar Cicilan atau Catat Cicilan Diterima",
+                  "note": "Isi Pokok, Bunga, Biaya / Denda sesuai bukti bank"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Outstanding turun, status Lunas bila pokok habis",
+                  "note": "Pembayaran tercatat bernomor LPY"
+                }
+              ]
+            },
+            {
+              "label": "Tidak, sederhana",
+              "items": [
+                {
+                  "kind": "choice",
+                  "question": "Anda meminjam atau meminjamkan?",
+                  "branches": [
+                    {
+                      "label": "Meminjam",
+                      "items": [
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Tambah Utang lain-lain",
+                          "menu": "Aset & Pendanaan > Utang Lain > Tambah Utang lain-lain",
+                          "note": "Bukan untuk tagihan vendor. Isi pihak, keterangan, jumlah, rekening"
+                        },
+                        {
+                          "kind": "step",
+                          "actor": "sistem",
+                          "title": "Langsung tercatat (OPY), saldo rekening naik",
+                          "note": "Tanpa draf. Utang tidak masuk Umur Utang vendor"
+                        },
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Catat Pembayaran",
+                          "menu": "Utang Lain > (klik utang) > Catat Pembayaran",
+                          "note": "Lunas bila pokok sama dengan sisa"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Meminjamkan",
+                      "items": [
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Tambah Piutang lain-lain",
+                          "menu": "Aset & Pendanaan > Piutang Lain > Tambah Piutang lain-lain",
+                          "note": "Bukan untuk tagihan pelanggan. Isi pihak, keterangan, jumlah, rekening"
+                        },
+                        {
+                          "kind": "step",
+                          "actor": "sistem",
+                          "title": "Langsung tercatat (ORC), saldo rekening turun",
+                          "note": "Tanpa draf. Tidak masuk Umur Piutang penjualan"
+                        },
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Catat Penerimaan",
+                          "menu": "Piutang Lain > (klik piutang) > Catat Penerimaan",
+                          "note": "Lunas bila pokok sama dengan sisa"
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Cicilan salah: Batalkan Pembayaran. Syarat berubah: Restrukturisasi Jadwal. Sisa dihapus: Hapus Sisa"
+        }
+      ]
+    },
+    {
+      "id": "modal-dan-dividen",
+      "stage": "Tahap 7 · Aset & Pendanaan",
+      "title": "Pemilik Menyetor Modal, Menarik Modal, atau Menerima Dividen",
+      "summary": "Dari uang pemilik masuk ke usaha, atau usaha mengembalikannya ke pemilik, sampai tercatat sebagai modal atau dividen dan bukan sebagai biaya.",
+      "guides": ["setoran-modal", "pengembalian-modal-dividen"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Pemilik menyetor uang, atau PT mengembalikannya"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Buka Tambah Modal / Ekuitas",
+          "menu": "Aset & Pendanaan > Modal & Ekuitas > Tambah Modal / Ekuitas",
+          "note": "Hanya Owner dan Finance Admin"
+        },
+        {
+          "kind": "choice",
+          "question": "Apa yang dicatat?",
+          "branches": [
+            {
+              "label": "Setoran modal",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pilih Setoran modal (PT) atau Penyertaan modal (Pribadi)",
+                  "note": "Isi pihak, keterangan, jumlah, tanggal. PT: pilih Golongan Modal"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Tersimpan sebagai Draf",
+                  "note": "Belum ada jurnal, saldo belum berubah"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Konfirmasi dan pilih rekening",
+                  "menu": "Modal & Ekuitas > (klik data) > Konfirmasi",
+                  "note": "Pilih Rekening Kas/Bank, lalu Konfirmasi dan Catat"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "PT: saldo naik dan Modal Disetor bertambah",
+                  "note": "Pribadi: saldo turun, jadi Investasi. Bukan pendapatan"
+                }
+              ]
+            },
+            {
+              "label": "Pengembalian modal (PT)",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pilih Pengembalian modal, isi Nomor RUPS",
+                  "note": "Nomor Keputusan wajib. Pilih Golongan Modal, Simpan sebagai Draf"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "OWNER menekan Konfirmasi dan memilih rekening",
+                  "menu": "Modal & Ekuitas > (klik data) > Konfirmasi",
+                  "note": "Perlu verifikasi ulang. Tanpa izin hanya ada Batalkan Draf"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Saldo rekening dan akun modal berkurang",
+                  "note": "Bukan beban, tidak mengurangi laba"
+                }
+              ]
+            },
+            {
+              "label": "Dividen (PT)",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pilih Dividen, isi Nomor RUPS",
+                  "note": "Nomor Keputusan Pemegang Saham wajib. Simpan sebagai Draf"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "OWNER menekan Konfirmasi",
+                  "menu": "Modal & Ekuitas > (klik data) > Konfirmasi",
+                  "note": "Perlu verifikasi ulang. Dividen diumumkan dulu, kas belum berubah"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Tercatat sebagai Utang Dividen",
+                  "note": "Dividen melebihi laba ditahan ditandai Melebihi Laba Ditahan"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Bayar Dividen",
+                  "menu": "Modal & Ekuitas > (klik dividen) > Bayar Dividen",
+                  "note": "Boleh dicicil. Saldo rekening berkurang saat dibayar"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Draf salah: Batalkan Draf. Terkonfirmasi salah: Balik (Salah Catat). Tidak ada jenis prive"
+        }
+      ]
+    },
+    {
+      "id": "payroll-karyawan-baru",
+      "stage": "Tahap 8 · Payroll",
+      "title": "Ada Karyawan Baru: Daftarkan Sampai Siap Digaji",
+      "summary": "Dari karyawan baru bergabung sampai data gaji, pajak, dan BPJS-nya lengkap sehingga ia ikut Payroll bulan berikutnya.",
+      "guides": ["tambah-karyawan", "memahami-pajak-payroll"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ada karyawan baru yang akan digaji (Entity PT)"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Tambah Karyawan",
+          "menu": "Payroll > Karyawan > Tambah Karyawan",
+          "note": "Hanya OWNER dan peran Payroll. Isi nama, tanggal masuk, jabatan"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Atur Gaji & Komponen",
+          "menu": "Payroll > Karyawan > (klik karyawan) > Atur Gaji & Komponen",
+          "note": "Centang Dihitung untuk PPh 21 dan Masuk dasar upah BPJS"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Atur Data Pajak",
+          "menu": "Payroll > Karyawan > (klik karyawan) > Atur Data Pajak",
+          "note": "Isi Status NPWP/NIK, Status PTKP, Metode Pajak. Jangan Belum diketahui"
+        },
+        {
+          "kind": "choice",
+          "question": "Karyawan ikut BPJS?",
           "branches": [
             {
               "label": "Ya",
@@ -611,13 +2779,97 @@
                 {
                   "kind": "step",
                   "actor": "anda",
-                  "title": "Isi Saldo Awal",
-                  "menu": "Akuntansi > Saldo Awal"
+                  "title": "Atur BPJS",
+                  "menu": "Payroll > Karyawan > (klik karyawan) > Atur BPJS",
+                  "note": "Pilih Kepesertaan tiap program dan Tingkat Risiko JKK"
                 }
               ]
             },
             {
-              "label": "Belum",
+              "label": "Tidak",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "question": "Sudah digaji sebelum memakai aplikasi, dan bukan mulai Januari?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Isi Saldo Awal Pajak",
+                  "menu": "Payroll > Karyawan > (klik karyawan) > Isi Saldo Awal Pajak",
+                  "note": "Isi penghasilan bruto dan PPh 21 yang sudah dipotong"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Karyawan Aktif dan ikut Payroll bulan berikutnya",
+          "note": "Belum ada jurnal. Uang baru tercatat saat Payroll diposting"
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Berhenti bekerja: Karyawan Berhenti. Pindah jabatan: Catat Perubahan Jabatan"
+        }
+      ]
+    },
+    {
+      "id": "payroll-bulanan",
+      "stage": "Tahap 8 · Payroll",
+      "title": "Gajian Bulanan: Hitung, Posting, Bayar, sampai Tutup",
+      "summary": "Dari membuat proses Payroll satu bulan sampai gaji dan BPJS dibayar, slip gaji terbit, PPh 21 siap disetor, dan proses ditutup.",
+      "guides": ["jalankan-payroll-bulanan", "lihat-slip-gaji", "memahami-pajak-payroll"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Waktunya gajian: data karyawan sudah lengkap"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Buat Proses Payroll",
+          "menu": "Payroll > Proses Payroll > Buat Proses Payroll",
+          "note": "Isi Bulan Gaji dan Tanggal Bayar"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Hitung Payroll",
+          "menu": "(klik proses) > Hitung Payroll",
+          "note": "Gaji, BPJS, PPh 21 dihitung otomatis. Bonus: Tambah Penyesuaian dulu"
+        },
+        {
+          "kind": "choice",
+          "question": "Ada baris bertanda Perlu Ditinjau?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Lengkapi data, lalu hitung ulang",
+                  "menu": "Payroll > Karyawan > (klik karyawan)",
+                  "note": "Mis. data pajak belum diisi"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
               "items": []
             }
           ]
@@ -625,13 +2877,731 @@
         {
           "kind": "step",
           "actor": "anda",
-          "title": "Tambah pelanggan, vendor, dan produk atau jasa",
-          "menu": "Penjualan > Pelanggan, Pembelian > Vendor, Penjualan > Produk & Jasa"
+          "title": "Ajukan untuk Disetujui",
+          "menu": "(klik proses) > Ajukan untuk Disetujui",
+          "note": "Angka terkunci. Salah: Kembalikan ke Draf"
+        },
+        {
+          "kind": "choice",
+          "question": "Akun Anda berhak menyetujui Payroll?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Setujui Payroll",
+                  "menu": "(klik proses) > Setujui",
+                  "note": "Bila aturan aktif, penyetuju harus orang lain"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Minta OWNER menyetujui",
+                  "note": "Status Disetujui, siap diposting"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Posting ke Pembukuan",
+          "menu": "(klik proses) > Posting ke Pembukuan"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Jurnal dibuat dan slip gaji terbit",
+          "menu": "Payroll > Slip Gaji",
+          "note": "Satu slip tiap karyawan. Saldo belum berkurang"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Catat Pembayaran",
+          "menu": "(klik proses) > Catat Pembayaran",
+          "note": "Gaji bersih dan BPJS. Saldo berkurang, perlu verifikasi ulang"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Setor PPh 21 ke negara",
+          "menu": "Payroll > Pajak & Kewajiban Payroll > Setor →",
+          "note": "Dicatat di Pajak > Pelaporan & Bukti"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Tutup Payroll",
+          "menu": "(klik proses) > Tutup Payroll",
+          "note": "Setelah gaji bersih Dibayar penuh"
         },
         {
           "kind": "end",
-          "title": "Siap membuat invoice pertama",
-          "note": "Lanjut ke diagram: Menagih Pelanggan"
+          "title": "Selesai",
+          "note": "Salah setelah posting: Batalkan Pembayaran, lalu Koreksi Payroll"
+        }
+      ]
+    },
+    {
+      "id": "anggaran-dan-target",
+      "stage": "Tahap 9 · Perencanaan",
+      "title": "Menyusun Anggaran dan Target Pendapatan, Lalu Memantaunya",
+      "summary": "Dari menetapkan rencana per bulan sampai membandingkannya dengan angka sebenarnya dan melihat perkiraan beberapa bulan ke depan.",
+      "guides": ["buat-anggaran", "buat-target-pendapatan", "memahami-perkiraan"],
+      "width": 160,
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ingin tahu apakah pengeluaran dan penjualan sesuai rencana"
+        },
+        {
+          "kind": "choice",
+          "question": "Akun Anda berhak menyusun anggaran dan target?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "choice",
+                  "question": "Apa yang disusun?",
+                  "branches": [
+                    {
+                      "label": "Anggaran",
+                      "items": [
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Buat Anggaran Baru",
+                          "menu": "Perencanaan > Anggaran > Buat Anggaran Baru",
+                          "note": "Isi nama, jenis periode, tanggal mulai dan akhir"
+                        },
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Isi baris anggaran",
+                          "menu": "Anggaran > (klik anggaran) > Atur Baris Anggaran",
+                          "note": "Tambah Kategori, isi jumlah per bulan, Simpan Baris Anggaran"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Target pendapatan",
+                      "items": [
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Buat Target Baru",
+                          "menu": "Perencanaan > Target Pendapatan > Buat Target Baru",
+                          "note": "Isi nama, jenis periode, tanggal mulai dan akhir"
+                        },
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Isi target tiap bulan",
+                          "menu": "Target Pendapatan > (klik target) > Atur Baris Target Pendapatan",
+                          "note": "Satu angka per bulan, tanpa kategori"
+                        }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Aktifkan Anggaran atau Aktifkan Target",
+                  "note": "Hanya penanda. Laporan sudah dihitung sejak Draf"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Minta OWNER, Finance Admin, atau Accountant menyusunnya",
+                  "note": "Anda tetap bisa melihat laporannya"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Kolom Aktual terisi sendiri dari dokumen yang tercatat",
+          "note": "Beban: tagihan Disetujui, pengeluaran Dikonfirmasi. Pendapatan: invoice Diterbitkan"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Baca Anggaran vs Aktual atau Target vs Aktual",
+          "menu": "Perencanaan > Anggaran atau Target Pendapatan > (klik)",
+          "note": "Varians positif pada anggaran = melebihi rencana"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Lihat Perkiraan",
+          "menu": "Perencanaan > Perkiraan",
+          "note": "Pilih Periode 3, 6, atau 12 bulan. Hanya estimasi, bukan angka aktual"
+        },
+        {
+          "kind": "choice",
+          "question": "Periodenya sudah selesai?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Tutup Anggaran atau Tutup Target",
+                  "note": "Setelah ditutup tidak bisa diedit atau dibuka lagi"
+                }
+              ]
+            },
+            {
+              "label": "Belum",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Ubah baris bila perlu",
+                  "note": "Yang masih Aktif boleh diubah barisnya"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Perencanaan tidak membuat jurnal dan tidak mengubah saldo. Gaji Payroll tidak masuk Aktual"
+        }
+      ]
+    },
+    {
+      "id": "transaksi-berulang-otomatis",
+      "stage": "Tahap 9 · Perencanaan",
+      "title": "Tagihan atau Invoice yang Sama Tiap Bulan: Atur Sekali, Draf Muncul Sendiri",
+      "summary": "Dari menyimpan aturan berulang sampai draf dibuat otomatis pada tanggalnya, lalu Anda menyelesaikannya. Tidak ada yang diposting otomatis.",
+      "guides": ["atur-transaksi-berulang", "tagihan-rutin"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ada invoice, tagihan, atau pengeluaran yang berulang"
+        },
+        {
+          "kind": "choice",
+          "question": "Akun Anda berhak membuat aturan?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buat dan simpan aturan",
+                  "menu": "Perencanaan > Transaksi Berulang > Buat Transaksi Berulang",
+                  "note": "Isi jenis, Frekuensi, Tanggal Mulai, dan Jatuh Tempo pada Tanggal (invoice, tagihan)"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Minta Owner atau Finance Admin membuatnya"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Pada tanggal aturan, draf dibuat otomatis",
+          "note": "Dicek tiap hari sesudah tengah malam (waktu Entity). Hanya Draf, tidak pernah diposting"
+        },
+        {
+          "kind": "choice",
+          "question": "Perlu draf sebelum tanggalnya?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Jalankan yang Jatuh Tempo",
+                  "menu": "Perencanaan > Transaksi Berulang > Jalankan yang Jatuh Tempo",
+                  "note": "Hanya mempercepat. Butuh izin Owner atau Finance Admin"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Buka draf lewat Riwayat Pembuatan",
+          "menu": "(klik aturan) > Riwayat Pembuatan > Lihat →"
+        },
+        {
+          "kind": "choice",
+          "question": "Status pembuatan Gagal?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Dicoba lagi otomatis esok hari",
+                  "note": "Aturan tidak maju sampai berhasil dibuat"
+                }
+              ]
+            },
+            {
+              "label": "Berhasil",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "question": "Jenis aturannya?",
+          "branches": [
+            {
+              "label": "Invoice",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Terbitkan Invoice",
+                  "menu": "Penjualan > Invoice > (klik draf) > Terbitkan Invoice",
+                  "note": "Baru menjadi piutang setelah terbit"
+                }
+              ]
+            },
+            {
+              "label": "Tagihan",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Setujui Tagihan",
+                  "menu": "Pembelian > Tagihan > (klik draf) > Setujui Tagihan",
+                  "note": "Utang tercatat"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Bayar Tagihan",
+                  "menu": "(klik tagihan) > Bayar Tagihan",
+                  "note": "Saat sudah membayar vendor. Lunas otomatis"
+                }
+              ]
+            },
+            {
+              "label": "Pengeluaran",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Konfirmasi & Posting",
+                  "menu": "Pembelian > Beban > (klik draf) > Konfirmasi & Posting",
+                  "note": "Kas berkurang saat dikonfirmasi"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Berhenti langganan: Jeda Aturan (bisa Lanjutkan Aturan) atau Akhiri Aturan, isi Alasan"
+        }
+      ]
+    },
+    {
+      "id": "pilih-laporan",
+      "stage": "Tahap 10 · Laporan",
+      "title": "Saya Ingin Tahu Sesuatu: Laporan Mana yang Dibuka?",
+      "summary": "Cocokkan pertanyaan Anda dengan laporan yang tepat, lalu atur tanggal dan tekan Terapkan. Semua laporan hanya membaca jurnal yang sudah diposting.",
+      "guides": [
+        "laporan-keuangan-utama",
+        "laporan-penjualan-pembelian",
+        "laporan-pajak-payroll-aset-pinjaman",
+        "laporan-kustom-dan-tersimpan",
+        "rekening-koran",
+        "lihat-piutang",
+        "lihat-utang"
+      ],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ingin tahu kondisi usaha dari angka"
+        },
+        {
+          "kind": "choice",
+          "question": "Pertanyaan Anda tentang apa?",
+          "branches": [
+            {
+              "label": "Untung, rugi, harta",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Untung atau rugi: Laba Rugi",
+                  "menu": "Laporan > Laporan Keuangan > tab Laba Rugi",
+                  "note": "Baris bawah: Laba Bersih atau Rugi Bersih. Isi Pembanding untuk dua periode"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Harta dan utang: Neraca",
+                  "menu": "Laporan > Laporan Keuangan > tab Neraca",
+                  "note": "Pilih Per tanggal; Status harus Seimbang"
+                }
+              ]
+            },
+            {
+              "label": "Uang dan tagihan",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Uang masuk dan keluar: Arus Kas",
+                  "menu": "Laporan > Arus Kas",
+                  "note": "Kas Awal, Operasi, Investasi, Pendanaan, Kas Akhir"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Mutasi tiap rekening: Rekening Koran",
+                  "menu": "Akuntansi > Rekening Koran",
+                  "note": "Pilih Tahun dan Rekening; klik nama bulan untuk rincian bulan itu"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Siapa belum bayar: Umur Piutang",
+                  "menu": "Laporan > Laporan Keuangan > tab Umur Piutang",
+                  "note": "Per pelanggan menurut hari keterlambatan"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Utang ke vendor: Umur Utang",
+                  "menu": "Laporan > Laporan Keuangan > tab Umur Utang",
+                  "note": "Hanya tagihan Disetujui yang masih ada sisa"
+                }
+              ]
+            },
+            {
+              "label": "Penjualan, pajak, lainnya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Penjualan atau pembelian: Penjualan & Pembelian",
+                  "menu": "Laporan > Penjualan & Pembelian",
+                  "note": "Pilih Jenis dan Kelompokkan per pelanggan, kategori, produk, atau bulan"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pajak, payroll, aset, pinjaman",
+                  "menu": "Laporan > Pajak, Payroll, atau Aset & Pinjaman",
+                  "note": "Pinjaman: tab Pinjaman Jatuh Tempo di Laporan Keuangan"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Tampilan sendiri: Laporan Kustom",
+                  "menu": "Laporan > Laporan Kustom",
+                  "note": "Pilih salah satu dari tiga Dataset"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Isi tanggal, lalu tekan Terapkan",
+          "note": "Draf dan dokumen yang belum disetujui tidak ikut dihitung"
+        },
+        {
+          "kind": "choice",
+          "question": "Laporan ini sering dibuka?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Simpan laporan ini",
+                  "menu": "Bagian Simpan laporan ini di bawah laporan",
+                  "note": "Dibuka lagi dari Laporan > Laporan Tersimpan"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Laporan hanya dibaca. Menu Laporan tidak tampil bagi Finance Staff dan Approver"
+        }
+      ]
+    },
+    {
+      "id": "lampiran-dokumen",
+      "stage": "Tahap 11 · Dokumen & Administrasi",
+      "title": "Menyimpan Nota atau Kuitansi sebagai Bukti, lalu Mencarinya Lagi",
+      "summary": "Dari ada bukti (nota, kuitansi, kontrak) sampai terlampir pada invoice, tagihan, atau beban dan bisa dicari di menu Dokumen.",
+      "guides": ["dokumen-lampiran"],
+      "width": 160,
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ada nota, kuitansi, atau kontrak yang perlu disimpan"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Buka catatan yang akan dilampiri",
+          "menu": "Penjualan > Invoice, Pembelian > Tagihan, atau Pembelian > Beban > (klik catatan)",
+          "note": "Menu Dokumen tidak punya tombol unggah"
+        },
+        {
+          "kind": "choice",
+          "question": "Akun Anda berhak melampirkan?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pilih berkas dan Jenis lampiran, tekan Lampirkan",
+                  "menu": "(detail catatan) > Lampiran > Lampirkan",
+                  "note": "PDF, JPG, PNG, atau WebP, maksimal 4 MB"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Lampiran tersimpan dan tertaut ke catatan",
+                  "menu": "Dokumen > Bukti Terkait",
+                  "note": "Isi berkas yang sama di Entity yang sama disimpan sekali"
+                },
+                {
+                  "kind": "choice",
+                  "question": "Salah melampirkan berkas?",
+                  "branches": [
+                    {
+                      "label": "Ya",
+                      "items": [
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Lepas lampiran",
+                          "menu": "(detail catatan) > Lampiran > Lepas",
+                          "note": "Isi Alasan. Hanya selagi catatan belum final. Berkas pindah ke Arsip"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Tidak",
+                      "items": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Minta Owner, Finance Admin, atau Finance Staff melampirkan",
+                  "note": "Peran Anda hanya bisa melihat dokumen"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "choice",
+          "question": "Apa yang dicari nanti?",
+          "branches": [
+            {
+              "label": "Bukti dari catatan",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buka Bukti Terkait atau Pusat Dokumen",
+                  "menu": "Dokumen > Bukti Terkait atau Pusat Dokumen",
+                  "note": "Pusat Dokumen: pakai tab jenis atau kotak Cari nama berkas"
+                }
+              ]
+            },
+            {
+              "label": "Belum tertaut",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buka Unggahan",
+                  "menu": "Dokumen > Unggahan",
+                  "note": "Dokumen yang belum tertaut ke catatan mana pun"
+                }
+              ]
+            },
+            {
+              "label": "Yang dilepas",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buka Arsip",
+                  "menu": "Dokumen > Arsip",
+                  "note": "Berkas dilepas atau diganti versi baru. Bukan bukti aktif"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Bukti pajak diunggah dari Pajak > Pelaporan & Bukti, dan tidak bisa dihapus"
+        }
+      ]
+    },
+    {
+      "id": "backup-dan-audit",
+      "stage": "Tahap 11 · Dokumen & Administrasi",
+      "title": "Mengamankan Data dan Menelusuri Perubahan yang Janggal",
+      "summary": "Dari mengunduh Backup Penuh secara rutin dan memulihkannya bila perlu, sampai menelusuri siapa mengubah apa lewat Aktivitas Terbaru dan Jejak Audit.",
+      "guides": ["backup-restore", "jejak-audit-aktivitas"],
+      "width": 160,
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ingin mengamankan data, atau ada angka yang tampak janggal"
+        },
+        {
+          "kind": "choice",
+          "question": "Apa tujuan Anda?",
+          "branches": [
+            {
+              "label": "Mengamankan data",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Unduh Backup Penuh",
+                  "menu": "Administrasi > Backup & Restore > Unduh Backup Penuh",
+                  "note": "Hanya OWNER. PT dan Pribadi masing-masing. Tidak otomatis, ulangi rutin"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Simpan berkas di luar aplikasi",
+                  "note": "Jangan dibuka lalu disimpan ulang. Isi berkas lampiran tidak ikut"
+                },
+                {
+                  "kind": "choice",
+                  "question": "Perlu memulihkan data?",
+                  "branches": [
+                    {
+                      "label": "Ya",
+                      "items": [
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Pilih berkas di Pulihkan dari Berkas",
+                          "menu": "Administrasi > Backup & Restore > Pulihkan dari Berkas",
+                          "note": "Hanya ke Entity yang masih kosong. Berkas diperiksa dulu"
+                        },
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Verifikasi ulang, ketik kode Entity, Pulihkan sekarang",
+                          "note": "Satu transaksi: bila gagal tidak ada data tertulis. Atur ulang akses pengguna"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Tidak",
+                      "items": []
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "Ada yang janggal",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Lihat Aktivitas Terbaru",
+                  "menu": "Ringkasan > Aktivitas Terbaru",
+                  "note": "Hanya pembayaran terkonfirmasi dan invoice terbit"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buka Jejak Audit dan saring",
+                  "menu": "Administrasi > Jejak Audit",
+                  "note": "Hanya OWNER dan Viewer / Auditor. Tab Dibuat, Diubah, Dihapus"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Baca Pelaku, Field Berubah, dan Alasan",
+                  "note": "Waktu dalam UTC. Nilai lama tidak ditampilkan"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Jejak Audit hanya dibaca: catatannya tidak bisa diedit atau dihapus"
         }
       ]
     }
