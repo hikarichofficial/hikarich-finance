@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
+import { guideAssetError } from "@/domain/assets/assetFormGuide";
 import { requirePermission } from "@/services/identity/access";
 import {
   loadOpeningAssets,
@@ -18,6 +19,7 @@ import {
   reverseDisposal,
   setAssetCondition,
   setAssetFiscalClass,
+  setAssetOrigin,
   splitAsset,
   transferAsset,
   updateAssetDetails,
@@ -33,6 +35,10 @@ export interface AssetActionState {
   status: "idle" | "ok" | "error";
   message?: string;
   stepUp?: boolean;
+  /** The form field a refusal is about (its `name`), so the form can mark it in red. */
+  field?: string;
+  /** What to do about it, in plain Indonesian. */
+  fix?: string;
 }
 
 function text(formData: FormData, name: string): string {
@@ -42,13 +48,23 @@ function text(formData: FormData, name: string): string {
 
 function errorState(error: unknown, fallback: string): AssetActionState {
   if (error instanceof AuthzError) {
+    const guide = guideAssetError(error.message);
     return {
       status: "error",
       message: describeAuthzError(error),
       stepUp: error.code === "STEP_UP_REQUIRED",
+      field: guide?.field,
+      fix: guide?.fix,
     };
   }
   return { status: "error", message: fallback };
+}
+
+/** The "Baru / Bekas" and "Tahun Pembuatan" fields of a form, as the database wants them. */
+function originOf(formData: FormData): { condition: "new" | "used"; manufacture_year?: number } {
+  const condition = text(formData, "acquired_condition") === "used" ? "used" : "new";
+  const year = text(formData, "manufacture_year");
+  return year ? { condition, manufacture_year: Number(year) } : { condition };
 }
 
 function revalidateAsset(assetId: string): void {
@@ -87,8 +103,12 @@ export async function activateAssetAction(
   const method = text(formData, "method");
   const life = text(formData, "life_months");
   const fiscalClass = text(formData, "fiscal_class");
+  const origin = originOf(formData);
   let months: number;
   try {
+    if (origin.condition === "used" || origin.manufacture_year !== undefined) {
+      await setAssetOrigin({ asset_id: assetId, ...origin });
+    }
     months = await activateAsset({
       asset_id: assetId,
       idempotency_key: randomUUID(),
@@ -409,6 +429,7 @@ export async function loadOpeningAssetAction(
           residual: method === "none" ? undefined : text(formData, "residual") || undefined,
           fiscal_class: fiscalClass || undefined,
           fiscal_method: fiscalClass ? (text(formData, "fiscal_method") as never) : undefined,
+          ...originOf(formData),
           fx_currency: fxCurrency || undefined,
           fx_cost: fxCurrency ? text(formData, "fx_cost") : undefined,
           fx_rate: fxCurrency ? text(formData, "fx_rate") : undefined,

@@ -2787,3 +2787,51 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Perseroan Perorangan eligibility follow PP 55/2022 and PP 20/2026. Not modelled: holidays moving a due date,
      time limits of the regime, the SPT Tahunan's own content. Sources are secondary (DDTC, ortax, pajak.go.id);
      the owner should have a tax adviser confirm before relying on them. Tests 9.17-9.17d and 11.8.
+
+342. **Estimate of the running month's PPh Final UMKM (p65, owner request).** Owner: the tax of the month in
+     progress should be estimated as income comes in, shown on the tax menu, and become fixed once the month has
+     ended. Migration `20261009100000`: `tax_final_evaluate` gets a three-argument form (`p_estimate`), built from
+     the live function by exact text replacement so the marketplace changes stay; the two-argument form is a wrapper
+     with `false`, so `tax_final_preview`, `tax_final_compute`, the journal and the tax ledger are unchanged. New
+     read-only `tax_final_estimate(entity, period)` (needs `tax.view`; only the running month, a future month stays
+     "not configured"; the output carries `estimate: true`). It applies the same rule, profile checks, exempt band,
+     annual ceiling and marketplace credit to the invoices issued so far, and is recomputed from the invoices on
+     every read, so each new invoice and each void moves it. Nothing is recorded. The "Perkiraan Pajak Bulan
+     Berjalan" card shows on Ringkasan Pajak, Kalender Pajak and PPh Final. Making the month final is still the
+     explicit "Hitung Pajak Final Bulan Ini" step after the month has ended (it posts the journal); doing that
+     automatically needs a scheduled job and is left to the owner's decision. Tests `99_p32_final_estimate.sql`,
+     `runningTaxPeriod`.
+
+343. **Fixed-asset forms made automatic, asset origin, more accounts (p66, owner requests of 7-8 October 2026).**
+     Owner: the person should not have to know "golongan", fiscal depreciation, useful life or residual value; the
+     depreciation should follow the kind of asset; "Mulai Dipakai" gets a "same as purchase date" tick; and a used
+     asset (used car, used laptop) needs its year of manufacture so the depreciation fits. Built: (a) the
+     golongan is suggested from the asset's name, then from its account (`accountDefault`); in the default mode the
+     method is straight line, the life is the life of the golongan, the residual 0, and land, assets under
+     construction and collectibles are not depreciated; "Ubah manual" opens the figures; a fold-out explains the
+     words in plain Indonesian. (b) New columns `acquired_condition` (new/used; not the physical `condition`) and
+     `manufacture_year` on `fixed_assets` (a used asset must have the year); `asset_load_opening` reads
+     `condition`/`manufacture_year`; new `asset_set_origin` (activation calls it first); `asset_detail` returns both.
+     For the financial statements a used asset's life is the life of its golongan less its age in whole years
+     (year put in service minus year made), never under 12 months; the tax (fiscal) plan is NOT shortened, the
+     database still uses the full life of the golongan. (c) Fiscal groups apply to any date: rule version 2 of
+     `FISCAL_DEP_CLASSES` is effective from 1900-01-01 with the same values as version 1 (owner: the limit to 2020
+     was wrong). This is a data addition to a tax rule and should be confirmed by a tax adviser; acquisition dates
+     before 2000-01-01 are still refused by the global date rule. (d) Error guidance: a refusal now carries the
+     field it is about and a way out (`guideAssetError`); that field turns red with the way out written under it,
+     the form checks dates and amounts as the person types, and a box at the bottom says what went wrong; "Isi
+     otomatis" fills the depreciation already taken from the life and the dates. (e) Chart of accounts for
+     companies (template and existing active Entities): 19 fixed-asset accounts under 1500 (land, buildings,
+     renovation, installations, communication, studio, machinery, shop/warehouse, tools, cooling/generator,
+     cars, motorbikes, trucks and heavy equipment, vessels and aircraft, construction in progress, leased assets,
+     plantations and livestock, art and collectibles; control accounts fed by the register); group 1600 intangible
+     assets (software, brand/copyright/patent, website/app, other, accumulated amortisation) and group 1700
+     long-term investments (term deposit over 3 months, shares, bonds, mutual funds, gold, investment property,
+     other), both outside the asset register and open to manual journals (no schedule for amortisation or
+     revaluation: journals); 1220 funds with a broker or trading platform (forex, shares, crypto) and 1230 crypto
+     assets; income 7110-7160 (dividend, rent, yield, bonus/rebate, crypto income, other), gain/loss accounts
+     7320-7380 (forex, crypto, shares/funds/bonds, gold, other investments, revaluation, investment property),
+     costs 7210-7240 (broker commission/spread, swap/margin, crypto network and exchange fees, impairment), 6710
+     amortisation and 8300 final tax on investment income. Not decided and left to the owner and a tax adviser: how
+     crypto and forex are recognised (cost, fair value) and their tax treatment, and whether term deposits of up to
+     3 months should sit under cash equivalents. Tests `99_p33_asset_origin.sql`, `assetFormGuide.test.ts`.

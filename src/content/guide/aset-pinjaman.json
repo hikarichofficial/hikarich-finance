@@ -35,8 +35,8 @@
         },
         {
           "title": "Tekan Aktifkan Aset",
-          "text": "Isi **Mulai Dipakai** (bawaan hari ini). Pilih **Metode Penyusutan**: Garis lurus, Saldo menurun, atau “Tidak disusutkan (mis. tanah)”. Isi **Umur Manfaat (bulan)** dan **Nilai Sisa (opsional)**. Sistem menghitung contoh penyusutan per bulan di bawah isian. **Golongan Fiskal (untuk pajak) (opsional)** terisi otomatis dari nama aset (misalnya laptop masuk Kelompok 1) dan boleh diganti; **Metode Penyusutan Fiskal** ikut tampil. Tekan **Aktifkan Aset**. Hasilnya “Aset aktif. N bulan penyusutan dijadwalkan.”",
-          "tip": "Golongan Fiskal hanya catatan untuk keperluan pajak. Jurnal penyusutan memakai Metode Penyusutan, Umur Manfaat, dan Nilai Sisa yang Anda isi."
+          "text": "Isi **Mulai Dipakai** (bawaan hari ini; bila aset dipakai sejak dibeli, centang **Mulai dipakai sama dengan tanggal beli**). Pilih **Kondisi Saat Dibeli** (Baru atau Bekas); untuk aset bekas isi **Tahun Pembuatan**. Pilih **Jenis Aset (golongan)**; terisi otomatis dari nama aset atau akunnya (misalnya laptop masuk Kelompok 1). Sistem langsung menghitung penyusutan garis lurus sesuai golongan, lengkap dengan perkiraan per bulan, tanpa Anda mengisi umur atau nilai sisa. Tekan **Ubah manual** hanya bila perlu mengubah metode, umur manfaat, atau nilai sisa. Tekan **Aktifkan Aset**. Hasilnya “Aset aktif. N bulan penyusutan dijadwalkan.”",
+          "tip": "Golongan adalah pengelompokan barang menurut aturan pajak; penyusutan fiskal dihitung dari golongan itu. Untuk barang bekas, umur penyusutan di laporan keuangan dipendekkan sesuai usianya, sedangkan pajak tetap memakai umur penuh golongannya."
         },
         {
           "title": "Rawat data aset setelah aktif",
@@ -385,11 +385,11 @@
         },
         {
           "title": "Isi data aset",
-          "text": "Isi **Nama Aset**, **Akun Aset Tetap** (pilihannya berbentuk “1510 · Komputer & Peralatan Elektronik”), **Harga Perolehan**, **Tanggal Beli**, **Mulai Dipakai**, dan **Tanggal Mulai Dicatat di Aplikasi Ini** (bawaan hari ini). Isi **Penyusutan yang Sudah Dicatat sampai Tanggal Itu (opsional)** dengan total penyusutan sampai tanggal tersebut."
+          "text": "Isi **Nama Aset**, **Akun Aset Tetap** (pilihannya berbentuk “1510 · Komputer & Peralatan Elektronik”; tersedia akun tanah, bangunan, kendaraan, mesin, dan lainnya), **Harga Perolehan**, **Tanggal Beli**, **Mulai Dipakai** (bisa dicentang sama dengan tanggal beli), dan **Tanggal Mulai Dicatat di Aplikasi Ini** (bawaan hari ini). Isi **Kondisi Saat Dibeli** (Baru atau Bekas) dan, untuk barang bekas, **Tahun Pembuatan**. **Penyusutan yang Sudah Dicatat** bisa diisi dengan tombol **Isi otomatis**, atau dikosongkan bila tidak tahu."
         },
         {
           "title": "Atur penyusutan ke depan",
-          "text": "Pilih **Metode Penyusutan**, isi **Umur Manfaat (bulan)** dan **Nilai Sisa (opsional)**. Umur Manfaat adalah umur total sejak Mulai Dipakai, bukan sisanya. **Golongan Fiskal (untuk pajak) (opsional)** terisi otomatis dari nama aset dan boleh diganti.",
+          "text": "Pilih **Jenis Aset (golongan)**; umur manfaat, metode garis lurus, dan nilai sisa terisi otomatis. Aset bekas mendapat umur yang lebih pendek sesuai Tahun Pembuatannya. Tanah dan aset yang masih dibangun tidak disusutkan. Centang **Ubah manual** bila perlu mengubah angkanya; Umur Manfaat adalah umur total sejak Mulai Dipakai, bukan sisanya.",
           "tip": "Isi Nomor Seri dan Lokasi bila perlu; keduanya opsional."
         },
         {
@@ -413,7 +413,8 @@
       "rules": [
         "Tidak ada jurnal yang dibuat di layar ini. Jurnal nilai awal dibuat lewat Akuntansi > Saldo Awal.",
         "Urutan tanggal: Tanggal Beli, Mulai Dipakai, Tanggal Mulai Dicatat di Aplikasi Ini, lalu hari ini; tidak boleh terbalik.",
-        "Akun Aset Tetap harus akun aset tetap milik Entity.",
+        "Akun Aset Tetap harus akun aset tetap milik Entity. Aset tidak berwujud (software, merek) dan investasi (deposito, saham, forex, kripto) bukan aset tetap; akunnya ada di daftar akun dan dicatat lewat jurnal.",
+        "Kolom yang salah berwarna merah dan cara memperbaikinya tertulis di bawahnya; ringkasan masalah muncul di bagian bawah form.",
         "Penyusutan yang sudah dicatat tidak boleh melebihi harga perolehan dikurangi nilai sisa. Aset “Tidak disusutkan” tidak punya umur, nilai sisa, atau penyusutan.",
         "Entity Pribadi hanya bisa memilih “Tidak disusutkan (mis. tanah)”.",
         "Satu kali Simpan Aset hanya mengisi satu aset.",
@@ -422,7 +423,8 @@
       "mistakes": [
         "Mengira menyimpan di layar ini sudah mengisi neraca.",
         "Mencatat aset lama lewat Pengeluaran baru sehingga kas ikut berkurang.",
-        "Mengisi sisa umur pada Umur Manfaat (bulan). Isilah umur total sejak Mulai Dipakai.",
+        "Mengisi sisa umur pada Umur Manfaat (bulan) saat memakai Ubah manual. Isilah umur total sejak Mulai Dipakai.",
+        "Memilih Bekas tetapi tidak mengisi Tahun Pembuatan. Kolom itu wajib untuk aset bekas.",
         "Memposting nilai aset di Saldo Awal tetapi lupa Akumulasi Penyusutannya."
       ],
       "errors": [

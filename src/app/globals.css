@@ -3084,6 +3084,67 @@ a.kpi-card:hover {
   flex: none;
 }
 
+/* A field the form refused (or that is plainly wrong): red border and wash, with the way out written under it. */
+.record-form label.field-invalid {
+  color: var(--danger);
+}
+
+.record-form label.field-invalid input,
+.record-form label.field-invalid select,
+.record-form label.field-invalid textarea {
+  border-color: var(--danger);
+  background: var(--danger-wash);
+}
+
+.field-error {
+  color: var(--danger);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+.form-problem {
+  display: grid;
+  gap: var(--space-2);
+  padding: 10px 14px;
+  color: var(--danger);
+  background: var(--danger-wash);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
+.form-problem p {
+  margin: 0;
+}
+
+.form-problem .form-problem-title {
+  font-weight: 600;
+}
+
+.depreciation-summary {
+  display: grid;
+  gap: var(--space-2);
+  padding: 10px 14px;
+  color: var(--text-secondary);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
+.depreciation-summary p {
+  margin: 0;
+}
+
+.record-form details.form-explain {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.record-form details.form-explain p {
+  margin: var(--space-2) 0 0;
+}
+
 /* Budget/Revenue Target "set lines" editable grid (P13 Part 3h, fifth increment): a month x category grid
    for Budgets, a fixed month list for Revenue Targets, sharing this same table-with-inputs shell. */
 .plan-lines-editor {

@@ -734,7 +734,7 @@
           "rows": [
             [
               "Hitung",
-              "Khusus PPh Final UMKM: pajak bulan itu dihitung setelah bulan berakhir.",
+              "Khusus PPh Final UMKM: pajak bulan itu dihitung final setelah bulan berakhir. Selama bulannya berjalan, hanya ada perkiraan di kartu Perkiraan Pajak Bulan Berjalan.",
               "Pajak > PPh Final"
             ],
             [

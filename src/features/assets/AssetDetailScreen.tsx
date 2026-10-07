@@ -129,6 +129,15 @@ export function AssetDetailScreen({
               <dd>{formatMoney(asset.residual_value, currency)}</dd>
             </div>
           ) : null}
+          {asset.acquired_condition ? (
+            <div>
+              <dt>Kondisi Saat Dibeli</dt>
+              <dd>
+                {asset.acquired_condition === "used" ? "Bekas" : "Baru"}
+                {asset.manufacture_year ? `, dibuat ${asset.manufacture_year}` : ""}
+              </dd>
+            </div>
+          ) : null}
           {asset.fiscal_class_key ? (
             <div>
               <dt>Golongan Fiskal</dt>

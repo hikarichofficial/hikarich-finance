@@ -11,7 +11,8 @@ import {
   vatStatusLabel,
   yesNoUnknownLabel,
 } from "@/domain/tax/tax";
-import type { TaxOverview } from "@/schemas/tax";
+import type { FinalPreview, TaxOverview } from "@/schemas/tax";
+import { TaxEstimateCard } from "./TaxEstimateCard";
 import { formatShortDate } from "./format";
 
 const STATE_BADGE_TONE: Readonly<Record<string, string>> = {
@@ -32,10 +33,14 @@ export function TaxOverviewScreen({
   overview,
   currency,
   entity,
+  estimate,
+  estimatePeriod,
 }: {
   overview: TaxOverview;
   currency: string;
   entity: string | undefined;
+  estimate: FinalPreview;
+  estimatePeriod: string;
 }) {
   const qs = entity ? `?entity=${encodeURIComponent(entity)}` : "";
   const outstandingEntries = Object.entries(overview.outstanding).filter(
@@ -62,6 +67,14 @@ export function TaxOverviewScreen({
       <p className="hint">
         <Link href={`/tax/ledger${qs}`}>Buka Buku Besar Pajak →</Link>
       </p>
+
+      <TaxEstimateCard
+        estimate={estimate}
+        period={estimatePeriod}
+        currency={currency}
+        entity={entity}
+        linkToFinal
+      />
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">

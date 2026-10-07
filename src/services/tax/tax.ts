@@ -419,6 +419,18 @@ export async function previewFinalTax(
   );
 }
 
+/** The estimate of the month in progress: read-only, recomputed from the invoices issued so far (decision 342). */
+export async function estimateFinalTax(
+  input: z.input<typeof finalTaxInputSchema>,
+): Promise<FinalPreview> {
+  const v = finalTaxInputSchema.parse(input);
+  return callRpc(
+    "tax_final_estimate",
+    { p_entity: v.entity_id, p_period: v.period },
+    finalPreviewSchema,
+  );
+}
+
 /** Computes (or recomputes) the month's final tax; only the difference to an earlier result is posted. */
 export async function computeFinalTax(
   input: z.input<typeof computeFinalTaxInputSchema>,

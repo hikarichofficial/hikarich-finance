@@ -365,6 +365,9 @@ export const finalPreviewSchema = z.looseObject({
   reasons: z.array(z.string()),
   tax: signedDecimalTextSchema,
   base: signedDecimalTextSchema.optional(),
+  /** True while the month is still running: the figure is an estimate and nothing is recorded (decision 342). */
+  estimate: z.boolean().optional(),
+  turnover_month: signedDecimalTextSchema.optional(),
 });
 export type FinalPreview = z.infer<typeof finalPreviewSchema>;
 
