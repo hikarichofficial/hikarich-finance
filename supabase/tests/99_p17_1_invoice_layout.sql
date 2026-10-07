@@ -16,6 +16,7 @@ declare
   v_hidden_required jsonb;
   v_hidden_optional jsonb;
   v_grid jsonb;
+  v_free jsonb;
 begin
   insert into public.entities (entity_type, code, legal_name) values ('company', 'p17_layout', 'P17 Layout (synthetic)')
   returning id into e1;
@@ -60,6 +61,24 @@ begin
   perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_grid, '{blocks,0}', (v_grid -> 'blocks' -> 0) - 'row' - 'col' - 'span' || '{"width":"full"}'::jsonb)), '0.23 on the 24-column grid every block is placed');
   perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0,stack}', '1'::jsonb)), '0.24 a stack needs a placed block');
   perform test_helpers.assert(app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0}', (v_good -> 'blocks' -> 0) - 'width' || '{"row":1,"col":9,"span":4,"stack":2}'::jsonb)), '0.25 a twelve-column layout stays valid');
+  -- the free page (decision 321): version 2 has no grid; every block has zone, x, w, y, h and may follow another
+  v_free := jsonb_build_object('v', 2, 'blocks', (
+    select jsonb_agg(jsonb_build_object('key', t.id, 'show', true, 'align', 'left', 'valign', 'top', 'size', 'md',
+                                        'zone', case when t.id = 'lines' then 'table' else 'foot' end,
+                                        'x', 0, 'w', 100, 'y', 0, 'h', 0, 'after', null) order by t.ord)
+    from unnest(v_ids) with ordinality as t(id, ord)));
+  perform test_helpers.assert(app_private.valid_invoice_layout(v_free), '0.26 a free layout (version 2) is valid');
+  perform test_helpers.assert(app_private.valid_invoice_layout(jsonb_set(jsonb_set(v_free, '{blocks,7}', (v_free -> 'blocks' -> 7) || '{"x":12.5,"w":60.5,"y":24,"h":80,"after":"totals","size":"xl","valign":"middle","align":"right"}'::jsonb), '{blocks,0}', (v_free -> 'blocks' -> 0) || '{"zone":"head"}'::jsonb)), '0.27 a block can be placed, sized and made to follow another one');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,5,show}', 'false'::jsonb)) and not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,6,show}', 'false'::jsonb)), '0.28 the item table and the totals cannot be hidden on the free page either');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0}', (v_free -> 'blocks' -> 0) || '{"x":60,"w":50}'::jsonb)), '0.29 a block cannot run past the right edge of the page');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0,w}', '7'::jsonb)) and not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0,x}', '-1'::jsonb)), '0.30 a block is at least 8 percent wide and starts inside the page');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0,y}', '601'::jsonb)) and not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0,h}', '601'::jsonb)) and not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0,y}', '1.5'::jsonb)), '0.31 offsets and heights are whole pixels, at most 600');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(jsonb_set(v_free, '{blocks,0,after}', '"issuer"'::jsonb), '{blocks,1,after}', '"logo"'::jsonb)), '0.32 blocks cannot follow each other in a loop');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0,after}', '"logo"'::jsonb)) and not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0,after}', '"lines"'::jsonb)) and not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,5,after}', '"logo"'::jsonb)), '0.33 a block cannot follow itself or the item table, and the item table follows nothing');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(jsonb_set(v_free, '{blocks,0,zone}', '"head"'::jsonb), '{blocks,1,after}', '"logo"'::jsonb)) and app_private.valid_invoice_layout(jsonb_set(jsonb_set(jsonb_set(v_free, '{blocks,0,zone}', '"head"'::jsonb), '{blocks,1,zone}', '"head"'::jsonb), '{blocks,1,after}', '"logo"'::jsonb)), '0.34 a block follows a block of its own zone only');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,5,zone}', '"foot"'::jsonb)) and not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0,zone}', '"table"'::jsonb)), '0.35 the item table is the only block in the table zone');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0,size}', '"huge"'::jsonb)) and not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0,valign}', '"baseline"'::jsonb)) and not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0,align}', '"justify"'::jsonb)), '0.36 unknown sizes and alignments are refused');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(v_free || '{"grid":24}'::jsonb) and not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0}', (v_free -> 'blocks' -> 0) || '{"col":1}'::jsonb)) and not app_private.valid_invoice_layout(jsonb_set(v_free, '{blocks,0}', (v_free -> 'blocks' -> 0) - 'h')), '0.37 no grid keys, no extra keys and no missing keys on the free page');
   perform test_helpers.assert(not app_private.valid_invoice_layout('"text"'::jsonb) and not app_private.valid_invoice_layout('[]'::jsonb), '0.12 only an object is valid');
 
   perform test_helpers.login(v_admin);
@@ -79,6 +98,11 @@ begin
     and (after_state ->> 'custom')::boolean and not (before_state ->> 'custom')::boolean), '2.2 the change is audited');
 
   perform test_helpers.expect_error(format('update public.entity_profiles set invoice_layout = %L::jsonb where entity_id = %L', v_hidden_required, e1), null, '2.3 the table itself refuses an invalid layout');
+
+  perform test_helpers.login(v_owner);
+  perform public.set_invoice_layout(e1, v_free);
+  perform test_helpers.logout();
+  perform test_helpers.assert((select invoice_layout = v_free from public.entity_profiles where entity_id = e1), '2.4 a free layout (version 2) is stored');
 
   perform test_helpers.login(v_owner);
   perform public.set_invoice_layout(e1, null);

@@ -1,11 +1,10 @@
 "use client";
 
 import {
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
-  type CSSProperties,
-  type DragEvent,
   type KeyboardEvent,
   type PointerEvent as ReactPointerEvent,
   type ReactNode,
@@ -13,54 +12,46 @@ import {
 import { StepUpLink } from "@/features/feedback/StepUp";
 import { useActionState } from "@/features/feedback/useActionState";
 import { InvoiceDocumentView } from "@/features/sales/InvoiceDocumentView";
-import { alignmentGuides, type AlignmentGuide } from "@/domain/sales/invoiceGuides";
+import { snapAxis, type GuideHit, type GuideTarget } from "@/domain/sales/invoiceGuides";
 import {
   BLOCK_INFO,
-  GRID_COLUMNS,
-  LOGO_SIZE_LABEL,
+  MAX_HEIGHT,
+  MAX_OFFSET,
+  MIN_WIDTH,
+  SIZE_LABEL,
+  SIZE_ORDER,
+  alignToPage,
+  canFollow,
+  descendants,
+  isDefaultLayout,
+  parseInvoiceLayout,
+  updateBlock,
   type BlockAlign,
-  type DropTarget,
+  type BlockSize,
+  type BlockValign,
+  type BlockZone,
   type InvoiceBlockId,
   type InvoiceBlockSetting,
   type InvoiceLayout,
-  type LogoSize,
-  centerBlock,
-  dropBlock,
-  isDefaultLayout,
-  laneRoom,
-  pageMargins,
-  parseInvoiceLayout,
-  placementBounds,
-  setPlacement,
-  shiftRow,
-  updateBlock,
 } from "@/domain/sales/invoiceLayout";
 import type { InvoiceDocument } from "@/schemas/sales";
 import { saveInvoiceLayoutAction } from "./actions";
 import { InvoiceIssuerFields, type IssuerDraft } from "./InvoiceIssuerFields";
 import { idleTimeSettingsState } from "./actionsState";
 
-/** The gap between two grid columns of the document, in pixels (`--doc-gap` in the stylesheet). */
-const GAP = 12;
-
 const ALIGN_LABEL: Record<BlockAlign, string> = { left: "Kiri", center: "Tengah", right: "Kanan" };
+const VALIGN_LABEL: Record<BlockValign, string> = {
+  top: "Atas",
+  middle: "Tengah",
+  bottom: "Bawah",
+};
 
-/** What the person is about to do with the dragged block, the box or line that shows it on the page, and the
- * smart guides of the place where the block would land. */
-interface DropPreview {
-  drop: DropTarget;
-  kind: "line" | "box";
-  box: CSSProperties;
-  col: number;
-  span: number;
-  lines: GuideLine[];
-}
-
-/** A smart guide and where to draw it (pixels from the left edge of the page). */
-interface GuideLine {
-  guide: AlignmentGuide;
-  left: number;
-}
+/** How close (screen pixels) an edge has to be to a guide to snap onto it. */
+const SNAP = 6;
+/** A block dropped this far (pixels) above the bottom of another one still counts as under it. */
+const DETACH = 6;
+/** A root block dropped within this many pixels under another block sticks to it ("follows" it). */
+const STICK = 18;
 
 /** A grey stand-in so the preview shows where the logo goes when none is uploaded yet. */
 const PLACEHOLDER_LOGO =
@@ -71,13 +62,163 @@ const PLACEHOLDER_LOGO =
       '<text x="90" y="42" font-family="sans-serif" font-size="14" text-anchor="middle" fill="#8a8378">Logo</text></svg>',
   );
 
+type Edge = "left" | "right" | "bottom";
+
+/** Where everything is on screen when a drag starts (the page does not move while a block is dragged). */
+interface Frame {
+  wrap: DOMRect;
+  canvas: DOMRect;
+  page: number;
+  zones: Record<BlockZone, DOMRect>;
+  boxes: { key: InvoiceBlockId; rect: DOMRect; parent: InvoiceBlockId | null }[];
+}
+
+/** The guide lines to draw, in pixels inside the page wrapper. */
+interface Overlay {
+  xs: { left: number; label: string }[];
+  ys: { top: number; label: string }[];
+}
+
+function frameOf(root: HTMLElement): Frame {
+  const canvas = root.querySelector<HTMLElement>(".doc-canvas")!.getBoundingClientRect();
+  const zones = { head: canvas, table: canvas, foot: canvas } as Record<BlockZone, DOMRect>;
+  root.querySelectorAll<HTMLElement>(".doc-zone").forEach((el) => {
+    zones[el.dataset.zone as BlockZone] = el.getBoundingClientRect();
+  });
+  const boxes = Array.from(root.querySelectorAll<HTMLElement>(".doc-box[data-box]")).map((el) => {
+    const node = el.closest<HTMLElement>(".doc-node");
+    const parent = node?.parentElement?.closest<HTMLElement>(".doc-node")?.dataset.node ?? null;
+    return {
+      key: el.dataset.box as InvoiceBlockId,
+      rect: el.getBoundingClientRect(),
+      parent: parent as InvoiceBlockId | null,
+    };
+  });
+  return { wrap: root.getBoundingClientRect(), canvas, page: canvas.width, zones, boxes };
+}
+
+function targetsX(frame: Frame, skip: Set<InvoiceBlockId>): GuideTarget[] {
+  const out: GuideTarget[] = [
+    { at: frame.canvas.left, label: "Tepi kiri halaman" },
+    { at: frame.canvas.left + frame.canvas.width / 2, label: "Tengah halaman" },
+    { at: frame.canvas.right, label: "Tepi kanan halaman" },
+  ];
+  for (const other of frame.boxes) {
+    if (skip.has(other.key)) continue;
+    const name = BLOCK_INFO[other.key].label;
+    out.push(
+      { at: other.rect.left, label: `Kiri ${name}` },
+      { at: other.rect.left + other.rect.width / 2, label: `Tengah ${name}` },
+      { at: other.rect.right, label: `Kanan ${name}` },
+    );
+  }
+  return out;
+}
+
+function targetsY(frame: Frame, skip: Set<InvoiceBlockId>): GuideTarget[] {
+  const out: GuideTarget[] = [
+    { at: frame.zones.head.top, label: "Atas halaman" },
+    { at: frame.zones.foot.top, label: "Bawah tabel" },
+  ];
+  for (const other of frame.boxes) {
+    if (skip.has(other.key)) continue;
+    const name = BLOCK_INFO[other.key].label;
+    out.push(
+      { at: other.rect.top, label: `Atas ${name}` },
+      { at: other.rect.top + other.rect.height / 2, label: `Tengah ${name}` },
+      { at: other.rect.bottom, label: `Bawah ${name}` },
+    );
+  }
+  return out;
+}
+
+/** The labels of a guide, at most two: the page first, then the first block it lines up with. */
+function guideLabel(hit: GuideHit): string {
+  return hit.labels.length > 2
+    ? `${hit.labels.slice(0, 2).join(", ")} (+${hit.labels.length - 2})`
+    : hit.labels.join(", ");
+}
+
+function overlayOf(frame: Frame, xs: GuideHit[], ys: GuideHit[]): Overlay {
+  return {
+    xs: xs.map((hit) => ({ left: hit.at - frame.wrap.left, label: guideLabel(hit) })),
+    ys: ys.map((hit) => ({ top: hit.at - frame.wrap.top, label: guideLabel(hit) })),
+  };
+}
+
+function percent(value: number): string {
+  return `${Math.round(value * 10) / 10}%`.replace(".", ",");
+}
+
 /**
- * The invoice layout editor (decisions 310, 318): the real invoice document drawn from sample data on a grid of
- * twelve columns. Every block can be dragged anywhere (above or below a row, or into a row at the column the
- * pointer is over), resized from its left and right edges, or placed with the numbers in the side panel; it snaps
- * to the columns so blocks never overlap. A ruler and guide lines (the columns, the page centre, the selected
- * block) show whether left and right are even. Nothing is stored until "Simpan Tampilan"; saving needs a recent
- * step-up and applies to invoices issued from then on.
+ * Where a dragged block lands (decision 321). It keeps following the block it followed while it stays below it,
+ * sticks to a block it is dropped right under, and otherwise becomes a block of its own at the place where it was
+ * dropped, in the zone (above or below the item table) it was dropped in.
+ */
+function placeMoved(
+  layout: InvoiceLayout,
+  id: InvoiceBlockId,
+  frame: Frame,
+  box: Frame["boxes"][number],
+  dx: number,
+  dy: number,
+  stick: boolean,
+): InvoiceLayout {
+  const me = layout.blocks.find((entry) => entry.key === id)!;
+  const top = box.rect.top + dy;
+  const x = me.x + (dx / frame.page) * 100;
+  if (box.parent) {
+    const parent = frame.boxes.find((other) => other.key === box.parent);
+    if (parent) {
+      const gap = top - parent.rect.bottom;
+      if (gap >= -DETACH) {
+        return updateBlock(layout, id, {
+          x,
+          y: Math.max(0, Math.round(gap)),
+          after: box.parent,
+        });
+      }
+    }
+  }
+  if (stick) {
+    const kids = descendants(layout.blocks, id);
+    const left = box.rect.left + dx;
+    const right = left + box.rect.width;
+    let near: { key: InvoiceBlockId; gap: number } | null = null;
+    for (const other of frame.boxes) {
+      if (other.key === id || kids.has(other.key) || other.key === "lines") continue;
+      const gap = top - other.rect.bottom;
+      if (gap < -DETACH || gap > STICK) continue;
+      const overlap = Math.min(right, other.rect.right) - Math.max(left, other.rect.left);
+      if (overlap < 0.3 * Math.min(box.rect.width, other.rect.width)) continue;
+      if (!near || Math.abs(gap) < Math.abs(near.gap)) near = { key: other.key, gap };
+    }
+    if (near) {
+      return updateBlock(layout, id, {
+        x,
+        y: Math.max(0, Math.round(near.gap)),
+        after: near.key,
+      });
+    }
+  }
+  const table = frame.zones.table;
+  const zone: BlockZone =
+    top + box.rect.height / 2 < table.top + table.height / 2 ? "head" : "foot";
+  return updateBlock(layout, id, {
+    x,
+    zone,
+    after: null,
+    y: Math.max(0, Math.round(top - frame.zones[zone].top)),
+  });
+}
+
+/**
+ * The invoice layout editor (decisions 310, 318, 319, 321): the real invoice document drawn from sample data. There
+ * is no grid. Every block can be dragged anywhere on the page, widened to the left or right, made taller downwards,
+ * and given another text size; red guide lines show when it lines up with the page edges, the page centre or another
+ * block. A block dropped right under another one follows it, so the company name stays under the logo whatever its
+ * size. Nothing is stored until "Simpan Tampilan"; saving needs a recent step-up and applies to invoices issued
+ * from then on.
  */
 export function InvoiceLayoutEditor({
   entity,
@@ -115,12 +256,19 @@ export function InvoiceLayoutEditor({
   );
   const [selected, setSelected] = useState<InvoiceBlockId>("issuer");
   const [dragging, setDragging] = useState<InvoiceBlockId | null>(null);
-  const [preview, setPreview] = useState<DropPreview | null>(null);
   const [guides, setGuides] = useState(true);
+  const [magnet, setMagnet] = useState(true);
+  const [overlay, setOverlay] = useState<Overlay | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
   const [state, action, pending] = useActionState(saveInvoiceLayoutAction, idleTimeSettingsState);
-  const [resizing, setResizing] = useState(false);
-  const [resizeLines, setResizeLines] = useState<GuideLine[]>([]);
   const wrapRef = useRef<HTMLDivElement>(null);
+  /** After a drop the block is measured once and moved the few pixels the page shifted under it. */
+  const [settle, setSettle] = useState<{ id: InvoiceBlockId; top: number; round: number } | null>(
+    null,
+  );
+
+  /** Pairs of blocks that are drawn on top of each other: free placement allows it, but it is almost never meant. */
+  const [overlaps, setOverlaps] = useState<string[]>([]);
 
   const dirty =
     JSON.stringify(parseInvoiceLayout(layout)) !== JSON.stringify(parseInvoiceLayout(saved));
@@ -128,304 +276,349 @@ export function InvoiceLayoutEditor({
   const info = BLOCK_INFO[selected];
   const hidden = layout.blocks.filter((block) => !block.show);
   const serialized = useMemo(() => JSON.stringify(layout), [layout]);
-  const bounds = placementBounds(layout, selected);
-  const margins = pageMargins(layout, selected);
 
-  /** Where the document's rows are on screen, and the width of one column. */
-  function metrics() {
-    const wrap = wrapRef.current;
-    const rowsEl = wrap?.querySelector<HTMLElement>(".doc-rows");
-    if (!wrap || !rowsEl) return null;
-    const wrapBox = wrap.getBoundingClientRect();
-    const rowsBox = rowsEl.getBoundingClientRect();
-    const column = (rowsBox.width - GAP * (GRID_COLUMNS - 1)) / GRID_COLUMNS;
-    return { wrapBox, rowsBox, rowsEl, column, pitch: column + GAP };
-  }
-
-  /** The grid column (1-24) under a horizontal pointer position. */
-  function columnAt(clientX: number): number {
-    const m = metrics();
-    if (!m) return 1;
-    const at = Math.floor((clientX - m.rowsBox.left + GAP / 2) / m.pitch) + 1;
-    return Math.max(1, Math.min(GRID_COLUMNS, at));
-  }
-
-  /** The smart guides of a block at its place in a layout, with where to draw each line. */
-  function guideLines(source: InvoiceLayout, id: InvoiceBlockId): GuideLine[] {
-    const m = metrics();
-    if (!m) return [];
-    const origin = m.rowsBox.left - m.wrapBox.left;
-    return alignmentGuides(source, id).map((guide) => ({
-      guide,
-      left:
-        origin +
-        guide.at * m.pitch -
-        (guide.edge === "right" ? GAP : guide.edge === "center" ? GAP / 2 : 0),
-    }));
-  }
-
-  /** Works out what dropping at this pointer position would do, and where to draw it. */
-  function locate(clientX: number, clientY: number, id: InvoiceBlockId): DropPreview | null {
-    const m = metrics();
-    if (!m) return null;
-    const rowEls = Array.from(m.rowsEl.querySelectorAll<HTMLElement>(".doc-row"));
-    if (rowEls.length === 0) return null;
-    let best: { el: HTMLElement; distance: number } | null = null;
-    for (const el of rowEls) {
-      const box = el.getBoundingClientRect();
-      const distance =
-        clientY < box.top ? box.top - clientY : clientY > box.bottom ? clientY - box.bottom : 0;
-      if (!best || distance < best.distance) best = { el, distance };
+  useLayoutEffect(() => {
+    if (!settle || !wrapRef.current) return;
+    const el = wrapRef.current.querySelector<HTMLElement>(`.doc-box[data-box="${settle.id}"]`);
+    if (!el) {
+      setSettle(null);
+      return;
     }
-    const rowEl = best!.el;
-    const box = rowEl.getBoundingClientRect();
-    const rowId = Number(rowEl.dataset.rowId);
-    const keys = (rowEl.dataset.blocks ?? "").split(" ");
-    const column = columnAt(clientX);
-    const left = m.rowsBox.left - m.wrapBox.left;
-    const columnBox = (col: number, span: number): CSSProperties => ({
-      left: left + (col - 1) * m.pitch,
-      width: span * m.column + (span - 1) * GAP,
-      top: box.top - m.wrapBox.top,
-      height: box.height,
-    });
-    const lineBox = (y: number, from: number, width: number): CSSProperties => ({
-      left: from,
-      width,
-      top: y - m.wrapBox.top - 2,
-      height: 4,
-    });
-    const finish = (
-      drop: DropTarget,
-      kind: "line" | "box",
-      boxStyle: CSSProperties,
-    ): DropPreview => {
-      const after = dropBlock(layout, id, drop);
-      const moved = after.blocks.find((entry) => entry.key === id)!;
-      return {
-        drop,
-        kind,
-        box: boxStyle,
-        col: moved.col,
-        span: moved.span,
-        lines: guideLines(after, id),
-      };
-    };
-    const rowDrop = (at: "before" | "after") =>
-      finish(
-        { mode: "row", at, row: rowId, col: column },
-        "line",
-        lineBox(at === "before" ? box.top - 6 : box.bottom + 6, left, m.rowsBox.width),
-      );
-
-    // The item table takes a whole row; so does a block dragged over the row that holds it.
-    if (BLOCK_INFO[id].fixedWidth || keys.includes("lines")) {
-      return rowDrop(clientY < box.top + box.height / 2 ? "before" : "after");
+    const error = settle.top - el.getBoundingClientRect().top;
+    if (Math.abs(error) < 1 || settle.round >= 2) {
+      setSettle(null);
+      return;
     }
-    const edge = Math.min(12, box.height * 0.25);
-    if (clientY < box.top + edge) return rowDrop("before");
-    if (clientY > box.bottom - edge) return rowDrop("after");
-
-    const lanes = Array.from(rowEl.querySelectorAll<HTMLElement>(".doc-lane"));
-    const lane = lanes.find((el) => {
-      const first = Number(el.dataset.col);
-      return column >= first && column <= first + Number(el.dataset.span) - 1;
+    setLayout((previous) => {
+      const me = previous.blocks.find((block) => block.key === settle.id)!;
+      return updateBlock(previous, settle.id, { y: me.y + Math.round(error) });
     });
-    if (lane) {
-      const cells = Array.from(lane.querySelectorAll<HTMLElement>(".doc-cell")).filter(
-        (el) => el.dataset.block !== id,
-      );
-      if (cells.length > 0) {
-        // Stack above the first block whose middle is below the pointer, else under the last one.
-        const next = cells.find((el) => {
-          const cell = el.getBoundingClientRect();
-          return clientY < cell.top + cell.height / 2;
-        });
-        const target = (next ?? cells[cells.length - 1])!;
-        const at = next ? "before" : "after";
-        const cell = target.getBoundingClientRect();
-        const laneBox = lane.getBoundingClientRect();
-        return finish(
-          { mode: "stack", at, target: target.dataset.block as InvoiceBlockId },
-          "line",
-          lineBox(
-            at === "before" ? cell.top - 5 : cell.bottom + 5,
-            laneBox.left - m.wrapBox.left,
-            laneBox.width,
-          ),
-        );
+    setSettle({ ...settle, round: settle.round + 1 });
+  }, [settle]);
+
+  useLayoutEffect(() => {
+    const root = wrapRef.current;
+    if (!root) return;
+    const boxes = Array.from(root.querySelectorAll<HTMLElement>(".doc-box[data-box]")).map(
+      (el) => ({
+        key: el.dataset.box as InvoiceBlockId,
+        rect: el.getBoundingClientRect(),
+      }),
+    );
+    const found: string[] = [];
+    for (let i = 0; i < boxes.length; i += 1) {
+      for (let j = i + 1; j < boxes.length; j += 1) {
+        const a = boxes[i]!;
+        const c = boxes[j]!;
+        const across = Math.min(a.rect.right, c.rect.right) - Math.max(a.rect.left, c.rect.left);
+        const down = Math.min(a.rect.bottom, c.rect.bottom) - Math.max(a.rect.top, c.rect.top);
+        if (across > 3 && down > 3) {
+          found.push(`${BLOCK_INFO[a.key].label} dan ${BLOCK_INFO[c.key].label}`);
+        }
       }
     }
-    // Empty columns (or the block's own lane): a lane of its own, where there is room.
-    const room = laneRoom(layout, id, rowId, column);
-    if (!room) return rowDrop("after");
-    return finish({ mode: "lane", row: rowId, col: column }, "box", columnBox(room.col, room.span));
-  }
+    setOverlaps((previous) => (previous.join("|") === found.join("|") ? previous : found));
+  }, [layout, issuerDraft]);
 
-  function onAreaDragOver(event: DragEvent<HTMLElement>) {
-    if (!dragging) return;
-    event.preventDefault();
-    event.dataTransfer.dropEffect = "move";
-    const next = locate(event.clientX, event.clientY, dragging);
-    if (JSON.stringify(next) !== JSON.stringify(preview)) setPreview(next);
-  }
-
-  function onAreaDrop(event: DragEvent<HTMLElement>) {
-    if (!dragging) return;
-    event.preventDefault();
-    const result = locate(event.clientX, event.clientY, dragging);
-    if (result) {
-      const id = dragging;
-      setLayout((previous) => dropBlock(previous, id, result.drop));
-      setSelected(id);
-    }
-    setDragging(null);
-    setPreview(null);
-  }
-
-  /** Drags the left or right edge of the selected block's lane; it snaps to whole columns. */
-  function startResize(edge: "left" | "right", event: ReactPointerEvent<HTMLElement>) {
-    event.preventDefault();
-    event.stopPropagation();
-    const id = selected;
-    let latest = layout;
-    setResizing(true);
+  /** Drags the block (with the blocks that follow it) with the pointer; it is placed when the pointer is let go. */
+  function startMove(event: ReactPointerEvent<HTMLElement>, id: InvoiceBlockId) {
+    if (event.button !== 0) return;
+    setSelected(id);
+    const root = wrapRef.current;
+    const nodeEl = event.currentTarget.closest<HTMLElement>(".doc-node");
+    if (BLOCK_INFO[id].fixed || !root || !nodeEl) return;
+    const frame = frameOf(root);
+    const box = frame.boxes.find((entry) => entry.key === id);
+    if (!box) return;
+    const skip = new Set<InvoiceBlockId>([id, ...descendants(layout.blocks, id)]);
+    const tx = targetsX(frame, skip);
+    const ty = targetsY(frame, skip);
+    const startX = event.clientX;
+    const startY = event.clientY;
+    let moved = false;
+    let dx = 0;
+    let dy = 0;
+    let stick = true;
     const move = (pointer: PointerEvent) => {
-      const column = columnAt(pointer.clientX);
-      const me = latest.blocks.find((entry) => entry.key === id);
-      if (!me) return;
-      const limits = placementBounds(latest, id);
-      const end = me.col + me.span - 1;
-      if (edge === "left") {
-        const col = Math.max(limits.min, Math.min(column, end));
-        latest = setPlacement(latest, id, { col, span: end - col + 1 });
-      } else {
-        const last = Math.max(me.col, Math.min(column, limits.max));
-        latest = setPlacement(latest, id, { span: last - me.col + 1 });
+      let ddx = pointer.clientX - startX;
+      let ddy = pointer.clientY - startY;
+      if (!moved && Math.hypot(ddx, ddy) < 4) return;
+      if (!moved) {
+        moved = true;
+        nodeEl.dataset.moving = "true";
+        setDragging(id);
       }
-      setLayout(latest);
-      setResizeLines(guideLines(latest, id));
+      stick = !pointer.altKey;
+      let hitsX: GuideHit[] = [];
+      let hitsY: GuideHit[] = [];
+      const left = box.rect.left;
+      const width = box.rect.width;
+      const top = box.rect.top;
+      const height = box.rect.height;
+      ddx = Math.max(frame.canvas.left - left, Math.min(frame.canvas.right - box.rect.right, ddx));
+      if (magnet && !pointer.altKey) {
+        const sx = snapAxis(
+          [
+            { at: left + ddx, part: "start" },
+            { at: left + width / 2 + ddx, part: "middle" },
+            { at: left + width + ddx, part: "end" },
+          ],
+          tx,
+          SNAP,
+        );
+        if (sx) {
+          ddx += sx.delta;
+          hitsX = sx.hits;
+        }
+        const sy = snapAxis(
+          [
+            { at: top + ddy, part: "start" },
+            { at: top + height / 2 + ddy, part: "middle" },
+            { at: top + height + ddy, part: "end" },
+          ],
+          ty,
+          SNAP,
+        );
+        if (sy) {
+          ddy += sy.delta;
+          hitsY = sy.hits;
+        }
+      }
+      dx = ddx;
+      dy = ddy;
+      nodeEl.style.transform = `translate(${dx}px, ${dy}px)`;
+      setOverlay(overlayOf(frame, hitsX, hitsY));
+      const leftPct = ((left + dx - frame.canvas.left) / frame.page) * 100;
+      const names = [...hitsX, ...hitsY].map(guideLabel);
+      setStatus(
+        names.length > 0
+          ? names.join(" · ")
+          : `Kiri ${percent(leftPct)} · kanan ${percent(100 - leftPct - (width / frame.page) * 100)}`,
+      );
     };
     const up = () => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
-      setResizing(false);
-      setResizeLines([]);
+      window.removeEventListener("pointercancel", up);
+      nodeEl.style.transform = "";
+      delete nodeEl.dataset.moving;
+      setDragging(null);
+      setOverlay(null);
+      setStatus(null);
+      if (!moved) return;
+      setLayout((previous) => placeMoved(previous, id, frame, box, dx, dy, stick));
+      setSettle({ id, top: box.rect.top + dy, round: 0 });
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
   }
 
-  /** The same edge change from the keyboard: the arrow keys move the focused edge one column. */
-  function nudgeEdge(edge: "left" | "right", event: KeyboardEvent<HTMLElement>) {
-    const step = event.key === "ArrowLeft" ? -1 : event.key === "ArrowRight" ? 1 : 0;
-    if (step === 0) return;
+  /** Drags an edge of the selected block: left and right change its width, the bottom its height. */
+  function startResize(
+    event: ReactPointerEvent<HTMLElement>,
+    id: InvoiceBlockId,
+    edges: readonly Edge[],
+  ) {
     event.preventDefault();
     event.stopPropagation();
-    setLayout((previous) => {
-      const me = previous.blocks.find((entry) => entry.key === selected);
-      if (!me) return previous;
-      return edge === "left"
-        ? setPlacement(previous, selected, { col: me.col + step, span: me.span - step })
-        : setPlacement(previous, selected, { span: me.span + step });
-    });
+    const root = wrapRef.current;
+    if (!root) return;
+    const nodeEl = root.querySelector<HTMLElement>(`.doc-node[data-node="${id}"]`);
+    const boxEl = root.querySelector<HTMLElement>(`.doc-box[data-box="${id}"]`);
+    if (!nodeEl || !boxEl) return;
+    const frame = frameOf(root);
+    const box = frame.boxes.find((entry) => entry.key === id)!;
+    const me = layout.blocks.find((entry) => entry.key === id)!;
+    const skip = new Set<InvoiceBlockId>([id, ...descendants(layout.blocks, id)]);
+    const tx = targetsX(frame, skip);
+    const ty = targetsY(frame, skip);
+    const was = {
+      x: nodeEl.style.getPropertyValue("--x"),
+      w: nodeEl.style.getPropertyValue("--w"),
+      bh: boxEl.style.getPropertyValue("--bh"),
+    };
+    const startX = event.clientX;
+    const startY = event.clientY;
+    let x = me.x;
+    let w = me.w;
+    let h = me.h;
+    let changed = false;
+    const move = (pointer: PointerEvent) => {
+      changed = true;
+      const free = magnet && !pointer.altKey;
+      let left = box.rect.left;
+      let right = box.rect.right;
+      let bottom = box.rect.bottom;
+      const hitsX: GuideHit[] = [];
+      const hitsY: GuideHit[] = [];
+      if (edges.includes("left")) left += pointer.clientX - startX;
+      if (edges.includes("right")) right += pointer.clientX - startX;
+      if (edges.includes("bottom")) bottom += pointer.clientY - startY;
+      if (free && edges.includes("left")) {
+        const snap = snapAxis([{ at: left, part: "start" }], tx, SNAP);
+        if (snap) {
+          left += snap.delta;
+          hitsX.push(...snap.hits);
+        }
+      }
+      if (free && edges.includes("right")) {
+        const snap = snapAxis([{ at: right, part: "end" }], tx, SNAP);
+        if (snap) {
+          right += snap.delta;
+          hitsX.push(...snap.hits);
+        }
+      }
+      if (free && edges.includes("bottom")) {
+        const snap = snapAxis([{ at: bottom, part: "end" }], ty, SNAP);
+        if (snap) {
+          bottom += snap.delta;
+          hitsY.push(...snap.hits);
+        }
+      }
+      let from = Math.max(0, Math.min(100, ((left - frame.canvas.left) / frame.page) * 100));
+      let to = Math.max(0, Math.min(100, ((right - frame.canvas.left) / frame.page) * 100));
+      if (to - from < MIN_WIDTH) {
+        if (edges.includes("left")) from = to - MIN_WIDTH;
+        else to = from + MIN_WIDTH;
+      }
+      from = Math.max(0, from);
+      to = Math.min(100, to);
+      x = Math.round(from * 10) / 10;
+      w = Math.round((to - from) * 10) / 10;
+      if (edges.includes("bottom")) {
+        h = Math.max(0, Math.min(MAX_HEIGHT, Math.round(bottom - box.rect.top)));
+        boxEl.style.setProperty("--bh", `${h}px`);
+      }
+      nodeEl.style.setProperty("--x", String(x));
+      nodeEl.style.setProperty("--w", String(w));
+      setOverlay(overlayOf(frame, hitsX, hitsY));
+      setStatus(
+        [...hitsX, ...hitsY].length > 0
+          ? [...hitsX, ...hitsY].map(guideLabel).join(" · ")
+          : `Lebar ${percent(w)} · kiri ${percent(x)} · kanan ${percent(100 - x - w)}` +
+              (h > 0 ? ` · tinggi ${h} px` : ""),
+      );
+    };
+    const up = () => {
+      window.removeEventListener("pointermove", move);
+      window.removeEventListener("pointerup", up);
+      window.removeEventListener("pointercancel", up);
+      for (const [name, value] of [
+        ["--x", was.x],
+        ["--w", was.w],
+      ] as const) {
+        if (value) nodeEl.style.setProperty(name, value);
+        else nodeEl.style.removeProperty(name);
+      }
+      if (was.bh) boxEl.style.setProperty("--bh", was.bh);
+      else boxEl.style.removeProperty("--bh");
+      setOverlay(null);
+      setStatus(null);
+      if (changed) setLayout((previous) => updateBlock(previous, id, { x, w, h }));
+    };
+    window.addEventListener("pointermove", move);
+    window.addEventListener("pointerup", up);
+    window.addEventListener("pointercancel", up);
+  }
+
+  /** The arrow keys on a focused block: left and right move it by half a percent, up and down by two pixels
+   * (Shift: four times as much). */
+  function nudge(event: KeyboardEvent<HTMLElement>, setting: InvoiceBlockSetting) {
+    if (event.target !== event.currentTarget) return;
+    const big = event.shiftKey ? 4 : 1;
+    const step =
+      event.key === "ArrowLeft"
+        ? { x: -0.5 * big }
+        : event.key === "ArrowRight"
+          ? { x: 0.5 * big }
+          : event.key === "ArrowUp"
+            ? { y: -2 * big }
+            : event.key === "ArrowDown"
+              ? { y: 2 * big }
+              : null;
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      setSelected(setting.key);
+      return;
+    }
+    if (!step || BLOCK_INFO[setting.key].fixed) return;
+    event.preventDefault();
+    setLayout((previous) =>
+      updateBlock(previous, setting.key, {
+        x: setting.x + (step.x ?? 0),
+        y: setting.y + (step.y ?? 0),
+      }),
+    );
   }
 
   function wrap(setting: InvoiceBlockSetting, node: ReactNode): ReactNode {
     const id = setting.key;
-    const resizable = selected === id && !BLOCK_INFO[id].fixedWidth;
+    const chosen = selected === id;
+    const fixed = BLOCK_INFO[id].fixed;
+    const handle = (edges: readonly Edge[], name: string, label: string) => (
+      <span
+        key={name}
+        className="lay-handle"
+        data-handle={name}
+        role="presentation"
+        title={label}
+        onPointerDown={(event) => startResize(event, id, edges)}
+      />
+    );
     return (
       <div
         className="lay-block"
-        data-selected={selected === id ? "true" : undefined}
+        data-selected={chosen ? "true" : undefined}
         data-dragging={dragging === id ? "true" : undefined}
+        data-fixed={fixed ? "true" : undefined}
         data-block={id}
-        draggable
         tabIndex={0}
         role="button"
-        aria-label={`${BLOCK_INFO[id].label}. Seret untuk memindahkan, tekan Enter untuk memilih.`}
-        onClick={() => setSelected(id)}
-        onKeyDown={(event) => {
-          if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            setSelected(id);
-          }
-        }}
-        onDragStart={(event) => {
-          setDragging(id);
-          setSelected(id);
-          event.dataTransfer.effectAllowed = "move";
-          event.dataTransfer.setData("text/plain", id);
-        }}
-        onDragEnd={() => {
-          setDragging(null);
-          setPreview(null);
-        }}
+        aria-label={`${BLOCK_INFO[id].label}. Seret untuk memindahkan, panah untuk menggeser, Enter untuk memilih.`}
+        onPointerDown={(event) => startMove(event, id)}
+        onKeyDown={(event) => nudge(event, setting)}
       >
         <span className="lay-tag">
-          {BLOCK_INFO[id].label} · kolom {setting.col}–{setting.col + setting.span - 1}
+          {BLOCK_INFO[id].label}
+          {fixed ? "" : ` · ${percent(setting.x)} – ${percent(setting.x + setting.w)}`}
         </span>
         {node}
-        {resizable ? (
+        {chosen && !fixed ? (
           <>
-            <button
-              type="button"
-              className="lay-handle"
-              data-edge="left"
-              title="Tarik untuk mengubah lebar (atau tekan panah kiri/kanan)"
-              aria-label={`Ubah tepi kiri ${BLOCK_INFO[id].label}`}
-              onMouseDown={(event) => event.preventDefault()}
-              onPointerDown={(event) => startResize("left", event)}
-              onKeyDown={(event) => nudgeEdge("left", event)}
-            />
-            <button
-              type="button"
-              className="lay-handle"
-              data-edge="right"
-              title="Tarik untuk mengubah lebar (atau tekan panah kiri/kanan)"
-              aria-label={`Ubah tepi kanan ${BLOCK_INFO[id].label}`}
-              onMouseDown={(event) => event.preventDefault()}
-              onPointerDown={(event) => startResize("right", event)}
-              onKeyDown={(event) => nudgeEdge("right", event)}
-            />
+            {handle(["left"], "left", "Tarik untuk melebarkan ke kiri")}
+            {handle(["right"], "right", "Tarik untuk melebarkan ke kanan")}
+            {handle(["bottom"], "bottom", "Tarik untuk memanjangkan ke bawah")}
+            {handle(["left", "bottom"], "bottom-left", "Tarik untuk melebarkan ke kiri dan bawah")}
+            {handle(
+              ["right", "bottom"],
+              "bottom-right",
+              "Tarik untuk melebarkan ke kanan dan bawah",
+            )}
           </>
         ) : null}
       </div>
     );
   }
 
-  function change(next: Partial<Pick<InvoiceBlockSetting, "show" | "align">>) {
+  function change(next: Partial<Omit<InvoiceBlockSetting, "key">>) {
     setLayout((previous) => updateBlock(previous, selected, next));
   }
 
-  function place(next: { col?: number; span?: number }) {
-    setLayout((previous) => setPlacement(previous, selected, next));
+  function number(value: string, low: number, high: number, whole: boolean): number | null {
+    const parsed = Number(value.replace(",", "."));
+    if (value.trim() === "" || !Number.isFinite(parsed)) return null;
+    const clamped = Math.max(low, Math.min(high, parsed));
+    return whole ? Math.round(clamped) : clamped;
   }
 
-  const columns = Array.from({ length: GRID_COLUMNS }, (_, index) => index + 1);
-  const balanced = margins.left === margins.right;
-  const activeLines: GuideLine[] = guides
-    ? preview
-      ? preview.lines
-      : resizing
-        ? resizeLines
-        : []
-    : [];
-  const shown = preview ?? (resizing ? { col: current.col, span: current.span } : null);
-  const statusText =
-    activeLines.length > 0
-      ? activeLines.map(({ guide }) => guide.label).join(" · ")
-      : shown
-        ? `Jarak kiri ${shown.col - 1} kolom · kanan ${GRID_COLUMNS - (shown.col + shown.span - 1)} kolom`
-        : "Seret bagian ke posisi baru; garis bantu muncul saat posisinya pas.";
-  const mates = layout.blocks.filter(
-    (block) =>
-      block.show &&
-      block.key !== selected &&
-      block.row === current.row &&
-      block.col === current.col &&
-      block.span === current.span,
+  const followable = layout.blocks.filter(
+    (block) => block.key !== selected && canFollow(layout.blocks, selected, block.key),
   );
+  const parentName = current.after ? BLOCK_INFO[current.after].label : null;
+  const statusText =
+    status ??
+    `${info.label}: kiri ${percent(current.x)} · kanan ${percent(100 - current.x - current.w)} · lebar ${percent(current.w)}`;
 
   return (
     <div className="lay-editor">
@@ -441,58 +634,57 @@ export function InvoiceLayoutEditor({
         />
         <p className="hint">
           Contoh tampilan: data perusahaan di atas asli, pelanggan dan rincian hanya contoh. Seret
-          bagian mana pun: lepas di ruang kosong untuk menaruhnya di kolom itu, di bawah atau di
-          atas bagian lain untuk menumpuknya (misalnya tepat di bawah nama PT), atau di garis tepi
-          atas dan bawah baris untuk membuat baris baru. Tarik tepi kiri/kanan bagian yang dipilih
-          untuk mengubah lebarnya. Garis merah muncul saat posisinya pas di tengah halaman, di tepi,
-          atau sejajar dengan bagian lain. Semua menempel ke 24 kolom sehingga selalu rapi.
+          bagian mana pun ke tempat yang diinginkan. Tarik tepi kiri, kanan, atau bawah bagian yang
+          dipilih untuk melebarkan atau memanjangkannya. Garis merah muncul saat posisinya pas di
+          tengah halaman, di tepi, atau sejajar dengan bagian lain. Bagian yang dilepas tepat di
+          bawah bagian lain akan mengikutinya (misalnya nama PT tetap di bawah logo berapa pun
+          ukurannya). Tahan Alt saat menyeret untuk menonaktifkan penempelan.
         </p>
-        <label className="lay-guides-toggle">
-          <input
-            type="checkbox"
-            checked={guides}
-            onChange={(event) => setGuides(event.target.checked)}
-          />{" "}
-          Tampilkan penggaris dan garis bantu
-        </label>
+        <div className="lay-toggles">
+          <label>
+            <input
+              type="checkbox"
+              checked={guides}
+              onChange={(event) => setGuides(event.target.checked)}
+            />{" "}
+            Penggaris dan garis tengah
+          </label>
+          <label>
+            <input
+              type="checkbox"
+              checked={magnet}
+              onChange={(event) => setMagnet(event.target.checked)}
+            />{" "}
+            Tempel ke garis bantu
+          </label>
+        </div>
         <p
           className="lay-status"
           role="status"
           aria-live="polite"
-          data-snapped={activeLines.length > 0 ? "true" : undefined}
+          data-snapped={overlay && overlay.xs.length + overlay.ys.length > 0 ? "true" : undefined}
         >
           {statusText}
         </p>
-        <div
-          className="lay-area"
-          onDragOver={onAreaDragOver}
-          onDrop={onAreaDrop}
-          onDragLeave={(event) => {
-            if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setPreview(null);
-          }}
-        >
+        {overlaps.length > 0 ? (
+          <p className="lay-warn" role="alert">
+            Perhatian, bagian saling menimpa: {overlaps.join("; ")}. Geser salah satunya atau pilih
+            “Mengikuti” agar tetap di bawah bagian di atasnya.
+          </p>
+        ) : null}
+        <div className="lay-area">
           {guides ? (
             <div className="lay-ruler" aria-hidden="true">
-              <div className="lay-ruler-cols">
-                {columns.map((column) => (
-                  <span
-                    key={column}
-                    data-active={
-                      column >= current.col && column <= current.col + current.span - 1
-                        ? "true"
-                        : undefined
-                    }
-                  >
-                    {column}
-                  </span>
-                ))}
-              </div>
               <div className="lay-ruler-pct">
-                {[0, 25, 50, 75, 100].map((percent) => (
-                  <span key={percent} style={{ left: `${percent}%` }}>
-                    {percent}%
+                {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((value) => (
+                  <span key={value} style={{ left: `${value}%` }} data-major={value % 25 === 0}>
+                    {value % 25 === 0 ? `${value}%` : ""}
                   </span>
                 ))}
+                <i
+                  className="lay-ruler-band"
+                  style={{ left: `${current.x}%`, width: `${current.w}%` }}
+                />
               </div>
             </div>
           ) : null}
@@ -505,26 +697,35 @@ export function InvoiceLayoutEditor({
             />
             {guides ? (
               <div className="lay-grid" aria-hidden="true">
-                <div className="lay-grid-cols">
-                  {columns.map((column) => (
-                    <span key={column} style={{ gridColumn: column }} />
-                  ))}
-                  <span
-                    className="lay-band"
-                    style={{ gridColumn: `${current.col} / span ${current.span}` }}
-                  />
-                </div>
+                <span className="lay-edge" data-at="left" />
                 <span className="lay-center" />
+                <span className="lay-edge" data-at="right" />
               </div>
             ) : null}
-            {preview ? (
-              <div className="lay-drop" data-kind={preview.kind} style={preview.box} />
-            ) : null}
-            {activeLines.map(({ guide, left }) => (
-              <div key={`${guide.edge}:${guide.at}`} className="lay-guide" style={{ left }}>
-                <span>{guide.label}</span>
+            {overlay ? (
+              <div className="lay-lines" aria-hidden="true">
+                {overlay.xs.map((line) => (
+                  <div
+                    key={`x${line.left}`}
+                    className="lay-guide"
+                    data-axis="x"
+                    style={{ left: line.left }}
+                  >
+                    <span>{line.label}</span>
+                  </div>
+                ))}
+                {overlay.ys.map((line) => (
+                  <div
+                    key={`y${line.top}`}
+                    className="lay-guide"
+                    data-axis="y"
+                    style={{ top: line.top }}
+                  >
+                    <span>{line.label}</span>
+                  </div>
+                ))}
               </div>
-            ))}
+            ) : null}
           </div>
         </div>
       </div>
@@ -534,87 +735,163 @@ export function InvoiceLayoutEditor({
         <input type="hidden" name="layout" value={serialized} />
 
         <h3 className="dashboard-section-title">Bagian terpilih</h3>
-        <p>
-          <strong>{info.label}</strong>
-          <br />
-          <span className="hint">{info.hint}</span>
-        </p>
+        <label className="lay-pick">
+          <span className="sr-only">Pilih bagian</span>
+          <select
+            value={selected}
+            onChange={(event) => setSelected(event.target.value as InvoiceBlockId)}
+          >
+            {layout.blocks.map((block) => (
+              <option key={block.key} value={block.key}>
+                {BLOCK_INFO[block.key].label}
+                {block.show ? "" : " (disembunyikan)"}
+              </option>
+            ))}
+          </select>
+        </label>
+        <p className="hint">{info.hint}</p>
 
-        <fieldset className="lay-group">
-          <legend>Posisi di halaman (24 kolom)</legend>
-          {info.fixedWidth ? (
-            <p className="hint">
-              Tabel item selalu selebar halaman dan berada di barisnya sendiri; pindahkan naik atau
-              turun saja.
-            </p>
-          ) : (
-            <>
-              <div className="lay-stepper">
-                <span>Mulai kolom</span>
-                <button
-                  type="button"
-                  aria-label="Mulai satu kolom lebih ke kiri"
-                  disabled={current.col <= bounds.min}
-                  onClick={() => place({ col: current.col - 1 })}
-                >
-                  −
-                </button>
-                <output>{current.col}</output>
-                <button
-                  type="button"
-                  aria-label="Mulai satu kolom lebih ke kanan"
-                  disabled={current.col + current.span - 1 >= bounds.max}
-                  onClick={() => place({ col: current.col + 1 })}
-                >
-                  +
-                </button>
+        {info.fixed ? (
+          <p className="hint">
+            Tabel item selalu selebar halaman, di antara bagian atas dan bagian bawah. Bagian lain
+            bisa diletakkan di atas atau di bawahnya.
+          </p>
+        ) : (
+          <>
+            <fieldset className="lay-group">
+              <legend>Posisi dan ukuran</legend>
+              <div className="lay-fields">
+                <label>
+                  <span>Dari kiri (%)</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={100}
+                    step={0.5}
+                    value={current.x}
+                    onChange={(event) => {
+                      const next = number(event.target.value, 0, 100, false);
+                      if (next !== null) change({ x: next });
+                    }}
+                  />
+                </label>
+                <label>
+                  <span>Lebar (%)</span>
+                  <input
+                    type="number"
+                    min={MIN_WIDTH}
+                    max={100}
+                    step={0.5}
+                    value={current.w}
+                    onChange={(event) => {
+                      const next = number(event.target.value, MIN_WIDTH, 100, false);
+                      if (next !== null) change({ w: next });
+                    }}
+                  />
+                </label>
+                <label>
+                  <span>{parentName ? "Jarak ke bawah (px)" : "Dari atas area (px)"}</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={MAX_OFFSET}
+                    step={2}
+                    value={current.y}
+                    onChange={(event) => {
+                      const next = number(event.target.value, 0, MAX_OFFSET, true);
+                      if (next !== null) change({ y: next });
+                    }}
+                  />
+                </label>
+                <label>
+                  <span>Tinggi minimal (px)</span>
+                  <input
+                    type="number"
+                    min={0}
+                    max={MAX_HEIGHT}
+                    step={4}
+                    value={current.h}
+                    onChange={(event) => {
+                      const next = number(event.target.value, 0, MAX_HEIGHT, true);
+                      if (next !== null) change({ h: next });
+                    }}
+                  />
+                </label>
               </div>
-              <div className="lay-stepper">
-                <span>Lebar (kolom)</span>
-                <button
-                  type="button"
-                  aria-label="Lebar satu kolom lebih sempit"
-                  disabled={current.span <= 1}
-                  onClick={() => place({ span: current.span - 1 })}
-                >
-                  −
-                </button>
-                <output>{current.span}</output>
-                <button
-                  type="button"
-                  aria-label="Lebar satu kolom lebih lebar"
-                  disabled={current.col + current.span - 1 >= bounds.max}
-                  onClick={() => place({ span: current.span + 1 })}
-                >
-                  +
-                </button>
-              </div>
+              <p className="hint">Tinggi 0 berarti menyesuaikan isi.</p>
               <div className="lay-segment">
-                <button type="button" onClick={() => setLayout(centerBlock(layout, selected))}>
+                <button
+                  type="button"
+                  onClick={() => setLayout(alignToPage(layout, selected, "left"))}
+                >
+                  Ke kiri halaman
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setLayout(alignToPage(layout, selected, "center"))}
+                >
                   Tengahkan
                 </button>
-                <button type="button" onClick={() => place({ col: 1, span: GRID_COLUMNS })}>
+                <button
+                  type="button"
+                  onClick={() => setLayout(alignToPage(layout, selected, "right"))}
+                >
+                  Ke kanan halaman
+                </button>
+                <button type="button" onClick={() => change({ x: 0, w: 100 })}>
                   Selebar halaman
                 </button>
               </div>
-            </>
-          )}
-          {mates.length > 0 ? (
-            <p className="hint">
-              Satu kolom dengan {mates.map((block) => BLOCK_INFO[block.key].label).join(", ")}:
-              lebar dan posisi kolom berlaku untuk semuanya. Seret keluar untuk memisahkan.
-            </p>
-          ) : null}
-          <p className="hint" data-balanced={balanced ? "true" : "false"}>
-            Kolom {current.col}–{current.col + current.span - 1}. Ruang kosong di kiri{" "}
-            {margins.left} kolom, di kanan {margins.right} kolom
-            {balanced ? " — seimbang." : "."}
-          </p>
-        </fieldset>
+            </fieldset>
+
+            <fieldset className="lay-group">
+              <legend>Letak</legend>
+              <label className="lay-pick">
+                <span className="hint">Mengikuti (tetap di bawah bagian ini)</span>
+                <select
+                  value={current.after ?? ""}
+                  onChange={(event) =>
+                    change({
+                      after: (event.target.value || null) as InvoiceBlockId | null,
+                      ...(event.target.value ? { y: Math.max(8, current.y) } : {}),
+                    })
+                  }
+                >
+                  <option value="">Tidak — bebas</option>
+                  {followable.map((block) => (
+                    <option key={block.key} value={block.key}>
+                      {BLOCK_INFO[block.key].label}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              {parentName ? (
+                <p className="hint">
+                  Ikut bergeser bersama {parentName}: selalu di bawahnya, berapa pun tingginya.
+                </p>
+              ) : (
+                <div className="lay-segment">
+                  {(["head", "foot"] as const).map((value) => (
+                    <button
+                      key={value}
+                      type="button"
+                      aria-pressed={current.zone === value}
+                      onClick={() =>
+                        change({ zone: value, y: current.zone === value ? current.y : 0 })
+                      }
+                    >
+                      {value === "head" ? "Di atas tabel" : "Di bawah tabel"}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </fieldset>
+          </>
+        )}
 
         <fieldset className="lay-group">
-          <legend>Perataan teks</legend>
-          <div className="lay-segment">
+          <legend>Teks</legend>
+          <div className="lay-segment" role="group" aria-label="Perataan teks">
             {(["left", "center", "right"] as const).map((value) => (
               <button
                 key={value}
@@ -627,18 +904,37 @@ export function InvoiceLayoutEditor({
               </button>
             ))}
           </div>
-        </fieldset>
-
-        <fieldset className="lay-group">
-          <legend>Urutan (layar sentuh)</legend>
-          <div className="lay-segment">
-            <button type="button" onClick={() => setLayout(shiftRow(layout, selected, "up"))}>
-              Naik
-            </button>
-            <button type="button" onClick={() => setLayout(shiftRow(layout, selected, "down"))}>
-              Turun
-            </button>
+          <p className="hint">Posisi vertikal isi (bila bagian dibuat lebih tinggi)</p>
+          <div className="lay-segment" role="group" aria-label="Posisi vertikal isi">
+            {(["top", "middle", "bottom"] as const).map((value) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={current.valign === value}
+                disabled={info.fixed}
+                onClick={() => change({ valign: value })}
+              >
+                {VALIGN_LABEL[value]}
+              </button>
+            ))}
           </div>
+          <p className="hint">Ukuran huruf{selected === "logo" ? " dan logo" : ""}</p>
+          <div className="lay-segment" role="group" aria-label="Ukuran huruf">
+            {SIZE_ORDER.map((value: BlockSize) => (
+              <button
+                key={value}
+                type="button"
+                aria-pressed={current.size === value}
+                disabled={info.fixed}
+                onClick={() => change({ size: value })}
+              >
+                {SIZE_LABEL[value]}
+              </button>
+            ))}
+          </div>
+          {selected === "logo" && !logo ? (
+            <p className="hint">Belum ada logo. Unggah di Pengaturan → Logo Perusahaan.</p>
+          ) : null}
         </fieldset>
 
         <div className="lay-group">
@@ -678,25 +974,6 @@ export function InvoiceLayoutEditor({
             ))}
           </fieldset>
         ) : null}
-
-        <fieldset className="lay-group">
-          <legend>Ukuran logo</legend>
-          <div className="lay-segment">
-            {(["sm", "md", "lg"] as const satisfies readonly LogoSize[]).map((value) => (
-              <button
-                key={value}
-                type="button"
-                aria-pressed={(layout.logo_size ?? "md") === value}
-                onClick={() => setLayout({ ...layout, logo_size: value })}
-              >
-                {LOGO_SIZE_LABEL[value]}
-              </button>
-            ))}
-          </div>
-          {!logo ? (
-            <p className="hint">Belum ada logo. Unggah di Pengaturan → Logo Perusahaan.</p>
-          ) : null}
-        </fieldset>
 
         <p className="hint">
           Tampilan yang disimpan berlaku untuk invoice yang diterbitkan setelah ini, termasuk draf

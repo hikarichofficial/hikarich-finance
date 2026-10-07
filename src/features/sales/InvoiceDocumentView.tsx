@@ -2,14 +2,16 @@ import { Decimal } from "@/domain/money/decimal";
 import { formatMoney, formatMoneyExact, formatPlain } from "@/domain/money/format";
 import { invoiceDocumentStatus } from "@/domain/sales/invoiceList";
 import {
+  SIZE_ZOOM,
   type InvoiceBlockId,
   type InvoiceBlockSetting,
   type InvoiceLayout,
-  layoutRows,
+  type LayoutNode,
   parseInvoiceLayout,
+  resolveTree,
 } from "@/domain/sales/invoiceLayout";
 import type { InvoiceDocument } from "@/schemas/sales";
-import { Fragment, type CSSProperties, type ReactNode } from "react";
+import type { CSSProperties, ReactNode } from "react";
 
 /**
  * The invoice as a customer reads it (P13 Part 5, first increment; Step 11 -- Invoice/Receipt Visual
@@ -45,11 +47,6 @@ function contactLine(party: Party): string | null {
   return parts.length > 0 ? parts.join(" · ") : null;
 }
 
-/** Where a lane sits on the twenty-four column grid (read by `.doc-row > *` in the stylesheet). */
-export function placementStyle(lane: { col: number; span: number }): CSSProperties {
-  return { "--col": lane.col, "--span": lane.span } as CSSProperties;
-}
-
 function addressLines(party: Party): string[] {
   const place = [field(party, "city"), field(party, "province"), field(party, "postal_code")]
     .filter(Boolean)
@@ -71,17 +68,11 @@ export function formatDocumentDate(isoDate: string): string {
 }
 
 /** The company logo (an embedded image the OWNER uploaded in Settings), shown beside the issuer's name. */
-export function DocumentLogo({
-  logo,
-  size,
-}: {
-  logo: string | null | undefined;
-  size?: "sm" | "md" | "lg";
-}) {
+export function DocumentLogo({ logo }: { logo: string | null | undefined }) {
   if (!logo || !logo.startsWith("data:image/")) return null;
   return (
     // eslint-disable-next-line @next/next/no-img-element -- an embedded data: image, not optimizable
-    <img className="doc-logo" data-size={size ?? "md"} src={logo} alt="" />
+    <img className="doc-logo" src={logo} alt="" />
   );
 }
 
@@ -134,7 +125,7 @@ export function InvoiceDocumentView({
   const paymentUrl = rawUrl?.startsWith("https://") ? rawUrl : null;
 
   const content: Record<InvoiceBlockId, ReactNode> = {
-    logo: logo ? <DocumentLogo logo={logo} size={arrangement.logo_size} /> : null,
+    logo: logo ? <DocumentLogo logo={logo} /> : null,
     issuer: (
       <div className="doc-issuer">
         <h1 className="doc-brand">{names.primary}</h1>
@@ -332,27 +323,49 @@ export function InvoiceDocumentView({
     ) : null,
   };
 
-  // A block with nothing to show (no logo, no notes, ...) takes no place; the others fill the rows.
-  const present = arrangement.blocks.filter((block) => content[block.key] !== null);
-  // Without a logo the company name (with whatever is stacked under it) starts at the left edge instead of
-  // leaving the logo's columns empty.
-  const logoPlace = arrangement.blocks.find((block) => block.key === "logo");
-  const issuerPlace = arrangement.blocks.find((block) => block.key === "issuer");
-  const closeUp =
-    logoPlace && content.logo === null && issuerPlace && logoPlace.show && issuerPlace.show
-      ? issuerPlace.row === logoPlace.row && issuerPlace.col === logoPlace.col + logoPlace.span
-        ? issuerPlace
-        : null
-      : null;
-  const blocks =
-    logoPlace && closeUp
-      ? present.map((block) =>
-          block.row === closeUp.row && block.col === closeUp.col && block.span === closeUp.span
-            ? { ...block, col: logoPlace.col, span: closeUp.span + logoPlace.span }
-            : block,
-        )
-      : present;
-  const rows = layoutRows({ ...arrangement, blocks });
+  // A block with nothing to show (no logo, no notes, ...) takes no place; what follows it moves up into its place.
+  const zones = resolveTree(arrangement.blocks, (key) => content[key] !== null);
+
+  const draw = (node: LayoutNode): ReactNode => {
+    const { block } = node;
+    const box = (
+      <div
+        className="doc-box"
+        data-box={block.key}
+        data-valign={block.valign}
+        style={block.h > 0 ? ({ "--bh": `${block.h}px` } as CSSProperties) : undefined}
+      >
+        <div
+          className="doc-cell"
+          data-block={block.key}
+          data-align={block.align}
+          data-size={block.size}
+        >
+          {content[block.key]}
+        </div>
+      </div>
+    );
+    return (
+      <div
+        key={block.key}
+        className="doc-node"
+        data-node={block.key}
+        style={
+          {
+            "--x": block.x,
+            "--w": block.w,
+            "--y": node.y,
+            "--z": SIZE_ZOOM[block.size],
+          } as CSSProperties
+        }
+      >
+        {wrapBlock ? wrapBlock(block, box) : box}
+        {node.children.length > 0 ? (
+          <div className="doc-children">{node.children.map(draw)}</div>
+        ) : null}
+      </div>
+    );
+  };
 
   return (
     <article
@@ -360,37 +373,19 @@ export function InvoiceDocumentView({
       aria-label={`Invoice ${doc.invoice_number ?? ""}`}
       data-watermark={doc.status === "void" ? "void" : undefined}
     >
-      <div className="doc-rows">
-        {rows.map(({ row, lanes }, rowIndex) => (
-          <div
-            key={lanes.map((lane) => lane.blocks.map((block) => block.key).join("+")).join("|")}
-            className={`doc-row${lanes.some((lane) => lane.blocks.some((block) => block.key === "title")) ? " doc-row-rule" : ""}`}
-            data-row={rowIndex}
-            data-row-id={row}
-            data-blocks={lanes.flatMap((lane) => lane.blocks.map((block) => block.key)).join(" ")}
-          >
-            {lanes.map((lane) => (
-              <div
-                key={lane.blocks.map((block) => block.key).join("+")}
-                className="doc-lane"
-                data-col={lane.col}
-                data-span={lane.span}
-                style={placementStyle(lane)}
-              >
-                {lane.blocks.map((block) => {
-                  const cell = (
-                    <div className="doc-cell" data-block={block.key} data-align={block.align}>
-                      {content[block.key]}
-                    </div>
-                  );
-                  return (
-                    <Fragment key={block.key}>{wrapBlock ? wrapBlock(block, cell) : cell}</Fragment>
-                  );
-                })}
-              </div>
-            ))}
-          </div>
-        ))}
+      <div className="doc-canvas">
+        {zones.map(({ zone, nodes }) =>
+          nodes.length === 0 && !wrapBlock ? null : (
+            <div
+              key={zone}
+              className="doc-zone"
+              data-zone={zone}
+              data-empty={nodes.length === 0 ? "true" : undefined}
+            >
+              {nodes.map(draw)}
+            </div>
+          ),
+        )}
       </div>
     </article>
   );

@@ -559,60 +559,105 @@ body {
   color: var(--doc-tone-attention);
 }
 
-.doc-issuer .doc-logo,
-.doc-cell .doc-logo {
+/* A logo placed on its own as a block of the invoice (decision 321): it fills the width of its block, up to a
+ * reasonable height; the owner widens the block to make the logo bigger. */
+.doc-issuer .doc-logo {
   display: block;
   width: auto;
   max-width: min(100%, 180px);
   max-height: 72px;
+  margin-bottom: 12px;
   object-fit: contain;
 }
 
-.doc-issuer .doc-logo {
-  margin-bottom: 12px;
-}
-
-.doc-cell .doc-logo[data-size="sm"] {
-  max-width: min(100%, 120px);
-  max-height: 48px;
-}
-
-.doc-cell .doc-logo[data-size="lg"] {
-  max-width: min(100%, 280px);
+.doc-cell[data-block="logo"] .doc-logo {
+  display: block;
+  width: 100%;
+  height: auto;
   max-height: 120px;
+  object-fit: contain;
+  object-position: left center;
 }
 
-/* The invoice document is a stack of rows on a grid of twenty-four columns (decisions 310, 318, 319): a row holds
- * lanes side by side, every lane says where it starts (--col) and how many columns it spans (--span), and a lane
- * stacks its blocks from top to bottom. Each block is aligned left, centre or right inside its lane. */
-.doc-rows {
-  --doc-gap: 12px;
+.doc-cell[data-block="logo"][data-align="center"] .doc-logo {
+  object-position: center;
+}
+
+.doc-cell[data-block="logo"][data-align="right"] .doc-logo {
+  object-position: right center;
+}
+
+.doc-box[style*="--bh"] .doc-cell[data-block="logo"] .doc-logo {
+  height: var(--bh);
+  max-height: none;
+}
+
+/* The invoice page is free (decision 321): three zones from top to bottom (above the item table, the item table,
+ * below it). Inside a zone every block sits where its own numbers say: `--x` and `--w` (percent of the page width)
+ * and `--y` (pixels down). All blocks of a zone share one grid cell, so the zone is as tall as its lowest block and
+ * the item table can grow without anything underneath it overlapping. A block that follows another one is drawn
+ * inside that block's node, under its box, in a container that is as wide as the whole page again (so `--x` and
+ * `--w` keep their meaning). `--z` is the text size of the block. */
+.doc-canvas {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
 }
 
-.doc-row {
+.doc-zone,
+.doc-children {
   display: grid;
-  grid-template-columns: repeat(24, minmax(0, 1fr));
+  grid-template-columns: minmax(0, 1fr);
   align-items: start;
-  column-gap: var(--doc-gap);
 }
 
-.doc-row > * {
-  grid-column: var(--col, 1) / span var(--span, 24);
+.doc-zone > .doc-node,
+.doc-children > .doc-node {
+  grid-area: 1 / 1;
+}
+
+.doc-node {
   min-width: 0;
+  width: calc(var(--w) * 1%);
+  margin-top: calc(var(--y) * 1px);
+  margin-left: calc(var(--x) * 1%);
 }
 
-.doc-lane {
+.doc-children {
+  width: calc(100% * 100 / var(--w));
+  margin-left: calc(-100% * var(--x) / var(--w));
+}
+
+.doc-zone[data-zone="table"] {
+  display: block;
+}
+
+.doc-zone[data-zone="table"] > .doc-node {
+  width: 100%;
+  margin: 0;
+}
+
+.doc-zone[data-zone="head"]:not([data-empty]) {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--doc-line);
+}
+
+.doc-box {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  min-height: var(--bh, 0px);
 }
 
-.doc-row-rule {
-  padding-bottom: 14px;
-  border-bottom: 1px solid var(--doc-line);
+.doc-box[data-valign="middle"] {
+  justify-content: center;
+}
+
+.doc-box[data-valign="bottom"] {
+  justify-content: flex-end;
+}
+
+.doc-cell {
+  zoom: var(--z, 1);
 }
 
 .doc-cell[data-align="center"] {
@@ -623,16 +668,9 @@ body {
   text-align: right;
 }
 
-.doc-cell[data-align="center"] .doc-logo {
-  margin-inline: auto;
-}
-
-.doc-cell[data-align="right"] .doc-logo {
-  margin-left: auto;
-}
-
 .doc-cell .doc-dates {
   width: fit-content;
+  gap: 2px 20px;
 }
 
 .doc-cell[data-align="center"] .doc-dates {
@@ -653,18 +691,47 @@ body {
   list-style-position: inside;
 }
 
+.doc .doc-cell .doc-totals {
+  margin-top: 0;
+}
+
+/* The customer and the dates are set at the size of the rest of the document, and the date labels stay at the
+ * left of their column whatever the alignment of the block. */
+.doc-cell[data-block="customer"],
+.doc-cell[data-block="dates"] {
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.doc-cell .doc-dates dt {
+  text-align: left;
+}
+
+/* On a narrow screen the blocks run one under the other, whatever the owner's arrangement. */
 @media (max-width: 640px) {
-  .doc-row {
-    grid-template-columns: 1fr;
-    row-gap: 12px;
+  .doc-zone,
+  .doc-children {
+    display: block;
   }
 
-  .doc-row > * {
-    grid-column: 1 / -1;
+  .doc-node,
+  .doc-children {
+    width: 100% !important;
+    margin-left: 0 !important;
   }
 
-  .doc-lane {
-    gap: 12px;
+  .doc-node {
+    margin-top: min(calc(var(--y) * 1px), 14px);
+  }
+
+  .doc-cell[data-block="logo"] .doc-logo {
+    width: auto;
+    max-width: 180px;
+    max-height: 72px;
+  }
+
+  .doc-cell .doc-dates {
+    margin-left: 0 !important;
   }
 }
 
@@ -713,209 +780,6 @@ body {
 
 .doc-cell[data-block="payments"] .doc-block ul {
   padding-left: 16px;
-}
-
-/* Professional invoice look (OWNER, 7 October 2026): a calm business document. One type scale, one rhythm (20px
- * between sections, hairline rules), a bronze bar on top, a letterhead with the title at the right, the dates in a
- * tinted box, an item table with a tinted header and quiet banding, and the amount due set in a band. Only looks:
- * nothing here changes what is shown. */
-.doc {
-  padding: 40px 44px 36px;
-  font-size: 0.875rem;
-  border-top: 4px solid var(--doc-bronze);
-}
-
-.doc-rows {
-  gap: 22px;
-}
-
-.doc .doc-row-rule {
-  padding-bottom: 20px;
-  border-bottom: 1px solid var(--doc-ink);
-}
-
-.doc .doc-issuer .doc-brand {
-  margin-bottom: 4px;
-  font-size: 1.25rem;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-}
-
-.doc .doc-issuer p {
-  font-size: 0.8125rem;
-  line-height: 1.5;
-  color: var(--doc-text-secondary);
-}
-
-.doc .doc-issuer .doc-brand + p {
-  color: var(--doc-ink);
-  font-weight: 500;
-}
-
-.doc .doc-kind {
-  font-size: 1.75rem;
-  font-weight: 300;
-  line-height: 1.1;
-  letter-spacing: 0.16em;
-  color: var(--doc-ink);
-}
-
-.doc .doc-number {
-  margin-top: 6px;
-  font-size: 0.9375rem;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
-.doc .doc-status {
-  margin-top: 10px;
-  padding: 3px 12px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-}
-
-.doc h2 {
-  margin-bottom: 6px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-}
-
-.doc .doc-cell[data-block="customer"] p {
-  font-size: 0.875rem;
-  line-height: 1.5;
-}
-
-.doc .doc-cell[data-block="customer"] p:first-of-type {
-  font-size: 1rem;
-}
-
-/* Every block sits flush with the page margins, so the left edges and the right edges of the letterhead, the
- * customer, the table, the totals and the closing blocks all line up, and the page is symmetrical. Sections are
- * separated by hairlines, never by boxes that would push the text in. */
-.doc .doc-cell[data-block="customer"] {
-  padding-top: 8px;
-  border-top: 1px solid var(--doc-line);
-}
-
-.doc .doc-cell .doc-dates {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 0;
-  width: 100%;
-  margin: 0;
-  padding: 0;
-  border-top: 1px solid var(--doc-line);
-}
-
-.doc .doc-dates dt,
-.doc .doc-dates dd {
-  margin: 0;
-  padding: 5px 0;
-}
-
-.doc .doc-dates dt {
-  color: var(--doc-text-secondary);
-}
-
-.doc .doc-dates dd {
-  font-weight: 600;
-  text-align: right;
-}
-
-/* The item table: ink rules over and under the header and under the last item, numbers flush right. */
-.doc .doc-lines {
-  font-size: 0.8125rem;
-}
-
-.doc .doc-lines th {
-  padding: 8px 10px;
-  font-size: 0.6875rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--doc-ink);
-  border-top: 1px solid var(--doc-ink);
-  border-bottom: 1px solid var(--doc-ink);
-}
-
-.doc .doc-lines td {
-  padding: 6px 10px;
-  border-bottom: 1px solid rgba(25, 23, 20, 0.1);
-}
-
-.doc .doc-lines th:first-child,
-.doc .doc-lines td:first-child {
-  padding-left: 0;
-}
-
-.doc .doc-lines th:last-child,
-.doc .doc-lines td:last-child {
-  padding-right: 0;
-}
-
-.doc .doc-lines tbody tr:last-child td {
-  border-bottom: 1px solid var(--doc-ink);
-}
-
-/* The totals: rows with the amounts flush right under the table's last column; the amount due ruled in ink. */
-.doc .doc-cell[data-block="totals"] {
-  padding-top: 6px;
-  border-top: 1px solid var(--doc-line);
-}
-
-.doc .doc-totals {
-  padding-right: 0;
-  font-size: 0.8125rem;
-}
-
-.doc-totals > div {
-  padding: 3px 0;
-}
-
-.doc-totals dt {
-  color: var(--doc-text-secondary);
-}
-
-.doc .doc-totals .grand {
-  margin-top: 6px;
-  padding: 7px 0;
-  font-size: 0.9375rem;
-  font-weight: 700;
-  color: var(--doc-ink);
-  border-top: 1px solid var(--doc-ink);
-}
-
-.doc .doc-totals .grand dt {
-  color: var(--doc-ink);
-}
-
-@media (max-width: 640px) {
-  .doc .doc-lines td {
-    padding: 2px 0;
-    border-bottom: 0;
-  }
-}
-
-/* Payments, how to pay, notes and terms: small print with a hairline over each block. */
-.doc .doc-cell[data-block="payments"] .doc-block,
-.doc .doc-cell[data-block="instructions"] .doc-block,
-.doc .doc-cell[data-block="notes"] .doc-block,
-.doc .doc-cell[data-block="terms"] .doc-block {
-  padding-top: 8px;
-  border-top: 1px solid var(--doc-line);
-  color: var(--doc-ink);
-}
-
-.doc .doc-cell[data-block="payments"] .doc-block h2,
-.doc .doc-cell[data-block="instructions"] .doc-block h2,
-.doc .doc-cell[data-block="notes"] .doc-block h2,
-.doc .doc-cell[data-block="terms"] .doc-block h2 {
-  margin-bottom: 4px;
-  font-size: 0.625rem;
-}
-
-.doc .doc-lane {
-  gap: 14px;
 }
 
 /* The layout editor (decision 310): the document with draggable blocks beside a settings panel. */
@@ -1011,27 +875,81 @@ body {
   padding: 4px 0;
 }
 
+.lay-pick select {
+  width: 100%;
+}
+
+.lay-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+}
+
+.lay-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lay-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.lay-fields input {
+  width: 100%;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+/* A block of the page in the editor: drag it, or pick it and pull its edges. */
 .lay-block {
   position: relative;
   min-width: 0;
-  padding: 6px;
-  margin: -6px;
-  border: 2px dashed transparent;
-  border-radius: 8px;
   cursor: grab;
+  outline: 1px dashed transparent;
+  outline-offset: 0;
+  user-select: none;
+  touch-action: none;
 }
 
 .lay-block:hover {
-  border-color: #c9c2b6;
+  outline-color: #a8a195;
+}
+
+.lay-block[data-fixed="true"] {
+  cursor: default;
 }
 
 .lay-block[data-selected="true"] {
-  border-color: #2563eb;
+  outline: 2px solid #2563eb;
   background: rgba(37, 99, 235, 0.04);
 }
 
 .lay-block[data-dragging="true"] {
-  opacity: 0.4;
+  cursor: grabbing;
+}
+
+.doc-node[data-moving="true"] {
+  position: relative;
+  z-index: 8;
+  opacity: 0.88;
+  filter: drop-shadow(0 6px 14px rgba(25, 23, 20, 0.18));
+}
+
+.doc-zone[data-empty="true"] {
+  min-height: 36px;
+  outline: 1px dashed #c9c2b6;
 }
 
 .lay-area {
@@ -1042,82 +960,52 @@ body {
   position: relative;
 }
 
-.lay-guides-toggle {
-  display: inline-block;
-  margin-bottom: 8px;
-  font-size: 0.875rem;
-}
-
-/* The ruler above the page: twelve numbered columns laid out exactly like the document's grid (the document has a
- * 1px border and 32px padding), and the percentages across the page. */
+/* The ruler above the page: percentages across the width of the page (the document has a 1px border and 32px
+ * padding), with the selected block's span marked. */
 .lay-ruler {
   padding: 0 33px 6px;
   color: #6b6459;
   font-size: 0.6875rem;
 }
 
-.lay-ruler-cols {
-  display: grid;
-  grid-template-columns: repeat(24, minmax(0, 1fr));
-  column-gap: 12px;
-}
-
-.lay-ruler-cols span {
-  padding-bottom: 2px;
-  font-size: 0.5625rem;
-  text-align: center;
-  white-space: nowrap;
-  overflow: visible;
-  border-bottom: 2px solid #c9c2b6;
-}
-
-.lay-ruler-cols span[data-active="true"] {
-  color: #1d4ed8;
-  font-weight: 600;
-  border-bottom-color: #2563eb;
-}
-
 .lay-ruler-pct {
   position: relative;
-  height: 14px;
+  height: 18px;
+  border-bottom: 2px solid #c9c2b6;
 }
 
 .lay-ruler-pct span {
   position: absolute;
-  top: 2px;
-  transform: translateX(-50%);
+  bottom: 0;
+  height: 6px;
+  border-left: 1px solid #a8a195;
+  font-size: 0.625rem;
+  line-height: 1;
 }
 
-.lay-ruler-pct span:first-child {
-  transform: none;
+.lay-ruler-pct span[data-major="true"] {
+  height: 12px;
+  padding-left: 2px;
 }
 
-.lay-ruler-pct span:last-child {
-  transform: translateX(-100%);
+.lay-ruler-pct span:last-of-type {
+  border-left: 0;
+  border-right: 1px solid #a8a195;
+  transform: translateX(-1px);
 }
 
-/* Guide lines over the page: the twenty-four columns, the page centre, and the selected block's columns. */
+.lay-ruler-band {
+  position: absolute;
+  bottom: -2px;
+  height: 2px;
+  background: #2563eb;
+}
+
+/* Guide lines over the page: the page edges and the page centre. */
 .lay-grid {
   position: absolute;
   inset: 33px;
   pointer-events: none;
-}
-
-.lay-grid-cols {
-  display: grid;
-  grid-template-columns: repeat(24, minmax(0, 1fr));
-  column-gap: 12px;
-  height: 100%;
-}
-
-.lay-grid-cols > span {
-  grid-row: 1;
-  background: rgba(37, 99, 235, 0.045);
-}
-
-.lay-grid-cols > .lay-band {
-  background: rgba(37, 99, 235, 0.1);
-  border-inline: 1px solid rgba(37, 99, 235, 0.55);
 }
 
 .lay-center {
@@ -1125,25 +1013,52 @@ body {
   top: 0;
   bottom: 0;
   left: 50%;
-  border-left: 1px dashed rgba(220, 38, 38, 0.6);
+  border-left: 1px dashed rgba(220, 38, 38, 0.55);
 }
 
-/* Smart guides while a block is moved or resized (like Canva): a line where its edge or centre lines up with the
- * page or with another block, with a label on top. */
-.lay-guide {
+.lay-edge {
   position: absolute;
   top: 0;
   bottom: 0;
-  z-index: 6;
-  width: 0;
-  border-left: 1px solid #e11d48;
+  border-left: 1px dashed rgba(37, 99, 235, 0.35);
+}
+
+.lay-edge[data-at="left"] {
+  left: 0;
+}
+
+.lay-edge[data-at="right"] {
+  right: 0;
+}
+
+/* Smart guides while a block is moved or resized (like Canva): a line where its edge or centre lines up with the
+ * page or with another block, with a label on it. */
+.lay-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
   pointer-events: none;
+}
+
+.lay-guide {
+  position: absolute;
+  background: #e11d48;
+}
+
+.lay-guide[data-axis="x"] {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.lay-guide[data-axis="y"] {
+  left: 0;
+  right: 0;
+  height: 1px;
 }
 
 .lay-guide > span {
   position: absolute;
-  top: -9px;
-  left: 0;
   padding: 1px 6px;
   font-size: 0.625rem;
   line-height: 1.4;
@@ -1151,7 +1066,17 @@ body {
   white-space: nowrap;
   background: #e11d48;
   border-radius: 999px;
+}
+
+.lay-guide[data-axis="x"] > span {
+  top: -9px;
+  left: 0;
   transform: translateX(-50%);
+}
+
+.lay-guide[data-axis="y"] > span {
+  top: -8px;
+  right: 6px;
 }
 
 .lay-status {
@@ -1161,86 +1086,73 @@ body {
   color: #6b6459;
 }
 
+.lay-warn {
+  margin: 0 0 8px;
+  padding: 6px 10px;
+  font-size: 0.8125rem;
+  color: #9b2c2c;
+  background: #fdf1f1;
+  border: 1px solid #e8b9b9;
+  border-radius: 8px;
+}
+
 .lay-status[data-snapped="true"] {
   color: #be123c;
   font-weight: 600;
 }
 
-.lay-drop {
-  position: absolute;
-  z-index: 5;
-  pointer-events: none;
-  border-radius: 6px;
-}
-
-.lay-drop[data-kind="box"] {
-  background: rgba(37, 99, 235, 0.16);
-  border: 2px solid #2563eb;
-}
-
-.lay-drop[data-kind="line"] {
-  background: #2563eb;
-}
-
+/* The grips of the selected block: left, right and bottom edges and the two lower corners. */
 .lay-handle {
   position: absolute;
-  top: 50%;
   z-index: 3;
-  width: 8px;
-  height: 36px;
-  margin-top: -18px;
   background: #2563eb;
-  padding: 0;
-  border: 0;
+  border: 2px solid #fff;
   border-radius: 4px;
-  cursor: ew-resize;
+  box-shadow: 0 0 0 1px #2563eb;
   touch-action: none;
 }
 
-.lay-handle[data-edge="left"] {
-  left: -5px;
+.lay-handle[data-handle="left"],
+.lay-handle[data-handle="right"] {
+  top: 50%;
+  width: 10px;
+  height: 30px;
+  margin-top: -15px;
+  cursor: ew-resize;
 }
 
-.lay-handle[data-edge="right"] {
-  right: -5px;
+.lay-handle[data-handle="left"] {
+  left: -6px;
 }
 
-.lay-stepper {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 6px;
-  font-size: 0.875rem;
+.lay-handle[data-handle="right"] {
+  right: -6px;
 }
 
-.lay-stepper > span {
-  flex: 1;
+.lay-handle[data-handle="bottom"] {
+  bottom: -6px;
+  left: 50%;
+  width: 30px;
+  height: 10px;
+  margin-left: -15px;
+  cursor: ns-resize;
 }
 
-.lay-stepper output {
-  min-width: 1.5em;
-  text-align: center;
-  font-weight: 600;
+.lay-handle[data-handle="bottom-left"],
+.lay-handle[data-handle="bottom-right"] {
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
 }
 
-.lay-stepper button {
-  width: 32px;
-  height: 32px;
-  font: inherit;
-  color: var(--foreground);
-  background: var(--surface-solid);
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  cursor: pointer;
+.lay-handle[data-handle="bottom-left"] {
+  left: -6px;
+  cursor: nesw-resize;
 }
 
-.lay-stepper button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-}
-
-.lay-group .hint[data-balanced="true"] {
-  color: #1f6b3a;
+.lay-handle[data-handle="bottom-right"] {
+  right: -6px;
+  cursor: nwse-resize;
 }
 
 @media (max-width: 640px) {
@@ -1263,6 +1175,7 @@ body {
   border-radius: 999px;
   white-space: nowrap;
   z-index: 2;
+  pointer-events: none;
 }
 
 .lay-block:hover > .lay-tag,
@@ -2194,22 +2107,36 @@ body {
     background: none;
   }
 
+  /* A block is never cut in two; the item table (a zone of its own, not a grid) breaks between items and its header
+   * repeats on every page. */
   .doc-lines tr,
   .doc-head,
   .doc-meta,
-  .doc-row,
-  .doc-cell,
+  .doc-box,
   .doc-totals,
   .doc-block {
     break-inside: avoid;
   }
 
-  /* The row with the item table is the one that may run over the page: it breaks between items (the header
-   * repeats), never inside one. */
-  .doc-row[data-blocks~="lines"],
-  .doc-row[data-blocks~="lines"] .doc-lane,
-  .doc-row[data-blocks~="lines"] .doc-cell {
+  .doc-zone,
+  .doc-children {
     break-inside: auto;
+  }
+
+  .doc-zone[data-zone="head"],
+  .doc-zone[data-zone="foot"] {
+    break-inside: avoid;
+  }
+
+  /* The block that holds the item table is the one that may run over the page. */
+  .doc-zone[data-zone="table"] .doc-node,
+  .doc-zone[data-zone="table"] .doc-box,
+  .doc-zone[data-zone="table"] .doc-cell {
+    break-inside: auto;
+  }
+
+  .doc-cell {
+    zoom: var(--z, 1);
   }
 }
 
