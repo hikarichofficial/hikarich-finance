@@ -592,12 +592,12 @@ body {
   gap: 20px;
 }
 
-.doc-row > .doc-cell {
+.doc-row > :is(.doc-cell, .lay-block) {
   flex: 1 1 0;
   min-width: 0;
 }
 
-.doc-row > .doc-cell[data-width="fit"] {
+.doc-row > :is(.doc-cell, .lay-block)[data-width="fit"] {
   flex: 0 0 auto;
   max-width: 100%;
 }
@@ -608,23 +608,23 @@ body {
 }
 
 /* Beside other blocks the invoice title only takes its own width, so the company name gets the room. */
-.doc-row-2 > .doc-cell[data-block="title"],
-.doc-row-3 > .doc-cell[data-block="title"] {
+.doc-row-2 > :is(.doc-cell, .lay-block)[data-block="title"],
+.doc-row-3 > :is(.doc-cell, .lay-block)[data-block="title"] {
   flex: 0 0 auto;
   max-width: 45%;
 }
 
-.doc-row-1 > .doc-cell[data-width="half"] {
+.doc-row-1 > :is(.doc-cell, .lay-block)[data-width="half"] {
   flex: 0 0 calc(50% - 10px);
 }
 
-.doc-row-1 > .doc-cell[data-width="fit"][data-align="center"],
-.doc-row-1 > .doc-cell[data-width="half"][data-align="center"] {
+.doc-row-1 > :is(.doc-cell, .lay-block)[data-width="fit"][data-align="center"],
+.doc-row-1 > :is(.doc-cell, .lay-block)[data-width="half"][data-align="center"] {
   margin-inline: auto;
 }
 
-.doc-row-1 > .doc-cell[data-width="fit"][data-align="right"],
-.doc-row-1 > .doc-cell[data-width="half"][data-align="right"] {
+.doc-row-1 > :is(.doc-cell, .lay-block)[data-width="fit"][data-align="right"],
+.doc-row-1 > :is(.doc-cell, .lay-block)[data-width="half"][data-align="right"] {
   margin-left: auto;
 }
 
@@ -684,11 +684,11 @@ body {
     gap: 12px;
   }
 
-  .doc-row > .doc-cell[data-width="fit"] {
+  .doc-row > :is(.doc-cell, .lay-block)[data-width="fit"] {
     flex: 0 0 auto;
   }
 
-  .doc-row-1 > .doc-cell[data-width="half"] {
+  .doc-row-1 > :is(.doc-cell, .lay-block)[data-width="half"] {
     flex: 1 1 auto;
     width: 100%;
   }

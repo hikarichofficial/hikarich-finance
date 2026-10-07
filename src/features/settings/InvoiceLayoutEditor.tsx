@@ -133,6 +133,8 @@ export function InvoiceLayoutEditor({
         data-dragging={dragging === id ? "true" : undefined}
         data-drop={over}
         data-width={setting.width}
+        data-align={setting.align}
+        data-block={id}
         draggable
         tabIndex={0}
         role="button"
