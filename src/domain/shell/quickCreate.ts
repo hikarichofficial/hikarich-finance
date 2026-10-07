@@ -32,7 +32,7 @@ export const QUICK_CREATE_REGISTRY: readonly QuickCreateItem[] = [
   },
   { label: "Anggaran Baru", href: "/planning/budgets/new", permission: "planning.budget_edit" },
   {
-    label: "Aturan Berulang Baru",
+    label: "Transaksi Berulang Baru",
     href: "/planning/recurring/new",
     permission: "planning.recurring_edit",
   },

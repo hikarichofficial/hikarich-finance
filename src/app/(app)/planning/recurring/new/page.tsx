@@ -45,13 +45,13 @@ export default async function NewRecurringRulePage({
               : "/planning/recurring"
           }
         >
-          ← Kembali ke daftar aturan berulang
+          ← Kembali ke daftar transaksi berulang
         </Link>
       </p>
       <header className="record-detail-header">
         <div>
-          <p className="record-detail-eyebrow">Aturan Berulang</p>
-          <h1>Buat Aturan Baru</h1>
+          <p className="record-detail-eyebrow">Transaksi Berulang</p>
+          <h1>Buat Transaksi Berulang</h1>
         </div>
       </header>
       <section className="dashboard-section">

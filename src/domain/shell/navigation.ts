@@ -110,6 +110,7 @@ export const NAVIGATION: readonly NavGroup[] = [
     permission: ["accounting.view"],
     items: [
       { label: "Jurnal", href: "/accounting/journal" },
+      { label: "Rekening Koran", href: "/accounting/statement" },
       { label: "Daftar Akun", href: "/accounting/coa" },
       { label: "Kategori", href: "/accounting/categories" },
       { label: "Periode Akuntansi", href: "/accounting/periods" },

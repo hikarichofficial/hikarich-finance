@@ -256,6 +256,7 @@ export async function createRecurringRuleAction(
       template: buildRecurringTemplate(formData, kind, lines) as RecurringTemplateInput,
       interval_count: optionalNumber(formData, "interval_count") ?? 1,
       due_offset_days: optionalNumber(formData, "due_offset_days") ?? 0,
+      due_day_of_month: optionalNumber(formData, "due_day_of_month") ?? null,
       end_date: optionalText(formData, "end_date"),
       note: optionalText(formData, "note"),
     });
@@ -294,6 +295,7 @@ export async function updateRecurringRuleAction(
         template: buildRecurringTemplate(formData, kind, lines) as RecurringTemplateInput,
         interval_count: optionalNumber(formData, "interval_count"),
         due_offset_days: optionalNumber(formData, "due_offset_days"),
+        due_day_of_month: optionalNumber(formData, "due_day_of_month") ?? null,
         end_date: optionalText(formData, "end_date") ?? null,
         note: optionalText(formData, "note") ?? null,
       },

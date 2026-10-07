@@ -4088,3 +4088,66 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* Rekening Koran (decision 326): monthly cash/bank statement. */
+.stmt-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-4) 0;
+}
+.stmt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border, #e6e1d8);
+  border-radius: 14px;
+  background: var(--color-surface, #fff);
+}
+.stmt-card-label {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+.stmt-card strong {
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+.stmt-in {
+  color: #1f7a4d;
+}
+.stmt-out {
+  color: #b4432f;
+}
+.stmt-current-month td {
+  font-weight: 600;
+}
+.stmt-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: var(--space-4) 0;
+}
+.stmt-page {
+  min-width: 38px;
+  padding: 7px 12px;
+  text-align: center;
+  border: 1px solid var(--color-border, #e6e1d8);
+  border-radius: 10px;
+  background: var(--color-surface, #fff);
+  text-decoration: none;
+}
+.stmt-page-current {
+  background: #1a1815;
+  color: #fff;
+  border-color: #1a1815;
+}
+.stmt-page-gap {
+  padding: 0 4px;
+}
+.stmt-page-info {
+  margin-left: auto;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}

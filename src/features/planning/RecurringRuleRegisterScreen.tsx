@@ -18,7 +18,7 @@ import { formatShortDate } from "./format";
  * Loan/Payroll Run registers' own split), and only the free-text label search is client-side since no RPC
  * parameter covers it. The manual "generate now" action (`planning.recurring_run`, P13 Part 3h, fourth
  * increment) is entity-wide rather than per-rule, so its button lives here in the header rather than on
- * Detail. From the sixth increment: the "Buat Aturan Baru" button (`canCreate`, `planning.recurring_edit`,
+ * Detail. From the sixth increment: the "Buat Transaksi Berulang" button (`canCreate`, `planning.recurring_edit`,
  * the exact permission `create_recurring_rule` itself checks) follows the identical conditional-Link-button
  * precedent `BudgetRegisterScreen`/`AccountsListScreen`/`InvoicesListScreen` already established, reaching
  * the create/edit template builder (`RecurringRuleForm`) that decisions 186/187 had deferred.
@@ -57,13 +57,13 @@ export function RecurringRuleRegisterScreen({
     <div className="list-screen">
       <header className="list-screen-header">
         <div>
-          <h1>Aturan Berulang</h1>
-          <p className="list-screen-summary">{rows.length} aturan ditampilkan.</p>
+          <h1>Transaksi Berulang</h1>
+          <p className="list-screen-summary">{rows.length} transaksi berulang ditampilkan.</p>
         </div>
         <div className="invoice-actions">
           {canCreate ? (
             <Link href={newHref} className="btn-primary">
-              Buat Aturan Baru
+              Buat Transaksi Berulang
             </Link>
           ) : null}
           <RunDueRecurringOccurrencesButton entityId={entityId} canRun={canRun} />
@@ -88,7 +88,7 @@ export function RecurringRuleRegisterScreen({
             name="q"
             defaultValue={query}
             placeholder="Cari nama aturan…"
-            aria-label="Cari aturan berulang"
+            aria-label="Cari transaksi berulang"
           />
           <button type="submit" className="btn-secondary">
             Terapkan
@@ -98,14 +98,14 @@ export function RecurringRuleRegisterScreen({
 
       {rows.length === 0 ? (
         <div className="list-empty">
-          <p>Tidak ada aturan berulang pada saringan ini.</p>
+          <p>Tidak ada transaksi berulang pada saringan ini.</p>
           {isFiltered ? (
             <Link href={baseHref} className="btn-secondary list-empty-action">
               Hapus Saringan
             </Link>
           ) : canCreate ? (
             <Link href={newHref} className="btn-primary list-empty-action">
-              Buat Aturan Baru
+              Buat Transaksi Berulang
             </Link>
           ) : null}
         </div>
@@ -133,7 +133,7 @@ export function RecurringRuleRegisterScreen({
                     <RecordPreviewLink
                       href={href}
                       label={row.label}
-                      eyebrow="Aturan Berulang"
+                      eyebrow="Transaksi Berulang"
                       title={row.label}
                       badges={[{ tone: badge.tone, text: badge.text }]}
                       fields={[

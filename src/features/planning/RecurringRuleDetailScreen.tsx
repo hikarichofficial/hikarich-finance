@@ -89,13 +89,13 @@ export function RecurringRuleDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar aturan berulang</Link>
+        <Link href={backHref}>← Kembali ke daftar transaksi berulang</Link>
       </p>
 
       <header className="record-detail-header">
         <div>
           <p className="record-detail-eyebrow">
-            Aturan Berulang · {RECURRING_KIND_LABELS[rule.kind]}
+            Transaksi Berulang · {RECURRING_KIND_LABELS[rule.kind]}
           </p>
           <h1>{rule.label}</h1>
         </div>
@@ -119,8 +119,12 @@ export function RecurringRuleDetailScreen({
             </dd>
           </div>
           <div>
-            <dt>Batas Waktu Jatuh Tempo</dt>
-            <dd>{rule.due_offset_days} hari setelah dibuat</dd>
+            <dt>Jatuh Tempo</dt>
+            <dd>
+              {rule.due_day_of_month
+                ? `Tanggal ${rule.due_day_of_month} setiap bulan`
+                : `${rule.due_offset_days} hari setelah dibuat`}
+            </dd>
           </div>
           <div>
             <dt>Tanggal Mulai</dt>
