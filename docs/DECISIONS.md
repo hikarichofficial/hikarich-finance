@@ -2863,6 +2863,8 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      account (7320) and the related accounts (decision 344); the tax is settled once a year from the net result of the
      whole year (losses offset gains), in the annual return due 30 April of the next year. Nothing is built for it now,
      and a forex income feature is not planned until the owner asks for it ("only if the website will have forex
-     income"). Still open for a tax adviser: whether forex profit falls inside the base of the 0,5% final regime or is
-     taxed at the general rate in the annual return, whether monthly instalments (PPh 25) apply to a company on the
-     final regime, and whether the 50% rate reduction (Art. 31E) can be used.
+     income"). Owner's confirmation the same day: the company is on the PPh Final UMKM 0,5% regime, so there is no
+     monthly instalment (PPh 25) and none is built; forex profit is paid and reported once a year. Still open for a
+     tax adviser (the owner has none; the free Kring Pajak line 1500200 or the tax office can answer): whether forex
+     profit falls inside the base of the 0,5% final regime or is taxed at the general rate in the annual return, and
+     whether the 50% rate reduction (Art. 31E) can be used.
