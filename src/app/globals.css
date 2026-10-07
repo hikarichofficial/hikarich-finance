@@ -1376,6 +1376,11 @@ body {
   }
 }
 
+/* Report sections reached from a dashboard card (#pnl-expense ...) must not hide under the sticky top bar. */
+tbody[id^="pnl-"] {
+  scroll-margin-top: calc(var(--shell-topbar-height) + var(--space-4));
+}
+
 /*
  * Application shell — Step 09 §2 (Global Application Shell), §4 (Sidebar Behavior), §6-§7
  * (Global Search / Command Menu), Step 10 §7 (glass is selective: navigation/command surfaces
@@ -4243,4 +4248,63 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
   .guide-flow-nav-next {
     grid-column: 1;
   }
+}
+
+/* "Lampiran" shown inside a record's Dokumen section (decision 332). */
+.attachments-embedded {
+  margin-top: var(--space-5);
+}
+
+.attachments-embedded-title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-md, 1rem);
+  font-weight: 600;
+}
+
+.report-export {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Printing a page of the application (a report, for "Cetak / simpan PDF"): only the page content, no menu. */
+@media print {
+  .app-sidebar,
+  .app-topbar,
+  .app-shell-scrim {
+    display: none !important;
+  }
+
+  .app-shell {
+    display: block;
+  }
+
+  .list-screen,
+  .record-detail {
+    max-width: none;
+  }
+}
+
+/* Category field inside a line row: the picker's own label is redundant with the column heading (decision 340). */
+.category-picker-cell .contact-picker-field > label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* "Tambah jenis lampiran" inline in the upload form (decision 340). */
+.attachment-new-type {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border, #e5e0d8);
+  border-radius: 8px;
+}
+.attachment-new-type-actions {
+  display: flex;
+  gap: 0.5rem;
 }

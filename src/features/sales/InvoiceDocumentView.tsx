@@ -267,10 +267,10 @@ export function InvoiceDocumentView({
                 {formatMoney(payment.amount, payment.currency)}{" "}
                 {receiptHref ? (
                   <a href={receiptHref(payment.receipt_number)}>
-                    Kwitansi {payment.receipt_number}
+                    Kuitansi {payment.receipt_number}
                   </a>
                 ) : (
-                  <span>Kwitansi {payment.receipt_number}</span>
+                  <span>Kuitansi {payment.receipt_number}</span>
                 )}
               </li>
             ))}

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import type { ReactNode } from "react";
 import { formatMoney } from "@/domain/money/format";
 import {
   EXPENSE_STATUS_LABELS,
@@ -24,6 +25,7 @@ export function ExpenseDetailScreen({
   entity,
   backHref,
   canEdit = false,
+  documents,
 }: {
   expense: ExpenseRow;
   lines: readonly ExpenseLineRow[];
@@ -35,6 +37,8 @@ export function ExpenseDetailScreen({
   backHref: string;
   /** Shows "Ubah Draf" on a draft (`bills.edit`, the permission `update_expense_draft` checks). */
   canEdit?: boolean;
+  /** The attachments of this expense, shown inside the Dokumen section (decision 332). */
+  documents?: ReactNode;
 }) {
   const suffix = entity ? `?entity=${encodeURIComponent(entity)}` : "";
   const money = (value: string) => formatMoney(value, expense.currency);
@@ -196,6 +200,15 @@ export function ExpenseDetailScreen({
           </table>
         )}
       </section>
+
+      {documents ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Dokumen</h2>
+          </div>
+          {documents}
+        </section>
+      ) : null}
     </div>
   );
 }

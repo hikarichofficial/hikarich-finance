@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 1324" width="710" height="1324" role="img" aria-label="Memantau Pajak: Di Mana Melihat Tenggat dan Posisi Pajak?" font-family="Helvetica, Arial, sans-serif">
-<!-- source: alur.json sha256:a5740e7a7a24272b (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 1335.5" width="710" height="1335.5" role="img" aria-label="Memantau Pajak: Di Mana Melihat Tenggat dan Posisi Pajak?" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:972ac96cdb61c837 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
 <title>Memantau Pajak: Di Mana Melihat Tenggat dan Posisi Pajak?</title>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <rect x="250" y="18" width="210" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
@@ -38,90 +38,91 @@
 <polyline points="239,433.5 471,433.5" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polyline points="355,433.5 355,456.5" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polygon points="355,461.5 350.5,453.5 359.5,453.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="250" y="461.5" width="210" height="93" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<rect x="250" y="461.5" width="210" height="104.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
 <text x="260" y="474.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
 <text x="260" y="491" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Lihat tenggat di Kalender Pajak</text>
 <text x="260" y="506" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; Kalender Pajak</text>
 <text x="260" y="521" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Langkah Hitung, Bayar, Lapor, Bukti dengan</text>
-<text x="260" y="532.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Jatuh Tempo dan Status. Hanya PPN, PPh 23,</text>
-<text x="260" y="544" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">PPh Final UMKM</text>
-<polyline points="355,554.5 355,577.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="355,582.5 350.5,574.5 359.5,574.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<polygon points="355,582.5 505,617.5 355,652.5 205,617.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
-<text x="355" y="614.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Ada langkah Perlu dikerjakan</text>
-<text x="355" y="627.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">atau Terlambat?</text>
-<polyline points="355,652.5 355,668.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="239,668.5 471,668.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="239,668.5 239,697.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="239,702.5 234.5,694.5 243.5,694.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="134" y="702.5" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
-<text x="144" y="715.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="144" y="732" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Buka posisi pajak masanya</text>
-<text x="144" y="747" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; PPN, Pajak &gt; Pemotongan</text>
-<text x="144" y="759" font-size="9" fill="#1a4d8f" text-anchor="start">PPh, atau Pajak &gt; PPh Final</text>
-<text x="144" y="774" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pilih Masa Pajak; yang dibayar adalah Sisa</text>
-<text x="144" y="785.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Kekurangan</text>
-<polyline points="239,796 239,819" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="239,824 234.5,816 243.5,816" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="134" y="824" width="210" height="81.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
-<text x="144" y="837" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="144" y="853.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Kerjakan langkahnya</text>
-<text x="144" y="868.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; Pelaporan &amp; Bukti</text>
-<text x="144" y="883.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">PPh Final: Hitung dulu di Pajak &gt; PPh Final.</text>
-<text x="144" y="895" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Lihat diagram Membayar dan Melaporkan Pajak</text>
-<rect x="227.8" y="677.5" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
-<text x="239" y="688.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
-<rect x="453.9" y="677.5" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
-<text x="471" y="688.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
-<polyline points="239,905.5 239,925.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="471,668.5 471,925.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="239,925.5 471,925.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="355,925.5 355,948.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="355,953.5 350.5,945.5 359.5,945.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<polygon points="355,953.5 505,988.5 355,1023.5 205,988.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
-<text x="355" y="985.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Ada angka pajak yang janggal</text>
-<text x="355" y="998.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">atau perlu dijelaskan?</text>
-<polyline points="355,1023.5 355,1039.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,1039.5 587,1039.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,1039.5 123,1068.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="123,1073.5 118.5,1065.5 127.5,1065.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="18" y="1073.5" width="210" height="81.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
-<text x="28" y="1086.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="28" y="1103" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Telusuri di Buku Pajak</text>
-<text x="28" y="1118" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; Buku Pajak &gt; (klik Deskripsi)</text>
-<text x="28" y="1133" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Lihat dokumen sumber, Aturan yang</text>
-<text x="28" y="1144.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Diterapkan, dan Rincian Perhitungan</text>
-<rect x="87.24" y="1048.5" width="71.53" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
-<text x="123" y="1059.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Asal angkanya</text>
-<polyline points="355,1039.5 355,1068.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="355,1073.5 350.5,1065.5 359.5,1065.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="250" y="1073.5" width="210" height="81.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
-<text x="260" y="1086.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="260" y="1103" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Periksa Aturan Pajak</text>
-<text x="260" y="1118" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; Aturan Pajak</text>
-<text x="260" y="1133" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Lihat Berlaku Sejak dan Sumber Hukum; versi</text>
-<text x="260" y="1144.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">baru hanya dibuat OWNER</text>
-<rect x="313.34" y="1048.5" width="83.31" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
-<text x="355" y="1059.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tarif atau tenggat</text>
-<rect x="561.39" y="1048.5" width="51.21" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
-<text x="587" y="1059.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak ada</text>
-<polyline points="123,1155 123,1175" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="355,1155 355,1175" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="587,1039.5 587,1175" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,1175 587,1175" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="355,1175 355,1198" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="355,1203 350.5,1195 359.5,1195" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="250" y="1203" width="210" height="67" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
-<text x="355" y="1221.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
-<text x="355" y="1235" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">PPh yang dipotong dibayar paling lambat</text>
-<text x="355" y="1246.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">tanggal 15 bulan berikutnya; cek Tenggat</text>
-<text x="355" y="1258" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Terdekat berkala</text>
-<rect x="182.95" y="1296" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
-<text x="198.95" y="1304" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
-<rect x="253.2" y="1296" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
-<text x="269.2" y="1304" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
-<rect x="375.91" y="1296" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
-<text x="391.91" y="1304" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
-<polygon points="476.14,1295 482.14,1301 476.14,1307 470.14,1301" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
-<text x="486.14" y="1304" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+<text x="260" y="532.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Jatuh Tempo dan Status. PPh Final UMKM</text>
+<text x="260" y="544" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">tidak punya Lapor bulanan: setor tanggal 15,</text>
+<text x="260" y="555.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">lapor lewat SPT Tahunan</text>
+<polyline points="355,566 355,589" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,594 350.5,586 359.5,586" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="355,594 505,629 355,664 205,629" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="355" y="626" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Ada langkah Perlu dikerjakan</text>
+<text x="355" y="639" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">atau Terlambat?</text>
+<polyline points="355,664 355,680" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,680 471,680" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,680 239,709" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,714 234.5,706 243.5,706" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="714" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="144" y="727" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="144" y="743.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Buka posisi pajak masanya</text>
+<text x="144" y="758.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; PPN, Pajak &gt; Pemotongan</text>
+<text x="144" y="770.5" font-size="9" fill="#1a4d8f" text-anchor="start">PPh, atau Pajak &gt; PPh Final</text>
+<text x="144" y="785.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pilih Masa Pajak; yang dibayar adalah Sisa</text>
+<text x="144" y="797" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Kekurangan</text>
+<polyline points="239,807.5 239,830.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,835.5 234.5,827.5 243.5,827.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="835.5" width="210" height="81.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="144" y="848.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="144" y="865" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Kerjakan langkahnya</text>
+<text x="144" y="880" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; Pelaporan &amp; Bukti</text>
+<text x="144" y="895" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">PPh Final: Hitung dulu di Pajak &gt; PPh Final.</text>
+<text x="144" y="906.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Lihat diagram Membayar dan Melaporkan Pajak</text>
+<rect x="227.8" y="689" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="239" y="700" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<rect x="453.9" y="689" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="471" y="700" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
+<polyline points="239,917 239,937" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="471,680 471,937" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,937 471,937" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,937 355,960" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,965 350.5,957 359.5,957" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="355,965 505,1000 355,1035 205,1000" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="355" y="997" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Ada angka pajak yang janggal</text>
+<text x="355" y="1010" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">atau perlu dijelaskan?</text>
+<polyline points="355,1035 355,1051" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,1051 587,1051" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,1051 123,1080" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,1085 118.5,1077 127.5,1077" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="1085" width="210" height="81.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="1098" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="1114.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Telusuri di Buku Pajak</text>
+<text x="28" y="1129.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; Buku Pajak &gt; (klik Deskripsi)</text>
+<text x="28" y="1144.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Lihat dokumen sumber, Aturan yang</text>
+<text x="28" y="1156" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Diterapkan, dan Rincian Perhitungan</text>
+<rect x="87.24" y="1060" width="71.53" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="1071" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Asal angkanya</text>
+<polyline points="355,1051 355,1080" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,1085 350.5,1077 359.5,1077" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="1085" width="210" height="81.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="1098" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="1114.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Periksa Aturan Pajak</text>
+<text x="260" y="1129.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; Aturan Pajak</text>
+<text x="260" y="1144.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Lihat Berlaku Sejak dan Sumber Hukum; versi</text>
+<text x="260" y="1156" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">baru hanya dibuat OWNER</text>
+<rect x="313.34" y="1060" width="83.31" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="1071" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tarif atau tenggat</text>
+<rect x="561.39" y="1060" width="51.21" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="587" y="1071" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak ada</text>
+<polyline points="123,1166.5 123,1186.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,1166.5 355,1186.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="587,1051 587,1186.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,1186.5 587,1186.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,1186.5 355,1209.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,1214.5 350.5,1206.5 359.5,1206.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="1214.5" width="210" height="67" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="355" y="1233" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="355" y="1246.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">PPh yang dipotong dibayar paling lambat</text>
+<text x="355" y="1258" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">tanggal 15 bulan berikutnya; cek Tenggat</text>
+<text x="355" y="1269.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Terdekat berkala</text>
+<rect x="182.95" y="1307.5" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="198.95" y="1315.5" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="253.2" y="1307.5" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="269.2" y="1315.5" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="375.91" y="1307.5" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="391.91" y="1315.5" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="476.14,1306.5 482.14,1312.5 476.14,1318.5 470.14,1312.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="486.14" y="1315.5" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
 </svg>

@@ -1045,7 +1045,7 @@
         {
           "kind": "step",
           "actor": "sistem",
-          "title": "Pembayaran tercatat dengan nomor kwitansi RCP",
+          "title": "Pembayaran tercatat dengan nomor kuitansi RCP",
           "note": "Piutang berkurang, saldo rekening bertambah. Invoice jadi Lunas, atau Dibayar sebagian bila jumlahnya kurang"
         },
         {
@@ -1196,7 +1196,7 @@
         {
           "kind": "step",
           "actor": "sistem",
-          "title": "Pembayaran tercatat dengan nomor kwitansi RCP",
+          "title": "Pembayaran tercatat dengan nomor kuitansi RCP",
           "note": "Piutang berkurang, saldo bertambah. Lunas, atau Dibayar sebagian bila kurang"
         },
         {
@@ -2179,7 +2179,7 @@
           "actor": "anda",
           "title": "Lihat tenggat di Kalender Pajak",
           "menu": "Pajak > Kalender Pajak",
-          "note": "Langkah Hitung, Bayar, Lapor, Bukti dengan Jatuh Tempo dan Status. Hanya PPN, PPh 23, PPh Final UMKM"
+          "note": "Langkah Hitung, Bayar, Lapor, Bukti dengan Jatuh Tempo dan Status. PPh Final UMKM tidak punya Lapor bulanan: setor tanggal 15, lapor lewat SPT Tahunan"
         },
         {
           "kind": "choice",

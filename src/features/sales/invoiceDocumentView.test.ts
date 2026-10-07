@@ -219,7 +219,7 @@ describe("InvoiceDocumentView receipt links (decision 330)", () => {
 
   it("keeps plain text without a link builder", () => {
     const html = render(paid);
-    expect(html).toContain("Kwitansi RCP-2026-0001");
+    expect(html).toContain("Kuitansi RCP-2026-0001");
     expect(html).not.toContain("receipt?no=");
   });
 });

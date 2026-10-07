@@ -72,7 +72,7 @@ function invoiceEmailHtml(doc: InvoiceDocument, link: string, issuerName: string
             <a href="${esc(link)}"
                style="display: inline-block; background: #0f172a; color: #ffffff; text-decoration: none;
                       padding: 12px 24px; border-radius: 6px; font-weight: bold;">
-              ${paid ? "Lihat Invoice &amp; Kwitansi" : "Lihat &amp; Bayar Invoice"}
+              ${paid ? "Lihat Invoice &amp; Kuitansi" : "Lihat &amp; Bayar Invoice"}
             </a>
           </p>
           <p style="margin: 0; font-size: 13px; color: #6b7280;">

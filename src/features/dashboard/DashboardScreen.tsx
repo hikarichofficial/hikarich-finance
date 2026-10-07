@@ -39,6 +39,7 @@ export function DashboardScreen({
 
       <KpiStrip
         currency={snapshot.currency}
+        period={snapshot.period}
         finance={snapshot.finance}
         cash={snapshot.cash}
         receivables={snapshot.receivables}

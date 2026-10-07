@@ -93,6 +93,18 @@ export default async function InvoiceDetailPage({
         doc={doc}
         logo={logo}
         receiptHref={receiptHref}
+        documents={
+          <AttachmentsSection
+            embedded
+            entityId={membership.entity_id}
+            entity={entity}
+            targetType="invoice"
+            targetId={id}
+            returnPath={`/sales/invoices/${id}`}
+            canUpload={can(access, membership.entity_id, "documents.upload")}
+            defaultPurpose="other"
+          />
+        }
         layout={layout}
         backHref={backHref}
         taxPanel={
@@ -158,15 +170,6 @@ export default async function InvoiceDetailPage({
             emptyText="Invoice ini belum pernah dikirim lewat email."
           />
         ) : null}
-        <AttachmentsSection
-          entityId={membership.entity_id}
-          entity={entity}
-          targetType="invoice"
-          targetId={id}
-          returnPath={`/sales/invoices/${id}`}
-          canUpload={can(access, membership.entity_id, "documents.upload")}
-          defaultPurpose="other"
-        />
       </div>
     </>
   );

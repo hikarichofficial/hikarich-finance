@@ -49,9 +49,9 @@ export async function getPublicReceipt(
     p_token: token,
     p_receipt_number: number.data,
   });
-  if (error) throw new Error("Kwitansi tidak dapat dimuat.");
+  if (error) throw new Error("Kuitansi tidak dapat dimuat.");
   const parsed = publicReceiptViewSchema.safeParse(data);
-  if (!parsed.success) throw new Error("Respons kwitansi tidak dikenali.");
+  if (!parsed.success) throw new Error("Respons kuitansi tidak dikenali.");
   return parsed.data;
 }
 

@@ -76,6 +76,18 @@ export default async function BillDetailPage({
               }
             : undefined
         }
+        documents={
+          <AttachmentsSection
+            embedded
+            entityId={membership.entity_id}
+            entity={entity}
+            targetType="bill"
+            targetId={id}
+            returnPath={`/purchases/bills/${id}`}
+            canUpload={can(access, membership.entity_id, "documents.upload")}
+            defaultPurpose="vendor_invoice"
+          />
+        }
         permissions={{
           canSubmit: can(access, entityId, "bills.submit"),
           canEdit: can(access, entityId, "bills.edit"),
@@ -84,17 +96,6 @@ export default async function BillDetailPage({
           canCorrect: can(access, entityId, "bills.void") && can(access, entityId, "bills.create"),
         }}
       />
-      <div className="record-detail">
-        <AttachmentsSection
-          entityId={membership.entity_id}
-          entity={entity}
-          targetType="bill"
-          targetId={id}
-          returnPath={`/purchases/bills/${id}`}
-          canUpload={can(access, membership.entity_id, "documents.upload")}
-          defaultPurpose="vendor_invoice"
-        />
-      </div>
     </>
   );
 }

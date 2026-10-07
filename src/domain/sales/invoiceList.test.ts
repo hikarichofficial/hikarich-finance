@@ -179,7 +179,7 @@ describe("invoiceActivityTimeline", () => {
     );
     expect(timeline).toHaveLength(3);
     expect(timeline[1]).toEqual({
-      label: "Pembayaran diterima (Kwitansi RCP-0001)",
+      label: "Pembayaran diterima (Kuitansi RCP-0001)",
       date: "2026-09-05",
       tone: "success",
     });

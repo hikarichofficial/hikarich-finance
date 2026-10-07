@@ -15,6 +15,8 @@ import {
   registerDocumentInputSchema,
   replaceDocumentLinkInputSchema,
   unlinkDocumentInputSchema,
+  documentPurposeRowSchema,
+  type DocumentPurposeRow,
   type DocumentDownloadGrant,
   type DocumentLinkRow,
   type DocumentRow,
@@ -138,6 +140,33 @@ export async function listDocumentLinks(
     "list_document_links",
     { p_entity: v.entity_id, p_target_type: v.target_type, p_target_id: v.target_id },
     documentLinkListSchema,
+  );
+}
+
+/** The attachment types this Entity added itself (decision 340): a direct RLS-governed read. */
+export async function listDocumentPurposes(entityId: string): Promise<DocumentPurposeRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("document_purposes")
+    .select("id, name")
+    .eq("entity_id", uuidResultSchema.parse(entityId))
+    .eq("is_active", true)
+    .order("name");
+  if (error) throw new Error("Gagal memuat jenis lampiran.");
+  const parsed = z.array(documentPurposeRowSchema).safeParse(data);
+  if (!parsed.success) throw new Error("Respons jenis lampiran tidak dikenali.");
+  return parsed.data;
+}
+
+/** Adds an attachment type (or returns the one with the same name). */
+export async function createDocumentPurpose(input: {
+  entity_id: string;
+  name: string;
+}): Promise<string> {
+  return callRpc(
+    "create_document_purpose",
+    { p_entity: uuidResultSchema.parse(input.entity_id), p_name: input.name },
+    uuidResultSchema,
   );
 }
 

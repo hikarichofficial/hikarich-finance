@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 478 1340.5" width="478" height="1340.5" role="img" aria-label="Ada Pelanggan yang Mau atau Sudah Membayar: Harus ke Menu Mana?" font-family="Helvetica, Arial, sans-serif">
-<!-- source: alur.json sha256:a5740e7a7a24272b (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<!-- source: alur.json sha256:972ac96cdb61c837 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
 <title>Ada Pelanggan yang Mau atau Sudah Membayar: Harus ke Menu Mana?</title>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <rect x="134" y="18" width="210" height="43" rx="18" fill="#b5791a" stroke="#b5791a" stroke-width="1.4"/>
@@ -103,7 +103,7 @@
 <rect x="134" y="1027.5" width="210" height="91.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
 <text x="144" y="1040.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
 <text x="144" y="1057" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pembayaran tercatat dengan nomor</text>
-<text x="144" y="1070.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">kwitansi RCP</text>
+<text x="144" y="1070.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">kuitansi RCP</text>
 <text x="144" y="1085.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Piutang berkurang, saldo rekening bertambah.</text>
 <text x="144" y="1097" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Invoice jadi Lunas, atau Dibayar sebagian bila</text>
 <text x="144" y="1108.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">jumlahnya kurang</text>

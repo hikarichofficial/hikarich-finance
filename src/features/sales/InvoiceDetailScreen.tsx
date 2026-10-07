@@ -33,6 +33,7 @@ export function InvoiceDetailScreen({
   layout,
   claimsNotice,
   receiptHref,
+  documents,
 }: {
   invoiceId: string;
   doc: InvoiceDocument;
@@ -54,6 +55,8 @@ export function InvoiceDetailScreen({
   layout?: InvoiceLayout | null;
   /** Where a payment's receipt opens (decision 330); without it the receipt number is plain text. */
   receiptHref?: (receiptNumber: string) => string;
+  /** The attachments of this invoice, shown inside the Dokumen section under the document (decision 332). */
+  documents?: ReactNode;
 }) {
   const status = invoiceDocumentStatus(doc);
   const timeline = invoiceActivityTimeline(doc);
@@ -190,6 +193,7 @@ export function InvoiceDetailScreen({
           layout={doc.status === "draft" ? layout : null}
           receiptHref={receiptHref}
         />
+        {documents}
       </section>
 
       <section className="dashboard-section">

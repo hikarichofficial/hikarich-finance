@@ -49,6 +49,20 @@ export function ExpensesListScreen({
         <div>
           <h1>Pengeluaran</h1>
           <p className="list-screen-summary">{rows.length} pengeluaran ditampilkan.</p>
+          <p className="hint">
+            Halaman ini hanya untuk belanja yang langsung dibayar. Beban dari tagihan vendor yang
+            belum dibayar ada di menu{" "}
+            <Link
+              href={
+                entity
+                  ? `/purchases/bills?entity=${encodeURIComponent(entity)}`
+                  : "/purchases/bills"
+              }
+            >
+              Tagihan
+            </Link>
+            ; keduanya ikut dihitung sebagai Beban di dashboard dan Laba Rugi.
+          </p>
         </div>
         {canCreate ? (
           <Link href={newHref} className="btn-primary">

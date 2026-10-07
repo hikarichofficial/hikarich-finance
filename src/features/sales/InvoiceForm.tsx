@@ -157,6 +157,7 @@ export function InvoiceForm({
         <RecurringLinesEditor
           kind="invoice"
           categories={categories}
+          entity={entity}
           suggestions={suggestions}
           rows={rows}
           onChange={setRows}

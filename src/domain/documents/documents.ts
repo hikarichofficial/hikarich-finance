@@ -1,6 +1,6 @@
 import {
   documentTargetTypeSchema,
-  type DocumentPurpose,
+  type BuiltinDocumentPurpose,
   type DocumentTargetType,
 } from "@/schemas/documents";
 
@@ -26,12 +26,25 @@ export const DOCUMENT_TARGET_TYPE_LABELS: Readonly<Record<DocumentTargetType, st
   import_batch: "Batch Impor",
 };
 
-export const DOCUMENT_PURPOSE_LABELS: Readonly<Record<DocumentPurpose, string>> = {
+export const DOCUMENT_PURPOSE_LABELS: Readonly<Record<BuiltinDocumentPurpose, string>> = {
   vendor_invoice: "Invoice vendor",
   receipt: "Kuitansi",
   contract: "Kontrak",
   other: "Lainnya",
 };
+
+/** The label of a link's purpose: a built-in word, one of the person's own types (`custom:<id>`, looked up in
+ * the given names), or -- for a word this screen does not know -- the word itself. */
+export function documentPurposeLabel(
+  purpose: string,
+  customNames: ReadonlyMap<string, string>,
+): string {
+  if (purpose in DOCUMENT_PURPOSE_LABELS) {
+    return DOCUMENT_PURPOSE_LABELS[purpose as BuiltinDocumentPurpose];
+  }
+  if (purpose.startsWith("custom:")) return customNames.get(purpose.slice(7)) ?? "Jenis lain";
+  return purpose;
+}
 
 /** Human-readable file size, for a screen's document list — matches `MAX_DOCUMENT_BYTES` = 25 MB scale. */
 export function formatDocumentSize(bytes: number): string {

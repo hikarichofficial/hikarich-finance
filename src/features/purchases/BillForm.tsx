@@ -110,6 +110,7 @@ export function BillForm({
         <RecurringLinesEditor
           kind="bill"
           categories={categories}
+          entity={entity}
           suggestions={suggestions}
           rows={rows}
           onChange={setRows}

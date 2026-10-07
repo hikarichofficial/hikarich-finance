@@ -49,6 +49,8 @@ const TAX_DEADLINE_LIMIT = 5;
 
 export interface DashboardFinanceSection {
   revenue: string;
+  /** Discounts and refund adjustments already taken off `revenue`. */
+  discounts: string;
   expense: string;
   netResult: string | null;
 }
@@ -191,6 +193,7 @@ export async function getDashboardSnapshot(
         const net = netResultFromEquityRows(equityRows);
         return {
           revenue: totals.revenue.toString(),
+          discounts: totals.discounts.toString(),
           expense: totals.expense.toString(),
           netResult: net ? net.toString() : null,
         };

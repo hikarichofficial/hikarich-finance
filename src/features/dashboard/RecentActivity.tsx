@@ -36,7 +36,7 @@ export function RecentActivity({
             <li key={`${item.kind}-${item.id}`} className="dashboard-list-item">
               <div>
                 <p className="dashboard-list-item-title">
-                  <Link href={KIND_HREF[item.kind]}>{item.title}</Link>
+                  <Link href={`${KIND_HREF[item.kind]}/${item.id}`}>{item.title}</Link>
                 </p>
                 <p className="dashboard-list-item-detail">{item.counterparty}</p>
               </div>

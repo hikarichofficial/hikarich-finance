@@ -1,6 +1,6 @@
-import { DOCUMENT_PURPOSE_LABELS, formatDocumentSize } from "@/domain/documents/documents";
+import { documentPurposeLabel, formatDocumentSize } from "@/domain/documents/documents";
 import type { GenericLinkableTargetType } from "@/schemas/documents";
-import { listDocumentLinks } from "@/services/documents/documents";
+import { listDocumentLinks, listDocumentPurposes } from "@/services/documents/documents";
 import { documentStorageEnabled } from "@/services/documents/storage";
 import { AttachmentRemoveForm, AttachmentUploadForm } from "./AttachmentForms";
 
@@ -18,6 +18,7 @@ export async function AttachmentsSection({
   returnPath,
   canUpload,
   defaultPurpose = "other",
+  embedded = false,
 }: {
   entityId: string;
   entity: string | undefined;
@@ -26,20 +27,31 @@ export async function AttachmentsSection({
   returnPath: string;
   canUpload: boolean;
   defaultPurpose?: "vendor_invoice" | "receipt" | "contract" | "other";
+  /** Shown inside the record's own "Dokumen" section (decision 332) instead of as a card of its own. */
+  embedded?: boolean;
 }) {
-  const links = await listDocumentLinks({
-    entity_id: entityId,
-    target_type: targetType,
-    target_id: targetId,
-  }).catch(() => null);
+  const [links, customPurposes] = await Promise.all([
+    listDocumentLinks({
+      entity_id: entityId,
+      target_type: targetType,
+      target_id: targetId,
+    }).catch(() => null),
+    listDocumentPurposes(entityId).catch(() => []),
+  ]);
   if (links === null) return null;
+  const customNames = new Map(customPurposes.map((p) => [p.id, p.name]));
   const storageOn = documentStorageEnabled();
 
+  const Wrapper = embedded ? "div" : "section";
   return (
-    <section className="dashboard-section">
-      <div className="dashboard-section-header">
-        <h2 className="dashboard-section-title">Lampiran</h2>
-      </div>
+    <Wrapper className={embedded ? "attachments-embedded" : "dashboard-section"}>
+      {embedded ? (
+        <h3 className="attachments-embedded-title">Lampiran</h3>
+      ) : (
+        <div className="dashboard-section-header">
+          <h2 className="dashboard-section-title">Lampiran</h2>
+        </div>
+      )}
       {links.length === 0 ? (
         <p className="hint">Belum ada lampiran.</p>
       ) : (
@@ -66,7 +78,7 @@ export async function AttachmentsSection({
                     {link.file_name}
                   </a>
                 </td>
-                <td data-label="Jenis">{DOCUMENT_PURPOSE_LABELS[link.purpose]}</td>
+                <td data-label="Jenis">{documentPurposeLabel(link.purpose, customNames)}</td>
                 <td className="num" data-label="Ukuran">
                   {formatDocumentSize(link.size_bytes)}
                 </td>
@@ -89,10 +101,11 @@ export async function AttachmentsSection({
           targetId={targetId}
           returnPath={returnPath}
           defaultPurpose={defaultPurpose}
+          customPurposes={customPurposes}
         />
       ) : (
         <p className="hint">Penyimpanan berkas belum diaktifkan untuk situs ini.</p>
       )}
-    </section>
+    </Wrapper>
   );
 }

@@ -11,6 +11,7 @@ import {
 import { documentPurposeSchema, genericLinkableTargetTypeSchema } from "@/schemas/documents";
 import { requirePermission } from "@/services/identity/access";
 import {
+  createDocumentPurpose,
   finalizeDocumentUpload,
   getDocumentDownloadGrant,
   linkDocument,
@@ -110,4 +111,25 @@ export async function removeAttachmentAction(
   }
   revalidatePath(text(formData, "return_path") || "/documents");
   return { status: "ok", message: "Lampiran dilepas." };
+}
+
+/** Adds an attachment type from inside the upload form and hands it back, so it can be chosen at once. */
+export async function createDocumentPurposeAction(
+  entity: string,
+  name: string,
+): Promise<
+  { status: "ok"; purpose: { id: string; name: string } } | { status: "error"; message: string }
+> {
+  const tidy = name.replace(/\s+/g, " ").trim();
+  if (tidy.length < 2 || tidy.length > 60) {
+    return { status: "error", message: "Nama jenis lampiran 2 sampai 60 karakter." };
+  }
+  try {
+    const { membership } = await requirePermission("documents.upload", { entityCode: entity });
+    const id = await createDocumentPurpose({ entity_id: membership.entity_id, name: tidy });
+    return { status: "ok", purpose: { id, name: tidy } };
+  } catch (error) {
+    if (error instanceof AuthzError) return { status: "error", message: describeAuthzError(error) };
+    return { status: "error", message: "Jenis lampiran tidak dapat disimpan." };
+  }
 }

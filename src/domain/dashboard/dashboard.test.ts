@@ -143,6 +143,18 @@ describe("pnlTotals", () => {
     expect(totals.expense.toString()).toBe("3050000");
   });
 
+  it("takes sales discounts (contra revenue) off revenue, as the Laba Rugi report does", () => {
+    const rows = [
+      plRow({ account_class: "revenue", debit: "0", credit: "1000000" }),
+      plRow({ account_class: "contra_revenue", debit: "125000", credit: "0" }),
+      plRow({ account_class: "expense", debit: "300000", credit: "0" }),
+    ];
+    const totals = pnlTotals(rows);
+    expect(totals.revenue.toString()).toBe("875000");
+    expect(totals.discounts.toString()).toBe("125000");
+    expect(totals.expense.toString()).toBe("300000");
+  });
+
   it("returns zero totals for an empty period", () => {
     const totals = pnlTotals([]);
     expect(totals.revenue.isZero()).toBe(true);

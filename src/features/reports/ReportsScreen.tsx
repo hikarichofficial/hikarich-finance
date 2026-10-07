@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ReportExportButtons } from "./ReportExportButtons";
 import { formatMoney } from "@/domain/money/format";
 import type { Decimal } from "@/domain/money/decimal";
 import { ENTRY_TYPE_LABELS } from "@/domain/accounting/journalList";
@@ -282,6 +283,7 @@ export function ReportsScreen({
           <h1>Laporan Keuangan</h1>
           <p className="list-screen-summary">Laporan resmi dari data yang telah diposting.</p>
         </div>
+        <ReportExportButtons fileName={`laporan-${data.statement}`} />
       </header>
 
       <div className="list-screen-toolbar">
@@ -303,93 +305,95 @@ export function ReportsScreen({
         <RangeForm data={data} entity={entity} />
       </div>
 
-      {data.statement === "pnl" ? (
-        <ProfitAndLossTable rows={data.rows} currency={currency} />
-      ) : null}
-      {data.statement === "balance_sheet" ? (
-        <BalanceSheetTable rows={data.rows} currency={currency} />
-      ) : null}
-      {data.statement === "equity" ? <EquityTable rows={data.rows} currency={currency} /> : null}
-      {data.statement === "cashflow" ? (
-        <CashFlowTable rows={data.rows} currency={currency} />
-      ) : null}
-      {data.statement === "gl" ? (
-        <GeneralLedgerTable
-          rows={data.rows}
-          accounts={data.accounts}
-          accountId={data.accountId}
-          currency={currency}
-          entity={entity}
-        />
-      ) : null}
-      {data.statement === "custom" ? (
-        <CustomReportTable
-          datasets={data.datasets}
-          datasetKey={data.datasetKey}
-          rows={data.rows}
-          currency={currency}
-        />
-      ) : null}
-      {data.statement === "consolidated" ? (
-        <ConsolidatedAnalysisTable
-          eligible={data.eligible}
-          rows={data.rows}
-          currencyByEntity={data.currencyByEntity}
-        />
-      ) : null}
-      {data.statement === "loans_due" ? (
-        <LoansDueTable
-          rows={data.rows}
-          canView={data.canView}
-          currency={currency}
-          entity={entity}
-        />
-      ) : null}
-      {data.statement === "loan_summary" ? (
-        <LoanSummaryTable
-          rows={data.rows}
-          canView={data.canView}
-          currency={currency}
-          entity={entity}
-        />
-      ) : null}
-      {data.statement === "payroll_summary" ? (
-        <PayrollSummaryTable
-          rows={data.rows}
-          canView={data.canView}
-          currency={currency}
-          entity={entity}
-        />
-      ) : null}
-      {data.statement === "payroll_control" ? (
-        <PayrollControlTable rows={data.rows} canView={data.canView} currency={currency} />
-      ) : null}
-      {data.statement === "fiscal_schedule" ? (
-        <FiscalScheduleTable
-          rows={data.rows}
-          assets={data.assets}
-          assetId={data.assetId}
-          canView={data.canView}
-          currency={currency}
-        />
-      ) : null}
-      {data.statement === "asset_control" ? (
-        <AssetControlTable rows={data.rows} canView={data.canView} currency={currency} />
-      ) : null}
-      {data.statement === "asset_movement" ? (
-        <AssetMovementTable
-          rows={data.rows}
-          canView={data.canView}
-          currency={currency}
-          entity={entity}
-        />
-      ) : null}
-      {data.statement === "ar_aging" ? (
-        <ArAgingTable rows={data.rows} canView={data.canView} currency={currency} />
-      ) : null}
-      {data.statement === "ap_aging" ? (
-        <ApAgingTable rows={data.rows} canView={data.canView} currency={currency} />
-      ) : null}
+      <div data-report-root>
+        {data.statement === "pnl" ? (
+          <ProfitAndLossTable rows={data.rows} currency={currency} />
+        ) : null}
+        {data.statement === "balance_sheet" ? (
+          <BalanceSheetTable rows={data.rows} currency={currency} />
+        ) : null}
+        {data.statement === "equity" ? <EquityTable rows={data.rows} currency={currency} /> : null}
+        {data.statement === "cashflow" ? (
+          <CashFlowTable rows={data.rows} currency={currency} />
+        ) : null}
+        {data.statement === "gl" ? (
+          <GeneralLedgerTable
+            rows={data.rows}
+            accounts={data.accounts}
+            accountId={data.accountId}
+            currency={currency}
+            entity={entity}
+          />
+        ) : null}
+        {data.statement === "custom" ? (
+          <CustomReportTable
+            datasets={data.datasets}
+            datasetKey={data.datasetKey}
+            rows={data.rows}
+            currency={currency}
+          />
+        ) : null}
+        {data.statement === "consolidated" ? (
+          <ConsolidatedAnalysisTable
+            eligible={data.eligible}
+            rows={data.rows}
+            currencyByEntity={data.currencyByEntity}
+          />
+        ) : null}
+        {data.statement === "loans_due" ? (
+          <LoansDueTable
+            rows={data.rows}
+            canView={data.canView}
+            currency={currency}
+            entity={entity}
+          />
+        ) : null}
+        {data.statement === "loan_summary" ? (
+          <LoanSummaryTable
+            rows={data.rows}
+            canView={data.canView}
+            currency={currency}
+            entity={entity}
+          />
+        ) : null}
+        {data.statement === "payroll_summary" ? (
+          <PayrollSummaryTable
+            rows={data.rows}
+            canView={data.canView}
+            currency={currency}
+            entity={entity}
+          />
+        ) : null}
+        {data.statement === "payroll_control" ? (
+          <PayrollControlTable rows={data.rows} canView={data.canView} currency={currency} />
+        ) : null}
+        {data.statement === "fiscal_schedule" ? (
+          <FiscalScheduleTable
+            rows={data.rows}
+            assets={data.assets}
+            assetId={data.assetId}
+            canView={data.canView}
+            currency={currency}
+          />
+        ) : null}
+        {data.statement === "asset_control" ? (
+          <AssetControlTable rows={data.rows} canView={data.canView} currency={currency} />
+        ) : null}
+        {data.statement === "asset_movement" ? (
+          <AssetMovementTable
+            rows={data.rows}
+            canView={data.canView}
+            currency={currency}
+            entity={entity}
+          />
+        ) : null}
+        {data.statement === "ar_aging" ? (
+          <ArAgingTable rows={data.rows} canView={data.canView} currency={currency} />
+        ) : null}
+        {data.statement === "ap_aging" ? (
+          <ApAgingTable rows={data.rows} canView={data.canView} currency={currency} />
+        ) : null}
+      </div>
     </div>
   );
 }
@@ -544,7 +548,7 @@ function ProfitAndLossTable({
       {sections.map((section) => {
         const sectionCompareSubtotal = pnlCompareSubtotal(section.rows.map((r) => r.row));
         return (
-          <tbody key={section.accountClass}>
+          <tbody key={section.accountClass} id={`pnl-${section.accountClass}`}>
             <tr className="statement-section-row">
               <th scope="colgroup" colSpan={colSpan}>
                 {section.label}
