@@ -148,6 +148,7 @@ export function ExpenseForm({
         <RecurringLinesEditor
           kind="expense"
           categories={categories}
+          entity={entity}
           suggestions={suggestions}
           rows={rows}
           onChange={setRows}

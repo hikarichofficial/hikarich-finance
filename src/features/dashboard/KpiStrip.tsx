@@ -8,6 +8,12 @@ import type {
   DashboardReceivablesSection,
 } from "@/services/dashboard/dashboard";
 
+/** Opens the Laba Rugi report for the month the dashboard shows, scrolled to one of its sections. */
+function profitLossHref(period: { start: string; end: string }, section?: string): string {
+  const query = new URLSearchParams({ statement: "pnl", from: period.start, to: period.end });
+  return `/reports?${query.toString()}${section ? `#${section}` : ""}`;
+}
+
 interface KpiCardProps {
   label: string;
   value: string;
@@ -41,12 +47,15 @@ function KpiCard({ label, value, context, href }: KpiCardProps) {
  */
 export function KpiStrip({
   currency,
+  period,
   finance,
   cash,
   receivables,
   payables,
 }: {
   currency: string;
+  /** The month the dashboard shows; the profit cards open the Laba Rugi report of that same month. */
+  period: { start: string; end: string };
   finance: DashboardFinanceSection | null;
   cash: DashboardCashSection | null;
   receivables: DashboardReceivablesSection | null;
@@ -64,17 +73,26 @@ export function KpiStrip({
   }
 
   if (finance) {
+    const discounts = Decimal.parse(finance.discounts);
     cards.push({
       label: "Pendapatan",
       value: formatMoney(finance.revenue, currency),
-      href: "/reports",
+      context: discounts.isZero()
+        ? undefined
+        : `Sudah dikurangi diskon ${formatMoney(finance.discounts, currency)}`,
+      href: profitLossHref(period, "pnl-revenue"),
     });
-    cards.push({ label: "Beban", value: formatMoney(finance.expense, currency), href: "/reports" });
+    cards.push({
+      label: "Beban",
+      value: formatMoney(finance.expense, currency),
+      context: "Dicatat saat tagihan atau beban diposting",
+      href: profitLossHref(period, "pnl-expense"),
+    });
     if (finance.netResult !== null) {
       cards.push({
         label: finance.netResult.startsWith("-") ? "Rugi Berjalan" : "Laba Berjalan",
         value: formatMoney(finance.netResult, currency),
-        href: "/reports",
+        href: profitLossHref(period),
       });
     }
   }

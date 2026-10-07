@@ -1025,7 +1025,7 @@
         },
         {
           "title": "Simpan laporan",
-          "text": "Di bawah laporan ada bagian lipat **Simpan laporan ini** (tersedia di semua tab Laporan Keuangan dan di Penjualan & Pembelian). Buka, isi **Nama laporan** (2 sampai 120 karakter), lalu tekan **Simpan**. Hasil: “Tersimpan di Laporan Tersimpan.”.",
+          "text": "Di bawah laporan ada bagian lipat **Simpan laporan ini** (tersedia di semua tab Laporan Keuangan dan di Penjualan & Pembelian). Buka, isi **Nama laporan** (2 sampai 120 karakter), lalu tekan **Simpan**. Hasil: “Tersimpan di Laporan Tersimpan.”. Laporan Keuangan dan Penjualan & Pembelian juga punya tombol **Cetak / simpan PDF** dan **Unduh CSV** di bagian atas untuk membawa laporan ke luar aplikasi.",
           "tip": "Bila Anda belum menekan Terapkan, yang tersimpan hanya pilihan tab sehingga laporan nanti selalu memakai awal tahun sampai hari ini. Bila sudah, tanggalnya ikut tersimpan tetap. Penjualan & Pembelian selalu menyimpan tanggal yang tampil."
         },
         {

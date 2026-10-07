@@ -490,7 +490,7 @@
         },
         {
           "title": "Mengirim bukti pembayaran setelah lunas",
-          "text": "Setelah pembayaran dicatat, buka detail pembayaran di Penjualan > Pembayaran Diterima. Isi email pada **Kirim Bukti Pembayaran ke Email** lalu tekan **Kirim Bukti Pembayaran**. Pelanggan menerima tautan kwitansi (RCP-…)."
+          "text": "Setelah pembayaran dicatat, buka detail pembayaran di Penjualan > Pembayaran Diterima. Isi email pada **Kirim Bukti Pembayaran ke Email** lalu tekan **Kirim Bukti Pembayaran**. Pelanggan menerima tautan kuitansi (RCP-…)."
         }
       ],
       "result": [
@@ -498,7 +498,7 @@
         "Tautan mati otomatis bila invoice dibatalkan (void). Pelanggan yang membuka tautan tidak aktif melihat “Tautan tidak tersedia”."
       ],
       "rules": [
-        "Nomor rekening pada halaman publik invoice tidak disamarkan. Pada kwitansi publik nomor rekening disamarkan.",
+        "Nomor rekening pada halaman publik invoice tidak disamarkan. Pada kuitansi publik nomor rekening disamarkan.",
         "Waktu di riwayat email ditampilkan dalam WITA."
       ],
       "mistakes": [
@@ -711,7 +711,7 @@
         },
         {
           "title": "Tekan Simpan Pembayaran",
-          "text": "Bila berhasil tampil “Pembayaran tercatat.” dan ringkasan invoice diperbarui. Pembayaran muncul di **Penjualan > Pembayaran Diterima** dengan nomor kwitansi RCP-tahun-urut.",
+          "text": "Bila berhasil tampil “Pembayaran tercatat.” dan ringkasan invoice diperbarui. Pembayaran muncul di **Penjualan > Pembayaran Diterima** dengan nomor kuitansi RCP-tahun-urut.",
           "image": {
             "file": "pembayaran-daftar.jpg",
             "caption": "Daftar Pembayaran Diterima."
@@ -809,7 +809,7 @@
         },
         {
           "title": "Konfirmasi klaim yang benar",
-          "text": "Tekan **Konfirmasi**, lalu isi **Diterima di Rekening**, **Tanggal Uang Masuk** (ubah ke tanggal dana masuk rekening PT bila berbeda dari klaim), **Jumlah yang Benar-benar Masuk** (ubah sesuai mutasi bank), dan **Catatan (opsional)**. Tekan **Konfirmasi Pembayaran**. Bila berhasil tampil “Pembayaran dikonfirmasi dan kwitansi terbit.” Efeknya sama dengan Catat Pembayaran."
+          "text": "Tekan **Konfirmasi**, lalu isi **Diterima di Rekening**, **Tanggal Uang Masuk** (ubah ke tanggal dana masuk rekening PT bila berbeda dari klaim), **Jumlah yang Benar-benar Masuk** (ubah sesuai mutasi bank), dan **Catatan (opsional)**. Tekan **Konfirmasi Pembayaran**. Bila berhasil tampil “Pembayaran dikonfirmasi dan kuitansi terbit.” Efeknya sama dengan Catat Pembayaran."
         },
         {
           "title": "Tolak klaim yang tidak benar",
@@ -821,13 +821,14 @@
         }
       ],
       "result": [
-        "Konfirmasi: pembayaran Dikonfirmasi, nomor kwitansi RCP diterbitkan, jurnal Debit Kas/Bank dan Kredit Piutang Usaha, invoice menjadi Dibayar sebagian atau Lunas.",
+        "Konfirmasi: pembayaran Dikonfirmasi, nomor kuitansi RCP diterbitkan, jurnal Debit Kas/Bank dan Kredit Piutang Usaha, invoice menjadi Dibayar sebagian atau Lunas.",
         "Tolak dan Duplikat: tidak ada efek keuangan; alasan tersimpan."
       ],
       "rules": [
         "Jumlah yang dikonfirmasi tidak boleh melebihi sisa tagihan saat ini.",
         "Klaim yang sudah ditinjau tidak bisa ditinjau lagi.",
         "Bila invoice dibatalkan (void), semua klaim menunggu otomatis ditolak.",
+        "Bila invoice sudah lunas karena Catat Pembayaran dari staf, klaim yang masih menunggu otomatis ditutup (ditolak dengan alasan “Invoice sudah lunas oleh pembayaran lain”), sehingga tidak perlu dikonfirmasi lagi.",
         "Pembatas anti-penyalahgunaan: maksimal 5 klaim menunggu per invoice, 20 klaim per invoice per hari."
       ],
       "mistakes": [
@@ -936,7 +937,7 @@
         },
         {
           "title": "Balik Pembayaran (koreksi salah catat)",
-          "text": "Tekan **Balik Pembayaran** (tampil hanya bila status Dikonfirmasi), isi **Tanggal Pembalikan** (tidak boleh sebelum tanggal pembayaran dan tidak di masa depan) dan **Alasan (minimal 5 karakter)**, lalu tekan tombol merah **Balik Pembayaran**.\n\nHasil: pembayaran berstatus “Dibalik”, kwitansi berlabel “Dibatalkan”, uang keluar dari rekening, invoice kembali Belum dibayar atau Dibayar sebagian, dan piutangnya terbuka lagi. Setelah itu pembayaran bisa dicatat ulang dengan benar.",
+          "text": "Tekan **Balik Pembayaran** (tampil hanya bila status Dikonfirmasi), isi **Tanggal Pembalikan** (tidak boleh sebelum tanggal pembayaran dan tidak di masa depan) dan **Alasan (minimal 5 karakter)**, lalu tekan tombol merah **Balik Pembayaran**.\n\nHasil: pembayaran berstatus “Dibalik”, kuitansi berlabel “Dibatalkan”, uang keluar dari rekening, invoice kembali Belum dibayar atau Dibayar sebagian, dan piutangnya terbuka lagi. Setelah itu pembayaran bisa dicatat ulang dengan benar.",
           "warning": "Tidak bisa diurungkan. Bila pembayaran punya refund terkonfirmasi, balik refund lebih dulu."
         },
         {

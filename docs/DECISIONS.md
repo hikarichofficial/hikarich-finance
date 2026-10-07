@@ -2690,3 +2690,100 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      and each flow has a `stage`. The PDF chapter follows the same order with stage headings, numbers and a list of
      diagrams. Content only: no database or behaviour change. The recurring-transactions diagram describes the
      automatic daily run of decision 327.
+
+329. **The left menu and the top bar stay on screen while the page scrolls (p63, 7 October 2026).** Owner report:
+     scrolling a long page down made the left menu disappear, so the Owner had to scroll back up to find it.
+     Cause: `html, body { overflow-x: hidden }` made `<body>` its own scroll container, which silently disables
+     `position: sticky` for everything inside it (the menu and the top bar were already marked sticky). Fix:
+     `body { overflow-x: clip }` (cuts horizontal overflow without creating a scroll container). Checked in
+     Chromium: with the old rule the menu moved to -1200px after a 1200px scroll; with `clip` it stays at 0.
+     Styling only, no behaviour or database change.
+
+330. **The receipt number on the invoice page opens the receipt (p64, 7 October 2026).** Owner report: on the
+     internal invoice page the "Dokumen" preview showed "Kwitansi RCP-..." as plain text, while the same document
+     on the customer's public link has it as a link. The internal page now builds the link too:
+     `/sales/invoices/<id>/receipt?no=RCP-...` shows the same receipt document as the public page (same back link
+     "Kembali ke invoice" and print button), read with the existing `payment_receipt_document`. The receipt number
+     must be one of THIS invoice's payments, otherwise the page answers "not found". No database change.
+
+331. **Every Dashboard card opens the page that matches its name (p64, 7 October 2026).** Owner report: the
+     "Beban" card opened the Laporan Keuangan instead of Beban. Each card now has one destination: Pendapatan and
+     Beban open the Laba Rugi of the same period scrolled to the Pendapatan / Beban section (`#pnl-revenue`,
+     `#pnl-expense`), Laba Bersih opens the whole Laba Rugi, and each recent-activity row opens its own document
+     (`/sales/invoices/<id>`, `/sales/payments/<id>`, `/purchases/payments/<id>`), not the list. The period is
+     carried in the link. Tested in `kpiStrip.test.ts`. No database change.
+
+332. **Attachments sit inside the "Dokumen" section of the record (p64).** Owner request: "Lampiran" belongs with
+     the document at the top of the page, not in a separate card below. `AttachmentsSection` takes `embedded` and is
+     rendered under the document view on Invoice, Tagihan and Beban (Beban gets a Dokumen section of its own).
+     Behaviour, permissions and storage are unchanged.
+
+333. **Reports can be printed and downloaded (p64).** Owner question: "Simpan laporan" only stores a view
+     (a named filter shown in Laporan Tersimpan); it never produced a file. The Laporan Keuangan and Penjualan &
+     Pembelian screens now have "Cetak / simpan PDF" (browser print with the menu and top bar hidden) and "Unduh
+     CSV" (every table of the report on screen, one block each, `tablesToCsv`). The saved-report card moved below
+     the report and is hidden when printing. Nothing is computed twice: both read what is on screen.
+
+334. **A payment claim closes by itself when its invoice is paid (p64).** Owner report: an invoice of Rp875.000
+     was paid ("Catat Pembayaran" by staff) but the customer's earlier claim for the same invoice stayed pending
+     and could still be confirmed or rejected. The two were not connected: a payment recorded by staff never
+     touched the claims. Migration `20261008100000`: after a payment allocation is stored, once the invoice is fully
+     settled every claim still pending for it is closed as rejected with the reason "Invoice sudah lunas oleh
+     pembayaran lain; klaim ini ditutup otomatis."; the claim being confirmed right now is excluded (confirming is
+     what created the payment). A partly paid invoice keeps its claims. The migration also closes claims already in
+     that state. Test `99_p29_close_claims.sql`. Money, ledger and permissions are untouched.
+
+335. **Spelling: "kuitansi" (p64).** Owner question: "kuitansi" or "kwitansi"? The standard form in KBBI is
+     "kuitansi"; every screen, e-mail, guide and diagram text now uses it. The document number prefix (RCP) and
+     stored data are unchanged. Note for the owner: a receipt for money above Rp5.000.000 carries meterai under UU
+     10/2020 Art. 3(2)(g); the app does not add it.
+
+336. **Dashboard revenue is net of discounts; Beban card explained (p64).** The "kontra pendapatan" account
+     (4200, debit-normal) holds discounts and sales returns; the Dashboard's Pendapatan now subtracts it, so the
+     Laba Rugi and the Dashboard agree. A discount is a reduction of revenue, never an expense. The Dashboard
+     "Beban" counts bills (accrual), while Pembelian > Beban lists only directly paid expenses; the Beban list now
+     says so and links to Tagihan.
+
+337. **Ringkasan Pajak is empty during the month by design (p64, owner question).** PPh Final UMKM is computed from
+     the invoices issued in a month and only after the month has ended (`tax_final_evaluate`: "the period is not
+     over yet"); until then Kewajiban Terutang is empty and the PPh Final preview says "Belum aktif". Invoice
+     HKD-2026-0002 (7 October, Rp875.000) is computed in November: for a Perseroan Perorangan, which has no
+     Rp500 million exempt band, 0,5% is Rp4.375. Database connection and all eleven tax screens were checked on
+     production: they load and read the same determinations and ledger. A "perkiraan bulan berjalan" line is proposed
+     to the owner (needs a change to the tax engine, so not done without approval).
+
+338. **Aktivitas Terbaru stays as it is (p64, owner decision).** An expansion to every financial event was drafted
+     and withdrawn before release: internal financial activity already has its own menu, Mutasi Kas & Bank.
+
+339. **A stuck page load recovers by itself (p64).** Owner report: after the browser Back button a page could load
+     for very long or never finish. The server answers in about 0,4 to 0,7 s (measured on production), so the delay
+     is a lost or stalled request on the way. `NavigationProgress` now (a) reloads the page once when Back/Forward
+     leaves the loading skeleton on screen for 15 seconds (guarded to once a minute) and (b) opens the link as a
+     normal page load when a menu click has not changed the page after 12 seconds. Speeding up `my_access()` itself
+     needs the owner's approval and is not part of this change.
+
+340. **Category field with "add new", and own attachment types (p64, owner requests).** (a) In the line editor
+     (invoice, bill, expense, recurring) the category is typed and picked like a customer; "+ Tambah kategori baru"
+     opens a small panel asking only the name (the kind follows the line), creates it under `categories.manage` and
+     selects it. A new category posts to the default account of its kind until mapped on Akuntansi > Kategori.
+     Changing a line's treatment clears a category of the wrong kind. (b) Attachment types: migration
+     `20261008110000` adds `document_purposes` (per Entity, read with `documents.view`) and
+     `create_document_purpose` (needs `documents.upload`; same name ignoring case returns the existing type). A link
+     carries `custom:<id>` as its purpose, checked by `link_document` (same Entity, active). The four built-in types
+     are unchanged. The upload form has "+ Tambah jenis lampiran…". Rename and deactivate are not built yet.
+     Test `99_p30_document_purposes.sql`.
+
+341. **PPh Final UMKM: no monthly return; PPh 23 deadline corrected (p64, owner request, audit against the law).**
+     Owner: the 15th is right for paying, but reporting stays yearly. Law: payment with a billing code and NTPN is
+     deemed the monthly return (PMK 164/2023 Art. 7(5)); payment by the 15th of the next month (PMK 81/2024 Art.
+     94(2)); SPT Tahunan 31 March for an individual and 30 April for other taxpayers (UU KUP Art. 3(3)). Migration
+     `20261008120000`: DEADLINE_PPH_FINAL_UMKM version 3 (from 2 January 2026, "monthly_return": false) removes
+     the monthly "Lapor" step; `tax_calendar` shows one "Lapor" row in March/April for the year before, with the
+     right date by taxpayer kind. DEADLINE_PPH23 version 3 (from 2 January 2026) sets the 15th for the whole of
+     2026; version 1 still said the 10th, so September 2026 showed the wrong date. Two published versions cannot
+     share an effective date, hence 2 January. Audit of the rest, from the seeded rules: PPN pay and file end of the
+     next month (correct, PMK 81/2024 Art. 94(3)); PPh 21, 4(2), 26 pay on the 15th and file on the 20th
+     (correct); the 0,5% rate, the Rp4,8 billion ceiling, the Rp500 million band for individuals only and
+     Perseroan Perorangan eligibility follow PP 55/2022 and PP 20/2026. Not modelled: holidays moving a due date,
+     time limits of the regime, the SPT Tahunan's own content. Sources are secondary (DDTC, ortax, pajak.go.id);
+     the owner should have a tax adviser confirm before relying on them. Tests 9.17-9.17d and 11.8.

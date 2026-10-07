@@ -95,7 +95,10 @@ const REVENUE_CLASSES: readonly AccountClass[] = ["revenue", "other_income"];
 const EXPENSE_CLASSES: readonly AccountClass[] = ["expense", "other_expense"];
 
 export interface PnlTotals {
+  /** Revenue and other income AFTER sales discounts and refund adjustments (decision 331). */
   revenue: Decimal;
+  /** The discounts and refund adjustments taken off revenue (contra revenue), a positive magnitude. */
+  discounts: Decimal;
   expense: Decimal;
 }
 
@@ -103,17 +106,25 @@ export interface PnlTotals {
  * class's own natural direction (never re-derived independently of the account classification the
  * database assigned). */
 export function pnlTotals(rows: readonly ProfitAndLossRow[]): PnlTotals {
-  const revenue = sumDecimals(
+  const gross = sumDecimals(
     rows
       .filter((r) => REVENUE_CLASSES.includes(r.account_class))
       .map((r) => naturalAmount(r.debit, r.credit, r.account_class)),
   );
+  // Discounts and refund adjustments (class "contra_revenue", debit-normal) are taken off revenue, the way
+  // the Laba Rugi report does, so Pendapatan - Beban equals the profit shown next to it (decision 331).
+  const discounts = sumDecimals(
+    rows
+      .filter((r) => r.account_class === "contra_revenue")
+      .map((r) => naturalAmount(r.debit, r.credit, r.account_class)),
+  );
+  const revenue = gross.sub(discounts);
   const expense = sumDecimals(
     rows
       .filter((r) => EXPENSE_CLASSES.includes(r.account_class))
       .map((r) => naturalAmount(r.debit, r.credit, r.account_class)),
   );
-  return { revenue, expense };
+  return { revenue, discounts, expense };
 }
 
 interface AgingLike {

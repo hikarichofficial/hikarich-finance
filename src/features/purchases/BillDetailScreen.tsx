@@ -34,6 +34,7 @@ export function BillDetailScreen({
   backHref,
   payment,
   taxPanel,
+  documents,
 }: {
   bill: BillDetail;
   permissions: BillActionPermissions;
@@ -42,6 +43,8 @@ export function BillDetailScreen({
   payment?: { accounts: readonly SettlementAccountOption[]; today: string };
   /** The tax the engine would recognise, shown while the document is not recognised yet (decision 262). */
   taxPanel?: ReactNode;
+  /** The attachments of this bill, shown inside the Dokumen section (decision 332). */
+  documents?: ReactNode;
 }) {
   const editQuery = backHref.includes("?") ? backHref.slice(backHref.indexOf("?")) : "";
   const statusRow: BillListRow = {
@@ -243,7 +246,11 @@ export function BillDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Dokumen</h2>
         </div>
-        <p className="dashboard-empty">Lampiran dan bukti pendukung belum tersedia di tahap ini.</p>
+        {documents ?? (
+          <p className="dashboard-empty">
+            Lampiran dan bukti pendukung belum tersedia di tahap ini.
+          </p>
+        )}
       </section>
 
       <section className="dashboard-section">

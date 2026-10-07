@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { documentTargetTypeSchema, genericLinkableTargetTypeSchema } from "@/schemas/documents";
 import {
   DOCUMENT_PURPOSE_LABELS,
+  documentPurposeLabel,
   DOCUMENT_TARGET_TYPE_FILTER_OPTIONS,
   DOCUMENT_TARGET_TYPE_LABELS,
   documentTargetTypesLabel,
@@ -120,5 +121,18 @@ describe("filterDocumentsByLinkStatus", () => {
 
   it("returns an empty array when nothing matches", () => {
     expect(filterDocumentsByLinkStatus([], "linked")).toEqual([]);
+  });
+});
+
+describe("documentPurposeLabel", () => {
+  const id = "0b9f6c1e-1c1e-4c1e-8c1e-1c1e1c1e1c1e";
+  const names = new Map([[id, "Surat Jalan"]]);
+  it("labels a built-in purpose, the person's own type, and falls back for the rest", () => {
+    expect(documentPurposeLabel("receipt", names)).toBe("Kuitansi");
+    expect(documentPurposeLabel(`custom:${id}`, names)).toBe("Surat Jalan");
+    expect(documentPurposeLabel("custom:00000000-0000-4000-8000-000000000000", names)).toBe(
+      "Jenis lain",
+    );
+    expect(documentPurposeLabel("filing_receipt", names)).toBe("filing_receipt");
   });
 });

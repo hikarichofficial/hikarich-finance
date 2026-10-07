@@ -6,6 +6,11 @@ import { usePathname, useSearchParams } from "next/navigation";
 /** How long the bar may stay up when a click turns out not to change the page (a download, a blocked leave). */
 const GIVE_UP_AFTER_MS = 12000;
 
+/** Decision 339: a Back/Forward step that is still showing the loading skeleton after this long is stuck (a
+ * lost request, a cold start); the page is reloaded once instead of leaving the person staring at it. */
+const STUCK_BACK_AFTER_MS = 15000;
+const RELOAD_GUARD_KEY = "hikarich-stuck-reload-at";
+
 /**
  * Click and loading feedback for every in-app link (decision 274, OWNER request): pages are rendered on the
  * server, so between pressing a menu and the new page arriving nothing on screen used to change. This shows a
@@ -60,16 +65,46 @@ export function NavigationProgress() {
       pressed.current = anchor;
       setPendingFrom(hereRef.current);
       if (timer.current !== null) window.clearTimeout(timer.current);
+      const startedAt = hereRef.current;
+      const target = anchor.href;
+      const isDownload = anchor.hasAttribute("download");
       timer.current = window.setTimeout(() => {
         pressed.current?.removeAttribute("data-nav-pending");
         pressed.current = null;
         setPendingFrom(null);
+        // Still on the page the click started from: the in-app navigation never arrived, so open the
+        // address as a normal page load rather than leaving the click without an answer (decision 339).
+        if (!isDownload && hereRef.current === startedAt) window.location.assign(target);
       }, GIVE_UP_AFTER_MS);
     }
     // Capture phase: `<Link>` calls preventDefault in its own click handler, which would hide the click from
     // a listener that runs after it.
     document.addEventListener("click", onClick, true);
     return () => document.removeEventListener("click", onClick, true);
+  }, []);
+
+  // Browser Back/Forward: if the loading skeleton is still the only content after a long wait, reload once.
+  useEffect(() => {
+    let stuckTimer: number | null = null;
+    function onPopState() {
+      if (stuckTimer !== null) window.clearTimeout(stuckTimer);
+      stuckTimer = window.setTimeout(() => {
+        if (!document.querySelector('.app-content [aria-label="Memuat"]')) return;
+        try {
+          const last = Number(window.sessionStorage.getItem(RELOAD_GUARD_KEY) ?? "0");
+          if (Date.now() - last < 60000) return;
+          window.sessionStorage.setItem(RELOAD_GUARD_KEY, String(Date.now()));
+        } catch {
+          // Storage unavailable: reload anyway -- one extra load is harmless.
+        }
+        window.location.reload();
+      }, STUCK_BACK_AFTER_MS);
+    }
+    window.addEventListener("popstate", onPopState);
+    return () => {
+      window.removeEventListener("popstate", onPopState);
+      if (stuckTimer !== null) window.clearTimeout(stuckTimer);
+    };
   }, []);
 
   const pending = pendingFrom !== null && pendingFrom === here;

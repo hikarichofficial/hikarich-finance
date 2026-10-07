@@ -104,7 +104,7 @@
         },
         {
           "title": "Isi baris pengeluaran",
-          "text": "Untuk tiap baris: **Deskripsi** (klik untuk saran; harga terakhir terisi otomatis bila nama sama), **Kuantitas** (desimal boleh koma atau titik), **Harga Satuan**, **Perlakuan**, dan **Kategori**.\n\n**Perlakuan**: “Beban” (bawaan, biaya langsung), “Aset” (pembelian barang yang dicatat sebagai aset tetap), atau “Dibayar di Muka”. Kategori yang tampil menyesuaikan perlakuan.\n\nKolom pajak per baris: **Objek potongan PPh**, kotak **PPN ditagih vendor**, dan **No. Faktur Pajak**. Isi hanya bila relevan dan mesin pajak sudah aktif."
+          "text": "Untuk tiap baris: **Deskripsi** (klik untuk saran; harga terakhir terisi otomatis bila nama sama), **Kuantitas** (desimal boleh koma atau titik), **Harga Satuan**, **Perlakuan**, dan **Kategori**.\n\n**Perlakuan**: “Beban” (bawaan, biaya langsung), “Aset” (pembelian barang yang dicatat sebagai aset tetap), atau “Dibayar di Muka”. Kategori yang tampil menyesuaikan perlakuan.\n\n**Kategori** bekerja seperti kolom pelanggan: ketik namanya lalu pilih dari daftar. Bila belum ada, pilih **+ Tambah kategori baru** di bawah daftar, simpan, dan kategori itu langsung terpilih. Kategori baru dicatat ke akun bawaan; untuk memetakannya ke akun tertentu buka Akuntansi > Kategori.\n\nKolom pajak per baris: **Objek potongan PPh**, kotak **PPN ditagih vendor**, dan **No. Faktur Pajak**. Isi hanya bila relevan dan mesin pajak sudah aktif."
         },
         {
           "title": "Isi Catatan dan tekan Simpan sebagai Draf",

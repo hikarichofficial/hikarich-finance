@@ -194,3 +194,32 @@ describe("InvoiceDocumentView layout (decision 321)", () => {
     expect(order(html)).not.toContain("logo"); // no logo passed
   });
 });
+
+describe("InvoiceDocumentView receipt links (decision 330)", () => {
+  const paid = doc({
+    payments: [
+      {
+        receipt_number: "RCP-2026-0001",
+        payment_date: "2026-10-07",
+        amount: "500000",
+        currency: "IDR",
+      },
+    ],
+  });
+
+  it("makes the receipt number a link when a link builder is given", () => {
+    const html = renderToStaticMarkup(
+      createElement(InvoiceDocumentView, {
+        doc: paid,
+        receiptHref: (no: string) => `/sales/invoices/x/receipt?no=${no}`,
+      }),
+    );
+    expect(html).toContain('<a href="/sales/invoices/x/receipt?no=RCP-2026-0001">');
+  });
+
+  it("keeps plain text without a link builder", () => {
+    const html = render(paid);
+    expect(html).toContain("Kuitansi RCP-2026-0001");
+    expect(html).not.toContain("receipt?no=");
+  });
+});

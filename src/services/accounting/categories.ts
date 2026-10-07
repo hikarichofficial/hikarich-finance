@@ -54,15 +54,20 @@ export async function createCategory(input: {
   name: string;
   kind: string;
   tax_category_key: string | null;
-}): Promise<void> {
+}): Promise<{ id: string; name: string; kind: string }> {
   const supabase = await createSupabaseServerClient();
-  const { error } = await supabase.from("categories").insert({
-    entity_id: uuidResultSchema.parse(input.entity_id),
-    name: input.name,
-    kind: input.kind,
-    tax_category_key: input.tax_category_key,
-  });
+  const { data, error } = await supabase
+    .from("categories")
+    .insert({
+      entity_id: uuidResultSchema.parse(input.entity_id),
+      name: input.name,
+      kind: input.kind,
+      tax_category_key: input.tax_category_key,
+    })
+    .select("id, name, kind")
+    .single();
   if (error) throw new Error(error.message);
+  return data as { id: string; name: string; kind: string };
 }
 
 export async function updateCategory(input: {

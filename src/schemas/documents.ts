@@ -47,8 +47,28 @@ export const genericLinkableTargetTypeSchema = z.enum([
 ]);
 export type GenericLinkableTargetType = z.infer<typeof genericLinkableTargetTypeSchema>;
 
-export const documentPurposeSchema = z.enum(["vendor_invoice", "receipt", "contract", "other"]);
+export const builtinDocumentPurposeSchema = z.enum([
+  "vendor_invoice",
+  "receipt",
+  "contract",
+  "other",
+]);
+export type BuiltinDocumentPurpose = z.infer<typeof builtinDocumentPurposeSchema>;
+
+/** A type the person added themselves is stored on the link as `custom:<id>` (decision 340). */
+export const CUSTOM_PURPOSE_PREFIX = "custom:";
+export const customDocumentPurposeSchema = z
+  .string()
+  .regex(/^custom:[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/);
+
+export const documentPurposeSchema = z.union([
+  builtinDocumentPurposeSchema,
+  customDocumentPurposeSchema,
+]);
 export type DocumentPurpose = z.infer<typeof documentPurposeSchema>;
+
+export const documentPurposeRowSchema = z.object({ id: z.uuid(), name: z.string() });
+export type DocumentPurposeRow = z.infer<typeof documentPurposeRowSchema>;
 
 /** The full MIME allowlist (`documents_mime_type_check`): evidence images/PDFs plus the two import file
  * types (a batch's raw upload is itself linkable evidence — Step 08 §17). */
@@ -126,7 +146,9 @@ export const documentLinkRowSchema = z.object({
   mime_type: z.string(),
   size_bytes: z.coerce.number().int().positive(),
   sha256: z.string(),
-  purpose: documentPurposeSchema,
+  // Lenient on purpose: a link made by an older version or a tax screen may carry a word this screen has no
+  // label for; it is shown as written rather than failing the whole list.
+  purpose: z.string(),
   created_at: z.string(),
 });
 export const documentLinkListSchema = z.array(documentLinkRowSchema);

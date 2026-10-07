@@ -2,6 +2,7 @@
 
 import { translateReason } from "@/domain/authz/translateReason";
 import { revalidatePath } from "next/cache";
+import type { QuickCreateCategoryState } from "./categoryActionsState";
 import { requirePermission } from "@/services/identity/access";
 import {
   createCategory,
@@ -52,6 +53,39 @@ export async function createCategoryAction(
   }
   revalidatePath("/accounting/categories");
   return { status: "ok", message: "Kategori tersimpan." };
+}
+
+/** Add a category from inside a form that is being filled in (decision 340): it hands the new category back
+ * so the line can select it in place, and never redirects. The kind comes from the line (a sale line needs a
+ * revenue category, an expense line an expense one), so the person only types a name. */
+export async function quickCreateCategoryAction(
+  _previous: QuickCreateCategoryState,
+  formData: FormData,
+): Promise<QuickCreateCategoryState> {
+  const name = text(formData, "name");
+  const kind = text(formData, "kind");
+  if (name.length < 1 || name.length > 120 || !KINDS.includes(kind)) {
+    return { status: "error", message: "Isi nama kategori (maksimal 120 karakter)." };
+  }
+  try {
+    const { membership } = await requirePermission("categories.manage", {
+      entityCode: text(formData, "entity"),
+    });
+    const created = await createCategory({
+      entity_id: membership.entity_id,
+      name,
+      kind,
+      tax_category_key: null,
+    });
+    revalidatePath("/accounting/categories");
+    return { status: "ok", category: created };
+  } catch {
+    return {
+      status: "error",
+      message:
+        "Kategori tidak dapat disimpan. Mungkin namanya sudah dipakai, atau Anda tidak berwenang menambah kategori.",
+    };
+  }
 }
 
 export async function updateCategoryAction(

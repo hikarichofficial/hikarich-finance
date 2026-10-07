@@ -1,13 +1,15 @@
 "use client";
 
 import { trimDecimalText } from "@/domain/money/format";
-import { Fragment } from "react";
+import { Fragment, useState } from "react";
 import type { CategoryRow } from "@/schemas/categories";
 import type { RecurringKind } from "@/domain/planning/planning";
 import { VAT_TREATMENT_LABELS, WHT_OBJECT_LABELS } from "@/domain/tax/tax";
 import { plainMoneyText } from "@/domain/money/typing";
 import { exactSuggestion, type LineSuggestion } from "@/domain/sales/lineSuggestions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { ContactPicker } from "@/features/contacts/ContactPicker";
+import { QuickAddCategoryDrawer } from "@/features/categories/QuickAddCategoryDrawer";
 import { LineDescriptionInput } from "./LineDescriptionInput";
 
 /**
@@ -174,8 +176,11 @@ export function RecurringLinesEditor({
   onChange,
   taxFields = false,
   suggestions = [],
+  entity,
 }: {
   kind: RecurringKind;
+  /** The active Entity code, so a category added on the spot lands in the right Entity. */
+  entity?: string;
   categories: readonly CategoryRow[];
   rows: readonly RecurringLineRow[];
   onChange: (rows: RecurringLineRow[]) => void;
@@ -184,6 +189,18 @@ export function RecurringLinesEditor({
   /** Descriptions already used before (with their last price), for the popup above the description field. */
   suggestions?: readonly LineSuggestion[];
 }) {
+  // Categories added on the spot (decision 340) are usable at once, before the page itself refreshes.
+  const [addedCategories, setAddedCategories] = useState<CategoryRow[]>([]);
+  const [addingFor, setAddingFor] = useState<{
+    rowKey: string;
+    kind: "revenue" | "expense" | "asset";
+    name: string;
+  } | null>(null);
+  const allCategories = [
+    ...categories,
+    ...addedCategories.filter((added) => !categories.some((c) => c.id === added.id)),
+  ];
+
   function addRow() {
     onChange([...rows, newRecurringLineRow(rows.length + 1)]);
   }
@@ -273,7 +290,9 @@ export function RecurringLinesEditor({
             <tbody>
               {rows.map((row) => {
                 const kindFilter = categoryKindFor(kind, row.treatment);
-                const rowCategories = categories.filter((category) => category.kind === kindFilter);
+                const rowCategories = allCategories.filter(
+                  (category) => category.kind === kindFilter,
+                );
                 return (
                   <Fragment key={row.key}>
                     <tr>
@@ -317,11 +336,19 @@ export function RecurringLinesEditor({
                         <td data-label="Perlakuan">
                           <select
                             value={row.treatment}
-                            onChange={(event) =>
+                            onChange={(event) => {
+                              const treatment = event.target.value as RecurringLineRow["treatment"];
+                              // A category of the other kind no longer fits the new treatment.
+                              const stillFits = allCategories.some(
+                                (c) =>
+                                  c.id === row.category_id &&
+                                  c.kind === categoryKindFor(kind, treatment),
+                              );
                               updateRow(row.key, {
-                                treatment: event.target.value as RecurringLineRow["treatment"],
-                              })
-                            }
+                                treatment,
+                                category_id: stillFits ? row.category_id : "",
+                              });
+                            }}
                           >
                             <option value="expense">Beban</option>
                             <option value="asset">Aset</option>
@@ -366,19 +393,27 @@ export function RecurringLinesEditor({
                         </td>
                       ) : null}
                       <td data-label="Kategori">
-                        <select
-                          value={row.category_id}
-                          onChange={(event) =>
-                            updateRow(row.key, { category_id: event.target.value })
-                          }
-                        >
-                          <option value="">Tanpa kategori</option>
-                          {rowCategories.map((category) => (
-                            <option key={category.id} value={category.id}>
-                              {category.name}
-                            </option>
-                          ))}
-                        </select>
+                        <div className="category-picker-cell">
+                          <ContactPicker
+                            label="Kategori"
+                            name={`line-category-${row.key}`}
+                            noun="kategori"
+                            optional
+                            contacts={rowCategories.map((category) => ({
+                              id: category.id,
+                              display_name: category.name,
+                            }))}
+                            value={row.category_id}
+                            onChange={(id) => updateRow(row.key, { category_id: id })}
+                            onAddNew={(typed) =>
+                              setAddingFor({
+                                rowKey: row.key,
+                                kind: kindFilter as "revenue" | "expense" | "asset",
+                                name: typed,
+                              })
+                            }
+                          />
+                        </div>
                       </td>
                       <td>
                         <button
@@ -468,6 +503,30 @@ export function RecurringLinesEditor({
           + Tambah Baris
         </button>
       </div>
+      {addingFor ? (
+        <QuickAddCategoryDrawer
+          key={`${addingFor.rowKey}-${addingFor.name}`}
+          kind={addingFor.kind}
+          entity={entity}
+          initialName={addingFor.name}
+          open
+          onClose={() => setAddingFor(null)}
+          onCreated={(created) => {
+            setAddedCategories((list) => [
+              ...list,
+              {
+                id: created.id,
+                entity_id: "",
+                name: created.name,
+                kind: created.kind as CategoryRow["kind"],
+                sort_order: 0,
+              },
+            ]);
+            updateRow(addingFor.rowKey, { category_id: created.id });
+            setAddingFor(null);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

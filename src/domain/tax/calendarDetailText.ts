@@ -29,6 +29,11 @@ export function calendarDetailText(
   if (fixed) return fixed;
   const toPay = /^(-?\d+(?:\.\d+)?) to pay by the deadline$/.exec(detail);
   if (toPay) return `${formatMoney(toPay[1], currency)} harus dibayar sebelum tenggat.`;
+  const annualTodo =
+    /^To be reported in the annual income tax return \(SPT Tahunan\) of (\d{4})$/.exec(detail);
+  if (annualTodo) return `Dilaporkan lewat SPT Tahunan PPh tahun ${annualTodo[1]}.`;
+  const annualDone = /^Reported in the annual income tax return of (\d{4})$/.exec(detail);
+  if (annualDone) return `Sudah dilaporkan lewat SPT Tahunan PPh tahun ${annualDone[1]}.`;
   const filed = /^Filed (\d{4}-\d{2}-\d{2}) \((.*)\)$/.exec(detail);
   if (filed) return `Sudah dilaporkan pada ${formatDate(filed[1])} (${filed[2]}).`;
   return detail;

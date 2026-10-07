@@ -1172,9 +1172,20 @@ begin
   perform test_helpers.assert(exists (select 1 from public.tax_calendar(pf, date '2026-05-01', date '2026-07-01')
       where tax_type = 'final_umkm' and tax_period = date '2026-05-01' and step = 'pay' and due_date = date '2026-06-15' and state = 'done'),
     '9.16 PPh Final: payment due the 15th of the following month, done');
-  perform test_helpers.assert(exists (select 1 from public.tax_calendar(pf, date '2026-05-01', date '2026-07-01')
-      where tax_type = 'final_umkm' and tax_period = date '2026-05-01' and step = 'file' and due_date = date '2026-06-20' and state = 'done'),
-    '9.17 the return is due the 20th, done');
+  perform test_helpers.assert(not exists (select 1 from public.tax_calendar(pf, date '2026-05-01', date '2026-07-01')
+      where tax_type = 'final_umkm' and tax_period = date '2026-05-01' and step = 'file'),
+    '9.17 PPh Final has no monthly return step (payment with NTPN is deemed the return, decision 341)');
+  perform test_helpers.assert(exists (select 1 from public.tax_calendar(pf, date '2027-03-01', date '2027-04-01')
+      where tax_type = 'final_umkm' and tax_period = date '2026-12-01' and step = 'file' and due_date = date '2027-04-30'),
+    '9.17b the income is reported once a year: SPT Tahunan of 2026 due 30 April 2027 for a taxpayer that is not an individual');
+  perform test_helpers.assert(not exists (select 1 from public.tax_calendar(pf, date '2027-03-01', date '2027-04-01')
+      where tax_type = 'final_umkm' and step = 'file' and tax_period <> date '2026-12-01'),
+    '9.17c no other return step for PPh Final in those months');
+  perform test_helpers.assert((select due_date from public.tax_calendar(pf, date '2026-09-01', date '2026-09-01')
+      where tax_type = 'wht_pph23' and step = 'pay' limit 1) is null
+    or (select due_date from public.tax_calendar(pf, date '2026-09-01', date '2026-09-01')
+      where tax_type = 'wht_pph23' and step = 'pay' limit 1) = date '2026-10-15',
+    '9.17d PPh 23 for September 2026 is due the 15th (PMK 81/2024), never the 10th');
   perform test_helpers.assert(exists (select 1 from public.tax_calendar(pf, date '2026-05-01', date '2026-07-01')
       where tax_type = 'final_umkm' and tax_period = date '2026-05-01' and step = 'evidence' and state = 'due'), '9.18 the missing filing receipt is a reminder');
   perform test_helpers.assert(exists (select 1 from public.tax_calendar(pf, date '2026-05-01', date '2026-07-01')
@@ -1554,8 +1565,9 @@ begin
   -- 11.8 the deadline correction: PPh 21 and PPh 23 are paid by the 15th under the rule now in force
   perform test_helpers.assert((app_private.tax_rule_at('DEADLINE_PPH21', date '2026-10-31')).params -> 'payment' ->> 'day' = '15'
     and (app_private.tax_rule_at('DEADLINE_PPH23', date '2026-10-31')).params -> 'payment' ->> 'day' = '15'
-    and (app_private.tax_rule_at('DEADLINE_PPH23', date '2026-09-30')).params -> 'payment' ->> 'day' = '10',
-    '11.8 the corrected deadline versions apply from their effective date; earlier periods keep the version they had');
+    and (app_private.tax_rule_at('DEADLINE_PPH23', date '2026-09-30')).params -> 'payment' ->> 'day' = '15'
+    and (app_private.tax_rule_at('DEADLINE_PPH23', date '2025-12-31')).params -> 'payment' ->> 'day' is null,
+    '11.8 the corrected deadline versions apply from their effective date (PPh 23 from 2 January 2026, decision 341); before the first published version there is no rule');
   -- 11.9 the rule master accepts the two families and still refuses a rule without objects
   perform test_helpers.assert(app_private.tax_rule_params_problem('pph4_2',
       '{"rate":"0.10","objects":["wht_rent_land_building"],"rounding":{"mode":"half_up","scale":0}}'::jsonb) is null

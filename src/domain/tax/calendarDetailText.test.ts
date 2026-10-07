@@ -24,6 +24,18 @@ describe("calendarDetailText", () => {
     );
   });
 
+  it("explains the yearly return of the final tax", () => {
+    expect(
+      calendarDetailText(
+        "To be reported in the annual income tax return (SPT Tahunan) of 2026",
+        "IDR",
+      ),
+    ).toBe("Dilaporkan lewat SPT Tahunan PPh tahun 2026.");
+    expect(calendarDetailText("Reported in the annual income tax return of 2026", "IDR")).toBe(
+      "Sudah dilaporkan lewat SPT Tahunan PPh tahun 2026.",
+    );
+  });
+
   it("shows a dash for nothing and an unknown sentence as it came", () => {
     expect(calendarDetailText(null, "IDR")).toBe("—");
     expect(calendarDetailText("Something new", "IDR")).toBe("Something new");

@@ -460,7 +460,13 @@ export function RecurringRuleForm({
           </>
         ) : null}
 
-        <RecurringLinesEditor kind={kind} categories={categories} rows={rows} onChange={setRows} />
+        <RecurringLinesEditor
+          kind={kind}
+          categories={categories}
+          entity={entity}
+          rows={rows}
+          onChange={setRows}
+        />
       </fieldset>
 
       {state.status === "error" ? (

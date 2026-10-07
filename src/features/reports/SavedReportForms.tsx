@@ -34,22 +34,30 @@ export function SaveReportForm({
   const [state, action, pending] = useActionState(saveReportAction, idleSavedReportState);
   const actionForm = usePreservingForm(action, state);
   return (
-    <details className="dashboard-section">
-      <summary>Simpan laporan ini</summary>
-      <form {...actionForm} className="record-form">
-        <input type="hidden" name="entity" value={entity ?? ""} />
-        <input type="hidden" name="path" value={path} />
-        <input type="hidden" name="query" value={query} />
-        <label>
-          Nama laporan
-          <input name="name" required minLength={2} maxLength={120} />
-        </label>
-        <button type="submit" className="btn-secondary" disabled={pending}>
-          {pending ? "Menyimpan…" : "Simpan"}
-        </button>
-        <Result state={state} />
-      </form>
-    </details>
+    <div className="list-screen no-print">
+      <details className="dashboard-section">
+        <summary>Simpan laporan ini</summary>
+        <p className="hint">
+          Menyimpan nama dan pilihan laporan ini (jenis laporan dan tanggalnya) sebagai pintasan di
+          Laporan &gt; Laporan Tersimpan. Isi laporan selalu dibaca ulang dari data terbaru saat
+          dibuka; tidak ada salinan angka yang disimpan. Untuk menyimpan sebagai berkas, pakai Cetak
+          / simpan PDF atau Unduh CSV di atas.
+        </p>
+        <form {...actionForm} className="record-form">
+          <input type="hidden" name="entity" value={entity ?? ""} />
+          <input type="hidden" name="path" value={path} />
+          <input type="hidden" name="query" value={query} />
+          <label>
+            Nama laporan
+            <input name="name" required minLength={2} maxLength={120} />
+          </label>
+          <button type="submit" className="btn-secondary" disabled={pending}>
+            {pending ? "Menyimpan…" : "Simpan"}
+          </button>
+          <Result state={state} />
+        </form>
+      </details>
+    </div>
   );
 }
 

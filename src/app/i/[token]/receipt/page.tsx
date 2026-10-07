@@ -5,7 +5,7 @@ import { ReceiptDocumentView } from "@/features/sales/ReceiptDocumentView";
 import { getPublicReceipt } from "@/services/sales/public";
 
 export const metadata: Metadata = {
-  title: "Kwitansi",
+  title: "Kuitansi",
   robots: { index: false, follow: false },
   referrer: "no-referrer",
 };

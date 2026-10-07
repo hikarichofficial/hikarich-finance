@@ -110,7 +110,7 @@ export function InvoiceDocumentView({
   layout?: InvoiceLayout | null;
   /** The settings editor wraps every block to make it draggable; the document itself never uses this. */
   wrapBlock?: (setting: InvoiceBlockSetting, node: ReactNode) => ReactNode;
-  /** Builds the link of a payment receipt from its number (customer page only). */
+  /** Builds the link of a payment receipt from its number (public page and internal invoice page). */
   receiptHref?: (receiptNumber: string) => string;
 }) {
   const { issuer, customer, payment_instructions: instructions } = doc;
@@ -267,10 +267,10 @@ export function InvoiceDocumentView({
                 {formatMoney(payment.amount, payment.currency)}{" "}
                 {receiptHref ? (
                   <a href={receiptHref(payment.receipt_number)}>
-                    Kwitansi {payment.receipt_number}
+                    Kuitansi {payment.receipt_number}
                   </a>
                 ) : (
-                  <span>Kwitansi {payment.receipt_number}</span>
+                  <span>Kuitansi {payment.receipt_number}</span>
                 )}
               </li>
             ))}

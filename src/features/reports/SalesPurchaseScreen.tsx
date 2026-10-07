@@ -11,6 +11,7 @@ import type {
   SalesPurchaseSide,
 } from "@/schemas/reports";
 import { formatShortDate } from "./format";
+import { ReportExportButtons } from "./ReportExportButtons";
 
 /**
  * Sales/Purchase report (Step 09 §19, decision 252): issued invoices (sales) or approved bills and
@@ -48,6 +49,7 @@ export function SalesPurchaseScreen({
             tagihan disetujui dan beban dikonfirmasi.
           </p>
         </div>
+        <ReportExportButtons fileName={`laporan-${side === "sales" ? "penjualan" : "pembelian"}`} />
       </header>
 
       <div className="list-screen-toolbar">
@@ -93,48 +95,50 @@ export function SalesPurchaseScreen({
           <p>Tidak ada transaksi pada periode ini.</p>
         </div>
       ) : (
-        <table className="record-table">
-          <thead>
-            <tr>
-              <th scope="col">{DIMENSION_LABELS[dimension]}</th>
-              <th scope="col" className="num">
-                Dokumen
-              </th>
-              <th scope="col" className="num">
-                Sebelum Pajak
-              </th>
-              <th scope="col" className="num">
-                Termasuk Pajak
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {rows.map((r, i) => (
-              <tr key={`${r.dimension_id ?? "none"}-${r.period_month ?? i}`}>
-                <td>{r.dimension_label}</td>
-                <td className="num">{r.document_count}</td>
-                <td className="num">{formatMoney(r.net_amount, currency)}</td>
-                <td className="num">{formatMoney(r.gross_amount, currency)}</td>
+        <div data-report-root>
+          <table className="record-table">
+            <thead>
+              <tr>
+                <th scope="col">{DIMENSION_LABELS[dimension]}</th>
+                <th scope="col" className="num">
+                  Dokumen
+                </th>
+                <th scope="col" className="num">
+                  Sebelum Pajak
+                </th>
+                <th scope="col" className="num">
+                  Termasuk Pajak
+                </th>
               </tr>
-            ))}
-          </tbody>
-          <tfoot>
-            <tr>
-              <td>
-                <strong>Total</strong>
-              </td>
-              <td className="num">
-                <strong>{totals.documents}</strong>
-              </td>
-              <td className="num">
-                <strong>{formatMoney(totals.net, currency)}</strong>
-              </td>
-              <td className="num">
-                <strong>{formatMoney(totals.gross, currency)}</strong>
-              </td>
-            </tr>
-          </tfoot>
-        </table>
+            </thead>
+            <tbody>
+              {rows.map((r, i) => (
+                <tr key={`${r.dimension_id ?? "none"}-${r.period_month ?? i}`}>
+                  <td>{r.dimension_label}</td>
+                  <td className="num">{r.document_count}</td>
+                  <td className="num">{formatMoney(r.net_amount, currency)}</td>
+                  <td className="num">{formatMoney(r.gross_amount, currency)}</td>
+                </tr>
+              ))}
+            </tbody>
+            <tfoot>
+              <tr>
+                <td>
+                  <strong>Total</strong>
+                </td>
+                <td className="num">
+                  <strong>{totals.documents}</strong>
+                </td>
+                <td className="num">
+                  <strong>{formatMoney(totals.net, currency)}</strong>
+                </td>
+                <td className="num">
+                  <strong>{formatMoney(totals.gross, currency)}</strong>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
       )}
     </div>
   );

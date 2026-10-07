@@ -125,7 +125,7 @@ export function invoiceActivityTimeline(doc: InvoiceDocument): InvoiceActivityEn
   }
   for (const payment of doc.payments) {
     entries.push({
-      label: `Pembayaran diterima (Kwitansi ${payment.receipt_number})`,
+      label: `Pembayaran diterima (Kuitansi ${payment.receipt_number})`,
       date: payment.payment_date,
       tone: "success",
     });

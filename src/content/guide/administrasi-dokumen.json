@@ -610,11 +610,11 @@
       "steps": [
         {
           "title": "Buka detail catatan yang akan dilampiri",
-          "text": "Buka **Penjualan > Invoice**, **Pembelian > Tagihan**, atau **Pembelian > Beban**, lalu klik catatannya. Gulir ke bagian **Lampiran**. Tabelnya memuat **Berkas**, **Jenis**, **Ukuran**, dan **Tindakan**; bila belum ada tertulis “Belum ada lampiran.”"
+          "text": "Buka **Penjualan > Invoice**, **Pembelian > Tagihan**, atau **Pembelian > Beban**, lalu klik catatannya. Gulir ke bagian **Dokumen**; **Lampiran** ada tepat di bawah tampilan dokumennya. Tabelnya memuat **Berkas**, **Jenis**, **Ukuran**, dan **Tindakan**; bila belum ada tertulis “Belum ada lampiran.”"
         },
         {
           "title": "Pilih berkas dan jenisnya",
-          "text": "Pada **Berkas (PDF, JPG, PNG atau WebP, maksimal 4 MB)** pilih berkas. Pilih **Jenis lampiran**: Invoice vendor, Kuitansi, Kontrak, atau Lainnya. Pilihan awalnya Invoice vendor di Tagihan, Kuitansi di Beban, dan Lainnya di Invoice. Tekan **Lampirkan**. Bila berhasil tampil “Lampiran tersimpan.”",
+          "text": "Pada **Berkas (PDF, JPG, PNG atau WebP, maksimal 4 MB)** pilih berkas. Pilih **Jenis lampiran**: Invoice vendor, Kuitansi, Kontrak, Lainnya, atau jenis yang Anda tambahkan sendiri. Bila jenisnya belum ada, pilih **+ Tambah jenis lampiran…**, ketik namanya (mis. Surat Jalan), lalu tekan **Simpan Jenis**; jenis baru langsung terpilih dan bisa dipakai di semua catatan Entity ini. Pilihan awalnya Invoice vendor di Tagihan, Kuitansi di Beban, dan Lainnya di Invoice. Tekan **Lampirkan**. Bila berhasil tampil “Lampiran tersimpan.”",
           "tip": "Berkas dengan isi yang sama di Entity yang sama dianggap satu dokumen dan hanya disimpan sekali."
         },
         {
@@ -720,7 +720,7 @@
         },
         {
           "title": "Kerjakan langkahnya",
-          "text": "Langkah **Hitung** untuk PPh Final UMKM dikerjakan di Pajak > PPh Final. Langkah **Bayar**, **Lapor**, dan **Bukti** dikerjakan di Pajak > Pelaporan & Bukti. Panduannya ada di [Cara Mencatat Pembayaran Pajak dan Pelaporan](bayar-pajak)."
+          "text": "Langkah **Hitung** untuk PPh Final UMKM dikerjakan di Pajak > PPh Final, setelah bulannya berakhir. Langkah **Bayar**, **Lapor**, dan **Bukti** dikerjakan di Pajak > Pelaporan & Bukti. PPh Final UMKM tidak punya langkah Lapor bulanan: membayar dengan kode billing dan NTPN sudah dianggap lapor masa, dan penghasilannya dilaporkan setahun sekali di SPT Tahunan (baris Lapor muncul di bulan Maret untuk orang pribadi dan April untuk wajib pajak lain). Panduannya ada di [Cara Mencatat Pembayaran Pajak dan Pelaporan](bayar-pajak)."
         },
         {
           "title": "Pantau juga dari Ringkasan Pajak",
@@ -772,7 +772,8 @@
       ],
       "result": ["Anda tahu langkah pajak mana yang harus segera dikerjakan atau sudah terlambat."],
       "rules": [
-        "Kalender hanya memuat tiga jenis pajak: PPN, PPh 23 (dipotong), dan PPh Final UMKM. PPh 4(2), PPh 26, dan PPh 21 tidak masuk kalender.",
+        "Kalender memuat PPN, PPh 23 (dipotong), PPh 4(2), PPh 26, PPh 21, dan PPh Final UMKM.",
+        "Tenggat setor PPh Final UMKM, PPh 23, PPh 4(2), PPh 26, dan PPh 21 adalah tanggal 15 bulan berikutnya (PMK 81/2024 Pasal 94 ayat 2); PPN paling lambat akhir bulan berikutnya. Tenggat yang jatuh pada hari libur bergeser ke hari kerja berikutnya, tetapi kalender menampilkan tanggal aslinya.",
         "Baris hanya muncul untuk masa yang relevan: ada pajak yang diakui atau dibayar, sudah ada pelaporan, atau Entity berstatus PKP atau PPh Final UMKM sejak mesin pajak aktif.",
         "Tanggal jatuh tempo berasal dari aturan tenggat di menu Aturan Pajak.",
         "Kolom Keterangan menjelaskan langkahnya dalam kalimat singkat (misalnya “Sudah dibayar.” atau “SPT masa ini belum tercatat sudah dilaporkan.”).",

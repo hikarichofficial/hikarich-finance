@@ -54,6 +54,11 @@ export default async function InvoiceDetailPage({
   const selfHref = entity
     ? `/sales/invoices/${id}?entity=${encodeURIComponent(entity)}`
     : `/sales/invoices/${id}`;
+  const receiptHref = (receiptNumber: string) =>
+    `/sales/invoices/${id}/receipt?${new URLSearchParams({
+      ...(entity ? { entity } : {}),
+      no: receiptNumber,
+    }).toString()}`;
   const claimsHref = entity
     ? `/sales/claims?entity=${encodeURIComponent(entity)}`
     : "/sales/claims";
@@ -87,6 +92,19 @@ export default async function InvoiceDetailPage({
         invoiceId={id}
         doc={doc}
         logo={logo}
+        receiptHref={receiptHref}
+        documents={
+          <AttachmentsSection
+            embedded
+            entityId={membership.entity_id}
+            entity={entity}
+            targetType="invoice"
+            targetId={id}
+            returnPath={`/sales/invoices/${id}`}
+            canUpload={can(access, membership.entity_id, "documents.upload")}
+            defaultPurpose="other"
+          />
+        }
         layout={layout}
         backHref={backHref}
         taxPanel={
@@ -152,15 +170,6 @@ export default async function InvoiceDetailPage({
             emptyText="Invoice ini belum pernah dikirim lewat email."
           />
         ) : null}
-        <AttachmentsSection
-          entityId={membership.entity_id}
-          entity={entity}
-          targetType="invoice"
-          targetId={id}
-          returnPath={`/sales/invoices/${id}`}
-          canUpload={can(access, membership.entity_id, "documents.upload")}
-          defaultPurpose="other"
-        />
       </div>
     </>
   );

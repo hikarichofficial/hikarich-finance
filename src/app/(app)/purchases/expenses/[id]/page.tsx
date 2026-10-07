@@ -56,18 +56,19 @@ export default async function ExpenseDetailPage({
         entity={entity}
         backHref={backHref}
         canEdit={can(access, entityId, "bills.edit")}
+        documents={
+          <AttachmentsSection
+            embedded
+            entityId={membership.entity_id}
+            entity={entity}
+            targetType="expense"
+            targetId={id}
+            returnPath={`/purchases/expenses/${id}`}
+            canUpload={can(access, membership.entity_id, "documents.upload")}
+            defaultPurpose="receipt"
+          />
+        }
       />
-      <div className="record-detail">
-        <AttachmentsSection
-          entityId={membership.entity_id}
-          entity={entity}
-          targetType="expense"
-          targetId={id}
-          returnPath={`/purchases/expenses/${id}`}
-          canUpload={can(access, membership.entity_id, "documents.upload")}
-          defaultPurpose="receipt"
-        />
-      </div>
     </>
   );
 }

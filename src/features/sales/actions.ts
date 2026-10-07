@@ -415,7 +415,7 @@ export async function confirmClaimAction(
   revalidatePath("/sales/claims");
   revalidatePath("/sales/invoices");
   revalidatePath("/sales/payments");
-  return { status: "ok", message: "Pembayaran dikonfirmasi dan kwitansi terbit." };
+  return { status: "ok", message: "Pembayaran dikonfirmasi dan kuitansi terbit." };
 }
 
 /** Reject a pending claim: no financial effect; the reason is kept. */

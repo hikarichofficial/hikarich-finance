@@ -29,7 +29,7 @@ export function ReceiptDocumentView({
   const method = receipt.method;
   const status = paymentReceiptStatus(receipt);
   return (
-    <article className="doc" aria-label={`Kwitansi ${receipt.receipt_number}`}>
+    <article className="doc" aria-label={`Kuitansi ${receipt.receipt_number}`}>
       <header className="doc-head">
         <div className="doc-issuer">
           <DocumentLogo logo={logo} />
@@ -37,7 +37,7 @@ export function ReceiptDocumentView({
           {names.secondary ? <p>{names.secondary}</p> : null}
         </div>
         <div className="doc-title">
-          <p className="doc-kind">KWITANSI</p>
+          <p className="doc-kind">KUITANSI</p>
           <p className="doc-number">{receipt.receipt_number}</p>
           <span className={`doc-status doc-status-${status.tone}`}>{status.text}</span>
         </div>
