@@ -12,7 +12,8 @@ import {
 } from "react";
 import { StepUpLink } from "@/features/feedback/StepUp";
 import { useActionState } from "@/features/feedback/useActionState";
-import { InvoiceDocumentView, placementStyle } from "@/features/sales/InvoiceDocumentView";
+import { InvoiceDocumentView } from "@/features/sales/InvoiceDocumentView";
+import { alignmentGuides, type AlignmentGuide } from "@/domain/sales/invoiceGuides";
 import {
   BLOCK_INFO,
   GRID_COLUMNS,
@@ -26,6 +27,7 @@ import {
   centerBlock,
   dropBlock,
   isDefaultLayout,
+  laneRoom,
   pageMargins,
   parseInvoiceLayout,
   placementBounds,
@@ -39,14 +41,25 @@ import { InvoiceIssuerFields, type IssuerDraft } from "./InvoiceIssuerFields";
 import { idleTimeSettingsState } from "./actionsState";
 
 /** The gap between two grid columns of the document, in pixels (`--doc-gap` in the stylesheet). */
-const GAP = 16;
+const GAP = 8;
 
 const ALIGN_LABEL: Record<BlockAlign, string> = { left: "Kiri", center: "Tengah", right: "Kanan" };
 
-/** What the person is about to do with the dragged block, and the box that shows it on the page. */
+/** What the person is about to do with the dragged block, the box or line that shows it on the page, and the
+ * smart guides of the place where the block would land. */
 interface DropPreview {
-  drop: DropTarget | { mode: "self"; col: number };
+  drop: DropTarget;
+  kind: "line" | "box";
   box: CSSProperties;
+  col: number;
+  span: number;
+  lines: GuideLine[];
+}
+
+/** A smart guide and where to draw it (pixels from the left edge of the page). */
+interface GuideLine {
+  guide: AlignmentGuide;
+  left: number;
 }
 
 /** A grey stand-in so the preview shows where the logo goes when none is uploaded yet. */
@@ -105,7 +118,9 @@ export function InvoiceLayoutEditor({
   const [preview, setPreview] = useState<DropPreview | null>(null);
   const [guides, setGuides] = useState(true);
   const [state, action, pending] = useActionState(saveInvoiceLayoutAction, idleTimeSettingsState);
-  const areaRef = useRef<HTMLDivElement>(null);
+  const [resizing, setResizing] = useState(false);
+  const [resizeLines, setResizeLines] = useState<GuideLine[]>([]);
+  const wrapRef = useRef<HTMLDivElement>(null);
 
   const dirty =
     JSON.stringify(parseInvoiceLayout(layout)) !== JSON.stringify(parseInvoiceLayout(saved));
@@ -116,25 +131,45 @@ export function InvoiceLayoutEditor({
   const bounds = placementBounds(layout, selected);
   const margins = pageMargins(layout, selected);
 
-  /** The grid column (1-12) under a horizontal pointer position, from where the document's rows are on screen. */
+  /** Where the document's rows are on screen, and the width of one column. */
+  function metrics() {
+    const wrap = wrapRef.current;
+    const rowsEl = wrap?.querySelector<HTMLElement>(".doc-rows");
+    if (!wrap || !rowsEl) return null;
+    const wrapBox = wrap.getBoundingClientRect();
+    const rowsBox = rowsEl.getBoundingClientRect();
+    const column = (rowsBox.width - GAP * (GRID_COLUMNS - 1)) / GRID_COLUMNS;
+    return { wrapBox, rowsBox, rowsEl, column, pitch: column + GAP };
+  }
+
+  /** The grid column (1-24) under a horizontal pointer position. */
   function columnAt(clientX: number): number {
-    const rows = areaRef.current?.querySelector(".doc-rows");
-    if (!rows) return 1;
-    const box = rows.getBoundingClientRect();
-    const column = (box.width - GAP * (GRID_COLUMNS - 1)) / GRID_COLUMNS;
-    const at = Math.floor((clientX - box.left + GAP / 2) / (column + GAP)) + 1;
+    const m = metrics();
+    if (!m) return 1;
+    const at = Math.floor((clientX - m.rowsBox.left + GAP / 2) / m.pitch) + 1;
     return Math.max(1, Math.min(GRID_COLUMNS, at));
+  }
+
+  /** The smart guides of a block at its place in a layout, with where to draw each line. */
+  function guideLines(source: InvoiceLayout, id: InvoiceBlockId): GuideLine[] {
+    const m = metrics();
+    if (!m) return [];
+    const origin = m.rowsBox.left - m.wrapBox.left;
+    return alignmentGuides(source, id).map((guide) => ({
+      guide,
+      left:
+        origin +
+        guide.at * m.pitch -
+        (guide.edge === "right" ? GAP : guide.edge === "center" ? GAP / 2 : 0),
+    }));
   }
 
   /** Works out what dropping at this pointer position would do, and where to draw it. */
   function locate(clientX: number, clientY: number, id: InvoiceBlockId): DropPreview | null {
-    const area = areaRef.current;
-    const rowsEl = area?.querySelector(".doc-rows");
-    if (!area || !rowsEl) return null;
-    const rowEls = Array.from(rowsEl.querySelectorAll<HTMLElement>(".doc-row"));
+    const m = metrics();
+    if (!m) return null;
+    const rowEls = Array.from(m.rowsEl.querySelectorAll<HTMLElement>(".doc-row"));
     if (rowEls.length === 0) return null;
-    const areaBox = area.getBoundingClientRect();
-    const rowsBox = rowsEl.getBoundingClientRect();
     let best: { el: HTMLElement; distance: number } | null = null;
     for (const el of rowEls) {
       const box = el.getBoundingClientRect();
@@ -144,60 +179,87 @@ export function InvoiceLayoutEditor({
     }
     const rowEl = best!.el;
     const box = rowEl.getBoundingClientRect();
-    const keys = (rowEl.dataset.blocks ?? "").split(" ") as InvoiceBlockId[];
-    const others = keys.filter((key) => key !== id);
+    const rowId = Number(rowEl.dataset.rowId);
+    const keys = (rowEl.dataset.blocks ?? "").split(" ");
     const column = columnAt(clientX);
-    const columnWidth = (rowsBox.width - GAP * (GRID_COLUMNS - 1)) / GRID_COLUMNS;
-    const place = (col: number, span: number): CSSProperties => ({
-      left: rowsBox.left - areaBox.left + (col - 1) * (columnWidth + GAP),
-      width: span * columnWidth + (span - 1) * GAP,
-      top: box.top - areaBox.top,
+    const left = m.rowsBox.left - m.wrapBox.left;
+    const columnBox = (col: number, span: number): CSSProperties => ({
+      left: left + (col - 1) * m.pitch,
+      width: span * m.column + (span - 1) * GAP,
+      top: box.top - m.wrapBox.top,
       height: box.height,
     });
-    const line = (above: boolean): CSSProperties => ({
-      left: rowsBox.left - areaBox.left,
-      width: rowsBox.width,
-      top: (above ? box.top - GAP / 2 : box.bottom + GAP / 2) - areaBox.top - 2,
+    const lineBox = (y: number, from: number, width: number): CSSProperties => ({
+      left: from,
+      width,
+      top: y - m.wrapBox.top - 2,
       height: 4,
     });
+    const finish = (
+      drop: DropTarget,
+      kind: "line" | "box",
+      boxStyle: CSSProperties,
+    ): DropPreview => {
+      const after = dropBlock(layout, id, drop);
+      const moved = after.blocks.find((entry) => entry.key === id)!;
+      return {
+        drop,
+        kind,
+        box: boxStyle,
+        col: moved.col,
+        span: moved.span,
+        lines: guideLines(after, id),
+      };
+    };
+    const rowDrop = (at: "before" | "after") =>
+      finish(
+        { mode: "row", at, row: rowId, col: column },
+        "line",
+        lineBox(at === "before" ? box.top - 6 : box.bottom + 6, left, m.rowsBox.width),
+      );
 
-    if (others.length === 0) {
-      // The block is alone in this row: it can only slide sideways (the item table and totals cannot).
-      if (BLOCK_INFO[id].fixedWidth) return null;
-      const next = setPlacement(layout, id, { col: column });
-      const moved = next.blocks.find((entry) => entry.key === id)!;
-      return { drop: { mode: "self", col: column }, box: place(moved.col, moved.span) };
+    // The item table takes a whole row; so does a block dragged over the row that holds it.
+    if (BLOCK_INFO[id].fixedWidth || keys.includes("lines")) {
+      return rowDrop(clientY < box.top + box.height / 2 ? "before" : "after");
     }
-    const target = others[0]!;
-    const relative = (clientY - box.top) / Math.max(1, box.height);
-    const rowIsFull = others.some((key) => BLOCK_INFO[key].fixedWidth) || BLOCK_INFO[id].fixedWidth;
-    const mode: "before" | "after" | "into" = rowIsFull
-      ? relative < 0.5
-        ? "before"
-        : "after"
-      : relative < 0.25
-        ? "before"
-        : relative > 0.75
-          ? "after"
-          : "into";
-    if (mode === "before" || mode === "after") {
-      return { drop: { mode, target, col: column }, box: line(mode === "before") };
-    }
-    const drop: DropTarget = { mode: "into", target, col: column };
-    const result = dropBlock(layout, id, drop);
-    const moved = result.blocks.find((entry) => entry.key === id)!;
-    const anchor = result.blocks.find((entry) => entry.key === target)!;
-    // When the wanted columns were taken the block went to a row of its own below: show that as a line.
-    return { drop, box: moved.row === anchor.row ? place(moved.col, moved.span) : line(false) };
-  }
+    const edge = Math.min(12, box.height * 0.25);
+    if (clientY < box.top + edge) return rowDrop("before");
+    if (clientY > box.bottom - edge) return rowDrop("after");
 
-  function applyDrop(id: InvoiceBlockId, result: DropPreview) {
-    setLayout((previous) =>
-      result.drop.mode === "self"
-        ? setPlacement(previous, id, { col: result.drop.col })
-        : dropBlock(previous, id, result.drop),
-    );
-    setSelected(id);
+    const lanes = Array.from(rowEl.querySelectorAll<HTMLElement>(".doc-lane"));
+    const lane = lanes.find((el) => {
+      const first = Number(el.dataset.col);
+      return column >= first && column <= first + Number(el.dataset.span) - 1;
+    });
+    if (lane) {
+      const cells = Array.from(lane.querySelectorAll<HTMLElement>(".doc-cell")).filter(
+        (el) => el.dataset.block !== id,
+      );
+      if (cells.length > 0) {
+        // Stack above the first block whose middle is below the pointer, else under the last one.
+        const next = cells.find((el) => {
+          const cell = el.getBoundingClientRect();
+          return clientY < cell.top + cell.height / 2;
+        });
+        const target = (next ?? cells[cells.length - 1])!;
+        const at = next ? "before" : "after";
+        const cell = target.getBoundingClientRect();
+        const laneBox = lane.getBoundingClientRect();
+        return finish(
+          { mode: "stack", at, target: target.dataset.block as InvoiceBlockId },
+          "line",
+          lineBox(
+            at === "before" ? cell.top - 5 : cell.bottom + 5,
+            laneBox.left - m.wrapBox.left,
+            laneBox.width,
+          ),
+        );
+      }
+    }
+    // Empty columns (or the block's own lane): a lane of its own, where there is room.
+    const room = laneRoom(layout, id, rowId, column);
+    if (!room) return rowDrop("after");
+    return finish({ mode: "lane", row: rowId, col: column }, "box", columnBox(room.col, room.span));
   }
 
   function onAreaDragOver(event: DragEvent<HTMLElement>) {
@@ -212,34 +274,43 @@ export function InvoiceLayoutEditor({
     if (!dragging) return;
     event.preventDefault();
     const result = locate(event.clientX, event.clientY, dragging);
-    if (result) applyDrop(dragging, result);
+    if (result) {
+      const id = dragging;
+      setLayout((previous) => dropBlock(previous, id, result.drop));
+      setSelected(id);
+    }
     setDragging(null);
     setPreview(null);
   }
 
-  /** Drags the left or right edge of the selected block; the block snaps to whole columns. */
+  /** Drags the left or right edge of the selected block's lane; it snaps to whole columns. */
   function startResize(edge: "left" | "right", event: ReactPointerEvent<HTMLElement>) {
     event.preventDefault();
     event.stopPropagation();
     const id = selected;
+    let latest = layout;
+    setResizing(true);
     const move = (pointer: PointerEvent) => {
       const column = columnAt(pointer.clientX);
-      setLayout((previous) => {
-        const me = previous.blocks.find((entry) => entry.key === id);
-        if (!me) return previous;
-        const limits = placementBounds(previous, id);
-        const end = me.col + me.span - 1;
-        if (edge === "left") {
-          const col = Math.max(limits.min, Math.min(column, end));
-          return setPlacement(previous, id, { col, span: end - col + 1 });
-        }
+      const me = latest.blocks.find((entry) => entry.key === id);
+      if (!me) return;
+      const limits = placementBounds(latest, id);
+      const end = me.col + me.span - 1;
+      if (edge === "left") {
+        const col = Math.max(limits.min, Math.min(column, end));
+        latest = setPlacement(latest, id, { col, span: end - col + 1 });
+      } else {
         const last = Math.max(me.col, Math.min(column, limits.max));
-        return setPlacement(previous, id, { span: last - me.col + 1 });
-      });
+        latest = setPlacement(latest, id, { span: last - me.col + 1 });
+      }
+      setLayout(latest);
+      setResizeLines(guideLines(latest, id));
     };
     const up = () => {
       window.removeEventListener("pointermove", move);
       window.removeEventListener("pointerup", up);
+      setResizing(false);
+      setResizeLines([]);
     };
     window.addEventListener("pointermove", move);
     window.addEventListener("pointerup", up);
@@ -266,7 +337,6 @@ export function InvoiceLayoutEditor({
     return (
       <div
         className="lay-block"
-        style={placementStyle(setting)}
         data-selected={selected === id ? "true" : undefined}
         data-dragging={dragging === id ? "true" : undefined}
         data-block={id}
@@ -334,6 +404,28 @@ export function InvoiceLayoutEditor({
 
   const columns = Array.from({ length: GRID_COLUMNS }, (_, index) => index + 1);
   const balanced = margins.left === margins.right;
+  const activeLines: GuideLine[] = guides
+    ? preview
+      ? preview.lines
+      : resizing
+        ? resizeLines
+        : []
+    : [];
+  const shown = preview ?? (resizing ? { col: current.col, span: current.span } : null);
+  const statusText =
+    activeLines.length > 0
+      ? activeLines.map(({ guide }) => guide.label).join(" · ")
+      : shown
+        ? `Jarak kiri ${shown.col - 1} kolom · kanan ${GRID_COLUMNS - (shown.col + shown.span - 1)} kolom`
+        : "Seret bagian ke posisi baru; garis bantu muncul saat posisinya pas.";
+  const mates = layout.blocks.filter(
+    (block) =>
+      block.show &&
+      block.key !== selected &&
+      block.row === current.row &&
+      block.col === current.col &&
+      block.span === current.span,
+  );
 
   return (
     <div className="lay-editor">
@@ -349,10 +441,11 @@ export function InvoiceLayoutEditor({
         />
         <p className="hint">
           Contoh tampilan: data perusahaan di atas asli, pelanggan dan rincian hanya contoh. Seret
-          bagian mana pun ke posisi yang diinginkan: lepas di atas atau bawah baris untuk membuat
-          baris baru, atau di dalam baris pada kolom yang dituju. Tarik tepi kiri/kanan bagian yang
-          dipilih untuk mengubah lebarnya. Semua menempel ke 12 kolom sehingga selalu rapi dan tidak
-          bertumpuk.
+          bagian mana pun: lepas di ruang kosong untuk menaruhnya di kolom itu, di bawah atau di
+          atas bagian lain untuk menumpuknya (misalnya tepat di bawah nama PT), atau di garis tepi
+          atas dan bawah baris untuk membuat baris baru. Tarik tepi kiri/kanan bagian yang dipilih
+          untuk mengubah lebarnya. Garis merah muncul saat posisinya pas di tengah halaman, di tepi,
+          atau sejajar dengan bagian lain. Semua menempel ke 24 kolom sehingga selalu rapi.
         </p>
         <label className="lay-guides-toggle">
           <input
@@ -362,9 +455,16 @@ export function InvoiceLayoutEditor({
           />{" "}
           Tampilkan penggaris dan garis bantu
         </label>
+        <p
+          className="lay-status"
+          role="status"
+          aria-live="polite"
+          data-snapped={activeLines.length > 0 ? "true" : undefined}
+        >
+          {statusText}
+        </p>
         <div
           className="lay-area"
-          ref={areaRef}
           onDragOver={onAreaDragOver}
           onDrop={onAreaDrop}
           onDragLeave={(event) => {
@@ -396,7 +496,7 @@ export function InvoiceLayoutEditor({
               </div>
             </div>
           ) : null}
-          <div className="lay-doc-wrap">
+          <div className="lay-doc-wrap" ref={wrapRef}>
             <InvoiceDocumentView
               doc={liveSample}
               logo={logo ?? PLACEHOLDER_LOGO}
@@ -418,14 +518,13 @@ export function InvoiceLayoutEditor({
               </div>
             ) : null}
             {preview ? (
-              <div
-                className="lay-drop"
-                data-kind={
-                  preview.drop.mode === "before" || preview.drop.mode === "after" ? "line" : "box"
-                }
-                style={preview.box}
-              />
+              <div className="lay-drop" data-kind={preview.kind} style={preview.box} />
             ) : null}
+            {activeLines.map(({ guide, left }) => (
+              <div key={`${guide.edge}:${guide.at}`} className="lay-guide" style={{ left }}>
+                <span>{guide.label}</span>
+              </div>
+            ))}
           </div>
         </div>
       </div>
@@ -442,11 +541,11 @@ export function InvoiceLayoutEditor({
         </p>
 
         <fieldset className="lay-group">
-          <legend>Posisi di halaman (12 kolom)</legend>
+          <legend>Posisi di halaman (24 kolom)</legend>
           {info.fixedWidth ? (
             <p className="hint">
-              Bagian ini selalu selebar halaman (tabel) atau selebar kotak total; pindahkan naik
-              atau turun saja.
+              Tabel item selalu selebar halaman dan berada di barisnya sendiri; pindahkan naik atau
+              turun saja.
             </p>
           ) : (
             <>
@@ -500,6 +599,12 @@ export function InvoiceLayoutEditor({
               </div>
             </>
           )}
+          {mates.length > 0 ? (
+            <p className="hint">
+              Satu kolom dengan {mates.map((block) => BLOCK_INFO[block.key].label).join(", ")}:
+              lebar dan posisi kolom berlaku untuk semuanya. Seret keluar untuk memisahkan.
+            </p>
+          ) : null}
           <p className="hint" data-balanced={balanced ? "true" : "false"}>
             Kolom {current.col}–{current.col + current.span - 1}. Ruang kosong di kiri{" "}
             {margins.left} kolom, di kanan {margins.right} kolom
@@ -525,7 +630,7 @@ export function InvoiceLayoutEditor({
         </fieldset>
 
         <fieldset className="lay-group">
-          <legend>Urutan (untuk layar sentuh)</legend>
+          <legend>Urutan (layar sentuh)</legend>
           <div className="lay-segment">
             <button type="button" onClick={() => setLayout(shiftRow(layout, selected, "up"))}>
               Naik

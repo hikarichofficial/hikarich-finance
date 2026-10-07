@@ -495,21 +495,25 @@ body {
   text-align: right;
 }
 
+/* Compact item table (OWNER, 7 October 2026): smaller text and tighter rows so many products still fit one page. */
 .doc-lines {
   width: 100%;
   border-collapse: collapse;
+  font-size: 0.8125rem;
+  line-height: 1.35;
 }
 
 .doc-lines th,
 .doc-lines td {
-  padding: 10px 8px;
+  padding: 5px 8px;
   text-align: left;
   border-bottom: 1px solid var(--doc-line);
   vertical-align: top;
 }
 
 .doc-lines th {
-  font-size: 0.75rem;
+  padding-block: 6px;
+  font-size: 0.6875rem;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--doc-text-secondary);
@@ -521,14 +525,14 @@ body {
   white-space: nowrap;
 }
 
-/* Totals sit under the item table, flush with its right edge (the Total column): each row is a label on the
- * left and an amount on the right of one 360px block. `.doc .doc-totals` outranks `.doc dl` (a plain two
- * column grid with no margin), which used to win and left this block at the left edge. */
+/* The totals fill their lane (decision 319; the owner sets the lane's width): each row is a label on the left and an
+ * amount on the right. `.doc .doc-totals` outranks `.doc dl` (a plain two column grid with no margin). */
 .doc .doc-totals {
   display: block;
-  width: min(100%, 360px);
-  margin: 20px 0 0 auto;
+  width: 100%;
+  margin: 0;
   padding-right: 8px;
+  font-size: 0.8125rem;
   font-variant-numeric: tabular-nums;
 }
 
@@ -536,7 +540,7 @@ body {
   display: flex;
   justify-content: space-between;
   gap: 24px;
-  padding: 4px 0;
+  padding: 2px 0;
 }
 
 .doc-totals dt,
@@ -545,8 +549,8 @@ body {
 }
 
 .doc-totals .grand {
-  margin-top: 4px;
-  padding-top: 8px;
+  margin-top: 3px;
+  padding-top: 5px;
   border-top: 1px solid var(--doc-line);
   font-weight: 600;
 }
@@ -578,30 +582,36 @@ body {
   max-height: 120px;
 }
 
-/* The invoice document is a stack of rows on a grid of twelve columns (decisions 310, 318): every block says where
- * it starts (--col) and how many columns it spans (--span). Each block is aligned left, centre or right inside
- * its own cells. */
+/* The invoice document is a stack of rows on a grid of twenty-four columns (decisions 310, 318, 319): a row holds
+ * lanes side by side, every lane says where it starts (--col) and how many columns it spans (--span), and a lane
+ * stacks its blocks from top to bottom. Each block is aligned left, centre or right inside its lane. */
 .doc-rows {
-  --doc-gap: 16px;
+  --doc-gap: 8px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .doc-row {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
+  grid-template-columns: repeat(24, minmax(0, 1fr));
   align-items: start;
   column-gap: var(--doc-gap);
 }
 
 .doc-row > * {
-  grid-column: var(--col, 1) / span var(--span, 12);
+  grid-column: var(--col, 1) / span var(--span, 24);
   min-width: 0;
 }
 
+.doc-lane {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
 .doc-row-rule {
-  padding-bottom: 20px;
+  padding-bottom: 14px;
   border-bottom: 1px solid var(--doc-line);
 }
 
@@ -643,18 +653,6 @@ body {
   list-style-position: inside;
 }
 
-.doc .doc-cell .doc-totals {
-  margin-top: 0;
-}
-
-.doc .doc-cell[data-align="left"] .doc-totals {
-  margin-inline: 0 auto;
-}
-
-.doc .doc-cell[data-align="center"] .doc-totals {
-  margin-inline: auto;
-}
-
 @media (max-width: 640px) {
   .doc-row {
     grid-template-columns: 1fr;
@@ -663,6 +661,10 @@ body {
 
   .doc-row > * {
     grid-column: 1 / -1;
+  }
+
+  .doc-lane {
+    gap: 12px;
   }
 }
 
@@ -853,13 +855,16 @@ body {
 
 .lay-ruler-cols {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  column-gap: 16px;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  column-gap: 8px;
 }
 
 .lay-ruler-cols span {
   padding-bottom: 2px;
+  font-size: 0.5625rem;
   text-align: center;
+  white-space: nowrap;
+  overflow: visible;
   border-bottom: 2px solid #c9c2b6;
 }
 
@@ -888,7 +893,7 @@ body {
   transform: translateX(-100%);
 }
 
-/* Guide lines over the page: the twelve columns, the page centre, and the selected block's columns. */
+/* Guide lines over the page: the twenty-four columns, the page centre, and the selected block's columns. */
 .lay-grid {
   position: absolute;
   inset: 33px;
@@ -897,8 +902,8 @@ body {
 
 .lay-grid-cols {
   display: grid;
-  grid-template-columns: repeat(12, minmax(0, 1fr));
-  column-gap: 16px;
+  grid-template-columns: repeat(24, minmax(0, 1fr));
+  column-gap: 8px;
   height: 100%;
 }
 
@@ -918,6 +923,44 @@ body {
   bottom: 0;
   left: 50%;
   border-left: 1px dashed rgba(220, 38, 38, 0.6);
+}
+
+/* Smart guides while a block is moved or resized (like Canva): a line where its edge or centre lines up with the
+ * page or with another block, with a label on top. */
+.lay-guide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  z-index: 6;
+  width: 0;
+  border-left: 1px solid #e11d48;
+  pointer-events: none;
+}
+
+.lay-guide > span {
+  position: absolute;
+  top: -9px;
+  left: 0;
+  padding: 1px 6px;
+  font-size: 0.625rem;
+  line-height: 1.4;
+  color: #fff;
+  white-space: nowrap;
+  background: #e11d48;
+  border-radius: 999px;
+  transform: translateX(-50%);
+}
+
+.lay-status {
+  min-height: 1.5em;
+  margin: 0 0 8px;
+  font-size: 0.8125rem;
+  color: #6b6459;
+}
+
+.lay-status[data-snapped="true"] {
+  color: #be123c;
+  font-weight: 600;
 }
 
 .lay-drop {
@@ -1900,6 +1943,14 @@ body {
 @page {
   size: A4;
   margin: 16mm;
+
+  /* A long invoice runs onto further pages: each says which page it is (decision 319). Browsers that do not draw
+   * page margin boxes simply leave it out. */
+  @bottom-right {
+    content: "Halaman " counter(page) " dari " counter(pages);
+    font-size: 8pt;
+    color: #6b6459;
+  }
 }
 
 @media print {
@@ -1944,9 +1995,18 @@ body {
   .doc-head,
   .doc-meta,
   .doc-row,
+  .doc-cell,
   .doc-totals,
   .doc-block {
     break-inside: avoid;
+  }
+
+  /* The row with the item table is the one that may run over the page: it breaks between items (the header
+   * repeats), never inside one. */
+  .doc-row[data-blocks~="lines"],
+  .doc-row[data-blocks~="lines"] .doc-lane,
+  .doc-row[data-blocks~="lines"] .doc-cell {
+    break-inside: auto;
   }
 }
 

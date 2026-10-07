@@ -15,6 +15,7 @@ declare
   v_rev jsonb;
   v_hidden_required jsonb;
   v_hidden_optional jsonb;
+  v_grid jsonb;
 begin
   insert into public.entities (entity_type, code, legal_name) values ('company', 'p17_layout', 'P17 Layout (synthetic)')
   returning id into e1;
@@ -48,6 +49,17 @@ begin
   perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0}', (v_good -> 'blocks' -> 0) || '{"row":1,"col":8,"span":6}'::jsonb)), '0.16 a block cannot run past column 12');
   perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0}', (v_good -> 'blocks' -> 0) || '{"row":1,"col":0,"span":2}'::jsonb)), '0.17 the first column is 1');
   perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0}', (v_good -> 'blocks' -> 0) || '{"row":1,"col":1.5,"span":2}'::jsonb)), '0.18 columns are whole numbers');
+  -- the lanes (decision 319): `grid` 24 widens the columns to 24 and a block may carry `stack`
+  v_grid := jsonb_build_object('v', 1, 'grid', 24, 'blocks', (
+    select jsonb_agg(jsonb_build_object('key', t.id, 'show', true, 'align', 'left', 'row', t.ord, 'col', 1, 'span', 24, 'stack', 1) order by t.ord)
+    from unnest(v_ids) with ordinality as t(id, ord)));
+  perform test_helpers.assert(app_private.valid_invoice_layout(v_grid), '0.19 a layout on the 24-column grid with stacks is valid');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_grid, '{blocks,0}', (v_grid -> 'blocks' -> 0) || '{"col":20,"span":6}'::jsonb)), '0.20 a block cannot run past column 24');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_grid, '{grid}', '12'::jsonb)), '0.21 the grid can only be 24');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_grid, '{blocks,0,stack}', '100'::jsonb)), '0.22 a stack number is at most 99');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_grid, '{blocks,0}', (v_grid -> 'blocks' -> 0) - 'row' - 'col' - 'span' || '{"width":"full"}'::jsonb)), '0.23 on the 24-column grid every block is placed');
+  perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0,stack}', '1'::jsonb)), '0.24 a stack needs a placed block');
+  perform test_helpers.assert(app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0}', (v_good -> 'blocks' -> 0) - 'width' || '{"row":1,"col":9,"span":4,"stack":2}'::jsonb)), '0.25 a twelve-column layout stays valid');
   perform test_helpers.assert(not app_private.valid_invoice_layout('"text"'::jsonb) and not app_private.valid_invoice_layout('[]'::jsonb), '0.12 only an object is valid');
 
   perform test_helpers.login(v_admin);

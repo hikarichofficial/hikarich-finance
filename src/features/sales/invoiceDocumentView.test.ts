@@ -120,19 +120,31 @@ describe("InvoiceDocumentView layout (decision 310)", () => {
     const html = render(doc(), LOGO);
     expect(order(html).slice(0, 4)).toEqual(["logo", "issuer", "title", "customer"]);
     // the logo, the company and the title share the first row, each on its own columns
-    expect(html).toContain("--col:3;--span:6");
-    expect(html).toContain("--col:9;--span:4");
+    expect(html).toContain("--col:5;--span:12");
+    expect(html).toContain("--col:17;--span:8");
   });
 
   it("follows the arrangement frozen into an issued invoice, not the standard", () => {
-    const frozen = dropBlock(DEFAULT_INVOICE_LAYOUT, "title", { mode: "before", target: "logo" });
+    const frozen = dropBlock(DEFAULT_INVOICE_LAYOUT, "title", {
+      mode: "row",
+      at: "before",
+      row: 1,
+    });
     const html = render(doc({ issuer: { legal_name: "PT A", layout: frozen } as never }), LOGO);
     expect(order(html)[0]).toBe("title");
   });
 
   it("an explicit arrangement (a draft preview) wins over the frozen one", () => {
-    const frozen = dropBlock(DEFAULT_INVOICE_LAYOUT, "title", { mode: "before", target: "logo" });
-    const explicit = dropBlock(DEFAULT_INVOICE_LAYOUT, "dates", { mode: "before", target: "logo" });
+    const frozen = dropBlock(DEFAULT_INVOICE_LAYOUT, "title", {
+      mode: "row",
+      at: "before",
+      row: 1,
+    });
+    const explicit = dropBlock(DEFAULT_INVOICE_LAYOUT, "dates", {
+      mode: "row",
+      at: "before",
+      row: 1,
+    });
     const html = renderToStaticMarkup(
       createElement(InvoiceDocumentView, {
         doc: doc({ issuer: { legal_name: "PT A", layout: frozen } as never }),
