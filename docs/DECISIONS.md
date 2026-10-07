@@ -2856,3 +2856,13 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      August 2025 (PMK 50/2025) a sale is subject to final Income Tax Article 22 withheld by the platform, 0,21% via a
      domestic digital-asset trader and 1% via other platforms, with no VAT on the asset itself; mining income
      follows the general rates from tax year 2026. Accounts 1230, 7150, 7230, 7330 and 8300 serve this.
+
+345. **Forex profit is taxed yearly, by decision of the owner (8 October 2026).** Owner: profit from forex trading
+     uses the yearly settlement (annual corporate return), not a monthly tax. Consequences: nothing monthly is
+     computed or reminded for forex in the tax menu; the profit or loss is only recorded in the forex gain/loss
+     account (7320) and the related accounts (decision 344); the tax is settled once a year from the net result of the
+     whole year (losses offset gains), in the annual return due 30 April of the next year. Nothing is built for it now,
+     and a forex income feature is not planned until the owner asks for it ("only if the website will have forex
+     income"). Still open for a tax adviser: whether forex profit falls inside the base of the 0,5% final regime or is
+     taxed at the general rate in the annual return, whether monthly instalments (PPh 25) apply to a company on the
+     final regime, and whether the 50% rate reduction (Art. 31E) can be used.
