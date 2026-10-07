@@ -1,6 +1,6 @@
 /**
  * The arrangement of the invoice document (decision 310): which of its eleven blocks come where, whether they
- * are shown, how they are aligned and whether they take the full width or half of it. Presentation only: the
+ * are shown, how they are aligned and whether they take the full width, half of it or just their own width. Presentation only: the
  * six blocks that carry the invoice number, the parties, the dates, the lines and the amounts can be moved but
  * never hidden. The database holds the same rules (`app_private.valid_invoice_layout`); this module is what the
  * document and the editor read.
@@ -20,7 +20,8 @@ export type InvoiceBlockId =
   | "terms";
 
 export type BlockAlign = "left" | "center" | "right";
-export type BlockWidth = "full" | "half";
+/** `full` takes the whole row, `half` shares it, `fit` is only as wide as its content (a logo beside the name). */
+export type BlockWidth = "full" | "half" | "fit";
 export type LogoSize = "sm" | "md" | "lg";
 
 export interface InvoiceBlockSetting {
@@ -128,13 +129,13 @@ export const BLOCK_INFO: Record<InvoiceBlockId, BlockInfo> = {
 
 export const LOGO_SIZE_LABEL: Record<LogoSize, string> = { sm: "Kecil", md: "Sedang", lg: "Besar" };
 
-/** The standard arrangement: the logo, then the company on the left and the invoice title on the right, then
- * the customer on the left and the dates on the right, the items, the totals flush right, and the rest. */
+/** The standard arrangement: the logo with the company name right beside it and the invoice title at the far
+ * right, then the customer on the left and the dates on the right, the items, the totals flush right, and the rest. */
 export const DEFAULT_INVOICE_LAYOUT: InvoiceLayout = {
   v: 1,
   logo_size: "md",
   blocks: [
-    { key: "logo", show: true, align: "left", width: "full" },
+    { key: "logo", show: true, align: "left", width: "fit" },
     { key: "issuer", show: true, align: "left", width: "half" },
     { key: "title", show: true, align: "right", width: "half" },
     { key: "customer", show: true, align: "left", width: "half" },
@@ -150,7 +151,7 @@ export const DEFAULT_INVOICE_LAYOUT: InvoiceLayout = {
 
 const IDS = DEFAULT_INVOICE_LAYOUT.blocks.map((block) => block.key);
 const ALIGNS: readonly string[] = ["left", "center", "right"];
-const WIDTHS: readonly string[] = ["full", "half"];
+const WIDTHS: readonly string[] = ["full", "half", "fit"];
 const SIZES: readonly string[] = ["sm", "md", "lg"];
 
 function cloneDefault(): InvoiceLayout {
@@ -242,20 +243,28 @@ export function updateBlock(
   };
 }
 
-/** The blocks that are shown, grouped into rows: two half-width blocks next to each other share a row, every
- * other block has a row of its own. */
+/** How much of a row a block takes: a `fit` block none worth counting, a `half` block one share of two. */
+function rowShare(block: InvoiceBlockSetting): number {
+  return block.width === "half" ? 1 : 0;
+}
+
+/** The blocks that are shown, grouped into rows: neighbouring blocks that are not full width share a row until
+ * the row holds two halves (or three blocks), so a logo (`fit`), the company (`half`) and the title (`half`) sit in
+ * one line; every other block has a row of its own. */
 export function layoutRows(layout: InvoiceLayout): InvoiceBlockSetting[][] {
   const shown = layout.blocks.filter((block) => block.show);
   const rows: InvoiceBlockSetting[][] = [];
-  for (let index = 0; index < shown.length; index += 1) {
-    const block = shown[index]!;
-    const next = shown[index + 1];
-    if (block.width === "half" && next && next.width === "half") {
-      rows.push([block, next]);
-      index += 1;
-    } else {
-      rows.push([block]);
-    }
+  for (const block of shown) {
+    const row = rows[rows.length - 1];
+    const joins =
+      row !== undefined &&
+      block.width !== "full" &&
+      row.length < 3 &&
+      row.every((other) => other.width !== "full") &&
+      row.reduce((sum, other) => sum + rowShare(other), 0) < 2 &&
+      row.reduce((sum, other) => sum + rowShare(other), 0) + rowShare(block) <= 2;
+    if (joins) row.push(block);
+    else rows.push([block]);
   }
   return rows;
 }

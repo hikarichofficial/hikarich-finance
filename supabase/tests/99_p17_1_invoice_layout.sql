@@ -41,6 +41,7 @@ begin
   perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0,width}', '"third"'::jsonb)), '0.9 an unknown width is refused');
   perform test_helpers.assert(not app_private.valid_invoice_layout(jsonb_set(v_good, '{logo_size}', '"huge"'::jsonb)), '0.10 an unknown logo size is refused');
   perform test_helpers.assert(not app_private.valid_invoice_layout(v_good || '{"html":"<b>x</b>"}'::jsonb), '0.11 extra keys are refused');
+  perform test_helpers.assert(app_private.valid_invoice_layout(jsonb_set(v_good, '{blocks,0,width}', '"fit"'::jsonb)), '0.13 a block can be as wide as its content (the logo beside the company name)');
   perform test_helpers.assert(not app_private.valid_invoice_layout('"text"'::jsonb) and not app_private.valid_invoice_layout('[]'::jsonb), '0.12 only an object is valid');
 
   perform test_helpers.login(v_admin);

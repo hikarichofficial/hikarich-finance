@@ -64,11 +64,10 @@ describe("invoice layout (decision 310)", () => {
     });
   });
 
-  it("puts two neighbouring half-width blocks in one row", () => {
+  it("puts the logo, the company and the title in one row, then two neighbouring half-width blocks", () => {
     const rows = layoutRows(DEFAULT_INVOICE_LAYOUT);
-    expect(rows[0]!.map((block) => block.key)).toEqual(["logo"]);
-    expect(rows[1]!.map((block) => block.key)).toEqual(["issuer", "title"]);
-    expect(rows[2]!.map((block) => block.key)).toEqual(["customer", "dates"]);
+    expect(rows[0]!.map((block) => block.key)).toEqual(["logo", "issuer", "title"]);
+    expect(rows[1]!.map((block) => block.key)).toEqual(["customer", "dates"]);
     expect(rows.flat()).toHaveLength(DEFAULT_INVOICE_LAYOUT.blocks.length);
   });
 
@@ -87,6 +86,24 @@ describe("invoice layout (decision 310)", () => {
     expect(
       layoutRows(single).find((row) => row.some((block) => block.key === "customer")),
     ).toHaveLength(1);
+  });
+
+  it("a full-width logo keeps its own row, and a fit block never joins a row that already holds two halves", () => {
+    const stacked = updateBlock(DEFAULT_INVOICE_LAYOUT, "logo", { width: "full" });
+    expect(layoutRows(stacked)[0]!.map((block) => block.key)).toEqual(["logo"]);
+    expect(layoutRows(stacked)[1]!.map((block) => block.key)).toEqual(["issuer", "title"]);
+    const moved = moveBlock(DEFAULT_INVOICE_LAYOUT, "logo", 2);
+    expect(layoutRows(moved)[0]!.map((block) => block.key)).toEqual(["issuer", "title"]);
+    // the logo then sits with the next row of halves, never inside a row that is already full
+    expect(layoutRows(moved)[1]!.map((block) => block.key)).toEqual(["logo", "customer", "dates"]);
+  });
+
+  it("accepts the fit width from storage", () => {
+    const layout = parseInvoiceLayout({
+      v: 1,
+      blocks: [{ key: "logo", show: true, align: "left", width: "fit" }],
+    });
+    expect(layout.blocks.find((block) => block.key === "logo")!.width).toBe("fit");
   });
 
   it("marks exactly the six blocks that carry numbers, parties, dates and amounts as required", () => {

@@ -12,6 +12,7 @@ import {
   isDefaultLayout,
   parseInvoiceLayout,
 } from "@/domain/sales/invoiceLayout";
+import { IdentityError, type IdentityFailureKind } from "@/domain/settings/identityFailure";
 import {
   createEntity,
   setEntityLogo,
@@ -106,6 +107,25 @@ export async function setNegativeBalanceBlockAction(
   };
 }
 
+const IDENTITY_FAILURE_TEXT: Record<IdentityFailureKind, string> = {
+  conflict: "Data perusahaan sudah diubah di tempat lain. Muat ulang halaman ini lalu simpan lagi.",
+  email: "Alamat email tidak valid. Perbaiki atau kosongkan, lalu simpan lagi.",
+  too_long: "Ada isian yang terlalu panjang. Persingkat lalu simpan lagi.",
+  legal_name: "Nama Resmi wajib diisi.",
+  other:
+    "Data perusahaan tidak dapat disimpan. Coba sekali lagi; bila terulang, beri tahu pengembang.",
+};
+
+/** The reason a company-data save was refused (decision 317); the database's own text is logged for the developer. */
+function describeIdentityFailure(error: unknown): string {
+  if (error instanceof IdentityError) {
+    if (error.kind === "other") console.error("update_entity_identity refused:", error.detail);
+    return IDENTITY_FAILURE_TEXT[error.kind];
+  }
+  console.error("update_entity_identity failed:", error);
+  return IDENTITY_FAILURE_TEXT.other;
+}
+
 /** Settings write (decision 272): the Entity's names, address and contact details. The RPC re-checks the
  * permission, step-up and version. Issued documents keep the name they were issued with. */
 export async function updateEntityIdentityAction(
@@ -137,7 +157,7 @@ export async function updateEntityIdentityAction(
         stepUp: error.code === "STEP_UP_REQUIRED",
       };
     }
-    return { status: "error", message: "Profil tidak dapat disimpan. Periksa nama dan email." };
+    return { status: "error", message: describeIdentityFailure(error) };
   }
   revalidatePath("/", "layout");
   return { status: "ok", message: "Nama dan profil disimpan." };

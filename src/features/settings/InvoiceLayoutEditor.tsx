@@ -26,7 +26,11 @@ import { idleTimeSettingsState } from "./actionsState";
 type DropSide = "left" | "right" | "top" | "bottom";
 
 const ALIGN_LABEL: Record<BlockAlign, string> = { left: "Kiri", center: "Tengah", right: "Kanan" };
-const WIDTH_LABEL: Record<BlockWidth, string> = { half: "Setengah", full: "Penuh" };
+const WIDTH_LABEL: Record<BlockWidth, string> = {
+  fit: "Sesuai isi",
+  half: "Setengah",
+  full: "Penuh",
+};
 
 /** A grey stand-in so the preview shows where the logo goes when none is uploaded yet. */
 const PLACEHOLDER_LOGO =
@@ -100,9 +104,10 @@ export function InvoiceLayoutEditor({
     const after = side === "right" || side === "bottom";
     let next = moveBlock(layout, dragging, targetIndex + (after ? 1 : 0));
     if (side === "left" || side === "right") {
-      // Sharing a row needs both blocks to be half width (the item table and totals cannot be).
-      next = updateBlock(next, dragging, { width: "half" });
-      next = updateBlock(next, target, { width: "half" });
+      // Sharing a row needs both blocks to be narrower than the row (the item table and totals cannot be):
+      // a logo takes only its own width so the name can sit right beside it, the others take half.
+      next = updateBlock(next, dragging, { width: dragging === "logo" ? "fit" : "half" });
+      next = updateBlock(next, target, { width: target === "logo" ? "fit" : "half" });
     }
     setLayout(next);
     setSelected(dragging);
@@ -181,6 +186,7 @@ export function InvoiceLayoutEditor({
       <div className="lay-preview">
         <InvoiceIssuerFields
           entity={entity}
+          saved={issuer.values}
           draft={issuerDraft}
           onChange={setIssuerDraft}
           website={issuer.website}
@@ -231,7 +237,7 @@ export function InvoiceLayoutEditor({
         <fieldset className="lay-group">
           <legend>Lebar</legend>
           <div className="lay-segment">
-            {(["half", "full"] as const).map((value) => (
+            {(["fit", "half", "full"] as const).map((value) => (
               <button
                 key={value}
                 type="button"

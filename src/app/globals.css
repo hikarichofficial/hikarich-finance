@@ -577,22 +577,29 @@ body {
   max-height: 120px;
 }
 
-/* The invoice document is a stack of rows (decision 310); a row holds one block, or two half-width blocks side
- * by side. Each block is aligned left, centre or right inside its cell. */
+/* The invoice document is a stack of rows (decision 310); a row holds one block, or up to three side by side:
+ * a block that is only as wide as its content (the logo) and up to two that share the rest (the company and the
+ * invoice title). Each block is aligned left, centre or right inside its cell. */
 .doc-rows {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 16px;
 }
 
 .doc-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 20px;
 }
 
-.doc-row-2 {
-  grid-template-columns: 1fr 1fr;
+.doc-row > .doc-cell {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.doc-row > .doc-cell[data-width="fit"] {
+  flex: 0 0 auto;
+  max-width: 100%;
 }
 
 .doc-row-rule {
@@ -600,14 +607,23 @@ body {
   border-bottom: 1px solid var(--doc-line);
 }
 
-.doc-row-1 > .doc-cell[data-width="half"] {
-  width: calc(50% - 12px);
+/* Beside other blocks the invoice title only takes its own width, so the company name gets the room. */
+.doc-row-2 > .doc-cell[data-block="title"],
+.doc-row-3 > .doc-cell[data-block="title"] {
+  flex: 0 0 auto;
+  max-width: 45%;
 }
 
+.doc-row-1 > .doc-cell[data-width="half"] {
+  flex: 0 0 calc(50% - 10px);
+}
+
+.doc-row-1 > .doc-cell[data-width="fit"][data-align="center"],
 .doc-row-1 > .doc-cell[data-width="half"][data-align="center"] {
   margin-inline: auto;
 }
 
+.doc-row-1 > .doc-cell[data-width="fit"][data-align="right"],
 .doc-row-1 > .doc-cell[data-width="half"][data-align="right"] {
   margin-left: auto;
 }
@@ -663,14 +679,66 @@ body {
 }
 
 @media (max-width: 640px) {
-  .doc-row-2 {
-    grid-template-columns: 1fr;
-    gap: 16px;
+  .doc-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .doc-row > .doc-cell[data-width="fit"] {
+    flex: 0 0 auto;
   }
 
   .doc-row-1 > .doc-cell[data-width="half"] {
+    flex: 1 1 auto;
     width: 100%;
   }
+}
+
+/* Compact document text (OWNER, 6 October 2026): the company lines and the closing blocks (payments received,
+ * how to pay, notes, terms) are set smaller so the invoice stays short. */
+.doc-issuer p {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.doc-issuer .doc-brand {
+  margin-bottom: 2px;
+  font-size: 1.375rem;
+  line-height: 1.25;
+}
+
+.doc-cell[data-block="payments"] .doc-block,
+.doc-cell[data-block="instructions"] .doc-block,
+.doc-cell[data-block="notes"] .doc-block,
+.doc-cell[data-block="terms"] .doc-block {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.doc-cell[data-block="payments"] .doc-block h2,
+.doc-cell[data-block="instructions"] .doc-block h2,
+.doc-cell[data-block="notes"] .doc-block h2,
+.doc-cell[data-block="terms"] .doc-block h2 {
+  margin-bottom: 2px;
+  font-size: 0.6875rem;
+}
+
+.doc .doc-cell[data-block="instructions"] .doc-pay-link {
+  padding: 5px 14px;
+  font-size: 0.75rem;
+}
+
+.doc-cell[data-block="instructions"] .doc-pay-url {
+  margin-top: 2px;
+  font-size: 0.6875rem;
+}
+
+.doc-cell[data-block="instructions"] .account-number {
+  font-size: 0.9375rem;
+}
+
+.doc-cell[data-block="payments"] .doc-block ul {
+  padding-left: 16px;
 }
 
 /* The layout editor (decision 310): the document with draggable blocks beside a settings panel. */
@@ -691,6 +759,13 @@ body {
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
   background: var(--surface-solid);
+}
+
+.lay-issuer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
 }
 
 .lay-issuer-grid {
