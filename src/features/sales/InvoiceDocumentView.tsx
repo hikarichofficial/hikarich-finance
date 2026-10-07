@@ -333,10 +333,26 @@ export function InvoiceDocumentView({
   };
 
   // A block with nothing to show (no logo, no notes, ...) takes no place; the others fill the rows.
-  const rows = layoutRows({
-    ...arrangement,
-    blocks: arrangement.blocks.filter((block) => content[block.key] !== null),
-  });
+  const present = arrangement.blocks.filter((block) => content[block.key] !== null);
+  // Without a logo the company name (with whatever is stacked under it) starts at the left edge instead of
+  // leaving the logo's columns empty.
+  const logoPlace = arrangement.blocks.find((block) => block.key === "logo");
+  const issuerPlace = arrangement.blocks.find((block) => block.key === "issuer");
+  const closeUp =
+    logoPlace && content.logo === null && issuerPlace && logoPlace.show && issuerPlace.show
+      ? issuerPlace.row === logoPlace.row && issuerPlace.col === logoPlace.col + logoPlace.span
+        ? issuerPlace
+        : null
+      : null;
+  const blocks =
+    logoPlace && closeUp
+      ? present.map((block) =>
+          block.row === closeUp.row && block.col === closeUp.col && block.span === closeUp.span
+            ? { ...block, col: logoPlace.col, span: closeUp.span + logoPlace.span }
+            : block,
+        )
+      : present;
+  const rows = layoutRows({ ...arrangement, blocks });
 
   return (
     <article

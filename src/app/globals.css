@@ -563,7 +563,7 @@ body {
 .doc-cell .doc-logo {
   display: block;
   width: auto;
-  max-width: 180px;
+  max-width: min(100%, 180px);
   max-height: 72px;
   object-fit: contain;
 }
@@ -573,12 +573,12 @@ body {
 }
 
 .doc-cell .doc-logo[data-size="sm"] {
-  max-width: 120px;
+  max-width: min(100%, 120px);
   max-height: 48px;
 }
 
 .doc-cell .doc-logo[data-size="lg"] {
-  max-width: 280px;
+  max-width: min(100%, 280px);
   max-height: 120px;
 }
 
@@ -586,7 +586,7 @@ body {
  * lanes side by side, every lane says where it starts (--col) and how many columns it spans (--span), and a lane
  * stacks its blocks from top to bottom. Each block is aligned left, centre or right inside its lane. */
 .doc-rows {
-  --doc-gap: 8px;
+  --doc-gap: 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -713,6 +713,209 @@ body {
 
 .doc-cell[data-block="payments"] .doc-block ul {
   padding-left: 16px;
+}
+
+/* Professional invoice look (OWNER, 7 October 2026): a calm business document. One type scale, one rhythm (20px
+ * between sections, hairline rules), a bronze bar on top, a letterhead with the title at the right, the dates in a
+ * tinted box, an item table with a tinted header and quiet banding, and the amount due set in a band. Only looks:
+ * nothing here changes what is shown. */
+.doc {
+  padding: 40px 44px 36px;
+  font-size: 0.875rem;
+  border-top: 4px solid var(--doc-bronze);
+}
+
+.doc-rows {
+  gap: 22px;
+}
+
+.doc .doc-row-rule {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--doc-ink);
+}
+
+.doc .doc-issuer .doc-brand {
+  margin-bottom: 4px;
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.doc .doc-issuer p {
+  font-size: 0.8125rem;
+  line-height: 1.5;
+  color: var(--doc-text-secondary);
+}
+
+.doc .doc-issuer .doc-brand + p {
+  color: var(--doc-ink);
+  font-weight: 500;
+}
+
+.doc .doc-kind {
+  font-size: 1.75rem;
+  font-weight: 300;
+  line-height: 1.1;
+  letter-spacing: 0.16em;
+  color: var(--doc-ink);
+}
+
+.doc .doc-number {
+  margin-top: 6px;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+}
+
+.doc .doc-status {
+  margin-top: 10px;
+  padding: 3px 12px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+}
+
+.doc h2 {
+  margin-bottom: 6px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+}
+
+.doc .doc-cell[data-block="customer"] p {
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.doc .doc-cell[data-block="customer"] p:first-of-type {
+  font-size: 1rem;
+}
+
+/* Every block sits flush with the page margins, so the left edges and the right edges of the letterhead, the
+ * customer, the table, the totals and the closing blocks all line up, and the page is symmetrical. Sections are
+ * separated by hairlines, never by boxes that would push the text in. */
+.doc .doc-cell[data-block="customer"] {
+  padding-top: 8px;
+  border-top: 1px solid var(--doc-line);
+}
+
+.doc .doc-cell .doc-dates {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 0;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+  border-top: 1px solid var(--doc-line);
+}
+
+.doc .doc-dates dt,
+.doc .doc-dates dd {
+  margin: 0;
+  padding: 5px 0;
+}
+
+.doc .doc-dates dt {
+  color: var(--doc-text-secondary);
+}
+
+.doc .doc-dates dd {
+  font-weight: 600;
+  text-align: right;
+}
+
+/* The item table: ink rules over and under the header and under the last item, numbers flush right. */
+.doc .doc-lines {
+  font-size: 0.8125rem;
+}
+
+.doc .doc-lines th {
+  padding: 8px 10px;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  color: var(--doc-ink);
+  border-top: 1px solid var(--doc-ink);
+  border-bottom: 1px solid var(--doc-ink);
+}
+
+.doc .doc-lines td {
+  padding: 6px 10px;
+  border-bottom: 1px solid rgba(25, 23, 20, 0.1);
+}
+
+.doc .doc-lines th:first-child,
+.doc .doc-lines td:first-child {
+  padding-left: 0;
+}
+
+.doc .doc-lines th:last-child,
+.doc .doc-lines td:last-child {
+  padding-right: 0;
+}
+
+.doc .doc-lines tbody tr:last-child td {
+  border-bottom: 1px solid var(--doc-ink);
+}
+
+/* The totals: rows with the amounts flush right under the table's last column; the amount due ruled in ink. */
+.doc .doc-cell[data-block="totals"] {
+  padding-top: 6px;
+  border-top: 1px solid var(--doc-line);
+}
+
+.doc .doc-totals {
+  padding-right: 0;
+  font-size: 0.8125rem;
+}
+
+.doc-totals > div {
+  padding: 3px 0;
+}
+
+.doc-totals dt {
+  color: var(--doc-text-secondary);
+}
+
+.doc .doc-totals .grand {
+  margin-top: 6px;
+  padding: 7px 0;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--doc-ink);
+  border-top: 1px solid var(--doc-ink);
+}
+
+.doc .doc-totals .grand dt {
+  color: var(--doc-ink);
+}
+
+@media (max-width: 640px) {
+  .doc .doc-lines td {
+    padding: 2px 0;
+    border-bottom: 0;
+  }
+}
+
+/* Payments, how to pay, notes and terms: small print with a hairline over each block. */
+.doc .doc-cell[data-block="payments"] .doc-block,
+.doc .doc-cell[data-block="instructions"] .doc-block,
+.doc .doc-cell[data-block="notes"] .doc-block,
+.doc .doc-cell[data-block="terms"] .doc-block {
+  padding-top: 8px;
+  border-top: 1px solid var(--doc-line);
+  color: var(--doc-ink);
+}
+
+.doc .doc-cell[data-block="payments"] .doc-block h2,
+.doc .doc-cell[data-block="instructions"] .doc-block h2,
+.doc .doc-cell[data-block="notes"] .doc-block h2,
+.doc .doc-cell[data-block="terms"] .doc-block h2 {
+  margin-bottom: 4px;
+  font-size: 0.625rem;
+}
+
+.doc .doc-lane {
+  gap: 14px;
 }
 
 /* The layout editor (decision 310): the document with draggable blocks beside a settings panel. */
@@ -856,7 +1059,7 @@ body {
 .lay-ruler-cols {
   display: grid;
   grid-template-columns: repeat(24, minmax(0, 1fr));
-  column-gap: 8px;
+  column-gap: 12px;
 }
 
 .lay-ruler-cols span {
@@ -903,7 +1106,7 @@ body {
 .lay-grid-cols {
   display: grid;
   grid-template-columns: repeat(24, minmax(0, 1fr));
-  column-gap: 8px;
+  column-gap: 12px;
   height: 100%;
 }
 

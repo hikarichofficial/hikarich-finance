@@ -41,7 +41,7 @@ import { InvoiceIssuerFields, type IssuerDraft } from "./InvoiceIssuerFields";
 import { idleTimeSettingsState } from "./actionsState";
 
 /** The gap between two grid columns of the document, in pixels (`--doc-gap` in the stylesheet). */
-const GAP = 8;
+const GAP = 12;
 
 const ALIGN_LABEL: Record<BlockAlign, string> = { left: "Kiri", center: "Tengah", right: "Kanan" };
 
