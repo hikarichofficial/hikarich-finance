@@ -125,7 +125,7 @@ declare
                                          'tax_record_payment', 'tax_reverse_payment', 'tax_record_filing',
                                          'tax_link_evidence', 'tax_list_evidence', 'tax_reconcile_period',
                                          'tax_period_position', 'tax_list_payments', 'tax_control_report',
-                                         'tax_ledger_report', 'tax_final_preview', 'tax_final_compute',
+                                         'tax_ledger_report', 'tax_final_preview', 'tax_final_estimate', 'tax_final_compute',
                                          'tax_calendar', 'tax_overview',
                                          -- P8: other receivables/payables, fixed assets, loans, equity and their controls
                                          'obligation_create', 'obligation_settle', 'obligation_write_off',

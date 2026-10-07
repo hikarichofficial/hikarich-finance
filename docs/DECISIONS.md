@@ -2787,3 +2787,17 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Perseroan Perorangan eligibility follow PP 55/2022 and PP 20/2026. Not modelled: holidays moving a due date,
      time limits of the regime, the SPT Tahunan's own content. Sources are secondary (DDTC, ortax, pajak.go.id);
      the owner should have a tax adviser confirm before relying on them. Tests 9.17-9.17d and 11.8.
+
+342. **Estimate of the running month's PPh Final UMKM (p65, owner request).** Owner: the tax of the month in
+     progress should be estimated as income comes in, shown on the tax menu, and become fixed once the month has
+     ended. Migration `20261009100000`: `tax_final_evaluate` gets a three-argument form (`p_estimate`), built from
+     the live function by exact text replacement so the marketplace changes stay; the two-argument form is a wrapper
+     with `false`, so `tax_final_preview`, `tax_final_compute`, the journal and the tax ledger are unchanged. New
+     read-only `tax_final_estimate(entity, period)` (needs `tax.view`; only the running month, a future month stays
+     "not configured"; the output carries `estimate: true`). It applies the same rule, profile checks, exempt band,
+     annual ceiling and marketplace credit to the invoices issued so far, and is recomputed from the invoices on
+     every read, so each new invoice and each void moves it. Nothing is recorded. The "Perkiraan Pajak Bulan
+     Berjalan" card shows on Ringkasan Pajak, Kalender Pajak and PPh Final. Making the month final is still the
+     explicit "Hitung Pajak Final Bulan Ini" step after the month has ended (it posts the journal); doing that
+     automatically needs a scheduled job and is left to the owner's decision. Tests `99_p32_final_estimate.sql`,
+     `runningTaxPeriod`.

@@ -1,5 +1,6 @@
 import { requirePermission } from "@/services/identity/access";
-import { getEntityBaseCurrency, getTaxCalendar } from "@/services/tax/tax";
+import { estimateFinalTax, getEntityBaseCurrency, getTaxCalendar } from "@/services/tax/tax";
+import { runningTaxPeriod } from "@/domain/tax/tax";
 import { resolveTaxCalendarRange } from "@/domain/tax/taxCalendarList";
 import { TaxCalendarScreen } from "@/features/tax/TaxCalendarScreen";
 
@@ -16,10 +17,21 @@ export default async function TaxCalendarPage({
   const { membership } = await requirePermission("tax.view", { entityCode: entity });
   const range = resolveTaxCalendarRange(from, to);
 
-  const [rows, currency] = await Promise.all([
+  const period = runningTaxPeriod();
+  const [rows, currency, estimate] = await Promise.all([
     getTaxCalendar({ entity_id: membership.entity_id, from: range.from, to: range.to }),
     getEntityBaseCurrency(membership.entity_id),
+    estimateFinalTax({ entity_id: membership.entity_id, period }),
   ]);
 
-  return <TaxCalendarScreen rows={rows} range={range} currency={currency} entity={entity} />;
+  return (
+    <TaxCalendarScreen
+      rows={rows}
+      range={range}
+      currency={currency}
+      entity={entity}
+      estimate={estimate}
+      estimatePeriod={period}
+    />
+  );
 }

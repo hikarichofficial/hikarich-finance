@@ -17,6 +17,7 @@ import {
   VAT_TREATMENT_LABELS,
   WHT_OBJECT_LABELS,
   resolveTaxPeriod,
+  runningTaxPeriod,
   taxPaymentCash,
   taxPeriodLabel,
   taxPeriodStart,
@@ -41,6 +42,16 @@ describe("tax periods", () => {
     expect(() => taxPeriodStart("2026-9-1")).toThrow(RangeError);
     expect(() => taxPeriodLabel("2026-13-01")).toThrow(RangeError);
     expect(() => taxPeriodLabel("nope")).toThrow(RangeError);
+  });
+});
+
+describe("runningTaxPeriod", () => {
+  it("is the first day of the month in progress", () => {
+    expect(runningTaxPeriod(new Date("2026-10-07T12:00:00Z"))).toBe("2026-10-01");
+  });
+
+  it("follows the business clock across a month end", () => {
+    expect(runningTaxPeriod(new Date("2026-09-30T20:00:00Z"))).toBe("2026-10-01");
   });
 });
 

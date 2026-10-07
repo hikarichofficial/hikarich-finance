@@ -307,6 +307,14 @@ export function resolveTaxPeriod(
   return `${year}-${month}-01`;
 }
 
+/** The month in progress, as the first day of that month on the business clock (decision 342). */
+export function runningTaxPeriod(reference: Date = new Date()): string {
+  const local = businessClock(reference);
+  const year = local.getUTCFullYear();
+  const month = String(local.getUTCMonth() + 1).padStart(2, "0");
+  return `${year}-${month}-01`;
+}
+
 // ---- payment arithmetic (early feedback only; the database recomputes and enforces everything)
 export interface TaxPaymentParts {
   /** Tax paid against the liability of the period. */

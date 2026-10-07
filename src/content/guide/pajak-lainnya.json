@@ -21,7 +21,7 @@
         },
         {
           "title": "Khusus PPh Final: hitung dulu",
-          "text": "Di **Pajak > PPh Final**, periksa **Pratinjau** lalu tekan **Hitung Pajak Final Bulan Ini**. Tombol hanya aktif bila status pratinjau “Ditentukan otomatis”. Hasilnya mencatat PPh Final sebagai terutang; pembayaran dibatasi sebesar yang sudah diakui, jadi langkah ini harus lebih dulu. PPh Final dihitung dari invoice yang diterbitkan dalam bulan itu dan hanya setelah bulannya berakhir; selama bulan masih berjalan, Ringkasan Pajak masih kosong dan Pratinjau berstatus “Belum aktif”. Tidak ada laporan bulanan untuk PPh Final: setor tanggal 15 bulan berikutnya, lalu laporkan setahun sekali lewat SPT Tahunan."
+          "text": "Di **Pajak > PPh Final**, periksa **Pratinjau** lalu tekan **Hitung Pajak Final Bulan Ini**. Tombol hanya aktif bila status pratinjau “Ditentukan otomatis”. Hasilnya mencatat PPh Final sebagai terutang; pembayaran dibatasi sebesar yang sudah diakui, jadi langkah ini harus lebih dulu. PPh Final dihitung dari invoice yang diterbitkan dalam bulan itu dan hanya setelah bulannya berakhir; selama bulan masih berjalan, yang tampil di kartu **Perkiraan Pajak Bulan Berjalan** (Ringkasan Pajak, Kalender Pajak, dan PPh Final) hanyalah perkiraan: angkanya otomatis ikut bertambah setiap ada invoice terbit dan belum tercatat sebagai kewajiban. Setelah bulan berakhir, tekan **Hitung Pajak Final Bulan Ini** untuk menjadikannya final. Tidak ada laporan bulanan untuk PPh Final: setor tanggal 15 bulan berikutnya, lalu laporkan setahun sekali lewat SPT Tahunan."
         },
         {
           "title": "Buka Pajak > Pelaporan & Bukti",

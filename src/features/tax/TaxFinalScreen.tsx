@@ -15,6 +15,7 @@ import type { FinalPreview, TaxPeriodPosition } from "@/schemas/tax";
 import { computeFinalTaxAction } from "./taxFinalActions";
 import { idleComputeFinalTaxFormState } from "./taxFinalActionsState";
 import { formatShortDate } from "./format";
+import { TaxEstimateCard } from "./TaxEstimateCard";
 
 /**
  * PPh Final UMKM (P13 unbuilt-screens backlog, "PPh Final / Income Tax" nav item, Step 05 §9, decision 234):
@@ -33,7 +34,11 @@ export function TaxFinalScreen({
   currency,
   entityId,
   entity,
+  estimate,
+  estimatePeriod,
 }: {
+  estimate: FinalPreview;
+  estimatePeriod: string;
   period: string;
   preview: FinalPreview;
   position: TaxPeriodPosition;
@@ -59,6 +64,14 @@ export function TaxFinalScreen({
           <p className="record-detail-counterparty">Masa Pajak {taxPeriodLabel(period)}</p>
         </div>
       </header>
+
+      <TaxEstimateCard
+        estimate={estimate}
+        period={estimatePeriod}
+        currency={currency}
+        entity={entity}
+        linkToFinal={false}
+      />
 
       <form method="get" className="list-search-form">
         {entity ? <input type="hidden" name="entity" value={entity} /> : null}

@@ -8,7 +8,8 @@ import {
   TAX_TYPE_LABELS,
   taxPeriodLabel,
 } from "@/domain/tax/tax";
-import type { TaxCalendarRow } from "@/schemas/tax";
+import type { FinalPreview, TaxCalendarRow } from "@/schemas/tax";
+import { TaxEstimateCard } from "./TaxEstimateCard";
 import { formatShortDate } from "./format";
 
 /**
@@ -25,11 +26,15 @@ export function TaxCalendarScreen({
   range,
   currency,
   entity,
+  estimate,
+  estimatePeriod,
 }: {
   rows: readonly TaxCalendarRow[];
   range: TaxCalendarRange;
   currency: string;
   entity: string | undefined;
+  estimate: FinalPreview;
+  estimatePeriod: string;
 }) {
   return (
     <div className="list-screen">
@@ -62,6 +67,14 @@ export function TaxCalendarScreen({
           ← Kembali ke Ringkasan Pajak
         </Link>
       </p>
+
+      <TaxEstimateCard
+        estimate={estimate}
+        period={estimatePeriod}
+        currency={currency}
+        entity={entity}
+        linkToFinal
+      />
 
       {rows.length === 0 ? (
         <div className="list-empty">
