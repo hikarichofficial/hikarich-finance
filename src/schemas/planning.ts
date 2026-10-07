@@ -102,6 +102,8 @@ export const createRecurringRuleInputSchema = z.object({
   template: recurringTemplateSchema,
   interval_count: z.number().int().min(1).max(365).default(1),
   due_offset_days: z.number().int().min(0).max(365).default(0),
+  /** Fixed day of the month the invoice/bill is due (1-31); when set it replaces the offset. */
+  due_day_of_month: z.number().int().min(1).max(31).nullable().optional(),
   end_date: isoDateSchema.optional(),
   note: optionalText(1000),
 });
@@ -114,6 +116,7 @@ export const updateRecurringRuleInputSchema = z.object({
     template: recurringTemplateSchema.optional(),
     interval_count: z.number().int().min(1).max(365).optional(),
     due_offset_days: z.number().int().min(0).max(365).optional(),
+    due_day_of_month: z.number().int().min(1).max(31).nullable().optional(),
     end_date: isoDateSchema.nullable().optional(),
     note: z.string().trim().max(1000).nullable().optional(),
   }),
@@ -137,6 +140,7 @@ export const recurringRuleRowSchema = z.object({
   frequency: recurringFrequencySchema,
   interval_count: z.number().int(),
   due_offset_days: z.number().int(),
+  due_day_of_month: z.number().int().nullable(),
   start_date: isoDateSchema,
   end_date: isoDateSchema.nullable(),
   next_occurrence_date: isoDateSchema,

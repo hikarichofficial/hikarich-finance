@@ -19,6 +19,7 @@ function row(overrides: Partial<RecurringRuleRow> = {}): RecurringRuleRow {
     frequency: "monthly",
     interval_count: 1,
     due_offset_days: 7,
+    due_day_of_month: null,
     start_date: "2025-01-01",
     end_date: null,
     next_occurrence_date: "2025-08-01",

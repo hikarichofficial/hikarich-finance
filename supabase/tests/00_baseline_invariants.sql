@@ -183,7 +183,7 @@ declare
                                          -- consolidated analysis and the curated custom report builder
                                          'close_fiscal_year', 'reverse_fiscal_year_closing',
                                          'profit_and_loss', 'balance_sheet', 'statement_of_changes_in_equity',
-                                         'cash_flow_statement', 'general_ledger',
+                                         'cash_flow_statement', 'general_ledger', 'cash_statement',
                                          'run_custom_report', 'consolidated_cash_position',
                                          -- P14 backup/restore: export, validate-before-restore (decision 224), and
                                          -- the exact-text export, restore preview, restore itself and trusted-device

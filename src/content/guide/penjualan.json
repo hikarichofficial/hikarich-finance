@@ -77,10 +77,10 @@
     {
       "slug": "produk-dan-jasa",
       "title": "Cara Menambah Produk dan Jasa",
-      "summary": "Mendaftarkan barang atau jasa yang dijual supaya muncul sebagai saran saat membuat invoice, lengkap dengan harga dan kategori bawaan.",
+      "summary": "Mendaftarkan barang atau jasa yang dijual. SKU dibuat otomatis dari Brand dan Jenis Produk yang Anda pilih; harga dan kategori bawaan mempercepat pengisian invoice.",
       "path": "Penjualan > Produk & Jasa > Tambah Produk (ubah: buka produk > Ubah)",
       "who": "Lihat: products.view. Tambah dan ubah: products.create dan products.edit (OWNER, Finance Admin, Finance Staff).",
-      "quick": "Produk hanya mempercepat pengisian invoice. Invoice tidak terhubung ke produk, jadi mengubah produk tidak mengubah invoice lama.",
+      "quick": "Staf cukup memilih **Brand** dan **Jenis Produk**; SKU (mis. KEA-EA-001) dibuat sendiri oleh sistem dan tidak bisa kembar. Mengubah produk tidak mengubah invoice lama.",
       "steps": [
         {
           "title": "Buka Penjualan > Produk & Jasa",
@@ -92,15 +92,16 @@
         },
         {
           "title": "Isi form Tambah Produk",
-          "text": "**Jenis**: Produk atau Jasa. **Nama** (wajib). **SKU / Kode (opsional)**: harus unik bila diisi. **Satuan** (wajib, bawaan “unit”). **Harga Satuan Bawaan (opsional)**: pemisah ribuan otomatis, koma untuk desimal. **Mata Uang Harga (opsional)**. **Kategori Pendapatan Bawaan (opsional)**: menentukan akun pendapatan, misalnya Penjualan Produk, Penjualan E-book, Penjualan Software & Alat Digital, Penjualan Jasa, Pendapatan Lainnya. **Deskripsi (opsional)**. Kotak **Aktif (dapat dipilih saat membuat invoice)** tercentang bawaan.",
+          "text": "**Jenis**: Produk atau Jasa. **Nama** (wajib). **Brand** dan **Jenis Produk** (wajib bila SKU otomatis aktif): pilih dari daftar; di bawahnya tampil **Pratinjau SKU** yang akan didapat. **Satuan** (wajib, bawaan “unit”). **Harga Satuan Bawaan (opsional)**: pemisah ribuan otomatis, koma untuk desimal. **Mata Uang Harga (opsional)**. **Kategori Pendapatan Bawaan (opsional)**: menentukan akun pendapatan, misalnya Penjualan Produk, Penjualan E-book, Penjualan Software & Alat Digital, Penjualan Jasa, Pendapatan Lainnya. **Deskripsi (opsional)**. Kotak **Aktif (dapat dipilih saat membuat invoice)** tercentang bawaan.\n\nKolom SKU tidak diketik oleh staf. Hanya Owner (atau peran yang diberi izin khusus) yang melihat kotak **Isi SKU manual**.",
           "image": {
             "file": "produk-tambah-form.jpg",
             "caption": "Form Tambah Produk."
-          }
+          },
+          "tip": "Brand dan Jenis Produk diatur Owner di [Cara Mengatur SKU Otomatis](sku-otomatis). Bila daftarnya kosong, minta Owner menambahkannya."
         },
         {
           "title": "Tekan Simpan Produk",
-          "text": "Setelah berhasil Anda dibawa ke halaman detail produk. Halaman ini hanya untuk membaca. Untuk mengubah, tekan **Ubah** di kanan atas; form Ubah Produk terbuka di halaman sendiri, lalu tekan **Simpan Perubahan** dan Anda kembali ke detail.",
+          "text": "Setelah berhasil Anda dibawa ke halaman detail produk. Halaman ini hanya untuk membaca. Untuk mengubah, tekan **Ubah** di kanan atas; form Ubah Produk terbuka di halaman sendiri, lalu tekan **Simpan Perubahan** dan Anda kembali ke detail. Di halaman detail tampil SKU, Brand, Jenis, Nomor, daftar variant, dan riwayat SKU.",
           "image": {
             "file": "produk-detail.jpg",
             "caption": "Detail produk: halaman baca saja, dengan tombol Ubah di kanan atas."
@@ -123,18 +124,29 @@
         "Produk muncul di daftar dan sebagai saran deskripsi di Buat Invoice. Tidak ada jurnal."
       ],
       "rules": [
+        "SKU dibuat otomatis oleh database dari Brand, Jenis Produk, nomor urut, dan Variant sesuai format yang diatur Owner. Nomor tidak pernah dipakai ulang, walau produknya dihapus atau diarsipkan.",
         "SKU harus unik per Entity. Dua produk boleh bernama sama.",
+        "Setelah dibuat, Brand, Jenis, dan nomor produk tidak bisa diubah dari formulir Ubah. SKU hanya bisa diubah Owner dari halaman detail (**Ubah SKU (Owner)**), dan setiap perubahan tercatat di riwayat.",
+        "Invoice yang sudah dibuat menyimpan SKU yang berlaku saat itu; mengubah SKU produk tidak mengubahnya.",
         "Mata uang harga tidak memengaruhi invoice; invoice selalu dalam mata uang dasar Entity."
       ],
       "mistakes": [
         "Mengira produk harus dipilih dari daftar terpisah di invoice. Cukup klik atau ketik di kolom Deskripsi.",
-        "Mengisi SKU yang sudah ada: tampil “Produk tidak dapat disimpan.”",
+        "Mencari kotak SKU untuk diketik. SKU dibuat otomatis; cukup pilih Brand dan Jenis Produk.",
         "Mengetik harga dengan titik sebagai desimal. Gunakan koma; titik adalah pemisah ribuan."
       ],
       "errors": [
         {
           "message": "Nama wajib diisi / Satuan wajib diisi",
           "meaning": "Kolom wajib kosong."
+        },
+        {
+          "message": "Pilih Brand dan Jenis Produk agar SKU dibuat otomatis.",
+          "meaning": "SKU otomatis aktif tetapi Brand atau Jenis Produk belum dipilih."
+        },
+        {
+          "message": "Hanya OWNER (atau peran yang diberi izin khusus) yang boleh mengisi atau mengubah SKU secara manual.",
+          "meaning": "Akun Anda tidak punya izin override SKU. Pilih Brand dan Jenis Produk saja."
         },
         {
           "message": "Produk tidak dapat disimpan.",
@@ -145,7 +157,149 @@
           "meaning": "Dua orang mengubah produk yang sama bersamaan."
         }
       ],
-      "related": ["buat-terbitkan-invoice", "tambah-pelanggan"]
+      "related": ["sku-otomatis", "varian-produk", "buat-terbitkan-invoice", "tambah-pelanggan"]
+    },
+    {
+      "slug": "sku-otomatis",
+      "title": "Cara Mengatur SKU Otomatis (Khusus Owner)",
+      "summary": "Menentukan format kode produk (SKU), lalu mengelola daftar Brand, Jenis Produk, dan Variant yang dipakai untuk membentuknya.",
+      "path": "Administrasi > Konfigurasi SKU",
+      "who": "Atur format dan daftar: products.sku_settings (OWNER saja). Mengetik atau mengubah SKU manual: products.sku_override (OWNER saja, kecuali diberi izin khusus). Staf hanya memilih Brand, Jenis Produk, dan Variant.",
+      "quick": "Format bawaan: **[Brand]-[Jenis]-[Nomor]-[Variant]**, contoh **KEA-EA-001-1B**. Nomor dibuat otomatis dan tidak pernah dipakai ulang. Semua pengaturan berlaku per Entity.",
+      "steps": [
+        {
+          "title": "Buka Administrasi > Konfigurasi SKU",
+          "text": "Halaman punya lima tab: **Format & Nomor**, **Brand**, **Jenis Produk**, **Variant**, dan **Riwayat**. Menu ini hanya tampil untuk Owner."
+        },
+        {
+          "title": "Isi daftar Brand, Jenis Produk, dan Variant",
+          "text": "Buka tab-nya, tekan **Tambah Brand** (atau Jenis Produk / Variant), isi **Nama**, **Kode** (huruf besar dan angka, maksimal 12 karakter, mis. KEA, EA, 1B), urutan tampil, dan deskripsi. Variant juga punya jenis (Masa berlaku, Paket, Edisi, Tier, Lainnya) dan, untuk masa berlaku, jumlah hari. Bawaan yang sudah tersedia: Brand KEA, KKM, HIK; Jenis EA, IND, TOOL, ACC, EBK, VID, TPL, SRV; Variant 1B, 3B, 6B, 1T, LT.",
+          "tip": "Kode yang masih aktif harus unik. Cari dengan kotak **Cari** di atas tabel."
+        },
+        {
+          "title": "Atur susunan SKU",
+          "text": "Di tab **Format & Nomor**, bagian **Susunan SKU** menampilkan empat kode: Brand, Jenis Produk, Nomor Produk, Variant. Pakai tombol ↑ ↓ untuk mengubah urutan, centang **Dipakai** untuk menyalakan atau mematikan sebuah bagian, dan **Wajib** bila bagian itu harus selalu terisi."
+        },
+        {
+          "title": "Atur pemisah dan angka",
+          "text": "Pilih **Pemisah** (strip, garis miring, titik, garis bawah, titik dua, tanpa pemisah, atau sendiri 1–2 tanda), **Awalan (opsional)** dan **Akhiran (opsional)**, serta **Bagian kosong**: **Dilewati (tanpa pemisah ganda)** atau **Diganti isian tetap**. Lalu isi jumlah digit nomor (bawaan 3), **Mulai dari**, kelipatan naik, dan **Cakupan nomor**: Global, Per Brand, atau Per Brand + Jenis Produk (bawaan dan disarankan, sehingga KEA-EA dan KEA-IND masing-masing mulai dari 001)."
+        },
+        {
+          "title": "Periksa Pratinjau lalu simpan",
+          "text": "Bagian **Pratinjau** menampilkan contoh **SKU produk** dan **SKU variant** sesuai format yang sedang Anda isi, sebelum disimpan. Tekan **Simpan Format SKU**. Matikan **Buat SKU otomatis** bila Anda ingin mengisi semua SKU secara manual.",
+          "warning": "Format baru hanya berlaku untuk produk berikutnya. SKU produk yang sudah ada dan invoice yang sudah dibuat tidak berubah."
+        },
+        {
+          "title": "Mengubah, menonaktifkan, mengarsipkan, atau menghapus",
+          "text": "Pada tiap baris daftar ada **Ubah**, **Nonaktifkan** / **Aktifkan**, **Arsipkan** / **Pulihkan**, dan **Hapus**. Yang nonaktif atau diarsipkan tidak muncul sebagai pilihan untuk produk baru. **Hapus** hanya muncul untuk data yang belum pernah dipakai produk. Mengarsipkan melepas kodenya sehingga bisa dipakai lagi; **Pulihkan** ditolak bila kodenya sudah dipakai data lain."
+        },
+        {
+          "title": "Melihat Riwayat",
+          "text": "Tab **Riwayat** memuat setiap SKU yang dibuat atau diubah: produk, SKU lama, SKU baru, siapa, kapan, dan alasannya."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Contoh hasil format",
+          "columns": ["Pengaturan", "Hasil"],
+          "rows": [
+            ["Bawaan (strip, 3 digit, Brand+Jenis)", "KEA-EA-001, varian KEA-EA-001-1B"],
+            ["Garis miring, awalan HIK, 4 digit", "HIK/KEA/0002/IND"],
+            ["Bagian Jenis dimatikan, cakupan Global", "KEA-001"],
+            ["Variant kosong + isian tetap NA", "KEA-EA-005-NA"]
+          ]
+        }
+      ],
+      "result": [
+        "Produk baru otomatis mendapat SKU sesuai format. Semua perubahan format dan daftar tercatat di Jejak Audit; perubahan SKU produk tercatat di Riwayat."
+      ],
+      "rules": [
+        "Nomor diambil langsung dari database secara atomik: dua orang yang menyimpan bersamaan tidak akan mendapat nomor sama, dan nomor tidak pernah dipakai ulang.",
+        "Setiap Entity punya pengaturan dan daftar sendiri. Entity baru otomatis mendapat daftar bawaan.",
+        "Brand, Jenis, atau Variant yang sudah dipakai tidak bisa dihapus, hanya dinonaktifkan atau diarsipkan.",
+        "Mengubah kode atau nama Brand atau Jenis hanya memengaruhi SKU produk baru; SKU lama tetap.",
+        "Hanya Owner (atau akun yang diberi izin khusus) yang boleh mengetik atau mengubah SKU manual."
+      ],
+      "mistakes": [
+        "Mengira mengubah format akan mengubah SKU produk lama. Hanya produk baru yang terpengaruh.",
+        "Menghapus Brand yang sudah dipakai. Nonaktifkan atau arsipkan saja.",
+        "Memakai kode lebih dari 12 karakter atau huruf kecil/simbol. Kode hanya huruf besar dan angka."
+      ],
+      "errors": [
+        {
+          "message": "Kode itu sudah dipakai oleh data aktif lain.",
+          "meaning": "Ada Brand/Jenis/Variant aktif dengan kode yang sama. Pakai kode lain atau arsipkan yang lama."
+        },
+        {
+          "message": "Isian tidak valid. Kode hanya huruf besar dan angka (maks. 12), pemisah hanya satu atau dua tanda.",
+          "meaning": "Perbaiki kode atau pemisah sesuai petunjuk."
+        },
+        {
+          "message": "Sudah pernah dipakai pada produk, jadi tidak boleh dihapus. Arsipkan saja.",
+          "meaning": "Brand, Jenis, atau Variant itu sudah dipakai; gunakan Arsipkan atau Nonaktifkan."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Akun Anda tidak punya izin products.sku_settings."
+        }
+      ],
+      "related": ["produk-dan-jasa", "varian-produk"]
+    },
+    {
+      "slug": "varian-produk",
+      "title": "Cara Membuat Variant Produk dan Mengubah SKU",
+      "summary": "Membuat versi lain dari produk utama (masa berlaku, paket, edisi, tier) dengan SKU, harga, dan status sendiri; serta mengubah SKU bila perlu.",
+      "path": "Penjualan > Produk & Jasa > (klik produk) > Variant",
+      "who": "Tambah variant: products.create. Ubah SKU: products.sku_override (OWNER).",
+      "quick": "Variant adalah baris produk tersendiri. SKU-nya = SKU produk utama + kode variant, mis. **KEA-EA-001-1B**. Harga dan status variant diatur sendiri.",
+      "steps": [
+        {
+          "title": "Buka detail produk utama",
+          "text": "Buka **Penjualan > Produk & Jasa** lalu klik produk utamanya. Bagian **Variant** menampilkan variant yang sudah ada beserta SKU, harga, dan statusnya."
+        },
+        {
+          "title": "Tambah variant",
+          "text": "Pilih **Variant** (mis. 1B), lihat **SKU variant** pada pratinjau, isi harga bila berbeda dari produk utama, lalu tekan **Tambah Variant**. Variant baru muncul di daftar produk dan bisa dipilih di invoice seperti produk biasa.",
+          "tip": "Bila harga dikosongkan, variant memakai harga bawaan produk utama."
+        },
+        {
+          "title": "Mengubah SKU (Owner)",
+          "text": "Di detail produk, tekan **Ubah SKU (Owner)**, isi **SKU baru** dan **Alasan (opsional)**, lalu **Simpan SKU**. Bila SKU sudah dipakai pada transaksi, muncul peringatan: dokumen lama tetap memakai SKU lama.",
+          "warning": "SKU manual tidak mengikuti struktur otomatis, tetapi tetap harus unik."
+        },
+        {
+          "title": "Mencari produk berdasarkan SKU",
+          "text": "Ketik SKU (mis. KEA-EA-001), nama produk, Brand, atau Jenis di kotak **Cari atau buka halaman…** di bagian atas. Hasil berlabel **Produk** dan membuka halaman detail produk."
+        }
+      ],
+      "result": [
+        "Variant tampil sebagai produk sendiri dengan SKU, harga, dan status sendiri. Riwayat perubahan SKU tampil di detail produk."
+      ],
+      "rules": [
+        "Variant hanya bisa ditambahkan ke produk utama, bukan ke variant lain.",
+        "Satu produk utama hanya boleh punya satu variant dengan kode yang sama.",
+        "Produk utama, Brand, Jenis, dan nomor variant tidak bisa diubah setelah dibuat.",
+        "Pencarian global hanya menampilkan produk bagi pengguna yang berhak melihat produk."
+      ],
+      "mistakes": [
+        "Membuat produk baru terpisah untuk setiap masa berlaku, padahal cukup menambah variant.",
+        "Mengubah SKU berharap invoice lama ikut berubah. Invoice lama menyimpan SKU-nya."
+      ],
+      "errors": [
+        {
+          "message": "Variant itu sudah ada pada produk ini.",
+          "meaning": "Produk ini sudah punya variant dengan kode tersebut."
+        },
+        {
+          "message": "Harga harus berupa angka (maks. 4 desimal).",
+          "meaning": "Isi harga dengan angka saja, titik sebagai desimal."
+        },
+        {
+          "message": "SKU itu sudah dipakai produk lain. SKU harus unik.",
+          "meaning": "Saat mengubah SKU, pilih yang belum dipakai."
+        }
+      ],
+      "related": ["produk-dan-jasa", "sku-otomatis"]
     },
     {
       "slug": "buat-terbitkan-invoice",

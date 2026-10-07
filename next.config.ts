@@ -18,6 +18,10 @@ const nextConfig: NextConfig = {
     "/guide/diagram/[id]": ["./src/content/guide/diagrams/**/*"],
   },
   experimental: {
+    // Back/forward and repeat visits reuse the page the browser already has for a short time instead of asking
+    // the server again (OWNER, 7 October 2026: going back to a menu felt slow). Saving anything (a Server Action
+    // that revalidates) clears this cache, so a page never shows data older than the person's own changes.
+    staleTimes: { dynamic: 30, static: 300 },
     serverActions: {
       // Backup restore sends the backup file's text through a Server Action (decision 247). The browser
       // refuses files over 4 MB first (RESTORE_FILE_MAX_BYTES); Vercel's own request ceiling is 4.5 MB.

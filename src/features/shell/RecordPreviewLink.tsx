@@ -52,7 +52,7 @@ export function RecordPreviewLink({
 
   return (
     <>
-      <a href={href} onClick={onClick}>
+      <a href={href} onClick={onClick} data-quick-preview="true">
         {label}
       </a>
       <Drawer open={open} onClose={() => setOpen(false)} title={title}>
