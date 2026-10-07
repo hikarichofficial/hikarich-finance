@@ -2509,3 +2509,25 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      content because each part is wrapped for dragging (PR #159). The standard arrangement is unchanged in look: logo
      (columns 1-2), company (3-8), title (9-12, right-aligned). Presentation only: no amount, tax or number is affected, and
      issued invoices keep the arrangement they were issued with.
+
+319. **Fully flexible invoice editor: 24 columns, stacked blocks, smart guides, compact table (p53, 7 October 2026).** The
+     OWNER, after trying decision 318: "good but not flexible", free space under the company name could not be used, he
+     wants Canva-style guide lines (is it exactly centred, is it on the edge), the item rows were too tall and too large,
+     and asked for a recommendation for long invoices and a left/right bottom. The page is now 24 columns, a row holds
+     lanes side by side, and a lane stacks several blocks from top to bottom (`stack`), so any block can be dropped into the
+     empty space under another (for example the customer right under the company name beside the logo); a block alone in
+     a lane still slides sideways. Blocks can be dropped into empty columns (a lane of its own), above or below a block
+     (stacked) or on the top or bottom edge of a row (a new row); resizing a block resizes its whole lane. The item table
+     still takes a row of its own. The totals box is no longer fixed: it fills its lane, so its width is the lane's.
+     Smart guides (`alignmentGuides`, red lines with labels) show while a block is moved or resized when its left edge,
+     right edge or middle lines up with the page (edges, exact centre) or with another block, and a status line gives the
+     free columns left and right. New standard arrangement: header (logo, company, title) on one row, customer and dates
+     side by side, the item table, then two columns: payments received, notes and terms on the left; totals and how to
+     pay on the right (the OWNER's sketch). Item table: 13px text, 5px cell padding. Recommendation adopted for long
+     invoices: no cap and no forced second page; printing or saving as PDF breaks the item table between items only, repeats
+     its header on every page and prints "Halaman X dari Y" in the bottom margin (browsers that do not draw page margin
+     boxes leave the number out); the blocks below the table are never cut in half. Layouts saved earlier are converted
+     when read (twelve columns become 24, the old fixed-width totals box becomes a half-page lane in the same place), and
+     the database rule `valid_invoice_layout` (migration `20261007140000`) accepts `grid` 24 and `stack` besides the earlier
+     forms. Presentation only: no amount, tax or number is affected, and issued invoices keep the arrangement they were
+     issued with.

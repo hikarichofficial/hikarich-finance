@@ -45,9 +45,9 @@ function contactLine(party: Party): string | null {
   return parts.length > 0 ? parts.join(" · ") : null;
 }
 
-/** Where a block sits on the twelve-column grid (read by `.doc-row > *` in the stylesheet). */
-export function placementStyle(block: InvoiceBlockSetting): CSSProperties {
-  return { "--col": block.col, "--span": block.span } as CSSProperties;
+/** Where a lane sits on the twenty-four column grid (read by `.doc-row > *` in the stylesheet). */
+export function placementStyle(lane: { col: number; span: number }): CSSProperties {
+  return { "--col": lane.col, "--span": lane.span } as CSSProperties;
 }
 
 function addressLines(party: Party): string[] {
@@ -345,29 +345,34 @@ export function InvoiceDocumentView({
       data-watermark={doc.status === "void" ? "void" : undefined}
     >
       <div className="doc-rows">
-        {rows.map((row, rowIndex) => (
+        {rows.map(({ row, lanes }, rowIndex) => (
           <div
-            key={row.map((block) => block.key).join("+")}
-            className={`doc-row${row.some((block) => block.key === "title") ? " doc-row-rule" : ""}`}
+            key={lanes.map((lane) => lane.blocks.map((block) => block.key).join("+")).join("|")}
+            className={`doc-row${lanes.some((lane) => lane.blocks.some((block) => block.key === "title")) ? " doc-row-rule" : ""}`}
             data-row={rowIndex}
-            data-blocks={row.map((block) => block.key).join(" ")}
+            data-row-id={row}
+            data-blocks={lanes.flatMap((lane) => lane.blocks.map((block) => block.key)).join(" ")}
           >
-            {row.map((block) => {
-              const place = placementStyle(block);
-              const cell = (
-                <div
-                  className="doc-cell"
-                  data-block={block.key}
-                  data-align={block.align}
-                  style={place}
-                >
-                  {content[block.key]}
-                </div>
-              );
-              return (
-                <Fragment key={block.key}>{wrapBlock ? wrapBlock(block, cell) : cell}</Fragment>
-              );
-            })}
+            {lanes.map((lane) => (
+              <div
+                key={lane.blocks.map((block) => block.key).join("+")}
+                className="doc-lane"
+                data-col={lane.col}
+                data-span={lane.span}
+                style={placementStyle(lane)}
+              >
+                {lane.blocks.map((block) => {
+                  const cell = (
+                    <div className="doc-cell" data-block={block.key} data-align={block.align}>
+                      {content[block.key]}
+                    </div>
+                  );
+                  return (
+                    <Fragment key={block.key}>{wrapBlock ? wrapBlock(block, cell) : cell}</Fragment>
+                  );
+                })}
+              </div>
+            ))}
           </div>
         ))}
       </div>
