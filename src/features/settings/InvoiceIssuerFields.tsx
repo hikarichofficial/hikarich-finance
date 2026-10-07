@@ -42,6 +42,7 @@ const FIELDS: readonly {
  */
 export function InvoiceIssuerFields({
   entity,
+  saved,
   draft,
   onChange,
   website,
@@ -49,6 +50,8 @@ export function InvoiceIssuerFields({
   stepUpHref,
 }: {
   entity: string | undefined;
+  /** What is stored now (Pengaturan), to tell whether the typed text has been saved yet. */
+  saved: IssuerDraft;
   draft: IssuerDraft;
   onChange: (next: IssuerDraft) => void;
   /** Not shown on the invoice, but part of the same record, so it is sent back unchanged. */
@@ -60,6 +63,7 @@ export function InvoiceIssuerFields({
     updateEntityIdentityAction,
     idleTimeSettingsState,
   );
+  const unsaved = FIELDS.some((field) => draft[field.key].trim() !== saved[field.key].trim());
   return (
     <form action={action} className="record-form lay-issuer">
       <input type="hidden" name="entity" value={entity ?? ""} />
@@ -86,10 +90,15 @@ export function InvoiceIssuerFields({
           </label>
         ))}
       </div>
-      <div>
+      <div className="lay-issuer-actions">
         <button type="submit" className="btn-primary" disabled={pending}>
           {pending ? "Menyimpan…" : "Simpan Data Perusahaan"}
         </button>
+        {unsaved ? (
+          <span className="hint" role="status">
+            Belum disimpan: invoice di bawah hanya contoh sampai tombol ini ditekan.
+          </span>
+        ) : null}
       </div>
       {state.status !== "idle" ? (
         <p

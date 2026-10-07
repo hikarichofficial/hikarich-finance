@@ -39,6 +39,12 @@ function field(party: Party, key: string): string | null {
   return typeof value === "string" && value.trim() !== "" ? value : null;
 }
 
+/** Email and phone share one line (shorter invoice), separated by a dot. */
+function contactLine(party: Party): string | null {
+  const parts = [field(party, "contact_email"), field(party, "contact_phone")].filter(Boolean);
+  return parts.length > 0 ? parts.join(" · ") : null;
+}
+
 function addressLines(party: Party): string[] {
   const place = [field(party, "city"), field(party, "province"), field(party, "postal_code")]
     .filter(Boolean)
@@ -131,11 +137,7 @@ export function InvoiceDocumentView({
         {addressLines(issuer).map((line) => (
           <p key={line}>{line}</p>
         ))}
-        {[field(issuer, "contact_email"), field(issuer, "contact_phone")]
-          .filter(Boolean)
-          .map((line) => (
-            <p key={line}>{line}</p>
-          ))}
+        {contactLine(issuer) ? <p>{contactLine(issuer)}</p> : null}
       </div>
     ),
     title: (

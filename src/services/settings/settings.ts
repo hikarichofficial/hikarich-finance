@@ -1,6 +1,7 @@
 import "server-only";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
+import { IdentityError, identityFailure } from "@/domain/settings/identityFailure";
 import { type InvoiceLayout, parseInvoiceLayout } from "@/domain/sales/invoiceLayout";
 import {
   approvalRuleListSchema,
@@ -201,7 +202,7 @@ export async function updateEntityIdentity(input: EntityIdentityInput): Promise<
   if (error) {
     const code = parseAuthzCode(error.message);
     if (code) throw new AuthzError(code, error.message);
-    throw new Error("Profil tidak dapat disimpan.");
+    throw new IdentityError(identityFailure(error.message), error.message);
   }
   if (typeof data !== "number") throw new Error("Respons pengaturan tidak dikenali.");
   return data;

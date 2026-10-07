@@ -2476,3 +2476,19 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      `.github/workflows/ci.yml` and `production-migrations.yml` keeps the runner fixed, but the token used to push from
      here may not change workflow files, so it is not part of this change. The "Node.js 20 is deprecated" notice
      (checkout, setup-cli) is informational: GitHub already runs those actions on Node 24.
+
+317. **Compact invoice header and closing blocks; clear company-data save errors (p50, 6 October 2026).** The OWNER: the logo
+     and the company name must sit side by side with INVOICE at the far right ("harus dibuat lebih fleksibel"), the invoice
+     should be shorter, and "Pembayaran diterima, Cara pembayaran, Catatan, Syarat dan ketentuan" should be smaller.
+     (1) A block can now be `fit` (as wide as its content) besides `full` and `half`; the standard arrangement is logo
+     (`fit`) + company (`half`) + title (`half`) in one row, and a row takes up to three neighbouring blocks that are not full
+     width (never more than two halves). Dropping a block to the left or right of another in Tampilan Invoice makes the logo
+     `fit` and the others `half`; "Sesuai isi / Setengah / Penuh" in the panel sets it by hand. The database rule
+     `valid_invoice_layout` accepts `fit` (migration `20261007120000`, presentation only, no amount, tax or number is
+     affected). Layouts saved earlier keep their arrangement (a logo saved as full width stays on its own row until set to
+     "Sesuai isi"), and issued invoices keep the look they were issued with (decision 310). (2) The company's email and phone
+     share one line, and the company lines and the four closing blocks use smaller type and tighter spacing. (3) Saving
+     company data in Tampilan Invoice: production showed no `entities.identity_changed` event, i.e. no company-data save had
+     ever reached the database, while the page gave no usable reason. The refusal is now named in Indonesian (data changed
+     elsewhere, email not valid, too long, legal name missing, other) and the database's own text is logged for the
+     developer; the form also says "Belum disimpan" while what is typed differs from what is stored.
