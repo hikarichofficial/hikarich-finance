@@ -2698,3 +2698,10 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      `body { overflow-x: clip }` (cuts horizontal overflow without creating a scroll container). Checked in
      Chromium: with the old rule the menu moved to -1200px after a 1200px scroll; with `clip` it stays at 0.
      Styling only, no behaviour or database change.
+
+330. **The receipt number on the invoice page opens the receipt (p64, 7 October 2026).** Owner report: on the
+     internal invoice page the "Dokumen" preview showed "Kwitansi RCP-..." as plain text, while the same document
+     on the customer's public link has it as a link. The internal page now builds the link too:
+     `/sales/invoices/<id>/receipt?no=RCP-...` shows the same receipt document as the public page (same back link
+     "Kembali ke invoice" and print button), read with the existing `payment_receipt_document`. The receipt number
+     must be one of THIS invoice's payments, otherwise the page answers "not found". No database change.

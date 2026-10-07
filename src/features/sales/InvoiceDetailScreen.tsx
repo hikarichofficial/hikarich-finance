@@ -32,6 +32,7 @@ export function InvoiceDetailScreen({
   logo,
   layout,
   claimsNotice,
+  receiptHref,
 }: {
   invoiceId: string;
   doc: InvoiceDocument;
@@ -51,6 +52,8 @@ export function InvoiceDetailScreen({
   logo?: string | null;
   /** The current arrangement, used to preview a draft (an issued invoice carries its own). */
   layout?: InvoiceLayout | null;
+  /** Where a payment's receipt opens (decision 330); without it the receipt number is plain text. */
+  receiptHref?: (receiptNumber: string) => string;
 }) {
   const status = invoiceDocumentStatus(doc);
   const timeline = invoiceActivityTimeline(doc);
@@ -185,6 +188,7 @@ export function InvoiceDetailScreen({
           doc={doc}
           logo={logo}
           layout={doc.status === "draft" ? layout : null}
+          receiptHref={receiptHref}
         />
       </section>
 

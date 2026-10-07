@@ -54,6 +54,11 @@ export default async function InvoiceDetailPage({
   const selfHref = entity
     ? `/sales/invoices/${id}?entity=${encodeURIComponent(entity)}`
     : `/sales/invoices/${id}`;
+  const receiptHref = (receiptNumber: string) =>
+    `/sales/invoices/${id}/receipt?${new URLSearchParams({
+      ...(entity ? { entity } : {}),
+      no: receiptNumber,
+    }).toString()}`;
   const claimsHref = entity
     ? `/sales/claims?entity=${encodeURIComponent(entity)}`
     : "/sales/claims";
@@ -87,6 +92,7 @@ export default async function InvoiceDetailPage({
         invoiceId={id}
         doc={doc}
         logo={logo}
+        receiptHref={receiptHref}
         layout={layout}
         backHref={backHref}
         taxPanel={
