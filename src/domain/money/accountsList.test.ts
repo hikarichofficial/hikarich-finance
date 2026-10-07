@@ -43,7 +43,7 @@ function reconciliation(overrides: Partial<ReconciliationStatusRow> = {}): Recon
 }
 
 function row(overrides: Partial<AccountListRow> = {}): AccountListRow {
-  return { ...control(), reconciliation: reconciliation(), ...overrides };
+  return { ...control(), reconciliation: reconciliation(), account_masked: null, ...overrides };
 }
 
 describe("mergeAccountRows", () => {
@@ -55,6 +55,15 @@ describe("mergeAccountRows", () => {
     expect(merged.map((r) => r.financial_account_id)).toEqual(["a", "b"]);
     expect(merged[0].reconciliation).not.toBeNull();
     expect(merged[1].reconciliation).toBeNull();
+  });
+
+  it("carries the masked account number of each account, null when there is none", () => {
+    const merged = mergeAccountRows(
+      [control({ financial_account_id: "a" }), control({ financial_account_id: "b" })],
+      [],
+      { a: "******7890" },
+    );
+    expect(merged.map((r) => r.account_masked)).toEqual(["******7890", null]);
   });
 });
 

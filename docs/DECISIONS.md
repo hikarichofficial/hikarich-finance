@@ -2584,3 +2584,14 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      helper `valid_invoice_layout_v2`) accepts version 2 with exactly these keys and ranges and still accepts version 1,
      so migrations 20261007120000-140000 stay. Presentation only: no amount, tax, number or text is affected, the six
      blocks that carry them cannot be hidden, and issued invoices keep the arrangement they were issued with.
+
+322. **Masked account number shown; app servers moved next to the database (p56, 7 October 2026).** Owner approval
+     (7 October 2026): the number of a cash/bank account stays write-only (finding #90), but the owner must be able to
+     recognise which bank account is which. The table `financial_accounts` gets a generated column
+     `account_number_masked` (migration `20261007160000`): stars for all but the last four characters, e.g.
+     `***********7890`, never the full number. Only this column is granted to `authenticated`; `account_number` stays
+     unreadable. The audit trigger excludes the masked column like the full number. The Rekening list has a "Nomor
+     Rekening" column and the account page shows the masked number under the title and in "Ubah Detail Rekening"
+     ("Tersimpan: ..."); the field stays empty with "Kosongkan jika tidak diubah". Speed: the app functions ran in
+     Washington (`iad1`) while the database is in Singapore (`ap-southeast-1`), so every query crossed the ocean. A new
+     `vercel.json` pins the functions to Singapore (`sin1`); no data, amount or rule changes.

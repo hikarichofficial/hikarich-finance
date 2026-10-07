@@ -533,6 +533,25 @@ export async function getAccountEditableFields(
   };
 }
 
+/** The saved account numbers as stars and the last four digits, by account id (decision 322). The whole number is
+ * never read: only the generated `account_number_masked` column is readable. Best effort: a failed read shows no
+ * numbers rather than stopping the screen. */
+export async function listAccountNumberHints(
+  entityId: string,
+): Promise<Record<string, string | null>> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("financial_accounts")
+    .select("id, account_number_masked")
+    .eq("entity_id", uuidResultSchema.parse(entityId));
+  if (error || !data) return {};
+  const out: Record<string, string | null> = {};
+  for (const row of data as { id: string; account_number_masked: string | null }[]) {
+    out[String(row.id)] = row.account_number_masked ?? null;
+  }
+  return out;
+}
+
 /** Which ledger account each cash/bank account is linked to (finding #91), by an RLS-governed direct read. */
 export async function listFinancialAccountLinks(
   entityId: string,

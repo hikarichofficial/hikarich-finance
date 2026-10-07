@@ -229,6 +229,8 @@ begin
   perform test_helpers.expect_error('select * from public.contacts', '42501', 'select * cannot expand hidden columns');
   perform test_helpers.expect_error('select account_number from public.contact_bank_accounts', '42501', 'bank account number is hidden');
   perform test_helpers.expect_error('select account_number from public.financial_accounts', '42501', 'financial account number is hidden');
+  perform test_helpers.assert(test_helpers.rows('select account_number_masked from public.financial_accounts where account_number_masked is not null') >= 1, 'masked financial account number is readable');
+  perform test_helpers.assert(not exists (select 1 from public.financial_accounts where account_number_masked ~ '[0-9]{5}'), 'masked number never shows more than four digits in a row');
   perform test_helpers.expect_error('select fingerprint_hash from public.trusted_devices', '42501', 'device fingerprint hash is hidden');
   perform test_helpers.expect_error(
     format('update public.contacts set tax_identifier = %L where id = %L', 'X', v_contact), '42501', 'tax identifier is not writable');
