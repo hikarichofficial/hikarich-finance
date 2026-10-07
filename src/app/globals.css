@@ -586,7 +586,7 @@ body {
  * lanes side by side, every lane says where it starts (--col) and how many columns it spans (--span), and a lane
  * stacks its blocks from top to bottom. Each block is aligned left, centre or right inside its lane. */
 .doc-rows {
-  --doc-gap: 8px;
+  --doc-gap: 12px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -720,8 +720,6 @@ body {
  * tinted box, an item table with a tinted header and quiet banding, and the amount due set in a band. Only looks:
  * nothing here changes what is shown. */
 .doc {
-  --doc-tint: #f6f3ee;
-  --doc-band: #fbf9f6;
   padding: 40px 44px 36px;
   font-size: 0.875rem;
   border-top: 4px solid var(--doc-bronze);
@@ -792,23 +790,28 @@ body {
   font-size: 1rem;
 }
 
-/* The dates, a tinted box of label and value pairs. */
+/* Every block sits flush with the page margins, so the left edges and the right edges of the letterhead, the
+ * customer, the table, the totals and the closing blocks all line up, and the page is symmetrical. Sections are
+ * separated by hairlines, never by boxes that would push the text in. */
+.doc .doc-cell[data-block="customer"] {
+  padding-top: 8px;
+  border-top: 1px solid var(--doc-line);
+}
+
 .doc .doc-cell .doc-dates {
   display: grid;
   grid-template-columns: 1fr auto;
   gap: 0;
   width: 100%;
   margin: 0;
-  padding: 4px 16px;
-  background: var(--doc-tint);
-  border-radius: 8px;
+  padding: 0;
+  border-top: 1px solid var(--doc-line);
 }
 
 .doc .doc-dates dt,
 .doc .doc-dates dd {
   margin: 0;
-  padding: 7px 0;
-  border-bottom: 1px solid var(--doc-line);
+  padding: 5px 0;
 }
 
 .doc .doc-dates dt {
@@ -820,15 +823,9 @@ body {
   text-align: right;
 }
 
-.doc .doc-dates dt:last-of-type,
-.doc .doc-dates dd:last-of-type {
-  border-bottom: 0;
-}
-
-/* The item table: tinted header, ink rule under it, quiet banding. */
+/* The item table: ink rules over and under the header and under the last item, numbers flush right. */
 .doc .doc-lines {
   font-size: 0.8125rem;
-  border-top: 0;
 }
 
 .doc .doc-lines th {
@@ -837,31 +834,42 @@ body {
   font-weight: 600;
   letter-spacing: 0.08em;
   color: var(--doc-ink);
-  background: var(--doc-tint);
+  border-top: 1px solid var(--doc-ink);
   border-bottom: 1px solid var(--doc-ink);
 }
 
 .doc .doc-lines td {
   padding: 6px 10px;
-  border-bottom: 1px solid rgba(25, 23, 20, 0.07);
+  border-bottom: 1px solid rgba(25, 23, 20, 0.1);
 }
 
-.doc .doc-lines tbody tr:nth-child(even) td {
-  background: var(--doc-band);
+.doc .doc-lines th:first-child,
+.doc .doc-lines td:first-child {
+  padding-left: 0;
+}
+
+.doc .doc-lines th:last-child,
+.doc .doc-lines td:last-child {
+  padding-right: 0;
 }
 
 .doc .doc-lines tbody tr:last-child td {
   border-bottom: 1px solid var(--doc-ink);
 }
 
-/* The totals: quiet rows, the amount due set in a band. */
+/* The totals: rows with the amounts flush right under the table's last column; the amount due ruled in ink. */
+.doc .doc-cell[data-block="totals"] {
+  padding-top: 6px;
+  border-top: 1px solid var(--doc-line);
+}
+
 .doc .doc-totals {
   padding-right: 0;
   font-size: 0.8125rem;
 }
 
 .doc-totals > div {
-  padding: 4px 10px;
+  padding: 3px 0;
 }
 
 .doc-totals dt {
@@ -870,16 +878,22 @@ body {
 
 .doc .doc-totals .grand {
   margin-top: 6px;
-  padding: 8px 10px;
+  padding: 7px 0;
   font-size: 0.9375rem;
   font-weight: 700;
   color: var(--doc-ink);
-  background: var(--doc-tint);
   border-top: 1px solid var(--doc-ink);
 }
 
 .doc .doc-totals .grand dt {
   color: var(--doc-ink);
+}
+
+@media (max-width: 640px) {
+  .doc .doc-lines td {
+    padding: 2px 0;
+    border-bottom: 0;
+  }
 }
 
 /* Payments, how to pay, notes and terms: small print with a hairline over each block. */
@@ -1045,7 +1059,7 @@ body {
 .lay-ruler-cols {
   display: grid;
   grid-template-columns: repeat(24, minmax(0, 1fr));
-  column-gap: 8px;
+  column-gap: 12px;
 }
 
 .lay-ruler-cols span {
@@ -1092,7 +1106,7 @@ body {
 .lay-grid-cols {
   display: grid;
   grid-template-columns: repeat(24, minmax(0, 1fr));
-  column-gap: 8px;
+  column-gap: 12px;
   height: 100%;
 }
 
