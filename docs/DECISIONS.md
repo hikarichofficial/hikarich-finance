@@ -2835,3 +2835,24 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      amortisation and 8300 final tax on investment income. Not decided and left to the owner and a tax adviser: how
      crypto and forex are recognised (cost, fair value) and their tax treatment, and whether term deposits of up to
      3 months should sit under cash equivalents. Tests `99_p33_asset_origin.sql`, `assetFormGuide.test.ts`.
+
+344. **Research on fiscal groups for old years, forex and crypto (owner request, 8 October 2026).** Sources are
+     official or well-known tax sites; the owner should have a tax adviser confirm. (a) Fiscal groups for old years:
+     the lives (Kelompok 1-4 = 4, 8, 16, 20 years; permanent building 20, non-permanent 10) come from Article 11 of
+     the Income Tax Law and are the same in the older ministerial rules, so rule version 2 (from 1900-01-01) is
+     sound for the lives. What changed over time is which kind of asset belongs to which group: KMK 520/KMK.04/2000
+     (from 1 January 2001; computers were in Kelompok II), KMK 138/KMK.03/2002, PMK 96/PMK.03/2009 (from 1 January
+     2009, not retroactive; an asset not listed is Kelompok 3) and PMK 72/2023 (replaces PMK 96/2009; for buildings
+     and intangibles owned before tax year 2022 the owner could choose the life in the books, notified by 30 April
+     2024). The form now warns, for an asset in service before 2009, that the grouping of items follows the older
+     rule and the person should match the group with their tax records. Not confirmed by any source found: whether
+     the tax life of a used asset is the full life of its group (decision 343 assumes so); to be confirmed.
+     (b) Forex trading: the profit is ordinary (non-final) income, reported in the annual return (UU PPh Art. 4(1)
+     and 17; corporate rate 22% under UU HPP; losses offset gains within the year per one source); in the books
+     (PSAK 71), a trading position is carried at fair value with the change in profit or loss, and transaction
+     costs are expensed; tax follows realisation, so a fiscal correction may be needed for unrealised amounts.
+     Accounts 1220, 7210, 7220, 7320 and 7370 serve this. Whether a small company may leave forex profit out of
+     the 0,5% final regime base is not settled by the sources and is left to a tax adviser. (c) Crypto: since 1
+     August 2025 (PMK 50/2025) a sale is subject to final Income Tax Article 22 withheld by the platform, 0,21% via a
+     domestic digital-asset trader and 1% via other platforms, with no VAT on the asset itself; mining income
+     follows the general rates from tax year 2026. Accounts 1230, 7150, 7230, 7330 and 8300 serve this.

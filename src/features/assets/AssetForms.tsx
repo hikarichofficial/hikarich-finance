@@ -284,6 +284,13 @@ export function DepreciationFields({
           Dipilih otomatis dari nama atau akun aset: {suggestion.label}. Ubah bila tidak sesuai.
         </p>
       ) : null}
+      {serviceDate && serviceDate < "2009-01-01" ? (
+        <p className="hint">
+          Aset yang dipakai sebelum 2009 mengikuti pengelompokan barang menurut aturan pajak lama,
+          yang bisa berbeda dari sekarang (misalnya komputer dulu masuk Kelompok 2). Umur tiap
+          golongan tetap sama. Cocokkan pilihan golongan dengan catatan pajak Anda.
+        </p>
+      ) : null}
       {fiscalClass === "" && !notDepreciated ? (
         <p className="hint">
           Pilih jenis yang paling mirip; contoh barang ada di tiap pilihan. Umur manfaat dan
