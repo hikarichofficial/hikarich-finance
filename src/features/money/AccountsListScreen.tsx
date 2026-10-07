@@ -125,6 +125,7 @@ export function AccountsListScreen({
             <tr>
               <th scope="col">Nama Akun</th>
               <th scope="col">Jenis</th>
+              <th scope="col">Nomor Rekening</th>
               <th scope="col">Status</th>
               <th scope="col" className="num">
                 Saldo Sistem
@@ -146,6 +147,7 @@ export function AccountsListScreen({
                     <Link href={href}>{row.name}</Link>
                   </td>
                   <td data-label="Jenis">{row.kind}</td>
+                  <td data-label="Nomor Rekening">{row.account_masked ?? "—"}</td>
                   <td data-label="Status">
                     <span className={`status-badge status-badge-${status.tone}`}>
                       {status.text}

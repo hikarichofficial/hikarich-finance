@@ -154,10 +154,12 @@ export function EditAccountDetailsForm({
   entity,
   accountId,
   current,
+  maskedNumber,
 }: {
   entity: string | undefined;
   accountId: string;
   current: { name: string; institution_name: string; account_holder: string };
+  maskedNumber: string | null;
 }) {
   const [state, action, pending] = useActionState(
     updateAccountDetailsAction,
@@ -184,6 +186,7 @@ export function EditAccountDetailsForm({
         </label>
         <label>
           Nomor Rekening (opsional)
+          {maskedNumber ? <span className="hint">Tersimpan: {maskedNumber}</span> : null}
           <input
             name="account_number"
             maxLength={60}

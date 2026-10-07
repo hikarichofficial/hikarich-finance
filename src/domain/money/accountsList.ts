@@ -20,16 +20,20 @@ export interface AccountListStatus {
 
 export interface AccountListRow extends MoneyControlRow {
   reconciliation: ReconciliationStatusRow | null;
+  /** The saved account number as stars and the last four digits (never the whole number), or null when none. */
+  account_masked: string | null;
 }
 
 export function mergeAccountRows(
   control: readonly MoneyControlRow[],
   reconciliation: readonly ReconciliationStatusRow[],
+  numbers: Readonly<Record<string, string | null>> = {},
 ): AccountListRow[] {
   const byId = new Map(reconciliation.map((r) => [r.financial_account_id, r]));
   return control.map((row) => ({
     ...row,
     reconciliation: byId.get(row.financial_account_id) ?? null,
+    account_masked: numbers[row.financial_account_id] ?? null,
   }));
 }
 

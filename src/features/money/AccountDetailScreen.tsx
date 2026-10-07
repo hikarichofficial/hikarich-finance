@@ -71,6 +71,9 @@ export function AccountDetailScreen({
         <div>
           <p className="record-detail-eyebrow">Akun Kas &amp; Bank · {account.kind}</p>
           <h1>{account.name}</h1>
+          {account.account_masked ? (
+            <p className="record-detail-eyebrow">No. Rekening {account.account_masked}</p>
+          ) : null}
         </div>
         <div className="record-detail-header-end">
           <span className={`status-badge status-badge-${status.tone}`}>{status.text}</span>
@@ -215,6 +218,7 @@ export function AccountDetailScreen({
               entity={entity}
               accountId={account.financial_account_id}
               current={editable}
+              maskedNumber={account.account_masked}
             />
           ) : null}
           <ToggleAccountActiveForm

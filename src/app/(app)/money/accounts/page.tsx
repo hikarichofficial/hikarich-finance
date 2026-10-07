@@ -1,6 +1,10 @@
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import { getMoneyControl, getReconciliationStatus } from "@/services/money/money";
+import {
+  getMoneyControl,
+  getReconciliationStatus,
+  listAccountNumberHints,
+} from "@/services/money/money";
 import {
   filterAccountRows,
   mergeAccountRows,
@@ -20,11 +24,12 @@ export default async function AccountsListPage({
   const filter = parseAccountFilter(status) ?? null;
   const query = q ?? "";
 
-  const [control, reconciliation] = await Promise.all([
+  const [control, reconciliation, numbers] = await Promise.all([
     getMoneyControl(membership.entity_id),
     getReconciliationStatus(membership.entity_id),
+    listAccountNumberHints(membership.entity_id),
   ]);
-  const rows = mergeAccountRows(control, reconciliation);
+  const rows = mergeAccountRows(control, reconciliation, numbers);
   const visible = filterAccountRows(rows, filter, query);
 
   return (

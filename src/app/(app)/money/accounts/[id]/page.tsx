@@ -5,6 +5,7 @@ import {
   getAccountActivity,
   getAccountEditableFields,
   getMoneyControl,
+  listAccountNumberHints,
   getReconciliationStatus,
 } from "@/services/money/money";
 import { mergeAccountRows, resolveActivityRange } from "@/domain/money/accountsList";
@@ -27,11 +28,12 @@ export default async function AccountDetailPage({
   const { entity, from, to } = await searchParams;
   const { access, membership } = await requirePermission("money.view", { entityCode: entity });
 
-  const [control, reconciliation] = await Promise.all([
+  const [control, reconciliation, numbers] = await Promise.all([
     getMoneyControl(membership.entity_id),
     getReconciliationStatus(membership.entity_id),
+    listAccountNumberHints(membership.entity_id),
   ]);
-  const account = mergeAccountRows(control, reconciliation).find(
+  const account = mergeAccountRows(control, reconciliation, numbers).find(
     (row) => row.financial_account_id === id,
   );
   if (!account) notFound();
