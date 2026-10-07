@@ -9,7 +9,7 @@ import {
   parseInvoiceLayout,
 } from "@/domain/sales/invoiceLayout";
 import type { InvoiceDocument } from "@/schemas/sales";
-import { Fragment, type ReactNode } from "react";
+import { Fragment, type CSSProperties, type ReactNode } from "react";
 
 /**
  * The invoice as a customer reads it (P13 Part 5, first increment; Step 11 -- Invoice/Receipt Visual
@@ -43,6 +43,11 @@ function field(party: Party, key: string): string | null {
 function contactLine(party: Party): string | null {
   const parts = [field(party, "contact_email"), field(party, "contact_phone")].filter(Boolean);
   return parts.length > 0 ? parts.join(" · ") : null;
+}
+
+/** Where a block sits on the twelve-column grid (read by `.doc-row > *` in the stylesheet). */
+export function placementStyle(block: InvoiceBlockSetting): CSSProperties {
+  return { "--col": block.col, "--span": block.span } as CSSProperties;
 }
 
 function addressLines(party: Party): string[] {
@@ -340,20 +345,21 @@ export function InvoiceDocumentView({
       data-watermark={doc.status === "void" ? "void" : undefined}
     >
       <div className="doc-rows">
-        {rows.map((row) => (
+        {rows.map((row, rowIndex) => (
           <div
             key={row.map((block) => block.key).join("+")}
-            className={`doc-row doc-row-${row.length}${
-              row.some((block) => block.key === "title") ? " doc-row-rule" : ""
-            }`}
+            className={`doc-row${row.some((block) => block.key === "title") ? " doc-row-rule" : ""}`}
+            data-row={rowIndex}
+            data-blocks={row.map((block) => block.key).join(" ")}
           >
             {row.map((block) => {
+              const place = placementStyle(block);
               const cell = (
                 <div
                   className="doc-cell"
                   data-block={block.key}
                   data-align={block.align}
-                  data-width={block.width}
+                  style={place}
                 >
                   {content[block.key]}
                 </div>

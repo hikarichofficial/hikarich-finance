@@ -558,6 +558,7 @@ body {
 .doc-issuer .doc-logo,
 .doc-cell .doc-logo {
   display: block;
+  width: auto;
   max-width: 180px;
   max-height: 72px;
   object-fit: contain;
@@ -577,55 +578,31 @@ body {
   max-height: 120px;
 }
 
-/* The invoice document is a stack of rows (decision 310); a row holds one block, or up to three side by side:
- * a block that is only as wide as its content (the logo) and up to two that share the rest (the company and the
- * invoice title). Each block is aligned left, centre or right inside its cell. */
+/* The invoice document is a stack of rows on a grid of twelve columns (decisions 310, 318): every block says where
+ * it starts (--col) and how many columns it spans (--span). Each block is aligned left, centre or right inside
+ * its own cells. */
 .doc-rows {
+  --doc-gap: 16px;
   display: flex;
   flex-direction: column;
   gap: 16px;
 }
 
 .doc-row {
-  display: flex;
-  align-items: flex-start;
-  gap: 20px;
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  align-items: start;
+  column-gap: var(--doc-gap);
 }
 
-.doc-row > .doc-cell {
-  flex: 1 1 0;
+.doc-row > * {
+  grid-column: var(--col, 1) / span var(--span, 12);
   min-width: 0;
-}
-
-.doc-row > .doc-cell[data-width="fit"] {
-  flex: 0 0 auto;
-  max-width: 100%;
 }
 
 .doc-row-rule {
   padding-bottom: 20px;
   border-bottom: 1px solid var(--doc-line);
-}
-
-/* Beside other blocks the invoice title only takes its own width, so the company name gets the room. */
-.doc-row-2 > .doc-cell[data-block="title"],
-.doc-row-3 > .doc-cell[data-block="title"] {
-  flex: 0 0 auto;
-  max-width: 45%;
-}
-
-.doc-row-1 > .doc-cell[data-width="half"] {
-  flex: 0 0 calc(50% - 10px);
-}
-
-.doc-row-1 > .doc-cell[data-width="fit"][data-align="center"],
-.doc-row-1 > .doc-cell[data-width="half"][data-align="center"] {
-  margin-inline: auto;
-}
-
-.doc-row-1 > .doc-cell[data-width="fit"][data-align="right"],
-.doc-row-1 > .doc-cell[data-width="half"][data-align="right"] {
-  margin-left: auto;
 }
 
 .doc-cell[data-align="center"] {
@@ -680,17 +657,12 @@ body {
 
 @media (max-width: 640px) {
   .doc-row {
-    flex-direction: column;
-    gap: 12px;
+    grid-template-columns: 1fr;
+    row-gap: 12px;
   }
 
-  .doc-row > .doc-cell[data-width="fit"] {
-    flex: 0 0 auto;
-  }
-
-  .doc-row-1 > .doc-cell[data-width="half"] {
-    flex: 1 1 auto;
-    width: 100%;
+  .doc-row > * {
+    grid-column: 1 / -1;
   }
 }
 
@@ -857,20 +829,179 @@ body {
   opacity: 0.4;
 }
 
-.lay-block[data-drop="top"] {
-  box-shadow: 0 -4px 0 0 #2563eb;
+.lay-area {
+  position: relative;
 }
 
-.lay-block[data-drop="bottom"] {
-  box-shadow: 0 4px 0 0 #2563eb;
+.lay-doc-wrap {
+  position: relative;
 }
 
-.lay-block[data-drop="left"] {
-  box-shadow: -4px 0 0 0 #2563eb;
+.lay-guides-toggle {
+  display: inline-block;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
 }
 
-.lay-block[data-drop="right"] {
-  box-shadow: 4px 0 0 0 #2563eb;
+/* The ruler above the page: twelve numbered columns laid out exactly like the document's grid (the document has a
+ * 1px border and 32px padding), and the percentages across the page. */
+.lay-ruler {
+  padding: 0 33px 6px;
+  color: #6b6459;
+  font-size: 0.6875rem;
+}
+
+.lay-ruler-cols {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 16px;
+}
+
+.lay-ruler-cols span {
+  padding-bottom: 2px;
+  text-align: center;
+  border-bottom: 2px solid #c9c2b6;
+}
+
+.lay-ruler-cols span[data-active="true"] {
+  color: #1d4ed8;
+  font-weight: 600;
+  border-bottom-color: #2563eb;
+}
+
+.lay-ruler-pct {
+  position: relative;
+  height: 14px;
+}
+
+.lay-ruler-pct span {
+  position: absolute;
+  top: 2px;
+  transform: translateX(-50%);
+}
+
+.lay-ruler-pct span:first-child {
+  transform: none;
+}
+
+.lay-ruler-pct span:last-child {
+  transform: translateX(-100%);
+}
+
+/* Guide lines over the page: the twelve columns, the page centre, and the selected block's columns. */
+.lay-grid {
+  position: absolute;
+  inset: 33px;
+  pointer-events: none;
+}
+
+.lay-grid-cols {
+  display: grid;
+  grid-template-columns: repeat(12, minmax(0, 1fr));
+  column-gap: 16px;
+  height: 100%;
+}
+
+.lay-grid-cols > span {
+  grid-row: 1;
+  background: rgba(37, 99, 235, 0.045);
+}
+
+.lay-grid-cols > .lay-band {
+  background: rgba(37, 99, 235, 0.1);
+  border-inline: 1px solid rgba(37, 99, 235, 0.55);
+}
+
+.lay-center {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 1px dashed rgba(220, 38, 38, 0.6);
+}
+
+.lay-drop {
+  position: absolute;
+  z-index: 5;
+  pointer-events: none;
+  border-radius: 6px;
+}
+
+.lay-drop[data-kind="box"] {
+  background: rgba(37, 99, 235, 0.16);
+  border: 2px solid #2563eb;
+}
+
+.lay-drop[data-kind="line"] {
+  background: #2563eb;
+}
+
+.lay-handle {
+  position: absolute;
+  top: 50%;
+  z-index: 3;
+  width: 8px;
+  height: 36px;
+  margin-top: -18px;
+  background: #2563eb;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  cursor: ew-resize;
+  touch-action: none;
+}
+
+.lay-handle[data-edge="left"] {
+  left: -5px;
+}
+
+.lay-handle[data-edge="right"] {
+  right: -5px;
+}
+
+.lay-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+  font-size: 0.875rem;
+}
+
+.lay-stepper > span {
+  flex: 1;
+}
+
+.lay-stepper output {
+  min-width: 1.5em;
+  text-align: center;
+  font-weight: 600;
+}
+
+.lay-stepper button {
+  width: 32px;
+  height: 32px;
+  font: inherit;
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.lay-stepper button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.lay-group .hint[data-balanced="true"] {
+  color: #1f6b3a;
+}
+
+@media (max-width: 640px) {
+  .lay-ruler,
+  .lay-grid {
+    display: none;
+  }
 }
 
 .lay-tag {
