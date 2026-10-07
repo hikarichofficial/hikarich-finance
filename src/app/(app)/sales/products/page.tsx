@@ -30,6 +30,7 @@ export default async function ProductsListPage({
       entity={entity}
       baseCurrency={baseCurrency}
       canCreate={can(access, membership.entity_id, "products.create")}
+      canConfigureSku={can(access, membership.entity_id, "products.sku_settings")}
     />
   );
 }

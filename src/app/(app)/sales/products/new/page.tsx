@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
+import { getSkuSettings, listSkuMasters } from "@/services/products/sku";
 import { listActiveCategories } from "@/services/accounting/categories";
 import { getEntityBaseCurrency } from "@/services/accounting/ledger";
 import { ProductForm } from "@/features/products/ProductForm";
@@ -12,11 +14,18 @@ export default async function NewProductPage({
   searchParams: Promise<{ entity?: string }>;
 }) {
   const { entity } = await searchParams;
-  const { membership } = await requirePermission("products.create", { entityCode: entity });
-  const [categories, baseCurrency] = await Promise.all([
+  const { access, membership } = await requirePermission("products.create", {
+    entityCode: entity,
+  });
+  const [categories, baseCurrency, settings, brands, types] = await Promise.all([
     listActiveCategories(membership.entity_id),
     getEntityBaseCurrency(membership.entity_id),
+    getSkuSettings(membership.entity_id),
+    listSkuMasters("brand", membership.entity_id),
+    listSkuMasters("type", membership.entity_id),
   ]);
+  const live = <T extends { archived_at: string | null; is_active: boolean }>(rows: readonly T[]) =>
+    rows.filter((row) => !row.archived_at && row.is_active);
   const backHref = entity
     ? `/sales/products?entity=${encodeURIComponent(entity)}`
     : "/sales/products";
@@ -38,6 +47,10 @@ export default async function NewProductPage({
           categories={categories.filter((c) => c.kind === "revenue")}
           baseCurrency={baseCurrency}
           entity={entity}
+          brands={live(brands)}
+          types={live(types)}
+          autoGenerate={settings?.auto_generate ?? false}
+          canOverride={can(access, membership.entity_id, "products.sku_override")}
         />
       </section>
     </div>

@@ -16,4 +16,5 @@ export const SEARCH_TARGET_TYPE_LABELS: Readonly<Record<SearchTargetType, string
   other_obligation: "Piutang/Utang Lain-lain",
   equity_event: "Transaksi Ekuitas",
   journal_entry: "Jurnal",
+  product: "Produk",
 };

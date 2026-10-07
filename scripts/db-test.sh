@@ -731,6 +731,32 @@ SQL
 RC_OWNER="d3000000-0000-0000-0000-000000000001"
 rc_gen_run() { local w="$1"; mc_as "$RC_OWNER" "select public.run_due_recurring_occurrences('$RC_ENT');"; }
 
+# SKU generator (decision 324): parallel sessions creating products of the same brand and type must each get a
+# distinct, gap-free number and a distinct SKU, even though nothing is shared but the counter row.
+sku_concurrency_test() {
+  echo "  testing  concurrent SKU generation (6 sessions x 20 products in one scope)"
+  local workers=6 per_worker=20 pids=() w rc=0
+  for ((w = 1; w <= workers; w++)); do
+    (
+      for ((i = 1; i <= per_worker; i++)); do
+        echo "insert into public.products (entity_id, kind, name, brand_id, product_type_id) select e.id, 'product', 'Race ${w}-${i}', b.id, t.id from public.entities e join public.product_brands b on b.entity_id = e.id and b.code = 'KEA' join public.product_types t on t.entity_id = e.id and t.code = 'EA' where e.code = 'demo_pt';"
+      done | "${PSQL[@]}" -o /dev/null "$TEST_URL"
+    ) &
+    pids+=($!)
+  done
+  for pid in "${pids[@]}"; do wait "$pid" || rc=1; done
+  if [[ $rc -ne 0 ]]; then
+    echo "FAIL: a concurrent SKU session failed." >&2
+    exit 1
+  fi
+  local result expected="$((workers * per_worker))/$((workers * per_worker))/1/$((workers * per_worker))"
+  result="$("${PSQL[@]}" -tA "$TEST_URL" -c "select count(*) || '/' || count(distinct sku) || '/' || min(sku_number) || '/' || max(sku_number) from public.products where name like 'Race %'")"
+  if [[ "$result" != "$expected" ]]; then
+    echo "FAIL: concurrent SKU generation produced $result, expected $expected (count/distinct/min/max)." >&2
+    exit 1
+  fi
+}
+
 recurring_concurrency_test() {
   echo "  testing  concurrent recurring occurrence generation (6 sessions racing to claim the same due rules)"
   "${PSQL[@]}" -o /dev/null "$TEST_URL" <<SQL
@@ -804,6 +830,7 @@ rebuild() {
   sales_concurrency_test
   purchases_concurrency_test
   recurring_concurrency_test
+  sku_concurrency_test
 }
 
 fingerprint() {

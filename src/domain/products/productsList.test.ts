@@ -16,6 +16,12 @@ function row(overrides: Partial<ProductRow>): ProductRow {
     default_category_id: null,
     is_active: true,
     version: 1,
+    brand_id: null,
+    product_type_id: null,
+    sku_number: null,
+    parent_product_id: null,
+    variant_id: null,
+    sku_manual: false,
     ...overrides,
   };
 }

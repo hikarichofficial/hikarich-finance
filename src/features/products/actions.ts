@@ -4,7 +4,15 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { setFlash } from "@/lib/flash";
 import { requirePermission } from "@/services/identity/access";
-import { createProduct, ProductConflictError, updateProduct } from "@/services/products/products";
+import {
+  createProduct,
+  ProductConflictError,
+  ProductSaveError,
+  updateProduct,
+} from "@/services/products/products";
+import { getSkuSettings } from "@/services/products/sku";
+import { describeSkuError } from "@/domain/products/sku";
+import { can } from "@/domain/authz/access";
 import { productInputSchema } from "@/schemas/products";
 
 /**
@@ -27,7 +35,10 @@ function readInput(formData: FormData) {
   return productInputSchema.safeParse({
     kind: text(formData, "kind"),
     name: text(formData, "name"),
-    sku: text(formData, "sku"),
+    // Only an Owner (or a role given `products.sku_override`) may type a SKU, and only by ticking the box.
+    sku: formData.get("manual_sku") === "on" ? text(formData, "sku") : "",
+    brand_id: text(formData, "brand_id"),
+    product_type_id: text(formData, "product_type_id"),
     description: text(formData, "description"),
     unit: text(formData, "unit"),
     default_unit_price: text(formData, "default_unit_price").trim(),
@@ -61,11 +72,28 @@ export async function saveProductAction(
       const version = Number(text(formData, "version"));
       await updateProduct(membership.entity_id, productId, version, parsed.data);
     } else {
-      const { membership } = await requirePermission("products.create", { entityCode: entity });
+      const { access, membership } = await requirePermission("products.create", {
+        entityCode: entity,
+      });
+      if (parsed.data.sku && !can(access, membership.entity_id, "products.sku_override")) {
+        return { status: "error", message: describeSkuError("SKU_OVERRIDE_FORBIDDEN") };
+      }
+      if (!parsed.data.sku && parsed.data.kind) {
+        const settings = await getSkuSettings(membership.entity_id);
+        if (settings?.auto_generate && (!parsed.data.brand_id || !parsed.data.product_type_id)) {
+          return {
+            status: "error",
+            message: "Pilih Brand dan Jenis Produk agar SKU dibuat otomatis.",
+          };
+        }
+      }
       savedId = await createProduct(membership.entity_id, parsed.data);
     }
   } catch (error) {
     if (error instanceof ProductConflictError) return { status: "error", message: error.message };
+    if (error instanceof ProductSaveError) {
+      return { status: "error", message: describeSkuError(error.message, error.sqlState) };
+    }
     return { status: "error", message: "Produk tidak dapat disimpan." };
   }
 

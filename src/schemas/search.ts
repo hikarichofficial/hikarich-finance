@@ -9,7 +9,7 @@ import { isoDateSchema } from "@/schemas/accounting";
  * input shape and what comes back; it holds no business rule of its own. Labels live in `@/domain/search`.
  */
 
-/** The nine business-record kinds Global Search covers (DECISIONS 145): every `generic_linker = true`
+/** The business-record kinds Global Search covers (DECISIONS 145, plus `product` from the SKU generator): every `generic_linker = true`
  * document target kind except `import_batch` (a technical artifact, not content a user searches for).
  * Payroll and tax are never indexed — reached through their own permission-gated screens instead. */
 export const searchTargetTypeSchema = z.enum([
@@ -22,6 +22,7 @@ export const searchTargetTypeSchema = z.enum([
   "other_obligation",
   "equity_event",
   "journal_entry",
+  "product",
 ]);
 export type SearchTargetType = z.infer<typeof searchTargetTypeSchema>;
 

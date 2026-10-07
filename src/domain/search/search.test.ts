@@ -10,10 +10,11 @@ describe("SEARCH_TARGET_TYPE_LABELS", () => {
     );
   });
 
-  it("covers exactly the generic-linker document kinds minus import_batch (DECISIONS 145)", () => {
-    const expected = genericLinkableTargetTypeSchema.options
-      .filter((kind) => kind !== "import_batch")
-      .sort();
+  it("covers the generic-linker document kinds minus import_batch (DECISIONS 145), plus products (SKU generator)", () => {
+    const expected = [
+      ...genericLinkableTargetTypeSchema.options.filter((kind) => kind !== "import_batch"),
+      "product",
+    ].sort();
     expect([...searchTargetTypeSchema.options].sort()).toEqual(expected);
   });
 
@@ -23,8 +24,8 @@ describe("SEARCH_TARGET_TYPE_LABELS", () => {
     expect(searchTargetTypeSchema.options).not.toContain("payroll_run");
   });
 
-  it("every search target kind is a known document target kind", () => {
-    for (const kind of searchTargetTypeSchema.options) {
+  it("every search target kind except products is a known document target kind", () => {
+    for (const kind of searchTargetTypeSchema.options.filter((k) => k !== "product")) {
       expect(documentTargetTypeSchema.options).toContain(kind);
     }
   });
