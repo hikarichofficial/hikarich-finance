@@ -31,6 +31,7 @@ export function InvoiceDetailScreen({
   email,
   logo,
   layout,
+  claimsNotice,
 }: {
   invoiceId: string;
   doc: InvoiceDocument;
@@ -44,6 +45,8 @@ export function InvoiceDetailScreen({
   canEdit?: boolean;
   /** Send Invoice via Email (decision 279's open item); forwarded to `InvoiceActions` unchanged. */
   email?: { configured: boolean; defaultEmail: string | null };
+  /** Pending customer payment claims of this invoice (decision 323). */
+  claimsNotice?: ReactNode;
   /** The company logo for the document section (decision 307). */
   logo?: string | null;
   /** The current arrangement, used to preview a draft (an issued invoice carries its own). */
@@ -76,6 +79,8 @@ export function InvoiceDetailScreen({
           </p>
         </div>
       </header>
+
+      {claimsNotice}
 
       <InvoiceActions
         invoiceId={invoiceId}

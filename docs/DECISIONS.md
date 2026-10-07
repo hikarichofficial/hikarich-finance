@@ -2595,3 +2595,12 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      ("Tersimpan: ..."); the field stays empty with "Kosongkan jika tidak diubah". Speed: the app functions ran in
      Washington (`iad1`) while the database is in Singapore (`ap-southeast-1`), so every query crossed the ocean. A new
      `vercel.json` pins the functions to Singapore (`sin1`); no data, amount or rule changes.
+
+323. **A customer's payment claim shows on the invoice page; invoice page loads its data at once (p57, 7 October 2026).**
+     Owner report (7 October 2026): after a customer pressed "Saya Sudah Bayar" on the public link nothing showed on the
+     invoice. The claim itself was saved (status "pending", decision 259) and waits in Penjualan, Klaim Pembayaran; the
+     invoice becomes paid only when it is confirmed there, unchanged. The invoice page now shows a box "Klaim Pembayaran
+     Menunggu Konfirmasi" (payer name, amount, date, with a button to Klaim Pembayaran for those who may confirm
+     payments) while a claim of that invoice is pending. Speed: the page fetched eight independent things one after
+     another (logo, layout, tax preview, accounts, email, email history, ...); they are now fetched together, so the
+     page waits for the slowest instead of the sum. Nothing about amounts, tax, numbering or authorization changes.

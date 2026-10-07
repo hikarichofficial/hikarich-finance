@@ -662,6 +662,26 @@ export async function listPendingPaymentClaims(entityId: string): Promise<Paymen
   return rows.map((r) => ({ ...r, invoice_number: numbers.get(r.invoice_id) ?? null }));
 }
 
+/** Pending payment claims of ONE invoice (shown on its page so a customer's "Saya Sudah Bayar" is never invisible
+ * there), by a direct RLS-governed read; best effort -- any failure just shows nothing. Decision 323. */
+export async function listInvoicePendingClaims(
+  invoiceId: string,
+): Promise<Pick<PaymentClaimRow, "id" | "amount" | "currency" | "payment_date" | "payer_name">[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("payment_submissions")
+    .select("id, amount::text, currency, payment_date, payer_name")
+    .eq("invoice_id", uuid(invoiceId))
+    .eq("status", "pending")
+    .order("created_at", { ascending: true })
+    .limit(20);
+  if (error) return [];
+  return (data ?? []) as unknown as Pick<
+    PaymentClaimRow,
+    "id" | "amount" | "currency" | "payment_date" | "payer_name"
+  >[];
+}
+
 // ---- marketplace stores and settlements (decision 260)
 export interface MarketplaceStoreRow {
   id: string;

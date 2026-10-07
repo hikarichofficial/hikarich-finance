@@ -2,7 +2,14 @@ import { AttachmentsSection } from "@/features/documents/AttachmentsSection";
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
-import { getInvoiceDocument, getInvoiceOwner } from "@/services/sales/sales";
+import {
+  getInvoiceDocument,
+  getInvoiceOwner,
+  listInvoicePendingClaims,
+} from "@/services/sales/sales";
+import Link from "next/link";
+import { formatMoney } from "@/domain/money/format";
+import { formatShortDate } from "@/features/sales/format";
 import { getEntityLogo, getInvoiceLayout } from "@/services/settings/settings";
 import { getContact } from "@/services/contacts/contacts";
 import { emailDeliveryEnabled } from "@/services/email/resend";
@@ -41,38 +48,46 @@ export default async function InvoiceDetailPage({
     can(access, entityId, "invoices.confirm_payment") &&
     doc.status === "issued" &&
     Number(doc.outstanding) > 0;
-  const accounts = canRecordPayment ? await getMoneyControl(entityId).catch(() => []) : [];
   const backHref = entity
     ? `/sales/invoices?entity=${encodeURIComponent(entity)}`
     : "/sales/invoices";
-
-  const taxPreview =
-    doc.status === "draft"
-      ? await previewDocumentTax({ source_type: "invoice", source_id: id }).catch(() => null)
-      : null;
   const selfHref = entity
     ? `/sales/invoices/${id}?entity=${encodeURIComponent(entity)}`
     : `/sales/invoices/${id}`;
-
+  const claimsHref = entity
+    ? `/sales/claims?entity=${encodeURIComponent(entity)}`
+    : "/sales/claims";
   const canManageLink = can(access, entityId, "invoices.regenerate_link");
+  const isIssued = doc.status === "issued";
+
+  // Everything below is independent of each other: fetch it all at once instead of one after another
+  // (every await in a row costs a full round trip to the database; decision 323).
+  const [accounts, taxPreview, logo, layout, defaultEmail, claims, emailRows] = await Promise.all([
+    canRecordPayment ? getMoneyControl(entityId).catch(() => []) : Promise.resolve([]),
+    doc.status === "draft"
+      ? previewDocumentTax({ source_type: "invoice", source_id: id }).catch(() => null)
+      : Promise.resolve(null),
+    getEntityLogo(entityId),
+    doc.status === "draft" ? getInvoiceLayout(entityId) : Promise.resolve(null),
+    isIssued && canManageLink
+      ? getInvoiceOwner(id)
+          .then((owner) => (owner ? getContact(owner.customer_id) : null))
+          .then((contact) => contact?.email ?? null)
+          .catch(() => null)
+      : Promise.resolve(null),
+    isIssued ? listInvoicePendingClaims(id).catch(() => []) : Promise.resolve([]),
+    isIssued ? listEmailDeliveries(entityId, "invoice", id) : Promise.resolve([]),
+  ]);
   const email =
-    doc.status === "issued" && canManageLink
-      ? {
-          configured: emailDeliveryEnabled(),
-          defaultEmail: await getInvoiceOwner(id)
-            .then((owner) => (owner ? getContact(owner.customer_id) : null))
-            .then((contact) => contact?.email ?? null)
-            .catch(() => null),
-        }
-      : undefined;
+    isIssued && canManageLink ? { configured: emailDeliveryEnabled(), defaultEmail } : undefined;
 
   return (
     <>
       <InvoiceDetailScreen
         invoiceId={id}
         doc={doc}
-        logo={await getEntityLogo(entityId)}
-        layout={doc.status === "draft" ? await getInvoiceLayout(entityId) : null}
+        logo={logo}
+        layout={layout}
         backHref={backHref}
         taxPanel={
           taxPreview ? (
@@ -106,11 +121,34 @@ export default async function InvoiceDetailPage({
           canCancelDraft: can(access, entityId, "invoices.edit"),
         }}
         email={email}
+        claimsNotice={
+          claims.length > 0 ? (
+            <section className="dashboard-section">
+              <div className="dashboard-section-header">
+                <h2 className="dashboard-section-title">Klaim Pembayaran Menunggu Konfirmasi</h2>
+              </div>
+              {claims.map((claim) => (
+                <p key={claim.id} className="notice">
+                  {claim.payer_name ?? "Pelanggan"} mengaku sudah membayar{" "}
+                  {formatMoney(claim.amount, claim.currency)} ({formatShortDate(claim.payment_date)}
+                  ). Invoice berubah menjadi lunas setelah klaim ini dikonfirmasi.
+                </p>
+              ))}
+              {can(access, entityId, "invoices.confirm_payment") ? (
+                <p>
+                  <Link href={claimsHref} className="btn-secondary">
+                    Buka Klaim Pembayaran
+                  </Link>
+                </p>
+              ) : null}
+            </section>
+          ) : null
+        }
       />
       <div className="record-detail">
         {doc.status === "issued" ? (
           <EmailHistory
-            rows={await listEmailDeliveries(membership.entity_id, "invoice", id)}
+            rows={emailRows}
             emptyText="Invoice ini belum pernah dikirim lewat email."
           />
         ) : null}
