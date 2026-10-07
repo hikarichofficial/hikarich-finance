@@ -304,6 +304,51 @@
       ]
     },
     {
+      "slug": "rekening-koran",
+      "title": "Cara Membaca Rekening Koran (Uang Masuk dan Keluar per Bulan)",
+      "summary": "Melihat uang masuk dan keluar kas dan bank bulan demi bulan seperti rekening koran bank, lengkap dengan saldo awal, saldo berjalan, dan saldo akhir.",
+      "path": "Akuntansi > Rekening Koran",
+      "who": "Lihat: accounting.view (OWNER, Finance Admin, Accountant, dan peran yang boleh melihat akuntansi).",
+      "quick": "Halaman ini hanya membaca. Angkanya berasal dari jurnal yang **sudah diposting**: draf jurnal belum dihitung. **Masuk** = sisi debit kas/bank, **Keluar** = sisi kredit.",
+      "steps": [
+        {
+          "title": "Buka Akuntansi > Rekening Koran",
+          "text": "Halaman menampilkan bulan berjalan untuk semua kas dan bank. Empat kartu di atas memuat **Saldo Awal**, **Uang Masuk**, **Uang Keluar**, dan **Saldo Akhir** bulan itu."
+        },
+        {
+          "title": "Pilih rekening dan bulan",
+          "text": "Pilih **Rekening** (satu rekening, atau **Semua Kas & Bank**) dan **Bulan**, lalu tekan **Terapkan**."
+        },
+        {
+          "title": "Baca tabel mutasi",
+          "text": "Setiap baris memuat **Tanggal**, **No. Jurnal** (klik untuk membuka jurnalnya), **Keterangan**, **Rekening** (bila semua rekening dipilih), **Masuk**, **Keluar**, dan **Saldo** berjalan setelah baris itu. Baris pertama dimulai dari Saldo Awal, baris terakhir berakhir di Saldo Akhir."
+        },
+        {
+          "title": "Pindah halaman",
+          "text": "Bila baris lebih dari 20, tabel dibagi menjadi beberapa halaman. Klik nomor halaman, **‹ Sebelumnya**, atau **Berikutnya ›** di bawah tabel. Saldo berjalan tetap benar di setiap halaman.",
+          "tip": "Saldo Akhir bulan ini otomatis menjadi Saldo Awal bulan berikutnya."
+        },
+        {
+          "title": "Pantau bulan demi bulan",
+          "text": "Bagian **Ringkasan 12 Bulan** menampilkan uang masuk, uang keluar, dan saldo akhir 12 bulan terakhir. Klik nama bulan untuk membuka rekening koran bulan itu."
+        }
+      ],
+      "result": [
+        "Anda melihat arus uang tiap bulan dan dapat menelusuri tiap baris ke jurnal asalnya."
+      ],
+      "rules": [
+        "Hanya jurnal yang sudah diposting yang dihitung. Jurnal draf atau yang sudah dibalik tidak mengubah angka sampai diposting.",
+        "Angka dalam mata uang dasar Entity.",
+        "Saldo Awal sebuah bulan = seluruh mutasi sebelum bulan itu.",
+        "Rekening koran ini berasal dari pembukuan, bukan dari berkas bank. Untuk mencocokkan dengan bank, pakai rekonsiliasi di Kas & Bank."
+      ],
+      "mistakes": [
+        "Mengira transfer antar rekening mengubah saldo Semua Kas & Bank. Uang keluar di satu rekening dan masuk di rekening lain, jadi totalnya tetap.",
+        "Mencari jurnal draf di sini. Posting jurnalnya dulu."
+      ],
+      "related": ["jurnal-manual", "laporan-keuangan-utama"]
+    },
+    {
       "slug": "penyesuaian-saldo-lanjutan",
       "title": "Cara Mencatat Penyesuaian Saldo Kas dan Bank (Penyesuaian Lanjutan)",
       "summary": "Mengoreksi saldo rekening kas atau bank dengan satu pencatatan resmi berisi alasan, bukan dengan mengetik ulang saldo.",

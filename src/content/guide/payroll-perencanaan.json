@@ -821,7 +821,7 @@
       "steps": [
         {
           "title": "Buka Perencanaan > Transaksi Berulang",
-          "text": "Halaman berjudul **Aturan Berulang** menampilkan kolom Nama, Jenis, Frekuensi, Berikutnya, Terakhir Dibuat, dan Status (Aktif, Dijeda, Berakhir). Saring dengan **Status** atau kotak cari, lalu **Terapkan**. Tekan **Buat Aturan Baru**.",
+          "text": "Halaman berjudul **Transaksi Berulang** menampilkan kolom Nama, Jenis, Frekuensi, Berikutnya, Terakhir Dibuat, dan Status (Aktif, Dijeda, Berakhir). Saring dengan **Status** atau kotak cari, lalu **Terapkan**. Tekan **Buat Transaksi Berulang**.",
           "image": {
             "file": "berulang-daftar-v2.jpg",
             "caption": "Daftar Aturan Berulang."
@@ -829,10 +829,10 @@
         },
         {
           "title": "Pilih jenis dan jadwal",
-          "text": "Pilih **Jenis Template**: “Invoice berulang (pendapatan)”, “Tagihan berulang (pembelian)”, atau “Pengeluaran berulang”. Isi **Nama Aturan**, **Frekuensi** (Mingguan, Bulanan, atau Interval hari kustom), dan **Interval** (kelipatan minggu, kelipatan bulan, atau jumlah hari). Untuk invoice dan tagihan isi juga **Batas Waktu Jatuh Tempo (hari setelah dibuat)**. Isi **Tanggal Mulai**, **Tanggal Berakhir (opsional)**, dan **Catatan Aturan (opsional)**.",
+          "text": "Pilih **Jenis Template**: “Invoice berulang (pendapatan)”, “Tagihan berulang (pembelian)”, atau “Pengeluaran berulang”. Isi **Nama Aturan**, **Frekuensi** (Mingguan, Bulanan, atau Interval hari kustom), dan **Interval** (kelipatan minggu, kelipatan bulan, atau jumlah hari). Untuk invoice dan tagihan pilih **Cara Menentukan Jatuh Tempo**: **Tanggal tetap setiap bulan** (isi **Jatuh Tempo pada Tanggal**, mis. 20, sehingga tiap bulan jatuh tempo tanggal 20) atau **Beberapa hari setelah dibuat** (isi **Batas Waktu Jatuh Tempo**). Isi **Tanggal Mulai**, **Tanggal Berakhir (opsional)**, dan **Catatan Aturan (opsional)**.",
           "image": {
             "file": "berulang-form-v2.jpg",
-            "caption": "Form Buat Aturan Baru."
+            "caption": "Form Buat Transaksi Berulang."
           }
         },
         {
@@ -842,7 +842,7 @@
         },
         {
           "title": "Isi baris template",
-          "text": "Pada tabel baris, isi **Deskripsi**, **Kuantitas**, **Harga Satuan**, **Perlakuan** (tagihan dan pengeluaran) atau **Diskon** (invoice), dan **Kategori**. Tekan **+ Tambah Baris** untuk baris lain. Baris yang deskripsi atau harga satuannya kosong tidak disimpan. Tekan **Buat Aturan Berulang**."
+          "text": "Pada tabel baris, isi **Deskripsi**, **Kuantitas**, **Harga Satuan**, **Perlakuan** (tagihan dan pengeluaran) atau **Diskon** (invoice), dan **Kategori**. Tekan **+ Tambah Baris** untuk baris lain. Baris yang deskripsi atau harga satuannya kosong tidak disimpan. Tekan **Buat Transaksi Berulang**."
         },
         {
           "title": "Jalankan yang jatuh tempo",
@@ -868,7 +868,7 @@
         "Satu tekanan menghasilkan paling banyak satu draf per aturan, dengan tanggal dokumen sama dengan tanggal **Berikutnya** aturan itu.",
         "Interval antara 1 dan 365. Mingguan berarti kelipatan 7 hari, Bulanan berarti tanggal yang sama setiap kelipatan bulan, dan Interval hari kustom berarti tiap sekian hari.",
         "Pada aturan bulanan yang dimulai tanggal 29 sampai 31, bulan yang lebih pendek memakai hari terakhir bulan itu, dan jadwal berikutnya mengikuti tanggal tersebut (misalnya setelah Februari menjadi tanggal 28).",
-        "Batas Waktu Jatuh Tempo bernilai 0 sampai 365 hari dan hanya berlaku untuk invoice dan tagihan.",
+        "Jatuh tempo hanya berlaku untuk invoice dan tagihan. Dengan **Tanggal tetap**, tanggal 1–31 dipakai tiap bulan (bulan pendek memakai hari terakhirnya); bila tanggal itu sudah lewat dari tanggal dokumen, jatuh tempo jatuh di bulan berikutnya. Dengan **Beberapa hari setelah dibuat**, nilainya 0 sampai 365 hari.",
         "Bila pembuatan draf gagal, aturan tidak maju dan percobaan diulang pada tekanan berikutnya.",
         "Aturan menjadi Berakhir otomatis setelah draf terakhir yang jadwal berikutnya melewati **Tanggal Berakhir**. Aturan Berakhir tidak bisa diubah atau dilanjutkan.",
         "Aturan hanya membuat draf. Tidak ada invoice, tagihan, atau pengeluaran berulang yang langsung terbit atau diposting."
@@ -926,7 +926,8 @@
         "catat-tagihan-vendor",
         "buat-biaya",
         "tambah-pelanggan",
-        "tambah-vendor"
+        "tambah-vendor",
+        "tagihan-rutin"
       ]
     },
     {

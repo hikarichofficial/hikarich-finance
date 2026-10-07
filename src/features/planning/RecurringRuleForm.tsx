@@ -99,9 +99,12 @@ export function RecurringRuleForm({
   const [rows, setRows] = useState<RecurringLineRow[]>(() =>
     buildInitialRecurringLines(templateLines(rule?.template)),
   );
+  const [dueMode, setDueMode] = useState<"day" | "offset">(
+    mode === "edit" && rule && rule.due_day_of_month == null ? "offset" : "day",
+  );
   const template = rule?.template;
   const today = todayInBusinessZone();
-  const submitLabel = mode === "create" ? "Buat Aturan Berulang" : "Simpan Perubahan";
+  const submitLabel = mode === "create" ? "Buat Transaksi Berulang" : "Simpan Perubahan";
   const pendingLabel = mode === "create" ? "Membuat…" : "Menyimpan…";
   const intervalHint =
     frequency === "weekly"
@@ -197,17 +200,49 @@ export function RecurringRuleForm({
       </label>
 
       {kind !== "expense" ? (
-        <label>
-          Batas Waktu Jatuh Tempo (hari setelah dibuat)
-          <input
-            type="number"
-            name="due_offset_days"
-            min={0}
-            max={365}
-            step={1}
-            defaultValue={rule?.due_offset_days ?? 0}
-          />
-        </label>
+        <>
+          <label>
+            Cara Menentukan Jatuh Tempo
+            <select
+              value={dueMode}
+              onChange={(event) => setDueMode(event.target.value as "day" | "offset")}
+            >
+              <option value="day">Tanggal tetap setiap bulan (mis. tanggal 20)</option>
+              <option value="offset">Beberapa hari setelah dibuat</option>
+            </select>
+          </label>
+          {dueMode === "day" ? (
+            <label>
+              Jatuh Tempo pada Tanggal (1–31)
+              <input
+                type="number"
+                name="due_day_of_month"
+                min={1}
+                max={31}
+                step={1}
+                required
+                defaultValue={rule?.due_day_of_month ?? ""}
+              />
+              <span className="hint">
+                Contoh 20: tiap bulan jatuh tempo tanggal 20. Bulan yang lebih pendek memakai hari
+                terakhirnya. Bila tanggal itu sudah lewat dari tanggal tagihan, jatuh tempo jatuh di
+                bulan berikutnya.
+              </span>
+            </label>
+          ) : (
+            <label>
+              Batas Waktu Jatuh Tempo (hari setelah dibuat)
+              <input
+                type="number"
+                name="due_offset_days"
+                min={0}
+                max={365}
+                step={1}
+                defaultValue={rule?.due_offset_days ?? 0}
+              />
+            </label>
+          )}
+        </>
       ) : null}
 
       <label>

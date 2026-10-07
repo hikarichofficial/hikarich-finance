@@ -41,6 +41,9 @@ export function NavigationProgress() {
         "a[href]",
       ) as HTMLAnchorElement | null;
       if (!anchor || anchor.target === "_blank" || anchor.hasAttribute("download")) return;
+      // A Quick Preview link only opens the side panel from data already on the page: nothing loads, so no bar
+      // and no spinner (OWNER, 7 October 2026). A modified click is already skipped above and opens the page.
+      if (anchor.hasAttribute("data-quick-preview")) return;
       let url: URL;
       try {
         url = new URL(anchor.href, window.location.href);

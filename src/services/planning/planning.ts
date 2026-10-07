@@ -165,6 +165,7 @@ export async function createRecurringRule(
       p_template: v.template,
       p_interval: v.interval_count,
       p_due_offset_days: v.due_offset_days,
+      p_due_day: v.due_day_of_month ?? null,
       p_end_date: v.end_date ?? null,
       p_note: v.note ?? null,
     },

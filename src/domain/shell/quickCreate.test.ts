@@ -6,7 +6,7 @@ describe("QUICK_CREATE_REGISTRY", () => {
     expect(QUICK_CREATE_REGISTRY.map((item) => item.label)).toEqual([
       "Transfer Uang Baru",
       "Anggaran Baru",
-      "Aturan Berulang Baru",
+      "Transaksi Berulang Baru",
       "Target Pendapatan Baru",
     ]);
   });
@@ -46,7 +46,7 @@ describe("visibleQuickCreate", () => {
     const result = visibleQuickCreate(["planning.recurring_edit", "money.transfer_create"]);
     expect(result.map((item) => item.label)).toEqual([
       "Transfer Uang Baru",
-      "Aturan Berulang Baru",
+      "Transaksi Berulang Baru",
     ]);
   });
 

@@ -2634,3 +2634,29 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      - **Global Search** gets a tenth kind, `product` (permission `products.view`): a SKU, product name, brand or type
        finds it and opens the product page. Renaming a brand or type refreshes its products in the index. The search
        tests now say "generic-linker kinds minus import batch, plus product".
+
+325. **Recurring invoice/bill: due on a fixed day of the month; page renamed "Transaksi Berulang" (p58, 7 October 2026).**
+     Owner report (7 October 2026): a recurring bill (Indihome, IPL) is due on a fixed day each month, but the form
+     only offered "days after the draft is made". Migration `20261007190000` adds the optional field
+     `recurring_rules.due_day_of_month` (1-31). When set it replaces the day offset: the bill is due on that day of
+     the document's month; a short month uses its last day; a day already before the document date falls in the next
+     month. When empty, the old offset rule applies unchanged, so every existing rule behaves as before. The form
+     asks "Cara Menentukan Jatuh Tempo" (tanggal tetap setiap bulan, or beberapa hari setelah dibuat); it applies to
+     invoice and bill rules only, never to an expense rule. `create_recurring_rule` has one more optional argument
+     (the old signature is replaced); `update_recurring_rule` takes `due_day_of_month` in its patch. The screens that
+     said "Aturan Berulang" now say "Transaksi Berulang", like the menu. Drafts are still only made when someone presses
+     "Jalankan yang Jatuh Tempo" (decision 136); no automatic scheduler is added by this decision.
+
+326. **"Rekening Koran": monthly cash and bank statement from the journal, in pages (p58, 7 October 2026).** Owner
+     request (7 October 2026): a statement-style view to follow money in and out month by month, in several
+     clickable pages when it is long. Migration `20261007200000` adds the read-only function `cash_statement`
+     (needs `accounting.view`, like the journal screens). One call returns the month's opening balance, money in
+     (debit side of the cash/bank accounts), money out (credit side), closing balance, one page of lines with a
+     running balance that stays correct on every page, and a 12-month overview. Only posted journals count; amounts
+     are in the Entity's base currency; it can show one cash/bank account or all together. New screen
+     `/accounting/statement` (Akuntansi, Rekening Koran): filters for account and month, four summary cards, pages
+     of 20 lines with page-number buttons, and a 12-month table whose months link to that month. It reads the
+     books, not a bank file; matching against the bank stays in reconciliation. Also in this release: (a) the side
+     preview panel that opens from a list row no longer starts the page-loading bar or spinner, because it opens
+     from data already on the page; (b) `staleTimes` in the Next.js config lets the browser reuse a page it already
+     has for 30 seconds on back/forward and repeat visits, and any save clears it (speed, owner request).

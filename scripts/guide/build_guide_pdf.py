@@ -358,8 +358,9 @@ SECTIONS = [
    "Data induk pelanggan. Sistem mendeteksi duplikasi: email/telepon/NPWP yang sama persis akan ditolak, nama yang "
    "mirip akan meminta konfirmasi sebelum disimpan.", "67,445"),
   ("Produk & Jasa", "/sales/products",
-   "Katalog produk/jasa untuk mengisi baris invoice secara cepat dan konsisten. Item di katalog tidak pernah "
-   "dihapus permanen, hanya dinonaktifkan.", "245"),
+   "Katalog produk/jasa untuk mengisi baris invoice secara cepat dan konsisten. Setiap produk mendapat SKU otomatis "
+   "(mis. KEA-EA-001) dari Brand dan Jenis Produk yang dipilih; produk bisa punya variant (mis. KEA-EA-001-1B) dengan "
+   "SKU, harga, dan status sendiri. Item di katalog tidak pernah dihapus permanen, hanya dinonaktifkan.", "245,324"),
  ]
 ),
 
@@ -411,6 +412,10 @@ SECTIONS = [
    "Daftar seluruh jurnal, baik yang dibuat otomatis dari transaksi (invoice, tagihan, pembayaran, dst.) maupun "
    "jurnal manual. Dari sini bisa dilihat detail, dibuat jurnal manual baru, diposting dari draf, atau dibalik "
    "(reverse) jika jurnal yang sudah posting ternyata salah.", "20,38,40,172"),
+  ("Rekening Koran", "/accounting/statement",
+   "Tampilan seperti rekening koran bank untuk kas dan bank: saldo awal, uang masuk, uang keluar, dan saldo akhir "
+   "per bulan, dengan saldo berjalan di setiap baris, dibagi menjadi beberapa halaman bila panjang, plus ringkasan "
+   "12 bulan. Angkanya dari jurnal yang sudah diposting.", "326"),
   ("Daftar Akun", "/accounting/accounts",
    "Peta/struktur akun (chart of accounts) milik Entity. Saat ini bersifat baca-saja dari aplikasi (belum ada "
    "fitur tambah/ubah akun sendiri). Sebagian akun ditandai sebagai Akun Kontrol atau Dilindungi karena perannya "
@@ -598,6 +603,10 @@ SECTIONS = [
    "Profil Entity, format penomoran dokumen, aturan persetujuan (approval), berbagai pengaturan tersimpan "
    "(misalnya blokir saldo negatif, toleransi tanggal rekonsiliasi, wajib MFA), zona waktu & tahun buku, serta "
    "formulir “Tambah Entity” baru (khusus OWNER).", "243,248,276"),
+  ("Konfigurasi SKU", "/admin/sku",
+   "Khusus OWNER. Mengatur format kode produk (urutan Brand, Jenis, Nomor, Variant, pemisah, awalan/akhiran, digit, "
+   "cakupan nomor), mengelola daftar Brand, Jenis Produk, dan Variant, serta melihat riwayat perubahan SKU. Nomor "
+   "dibuat atomik oleh database dan tidak pernah dipakai ulang.", "324"),
   ("Keamanan", "/admin/security",
    "Halaman baca-saja: syarat MFA Entity, kejadian keamanan, dan perangkat terpercaya tiap anggota (dengan opsi "
    "mencabut akses perangkat tersebut).", ""),
@@ -904,15 +913,37 @@ def step_block(number, step):
         body += [Spacer(1, 2), callout("tip", step["tip"])]
     if step.get("warning"):
         body += [Spacer(1, 2), callout("warning", step["warning"])]
+    def _row(cells):
+        row = Table([cells], colWidths=[30, 410])
+        row.setStyle(TableStyle([
+            ("VALIGN", (0, 0), (-1, -1), "TOP"),
+            ("LEFTPADDING", (0, 0), (-1, -1), 0), ("RIGHTPADDING", (0, 0), (-1, -1), 0),
+            ("TOPPADDING", (0, 0), (-1, -1), 4), ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+        ]))
+        return row
+
     if step.get("image"):
-        body += shot(step["image"])
-    row = Table([[num, body]], colWidths=[30, 410])
-    row.setStyle(TableStyle([
-        ("VALIGN", (0, 0), (-1, -1), "TOP"),
-        ("LEFTPADDING", (0, 0), (-1, -1), 0), ("RIGHTPADDING", (0, 0), (-1, -1), 0),
-        ("TOPPADDING", (0, 0), (-1, -1), 4), ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
-    ]))
-    return row
+        picture = shot(step["image"])
+        together = _row([num, body + picture])
+        # A step whose text and picture together are taller than one page cannot be placed in a single table
+        # row: draw the picture as its own row right under the text (same look, may break onto the next page).
+        if together.wrap(440, 10000)[1] <= 640:
+            return together
+        return KeepTogether([_row([num, body]), _row(["", picture])])
+    single = _row([num, body])
+    if single.wrap(440, 10000)[1] <= 640:
+        return single
+    # A very long step (many paragraphs) is split into several rows so that no row is taller than a page.
+    rows, chunk = [], []
+    for flowable in body:
+        trial = Table([[ "", chunk + [flowable] ]], colWidths=[30, 410])
+        if chunk and trial.wrap(440, 10000)[1] > 600:
+            rows.append(chunk)
+            chunk = []
+        chunk.append(flowable)
+    if chunk:
+        rows.append(chunk)
+    return [_row([num if i == 0 else "", part]) for i, part in enumerate(rows)]
 
 
 def data_table(columns, rows, widths=None):
@@ -958,7 +989,8 @@ def guide_flow(guide, titles):
         flow.append(Spacer(1, 2))
     flow.append(Paragraph("Langkah-langkah", styles["GuideH3"]))
     for i, step in enumerate(guide["steps"], 1):
-        flow.append(step_block(i, step))
+        block = step_block(i, step)
+        flow.extend(block if isinstance(block, list) else [block])
     for table in guide.get("tables", []):
         flow.append(Paragraph(_plain(table["title"]), styles["GuideH3"]))
         flow.append(data_table(table["columns"], table["rows"]))
