@@ -2531,3 +2531,16 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      the database rule `valid_invoice_layout` (migration `20261007140000`) accepts `grid` 24 and `stack` besides the earlier
      forms. Presentation only: no amount, tax or number is affected, and issued invoices keep the arrangement they were
      issued with.
+
+320. **Professional invoice look (p54, 7 October 2026).** The OWNER, after trying decision 319: the result looks messy and
+     not like a professional invoice; it should use a row grid as well as a column grid. The grid and the editor of decision
+     319 stay (rows of lanes, blocks stacked in a lane), but the document is restyled: one type scale (14px body, small
+     print for the closing blocks), one rhythm (22px between sections, hairline rules), a bronze bar on top, a letterhead
+     (logo, company name and address, then INVOICE in a light large type with the number and status at the right) over an ink
+     rule, the customer on the left and the dates in a tinted box on the right, an item table with a tinted header, an
+     ink rule under it, quiet banding and an ink rule at the end, the totals as quiet rows with Total and Sisa tagihan in tinted
+     bands, and the closing blocks under hairlines in two columns (payments received, notes, terms left; totals and how to
+     pay right). The logo lane is five columns and the company lane eleven so the logo never runs into the name, and a
+     logo is never wider than its lane. Without a logo the company name (and what is stacked under it) moves to the left
+     edge instead of leaving empty columns. Looks only: no text, amount or rule of the data changes; issued invoices keep
+     the arrangement they were issued with and take the new styling.

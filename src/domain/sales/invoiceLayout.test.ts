@@ -70,8 +70,8 @@ describe("invoice layout on the twenty-four column grid (decisions 310, 318, 319
         ["totals", "instructions"],
       ],
     ]);
-    expect(at(DEFAULT_INVOICE_LAYOUT, "logo")).toMatchObject({ col: 1, span: 4 });
-    expect(at(DEFAULT_INVOICE_LAYOUT, "issuer")).toMatchObject({ col: 5, span: 12 });
+    expect(at(DEFAULT_INVOICE_LAYOUT, "logo")).toMatchObject({ col: 1, span: 5 });
+    expect(at(DEFAULT_INVOICE_LAYOUT, "issuer")).toMatchObject({ col: 6, span: 11 });
     expect(at(DEFAULT_INVOICE_LAYOUT, "title")).toMatchObject({ col: 17, span: 8, align: "right" });
     expect(at(DEFAULT_INVOICE_LAYOUT, "totals")).toMatchObject({ col: 13, span: 12 });
     expectTidy(DEFAULT_INVOICE_LAYOUT);
@@ -200,13 +200,13 @@ describe("invoice layout on the twenty-four column grid (decisions 310, 318, 319
   });
 
   it("keeps a lane inside the free columns of its row when placing and resizing it", () => {
-    expect(placementBounds(DEFAULT_INVOICE_LAYOUT, "issuer")).toEqual({ min: 5, max: 16 });
+    expect(placementBounds(DEFAULT_INVOICE_LAYOUT, "issuer")).toEqual({ min: 6, max: 16 });
     const wide = setPlacement(DEFAULT_INVOICE_LAYOUT, "issuer", { span: 20 });
-    expect(at(wide, "issuer")).toMatchObject({ col: 5, span: 12 });
+    expect(at(wide, "issuer")).toMatchObject({ col: 6, span: 11 });
     const left = setPlacement(DEFAULT_INVOICE_LAYOUT, "issuer", { col: 1 });
-    expect(at(left, "issuer")).toMatchObject({ col: 5, span: 12 });
+    expect(at(left, "issuer")).toMatchObject({ col: 6, span: 11 });
     const narrow = setPlacement(DEFAULT_INVOICE_LAYOUT, "issuer", { span: 6 });
-    expect(at(narrow, "issuer")).toMatchObject({ col: 5, span: 6 });
+    expect(at(narrow, "issuer")).toMatchObject({ col: 6, span: 6 });
     // the item table cannot be resized
     expect(setPlacement(DEFAULT_INVOICE_LAYOUT, "lines", { span: 4 })).toEqual(
       DEFAULT_INVOICE_LAYOUT,
@@ -257,7 +257,7 @@ describe("invoice layout on the twenty-four column grid (decisions 310, 318, 319
       target: "issuer",
     });
     expect(rowsOf(stacked)[0]).toEqual([["logo"], ["issuer", "customer"], ["title"]]);
-    expect(at(stacked, "customer")).toMatchObject({ col: 5, span: 12, row: 1, stack: 2 });
+    expect(at(stacked, "customer")).toMatchObject({ col: 6, span: 11, row: 1, stack: 2 });
     expect(keysOf(stacked)[1]).toEqual(["dates"]);
     expectTidy(stacked);
 

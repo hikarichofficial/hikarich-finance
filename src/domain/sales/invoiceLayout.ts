@@ -165,8 +165,8 @@ export const DEFAULT_INVOICE_LAYOUT: InvoiceLayout = {
   grid: 24,
   logo_size: "md",
   blocks: [
-    block("logo", 1, 1, 4),
-    block("issuer", 1, 5, 12),
+    block("logo", 1, 1, 5),
+    block("issuer", 1, 6, 11),
     block("title", 1, 17, 8, "right"),
     block("customer", 2, 1, 12),
     block("dates", 2, 13, 12),

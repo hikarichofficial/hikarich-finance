@@ -120,8 +120,23 @@ describe("InvoiceDocumentView layout (decision 310)", () => {
     const html = render(doc(), LOGO);
     expect(order(html).slice(0, 4)).toEqual(["logo", "issuer", "title", "customer"]);
     // the logo, the company and the title share the first row, each on its own columns
-    expect(html).toContain("--col:5;--span:12");
+    expect(html).toContain("--col:6;--span:11");
     expect(html).toContain("--col:17;--span:8");
+  });
+
+  it("without a logo the company name starts at the left edge, with what is stacked under it", () => {
+    const stacked = dropBlock(DEFAULT_INVOICE_LAYOUT, "customer", {
+      mode: "stack",
+      at: "after",
+      target: "issuer",
+    });
+    const html = renderToStaticMarkup(
+      createElement(InvoiceDocumentView, { doc: doc(), layout: stacked }),
+    );
+    // the issuer lane now starts where the logo's lane started, customer included (one lane, not two overlapping)
+    expect(html).not.toContain("--col:6;--span:11");
+    expect(html.match(/--col:1;--span:16/g)).toHaveLength(1);
+    expect(html).toContain('data-block="customer"');
   });
 
   it("follows the arrangement frozen into an issued invoice, not the standard", () => {
