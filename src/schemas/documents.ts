@@ -10,10 +10,11 @@ import { idempotencyKeySchema } from "@/schemas/accounting";
  * own. Labels live in `@/domain/documents`.
  */
 
-/** The eleven target kinds registered in `app_private.document_target_kinds` (DECISIONS 141/147). */
+/** The target kinds registered in `app_private.document_target_kinds` (DECISIONS 141/147). */
 export const documentTargetTypeSchema = z.enum([
   "bill",
   "expense",
+  "income_entry",
   "invoice",
   "fixed_asset",
   "loan",
@@ -36,6 +37,7 @@ export type DocumentTargetType = z.infer<typeof documentTargetTypeSchema>;
 export const genericLinkableTargetTypeSchema = z.enum([
   "bill",
   "expense",
+  "income_entry",
   "invoice",
   "fixed_asset",
   "loan",

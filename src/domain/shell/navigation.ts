@@ -69,6 +69,7 @@ export const NAVIGATION: readonly NavGroup[] = [
       { label: "Invoice", href: "/sales/invoices", permission: ["invoices.view"] },
       { label: "Pembayaran Diterima", href: "/sales/payments", permission: ["invoices.view"] },
       { label: "Klaim Pembayaran", href: "/sales/claims", permission: ["invoices.view"] },
+      { label: "Catat Pendapatan", href: "/sales/income", permission: ["invoices.view"] },
       { label: "Marketplace", href: "/sales/marketplace", permission: ["invoices.view"] },
       { label: "Tautan Pembayaran", href: "/sales/payment-links", permission: ["invoices.view"] },
       { label: "Pengembalian Dana", href: "/sales/refunds", permission: ["refunds.view"] },

@@ -17,6 +17,7 @@ export function QuickAddCategoryDrawer({
   kind,
   entity,
   initialName = "",
+  extraHint,
   open,
   onClose,
   onCreated,
@@ -24,6 +25,8 @@ export function QuickAddCategoryDrawer({
   kind: "revenue" | "expense" | "asset";
   entity: string | undefined;
   initialName?: string;
+  /** A sentence about what the new category means in the form it is added from (e.g. its tax treatment). */
+  extraHint?: string;
   open: boolean;
   onClose: () => void;
   onCreated: (category: { id: string; name: string; kind: string }) => void;
@@ -65,6 +68,7 @@ export function QuickAddCategoryDrawer({
           Jenis: {kindLabel}. Kategori baru dicatat ke akun bawaan jenis ini. Untuk memetakannya ke
           akun tertentu, buka Akuntansi → Kategori.
         </p>
+        {extraHint ? <p className="hint">{extraHint}</p> : null}
         {state.status === "error" ? (
           <p role="alert" className="error">
             {state.message}

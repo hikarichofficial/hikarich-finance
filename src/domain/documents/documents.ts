@@ -14,6 +14,7 @@ import {
 export const DOCUMENT_TARGET_TYPE_LABELS: Readonly<Record<DocumentTargetType, string>> = {
   bill: "Tagihan",
   expense: "Pengeluaran",
+  income_entry: "Pendapatan",
   invoice: "Invoice",
   fixed_asset: "Aset Tetap",
   loan: "Pinjaman",

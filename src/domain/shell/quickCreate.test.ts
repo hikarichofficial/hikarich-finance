@@ -2,12 +2,13 @@ import { describe, expect, it } from "vitest";
 import { QUICK_CREATE_REGISTRY, visibleQuickCreate } from "./quickCreate";
 
 describe("QUICK_CREATE_REGISTRY", () => {
-  it("has exactly the four OWNER-approved entries, in order (DECISIONS 199)", () => {
+  it("has exactly the OWNER-approved entries, in order (DECISIONS 199, plus Catat Pendapatan: DECISIONS 350)", () => {
     expect(QUICK_CREATE_REGISTRY.map((item) => item.label)).toEqual([
       "Transfer Uang Baru",
       "Anggaran Baru",
       "Transaksi Berulang Baru",
       "Target Pendapatan Baru",
+      "Catat Pendapatan",
     ]);
   });
 
@@ -17,6 +18,7 @@ describe("QUICK_CREATE_REGISTRY", () => {
       "/planning/budgets/new",
       "/planning/recurring/new",
       "/planning/targets/new",
+      "/sales/income/new",
     ]);
   });
 
@@ -26,6 +28,7 @@ describe("QUICK_CREATE_REGISTRY", () => {
       "planning.budget_edit",
       "planning.recurring_edit",
       "planning.budget_edit",
+      "invoices.issue",
     ]);
   });
 });

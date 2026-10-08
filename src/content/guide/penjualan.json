@@ -784,6 +784,93 @@
       ]
     },
     {
+      "slug": "catat-pendapatan",
+      "title": "Cara Mencatat Pendapatan Tanpa Invoice",
+      "summary": "Mencatat uang masuk yang tidak lewat invoice (penjualan tunai, jasa dibayar langsung, komisi, bunga, dividen) cukup dengan beberapa kolom, tanpa perlu paham debit dan kredit.",
+      "path": "Penjualan > Catat Pendapatan > + Catat Pendapatan",
+      "who": "Izin menerbitkan invoice dan konfirmasi pembayaran (invoices.issue dan invoices.confirm_payment): OWNER dan Finance Admin. Staf yang punya kedua izin itu juga bisa; catatan langsung tersimpan tanpa persetujuan. Membatalkan butuh izin invoices.void.",
+      "quick": "Pilih jenis pendapatan, isi jumlah dan rekening yang menerima uang. Jurnal, saldo rekening, laporan, dan pajak ikut otomatis.",
+      "steps": [
+        {
+          "title": "Buka menu Catat Pendapatan",
+          "text": "Buka **Penjualan > Catat Pendapatan**, lalu tekan **+ Catat Pendapatan**. Menu ini juga ada di kotak pencarian cepat (Command Menu) sebagai **Catat Pendapatan**."
+        },
+        {
+          "title": "Isi tanggal uang diterima",
+          "text": "**Tanggal Uang Diterima** terisi hari ini. Ubah sesuai tanggal uang masuk. Tanggal tidak boleh di masa depan dan periode akuntansinya harus terbuka."
+        },
+        {
+          "title": "Ketik dan pilih jenis pendapatan",
+          "text": "Pada **Jenis Pendapatan** ketik beberapa huruf, lalu pilih dari daftar yang muncul, misalnya Penjualan Produk, Penjualan Jasa, Komisi & Afiliasi, Bunga Bank & Deposito, atau Dividen. Di bawah kolom ini tertulis apakah jenis itu ikut dasar PPh Final 0,5%."
+        },
+        {
+          "title": "Belum ada jenis yang cocok? Tambah di tempat",
+          "text": "Ketik namanya, lalu pilih baris **+ Tambah ... sebagai jenis pendapatan baru**. Jenis baru dihitung sebagai pendapatan usaha. Jenis ini sama dengan Kategori di Invoice, jadi bisa dipakai di sana juga dan bisa dipetakan ke akun lain di Akuntansi > Kategori."
+        },
+        {
+          "title": "Isi jumlah dan rekening",
+          "text": "Isi **Jumlah** (titik ribuan terisi otomatis) dan pilih **Diterima di Rekening**, yaitu rekening kas/bank PT tempat uang benar-benar masuk."
+        },
+        {
+          "title": "Isi dari siapa (opsional)",
+          "text": "Ketik nama pelanggan pada **Dari Siapa**. Bila belum terdaftar, pilih **+ Tambah ... sebagai pelanggan baru** seperti di Buat Invoice; cukup nama."
+        },
+        {
+          "title": "Isi bukti dan keterangan (opsional)",
+          "text": "**Nomor Bukti / Referensi** dan **Keterangan** menawarkan isian yang pernah Anda ketik sebelumnya. Pilih salah satu, atau ketik yang baru."
+        },
+        {
+          "title": "Baca ringkasan lalu simpan",
+          "text": "Setelah jenis, jumlah, dan rekening terisi, tampil kalimat seperti “Saldo BCA bertambah Rp 2.500.000”. Bila sudah benar, tekan **Catat Pendapatan**. Bukti (foto nota, bukti transfer) bisa dilampirkan di halaman detail yang terbuka setelahnya."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal yang dibuat otomatis",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Kas/Bank (rekening yang dipilih)", "jumlah", ""],
+            ["Akun pendapatan milik jenis yang dipilih (mis. 4100 atau 7100)", "", "jumlah"]
+          ]
+        }
+      ],
+      "result": [
+        "Saldo rekening bertambah dan tampil sebagai pemasukan di Kas & Bank > Mutasi.",
+        "Pendapatan muncul di Laba Rugi, Arus Kas, dan dasbor pada bulan tanggal uang diterima.",
+        "Pendapatan usaha ikut dasar PPh Final 0,5% bulan itu dan batas omzet Rp 4,8 miliar. Pajaknya dihitung otomatis tiap tanggal 1; perkiraan bulan berjalan ikut berubah.",
+        "Pendapatan di luar usaha (bunga, dividen, sewa properti investasi, imbal hasil investasi, bonus/cashback, kripto, lain-lain) tercatat di laporan tetapi tidak ikut dasar PPh Final 0,5%."
+      ],
+      "rules": [
+        "Catatan tidak bisa diedit. Bila salah, buka catatannya lalu tekan **Batalkan Pendapatan** dan isi alasan (minimal 5 karakter). Saldo dan pajak kembali seperti semula; catatan tetap tersimpan sebagai riwayat. Lalu catat ulang yang benar.",
+        "Hanya untuk uang yang sudah diterima. Untuk tagihan yang belum dibayar, buat Invoice agar tercatat sebagai piutang.",
+        "Pendapatan diterima dalam mata uang dasar PT (rupiah).",
+        "Jenis pendapatan dipilih dari Kategori pendapatan. Menambah jenis baru butuh izin kelola kategori (categories.manage).",
+        "Memilih akun pendapatan di Jurnal Manual tidak ikut pajak; di sana tampil peringatan dan tautan ke menu ini."
+      ],
+      "mistakes": [
+        "Memakai Jurnal Manual untuk pendapatan biasa. Pendapatan itu tidak ikut dasar PPh Final.",
+        "Mencatat pendapatan yang sudah ada invoicenya. Catat pembayarannya di invoice agar tidak terhitung dua kali.",
+        "Memilih jenis pendapatan di luar usaha untuk penjualan biasa, sehingga tidak ikut pajak.",
+        "Mencatat dua kali. Satu transfer cukup satu catatan."
+      ],
+      "errors": [
+        {
+          "message": "Pendapatan tidak dapat dicatat. Periksa jenis pendapatan, tanggal (tidak boleh lewat hari ini), jumlah, dan rekening.",
+          "meaning": "Salah satu isian belum benar atau periode sudah ditutup."
+        },
+        {
+          "message": "Pendapatan tidak dapat dibatalkan. Isi alasan minimal 5 karakter.",
+          "meaning": "Alasan terlalu pendek, atau catatan sudah dibatalkan."
+        }
+      ],
+      "related": [
+        "terima-pembayaran",
+        "buat-terbitkan-invoice",
+        "memahami-piutang-pendapatan",
+        "tambah-pelanggan"
+      ]
+    },
+    {
       "slug": "konfirmasi-klaim-pembayaran",
       "title": "Cara Mengonfirmasi Klaim Pembayaran dari Pelanggan",
       "summary": "Memeriksa klaim “Saya Sudah Bayar” dari halaman publik invoice lalu mengonfirmasi, menolak, atau menandainya sebagai duplikat.",

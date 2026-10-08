@@ -41,6 +41,8 @@ export const QUICK_CREATE_REGISTRY: readonly QuickCreateItem[] = [
     href: "/planning/targets/new",
     permission: "planning.budget_edit",
   },
+  // Decision 350 (OWNER, 8 October 2026): income without an invoice is one of the most frequent entries.
+  { label: "Catat Pendapatan", href: "/sales/income/new", permission: "invoices.issue" },
 ];
 
 /**
