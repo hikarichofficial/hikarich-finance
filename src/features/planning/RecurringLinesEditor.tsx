@@ -11,12 +11,29 @@ import {
   categorySettlesWithholding,
   type WhtObject,
 } from "@/domain/tax/tax";
-import { plainMoneyText } from "@/domain/money/typing";
+import { formatMoneyTyping, plainMoneyText } from "@/domain/money/typing";
+import { splitVatInclusive, VAT_RATE_PERCENT } from "@/domain/tax/vatInclusive";
+import {
+  LINE_FIELD_HINTS,
+  type LineField,
+  type ProblemTarget,
+} from "@/domain/forms/problemTargets";
 import { exactSuggestion, type LineSuggestion } from "@/domain/sales/lineSuggestions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
 import { ContactPicker } from "@/features/contacts/ContactPicker";
 import { QuickAddCategoryDrawer } from "@/features/categories/QuickAddCategoryDrawer";
 import { LineDescriptionInput } from "./LineDescriptionInput";
+import {
+  buildInitialRecurringLines,
+  buildRecurringLinesJson,
+  canIncludeVat,
+  newRecurringLineRow,
+  serializedRowKeys,
+  type RecurringLineRow,
+} from "@/domain/planning/recurringLines";
+
+export { buildInitialRecurringLines, buildRecurringLinesJson, newRecurringLineRow };
+export type { RecurringLineRow };
 
 /**
  * The recurring template's own line items (P13 Part 3h, sixth increment, Step 09 §13, §18) -- the one piece
@@ -61,110 +78,6 @@ import { LineDescriptionInput } from "./LineDescriptionInput";
  * the unlabelled heading input.
  */
 
-export interface RecurringLineRow {
-  key: string;
-  description: string;
-  quantity: string;
-  unit_price: string;
-  category_id: string;
-  treatment: "expense" | "asset" | "prepaid";
-  /** Invoice lines only (a purchase has no discount, decision 78): "none", a percentage, or a fixed amount. */
-  discount_type: "none" | "percent" | "fixed";
-  discount_value: string;
-  /** Fields of the original template line this editor does not render, kept verbatim so they survive a
-   * re-save untouched. Empty for a row the person added in this session. */
-  extra: Record<string, unknown>;
-}
-
-function makeRow(key: string, initial?: Partial<RecurringLineRow>): RecurringLineRow {
-  return {
-    key,
-    description: "",
-    quantity: "",
-    unit_price: "",
-    category_id: "",
-    treatment: "expense",
-    discount_type: "none",
-    discount_value: "",
-    extra: {},
-    ...initial,
-  };
-}
-
-export function newRecurringLineRow(seq: number): RecurringLineRow {
-  return makeRow(`new-${seq}`);
-}
-
-const RENDERED_LINE_FIELDS = [
-  "description",
-  "quantity",
-  "unit_price",
-  "category_id",
-  "treatment",
-  "discount_type",
-  "discount_value",
-];
-
-function extraFieldsOf(line: Record<string, unknown>): Record<string, unknown> {
-  return Object.fromEntries(
-    Object.entries(line).filter(([key]) => !RENDERED_LINE_FIELDS.includes(key)),
-  );
-}
-
-/** Reads back whatever a rule's own `template.lines` (arbitrary jsonb) already carries. */
-export function buildInitialRecurringLines(
-  existingLines: readonly Record<string, unknown>[],
-): RecurringLineRow[] {
-  return existingLines.map((line, index) => {
-    const extra = extraFieldsOf(line);
-    return makeRow(`existing-${index}`, {
-      description: typeof line.description === "string" ? line.description : "",
-      quantity: line.quantity != null ? trimDecimalText(String(line.quantity)) : "",
-      unit_price: line.unit_price != null ? trimDecimalText(String(line.unit_price)) : "",
-      category_id: typeof line.category_id === "string" ? line.category_id : "",
-      treatment:
-        line.treatment === "asset" || line.treatment === "prepaid" ? line.treatment : "expense",
-      discount_type:
-        line.discount_type === "percent" || line.discount_type === "fixed"
-          ? line.discount_type
-          : "none",
-      discount_value:
-        line.discount_value != null && Number(line.discount_value) > 0
-          ? trimDecimalText(String(line.discount_value))
-          : "",
-      extra,
-    });
-  });
-}
-
-export function buildRecurringLinesJson(
-  rows: readonly RecurringLineRow[],
-  kind: RecurringKind,
-): string {
-  return JSON.stringify(
-    rows.flatMap((row) => {
-      const description = row.description.trim();
-      const unitPrice = plainMoneyText(row.unit_price.trim());
-      if (description === "" || unitPrice === "") return [];
-      const line: Record<string, unknown> = {
-        ...row.extra,
-        description,
-        unit_price: unitPrice,
-        // A decimal comma ("1,5") is accepted the way it is in the money fields.
-        quantity: row.quantity.trim() === "" ? undefined : row.quantity.trim().replace(",", "."),
-        category_id: row.category_id === "" ? undefined : row.category_id,
-      };
-      if (kind !== "invoice") {
-        line.treatment = row.treatment;
-      } else if (row.discount_type !== "none" && row.discount_value.trim() !== "") {
-        line.discount_type = row.discount_type;
-        line.discount_value = plainMoneyText(row.discount_value.trim());
-      }
-      return [line];
-    }),
-  );
-}
-
 function categoryKindFor(kind: RecurringKind, treatment: RecurringLineRow["treatment"]): string {
   if (kind === "invoice") return "revenue";
   return treatment === "expense" ? "expense" : "asset";
@@ -185,6 +98,9 @@ export function RecurringLinesEditor({
   entity,
   amountOnly = false,
   whtAgent,
+  problems = [],
+  problemSerial = 0,
+  attempted = false,
 }: {
   kind: RecurringKind;
   /** One "Jumlah" amount per line (quantity 1) instead of quantity x unit price (expense form, decision 353). */
@@ -200,6 +116,12 @@ export function RecurringLinesEditor({
   whtAgent?: boolean;
   /** Descriptions already used before (with their last price), for the popup above the description field. */
   suggestions?: readonly LineSuggestion[];
+  /** Columns the last refusal was about (database line numbers): painted red with what to do, until changed. */
+  problems?: readonly ProblemTarget[];
+  /** Changes with every new refusal, so a column the person already fixed is not hidden for the next one. */
+  problemSerial?: number;
+  /** The person pressed save: a half-filled row or an unanswered required column is painted red too. */
+  attempted?: boolean;
 }) {
   // Categories added on the spot (decision 340) are usable at once, before the page itself refreshes.
   const [addedCategories, setAddedCategories] = useState<CategoryRow[]>([]);
@@ -210,6 +132,52 @@ export function RecurringLinesEditor({
     kind: "revenue" | "expense" | "asset";
     name: string;
   } | null>(null);
+  // Columns the person has changed since the refusal: their red mark goes away at once.
+  const [dismissed, setDismissed] = useState<{ serial: number; keys: ReadonlySet<string> }>({
+    serial: problemSerial,
+    keys: new Set(),
+  });
+  const dismissedKeys = dismissed.serial === problemSerial ? dismissed.keys : new Set<string>();
+  function dismiss(rowKey: string, field: LineField) {
+    const keys = new Set(dismissedKeys).add(`${rowKey}.${field}`);
+    setDismissed({ serial: problemSerial, keys });
+  }
+  const serialKeys = serializedRowKeys(rows);
+  /** Red marks of one row: field -> what to do. */
+  function problemsOf(row: RecurringLineRow, settled: boolean): Partial<Record<LineField, string>> {
+    const out: Partial<Record<LineField, string>> = {};
+    const line = serialKeys.indexOf(row.key) + 1;
+    if (line > 0) {
+      for (const target of problems) {
+        if (
+          target.scope === "line" &&
+          target.line === line &&
+          !dismissedKeys.has(`${row.key}.${target.field}`)
+        ) {
+          out[target.field] = LINE_FIELD_HINTS[target.field];
+        }
+      }
+    }
+    if (attempted) {
+      const hasDescription = row.description.trim() !== "";
+      const hasAmount = plainMoneyText(row.unit_price.trim()) !== "";
+      if (hasDescription && !hasAmount) out.amount = "Isi jumlah, atau hapus baris ini.";
+      if (!hasDescription && hasAmount) out.description = "Isi deskripsi, atau hapus baris ini.";
+      if (
+        hasDescription &&
+        hasAmount &&
+        taxFields &&
+        kind !== "invoice" &&
+        whtAgent === true &&
+        !settled &&
+        row.treatment !== "asset" &&
+        extraText(row, "wht_object") === ""
+      ) {
+        out.wht = LINE_FIELD_HINTS.wht;
+      }
+    }
+    return out;
+  }
   const allCategories = [
     ...categories,
     ...addedCategories.filter((added) => !categories.some((c) => c.id === added.id)),
@@ -224,10 +192,30 @@ export function RecurringLinesEditor({
   }
 
   function updateRow(key: string, patch: Partial<RecurringLineRow>) {
+    const touched: [keyof RecurringLineRow, LineField][] = [
+      ["description", "description"],
+      ["unit_price", "amount"],
+      ["quantity", "amount"],
+      ["category_id", "category"],
+      ["treatment", "treatment"],
+    ];
+    const hit = touched.filter(([name]) => name in patch);
+    if (hit.length > 0) {
+      const keys = new Set(dismissedKeys);
+      for (const [, field] of hit) keys.add(`${key}.${field}`);
+      setDismissed({ serial: problemSerial, keys });
+    }
     onChange(rows.map((row) => (row.key === key ? { ...row, ...patch } : row)));
   }
 
   function updateExtra(row: RecurringLineRow, field: string, value: string) {
+    const mapped: Record<string, LineField> = {
+      wht_object: "wht",
+      vat_invoice_ref: "vat_invoice_ref",
+      tax_amount: "vat_amount",
+    };
+    const target = mapped[field];
+    if (target) dismiss(row.key, target);
     const extra = { ...row.extra };
     if (value.trim() === "") delete extra[field];
     else extra[field] = value.trim();
@@ -314,10 +302,20 @@ export function RecurringLinesEditor({
                   (category) => category.kind === kindFilter,
                 );
                 const category = allCategories.find((c) => c.id === row.category_id);
+                const settledKey = categorySettlesWithholding(category?.tax_category_key)
+                  ? (category?.tax_category_key as WhtObject)
+                  : null;
+                const marks = problemsOf(row, settledKey !== null);
+                const hint = (field: LineField) =>
+                  marks[field] ? <p className="field-problem-hint">{marks[field]}</p> : null;
+                const vatSplit =
+                  row.price_includes_vat && canIncludeVat(row, kind)
+                    ? splitVatInclusive(plainMoneyText(row.unit_price.trim()))
+                    : null;
                 return (
                   <Fragment key={row.key}>
                     <tr>
-                      <td>
+                      <td className={marks.description ? "cell-problem" : undefined}>
                         <LineDescriptionInput
                           value={row.description}
                           suggestions={suggestions}
@@ -336,6 +334,7 @@ export function RecurringLinesEditor({
                             )
                           }
                         />
+                        {hint("description")}
                       </td>
                       {amountOnly ? null : (
                         <td className="num" data-label="Kuantitas">
@@ -350,15 +349,22 @@ export function RecurringLinesEditor({
                           />
                         </td>
                       )}
-                      <td className="num" data-label={amountOnly ? "Jumlah" : "Harga Satuan"}>
+                      <td
+                        className={marks.amount ? "num cell-problem" : "num"}
+                        data-label={amountOnly ? "Jumlah" : "Harga Satuan"}
+                      >
                         <MoneyInput
                           value={row.unit_price}
                           onValueChange={(unit_price) => updateRow(row.key, { unit_price })}
                           placeholder="0"
                         />
+                        {hint("amount")}
                       </td>
                       {showTreatment ? (
-                        <td data-label="Perlakuan">
+                        <td
+                          data-label="Perlakuan"
+                          className={marks.treatment ? "cell-problem" : undefined}
+                        >
                           <select
                             value={row.treatment}
                             onChange={(event) => {
@@ -379,6 +385,7 @@ export function RecurringLinesEditor({
                             <option value="asset">Aset</option>
                             <option value="prepaid">Dibayar di Muka</option>
                           </select>
+                          {hint("treatment")}
                         </td>
                       ) : null}
                       {showDiscount ? (
@@ -417,7 +424,10 @@ export function RecurringLinesEditor({
                           </div>
                         </td>
                       ) : null}
-                      <td data-label="Kategori">
+                      <td
+                        data-label="Kategori"
+                        className={marks.category ? "cell-problem" : undefined}
+                      >
                         <div className="category-picker-cell">
                           <ContactPicker
                             label="Kategori"
@@ -439,6 +449,7 @@ export function RecurringLinesEditor({
                             }
                           />
                         </div>
+                        {hint("category")}
                       </td>
                       <td>
                         <button
@@ -474,12 +485,15 @@ export function RecurringLinesEditor({
                             ) : (
                               <>
                                 {(() => {
-                                  const settledKey = categorySettlesWithholding(
-                                    category?.tax_category_key,
-                                  )
-                                    ? (category?.tax_category_key as WhtObject)
-                                    : null;
                                   const chosen = extraText(row, "wht_object");
+                                  if (row.treatment === "asset" && chosen === "") {
+                                    return (
+                                      <p className="hint plan-lines-wht-auto">
+                                        Pembelian aset / peralatan: tidak kena potongan PPh
+                                        (otomatis).
+                                      </p>
+                                    );
+                                  }
                                   if (settledKey && chosen === "" && !changingWht.has(row.key)) {
                                     return (
                                       <p className="hint plan-lines-wht-auto">
@@ -499,7 +513,7 @@ export function RecurringLinesEditor({
                                   }
                                   const known = WHT_QUICK_CHOICES.some((c) => c.value === chosen);
                                   return (
-                                    <label>
+                                    <label className={marks.wht ? "field-problem" : undefined}>
                                       {settledKey ? "Potongan PPh baris ini" : "Kena potongan PPh?"}
                                       <select
                                         value={chosen}
@@ -522,20 +536,49 @@ export function RecurringLinesEditor({
                                           </option>
                                         ) : null}
                                       </select>
+                                      {hint("wht")}
                                     </label>
                                   );
                                 })()}
-                                <label>
-                                  PPN ditagih vendor
-                                  <MoneyInput
-                                    value={extraText(row, "tax_amount")}
-                                    onValueChange={(amount) =>
-                                      updateExtra(row, "tax_amount", amount)
-                                    }
-                                    placeholder="0"
-                                  />
-                                </label>
-                                <label>
+                                {canIncludeVat(row, kind) ? (
+                                  <label className="plan-lines-vat-inclusive">
+                                    <span>
+                                      <input
+                                        type="checkbox"
+                                        checked={row.price_includes_vat === true}
+                                        onChange={(event) =>
+                                          updateRow(row.key, {
+                                            price_includes_vat: event.target.checked,
+                                          })
+                                        }
+                                      />{" "}
+                                      Jumlah di struk sudah termasuk PPN {VAT_RATE_PERCENT}%
+                                    </span>
+                                    {row.price_includes_vat ? (
+                                      <span className="hint">
+                                        {vatSplit
+                                          ? `Harga sebelum PPN: Rp ${formatMoneyTyping(vatSplit.net)} · PPN: Rp ${formatMoneyTyping(vatSplit.vat)}. Potongan PPh dihitung dari harga sebelum PPN.`
+                                          : "Isi jumlah di struk, lalu harga sebelum PPN dan PPN dihitung otomatis."}
+                                      </span>
+                                    ) : null}
+                                  </label>
+                                ) : null}
+                                {vatSplit ? null : (
+                                  <label className={marks.vat_amount ? "field-problem" : undefined}>
+                                    PPN ditagih vendor
+                                    <MoneyInput
+                                      value={extraText(row, "tax_amount")}
+                                      onValueChange={(amount) =>
+                                        updateExtra(row, "tax_amount", amount)
+                                      }
+                                      placeholder="0"
+                                    />
+                                    {hint("vat_amount")}
+                                  </label>
+                                )}
+                                <label
+                                  className={marks.vat_invoice_ref ? "field-problem" : undefined}
+                                >
                                   No. Faktur Pajak
                                   <input
                                     type="text"
@@ -545,6 +588,7 @@ export function RecurringLinesEditor({
                                       updateExtra(row, "vat_invoice_ref", event.target.value)
                                     }
                                   />
+                                  {hint("vat_invoice_ref")}
                                 </label>
                               </>
                             )}

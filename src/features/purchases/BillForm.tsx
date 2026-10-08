@@ -17,6 +17,9 @@ import {
 } from "@/features/planning/RecurringLinesEditor";
 import { ContactPicker } from "@/features/contacts/ContactPicker";
 import { QuickAddContactDrawer } from "@/features/contacts/QuickAddContactDrawer";
+import { ProblemNotice } from "@/features/feedback/ProblemNotice";
+import { ProblemField, useAnswerSerial } from "@/features/feedback/ProblemField";
+import { FORM_FIELD_HINTS, type ProblemTarget } from "@/domain/forms/problemTargets";
 import { createBillAction } from "./actions";
 import { idleBillActionState } from "./actionsState";
 
@@ -35,6 +38,7 @@ export function BillForm({
   entity,
   today,
   initial,
+  initialProblems = [],
 }: {
   vendors: readonly ContactRow[];
   categories: readonly CategoryRow[];
@@ -44,6 +48,8 @@ export function BillForm({
   suggestions?: readonly LineSuggestion[];
   entity: string | undefined;
   today: string;
+  /** Fields to paint red when the form opens from a refused submit on the Detail page. */
+  initialProblems?: readonly ProblemTarget[];
   /** Present when editing an existing draft (decision 261): the same form saves through `update_bill_draft`. */
   initial?: {
     id: string;
@@ -58,6 +64,12 @@ export function BillForm({
 }) {
   const [state, action, pending] = useActionState(createBillAction, idleBillActionState);
   const actionForm = usePreservingForm(action, state);
+  const serial = useAnswerSerial(state);
+  const [attempted, setAttempted] = useState(false);
+  const problems: readonly ProblemTarget[] =
+    state.status === "error" ? (state.targets ?? []) : initialProblems;
+  const formProblem = (field: "date" | "due" | "payee" | "receipt" | "lines") =>
+    problems.some((t) => t.scope === "form" && t.field === field);
   // Local copy so a vendor added on the spot is picked straight away without reloading the form.
   // One amount per line unless the person asks for the detail (decision 353); a draft with a quantity other than
   // 1 opens in the detailed mode.
@@ -86,34 +98,51 @@ export function BillForm({
           </>
         ) : null}
 
-        <ContactPicker
-          label="Vendor"
-          name="vendor_id"
-          noun="vendor"
-          contacts={vendorList}
-          value={vendorId}
-          onChange={setVendorId}
-          onAddNew={(typedName) => {
-            setNewVendorName(typedName);
-            setAddingVendor(true);
-          }}
-        />
-        <label>
-          Nomor Invoice dari Vendor (opsional)
-          <input
-            name="vendor_reference"
-            maxLength={100}
-            defaultValue={initial?.vendor_reference ?? ""}
+        <ProblemField active={formProblem("payee")} hint={FORM_FIELD_HINTS.payee} serial={serial}>
+          <ContactPicker
+            label="Vendor"
+            name="vendor_id"
+            noun="vendor"
+            contacts={vendorList}
+            value={vendorId}
+            onChange={setVendorId}
+            onAddNew={(typedName) => {
+              setNewVendorName(typedName);
+              setAddingVendor(true);
+            }}
           />
-        </label>
-        <label>
-          Tanggal Tagihan
-          <input type="date" name="bill_date" required defaultValue={initial?.bill_date ?? today} />
-        </label>
-        <label>
-          Jatuh Tempo
-          <input type="date" name="due_date" required defaultValue={initial?.due_date ?? today} />
-        </label>
+        </ProblemField>
+        <ProblemField
+          active={formProblem("receipt")}
+          hint={FORM_FIELD_HINTS.receipt}
+          serial={serial}
+        >
+          <label>
+            Nomor Invoice dari Vendor (opsional)
+            <input
+              name="vendor_reference"
+              maxLength={100}
+              defaultValue={initial?.vendor_reference ?? ""}
+            />
+          </label>
+        </ProblemField>
+        <ProblemField active={formProblem("date")} hint={FORM_FIELD_HINTS.date} serial={serial}>
+          <label>
+            Tanggal Tagihan
+            <input
+              type="date"
+              name="bill_date"
+              required
+              defaultValue={initial?.bill_date ?? today}
+            />
+          </label>
+        </ProblemField>
+        <ProblemField active={formProblem("due")} hint={FORM_FIELD_HINTS.due} serial={serial}>
+          <label>
+            Jatuh Tempo
+            <input type="date" name="due_date" required defaultValue={initial?.due_date ?? today} />
+          </label>
+        </ProblemField>
 
         <AmountModeToggle
           detailed={detailed}
@@ -131,7 +160,13 @@ export function BillForm({
           rows={rows}
           onChange={setRows}
           taxFields
+          problems={problems}
+          problemSerial={serial}
+          attempted={attempted}
         />
+        {formProblem("lines") ? (
+          <p className="field-problem-hint">{FORM_FIELD_HINTS.lines}</p>
+        ) : null}
         <p className="hint">
           Potongan PPh dan PPN dihitung otomatis dari isian pajak tiap baris dan data pajak vendor.
           Hasilnya terlihat di halaman tagihan sebelum disetujui.
@@ -143,11 +178,14 @@ export function BillForm({
         </label>
 
         {state.status === "error" ? (
-          <p role="alert" className="error">
-            {state.message}
-          </p>
+          <ProblemNotice message={state.message} targets={state.targets} />
         ) : null}
-        <button type="submit" className="btn-primary" disabled={pending}>
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={pending}
+          onClick={() => setAttempted(true)}
+        >
           {pending ? "Menyimpan…" : initial ? "Simpan Perubahan" : "Simpan sebagai Draf"}
         </button>
       </form>

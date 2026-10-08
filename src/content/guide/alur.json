@@ -1429,7 +1429,28 @@
                   "actor": "anda",
                   "title": "Catat Pengeluaran",
                   "menu": "Pembelian > Beban > Catat Pengeluaran",
-                  "note": "Pilih rekening pembayar, vendor atau nama penerima, isi satu Jumlah sesuai struk (tanpa harga satuan), lampirkan struk, simpan sebagai Draf"
+                  "note": "Pilih rekening pembayar, vendor atau nama penerima, isi satu Jumlah sesuai struk (tanpa harga satuan). Struk memuat PPN: centang Jumlah di struk sudah termasuk PPN, harga sebelum PPN dihitung otomatis. Jawab Kena potongan PPh? bila muncul. Lampirkan struk, simpan sebagai Draf"
+                },
+                {
+                  "kind": "choice",
+                  "question": "Simpan atau ajukan ditolak?",
+                  "branches": [
+                    {
+                      "label": "Ya",
+                      "items": [
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Perbaiki kolom bertanda merah",
+                          "note": "Pesan menyebut baris dan kolom yang salah; kolomnya merah dengan petunjuk di bawahnya. Dari halaman rincian, tombol Buka formulir membawa ke kolom itu"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Tidak",
+                      "items": []
+                    }
+                  ]
                 },
                 {
                   "kind": "step",
@@ -1453,7 +1474,28 @@
                   "actor": "anda",
                   "title": "Catat Tagihan",
                   "menu": "Pembelian > Tagihan > Catat Tagihan",
-                  "note": "Isi vendor, tanggal, jatuh tempo, dan satu Jumlah sesuai invoice per baris"
+                  "note": "Isi vendor, tanggal, jatuh tempo, dan satu Jumlah sesuai invoice per baris. Invoice memuat PPN: centang Jumlah sudah termasuk PPN. Jawab Kena potongan PPh? bila muncul"
+                },
+                {
+                  "kind": "choice",
+                  "question": "Simpan atau ajukan ditolak?",
+                  "branches": [
+                    {
+                      "label": "Ya",
+                      "items": [
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Perbaiki kolom bertanda merah",
+                          "note": "Pesan menyebut baris dan kolom yang salah; kolomnya merah dengan petunjuk di bawahnya. Dari halaman rincian, tombol Buka formulir membawa ke kolom itu"
+                        }
+                      ]
+                    },
+                    {
+                      "label": "Tidak",
+                      "items": []
+                    }
+                  ]
                 },
                 {
                   "kind": "step",

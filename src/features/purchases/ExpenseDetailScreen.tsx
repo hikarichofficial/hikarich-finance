@@ -67,7 +67,12 @@ export function ExpenseDetailScreen({
         </div>
       </header>
 
-      <ExpenseActions expenseId={expense.id} actions={actions} entity={entity} />
+      <ExpenseActions
+        expenseId={expense.id}
+        actions={actions}
+        entity={entity}
+        status={expense.status}
+      />
       {expense.status === "draft" && canEdit ? (
         <p>
           <Link href={`/purchases/expenses/${expense.id}/edit${suffix}`} className="btn-secondary">

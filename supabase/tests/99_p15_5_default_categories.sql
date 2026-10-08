@@ -26,8 +26,8 @@ begin
 
   -- 1. the standard set exists, revenue and expense, with the account each one posts to
   perform test_helpers.assert((select count(*) from public.categories where entity_id = e_co and kind = 'revenue') = 14
-    and (select count(*) from public.categories where entity_id = e_co and kind = 'expense') = 14,
-    '1.1 company: 14 revenue (5 standard + 9 for income without an invoice, decision 350) and 14 expense categories (her own Penjualan Produk counts as one of the revenue ones)');
+    and (select count(*) from public.categories where entity_id = e_co and kind = 'expense') = 27,
+    '1.1 company: 14 revenue (5 standard + 9 for income without an invoice, decision 350) and 27 expense categories (14 + 13 added in decision 360) (her own Penjualan Produk counts as one of the revenue ones)');
   perform test_helpers.assert(app_private.resolve_revenue_account(e_co,
       (select id from public.categories where entity_id = e_co and name = 'Penjualan E-book'), current_date)
     = (select id from public.ledger_accounts where entity_id = e_co and system_key = 'EBOOK_REVENUE'),
@@ -40,11 +40,18 @@ begin
     '1.4 personal categories and company revenue categories carry no tax classification (automatic from the tax profile)');
   -- Decision 359: the company expense categories that do not depend on the vendor start with a withholding classification.
   perform test_helpers.assert(
-    (select count(*) from public.categories where entity_id = e_co and kind = 'expense' and tax_category_key = 'wht_none') = 10
+    (select count(*) from public.categories where entity_id = e_co and kind = 'expense' and tax_category_key = 'wht_none') = 15
     and (select tax_category_key from public.categories where entity_id = e_co and name = 'Sewa & Ruang Kerja') = 'wht_rent_land_building'
     and (select count(*) from public.categories where entity_id = e_co and kind = 'expense' and tax_category_key is null) = 3
     and (select tax_category_key from public.categories where entity_id = e_co and name = 'Jasa Profesional') is null,
-    '1.4b company expense: 10 not-a-withholding-object, rent of land/building, and 3 left to the line (Jasa Profesional, Produksi Konten, Influencer & Kontrak Besar)');
+    '1.4b company expense: 15 not-a-withholding-object (decision 360), rent of land/building, and 3 left to the line (Jasa Profesional, Produksi Konten, Influencer & Kontrak Besar)');
+  -- Decision 360: the certain objects carry their own classification.
+  perform test_helpers.assert(
+    (select tax_category_key from public.categories where entity_id = e_co and name = 'Sewa Kendaraan & Peralatan') = 'wht_rent_movable'
+    and (select tax_category_key from public.categories where entity_id = e_co and name = 'Jasa Konsultan & Manajemen') = 'wht_service_consulting'
+    and (select tax_category_key from public.categories where entity_id = e_co and name = 'Royalti & Hak Cipta') = 'wht_royalty'
+    and (select count(*) from public.categories where entity_id = e_co and kind = 'expense' and tax_category_key like 'wht\_service%') = 6,
+    '1.4c the certain objects (rent of equipment, consulting, legal/accounting, technical, construction, cleaning/security, catering, royalty) are classified');
   perform test_helpers.assert(exists (select 1 from public.category_account_mappings m
       join public.categories c on c.id = m.category_id
       join public.ledger_accounts a on a.id = m.debit_ledger_account_id

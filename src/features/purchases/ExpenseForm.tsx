@@ -19,6 +19,9 @@ import {
 } from "@/features/planning/RecurringLinesEditor";
 import { hasDetailedQuantity } from "@/domain/purchases/expenseAmount";
 import { AmountModeToggle } from "./AmountModeToggle";
+import { ProblemNotice } from "@/features/feedback/ProblemNotice";
+import { ProblemField, useAnswerSerial } from "@/features/feedback/ProblemField";
+import { FORM_FIELD_HINTS, type ProblemTarget } from "@/domain/forms/problemTargets";
 import { createExpenseAction } from "./expenseActions";
 import { idleExpenseActionState } from "./expenseActionsState";
 
@@ -42,6 +45,7 @@ export function ExpenseForm({
   entity,
   today,
   initial,
+  initialProblems = [],
 }: {
   accounts: readonly MoneyControlRow[];
   vendors: readonly ContactRow[];
@@ -54,6 +58,8 @@ export function ExpenseForm({
   payeeSuggestions?: readonly string[];
   entity: string | undefined;
   today: string;
+  /** Fields to paint red when the form opens from a refused submit on the Detail page. */
+  initialProblems?: readonly ProblemTarget[];
   /** Present when editing an existing draft: the same form saves through `update_expense_draft`. */
   initial?: {
     id: string;
@@ -69,6 +75,12 @@ export function ExpenseForm({
 }) {
   const [state, action, pending] = useActionState(createExpenseAction, idleExpenseActionState);
   const actionForm = usePreservingForm(action, state);
+  const serial = useAnswerSerial(state);
+  const [attempted, setAttempted] = useState(false);
+  const problems: readonly ProblemTarget[] =
+    state.status === "error" ? (state.targets ?? []) : initialProblems;
+  const formProblem = (field: "account" | "date" | "payee" | "receipt" | "lines") =>
+    problems.some((t) => t.scope === "form" && t.field === field);
   const [rows, setRows] = useState<RecurringLineRow[]>(
     initial && initial.lines.length > 0
       ? buildInitialRecurringLines(initial.lines)
@@ -97,61 +109,77 @@ export function ExpenseForm({
           </>
         ) : null}
 
-        <label>
-          Dibayar dari Rekening
-          <select name="account_id" required defaultValue={initial?.account_id ?? ""}>
-            <option value="" disabled>
-              Pilih rekening kas/bank
-            </option>
-            {accounts.map((account) => (
-              <option key={account.financial_account_id} value={account.financial_account_id}>
-                {account.name} ({account.currency})
+        <ProblemField
+          active={formProblem("account")}
+          hint={FORM_FIELD_HINTS.account}
+          serial={serial}
+        >
+          <label>
+            Dibayar dari Rekening
+            <select name="account_id" required defaultValue={initial?.account_id ?? ""}>
+              <option value="" disabled>
+                Pilih rekening kas/bank
               </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Tanggal
-          <input
-            type="date"
-            name="expense_date"
-            required
-            defaultValue={initial?.expense_date ?? today}
+              {accounts.map((account) => (
+                <option key={account.financial_account_id} value={account.financial_account_id}>
+                  {account.name} ({account.currency})
+                </option>
+              ))}
+            </select>
+          </label>
+        </ProblemField>
+        <ProblemField active={formProblem("date")} hint={FORM_FIELD_HINTS.date} serial={serial}>
+          <label>
+            Tanggal
+            <input
+              type="date"
+              name="expense_date"
+              required
+              defaultValue={initial?.expense_date ?? today}
+            />
+          </label>
+        </ProblemField>
+        <ProblemField active={formProblem("payee")} hint={FORM_FIELD_HINTS.payee} serial={serial}>
+          <ContactPicker
+            label="Vendor (opsional)"
+            name="payee_id"
+            noun="vendor"
+            contacts={vendorList}
+            value={payeeId}
+            optional
+            onChange={setPayeeId}
+            onAddNew={(typedName) => {
+              setNewVendorName(typedName);
+              setAddingVendor(true);
+            }}
           />
-        </label>
-        <ContactPicker
-          label="Vendor (opsional)"
-          name="payee_id"
-          noun="vendor"
-          contacts={vendorList}
-          value={payeeId}
-          optional
-          onChange={setPayeeId}
-          onAddNew={(typedName) => {
-            setNewVendorName(typedName);
-            setAddingVendor(true);
-          }}
-        />
-        {payeeId === "" ? (
-          <SuggestTextInput
-            label="Nama Penerima"
-            name="payee_name"
-            noun="penerima"
-            suggestions={payeeSuggestions}
-            required
-            maxLength={200}
-            placeholder="mis. Toko Bangunan Jaya"
-            defaultValue={initial?.payee_name ?? ""}
-          />
-        ) : null}
-        <label>
-          Nomor Struk / Nota (opsional)
-          <input
-            name="receipt_reference"
-            maxLength={100}
-            defaultValue={initial?.receipt_reference ?? ""}
-          />
-        </label>
+          {payeeId === "" ? (
+            <SuggestTextInput
+              label="Nama Penerima"
+              name="payee_name"
+              noun="penerima"
+              suggestions={payeeSuggestions}
+              required
+              maxLength={200}
+              placeholder="mis. Toko Bangunan Jaya"
+              defaultValue={initial?.payee_name ?? ""}
+            />
+          ) : null}
+        </ProblemField>
+        <ProblemField
+          active={formProblem("receipt")}
+          hint={FORM_FIELD_HINTS.receipt}
+          serial={serial}
+        >
+          <label>
+            Nomor Struk / Nota (opsional)
+            <input
+              name="receipt_reference"
+              maxLength={100}
+              defaultValue={initial?.receipt_reference ?? ""}
+            />
+          </label>
+        </ProblemField>
 
         <AmountModeToggle
           detailed={detailed}
@@ -169,7 +197,13 @@ export function ExpenseForm({
           rows={rows}
           onChange={setRows}
           taxFields
+          problems={problems}
+          problemSerial={serial}
+          attempted={attempted}
         />
+        {formProblem("lines") ? (
+          <p className="field-problem-hint">{FORM_FIELD_HINTS.lines}</p>
+        ) : null}
 
         <label>
           Catatan (opsional)
@@ -177,11 +211,14 @@ export function ExpenseForm({
         </label>
 
         {state.status === "error" ? (
-          <p role="alert" className="error">
-            {state.message}
-          </p>
+          <ProblemNotice message={state.message} targets={state.targets} />
         ) : null}
-        <button type="submit" className="btn-primary" disabled={pending}>
+        <button
+          type="submit"
+          className="btn-primary"
+          disabled={pending}
+          onClick={() => setAttempted(true)}
+        >
           {pending ? "Menyimpan…" : initial ? "Simpan Perubahan" : "Simpan sebagai Draf"}
         </button>
       </form>
