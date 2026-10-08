@@ -1080,7 +1080,7 @@
     "Jumlah pada baris {1} bukan angka yang valid"
   ],
   ["line % has an unknown VAT treatment", "Perlakuan PPN pada baris {1} tidak dikenal"],
-  ["line % has an unknown withholding object", "Jenis PPh pada baris {1} tidak dikenal"],
+  ["line % has an unknown withholding object", "Objek pemotongan PPh pada baris {1} tidak dikenal"],
   [
     "line % has more decimals than the base currency allows (%)",
     "Baris {1} memiliki angka desimal lebih banyak dari yang diizinkan mata uang dasar ({2})"
@@ -2922,7 +2922,7 @@
   ],
   [
     "Line % has no withholding classification: choose \"not a withholding object\" or the object on the line, or map its category.",
-    "Baris {1} belum ditentukan kena PPh atau tidak. Pilih “Tidak kena PPh” (atau jenis PPh yang sesuai) pada kolom Kena PPh? di baris itu lewat Tarik Kembali ke Draf lalu Ubah Draf, atau petakan kategorinya di Akuntansi > Kategori."
+    "Baris {1} belum ditentukan objek potongan PPh-nya. Pilih “Bukan objek potongan PPh” (atau objek yang sesuai) pada kolom Objek potongan PPh di baris itu lewat Tarik Kembali ke Draf lalu Ubah Draf, atau petakan kategorinya di Akuntansi > Kategori."
   ],
   [
     "Line % is marked \"not sure\" and waits for a tax review.",
@@ -2930,11 +2930,11 @@
   ],
   [
     "A line carries a withholding object but the Entity is recorded as not being a withholding agent; review the profile or the line.",
-    "Ada baris yang kena PPh, tetapi Entity tercatat bukan pemotong pajak; tinjau profil atau barisnya."
+    "Ada baris dengan objek potongan, tetapi Entity tercatat bukan pemotong pajak; tinjau profil atau barisnya."
   ],
   [
     "Withholding on a foreign-currency document needs the statutory exchange rate and goes to review.",
-    "PPh pada dokumen mata uang asing butuh kurs resmi dan masuk ke peninjauan."
+    "Pemotongan pada dokumen mata uang asing butuh kurs resmi dan masuk ke peninjauan."
   ],
   [
     "The payee is not a contact of the Entity, so its tax facts are unknown; register the payee and record its tax facts.",
@@ -2946,11 +2946,11 @@
   ],
   [
     "The payee is not recorded as a resident taxpayer; non-resident withholding (PPh 26 / treaties) is not computed and needs review.",
-    "Penerima pembayaran tidak tercatat sebagai wajib pajak dalam negeri; PPh untuk non-residen (PPh 26 / P3B) tidak dihitung otomatis dan perlu ditinjau."
+    "Penerima pembayaran tidak tercatat sebagai wajib pajak dalam negeri; pemotongan untuk non-residen (PPh 26 / P3B) tidak dihitung otomatis dan perlu ditinjau."
   ],
   [
     "No single withholding rule covers line % (%) on %.",
-    "Tidak ada satu aturan PPh yang berlaku untuk baris {1} ({2}) pada {3}."
+    "Tidak ada satu aturan pemotongan yang berlaku untuk baris {1} ({2}) pada {3}."
   ],
   [
     "Line % (%) is paid to an individual; whether income-tax article 23 or 21 applies is a legal classification that needs review.",
@@ -2978,19 +2978,11 @@
   ],
   [
     "Nothing is withheld: the vendor is owed the full amount.",
-    "Tidak ada PPh yang ditambahkan: vendor dibayar penuh sesuai jumlahnya."
-  ],
-  [
-    "No income tax is added to this purchase: the vendor is paid the full amount.",
-    "Tidak ada PPh yang ditambahkan pada pembelian ini: vendor dibayar penuh sesuai jumlahnya."
+    "Tidak ada yang dipotong: vendor ditagih penuh sesuai jumlahnya."
   ],
   [
     "% is withheld from the payee: the vendor is owed that much less, and it is credited to Tax Payables and accrues in the % ledger for %. The gross expense is unchanged.",
-    "{1} dipotong dari penerima: vendor menerima sebesar itu lebih sedikit, dicatat sebagai Utang Pajak dan tercatat di buku {2} untuk masa {3}. Beban bruto tidak berubah. (Catatan lama, sebelum PPh menjadi beban pajak PT.)"
-  ],
-  [
-    "% is a tax cost of the company, paid to the tax office apart from the vendor: the vendor is paid in full, the amount is credited to Tax Payables, booked as a tax expense on top of the purchase and accrues in the % ledger for %.",
-    "{1} adalah beban pajak PT yang dibayar ke negara terpisah dari vendor: vendor dibayar penuh, jumlah ini dicatat sebagai Utang Pajak, menjadi beban pajak di atas pembelian, dan tercatat di buku {2} untuk masa {3}."
+    "{1} dipotong dari penerima: vendor menerima sebesar itu lebih sedikit, dicatat sebagai Utang Pajak dan tercatat di buku {2} untuk masa {3}. Beban bruto tidak berubah."
   ],
   [
     "The final income tax of the month is a tax expense and a liability to pay by the deadline of the following month",
@@ -3124,23 +3116,23 @@
   ],
   [
     "Payee facts on %: non-resident taxpayer, so income-tax article 26 applies to every withholding object.",
-    "Data penerima pada {1}: wajib pajak bukan residen, jadi PPh Pasal 26 berlaku untuk setiap objek PPh."
+    "Data penerima pada {1}: wajib pajak bukan residen, jadi PPh Pasal 26 berlaku untuk setiap objek pemotongan."
   ],
   [
     "The payee holds a withholding exemption certificate, so nothing is withheld on % (the certificate is evidence to keep).",
-    "Penerima memegang surat keterangan bebas pemotongan, jadi tidak ada PPh atas {1} (surat keterangan itu adalah bukti yang harus disimpan)."
+    "Penerima memegang surat keterangan bebas pemotongan, jadi tidak ada yang dipotong atas {1} (surat keterangan itu adalah bukti yang harus disimpan)."
   ],
   [
     "Withholding on % at % = % (rule % v%, rounded).",
-    "PPh atas {1} dengan tarif {2} = {3} (aturan {4} v{5}, dibulatkan)."
+    "Pemotongan atas {1} dengan tarif {2} = {3} (aturan {4} v{5}, dibulatkan)."
   ],
   [
     "No line is a withholding object (the Entity is not a withholding agent); nothing is withheld.",
-    "Tidak ada baris yang kena PPh (entitas bukan pemotong pajak); tidak ada PPh yang ditambahkan."
+    "Tidak ada baris yang menjadi objek pemotongan (entitas bukan pemotong pajak); tidak ada yang dipotong."
   ],
   [
     "No line is a withholding object (every line is classified as not a withholding object); nothing is withheld.",
-    "Tidak ada baris yang kena PPh (setiap baris diklasifikasikan bukan objek PPh); tidak ada PPh yang ditambahkan."
+    "Tidak ada baris yang menjadi objek pemotongan (setiap baris diklasifikasikan bukan objek pemotongan); tidak ada yang dipotong."
   ],
   ["% v%: % of the gross amount", "{1} v{2}: {3} dari jumlah bruto"],
   [
@@ -3149,7 +3141,7 @@
   ],
   [
     "The payee's exemption certificate concerns income-tax article 23; it does not cover the final tax on rent of land or buildings, which is still withheld (a separate exemption letter is entered as an override with its evidence).",
-    "Surat keterangan bebas penerima menyangkut PPh Pasal 23; surat itu tidak mencakup pajak final atas sewa tanah atau bangunan, yang tetap dikenakan (surat bebas yang terpisah dimasukkan sebagai koreksi manual beserta buktinya)."
+    "Surat keterangan bebas penerima menyangkut PPh Pasal 23; surat itu tidak mencakup pajak final atas sewa tanah atau bangunan, yang tetap dipotong (surat bebas yang terpisah dimasukkan sebagai koreksi manual beserta buktinya)."
   ],
   [
     "This is the statutory rate. A lower tax-treaty rate applies only with the payee's certificate of domicile (DGT form): enter it as an override with that evidence.",

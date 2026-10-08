@@ -5,8 +5,8 @@
  *   - `vatCharged`: the VAT the vendor charged on the receipt (not a tax the company pays to the state),
  *   - `vatCreditable`: the part the company may credit against the VAT it reports (only a PKP company),
  *   - `vatCost`: the part that stays in the expense (a company that is not PKP, or VAT not creditable),
- *   - `incomeTax`: income tax on the purchase (PPh 23, 4(2), 26) that the company bears on top of the price and pays to
- *     the tax office apart from the vendor (OWNER, 8 October 2026: the vendor is paid in full).
+ *   - `incomeTax`: income tax on the purchase (PPh 23, 4(2), 26) that the company takes out of the vendor's payment and
+ *     pays to the tax office (OWNER, 8 October 2026: the contract amount is the company's whole cost).
  * Display only: the figures come from the tax engine (a preview before recording, the recorded determinations after).
  */
 export interface LineTaxSummary {

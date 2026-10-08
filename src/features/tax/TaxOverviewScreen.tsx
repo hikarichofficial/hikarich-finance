@@ -70,7 +70,7 @@ export function TaxOverviewScreen({
     return {
       key: period,
       short: monthNameId(month).slice(0, 3),
-      label: `Beban pajak ${monthNameId(month)} ${shownYear}`,
+      label: `PPh ${monthNameId(month)} ${shownYear}`,
       value: Number(value),
       display: formatMoney(value, currency),
       href: withEntity("/tax/ledger", { period }),
@@ -190,16 +190,12 @@ export function TaxOverviewScreen({
         <div className="dashboard-column">
           <section className="dashboard-section">
             <div className="dashboard-section-header">
-              <h2 className="dashboard-section-title">Beban pajak per bulan · {shownYear}</h2>
+              <h2 className="dashboard-section-title">PPh per bulan · {shownYear}</h2>
               <span className="delta-chip">
                 Total {formatMoney(yearTotal.toString(), currency)}
               </span>
             </div>
-            <BarChart
-              points={points}
-              tone="accent"
-              ariaLabel={`Beban pajak per bulan ${shownYear}`}
-            />
+            <BarChart points={points} tone="accent" ariaLabel={`PPh per bulan ${shownYear}`} />
             <p className="hint">
               <Link href={withEntity("/tax", { year: String(shownYear - 1) })}>
                 ← {shownYear - 1}

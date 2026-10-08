@@ -507,7 +507,7 @@ export function RecurringLinesEditor({
                                                 : "Belum dipilih: dihitung tidak kena PPh.";
                                       const borne =
                                         shown !== "wht_none" && shown !== "wht_review"
-                                          ? " PPh ini beban PT: vendor dibayar penuh, pajaknya dibayar terpisah ke negara."
+                                          ? " PPh diambil dari bayaran vendor dan disetor PT ke negara; biaya PT tetap sebesar jumlah."
                                           : "";
                                       return (
                                         <label

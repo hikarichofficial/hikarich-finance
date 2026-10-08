@@ -806,7 +806,7 @@
       "steps": [
         {
           "title": "Mulai dari Pajak > Ringkasan Pajak",
-          "text": "Halaman ini berisi angka, bukan kalimat. Di bagian atas ada label singkat **Wajib pajak**, **Rezim**, **PPN**, dan **Pemotong pajak**, serta tautan ke Buku Besar Pajak dan Kalender. Empat kartu angka: **Total terutang** (klik untuk membuka Buku Besar Pajak), **PPh Final bulan ini (perkiraan)**, **Perkiraan PPh** tahun berjalan atas penghasilan di luar PPh Final, dan **Perlu ditinjau** (jumlah transaksi yang menunggu penentuan pajak).\n\nDi bawahnya: grafik **Beban pajak per bulan** (arahkan kursor ke batang untuk melihat jumlahnya, klik untuk membuka entri bulan itu di Buku Besar Pajak; tautan tahun untuk berpindah tahun), kartu **Penghasilan di Luar PPh Final**, batang **Terutang per jenis** (klik untuk menyaring Buku Besar Pajak), dan kartu **Tenggat terdekat**: tanggal berwarna merah bila terlambat dan kuning bila perlu dikerjakan.",
+          "text": "Halaman ini berisi angka, bukan kalimat. Di bagian atas ada label singkat **Wajib pajak**, **Rezim**, **PPN**, dan **Pemotong pajak**, serta tautan ke Buku Besar Pajak dan Kalender. Empat kartu angka: **Total terutang** (klik untuk membuka Buku Besar Pajak), **PPh Final bulan ini (perkiraan)**, **Perkiraan PPh** tahun berjalan atas penghasilan di luar PPh Final, dan **Perlu ditinjau** (jumlah transaksi yang menunggu penentuan pajak).\n\nDi bawahnya: grafik **PPh per bulan** (arahkan kursor ke batang untuk melihat jumlahnya, klik untuk membuka entri bulan itu di Buku Besar Pajak; tautan tahun untuk berpindah tahun), kartu **Penghasilan di Luar PPh Final**, batang **Terutang per jenis** (klik untuk menyaring Buku Besar Pajak), dan kartu **Tenggat terdekat**: tanggal berwarna merah bila terlambat dan kuning bila perlu dikerjakan.",
           "image": {
             "file": "pajak-ringkasan-v3.jpg",
             "caption": "Ringkasan Pajak (angka contoh)."
@@ -818,7 +818,7 @@
         },
         {
           "title": "Buka posisi PPh Vendor",
-          "text": "Buka **Pajak > PPh Vendor**. Pilih **Jenis Pajak**: PPh 23 (jasa dan sewa), PPh 4(2) sewa tanah/bangunan, atau PPh 26 (luar negeri), dan **Masa Pajak**, lalu **Terapkan**. Judul halaman menjadi “PPh Vendor: <jenis>”. Ini PPh atas pembelian dari vendor yang **ditanggung PT**: vendor dibayar penuh, PPh dibayar terpisah ke negara. Angkanya sama dengan PPN, tanpa baris PPN Masukan.",
+          "text": "Buka **Pajak > PPh Vendor**. Pilih **Jenis Pajak**: PPh 23 (jasa dan sewa), PPh 4(2) sewa tanah/bangunan, atau PPh 26 (luar negeri), dan **Masa Pajak**, lalu **Terapkan**. Judul halaman menjadi “PPh Vendor: <jenis>”. Ini PPh atas pembelian dari vendor: diambil dari bayaran vendor dan disetor PT ke negara. Angkanya sama dengan PPN, tanpa baris PPN Masukan.",
           "tip": "PPh 21 karyawan tidak ada di sini; ia dicatat lewat Payroll. PPh Final UMKM ada di Pajak > PPh Final."
         },
         {
@@ -913,7 +913,7 @@
         },
         {
           "title": "Baca tabel",
-          "text": "Kolomnya **Tanggal**, **Masa Pajak**, **Jenis** (misalnya PPN keluaran, PPN masukan, PPh 23 (beban pajak PT)), **Deskripsi**, **Status**, dan **Jumlah**. Bila tidak ada hasil tertulis “Tidak ada entri pajak pada saringan ini.”"
+          "text": "Kolomnya **Tanggal**, **Masa Pajak**, **Jenis** (misalnya PPN keluaran, PPN masukan, PPh 23 dipotong), **Deskripsi**, **Status**, dan **Jumlah**. Bila tidak ada hasil tertulis “Tidak ada entri pajak pada saringan ini.”"
         },
         {
           "title": "Buka rincian penentuan",

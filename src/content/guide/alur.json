@@ -1434,7 +1434,7 @@
                   "actor": "anda",
                   "title": "Catat Pengeluaran",
                   "menu": "Pembelian > Beban > Catat Pengeluaran",
-                  "note": "Pilih rekening pembayar, vendor atau nama penerima, isi satu Jumlah sesuai struk. Struk memuat PPN: centang Sudah termasuk PPN (harga sebelum PPN dihitung otomatis). Kena PPh? sudah terisi dari kategori dan vendor, ubah bila perlu. Vendor dibayar penuh; PPh jadi beban pajak PT, dibayar terpisah ke negara. Lampirkan struk, simpan sebagai Draf"
+                  "note": "Pilih rekening pembayar, vendor atau nama penerima, isi satu Jumlah sesuai struk. Struk memuat PPN: centang Sudah termasuk PPN (harga sebelum PPN dihitung otomatis). Kena PPh? sudah terisi dari kategori dan vendor, ubah bila perlu. Vendor menerima total dikurangi PPh; PPh disetor PT ke negara. Lampirkan struk, simpan sebagai Draf"
                 },
                 {
                   "kind": "choice",
@@ -1479,7 +1479,7 @@
                   "actor": "anda",
                   "title": "Catat Tagihan",
                   "menu": "Pembelian > Tagihan > Catat Tagihan",
-                  "note": "Isi vendor, tanggal, jatuh tempo, dan satu Jumlah sesuai invoice per baris. Invoice memuat PPN: centang Sudah termasuk PPN. Kena PPh? sudah terisi dari kategori dan vendor, ubah bila perlu. Vendor dibayar penuh; PPh jadi beban pajak PT, dibayar terpisah ke negara"
+                  "note": "Isi vendor, tanggal, jatuh tempo, dan satu Jumlah sesuai invoice per baris. Invoice memuat PPN: centang Sudah termasuk PPN. Kena PPh? sudah terisi dari kategori dan vendor, ubah bila perlu. Vendor menerima total dikurangi PPh; PPh disetor PT ke negara"
                 },
                 {
                   "kind": "choice",
@@ -2325,7 +2325,7 @@
           "actor": "anda",
           "title": "Buka Ringkasan Pajak",
           "menu": "Pajak > Ringkasan Pajak",
-          "note": "Lihat Total terutang, PPh Final bulan ini, Perlu ditinjau, grafik Beban pajak per bulan, dan Tenggat terdekat. Arahkan kursor ke batang untuk jumlahnya; klik untuk membuka Buku Pajak bulan itu"
+          "note": "Lihat Total terutang, PPh Final bulan ini, Perlu ditinjau, grafik PPh per bulan, dan Tenggat terdekat. Arahkan kursor ke batang untuk jumlahnya; klik untuk membuka Buku Pajak bulan itu"
         },
         {
           "kind": "step",
@@ -2429,7 +2429,7 @@
         {
           "kind": "end",
           "title": "Selesai",
-          "note": "PPh beban pajak PT dibayar ke negara paling lambat tanggal 15 bulan berikutnya; cek Tenggat terdekat berkala"
+          "note": "PPh dari bayaran vendor disetor ke negara paling lambat tanggal 15 bulan berikutnya; cek Tenggat terdekat berkala"
         }
       ]
     },

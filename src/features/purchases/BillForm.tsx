@@ -181,8 +181,8 @@ export function BillForm({
           <p className="field-problem-hint">{FORM_FIELD_HINTS.lines}</p>
         ) : null}
         <p className="hint">
-          PPh (beban pajak PT) dan PPN dihitung otomatis dari isian pajak tiap baris dan data pajak
-          vendor. Hasilnya terlihat di halaman tagihan sebelum disetujui.
+          PPh dan PPN dihitung otomatis dari isian pajak tiap baris dan data pajak vendor. Hasilnya
+          terlihat di halaman tagihan sebelum disetujui.
         </p>
 
         <label>
