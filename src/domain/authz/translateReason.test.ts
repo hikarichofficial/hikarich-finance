@@ -71,12 +71,20 @@ describe("translateStoredError", () => {
 });
 
 describe("tax determination sentences", () => {
+  it("translates the reason nested inside a needs-review refusal", () => {
+    expect(
+      translateReason(
+        'the tax determination of this expense needs review before it can be confirmed: Line 1 has no withholding classification: choose "not a withholding object" or the object on the line, or map its category.',
+      ),
+    ).toContain("Baris 1 belum ditentukan objek potongan PPh-nya");
+  });
+
   it("translates the reasons and consequences shown on invoice and bill pages", () => {
     expect(
       translateReason(
         'Line 1 has no withholding classification: choose "not a withholding object" or the object on the line, or map its category.',
       ),
-    ).toContain("Baris 1 belum punya klasifikasi pemotongan");
+    ).toContain("Baris 1 belum ditentukan objek potongan PPh-nya");
     expect(
       translateReason(
         "No output VAT: the invoice total is unchanged and no tax liability is created.",

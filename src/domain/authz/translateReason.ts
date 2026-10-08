@@ -54,7 +54,11 @@ export function translateReason(reason: string): string | null {
     const match = template.pattern.exec(input);
     if (!match) continue;
     return sentence(
-      template.text.replace(/\{(\d+)\}/g, (_, index: string) => match[Number(index)] ?? ""),
+      template.text.replace(/\{(\d+)\}/g, (_, index: string) => {
+        const value = match[Number(index)] ?? "";
+        // A value can itself be a reason ("...needs review before it can be confirmed: <reason>"): translate it too.
+        return value.length > 25 ? (translateReason(value) ?? value) : value;
+      }),
     );
   }
   return null;

@@ -216,7 +216,7 @@
         },
         {
           "title": "Tambahkan bila belum ada",
-          "text": "Baris terakhir daftar selalu menawarkan **+ Tambah … baru** (bila Anda sudah mengetik, tertulis **+ Tambah “…” sebagai … baru**). Untuk **Pelanggan** dan **Vendor**, ini membuka panel kecil untuk menyimpan kontak baru tanpa meninggalkan form. Untuk **Nama Penerima**, **deskripsi**, **penjelasan**, dan **tujuan/keterangan**, tulisan Anda dipakai apa adanya dan tersimpan bersama dokumen; nama itu muncul di daftar pada pengisian berikutnya."
+          "text": "Baris terakhir daftar selalu menawarkan **+ Tambah … baru** (bila Anda sudah mengetik, tertulis **+ Tambah “…” sebagai … baru**). Untuk **Pelanggan** dan **Vendor**, ini membuka panel kecil untuk menyimpan kontak baru tanpa meninggalkan form. Untuk **Nama Penerima**, **deskripsi**, **penjelasan**, dan **tujuan/keterangan**, tulisan Anda dipakai apa adanya. Setelah menekan tombol tambah, daftar menutup, muncul tanda “✓ Deskripsi dipakai” (untuk deskripsi) dan kursor pindah ke kolom berikutnya. Tulisan itu tersimpan saat dokumennya disimpan (misalnya tombol Simpan pada pengeluaran), bukan saat tombol tambah ditekan; sesudah itu namanya muncul di daftar pada pengisian berikutnya."
         },
         {
           "title": "Tetap boleh menulis sendiri",
