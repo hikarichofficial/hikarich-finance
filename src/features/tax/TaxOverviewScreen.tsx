@@ -11,7 +11,8 @@ import {
   vatStatusLabel,
   yesNoUnknownLabel,
 } from "@/domain/tax/tax";
-import type { FinalPreview, TaxOverview } from "@/schemas/tax";
+import type { FinalPreview, NonFinalIncome, TaxOverview } from "@/schemas/tax";
+import { TaxNonFinalCard } from "./TaxNonFinalCard";
 import { TaxEstimateCard } from "./TaxEstimateCard";
 import { formatShortDate } from "./format";
 
@@ -35,12 +36,16 @@ export function TaxOverviewScreen({
   entity,
   estimate,
   estimatePeriod,
+  nonFinal,
+  currentYear,
 }: {
   overview: TaxOverview;
   currency: string;
   entity: string | undefined;
   estimate: FinalPreview;
   estimatePeriod: string;
+  nonFinal: NonFinalIncome;
+  currentYear: number;
 }) {
   const qs = entity ? `?entity=${encodeURIComponent(entity)}` : "";
   const outstandingEntries = Object.entries(overview.outstanding).filter(
@@ -75,6 +80,8 @@ export function TaxOverviewScreen({
         entity={entity}
         linkToFinal
       />
+
+      <TaxNonFinalCard data={nonFinal} currentYear={currentYear} entity={entity} />
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">

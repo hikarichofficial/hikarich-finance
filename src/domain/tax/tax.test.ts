@@ -11,6 +11,8 @@ import {
   checkTaxPayment,
   eligibleTaxPaymentAccounts,
   isTaxPeriodStart,
+  monthNameId,
+  resolveTaxYear,
   outstandingTax,
   resolveFilingTaxType,
   resolveWithholdingTaxType,
@@ -245,5 +247,24 @@ describe("tax vocabulary", () => {
       "withholding_slip",
     ]);
     expect(DETERMINATION_STATUS_LABELS.needs_review).toBe("Perlu ditinjau");
+  });
+});
+
+describe("resolveTaxYear / monthNameId (decision 352)", () => {
+  it("uses the asked year when it is valid and not in the future", () => {
+    expect(resolveTaxYear("2025", 2026)).toBe(2025);
+    expect(resolveTaxYear("2026", 2026)).toBe(2026);
+  });
+  it("falls back to the current year for anything else", () => {
+    expect(resolveTaxYear(undefined, 2026)).toBe(2026);
+    expect(resolveTaxYear("2027", 2026)).toBe(2026);
+    expect(resolveTaxYear("1999", 2026)).toBe(2026);
+    expect(resolveTaxYear("abc", 2026)).toBe(2026);
+    expect(resolveTaxYear("20250", 2026)).toBe(2026);
+  });
+  it("names the months in Indonesian", () => {
+    expect(monthNameId(1)).toBe("Januari");
+    expect(monthNameId(12)).toBe("Desember");
+    expect(() => monthNameId(13)).toThrow(RangeError);
   });
 });

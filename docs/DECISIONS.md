@@ -2975,3 +2975,32 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      entry detail page (decision 350) was made compact: the tax sentence became a hint under the facts, a long note
      reveals with "Selengkapnya", the cancel button is a quiet "Salah catat? Batalkan" that reveals its reason form,
      and the header says "Sudah tersimpan".
+
+352. **Income outside the PPh Final is shown on Ringkasan Pajak (owner request, 8 October 2026).** The owner recorded
+     forex trading income and asked where the estimate and the final figure appear; nothing did, because decision
+     345 said "nothing is computed until the owner asks". The owner has now asked, so this supersedes that sentence
+     for the display (still no posting). New read-only `tax_non_final_income(entity, year)` (permission `tax.view`):
+     the net result of the 7xxx accounts (classes other income, other expense and other: credits minus debits, so a
+     gain is positive and a loss or trading cost negative) of the posted journals of a calendar year, per account and
+     per month, excluding year-end closing journals and rounding differences; the unrealised revaluation account
+     (7370) is shown but not counted. The card "Penghasilan di Luar PPh Final" on Ringkasan Pajak shows the result
+     per type, a "Lihat per bulan" reveal, and an ESTIMATED yearly tax at 22% (company, cooperative, sole-owner
+     company; no rate is assumed for other taxpayer kinds), labelled as an assumption, with no facility, loss
+     carry-forward, tax already withheld or business cost applied. Owner answer on timing: the year is settled on
+     1 January of the next year; read here as "the year's result is fixed from then on" (the card says Ditetapkan),
+     with the SPT Tahunan still due 30 April (decision 345). Nothing is recorded as a liability and no journal is
+     posted; recording the tax would need a decision on the account and on the 31E and loss rules. Still open for
+     the tax adviser (project doc): forex inside the 0,5% base or not, the Article 31E 50% reduction, 22% versus
+     25%, and bank interest or dividend that already carry a final tax withheld by the payer.
+     Proof: `supabase/tests/99_p38_non_final_income.sql`.
+
+353. **Expenses and bills take one amount per line (owner request, 8 October 2026).** Catat Pengeluaran asked for
+     quantity and unit price on every line, so a food purchase had to be split per menu. The lines now take one
+     "Jumlah (sesuai struk)" (stored as quantity 1 and that unit price, so the purchase RPCs and the books are
+     unchanged); a "Rinci per barang" tick brings quantity x unit price back, and unticking folds quantity x price
+     into the amount. A draft that holds a quantity other than 1 opens in the detailed mode. The same applies to
+     Catat Tagihan. Recurring templates keep their own columns. Answer given to the owner on the difference: a bill
+     (Tagihan) is money owed to a vendor, approving it creates an account payable and it is paid later through
+     Pembayaran Keluar; an expense (Beban / Pengeluaran) is paid at the moment it is recorded from a cash or bank
+     account and has no payable. Confirmed in `confirm_expense` (Dr expense, Cr the paying account) versus bill
+     approval (Dr expense, Cr accounts payable).
