@@ -8,7 +8,7 @@
       "title": "Cara Mencatat Pembayaran Pajak dan Pelaporan",
       "summary": "Melihat posisi pajak per masa, mencatat pembayaran, mencatat pelaporan (SPT), dan melampirkan bukti.",
       "path": "Pajak > Pelaporan & Bukti (posisi di Pajak > PPN, Pemotongan PPh, PPh Final)",
-      "who": "Melihat: tax.view. Mencatat pembayaran, pelaporan, rekonsiliasi, dan bukti: izin tandai lapor (tax.mark_filed), yaitu peran Pajak dan OWNER. Finance Admin tidak punya izin ini. Hitung PPh Final: tax.confirm_facts.",
+      "who": "Melihat: tax.view. Mencatat pembayaran, pelaporan, rekonsiliasi, dan bukti: izin tandai lapor (tax.mark_filed), yaitu peran Pajak dan OWNER. Finance Admin tidak punya izin ini. PPh Final bulan yang berakhir dicatat otomatis oleh sistem.",
       "quick": "Mesin pajak harus aktif dulu. Pajak yang bisa dibayar hanya yang sudah diakui dari invoice, tagihan, atau pengeluaran. Pelaporan hanya catatan referensi dan tidak mengubah buku besar.",
       "steps": [
         {
@@ -20,8 +20,8 @@
           "text": "Buka **Pajak > PPN**, **Pajak > Pemotongan PPh**, atau **Pajak > PPh Final**. Pilih **Masa Pajak** (bulan; bawaan bulan lalu) lalu **Terapkan**. Bagian **Posisi Tercatat** menampilkan Terutang (Diakui), Sudah Dibayar, dan Sisa Kekurangan. PPN juga menampilkan PPN Masukan Diakui, Terpakai, dan Tersedia."
         },
         {
-          "title": "Khusus PPh Final: hitung dulu",
-          "text": "Di **Pajak > PPh Final**, periksa **Pratinjau** lalu tekan **Hitung Pajak Final Bulan Ini**. Tombol hanya aktif bila status pratinjau “Ditentukan otomatis”. Hasilnya mencatat PPh Final sebagai terutang; pembayaran dibatasi sebesar yang sudah diakui, jadi langkah ini harus lebih dulu. PPh Final dihitung dari invoice yang diterbitkan dalam bulan itu dan hanya setelah bulannya berakhir; selama bulan masih berjalan, yang tampil di kartu **Perkiraan Pajak Bulan Berjalan** (Ringkasan Pajak, Kalender Pajak, dan PPh Final) hanyalah perkiraan: angkanya otomatis ikut bertambah setiap ada invoice terbit dan belum tercatat sebagai kewajiban. Setelah bulan berakhir, tekan **Hitung Pajak Final Bulan Ini** untuk menjadikannya final. Tidak ada laporan bulanan untuk PPh Final: setor tanggal 15 bulan berikutnya, lalu laporkan setahun sekali lewat SPT Tahunan."
+          "title": "Khusus PPh Final: dicatat otomatis",
+          "text": "PPh Final dihitung dari invoice yang diterbitkan dalam bulan itu. Selama bulan masih berjalan, yang tampil di kartu **Perkiraan Pajak Bulan Berjalan** (Ringkasan Pajak, Kalender Pajak, dan PPh Final) hanyalah perkiraan: angkanya otomatis ikut bertambah setiap ada invoice terbit dan belum tercatat sebagai kewajiban. Mulai tanggal 1 bulan berikutnya sistem sendiri menghitung dan mencatat PPh Final bulan yang berakhir sebagai terutang, tanpa tombol; bila ada invoice yang terbit belakangan di bulan itu, sistem mencatat selisihnya. Di **Pajak > PPh Final**, **Pratinjau** dan **Posisi Tercatat** menunjukkan hasilnya. Pembayaran dibatasi sebesar yang sudah diakui, jadi bayar setelah angkanya muncul di Posisi Tercatat. Tidak ada laporan bulanan untuk PPh Final: setor tanggal 15 bulan berikutnya, lalu laporkan setahun sekali lewat SPT Tahunan."
         },
         {
           "title": "Buka Pajak > Pelaporan & Bukti",
@@ -77,7 +77,7 @@
       ],
       "mistakes": [
         "Membayar sebelum mesin pajak diaktifkan atau tanpa ada pajak yang diakui.",
-        "Lupa Hitung Pajak Final Bulan Ini sebelum membayar PPh Final.",
+        "Membayar PPh Final sebelum tanggal 1 bulan berikutnya: pajaknya belum tercatat otomatis, jadi belum ada yang bisa dibayar.",
         "Menunggu laporan bulanan PPh Final UMKM. Tidak ada: setor sebelum tanggal 15, simpan NTPN, dan laporkan di SPT Tahunan.",
         "Salah memilih Masa Pajak.",
         "Mengisi denda tanpa catatan.",

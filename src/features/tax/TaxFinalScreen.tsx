@@ -1,8 +1,4 @@
-"use client";
-
 import { translateReason } from "@/domain/authz/translateReason";
-import { usePreservingForm } from "@/features/shared/usePreservingForm";
-import { useActionState } from "@/features/feedback/useActionState";
 import { formatMoney } from "@/domain/money/format";
 import {
   DETERMINATION_STATUS_LABELS,
@@ -12,27 +8,22 @@ import {
   type DeterminationStatus,
 } from "@/domain/tax/tax";
 import type { FinalPreview, TaxPeriodPosition } from "@/schemas/tax";
-import { computeFinalTaxAction } from "./taxFinalActions";
-import { idleComputeFinalTaxFormState } from "./taxFinalActionsState";
 import { formatShortDate } from "./format";
 import { TaxEstimateCard } from "./TaxEstimateCard";
 
 /**
  * PPh Final UMKM (P13 unbuilt-screens backlog, "PPh Final / Income Tax" nav item, Step 05 §9, decision 234):
- * the one tax type with its own compute step (`tax_final_compute`) rather than a plain accrual, since the
- * UMKM final-tax regime is a flat rate on turnover recognised only once a month, not line by line. A period
- * picker (a native `<input type="month">`, no client script needed for its own GET submission) selects the
- * month; "Pratinjau" shows `tax_final_preview`'s live, unrecorded evaluation of that month (what computing it
- * now would produce), and "Posisi Tercatat" shows what `tax_period_position` says is actually on the books.
- * The Compute button is disabled whenever the live preview's own status is not `auto_determined` -- early
- * feedback only, the database re-checks the same condition itself (`tax_final_compute`'s own `CONFLICT`).
+ * a flat rate on turnover recognised once a month. A period picker (a native `<input type="month">`) selects
+ * the month; "Pratinjau" shows `tax_final_preview`'s live, unrecorded evaluation of that month, and "Posisi
+ * Tercatat" shows what `tax_period_position` says is actually on the books. The tax of an ended month is
+ * computed and recorded by the scheduled job on the first day after it ends (decision 346), so there is no
+ * compute button; the running month shows the live estimate.
  */
 export function TaxFinalScreen({
   period,
   preview,
   position,
   currency,
-  entityId,
   entity,
   estimate,
   estimatePeriod,
@@ -43,17 +34,13 @@ export function TaxFinalScreen({
   preview: FinalPreview;
   position: TaxPeriodPosition;
   currency: string;
-  entityId: string;
   entity: string | undefined;
 }) {
-  const [state, action, pending] = useActionState(
-    computeFinalTaxAction,
-    idleComputeFinalTaxFormState,
-  );
-  const actionForm = usePreservingForm(action, state);
   const previewStatus = preview.status as DeterminationStatus;
   const previewTone = DETERMINATION_STATUS_TONE[previewStatus];
   const canCompute = preview.status === "auto_determined";
+  const periodEnded = period.slice(0, 7) < estimatePeriod.slice(0, 7);
+  const recorded = Number(position.accrued_payable);
 
   return (
     <div className="record-detail">
@@ -175,29 +162,22 @@ export function TaxFinalScreen({
 
       <section className="dashboard-section">
         <div className="dashboard-section-header">
-          <h2 className="dashboard-section-title">Hitung Pajak Final</h2>
+          <h2 className="dashboard-section-title">Dihitung Otomatis</h2>
         </div>
-        <form {...actionForm} className="invoice-action-form">
-          <input type="hidden" name="entity_id" value={entityId} />
-          <input type="hidden" name="period" value={period} />
-          {entity ? <input type="hidden" name="entity" value={entity} /> : null}
-
-          {!canCompute ? (
-            <p className="hint">
-              Belum bisa dihitung untuk masa ini ({DETERMINATION_STATUS_LABELS[previewStatus]}).
-            </p>
-          ) : null}
-
-          {state.status === "error" ? (
-            <p role="alert" className="error">
-              {state.message}
-            </p>
-          ) : null}
-
-          <button type="submit" className="btn-primary" disabled={pending || !canCompute}>
-            {pending ? "Menghitung…" : "Hitung Pajak Final Bulan Ini"}
-          </button>
-        </form>
+        <p className="hint">
+          Pajak final bulan yang sudah berakhir dihitung dan dicatat sendiri oleh sistem mulai
+          tanggal 1 bulan berikutnya; tidak perlu menekan tombol. Selama bulan berjalan, angka di
+          atas adalah perkiraan yang ikut berubah setiap ada pendapatan baru.
+        </p>
+        {!canCompute ? (
+          <p className="hint">
+            Masa ini belum bisa dihitung ({DETERMINATION_STATUS_LABELS[previewStatus]}).
+          </p>
+        ) : periodEnded && recorded === 0 && Number(preview.tax) > 0 ? (
+          <p className="hint">
+            Belum tercatat. Sistem akan mencatatnya pada pengecekan harian berikutnya.
+          </p>
+        ) : null}
       </section>
     </div>
   );

@@ -12,8 +12,8 @@ import { TaxFinalScreen } from "@/features/tax/TaxFinalScreen";
  * `?period=` takes a native `<input type="month">`'s own "YYYY-MM" value; an absent or invalid one falls
  * back to the most recently completed month (`resolveTaxPeriod`). Gated `tax.view` -- `tax_final_preview`'s
  * and `tax_period_position`'s own exact check -- which happens to already be the Tax nav section's own
- * parent-item permission. Computing itself needs the narrower `tax.confirm_facts`, left to
- * `computeFinalTaxAction`'s own `AuthzError` handling rather than gating the whole page on it. */
+ * parent-item permission. The final tax of an ended month is computed by the scheduled job (decision 346), so
+ * the screen has no compute button. */
 export default async function TaxFinalPage({
   searchParams,
 }: {
@@ -37,7 +37,6 @@ export default async function TaxFinalPage({
       preview={preview}
       position={position}
       currency={currency}
-      entityId={membership.entity_id}
       entity={entity}
       estimate={estimate}
       estimatePeriod={runningPeriod}

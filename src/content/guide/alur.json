@@ -2271,25 +2271,10 @@
           "note": "Pilih Masa Pajak, lihat Posisi Tercatat dan Sisa Kekurangan"
         },
         {
-          "kind": "choice",
-          "question": "Pajaknya PPh Final?",
-          "branches": [
-            {
-              "label": "Ya",
-              "items": [
-                {
-                  "kind": "step",
-                  "actor": "anda",
-                  "title": "Hitung Pajak Final Bulan Ini",
-                  "menu": "Pajak > PPh Final"
-                }
-              ]
-            },
-            {
-              "label": "Bukan",
-              "items": []
-            }
-          ]
+          "kind": "step",
+          "actor": "sistem",
+          "title": "PPh Final bulan lalu dicatat otomatis",
+          "note": "Setiap tanggal 1 bulan berikutnya; bulan berjalan tampil sebagai perkiraan"
         },
         {
           "kind": "step",

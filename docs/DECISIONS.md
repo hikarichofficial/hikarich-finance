@@ -2868,3 +2868,35 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      tax adviser (the owner has none; the free Kring Pajak line 1500200 or the tax office can answer): whether forex
      profit falls inside the base of the 0,5% final regime or is taxed at the general rate in the annual return, and
      whether the 50% rate reduction (Art. 31E) can be used.
+
+346. **The final tax of a month is computed by itself on the first day of the next month (owner, 8 October 2026).**
+     Owner: "the tax of this month should be counted automatically on the 1st of the next month, so there is no
+     'Hitung Pajak Final Bulan Ini' button; but there must always be an estimate that follows the income so far."
+     (a) `app_private.tax_final_auto_run()` runs in pg_cron three times a day just after midnight in WIT, WITA and
+     WIB (`20 15-17 * * *`, like the recurring-transactions job); the Entity's own date decides which month has
+     ended. For every active Entity it re-checks the month just ended and the month before it (so a late invoice
+     moves the tax by a new revision with the difference only) and computes any earlier month of the last two
+     years that has no record yet (a missed day heals itself). (b) The computation is the very same as the manual
+     command (journal, `tax_determinations` revision, tax ledger accrual): `app_private.tax_final_compute_auto` is
+     built in the migration from the live definition of `public.tax_final_compute` by exact text replacement,
+     dropping only the sign-in, permission and idempotency-key steps, because no person is signed in; the
+     migration fails if the old text is not found. The public command stays but the screen no longer offers it.
+     (c) A month whose evaluation is not "auto_determined" (no profile, engine off, over the ceiling, ...) is
+     skipped; one failing Entity or month raises a warning and never blocks the others. (d) The running month is
+     never recorded; it shows the live estimate of decision 342, which changes with every issued invoice. (e)
+     The screen says so in a "Dihitung Otomatis" section and flags an ended month that is not recorded yet.
+
+347. **Speed measurement, 8 October 2026 (owner: "everything must load fast: submit, back, page change").** Measured
+     on production (read-only): the server (Vercel `sin1`) and the database (Supabase `ap-southeast-1`) are already in
+     the same region, and the data is small (20 journal lines, 3 invoices), so volume is not the cause. The two
+     measured costs are both in the authorization path: (a) `public.my_access()`, called once per page request,
+     takes about 138 ms in the database (about 214 calls of `app_authz.has_permission`, each a SECURITY DEFINER
+     function that cannot be inlined); (b) every row-level-security policy that calls `has_permission(entity_id, ...)`
+     runs it once per row (about 0,6 ms per row, so a list of 1.000 rows costs about 0,6 s and 10.000 journal lines
+     about 6 s). Already in place: client router cache for back/forward (decision of 7 October), skeleton loading
+     screens, navigation progress bar. The owner left the choice for the authorization speed to the recommendation:
+     it stays unchanged (the authorization engine is not rewritten without the owner's explicit yes). Recommended
+     next step, to be done only with that yes: compute the permission list of `my_access()` in one set-based query
+     and give the policies a per-statement set of allowed Entities, each proven identical to today's answers by a
+     test that compares every user, Entity and permission. Not done: unindexed foreign keys and unwrapped
+     `auth.uid()` in six policies (advisor notices) -- no measurable effect at this data size.
