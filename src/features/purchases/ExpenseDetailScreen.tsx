@@ -26,6 +26,7 @@ export function ExpenseDetailScreen({
   backHref,
   canEdit = false,
   documents,
+  taxPanel,
 }: {
   expense: ExpenseRow;
   lines: readonly ExpenseLineRow[];
@@ -39,6 +40,8 @@ export function ExpenseDetailScreen({
   canEdit?: boolean;
   /** The attachments of this expense, shown inside the Dokumen section (decision 332). */
   documents?: ReactNode;
+  /** What the tax engine would decide before the expense is recorded (draft and submitted only). */
+  taxPanel?: ReactNode;
 }) {
   const suffix = entity ? `?entity=${encodeURIComponent(entity)}` : "";
   const money = (value: string) => formatMoney(value, expense.currency);
@@ -200,6 +203,8 @@ export function ExpenseDetailScreen({
           </table>
         )}
       </section>
+
+      {taxPanel}
 
       {documents ? (
         <section className="dashboard-section">

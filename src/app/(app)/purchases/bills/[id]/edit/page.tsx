@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/services/identity/access";
 import { listContacts } from "@/services/contacts/contacts";
+import { getWithholdingAgent } from "@/services/tax/tax";
 import { listActiveCategories } from "@/services/accounting/categories";
 import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
 import { getBillDraftForEdit } from "@/services/purchases/purchases";
@@ -23,10 +24,11 @@ export default async function EditBillPage({
   const { membership } = await requirePermission("bills.edit", { entityCode: entity });
   const draft = await getBillDraftForEdit(id);
   if (!draft || draft.entity_id !== membership.entity_id) notFound();
-  const [contacts, categories, suggestions] = await Promise.all([
+  const [contacts, categories, suggestions, whtAgent] = await Promise.all([
     listContacts(membership.entity_id),
     listActiveCategories(membership.entity_id),
     listLineSuggestions(membership.entity_id, "bill"),
+    getWithholdingAgent(membership.entity_id),
   ]);
   const vendors = listContactsByRole(contacts, "vendor").filter(
     (c) => c.status === "active" || c.id === draft.vendor_id,
@@ -50,6 +52,7 @@ export default async function EditBillPage({
         <BillForm
           vendors={vendors}
           categories={categories}
+          whtAgent={whtAgent}
           suggestions={suggestions}
           entity={entity}
           today={todayInBusinessZone()}

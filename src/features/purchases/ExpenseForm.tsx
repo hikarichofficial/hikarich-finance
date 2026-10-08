@@ -36,6 +36,7 @@ export function ExpenseForm({
   accounts,
   vendors,
   categories,
+  whtAgent,
   suggestions = [],
   payeeSuggestions = [],
   entity,
@@ -45,6 +46,8 @@ export function ExpenseForm({
   accounts: readonly MoneyControlRow[];
   vendors: readonly ContactRow[];
   categories: readonly CategoryRow[];
+  /** The Entity withholds tax: a line whose category does not settle it must be answered. */
+  whtAgent?: boolean;
   /** Descriptions used before, for the popup above each line's description (OWNER, 5 October 2026). */
   suggestions?: readonly LineSuggestion[];
   /** Recipient names typed on earlier expenses, for the popup under "Nama Penerima" (OWNER, 6 October 2026). */
@@ -160,6 +163,7 @@ export function ExpenseForm({
           amountOnly={!detailed}
           kind="expense"
           categories={categories}
+          whtAgent={whtAgent}
           entity={entity}
           suggestions={suggestions}
           rows={rows}

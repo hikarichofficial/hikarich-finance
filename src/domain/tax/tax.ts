@@ -71,6 +71,24 @@ export const WHT_OBJECT_LABELS: Readonly<Record<WhtObject, string>> = {
   wht_review: "Belum yakin (minta ditinjau)",
 };
 
+/**
+ * The short answers offered on an expense or bill line whose category does not settle the withholding by itself
+ * (owner, 8 October 2026: "yang meragukan, satu kolom kena PPh atau tidak"). Each one is a withholding object the
+ * engine already understands; the rate and the amount are worked out by the engine, never typed here.
+ */
+export const WHT_QUICK_CHOICES: readonly { value: WhtObject; label: string }[] = [
+  { value: "wht_none", label: "Tidak kena potongan PPh" },
+  { value: "wht_service_other_listed", label: "Kena PPh 23: jasa dari vendor dalam negeri" },
+  { value: "wht_rent_land_building", label: "Kena PPh 4(2): sewa tanah/bangunan" },
+  { value: "wht_rent_movable", label: "Kena PPh 23: sewa selain tanah/bangunan" },
+  { value: "wht_review", label: "Vendor luar negeri atau belum yakin (minta ditinjau)" },
+];
+
+/** True when a category already settles the withholding of its lines (it has a withholding classification). */
+export function categorySettlesWithholding(taxKey: string | null | undefined): boolean {
+  return typeof taxKey === "string" && taxKey.startsWith("wht_");
+}
+
 /** How VAT applies to a sales line (Step 05 §11), in the same wording role as `WHT_OBJECT_LABELS`. */
 export type VatTreatment =
   | "vat_taxable"

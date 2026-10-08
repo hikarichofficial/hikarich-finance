@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  WHT_QUICK_CHOICES,
+  categorySettlesWithholding,
   CALENDAR_STATE_LABELS,
   CALENDAR_STEP_LABELS,
   DETERMINATION_STATUS_LABELS,
@@ -266,5 +268,21 @@ describe("resolveTaxYear / monthNameId (decision 352)", () => {
     expect(monthNameId(1)).toBe("Januari");
     expect(monthNameId(12)).toBe("Desember");
     expect(() => monthNameId(13)).toThrow(RangeError);
+  });
+});
+
+describe("withholding quick choices (decision 359)", () => {
+  it("offers only objects the engine knows and always includes the review answer", () => {
+    for (const choice of WHT_QUICK_CHOICES) expect(WHT_OBJECT_LABELS[choice.value]).toBeDefined();
+    expect(WHT_QUICK_CHOICES.map((c) => c.value)).toContain("wht_none");
+    expect(WHT_QUICK_CHOICES.map((c) => c.value)).toContain("wht_review");
+  });
+
+  it("treats only a withholding classification as settling the line", () => {
+    expect(categorySettlesWithholding("wht_none")).toBe(true);
+    expect(categorySettlesWithholding("wht_rent_land_building")).toBe(true);
+    expect(categorySettlesWithholding(null)).toBe(false);
+    expect(categorySettlesWithholding(undefined)).toBe(false);
+    expect(categorySettlesWithholding("vat_taxable")).toBe(false);
   });
 });

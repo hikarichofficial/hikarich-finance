@@ -5,13 +5,13 @@
 --
 -- The standard company expense categories now start with a classification where it does not depend on the vendor:
 --   * Not a withholding object (wht_none): Biaya Bank, Biaya Payment Gateway, Gaji & Tunjangan (payroll has its own
---     PPh 21 flow), Kantor & Umum, Komunikasi & Internet, Perjalanan & Transportasi, Pengeluaran Operasional Lainnya,
---     and (owner, same day: ads such as YouTube, hosting and software are mostly bought from platforms that charge
---     the PPN themselves) Pemasaran & Iklan, Hosting/Domain/Cloud, Software & Langganan. PPN and PPh withholding are
---     separate taxes; a line bought from a domestic vendor that must be withheld on picks its object on the line.
+--     PPh 21 flow), Kantor & Umum, Perjalanan & Transportasi, Pengeluaran Operasional Lainnya, and, as the owner asked
+--     so that routine purchases raise no question (8 October 2026), Komunikasi & Internet, Software & Langganan,
+--     Hosting/Domain/Cloud and Pemasaran & Iklan. NOTE: PMK 141/PMK.03/2015 lists internet, website, software,
+--     hosting/data and advertising services as PPh 23 objects when the vendor is a domestic taxpayer; this default is
+--     an assumption to be confirmed with the tax adviser (the platforms bought from are mostly foreign).
 --   * Rent of land and/or building (wht_rent_land_building, PPh 4(2)): Sewa & Ruang Kerja.
---   * Left empty on purpose, so the line says which one it is (it depends on who is paid and for what): Jasa
---     Profesional and Produksi Konten.
+--   * Left empty on purpose, so the line asks "Kena potongan PPh?": Jasa Profesional and Produksi Konten.
 -- This is a working assumption to be confirmed with the tax adviser; a line's own choice always wins over the
 -- category, and the category can be changed under Akuntansi > Kategori.
 --
@@ -106,12 +106,12 @@ from public.entities e,
        ('biaya payment gateway', 'wht_none'),
        ('gaji & tunjangan', 'wht_none'),
        ('kantor & umum', 'wht_none'),
-       ('komunikasi & internet', 'wht_none'),
        ('perjalanan & transportasi', 'wht_none'),
        ('pengeluaran operasional lainnya', 'wht_none'),
        ('pemasaran & iklan', 'wht_none'),
        ('software & langganan', 'wht_none'),
        ('hosting, domain & cloud', 'wht_none'),
+       ('komunikasi & internet', 'wht_none'),
        ('sewa & ruang kerja', 'wht_rent_land_building')
      ) as m (normalized_name, tax_key)
 where e.id = c.entity_id and e.entity_type = 'company'
