@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { decodeProblems } from "@/domain/forms/problemTargets";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
@@ -19,10 +20,10 @@ export default async function EditExpensePage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ entity?: string }>;
+  searchParams: Promise<{ entity?: string; problems?: string }>;
 }) {
   const { id } = await params;
-  const { entity } = await searchParams;
+  const { entity, problems } = await searchParams;
   const { membership } = await requirePermission("bills.edit", { entityCode: entity });
   const draft = await getExpenseDraftForEdit(id);
   if (!draft || draft.entity_id !== membership.entity_id) notFound();
@@ -66,6 +67,7 @@ export default async function EditExpensePage({
           entity={entity}
           today={todayInBusinessZone()}
           initial={draft}
+          initialProblems={decodeProblems(problems)}
         />
       </section>
     </div>

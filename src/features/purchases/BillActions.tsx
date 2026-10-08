@@ -2,7 +2,9 @@
 
 import { useEffect, useState, type ReactNode } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
+import { ProblemNotice } from "@/features/feedback/ProblemNotice";
+import type { ProblemTarget } from "@/domain/forms/problemTargets";
 import {
   approveBillAction,
   cancelBillAction,
@@ -21,6 +23,8 @@ import { idleBillActionState, idleCorrectBillState } from "./actionsState";
  */
 
 function SimpleActionForm({
+  editHref,
+  fixHint,
   billId,
   action,
   pending,
@@ -32,18 +36,24 @@ function SimpleActionForm({
   billId: string;
   action: (formData: FormData) => void;
   pending: boolean;
-  state: { status: "idle" | "ok" | "error"; message?: string };
+  state: { status: "idle" | "ok" | "error"; message?: string; targets?: ProblemTarget[] };
   label: string;
   pendingLabel: string;
   variant?: "primary" | "secondary";
+  /** The draft's edit form: a refusal that names a column links there with it marked red. */
+  editHref?: string;
+  fixHint?: string;
 }) {
   return (
     <form action={action} className="invoice-action-form">
       <input type="hidden" name="bill_id" value={billId} />
       {state.status === "error" ? (
-        <p role="alert" className="error">
-          {state.message}
-        </p>
+        <ProblemNotice
+          message={state.message}
+          targets={state.targets}
+          editHref={editHref}
+          fixHint={fixHint}
+        />
       ) : null}
       <button
         type="submit"
@@ -127,7 +137,7 @@ function ReasonActionForm({
   );
 }
 
-function SubmitForm({ billId }: { billId: string }) {
+function SubmitForm({ billId, editHref }: { billId: string; editHref?: string }) {
   const [state, action, pending] = useActionState(submitBillAction, idleBillActionState);
   return (
     <SimpleActionForm
@@ -137,6 +147,7 @@ function SubmitForm({ billId }: { billId: string }) {
       state={state}
       label="Ajukan untuk Persetujuan"
       pendingLabel="Mengajukan…"
+      editHref={editHref}
     />
   );
 }
@@ -156,7 +167,7 @@ function RecallForm({ billId }: { billId: string }) {
   );
 }
 
-function ApproveForm({ billId }: { billId: string }) {
+function ApproveForm({ billId, editHref }: { billId: string; editHref?: string }) {
   const [state, action, pending] = useActionState(approveBillAction, idleBillActionState);
   return (
     <SimpleActionForm
@@ -166,6 +177,8 @@ function ApproveForm({ billId }: { billId: string }) {
       state={state}
       label="Setujui Tagihan"
       pendingLabel="Menyetujui…"
+      editHref={editHref}
+      fixHint="Klik “Tarik Kembali ke Draf”, lalu “Ubah Draf”, dan perbaiki bagian yang disebut di atas."
     />
   );
 }
@@ -261,14 +274,19 @@ export function BillActions({
   permissions: BillActionPermissions;
 }) {
   const actions: ReactNode[] = [];
+  const entity = useSearchParams().get("entity");
+  const editHref =
+    status === "draft"
+      ? `/purchases/bills/${billId}/edit${entity ? `?entity=${encodeURIComponent(entity)}` : ""}`
+      : undefined;
   if (status === "draft" && permissions.canSubmit) {
-    actions.push(<SubmitForm key="submit" billId={billId} />);
+    actions.push(<SubmitForm key="submit" billId={billId} editHref={editHref} />);
   }
   if (status === "submitted" && permissions.canEdit) {
     actions.push(<RecallForm key="recall" billId={billId} />);
   }
   if ((status === "draft" || status === "submitted") && permissions.canApprove) {
-    actions.push(<ApproveForm key="approve" billId={billId} />);
+    actions.push(<ApproveForm key="approve" billId={billId} editHref={editHref} />);
   }
   if (status === "submitted" && permissions.canApprove) {
     actions.push(<RejectForm key="reject" billId={billId} />);

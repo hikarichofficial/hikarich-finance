@@ -16,6 +16,7 @@ import {
   type ExpenseActionState,
 } from "./expenseActions";
 import { idleExpenseActionState } from "./expenseActionsState";
+import { ProblemNotice } from "@/features/feedback/ProblemNotice";
 
 /**
  * Direct Expense status actions (Step 09 §12, decision 245), the same one-small-form-per-action shape
@@ -24,11 +25,22 @@ import { idleExpenseActionState } from "./expenseActionsState";
 
 type ServerAction = (state: ExpenseActionState, formData: FormData) => Promise<ExpenseActionState>;
 
-function ErrorLine({ state }: { state: ExpenseActionState }) {
+function ErrorLine({
+  state,
+  editHref,
+  fixHint,
+}: {
+  state: ExpenseActionState;
+  editHref?: string;
+  fixHint?: string;
+}) {
   return state.status === "error" ? (
-    <p role="alert" className="error">
-      {state.message}
-    </p>
+    <ProblemNotice
+      message={state.message}
+      targets={state.targets}
+      editHref={editHref}
+      fixHint={fixHint}
+    />
   ) : null;
 }
 
@@ -38,19 +50,22 @@ function SimpleAction({
   label,
   pendingLabel,
   variant = "primary",
+  editHref,
 }: {
   expenseId: string;
   serverAction: ServerAction;
   label: string;
   pendingLabel: string;
   variant?: "primary" | "secondary";
+  /** The draft's edit form: a refusal that names a column links there with it marked red. */
+  editHref?: string;
 }) {
   const [state, action, pending] = useActionState(serverAction, idleExpenseActionState);
   const actionForm = usePreservingForm(action, state);
   return (
     <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="expense_id" value={expenseId} />
-      <ErrorLine state={state} />
+      <ErrorLine state={state} editHref={editHref} />
       <button
         type="submit"
         className={variant === "primary" ? "btn-primary" : "btn-secondary"}
@@ -125,14 +140,24 @@ function ReasonAction({
   );
 }
 
-function ConfirmAction({ expenseId }: { expenseId: string }) {
+function ConfirmAction({
+  expenseId,
+  editHref,
+}: {
+  expenseId: string;
+  editHref: string | undefined;
+}) {
   const [state, action, pending] = useActionState(confirmExpenseAction, idleExpenseActionState);
   const actionForm = usePreservingForm(action, state);
   const [showDuplicate, setShowDuplicate] = useState(false);
   return (
     <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="expense_id" value={expenseId} />
-      <ErrorLine state={state} />
+      <ErrorLine
+        state={state}
+        editHref={editHref}
+        fixHint="Klik “Tarik Kembali ke Draf”, lalu “Ubah Draf”, dan perbaiki bagian yang disebut di atas."
+      />
       {showDuplicate ? (
         <label>
           Alasan duplikat (isi hanya jika struk yang sama memang sengaja dicatat lagi)
@@ -208,15 +233,22 @@ export function ExpenseActions({
   expenseId,
   actions,
   entity,
+  status,
 }: {
   expenseId: string;
   actions: ExpenseActionSet;
   entity: string | undefined;
+  /** Only a draft can be opened in the edit form. */
+  status?: string;
 }) {
   if (!Object.values(actions).some(Boolean)) return null;
+  const editHref =
+    status === "draft"
+      ? `/purchases/expenses/${expenseId}/edit${entity ? `?entity=${encodeURIComponent(entity)}` : ""}`
+      : undefined;
   return (
     <div className="invoice-actions">
-      {actions.confirm ? <ConfirmAction expenseId={expenseId} /> : null}
+      {actions.confirm ? <ConfirmAction expenseId={expenseId} editHref={editHref} /> : null}
       {actions.submit ? (
         <SimpleAction
           expenseId={expenseId}
@@ -224,6 +256,7 @@ export function ExpenseActions({
           label="Ajukan untuk Persetujuan"
           pendingLabel="Mengajukan…"
           variant="secondary"
+          editHref={editHref}
         />
       ) : null}
       {actions.recall ? (

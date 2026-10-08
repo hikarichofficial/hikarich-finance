@@ -4406,3 +4406,82 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
   display: flex;
   gap: 0.5rem;
 }
+
+/* A refused save/submit marks the exact column or field to change (OWNER, 8 October 2026). */
+.field-wrap {
+  display: contents;
+}
+
+.field-problem input,
+.field-problem select,
+.field-problem textarea,
+.cell-problem input,
+.cell-problem select,
+.cell-problem textarea {
+  border-color: var(--danger);
+  background: var(--danger-wash);
+  box-shadow: 0 0 0 1px var(--danger);
+}
+
+.field-problem,
+.field-problem > label,
+.cell-problem > label {
+  color: var(--danger);
+}
+
+.field-problem {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.field-problem-hint {
+  margin: 0.25rem 0 0;
+  color: var(--danger);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.problem-notice {
+  display: grid;
+  gap: 0.375rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.problem-notice p {
+  margin: 0;
+}
+
+.problem-notice-where {
+  font-weight: 600;
+}
+
+.plan-lines-vat-inclusive {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.plan-lines-vat-inclusive input[type="checkbox"] {
+  width: auto;
+}
+
+/* "Kena potongan PPh?" is the one answer that matters on a purchase line: it stands out (OWNER, 8 October 2026). */
+.plan-lines-wht {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--accent-wash);
+}
+
+.plan-lines-wht strong {
+  font-size: 0.9375rem;
+}
+
+.plan-lines-wht select {
+  font-weight: 600;
+}

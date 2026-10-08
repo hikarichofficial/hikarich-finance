@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
+import { locateProblems, type ProblemTarget } from "@/domain/forms/problemTargets";
 import { requirePermission } from "@/services/identity/access";
 import {
   approveBill,
@@ -34,6 +35,8 @@ import {
 export interface BillActionState {
   status: "idle" | "ok" | "error";
   message?: string;
+  /** The line/column or field the refusal is about, to be painted red (OWNER, 8 October 2026). */
+  targets?: ProblemTarget[];
 }
 
 function text(formData: FormData, name: string): string {
@@ -48,7 +51,11 @@ function revalidateBill(billId: string): void {
 
 function errorState(error: unknown, fallback: string): BillActionState {
   if (error instanceof AuthzError) {
-    return { status: "error", message: describeAuthzError(error) };
+    return {
+      status: "error",
+      message: describeAuthzError(error),
+      targets: locateProblems(error.message),
+    };
   }
   return { status: "error", message: fallback };
 }
@@ -56,7 +63,11 @@ function errorState(error: unknown, fallback: string): BillActionState {
 /** The database's own explanation after an `INVALID:`/`CONFLICT:` prefix (English, but specific). */
 function draftErrorState(error: unknown, fallback: string): BillActionState {
   if (error instanceof AuthzError) {
-    return { status: "error", message: describeAuthzError(error) };
+    return {
+      status: "error",
+      message: describeAuthzError(error),
+      targets: locateProblems(error.message),
+    };
   }
   return { status: "error", message: fallback };
 }

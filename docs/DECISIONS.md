@@ -3079,3 +3079,25 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      classification is filled (migration p39); one the owner set is untouched. Working assumption to be confirmed
      with the tax adviser: foreign vendors (PPh 26 / P3B), individuals (PPh 21 outside payroll) and vendors with a
      withholding exemption certificate are not decided by the app and go to review.
+
+360. **"Harga sudah termasuk PPN", a fuller category table and red marks on what must change (owner, 8 October 2026).**
+     Same day, second round: the manual column "PPN ditagih vendor" is gone from bill/expense lines ("PPN terhitung otomatis"; "No. Faktur Pajak" stays); "Kena potongan PPh?" is always shown on every line, preselected from the category (or "Tidak kena" when the category settles nothing), can be changed, and an unanswered line is sent as "Bukan objek potongan"; it is hidden only for an Entity that is not a withholding agent. (1) On a bill/expense line of quantity 1 a box "Sudah termasuk PPN 11%" under the amount lets the person type the
+     receipt total as it is printed; the form splits it into the price before VAT (total x 100/111, rounded half up)
+     and the VAT (the rest), so the two always add up to the receipt and the withholding base is the price before VAT,
+     never the receipt total. The split only fills the two ordinary fields (`unit_price`, `tax_amount`); the tax
+     engine still decides at posting (a Entity that is not PKP treats the VAT as cost). (2) Purchase of an asset /
+     equipment (`treatment` = asset) is classified "Bukan objek potongan" automatically, without a question. (3) The
+     standard company expense categories grow from 14 to 27 (migration p40), each with a classification from the
+     research table: certain objects are mapped (Sewa Kendaraan & Peralatan PPh 23 rent; Jasa Konsultan & Manajemen;
+     Jasa Hukum, Akuntan & Notaris; Jasa Teknik & Pemeliharaan; Jasa Konstruksi & Renovasi; Jasa Kebersihan, Keamanan &
+     Tenaga Kerja; Katering & Konsumsi Acara; Royalti & Hak Cipta), routine ones are "Bukan objek" (Perlengkapan &
+     Peralatan Kecil; Makan, Minum & Representasi; Ekspedisi & Pengiriman; Pajak, Perizinan & Biaya Pemerintah;
+     Asuransi). Still asked per line: Jasa Profesional, Produksi Konten, Influencer & Kontrak Besar. Assumptions to
+     confirm with the tax adviser: ekspedisi and the routine items of decision 359. (4) A refused save or submit now says
+     WHICH line and column or field to change: `locateProblems` reads the database's own reason ("Line 2 has no
+     withholding classification") and returns line + column; the form paints that column red (border, wash and a
+     short instruction under it) until the person touches it, the message lists "Yang perlu diubah: Baris 2 · Kena
+     potongan PPh?", and on a Detail page a refused submit/approve of a draft links to the edit form with the same
+     columns already red (`?problems=`). After pressing save, a half-filled row (description without amount or the
+     reverse) is red too. Display only: no rule changed and a reason
+     the table does not know simply marks nothing (the translated sentence is still shown).
