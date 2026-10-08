@@ -1083,7 +1083,12 @@
       "stage": "Tahap 2 · Penjualan",
       "title": "Ada Uang Masuk Tanpa Invoice: Catat Pendapatan",
       "summary": "Penjualan tunai, jasa yang dibayar langsung, komisi, bunga, atau dividen: cukup beberapa kolom, tanpa debit dan kredit, dan otomatis ikut laporan dan pajak.",
-      "guides": ["catat-pendapatan", "penghasilan-di-luar-pph-final", "terima-pembayaran", "buat-terbitkan-invoice"],
+      "guides": [
+        "catat-pendapatan",
+        "penghasilan-di-luar-pph-final",
+        "terima-pembayaran",
+        "buat-terbitkan-invoice"
+      ],
       "items": [
         {
           "kind": "start",
@@ -1400,7 +1405,12 @@
       "stage": "Tahap 3 · Pembelian",
       "title": "Mau Mencatat Pengeluaran atau Membayar Vendor: Pakai Menu yang Mana?",
       "summary": "Pengeluaran yang sudah dibayar langsung dicatat sebagai Pengeluaran (Beban), tanpa utang. Tagihan dari vendor menjadi utang usaha dulu, lalu dibayar dari halaman tagihan itu.",
-      "guides": ["tagihan-atau-beban", "buat-biaya", "catat-tagihan-vendor", "bayar-tagihan-vendor"],
+      "guides": [
+        "tagihan-atau-beban",
+        "buat-biaya",
+        "catat-tagihan-vendor",
+        "bayar-tagihan-vendor"
+      ],
       "items": [
         {
           "kind": "start",
