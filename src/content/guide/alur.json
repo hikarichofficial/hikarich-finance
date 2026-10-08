@@ -13,6 +13,11 @@
       "guide": "catat-pendapatan"
     },
     {
+      "want": "Melihat perkiraan pajak tahun ini untuk Buku Pribadi (PPh Final UMKM dan PPh Progresif)",
+      "menu": "Pajak > Pajak Pribadi",
+      "guide": "pajak-pribadi"
+    },
+    {
       "want": "Menagih pelanggan (membuat invoice)",
       "menu": "Penjualan > Invoice > Buat Invoice",
       "guide": "buat-terbitkan-invoice"
@@ -2312,7 +2317,8 @@
         "buku-besar-pajak",
         "aturan-pajak",
         "bayar-pajak",
-        "pengaturan-pajak-awal"
+        "pengaturan-pajak-awal",
+        "pajak-pribadi"
       ],
       "items": [
         {
@@ -2325,7 +2331,7 @@
           "actor": "anda",
           "title": "Buka Ringkasan Pajak",
           "menu": "Pajak > Ringkasan Pajak",
-          "note": "Lihat Total terutang, PPh Final bulan ini, Perlu ditinjau, grafik PPh per bulan, dan Tenggat terdekat. Arahkan kursor ke batang untuk jumlahnya; klik untuk membuka Buku Pajak bulan itu"
+          "note": "Lihat Total terutang, PPh Final bulan ini, Perlu ditinjau, grafik PPh per bulan, dan Tenggat terdekat. Arahkan kursor ke batang untuk jumlahnya; klik untuk membuka Buku Pajak bulan itu. Kartu Omzet gabungan menjumlahkan PT dan Buku Pribadi terhadap batas Rp 4,8 miliar"
         },
         {
           "kind": "step",
@@ -2430,6 +2436,100 @@
           "kind": "end",
           "title": "Selesai",
           "note": "PPh dari bayaran vendor disetor ke negara paling lambat tanggal 15 bulan berikutnya; cek Tenggat terdekat berkala"
+        }
+      ]
+    },
+    {
+      "id": "pajak-pribadi",
+      "stage": "Tahap 6 · Pajak",
+      "title": "Pajak Pribadi: Berapa Pajak Tahun Ini untuk Buku Pribadi?",
+      "summary": "Dari pemberian tanda kategori sampai membaca perkiraan PPh Final UMKM dan PPh Progresif. Pajak yang dipotong PT Anda dan omzet gabungan terbaca otomatis.",
+      "guides": [
+        "pajak-pribadi",
+        "catat-pendapatan",
+        "kategori-pendapatan-beban",
+        "pengaturan-pajak-awal"
+      ],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ingin tahu perkiraan pajak tahun ini untuk Buku Pribadi"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Beri tanda pada kategori (sekali saja)",
+          "menu": "Akuntansi > Kategori > kolom Pajak Pribadi",
+          "note": "Penjualan usaha, jasa & pekerjaan bebas, honor dari PT saya, biaya usaha & jasa. Tanpa tanda berarti pribadi dan tidak dihitung"
+        },
+        {
+          "kind": "choice",
+          "question": "Uang masuk dari mana?",
+          "branches": [
+            {
+              "label": "Klien lain",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Catat pendapatan; isi pajak yang dipotong klien bila ada",
+                  "menu": "Penjualan > Catat Pendapatan",
+                  "note": "Isi jumlah yang masuk ke rekening. Pendapatan bruto dan kredit pajak dihitung otomatis"
+                }
+              ]
+            },
+            {
+              "label": "PT saya sendiri",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Catat uang masuknya dengan jenis Honor dari PT Saya",
+                  "menu": "Penjualan > Catat Pendapatan",
+                  "note": "Cukup uang masuknya"
+                },
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Penghasilan dan pajak yang dipotong dibaca dari dokumen PT",
+                  "note": "Dikenali dari NPWP atau nama Anda di kontak PT. Tidak ada yang perlu diisi"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Catat biaya usaha dengan kategori Biaya usaha & jasa",
+          "menu": "Pembelian > Biaya",
+          "note": "Hanya biaya berkategori ini yang mengurangi penghasilan neto. Belanja pribadi tidak"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Pilih status PTKP (sekali setahun)",
+          "menu": "Pajak > Pajak Pribadi > Status PTKP",
+          "note": "Mis. TK/0 atau K/1. Sebelum dipilih dihitung TK/0"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Menghitung dua perkiraan",
+          "note": "PPh Final UMKM 0,5% dari penjualan (Rp 500 juta pertama bebas). PPh Progresif dari penghasilan neto: bruto − biaya − PTKP, tarif per lapisan, dikurangi pajak yang sudah dipotong"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Baca hasilnya",
+          "menu": "Pajak > Pajak Pribadi",
+          "note": "Angka besar = perkiraan yang masih harus dibayar. Omzet gabungan dengan PT terhadap batas Rp 4,8 miliar tampil di bawahnya"
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Perkiraan, bukan angka final. Ditetapkan 1 Januari tahun berikutnya; SPT Tahunan 31 Maret"
         }
       ]
     },

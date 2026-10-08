@@ -813,7 +813,7 @@
         },
         {
           "title": "Isi jumlah dan rekening",
-          "text": "Isi **Jumlah** (titik ribuan terisi otomatis) dan pilih **Diterima di Rekening**, yaitu rekening kas/bank PT tempat uang benar-benar masuk."
+          "text": "Isi **Jumlah** (titik ribuan terisi otomatis) dan pilih **Diterima di Rekening**, yaitu rekening kas/bank PT tempat uang benar-benar masuk.\n\nDi **Buku Pribadi**, untuk jenis jasa tampil juga **Pajak yang Dipotong Klien (opsional)**. Jumlah di atas adalah yang benar-benar masuk ke rekening; pendapatan bruto dihitung otomatis dari jumlah itu ditambah pajak yang dipotong."
         },
         {
           "title": "Isi dari siapa (opsional)",
@@ -842,7 +842,8 @@
         "Saldo rekening bertambah dan tampil sebagai pemasukan di Kas & Bank > Mutasi.",
         "Pendapatan muncul di Laba Rugi, Arus Kas, dan dasbor pada bulan tanggal uang diterima.",
         "Pendapatan usaha ikut dasar PPh Final 0,5% bulan itu dan batas omzet Rp 4,8 miliar. Pajaknya dihitung otomatis tiap tanggal 1; perkiraan bulan berjalan ikut berubah.",
-        "Pendapatan di luar usaha (bunga, dividen, sewa properti investasi, imbal hasil investasi, bonus/cashback, kripto, lain-lain) tercatat di laporan tetapi tidak ikut dasar PPh Final 0,5%."
+        "Pendapatan di luar usaha (bunga, dividen, sewa properti investasi, imbal hasil investasi, bonus/cashback, kripto, lain-lain) tercatat di laporan tetapi tidak ikut dasar PPh Final 0,5%.",
+        "Di Buku Pribadi, jenis berkategori jasa ikut hitungan PPh Progresif, jenis penjualan usaha ikut PPh Final 0,5%, dan jenis tanpa tanda tidak masuk hitungan pajak. Lihat [Cara Membaca Pajak Pribadi](pajak-pribadi)."
       ],
       "rules": [
         "Catatan tidak bisa diedit. Bila salah, buka catatannya lalu tekan **Batalkan Pendapatan** dan isi alasan (minimal 5 karakter). Saldo dan pajak kembali seperti semula; catatan tetap tersimpan sebagai riwayat. Lalu catat ulang yang benar.",
@@ -871,7 +872,8 @@
         "terima-pembayaran",
         "buat-terbitkan-invoice",
         "memahami-piutang-pendapatan",
-        "tambah-pelanggan"
+        "tambah-pelanggan",
+        "pajak-pribadi"
       ]
     },
     {

@@ -11,6 +11,7 @@ import {
   CategoryRowForm,
 } from "@/features/categories/CategoryForms";
 import { CATEGORY_KIND_LABELS } from "@/features/categories/kindLabels";
+import { PERSONAL_ROLE_LABELS, isPersonalTaxRole } from "@/domain/tax/personalTaxRoles";
 import { todayInBusinessZone } from "@/lib/time";
 
 /** Categories (Step 03 §6, decision 262): every member may read them; adding one or changing its tax
@@ -23,6 +24,7 @@ export default async function CategoriesPage({
 }) {
   const { entity } = await searchParams;
   const { access, membership } = await requireAccess({ entityCode: entity });
+  const personal = membership.entity_type === "personal";
   const canManage = can(access, membership.entity_id, "categories.manage");
   const canMapAccount = canManage && can(access, membership.entity_id, "coa.manage");
   const today = todayInBusinessZone();
@@ -62,7 +64,7 @@ export default async function CategoriesPage({
             <tr>
               <th scope="col">Nama</th>
               <th scope="col">Jenis</th>
-              <th scope="col">Perlakuan Pajak</th>
+              <th scope="col">{personal ? "Pajak Pribadi" : "Perlakuan Pajak"}</th>
               <th scope="col">Akun & Berlaku Sejak</th>
             </tr>
           </thead>
@@ -74,14 +76,26 @@ export default async function CategoriesPage({
                   {row.is_active ? "" : " (tidak aktif)"}
                 </td>
                 <td data-label="Jenis">{CATEGORY_KIND_LABELS[row.kind] ?? row.kind}</td>
-                <td data-label="Perlakuan Pajak">
+                <td data-label={personal ? "Pajak Pribadi" : "Perlakuan Pajak"}>
                   {canManage ? (
                     <CategoryRowForm
                       entity={entity}
                       id={row.id}
                       taxKey={row.tax_category_key}
                       isActive={row.is_active}
+                      personalKind={
+                        personal && (row.kind === "revenue" || row.kind === "expense")
+                          ? row.kind
+                          : undefined
+                      }
+                      personalRole={row.personal_tax_role}
                     />
+                  ) : personal ? (
+                    row.personal_tax_role && isPersonalTaxRole(row.personal_tax_role) ? (
+                      PERSONAL_ROLE_LABELS[row.personal_tax_role]
+                    ) : (
+                      "—"
+                    )
                   ) : (
                     (row.tax_category_key ?? "—")
                   )}
@@ -112,7 +126,7 @@ export default async function CategoriesPage({
           <div className="dashboard-section-header">
             <h2 className="dashboard-section-title">Tambah Kategori</h2>
           </div>
-          <CategoryCreateForm entity={entity} />
+          <CategoryCreateForm entity={entity} personal={personal} />
         </section>
       ) : null}
     </div>

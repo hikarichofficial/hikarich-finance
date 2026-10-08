@@ -53,11 +53,32 @@ export function summarizeIncome(rows: readonly IncomeEntryAmount[]): IncomeSumma
   };
 }
 
-/** One sentence the form and the detail page show about the tax side of an income category. */
-export function incomeTaxNote(inTurnover: boolean): string {
+/**
+ * One sentence the form and the detail page show about the tax side of an income category. For a Personal book the
+ * category's tag (decision 365) says which part of the personal tax it belongs to; for a company book (`role`
+ * undefined) the old rule applies: business income is in the final-tax base, other income is not.
+ */
+export function incomeTaxNote(inTurnover: boolean, role?: string | null): string {
+  if (role === "freelance") {
+    return "Pendapatan jasa: masuk hitungan PPh Progresif (penghasilan neto) di menu Pajak Pribadi.";
+  }
+  if (role === "company_payout") {
+    return "Uang dari PT Anda: cukup catat uang masuknya. Penghasilan dan pajak yang dipotong dibaca otomatis dari dokumen PT, jadi tidak perlu diisi lagi di sini.";
+  }
+  if (role === "umkm_business") {
+    return "Penjualan usaha: ikut dasar PPh Final 0,5% dan batas omzet tahunan.";
+  }
+  if (role === null) {
+    return "Bukan pendapatan usaha atau jasa: tercatat di laporan, tetapi tidak masuk hitungan Pajak Pribadi.";
+  }
   return inTurnover
     ? "Dihitung sebagai pendapatan usaha: ikut dasar PPh Final 0,5% dan batas omzet tahunan."
     : "Pendapatan di luar usaha: tercatat di laporan, tetapi tidak ikut dasar PPh Final 0,5%.";
+}
+
+/** Gross income from what reached the account plus the tax the client withheld ("1000", "50" -> "1050"). */
+export function grossFromReceived(received: string, withheld: string): string {
+  return fromUnits(toUnits(received) + toUnits(withheld || "0"));
 }
 
 /** "2026-10" -> first and last day of the month, as ISO dates; null when the text is not a month. */

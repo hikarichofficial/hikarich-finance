@@ -3,10 +3,13 @@ import {
   estimateFinalTax,
   getEntityBaseCurrency,
   getNonFinalIncome,
+  getPersonalTaxSummary,
+  getTaxGroupTurnover,
   getTaxOverview,
   listTaxLedger,
 } from "@/services/tax/tax";
 import { resolveTaxYear, runningTaxPeriod } from "@/domain/tax/tax";
+import { computePersonalTax } from "@/domain/tax/personalTax";
 import { TaxOverviewScreen } from "@/features/tax/TaxOverviewScreen";
 
 /** Tax Overview (P13 Part 3e, Step 09 §15): the Tax nav group's own landing screen. */
@@ -21,7 +24,8 @@ export default async function TaxOverviewPage({
   const period = runningTaxPeriod();
   const currentYear = Number(period.slice(0, 4));
   const shownYear = resolveTaxYear(year, currentYear);
-  const [overview, currency, estimate, nonFinal, ledger] = await Promise.all([
+  const isPersonal = membership.entity_type === "personal";
+  const [overview, currency, estimate, nonFinal, ledger, group, personal] = await Promise.all([
     getTaxOverview(membership.entity_id),
     getEntityBaseCurrency(membership.entity_id),
     estimateFinalTax({ entity_id: membership.entity_id, period }),
@@ -32,7 +36,10 @@ export default async function TaxOverviewPage({
       to: `${shownYear}-12-31`,
       limit: 1000,
     }),
+    getTaxGroupTurnover(membership.entity_id, shownYear),
+    isPersonal ? getPersonalTaxSummary(membership.entity_id, shownYear) : Promise.resolve(null),
   ]);
+  const personalTax = personal ? computePersonalTax(personal) : null;
 
   return (
     <TaxOverviewScreen
@@ -45,6 +52,9 @@ export default async function TaxOverviewPage({
       currentYear={currentYear}
       shownYear={shownYear}
       ledger={ledger}
+      group={group}
+      ownName={membership.entity_name}
+      personalTax={personalTax}
     />
   );
 }

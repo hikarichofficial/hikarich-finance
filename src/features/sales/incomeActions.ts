@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
+import { grossFromReceived } from "@/domain/sales/income";
 import { requirePermission } from "@/services/identity/access";
 import { recordIncomeEntry, reverseIncomeEntry } from "@/services/sales/income";
 
@@ -45,7 +46,9 @@ export async function recordIncomeAction(
       category_id: text(formData, "category_id"),
       date: text(formData, "entry_date"),
       account_id: text(formData, "account_id"),
-      amount: text(formData, "amount"),
+      // The form asks for what reached the account; the books record the gross and the tax withheld by the client.
+      amount: grossFromReceived(text(formData, "amount"), text(formData, "withheld")),
+      withheld: text(formData, "withheld") || undefined,
       contact_id: text(formData, "contact_id") || undefined,
       reference: text(formData, "reference") || undefined,
       note: text(formData, "note") || undefined,

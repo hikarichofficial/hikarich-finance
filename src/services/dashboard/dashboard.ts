@@ -37,7 +37,13 @@ import {
   listVendorPayments,
 } from "@/services/purchases/purchases";
 import { getMoneyControl, getReconciliationStatus } from "@/services/money/money";
-import { getTaxCalendar, getTaxOverview, listTaxReviewQueue } from "@/services/tax/tax";
+import {
+  getTaxCalendar,
+  getTaxGroupTurnover,
+  getTaxOverview,
+  listTaxReviewQueue,
+} from "@/services/tax/tax";
+import type { TaxGroupTurnover } from "@/schemas/personalTax";
 import type { MoneyControlRow, ReconciliationStatusRow } from "@/schemas/money";
 import type { ArAgingRow } from "@/schemas/sales";
 import type { ApAgingRow } from "@/schemas/purchases";
@@ -114,6 +120,8 @@ export interface DashboardSnapshot {
   receivables: DashboardReceivablesSection | null;
   payables: DashboardPayablesSection | null;
   tax: DashboardTaxSection | null;
+  /** Turnover of this book and the owner's other books together, for the ceiling of the final tax. */
+  taxGroup: TaxGroupTurnover | null;
   attention: AttentionItem[];
   recentActivity: RecentActivityItem[];
 }
@@ -163,6 +171,7 @@ export async function getDashboardSnapshot(
     taxCalendarRows,
     taxReviewRows,
     claimRows,
+    taxGroup,
   ] = await Promise.all([
     getEntityBaseCurrency(entityId),
     canReports
@@ -212,6 +221,10 @@ export async function getDashboardSnapshot(
     canTax ? getTaxCalendar({ entity_id: entityId }) : null,
     canTax ? listTaxReviewQueue(entityId) : null,
     canInvoices ? listPendingPaymentClaims(entityId) : null,
+    // Read-only and optional: the Dashboard never fails because of it.
+    canTax
+      ? getTaxGroupTurnover(entityId, Number(period.start.slice(0, 4))).catch(() => null)
+      : null,
   ]);
 
   const finance: DashboardFinanceSection | null = financeRows
@@ -308,6 +321,7 @@ export async function getDashboardSnapshot(
     receivables,
     payables,
     tax,
+    taxGroup,
     attention,
     recentActivity,
   };

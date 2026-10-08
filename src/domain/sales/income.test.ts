@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { incomeTaxNote, monthRange, summarizeIncome } from "./income";
+import { grossFromReceived, incomeTaxNote, monthRange, summarizeIncome } from "./income";
 
 describe("summarizeIncome", () => {
   it("adds business income and outside income apart, and skips reversed entries", () => {
@@ -37,5 +37,22 @@ describe("monthRange", () => {
   it("refuses anything that is not a month", () => {
     expect(monthRange("2026-13")).toBeNull();
     expect(monthRange("")).toBeNull();
+  });
+});
+
+describe("incomeTaxNote for a Personal book", () => {
+  it("words each tag and the untagged case", () => {
+    expect(incomeTaxNote(false, "freelance")).toContain("PPh Progresif");
+    expect(incomeTaxNote(false, "company_payout")).toContain("dokumen PT");
+    expect(incomeTaxNote(true, "umkm_business")).toContain("PPh Final 0,5%");
+    expect(incomeTaxNote(false, null)).toContain("tidak masuk hitungan Pajak Pribadi");
+  });
+});
+
+describe("grossFromReceived", () => {
+  it("adds the tax the client withheld to what reached the account", () => {
+    expect(grossFromReceived("9500000", "500000")).toBe("10000000");
+    expect(grossFromReceived("1000.5", "0.25")).toBe("1000.75");
+    expect(grossFromReceived("2500000", "")).toBe("2500000");
   });
 });

@@ -43,6 +43,11 @@
           "title": "Pilih akun pembukuan kategori (khusus yang berhak)",
           "text": "Untuk kategori Pendapatan dan Beban, kolom **Akun & Berlaku Sejak** berisi pilihan akun (bentuknya “6800 · Beban Sewa & Ruang Kerja”), tanggal **Berlaku sejak** (bawaan hari ini), dan tombol **Simpan**. Kategori Pendapatan hanya menawarkan akun pendapatan, kategori Beban hanya akun beban. Pilihan **Akun bawaan** mengakhiri pemetaan sehingga kategori memakai akun bawaan Entity. Bagi yang tidak berhak, kolom ini hanya menulis “Dipetakan” atau “Akun bawaan”.",
           "warning": "Pemetaan baru dipakai oleh dokumen mulai tanggal Berlaku sejak. Dokumen yang sudah diposting tidak berpindah akun dan tidak ada jurnal yang dibuat ulang."
+        },
+        {
+          "title": "Buku Pribadi: tanda Pajak Pribadi",
+          "text": "Di Buku Pribadi kolom **Perlakuan Pajak** diganti **Pajak Pribadi**, dan pilihan perlakuan PPN/PPh perusahaan tidak tampil. Pilih tanda yang menentukan apakah kategori masuk hitungan pajak: penjualan usaha (PPh Final 0,5%), jasa & pekerjaan bebas (PPh progresif), honor dari PT saya, atau biaya usaha & jasa (mengurangi penghasilan neto). Tanpa tanda berarti pribadi dan tidak dihitung. Tanda yang sama ditanyakan saat menambah kategori di tempat dari Catat Pendapatan.",
+          "tip": "Lihat [Cara Membaca Pajak Pribadi](pajak-pribadi) untuk hasilnya."
         }
       ],
       "result": [
@@ -97,7 +102,8 @@
         "lihat-daftar-akun",
         "buat-terbitkan-invoice",
         "buat-biaya",
-        "pengaturan-pajak-awal"
+        "pengaturan-pajak-awal",
+        "pajak-pribadi"
       ]
     },
     {
@@ -1109,7 +1115,7 @@
         },
         {
           "title": "Baca Piutang, Utang, dan Pajak",
-          "text": "Kartu **Piutang Usaha** dan **Utang Usaha** menunjukkan total dan bagian yang jatuh tempo (batang merah). Kartu **Ringkasan Pajak** menunjukkan total terutang per jenis dan tenggat terdekat; **Buka Pajak** membawa Anda ke Ringkasan Pajak. Kartu **Perlu Perhatian** mengumpulkan hal yang perlu ditindaklanjuti."
+          "text": "Kartu **Piutang Usaha** dan **Utang Usaha** menunjukkan total dan bagian yang jatuh tempo (batang merah). Kartu **Ringkasan Pajak** menunjukkan total terutang per jenis dan tenggat terdekat; **Buka Pajak** membawa Anda ke Ringkasan Pajak. Kartu **Perlu Perhatian** mengumpulkan hal yang perlu ditindaklanjuti.\n\nBila Anda punya lebih dari satu Entity (PT dan Buku Pribadi), kartu **Omzet gabungan** di bawahnya menjumlahkan omzet semuanya terhadap batas Rp 4,8 miliar PPh Final UMKM. Angkanya dibaca otomatis, tanpa input."
         }
       ],
       "result": [

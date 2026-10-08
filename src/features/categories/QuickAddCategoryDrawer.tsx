@@ -6,6 +6,7 @@ import { Drawer } from "@/features/shell/Drawer";
 import { quickCreateCategoryAction } from "./categoryActions";
 import { idleQuickCreateCategoryState } from "./categoryActionsState";
 import { CATEGORY_KIND_LABELS } from "./kindLabels";
+import { PersonalRoleSelect } from "./CategoryForms";
 
 /**
  * Add-a-category-on-the-spot Drawer (OWNER, 7 October 2026: a category field should work like the customer
@@ -18,6 +19,7 @@ export function QuickAddCategoryDrawer({
   entity,
   initialName = "",
   extraHint,
+  personal = false,
   open,
   onClose,
   onCreated,
@@ -27,9 +29,16 @@ export function QuickAddCategoryDrawer({
   initialName?: string;
   /** A sentence about what the new category means in the form it is added from (e.g. its tax treatment). */
   extraHint?: string;
+  /** A Personal book: also ask which part of the personal tax the new category belongs to (decision 365). */
+  personal?: boolean;
   open: boolean;
   onClose: () => void;
-  onCreated: (category: { id: string; name: string; kind: string }) => void;
+  onCreated: (category: {
+    id: string;
+    name: string;
+    kind: string;
+    personal_tax_role?: string | null;
+  }) => void;
 }) {
   const [state, formAction, pending] = useActionState(
     quickCreateCategoryAction,
@@ -68,6 +77,7 @@ export function QuickAddCategoryDrawer({
           Jenis: {kindLabel}. Kategori baru dicatat ke akun bawaan jenis ini. Untuk memetakannya ke
           akun tertentu, buka Akuntansi → Kategori.
         </p>
+        {personal ? <PersonalRoleSelect kind={kind} label="Pajak Pribadi" /> : null}
         {extraHint ? <p className="hint">{extraHint}</p> : null}
         {state.status === "error" ? (
           <p role="alert" className="error">

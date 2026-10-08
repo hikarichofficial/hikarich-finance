@@ -127,6 +127,7 @@ export const NAVIGATION: readonly NavGroup[] = [
     permission: ["tax.view"],
     items: [
       { label: "Ringkasan Pajak", href: "/tax" },
+      { label: "Pajak Pribadi", href: "/tax/personal" },
       { label: "Buku Pajak", href: "/tax/ledger" },
       { label: "PPh Final", href: "/tax/pph" },
       { label: "PPh Vendor", href: "/tax/withholding" },

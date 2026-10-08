@@ -110,6 +110,77 @@
       "related": ["pengaturan-pajak-awal", "catat-tagihan-vendor", "buat-biaya"]
     },
     {
+      "slug": "pajak-pribadi",
+      "title": "Cara Membaca Pajak Pribadi (Buku Pribadi)",
+      "summary": "Perkiraan pajak tahunan Buku Pribadi: PPh Final UMKM 0,5% untuk penjualan dan PPh Progresif untuk penghasilan neto dari jasa, dihitung otomatis dari catatan Anda dan dari PT Anda.",
+      "path": "Pajak > Pajak Pribadi",
+      "who": "Melihat: tax.view. Memilih status PTKP: tax.confirm_facts (OWNER, Finance Admin, Tax). Halaman hanya membaca pembukuan dan tidak membuat jurnal.",
+      "quick": "Beri tanda pada kategori, catat pendapatan seperti biasa, lalu pilih status PTKP sekali setahun. Pajak final, pajak progresif, kredit pajak yang sudah dipotong, dan omzet gabungan dengan PT dihitung otomatis.",
+      "steps": [
+        {
+          "title": "Beri tanda pada kategori (sekali saja)",
+          "text": "Buka **Akuntansi > Kategori** di Buku Pribadi. Kolom **Pajak Pribadi** menawarkan empat tanda. Pendapatan: **Penjualan usaha · PPh Final 0,5%**, **Jasa & pekerjaan bebas · PPh progresif**, dan **Honor dari PT saya · otomatis dari PT**. Pengeluaran: **Biaya usaha & jasa · mengurangi penghasilan neto**. Tanpa tanda berarti pribadi: tercatat di laporan tetapi tidak masuk hitungan pajak. Buku Pribadi baru sudah berisi kategori bawaan yang bertanda.",
+          "tip": "Inilah “mesin pemilah” biaya: hanya pengeluaran berkategori Biaya usaha & jasa yang mengurangi penghasilan jasa. Belanja rumah tangga tidak."
+        },
+        {
+          "title": "Catat pendapatan seperti biasa",
+          "text": "Di **Penjualan > Catat Pendapatan** pilih jenis pendapatan. Untuk jenis jasa muncul kolom opsional **Pajak yang Dipotong Klien**. Isi **Jumlah yang Masuk ke Rekening** apa adanya; bila klien memotong pajak, isi juga jumlah pajaknya. Pendapatan bruto dihitung otomatis dan pajak itu menjadi kredit. Kosongkan bila tidak ada pemotongan."
+        },
+        {
+          "title": "Honor dari PT Anda: tidak perlu diisi",
+          "text": "Bila PT Anda membayar honor atau jasa kepada Anda, penghasilan dan pajak yang dipotong dibaca otomatis dari dokumen PT (dikenali dari NPWP atau nama Anda di kontak PT). Di Buku Pribadi cukup catat uang masuknya dengan jenis **Honor dari PT Saya**. Tidak ada integrasi yang perlu diisi."
+        },
+        {
+          "title": "Buka Pajak > Pajak Pribadi",
+          "text": "Di atas tampil satu angka: **Perkiraan pajak yang masih harus dibayar**, beserta rumusnya (PPh Final + PPh Progresif − Sudah dipotong). Di bawahnya dua kartu hitungan. **PPh Final UMKM**: penjualan usaha, dikurangi Rp 500 juta bebas pajak untuk orang pribadi, dikali 0,5%. **PPh Progresif**: pendapatan jasa bruto dikurangi biaya usaha menjadi penghasilan neto, dikurangi PTKP menjadi PKP (dibulatkan ke bawah ribuan), lalu dikenai tarif 5%, 15%, 25%, 30%, dan 35% per lapisan, dikurangi pajak yang sudah dipotong."
+        },
+        {
+          "title": "Pilih status PTKP",
+          "text": "Di kartu **Status PTKP** pilih status Anda (misalnya TK/0 atau K/1) lalu **Simpan**. Jumlah PTKP tiap status tertera di pilihan. Sebelum dipilih, perkiraan memakai TK/0 dan tampil peringatan kuning."
+        },
+        {
+          "title": "Baca Dari PT Anda dan Omzet gabungan",
+          "text": "Kartu **Dari PT Anda (otomatis)** menunjukkan honor yang terbaca dari PT beserta pajak yang dipotong. Kartu **Omzet gabungan** menjumlahkan omzet Buku Pribadi dan PT Anda terhadap batas **Rp 4,8 miliar** untuk PPh Final UMKM. Kartu yang sama ada di Ringkasan Pajak dan Dashboard, baik di PT maupun di Buku Pribadi."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Contoh: jasa Rp 420 juta, biaya Rp 36 juta, PTKP TK/0",
+          "columns": ["Langkah", "Jumlah"],
+          "rows": [
+            ["Pendapatan jasa (bruto)", "Rp 420.000.000"],
+            ["Biaya usaha & jasa", "− Rp 36.000.000"],
+            ["Penghasilan neto", "Rp 384.000.000"],
+            ["PTKP TK/0", "− Rp 54.000.000"],
+            ["PKP", "Rp 330.000.000"],
+            ["Pajak: 5% × 60 jt + 15% × 190 jt + 25% × 80 jt", "Rp 51.500.000"]
+          ]
+        }
+      ],
+      "result": [
+        "Anda melihat perkiraan pajak tahun ini tanpa menghitung manual, termasuk berapa yang sudah dipotong klien dan PT Anda dan berapa yang masih harus dibayar.",
+        "Tidak ada jurnal atau kewajiban pajak yang dicatat dari halaman ini."
+      ],
+      "rules": [
+        "Penghasilan jasa sebagai pekerja bebas tidak bisa memakai PPh Final 0,5%; dihitung dari penghasilan neto dengan tarif progresif (Pasal 17 UU PPh). Ia tetap dihitung dalam batas omzet Rp 4,8 miliar.",
+        "PPh Final UMKM orang pribadi berlaku tanpa batas waktu dan Rp 500 juta pertama setahun tidak dikenai pajak (PP 20/2026).",
+        "Penghasilan neto dihitung dari pembukuan: pendapatan jasa dikurangi biaya berkategori Biaya usaha & jasa. Bila biaya melebihi pendapatan tidak ada pajak.",
+        "Omzet gabungan menjumlahkan semua Entity yang Anda miliki (OWNER). Omzet pasangan dan anak di bawah umur tidak terbaca sistem; pertanyaannya tetap ada di Pengaturan Pajak.",
+        "Ini perkiraan. Angsuran PPh 25 bulanan dan penyusutan aset belum dihitung. Tahun ditetapkan otomatis 1 Januari tahun berikutnya; SPT Tahunan orang pribadi jatuh tempo 31 Maret."
+      ],
+      "mistakes": [
+        "Lupa memberi tanda pada kategori. Pendapatan atau biaya tanpa tanda dianggap pribadi dan tidak masuk hitungan.",
+        "Mencatat honor PT sebagai jenis jasa biasa sehingga terhitung dua kali. Pakai jenis Honor dari PT Saya.",
+        "Menganggap angka ini final. Konfirmasikan dengan konsultan pajak sebelum SPT."
+      ],
+      "related": [
+        "catat-pendapatan",
+        "kategori-pendapatan-beban",
+        "penghasilan-di-luar-pph-final",
+        "pengaturan-pajak-awal"
+      ]
+    },
+    {
       "slug": "penghasilan-di-luar-pph-final",
       "title": "Melihat Penghasilan di Luar PPh Final (Forex, Bunga, Dividen, Kripto)",
       "summary": "Kartu di Ringkasan Pajak yang menunjukkan hasil bersih penghasilan di luar usaha sejak 1 Januari dan perkiraan pajaknya.",

@@ -9,7 +9,7 @@ import { QuickAddCategoryDrawer } from "@/features/categories/QuickAddCategoryDr
 import { MoneyInput } from "@/features/shared/MoneyInput";
 import { SuggestTextInput } from "@/features/shared/SuggestTextInput";
 import { formatMoney } from "@/domain/money/format";
-import { incomeTaxNote } from "@/domain/sales/income";
+import { grossFromReceived, incomeTaxNote } from "@/domain/sales/income";
 import { recordIncomeAction, reverseIncomeAction, type IncomeActionState } from "./incomeActions";
 
 const IDLE: IncomeActionState = { status: "idle" };
@@ -20,6 +20,8 @@ export interface IncomeCategoryChoice {
   /** What the income is booked under, in the chart of accounts; null for a category just added. */
   accountName: string | null;
   inTurnover: boolean;
+  /** Personal books: the tag that sorts the category for the personal tax (decision 365); null for a company book. */
+  taxRole: string | null;
 }
 
 export interface IncomeAccountChoice {
@@ -54,6 +56,7 @@ export function IncomeForm({
   customers,
   referenceSuggestions,
   noteSuggestions,
+  personal = false,
 }: {
   entity: string | undefined;
   today: string;
@@ -62,6 +65,8 @@ export function IncomeForm({
   customers: readonly { id: string; display_name: string }[];
   referenceSuggestions: readonly string[];
   noteSuggestions: readonly string[];
+  /** A Personal book: the form also offers the tax a client withheld (decision 365). */
+  personal?: boolean;
 }) {
   const [state, action, pending] = useActionState(recordIncomeAction, IDLE);
   const actionForm = usePreservingForm(action, state);
@@ -74,11 +79,14 @@ export function IncomeForm({
   const [addingCustomer, setAddingCustomer] = useState(false);
   const [newCustomerName, setNewCustomerName] = useState("");
   const [amount, setAmount] = useState("");
+  const [withheld, setWithheld] = useState("");
   const [accountId, setAccountId] = useState("");
 
   const category = categoryList.find((c) => c.id === categoryId);
   const account = accounts.find((a) => a.id === accountId);
   const amountNumber = Number(amount);
+  const askWithheld = personal && category?.taxRole === "freelance";
+  const withheldNumber = askWithheld ? Number(withheld) : 0;
   const showPreview = category !== undefined && account !== undefined && amountNumber > 0;
 
   return (
@@ -101,9 +109,13 @@ export function IncomeForm({
             setAddingCategory(true);
           }}
         />
-        {category ? <p className="hint">{incomeTaxNote(category.inTurnover)}</p> : null}
+        {category ? (
+          <p className="hint">
+            {incomeTaxNote(category.inTurnover, personal ? category.taxRole : undefined)}
+          </p>
+        ) : null}
         <label>
-          Jumlah
+          {askWithheld ? "Jumlah yang Masuk ke Rekening" : "Jumlah"}
           <MoneyInput
             name="amount"
             required
@@ -112,6 +124,23 @@ export function IncomeForm({
             onValueChange={setAmount}
           />
         </label>
+        {askWithheld ? (
+          <>
+            <label>
+              Pajak yang Dipotong Klien (opsional)
+              <MoneyInput
+                name="withheld"
+                placeholder="kosongkan bila tidak ada"
+                value={withheld}
+                onValueChange={setWithheld}
+              />
+            </label>
+            <p className="hint">
+              Bila klien memotong pajak (bukti potong), isi jumlah pajaknya. Pendapatan bruto
+              dihitung otomatis dan pajak ini menjadi kredit di Pajak Pribadi.
+            </p>
+          </>
+        ) : null}
         <label>
           Diterima di Rekening
           <select
@@ -167,7 +196,16 @@ export function IncomeForm({
             </p>
             <p>
               Pendapatan <strong>{category.accountName ?? category.name}</strong> bertambah{" "}
-              <strong>{formatMoney(amount, account.currency)}</strong>.
+              <strong>
+                {formatMoney(
+                  withheldNumber > 0 ? grossFromReceived(amount, withheld) : amount,
+                  account.currency,
+                )}
+              </strong>
+              {withheldNumber > 0
+                ? `, termasuk pajak ${formatMoney(withheld, account.currency)} yang dipotong klien`
+                : ""}
+              .
             </p>
           </div>
         ) : null}
@@ -182,14 +220,25 @@ export function IncomeForm({
         kind="revenue"
         entity={entity}
         initialName={newCategoryName}
-        extraHint="Jenis baru dihitung sebagai pendapatan usaha (ikut dasar PPh Final 0,5%). Untuk pendapatan di luar usaha seperti bunga atau dividen, pilih jenis yang sudah ada di daftar."
+        personal={personal}
+        extraHint={
+          personal
+            ? "Pilih tanda Pajak Pribadi di atas agar pendapatan ini ikut dihitung dengan benar."
+            : "Jenis baru dihitung sebagai pendapatan usaha (ikut dasar PPh Final 0,5%). Untuk pendapatan di luar usaha seperti bunga atau dividen, pilih jenis yang sudah ada di daftar."
+        }
         open={addingCategory}
         onClose={() => setAddingCategory(false)}
         onCreated={(created) => {
           // A new category posts to the default operating-revenue account until it is mapped on the Kategori screen.
           setCategoryList((list) => [
             ...list,
-            { id: created.id, name: created.name, accountName: null, inTurnover: true },
+            {
+              id: created.id,
+              name: created.name,
+              accountName: null,
+              inTurnover: personal ? created.personal_tax_role === "umkm_business" : true,
+              taxRole: personal ? (created.personal_tax_role ?? null) : null,
+            },
           ]);
           setCategoryId(created.id);
           setAddingCategory(false);

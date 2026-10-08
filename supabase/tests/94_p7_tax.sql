@@ -75,9 +75,9 @@ begin
   -- The verified baseline is present, published and readable by tax viewers only.
   -- P7 published eight (seven tax rules and the fiscal depreciation groups); P9 adds the payroll rules (PPh 21 TER and
   -- annual, BPJS Kes / JHT / JP in two versions / JKK / JKM, the PPh 21 deadline): nine more versions.
-  perform test_helpers.assert((select count(*) from public.tax_rule_versions where status = 'published' and code not like 'BPJS%' and code not like 'PPH21%' and code <> 'DEADLINE_PPH21') = 21
-    and (select count(*) from public.tax_rule_versions where status = 'published') = 32,
-    '1.0 the P7 baseline (eight), the P9 payroll rules (nine) and decision 256 (six: PPh 4(2), PPh 26, their deadlines, two deadline corrections) and the marketplace PPh 22 rule (decision 260) and the PPh Final UMKM history (decision 274: three rule versions and a deadline) and the deadline corrections of decision 341 (PPh Final: no monthly return, PPh 23: the 15th) and the fiscal groups before 2020 (decision 343) are published (and the PPh 21 TER version 2, decision 303)');
+  perform test_helpers.assert((select count(*) from public.tax_rule_versions where status = 'published' and code not like 'BPJS%' and code not like 'PPH21%' and code <> 'DEADLINE_PPH21') = 22
+    and (select count(*) from public.tax_rule_versions where status = 'published') = 33,
+    '1.0 the P7 baseline (eight), the P9 payroll rules (nine) and decision 256 (six: PPh 4(2), PPh 26, their deadlines, two deadline corrections) and the marketplace PPh 22 rule (decision 260) and the PPh Final UMKM history (decision 274: three rule versions and a deadline) and the deadline corrections of decision 341 (PPh Final: no monthly return, PPh 23: the 15th) and the fiscal groups before 2020 (decision 343) and the progressive personal tariff (decision 365) are published (and the PPh 21 TER version 2, decision 303)');
   perform test_helpers.assert((select params ->> 'rate' from test_helpers.rule_at('PPN_STANDARD', date '2026-09-01')) = '0.12',
     '1.1 PPN 12% applies in September 2026');
   perform test_helpers.assert((select (params ->> 'dpp_numerator') || '/' || (params ->> 'dpp_denominator')

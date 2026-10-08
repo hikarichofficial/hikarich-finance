@@ -39,6 +39,7 @@ export default async function IncomeDetailPage({
   const contact = contacts.find((c) => c.id === entry.contact_id);
   const backHref = entity ? `/sales/income?entity=${encodeURIComponent(entity)}` : "/sales/income";
   const reversed = entry.status === "reversed";
+  const withheldAmount = Number(entry.tax_withheld ?? 0);
 
   return (
     <div className="record-detail">
@@ -62,9 +63,23 @@ export default async function IncomeDetailPage({
             <dd>{formatShortDate(entry.entry_date)}</dd>
           </div>
           <div>
-            <dt>Jumlah</dt>
+            <dt>{withheldAmount > 0 ? "Pendapatan (bruto)" : "Jumlah"}</dt>
             <dd>{formatMoney(entry.amount, entry.currency)}</dd>
           </div>
+          {withheldAmount > 0 ? (
+            <>
+              <div>
+                <dt>Pajak dipotong klien</dt>
+                <dd>{formatMoney(entry.tax_withheld, entry.currency)}</dd>
+              </div>
+              <div>
+                <dt>Masuk ke rekening</dt>
+                <dd>
+                  {formatMoney((Number(entry.amount) - withheldAmount).toString(), entry.currency)}
+                </dd>
+              </div>
+            </>
+          ) : null}
           <div>
             <dt>Diterima di rekening</dt>
             <dd>{account ? `${account.name} (${account.currency})` : "—"}</dd>
@@ -95,7 +110,12 @@ export default async function IncomeDetailPage({
             </div>
           ) : null}
         </dl>
-        <p className="hint">{incomeTaxNote(entry.in_turnover)}</p>
+        <p className="hint">
+          {incomeTaxNote(
+            entry.in_turnover,
+            membership.entity_type === "personal" ? (category?.tax_role ?? null) : undefined,
+          )}
+        </p>
         {!reversed && can(access, entityId, "invoices.void") ? (
           <div className="record-actions">
             <ReverseIncomeForm entryId={entry.id} today={todayInBusinessZone()} />

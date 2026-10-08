@@ -31,6 +31,7 @@ export interface CategoryAdminRow {
   name: string;
   kind: string;
   tax_category_key: string | null;
+  personal_tax_role: string | null;
   is_active: boolean;
   version: number;
 }
@@ -40,7 +41,7 @@ export async function listCategoriesForAdmin(entityId: string): Promise<Category
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, name, kind, tax_category_key, is_active, version")
+    .select("id, name, kind, tax_category_key, personal_tax_role, is_active, version")
     .eq("entity_id", uuidResultSchema.parse(entityId))
     .order("kind")
     .order("name");
@@ -54,7 +55,13 @@ export async function createCategory(input: {
   name: string;
   kind: string;
   tax_category_key: string | null;
-}): Promise<{ id: string; name: string; kind: string }> {
+  personal_tax_role?: string | null;
+}): Promise<{
+  id: string;
+  name: string;
+  kind: string;
+  personal_tax_role: string | null;
+}> {
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("categories")
@@ -63,22 +70,29 @@ export async function createCategory(input: {
       name: input.name,
       kind: input.kind,
       tax_category_key: input.tax_category_key,
+      personal_tax_role: input.personal_tax_role ?? null,
     })
-    .select("id, name, kind")
+    .select("id, name, kind, personal_tax_role")
     .single();
   if (error) throw new Error(error.message);
-  return data as { id: string; name: string; kind: string };
+  return data as { id: string; name: string; kind: string; personal_tax_role: string | null };
 }
 
 export async function updateCategory(input: {
   id: string;
-  tax_category_key: string | null;
+  /** Left out (undefined) when the form does not carry it, so the stored value stays as it is. */
+  tax_category_key?: string | null;
+  /** Only a Personal book carries this tag (decision 365). */
+  personal_tax_role?: string | null;
   is_active: boolean;
 }): Promise<void> {
   const supabase = await createSupabaseServerClient();
+  const changes: Record<string, unknown> = { is_active: input.is_active };
+  if (input.tax_category_key !== undefined) changes.tax_category_key = input.tax_category_key;
+  if (input.personal_tax_role !== undefined) changes.personal_tax_role = input.personal_tax_role;
   const { error } = await supabase
     .from("categories")
-    .update({ tax_category_key: input.tax_category_key, is_active: input.is_active })
+    .update(changes)
     .eq("id", uuidResultSchema.parse(input.id));
   if (error) throw new Error(error.message);
 }

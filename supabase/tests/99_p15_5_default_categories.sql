@@ -32,9 +32,9 @@ begin
       (select id from public.categories where entity_id = e_co and name = 'Penjualan E-book'), current_date)
     = (select id from public.ledger_accounts where entity_id = e_co and system_key = 'EBOOK_REVENUE'),
     '1.2 Penjualan E-book posts to the e-book revenue account');
-  perform test_helpers.assert((select count(*) from public.categories where entity_id = e_pe and kind = 'revenue') = 4
-    and (select count(*) from public.categories where entity_id = e_pe and kind = 'expense') = 9,
-    '1.3 personal: 4 income and 9 expense categories');
+  perform test_helpers.assert((select count(*) from public.categories where entity_id = e_pe and kind = 'revenue') = 7
+    and (select count(*) from public.categories where entity_id = e_pe and kind = 'expense') = 10,
+    '1.3 personal: 7 income (4 + the PT honorarium, services and business sales, decision 365) and 10 expense categories (9 + business costs)');
   perform test_helpers.assert(not exists (select 1 from public.categories where entity_id = e_pe and tax_category_key is not null)
     and not exists (select 1 from public.categories where entity_id = e_co and kind = 'revenue' and tax_category_key is not null),
     '1.4 personal categories and company revenue categories carry no tax classification (automatic from the tax profile)');
