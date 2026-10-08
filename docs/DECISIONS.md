@@ -3026,3 +3026,14 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      only after it is edited, except `ContactPicker`, which always opens (the chosen name may be changed). Enter in
      an untouched field no longer blocks submitting the form. Shared helper `browseTypeahead`; guide
      "Kolom Ketik-dan-Pilih" updated.
+     Follow-up (same day): inside a table the list was cut off by the table's scroll wrapper, so `ContactPicker` now
+     draws the list through a portal on the page body with fixed positioning (opens upward when there is little room
+     below, follows scroll and resize), and no table can clip it.
+
+356. **Hints on the Refund and Pembayaran Keluar lists (owner question, 8 October 2026).** The Refund list
+     (`/sales/refunds`, menu "Pengembalian Dana") has no add button by design: a refund belongs to one payment, so it
+     is created from the payment's detail page (Penjualan > Pembayaran Diterima > payment > "Refund ke Pelanggan").
+     The list now says so, with a link to Pembayaran Diterima. The Pembayaran Keluar list (`/purchases/payments`)
+     holds only bill payments (made with "Bayar Tagihan" on the bill); an expense paid directly (Beban) creates no
+     vendor payment and is seen in Beban and Mutasi Kas & Bank. The page now says that and links to Tagihan. No change
+     in workflow, permission or accounting; guide "Cara Membalik Pembayaran dan Refund" and the PDF follow.

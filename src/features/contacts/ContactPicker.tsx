@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useId, useRef, useState } from "react";
+import { useEffect, useId, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { browseTypeahead, exactTypeahead, hasTyped } from "@/domain/shared/typeahead";
 
 export interface PickableContact {
@@ -9,6 +10,14 @@ export interface PickableContact {
 }
 
 const MAX_SHOWN = 8;
+
+interface ListPosition {
+  left: number;
+  width: number;
+  maxHeight: number;
+  top?: number;
+  bottom?: number;
+}
 
 /** What the list shows: everything that can be picked while nothing is typed (or the field shows the chosen name),
  * then names that start with what is typed first and (from two characters) names that contain it. Clicking into the
@@ -73,6 +82,41 @@ export function ContactPicker({
   const [focused, setFocused] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [active, setActive] = useState(-1);
+
+  // The list is drawn on the page itself (not inside the form or a scrolling table), so nothing can clip it; it opens
+  // below the field, or above it when there is more room there (OWNER, 8 October 2026: the list was cut off inside
+  // the table of expense lines).
+  const [position, setPosition] = useState<ListPosition | null>(null);
+  const popupOpen = focused && !dismissed;
+  useLayoutEffect(() => {
+    if (!popupOpen) return;
+    function place() {
+      const input = inputRef.current;
+      if (!input) return;
+      const rect = input.getBoundingClientRect();
+      const width = Math.max(rect.width, 260);
+      const left = Math.max(8, Math.min(rect.left, window.innerWidth - width - 8));
+      const below = window.innerHeight - rect.bottom - 12;
+      const above = rect.top - 12;
+      if (below >= 220 || below >= above) {
+        setPosition({ left, width, top: rect.bottom + 4, maxHeight: Math.min(340, below) });
+      } else {
+        setPosition({
+          left,
+          width,
+          bottom: window.innerHeight - rect.top + 4,
+          maxHeight: Math.min(340, above),
+        });
+      }
+    }
+    place();
+    window.addEventListener("resize", place);
+    window.addEventListener("scroll", place, true);
+    return () => {
+      window.removeEventListener("resize", place);
+      window.removeEventListener("scroll", place, true);
+    };
+  }, [popupOpen]);
 
   // Keep the arrow-key choice in view when the list is long enough to scroll.
   useEffect(() => {
@@ -184,54 +228,71 @@ export function ContactPicker({
             }
           }}
         />
-        {open ? (
-          <div className="contact-picker-list">
-            {matches.length === 0 ? (
-              <p className="line-suggest-title">
-                {contacts.length === 0
-                  ? `Belum ada ${noun}. Tambahkan yang pertama di bawah.`
-                  : `Tidak ada ${noun} dengan huruf itu. Ketik lain, atau tambah baru di bawah.`}
-              </p>
-            ) : (
-              <ul id={listId} role="listbox">
-                {matches.map((contact, index) => (
-                  <li
-                    key={contact.id}
-                    id={`${listId}-${index}`}
-                    role="option"
-                    aria-selected={index === active || contact.id === selectedId}
-                    className={
-                      index === active ? "line-suggest-item is-active" : "line-suggest-item"
-                    }
-                    // mouse down (not click) so the field keeps focus and the list does not close first
-                    onMouseDown={(event) => {
-                      event.preventDefault();
-                      select(contact);
-                    }}
-                  >
-                    <span className="line-suggest-name">{contact.display_name}</span>
-                  </li>
-                ))}
-              </ul>
-            )}
-            {showAdd ? (
-              <button
-                type="button"
-                className={
-                  active === matches.length ? "contact-picker-add is-active" : "contact-picker-add"
-                }
-                onMouseDown={(event) => {
-                  event.preventDefault();
-                  addNew();
+        {open && position
+          ? createPortal(
+              <div
+                className="contact-picker-list is-floating"
+                role="presentation"
+                // keeps the field focused when the scroll bar or the padding is pressed
+                onMouseDown={(event) => event.preventDefault()}
+                style={{
+                  left: position.left,
+                  width: position.width,
+                  top: position.top,
+                  bottom: position.bottom,
+                  maxHeight: position.maxHeight,
                 }}
               >
-                {typedNow
-                  ? `+ Tambah “${text.trim()}” sebagai ${noun} baru`
-                  : `+ Tambah ${noun} baru`}
-              </button>
-            ) : null}
-          </div>
-        ) : null}
+                {matches.length === 0 ? (
+                  <p className="line-suggest-title">
+                    {contacts.length === 0
+                      ? `Belum ada ${noun}. Tambahkan yang pertama di bawah.`
+                      : `Tidak ada ${noun} dengan huruf itu. Ketik lain, atau tambah baru di bawah.`}
+                  </p>
+                ) : (
+                  <ul id={listId} role="listbox">
+                    {matches.map((contact, index) => (
+                      <li
+                        key={contact.id}
+                        id={`${listId}-${index}`}
+                        role="option"
+                        aria-selected={index === active || contact.id === selectedId}
+                        className={
+                          index === active ? "line-suggest-item is-active" : "line-suggest-item"
+                        }
+                        // mouse down (not click) so the field keeps focus and the list does not close first
+                        onMouseDown={(event) => {
+                          event.preventDefault();
+                          select(contact);
+                        }}
+                      >
+                        <span className="line-suggest-name">{contact.display_name}</span>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                {showAdd ? (
+                  <button
+                    type="button"
+                    className={
+                      active === matches.length
+                        ? "contact-picker-add is-active"
+                        : "contact-picker-add"
+                    }
+                    onMouseDown={(event) => {
+                      event.preventDefault();
+                      addNew();
+                    }}
+                  >
+                    {typedNow
+                      ? `+ Tambah “${text.trim()}” sebagai ${noun} baru`
+                      : `+ Tambah ${noun} baru`}
+                  </button>
+                ) : null}
+              </div>,
+              document.body,
+            )
+          : null}
       </div>
     </div>
   );

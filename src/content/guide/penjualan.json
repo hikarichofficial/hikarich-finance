@@ -1024,7 +1024,7 @@
       "steps": [
         {
           "title": "Buka detail pembayaran",
-          "text": "Buka **Penjualan > Pembayaran Diterima**, klik pembayaran yang dimaksud. Detail menampilkan jumlah, status refund, dan tombol aksi."
+          "text": "Buka **Penjualan > Pembayaran Diterima**, klik pembayaran yang dimaksud. Detail menampilkan jumlah, status refund, dan tombol aksi. Menu **Pengembalian Dana** (halaman Refund) hanya daftar pembayaran yang sudah punya refund dan tidak punya tombol tambah; refund baru selalu dibuat dari detail pembayaran."
         },
         {
           "title": "Balik Pembayaran (koreksi salah catat)",
@@ -1064,7 +1064,8 @@
       ],
       "mistakes": [
         "Mengira refund membatalkan invoice atau mengembalikan piutang.",
-        "Mengharapkan finance_admin bisa refund. Hanya OWNER."
+        "Mengharapkan finance_admin bisa refund. Hanya OWNER.",
+        "Mencari tombol tambah refund di menu Pengembalian Dana. Mulailah dari detail pembayaran."
       ],
       "errors": [
         {
