@@ -9,9 +9,10 @@ const contacts = [
 ];
 
 describe("matchContacts", () => {
-  it("lists nothing until something is typed, so clicking into the field never opens the list", () => {
-    expect(matchContacts("", contacts, 2)).toEqual([]);
-    expect(matchContacts("   ", contacts, 2)).toEqual([]);
+  it("lists everything while nothing is typed, so clicking into the field shows what can be picked", () => {
+    expect(matchContacts("", contacts, 2)).toEqual(contacts);
+    expect(matchContacts("   ", contacts, 2)).toEqual(contacts);
+    expect(matchContacts(null, contacts, 2)).toEqual(contacts);
   });
 
   it("offers only names that start with a single typed character", () => {

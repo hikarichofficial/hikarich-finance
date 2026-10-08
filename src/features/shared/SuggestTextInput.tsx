@@ -1,15 +1,15 @@
 "use client";
 
 import { useId, useState, type ReactNode } from "react";
-import { exactTypeahead, hasTyped, matchTypeahead } from "@/domain/shared/typeahead";
+import { browseTypeahead, exactTypeahead, hasTyped } from "@/domain/shared/typeahead";
 
 const MAX_SHOWN = 8;
 
 /**
- * A text field you type in, with the names used before offered as you type (OWNER, 6 October 2026: the recipient of
+ * A text field you type in, with the names used before offered (OWNER, 6 October 2026: the recipient of
  * an expense is typed by hand, "akan muncul popup yang sesuai ketikan, dan akan bisa diklik dipilih"). It works like
- * the customer / vendor field on an invoice (`ContactPicker`): nothing opens when the field is only clicked, the list
- * appears from the first typed character and narrows as more is typed, an entry is picked by click or arrow keys +
+ * the customer / vendor field on an invoice (`ContactPicker`): clicking into an empty field lists the names used
+ * before (OWNER, 8 October 2026), the list narrows from the first typed character, an entry is picked by click or arrow keys +
  * Enter, and a name that is not on file offers "+ Tambah ... baru" as the last row.
  *
  * The difference is what "add" means. A contact is a record of its own; a recipient's name or a description is not --
@@ -49,11 +49,14 @@ export function SuggestTextInput({
   const [active, setActive] = useState(-1);
   const [added, setAdded] = useState<string | null>(null);
 
-  const matches = matchTypeahead(text, suggestions, (item) => item, MAX_SHOWN);
+  // An empty field lists the names used before; once something is typed the list narrows. A field that already
+  // holds a saved name opens its list only after it is edited.
+  const browsing = !hasTyped(text);
+  const matches = browseTypeahead(browsing ? "" : text, suggestions, (item) => item, MAX_SHOWN);
   const exact = exactTypeahead(text, suggestions, (item) => item);
   const showAdd = hasTyped(text) && exact === undefined;
   const rowCount = matches.length + (showAdd ? 1 : 0);
-  const open = focused && !dismissed && edited && hasTyped(text) && rowCount > 0;
+  const open = focused && !dismissed && (browsing || edited) && rowCount > 0;
 
   function select(value: string) {
     setText(value);
@@ -99,7 +102,11 @@ export function SuggestTextInput({
             setActive(-1);
             setAdded(null);
           }}
-          onFocus={() => setFocused(true)}
+          onFocus={() => {
+            setFocused(true);
+            setDismissed(false);
+          }}
+          onClick={() => setDismissed(false)}
           onBlur={() => setFocused(false)}
           onKeyDown={(event) => {
             if (!open) return;

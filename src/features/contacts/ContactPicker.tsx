@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useId, useRef, useState } from "react";
-import { exactTypeahead, hasTyped, matchTypeahead } from "@/domain/shared/typeahead";
+import { browseTypeahead, exactTypeahead, hasTyped } from "@/domain/shared/typeahead";
 
 export interface PickableContact {
   id: string;
@@ -10,23 +10,23 @@ export interface PickableContact {
 
 const MAX_SHOWN = 8;
 
-/** What to offer for what has been typed: names that start with it first, then (from two characters) names that
- * contain it. Nothing typed yet: nothing -- the list opens when the person starts typing, not when the field is
- * clicked (OWNER, 6 October 2026; `@/domain/shared/typeahead`). */
+/** What the list shows: everything that can be picked while nothing is typed (or the field shows the chosen name),
+ * then names that start with what is typed first and (from two characters) names that contain it. Clicking into the
+ * field opens the whole list so nobody has to remember what exists (OWNER, 8 October 2026;
+ * `@/domain/shared/typeahead`). */
 export function matchContacts(
-  typed: string,
+  typed: string | null,
   all: readonly PickableContact[],
   limit = MAX_SHOWN,
 ): PickableContact[] {
-  return matchTypeahead(typed, all, (item) => item.display_name, limit);
+  return browseTypeahead(typed, all, (item) => item.display_name, limit);
 }
 
 /**
- * Customer / vendor field you can type in (OWNER, 5 October 2026): start typing and the names that match appear
- * (nothing opens just because the field was clicked, OWNER, 6 October 2026), the list narrows as more is typed, then
- * click one or press Enter. A name that is not on file offers
- * "+ Tambah ... baru" as the last row (`onAddNew`, with what was typed), so adding someone never means leaving
- * the form. The chosen contact travels in a hidden input named `name`; the visible field only searches.
+ * Customer / vendor / category field you can pick from or type in (OWNER, 5 October 2026). Clicking into the field
+ * opens the whole list (OWNER, 8 October 2026: nobody should have to remember what exists), typing narrows it, then
+ * click one or press Enter. "+ Tambah ... baru" stays as the last row (`onAddNew`, with what was typed, if
+ * anything), so adding someone never means leaving the form. The chosen contact travels in a hidden input named `name`; the visible field only searches.
  */
 export function ContactPicker({
   label,
@@ -74,6 +74,12 @@ export function ContactPicker({
   const [dismissed, setDismissed] = useState(false);
   const [active, setActive] = useState(-1);
 
+  // Keep the arrow-key choice in view when the list is long enough to scroll.
+  useEffect(() => {
+    if (active >= 0)
+      document.getElementById(`${listId}-${active}`)?.scrollIntoView({ block: "nearest" });
+  }, [active, listId]);
+
   // The browser's own "required" check cannot see a hidden input, so the visible field carries the message.
   useEffect(() => {
     const unresolved = selectedId === "" && (!optional || hasTyped(typedText ?? ""));
@@ -86,13 +92,15 @@ export function ContactPicker({
     );
   }, [selectedId, noun, optional, typedText]);
 
-  const matches = matchContacts(text, contacts);
+  // While the field only shows the chosen name (nothing typed) the list is the whole reference list.
+  const matches = matchContacts(typedText, contacts);
   const exact = exactTypeahead(text, contacts, (contact) => contact.display_name);
-  const showAdd = onAddNew !== undefined && hasTyped(text) && !exact;
+  const typedNow = typedText !== null && hasTyped(typedText);
+  // The add row stays available; it is hidden only when what was typed is already on the list.
+  const showAdd = onAddNew !== undefined && !(typedNow && exact);
   const rowCount = matches.length + (showAdd ? 1 : 0);
-  // Open only once something has been typed: clicking into the field, or into a field that already shows its
-  // chosen name, shows no list (OWNER, 6 October 2026).
-  const open = focused && !dismissed && typedText !== null && hasTyped(typedText);
+  // Clicking into the field opens the list (OWNER, 8 October 2026).
+  const open = focused && !dismissed;
 
   function select(contact: PickableContact) {
     setInner(contact.id);
@@ -105,7 +113,7 @@ export function ContactPicker({
   function addNew() {
     setDismissed(true);
     setActive(-1);
-    onAddNew?.(text.trim());
+    onAddNew?.(typedNow ? text.trim() : "");
   }
 
   function chooseRow(index: number) {
@@ -144,6 +152,7 @@ export function ContactPicker({
             setFocused(true);
             setDismissed(false);
           }}
+          onClick={() => setDismissed(false)}
           onBlur={() => {
             setFocused(false);
             if (selectedId === "" && exact) select(exact);
@@ -156,11 +165,11 @@ export function ContactPicker({
             } else if (event.key === "ArrowUp") {
               event.preventDefault();
               setActive((index) => (rowCount === 0 ? -1 : index <= 0 ? rowCount - 1 : index - 1));
-            } else if (event.key === "Enter" && open) {
-              if (active >= 0) {
-                event.preventDefault();
-                chooseRow(active);
-              } else if (exact) {
+            } else if (event.key === "Enter" && open && active >= 0) {
+              event.preventDefault();
+              chooseRow(active);
+            } else if (event.key === "Enter" && open && typedNow) {
+              if (exact) {
                 event.preventDefault();
                 select(exact);
               } else if (matches.length === 1) {
@@ -181,15 +190,16 @@ export function ContactPicker({
               <p className="line-suggest-title">
                 {contacts.length === 0
                   ? `Belum ada ${noun}. Tambahkan yang pertama di bawah.`
-                  : `Tidak ada ${noun} dengan huruf itu.`}
+                  : `Tidak ada ${noun} dengan huruf itu. Ketik lain, atau tambah baru di bawah.`}
               </p>
             ) : (
               <ul id={listId} role="listbox">
                 {matches.map((contact, index) => (
                   <li
                     key={contact.id}
+                    id={`${listId}-${index}`}
                     role="option"
-                    aria-selected={index === active}
+                    aria-selected={index === active || contact.id === selectedId}
                     className={
                       index === active ? "line-suggest-item is-active" : "line-suggest-item"
                     }
@@ -215,7 +225,9 @@ export function ContactPicker({
                   addNew();
                 }}
               >
-                {`+ Tambah “${text.trim()}” sebagai ${noun} baru`}
+                {typedNow
+                  ? `+ Tambah “${text.trim()}” sebagai ${noun} baru`
+                  : `+ Tambah ${noun} baru`}
               </button>
             ) : null}
           </div>
