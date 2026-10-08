@@ -3067,8 +3067,9 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      (PPh 4(2)) for Sewa & Ruang Kerja. Later the same day the owner, overwhelmed by the monthly deposit and filing work, asked the app to be set up
      so routine purchases raise no question: Komunikasi & Internet, Software & Langganan, Hosting/Domain/Cloud and
      Pemasaran & Iklan also start as "Bukan objek potongan" (an assumption against PMK 141 for domestic vendors, to be
-     confirmed with the tax adviser, who also gives the vendor list that is withheld). (2) Only Jasa Profesional and
-     Produksi Konten stay empty and ask per line. (3) On expense and bill lines a
+     confirmed with the tax adviser, who also gives the vendor list that is withheld). (2) Only Jasa Profesional, Produksi
+     Konten and a new standard category "Influencer & Kontrak Besar" (owner: focus on the large items such as building rent
+     and big influencer contracts) stay empty and ask per line. (3) On expense and bill lines a
      category that settles the withholding shows only a note "Potongan PPh otomatis: ..." with a small "Ubah"; a line
      whose category does not settle it shows one column "Kena potongan PPh?" with five answers (not subject, PPh 23
      service, PPh 4(2) land/building rent, PPh 23 other rent, foreign vendor or not sure = review) and it is required

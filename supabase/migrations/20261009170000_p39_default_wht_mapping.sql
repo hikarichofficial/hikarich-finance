@@ -11,7 +11,8 @@
 --     hosting/data and advertising services as PPh 23 objects when the vendor is a domestic taxpayer; this default is
 --     an assumption to be confirmed with the tax adviser (the platforms bought from are mostly foreign).
 --   * Rent of land and/or building (wht_rent_land_building, PPh 4(2)): Sewa & Ruang Kerja.
---   * Left empty on purpose, so the line asks "Kena potongan PPh?": Jasa Profesional and Produksi Konten.
+--   * Left empty on purpose, so the line asks "Kena potongan PPh?": Jasa Profesional, Produksi Konten and the new
+--     Influencer & Kontrak Besar (owner: focus on the large items, such as building rent and big influencer contracts).
 -- This is a working assumption to be confirmed with the tax adviser; a line's own choice always wins over the
 -- category, and the category can be changed under Akuntansi > Kategori.
 --
@@ -42,6 +43,7 @@ begin
       ('company', 'revenue', 'Pendapatan Lainnya', 'OTHER_OPERATING_REVENUE', 90, null::text),
       ('company', 'expense', 'Pemasaran & Iklan', 'MARKETING_EXPENSE', 110, 'wht_none'),
       ('company', 'expense', 'Produksi Konten', 'CONTENT_PRODUCTION_EXPENSE', 120, null::text),
+      ('company', 'expense', 'Influencer & Kontrak Besar', 'MARKETING_EXPENSE', 125, null::text),
       ('company', 'expense', 'Software & Langganan', 'SOFTWARE_SUBSCRIPTION_EXPENSE', 130, 'wht_none'),
       ('company', 'expense', 'Hosting, Domain & Cloud', 'HOSTING_CLOUD_EXPENSE', 140, 'wht_none'),
       ('company', 'expense', 'Biaya Payment Gateway', 'PAYMENT_PROCESSING_COST', 150, 'wht_none'),
@@ -116,3 +118,6 @@ from public.entities e,
      ) as m (normalized_name, tax_key)
 where e.id = c.entity_id and e.entity_type = 'company'
   and c.kind = 'expense' and c.tax_category_key is null and c.normalized_name = m.normalized_name;
+
+-- The new standard category for the Entities that already exist (a name the Entity already has is left alone).
+select app_private.provision_default_categories(e.id) from public.entities e;

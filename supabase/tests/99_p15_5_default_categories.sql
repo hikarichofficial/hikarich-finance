@@ -26,8 +26,8 @@ begin
 
   -- 1. the standard set exists, revenue and expense, with the account each one posts to
   perform test_helpers.assert((select count(*) from public.categories where entity_id = e_co and kind = 'revenue') = 14
-    and (select count(*) from public.categories where entity_id = e_co and kind = 'expense') = 13,
-    '1.1 company: 14 revenue (5 standard + 9 for income without an invoice, decision 350) and 13 expense categories (her own Penjualan Produk counts as one of the revenue ones)');
+    and (select count(*) from public.categories where entity_id = e_co and kind = 'expense') = 14,
+    '1.1 company: 14 revenue (5 standard + 9 for income without an invoice, decision 350) and 14 expense categories (her own Penjualan Produk counts as one of the revenue ones)');
   perform test_helpers.assert(app_private.resolve_revenue_account(e_co,
       (select id from public.categories where entity_id = e_co and name = 'Penjualan E-book'), current_date)
     = (select id from public.ledger_accounts where entity_id = e_co and system_key = 'EBOOK_REVENUE'),
@@ -42,9 +42,9 @@ begin
   perform test_helpers.assert(
     (select count(*) from public.categories where entity_id = e_co and kind = 'expense' and tax_category_key = 'wht_none') = 10
     and (select tax_category_key from public.categories where entity_id = e_co and name = 'Sewa & Ruang Kerja') = 'wht_rent_land_building'
-    and (select count(*) from public.categories where entity_id = e_co and kind = 'expense' and tax_category_key is null) = 2
+    and (select count(*) from public.categories where entity_id = e_co and kind = 'expense' and tax_category_key is null) = 3
     and (select tax_category_key from public.categories where entity_id = e_co and name = 'Jasa Profesional') is null,
-    '1.4b company expense: 10 not-a-withholding-object, rent of land/building, and 2 left to the line (Jasa Profesional, Produksi Konten)');
+    '1.4b company expense: 10 not-a-withholding-object, rent of land/building, and 3 left to the line (Jasa Profesional, Produksi Konten, Influencer & Kontrak Besar)');
   perform test_helpers.assert(exists (select 1 from public.category_account_mappings m
       join public.categories c on c.id = m.category_id
       join public.ledger_accounts a on a.id = m.debit_ledger_account_id
