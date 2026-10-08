@@ -53,6 +53,11 @@
       "guide": "buat-biaya"
     },
     {
+      "want": "Bingung memilih Tagihan atau Beban",
+      "menu": "Sudah dibayar saat itu juga: Pembelian > Beban. Dibayar nanti: Pembelian > Tagihan",
+      "guide": "tagihan-atau-beban"
+    },
+    {
       "want": "Memindahkan uang antar rekening",
       "menu": "Kas & Bank > Transfer > Buat Transfer",
       "guide": "transfer-antar-rekening"
@@ -66,6 +71,11 @@
       "want": "Membayar atau melaporkan pajak",
       "menu": "Pajak > Pelaporan & Bukti",
       "guide": "bayar-pajak"
+    },
+    {
+      "want": "Melihat hasil dan perkiraan pajak penghasilan di luar PPh Final (forex, bunga, dividen)",
+      "menu": "Pajak > Ringkasan Pajak > Penghasilan di Luar PPh Final",
+      "guide": "penghasilan-di-luar-pph-final"
     },
     {
       "want": "Menambah rekening baru",
@@ -656,9 +666,9 @@
                 {
                   "kind": "step",
                   "actor": "anda",
-                  "title": "Owner mengisi Brand, Jenis Produk, dan Variant",
-                  "menu": "Administrasi > Konfigurasi SKU",
-                  "note": "Hanya Owner; staf cukup memilih dari daftar"
+                  "title": "Tambah Brand, Jenis Produk, dan Variant",
+                  "menu": "Penjualan > Produk & Jasa > Tambah Produk (atau Administrasi > Konfigurasi SKU)",
+                  "note": "Ketik di kolom Brand atau Jenis Produk lalu pilih + Tambah baru; hanya yang berizin SKU melihat tombolnya, yang lain memilih dari daftar"
                 }
               ]
             }
@@ -1073,7 +1083,7 @@
       "stage": "Tahap 2 · Penjualan",
       "title": "Ada Uang Masuk Tanpa Invoice: Catat Pendapatan",
       "summary": "Penjualan tunai, jasa yang dibayar langsung, komisi, bunga, atau dividen: cukup beberapa kolom, tanpa debit dan kredit, dan otomatis ikut laporan dan pajak.",
-      "guides": ["catat-pendapatan", "terima-pembayaran", "buat-terbitkan-invoice"],
+      "guides": ["catat-pendapatan", "penghasilan-di-luar-pph-final", "terima-pembayaran", "buat-terbitkan-invoice"],
       "items": [
         {
           "kind": "start",
@@ -1129,7 +1139,7 @@
           "kind": "step",
           "actor": "sistem",
           "title": "Jurnal dibuat otomatis dan saldo rekening bertambah",
-          "note": "Pendapatan usaha ikut dasar PPh Final 0,5%; bunga, dividen, dan sejenisnya tercatat tetapi tidak ikut"
+          "note": "Pendapatan usaha ikut dasar PPh Final 0,5%. Bunga, dividen, hasil forex, dan sejenisnya tercatat tetapi tidak ikut; hasilnya tampil di Pajak > Ringkasan Pajak > Penghasilan di Luar PPh Final"
         },
         {
           "kind": "choice",
@@ -1389,8 +1399,8 @@
       "id": "pengeluaran",
       "stage": "Tahap 3 · Pembelian",
       "title": "Mau Mencatat Pengeluaran atau Membayar Vendor: Pakai Menu yang Mana?",
-      "summary": "Pengeluaran yang sudah dibayar langsung dicatat sebagai Pengeluaran. Tagihan dari vendor dicatat sebagai Tagihan lalu dibayar.",
-      "guides": ["buat-biaya", "catat-tagihan-vendor", "bayar-tagihan-vendor"],
+      "summary": "Pengeluaran yang sudah dibayar langsung dicatat sebagai Pengeluaran (Beban), tanpa utang. Tagihan dari vendor menjadi utang usaha dulu, lalu dibayar dari halaman tagihan itu.",
+      "guides": ["tagihan-atau-beban", "buat-biaya", "catat-tagihan-vendor", "bayar-tagihan-vendor"],
       "items": [
         {
           "kind": "start",
@@ -1409,7 +1419,7 @@
                   "actor": "anda",
                   "title": "Catat Pengeluaran",
                   "menu": "Pembelian > Beban > Catat Pengeluaran",
-                  "note": "Pilih rekening pembayar, vendor atau nama penerima, isi baris, lampirkan struk, simpan sebagai Draf"
+                  "note": "Pilih rekening pembayar, vendor atau nama penerima, isi satu Jumlah sesuai struk (tanpa harga satuan), lampirkan struk, simpan sebagai Draf"
                 },
                 {
                   "kind": "step",
@@ -1420,7 +1430,8 @@
                 {
                   "kind": "step",
                   "actor": "sistem",
-                  "title": "Saldo rekening berkurang, biaya tercatat (nomor EXP)"
+                  "title": "Saldo rekening berkurang, biaya tercatat (nomor EXP)",
+                  "note": "Tidak ada utang usaha: sudah dibayar saat itu juga"
                 }
               ]
             },
@@ -1432,20 +1443,20 @@
                   "actor": "anda",
                   "title": "Catat Tagihan",
                   "menu": "Pembelian > Tagihan > Catat Tagihan",
-                  "note": "Isi vendor, tanggal, jatuh tempo, dan baris tagihan"
+                  "note": "Isi vendor, tanggal, jatuh tempo, dan satu Jumlah sesuai invoice per baris"
                 },
                 {
                   "kind": "step",
                   "actor": "anda",
                   "title": "Setujui Tagihan",
-                  "note": "Finance Staff menekan Ajukan; OWNER atau Finance Admin menyetujui. Utang usaha tercatat (nomor BILL)"
+                  "note": "Finance Staff menekan Ajukan; OWNER atau Finance Admin menyetujui. Biaya tercatat dan utang usaha bertambah (nomor BILL); saldo rekening belum berubah"
                 },
                 {
                   "kind": "step",
                   "actor": "anda",
                   "title": "Bayar Tagihan saat membayar",
                   "menu": "Pembelian > Tagihan > (klik tagihan Disetujui) > Bayar Tagihan",
-                  "note": "Saldo dan utang berkurang (nomor PAY)"
+                  "note": "Saldo rekening dan utang usaha berkurang (nomor PAY); biaya tidak bertambah lagi. Pembayaran Keluar hanya daftar riwayat"
                 }
               ]
             }
@@ -2238,6 +2249,7 @@
       "title": "Memantau Pajak: Di Mana Melihat Tenggat dan Posisi Pajak?",
       "summary": "Tempat memeriksa pajak secara rutin: Ringkasan Pajak, Kalender Pajak, posisi per masa, lalu Buku Pajak dan Aturan Pajak bila perlu penjelasan.",
       "guides": [
+        "penghasilan-di-luar-pph-final",
         "kalender-pajak",
         "posisi-ppn-pph",
         "buku-besar-pajak",
@@ -2257,6 +2269,13 @@
           "title": "Buka Ringkasan Pajak",
           "menu": "Pajak > Ringkasan Pajak",
           "note": "Lihat Kewajiban Terutang, Profil Pajak Entity, dan Tenggat Terdekat"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Lihat Penghasilan di Luar PPh Final",
+          "menu": "Pajak > Ringkasan Pajak > Penghasilan di Luar PPh Final",
+          "note": "Hasil bersih forex, bunga, dividen sejak 1 Januari dan perkiraan pajak 22% (asumsi, bukan final). Ditetapkan 1 Januari tahun berikutnya; SPT Tahunan 30 April"
         },
         {
           "kind": "choice",

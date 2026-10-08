@@ -3000,7 +3000,16 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      unchanged); a "Rinci per barang" tick brings quantity x unit price back, and unticking folds quantity x price
      into the amount. A draft that holds a quantity other than 1 opens in the detailed mode. The same applies to
      Catat Tagihan. Recurring templates keep their own columns. Answer given to the owner on the difference: a bill
-     (Tagihan) is money owed to a vendor, approving it creates an account payable and it is paid later through
-     Pembayaran Keluar; an expense (Beban / Pengeluaran) is paid at the moment it is recorded from a cash or bank
+     (Tagihan) is money owed to a vendor, approving it creates an account payable (the expense is booked at approval) and it is paid later with the
+     "Bayar Tagihan" button on the bill itself, which lowers the payable and the cash account and adds no further
+     expense (Pembayaran Keluar only lists those payments; it has no button for a new one); an expense (Beban / Pengeluaran) is paid at the moment it is recorded from a cash or bank
      account and has no payable. Confirmed in `confirm_expense` (Dr expense, Cr the paying account) versus bill
      approval (Dr expense, Cr accounts payable).
+
+354. **Guide, flow diagrams and PDF follow decisions 350-353 (owner request, 8 October 2026).** New guides: "Tagihan
+     atau Beban: Apa Bedanya" and "Melihat Penghasilan di Luar PPh Final"; the expense and bill guides now describe
+     the single amount; the flow diagrams "pengeluaran" (Beban versus Tagihan, with what each step does to the
+     payable and the cash account), "pantau-pajak", "pendapatan-tanpa-invoice" and "data-master" are updated and all
+     SVG files regenerated; the PDF's menu texts add Catat Pendapatan, the new Ringkasan Pajak card, the single
+     amount, and correct the earlier line that said a bill is paid "through Pembayaran Keluar" (it is paid from the
+     bill). The PDF is regenerated and given to the owner with this change.

@@ -110,6 +110,42 @@
       "related": ["pengaturan-pajak-awal", "catat-tagihan-vendor", "buat-biaya"]
     },
     {
+      "slug": "penghasilan-di-luar-pph-final",
+      "title": "Melihat Penghasilan di Luar PPh Final (Forex, Bunga, Dividen, Kripto)",
+      "summary": "Kartu di Ringkasan Pajak yang menunjukkan hasil bersih penghasilan di luar usaha sejak 1 Januari dan perkiraan pajaknya.",
+      "path": "Pajak > Ringkasan Pajak > Penghasilan di Luar PPh Final",
+      "who": "Melihat: tax.view. Kartu hanya membaca pembukuan dan tidak mengubah apa pun.",
+      "quick": "Pendapatan dari trading forex, bunga, dividen, kripto, dan sejenisnya dicatat lewat **Penjualan > Catat Pendapatan**, tidak ikut dasar PPh Final 0,5%, dan hasil bersihnya tampil di kartu ini dengan **perkiraan pajak 22%** yang berlabel asumsi.",
+      "steps": [
+        {
+          "title": "Catat penghasilannya dulu",
+          "text": "Untung trading, bunga, atau dividen dicatat di **Penjualan > Catat Pendapatan** dengan jenis di luar usaha, misalnya “Pendapatan Investasi Lainnya”. Rugi trading dan biaya broker belum punya menu khusus: catat lewat **Akuntansi > Jurnal > Jurnal Manual** dengan debit akun Laba/Rugi Trading Forex (rugi) atau Beban Komisi, Spread & Biaya Transaksi Broker (biaya), dan kredit rekening yang berkurang, supaya hasil bersihnya benar."
+        },
+        {
+          "title": "Buka Pajak > Ringkasan Pajak",
+          "text": "Kartu **Penghasilan di Luar PPh Final · (tahun)** menampilkan hasil bersih per jenis penghasilan sejak 1 Januari (untung dikurangi rugi dan biaya), total, dan **Perkiraan pajak tahun ini (22%)**. Tekan **Lihat per bulan** untuk rincian tiap bulan."
+        },
+        {
+          "title": "Memahami status Berjalan dan Ditetapkan",
+          "text": "Selama tahun berjalan, kartu berstatus **Berjalan** dan angkanya ikut bertambah setiap ada pencatatan. Hasil satu tahun ditetapkan otomatis pada **1 Januari tahun berikutnya** dan berstatus **Ditetapkan**. SPT Tahunan tetap jatuh tempo **30 April**. Tautan di bawah kartu membuka tahun lain."
+        }
+      ],
+      "result": [
+        "Anda melihat hasil bersih dan perkiraan pajak penghasilan di luar usaha tanpa menghitung manual. Tidak ada jurnal atau kewajiban pajak yang dicatat dari kartu ini."
+      ],
+      "rules": [
+        "Perkiraan memakai tarif 22% untuk badan (PT, koperasi, PT perorangan). Untuk jenis wajib pajak lain, tarif tidak diasumsikan.",
+        "Perkiraan belum memperhitungkan fasilitas, kompensasi rugi, pajak yang sudah dipotong pihak lain (misalnya bunga bank), maupun biaya usaha.",
+        "Penilaian ulang investasi yang belum direalisasi ditampilkan tetapi tidak dihitung.",
+        "Pembalikan atau pembatalan pencatatan otomatis mengubah hasilnya."
+      ],
+      "mistakes": [
+        "Menganggap perkiraan 22% sebagai angka final. Konfirmasikan dengan konsultan pajak sebelum SPT.",
+        "Mencatat rugi trading sebagai pendapatan negatif. Rugi dicatat lewat Jurnal Manual, bukan lewat Catat Pendapatan."
+      ],
+      "related": ["catat-pendapatan", "bayar-pajak", "kalender-pajak"]
+    },
+    {
       "slug": "piutang-lain",
       "title": "Cara Mencatat Piutang Lain (Pinjaman ke Pihak Lain)",
       "summary": "Mencatat uang yang Anda pinjamkan ke pihak lain di luar invoice penjualan, lalu mencatat penerimaan kembali.",
