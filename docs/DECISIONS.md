@@ -2912,3 +2912,19 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Entities with grant and deny overrides, an OWNER without MFA, a disabled membership and a disabled user. The
      second step (a per-statement Entity set for the policies) is still open and needs its own equivalent proof and
      its own owner confirmation.
+
+349. **Row-level-security policies ask once per statement (owner approval, 8 October 2026: "continue, as long as it
+     does not disturb the website").** Step 2 of decision 347/348. Before, a policy such as
+     `has_permission(entity_id, 'contacts.view')` ran the permission lookup for every candidate row (about 0,6 ms per
+     row). Now `app_authz.permitted_entities(key)` returns the Entities where the caller holds the permission, and
+     the 100 policies of the exact shape `has_permission(<column>, '<literal>')` use
+     `coalesce(column = any ((select permitted_entities(key))::uuid[]), false)`, which the planner evaluates once
+     per statement. `permitted_entities` is defined by `has_permission` itself (it asks it once for each active
+     membership of the caller), so it cannot disagree with it; `has_permission` is not rewritten, and policies of any
+     other shape (column-valued key, lookups inside EXISTS, `has_any_permission`, `shares_entity_with`) are left
+     as they are. Names, commands and roles of the policies are unchanged; `coalesce(..., false)` keeps "no Entity
+     means no permission" inside NOT/OR. Proof: `supabase/tests/99_p36_rls_permitted_entities.sql` (the list equals
+     `has_permission` for every role, user, Entity and permission, including grant/deny overrides, an OWNER without
+     MFA, a disabled membership and a disabled user; no per-row shape remains; real contacts are seen and refused
+     exactly as before), plus the whole existing authorization and isolation test suite unchanged. Measured after
+     decision 348 on production: `my_access()` 138 ms -> 3,6 ms with an identical answer.
