@@ -76,7 +76,7 @@ describe("tax determination sentences", () => {
       translateReason(
         'the tax determination of this expense needs review before it can be confirmed: Line 1 has no withholding classification: choose "not a withholding object" or the object on the line, or map its category.',
       ),
-    ).toContain("Baris 1 belum ditentukan objek potongan PPh-nya");
+    ).toContain("Baris 1 belum ditentukan kena PPh atau tidak");
   });
 
   it("translates the reasons and consequences shown on invoice and bill pages", () => {
@@ -84,7 +84,7 @@ describe("tax determination sentences", () => {
       translateReason(
         'Line 1 has no withholding classification: choose "not a withholding object" or the object on the line, or map its category.',
       ),
-    ).toContain("Baris 1 belum ditentukan objek potongan PPh-nya");
+    ).toContain("Baris 1 belum ditentukan kena PPh atau tidak");
     expect(
       translateReason(
         "No output VAT: the invoice total is unchanged and no tax liability is created.",
@@ -93,7 +93,7 @@ describe("tax determination sentences", () => {
       "Tidak ada PPN keluaran: total invoice tidak berubah dan tidak ada kewajiban pajak yang timbul.",
     );
     expect(translateReason("Nothing is withheld: the vendor is owed the full amount.")).toContain(
-      "Tidak ada yang dipotong",
+      "Tidak ada PPh yang ditambahkan",
     );
   });
 
@@ -113,6 +113,11 @@ describe("tax determination sentences", () => {
         "30000 is withheld from the payee: the vendor is owed that much less, and it is credited to Tax Payables and accrues in the PPh 23 ledger for 2026-10. The gross expense is unchanged.",
       ),
     ).toContain("buku PPh 23 untuk masa 2026-10");
+    expect(
+      translateReason(
+        "30000 is a tax cost of the company, paid to the tax office apart from the vendor: the vendor is paid in full, the amount is credited to Tax Payables, booked as a tax expense on top of the purchase and accrues in the PPh 23 ledger for 2026-10.",
+      ),
+    ).toContain("beban pajak PT yang dibayar ke negara terpisah dari vendor");
   });
   it("translates the engine's step-by-step explanation", () => {
     expect(

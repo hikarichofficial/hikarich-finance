@@ -282,7 +282,7 @@ START_STEPS = [
      "setelah disetujui menjadi utang usaha, lalu dibayar dengan tombol <b>Bayar Tagihan</b> di halaman tagihan itu "
      "(Pembayaran Keluar hanya daftar riwayatnya).", "end"),
     ("<b>Pembayaran pajak</b> (menu Pajak &rarr; Pelaporan &amp; Bukti): cek dulu posisi terutang di PPN, "
-     "Pemotongan PPh, atau PPh Final, lalu rekam pembayaran dari rekening kas/bank, rekam laporan SPT, dan "
+     "PPh Vendor, atau PPh Final, lalu rekam pembayaran dari rekening kas/bank, rekam laporan SPT, dan "
      "lampirkan bukti.", "end"),
 ]
 
@@ -328,8 +328,10 @@ SECTIONS = [
  "Halaman pertama yang tampil setelah masuk ke sebuah Entity. Memberi ikhtisar cepat "
  "posisi keuangan Entity yang sedang aktif sebelum pengguna masuk ke modul lain.",
  [("Ringkasan", "/",
-   "Ikhtisar singkat: saldo kas/bank, piutang & utang yang akan/jatuh tempo, serta pintasan ke tugas yang "
-   "paling sering dipakai. Tidak mengubah data apa pun — murni tampilan baca.", "")]
+   "Ikhtisar satu layar: kartu angka (kas &amp; bank, pendapatan, beban, laba, piutang, utang), <b>Tren Arus Kas</b> "
+   "dan kartu <b>Pendapatan</b> serta <b>Beban</b> berupa grafik enam bulan. Arahkan kursor ke titik atau batang "
+   "untuk melihat angka pastinya, klik untuk membuka laporan bulan itu. Ada juga ringkasan pajak, tenggat terdekat, "
+   "dan daftar Perlu Perhatian. Tidak mengubah data apa pun — murni tampilan baca.", "")]
 ),
 
 ("2", "Penjualan (Sales)",
@@ -453,23 +455,27 @@ SECTIONS = [
 ),
 
 ("6", "Pajak (Tax)",
- "Pusat kepatuhan pajak Entity: posisi PPN, pemotongan PPh, PPh Final UMKM, kalender jatuh tempo, "
+ "Pusat kepatuhan pajak Entity: posisi PPN, PPh Vendor, PPh Final UMKM, kalender jatuh tempo, "
  "pencatatan pelaporan & pembayaran, serta aturan tarif resmi.",
  [
   ("Ringkasan Pajak", "/tax",
-   "Halaman utama modul Pajak: perkiraan PPh Final bulan berjalan, kartu <b>Penghasilan di Luar PPh Final</b> "
-   "(hasil bersih forex, bunga, dividen, kripto sejak 1 Januari per jenis dan per bulan, ditambah perkiraan pajak "
-   "22% yang berlabel asumsi; tahun ditetapkan 1 Januari tahun berikutnya, SPT Tahunan 30 April), profil pajak "
-   "Entity, dokumen yang menunggu tinjauan, pajak yang terutang, dan tenggat waktu terdekat.", "173,352"),
+   "Halaman utama modul Pajak, berisi angka lebih dulu daripada kalimat. Empat kartu: <b>Total terutang</b>, "
+   "<b>PPh Final bulan ini</b> (perkiraan), <b>Perkiraan PPh</b> tahun berjalan, dan <b>Perlu ditinjau</b>. Di "
+   "bawahnya grafik <b>Beban pajak per bulan</b> (arahkan kursor untuk jumlah, klik untuk membuka Buku Pajak bulan "
+   "itu), kartu <b>Penghasilan di Luar PPh Final</b> (hasil bersih forex, bunga, dividen, kripto sejak 1 Januari "
+   "dengan perkiraan pajak 22% berlabel asumsi; ditetapkan 1 Januari tahun berikutnya, SPT Tahunan 30 April), batang "
+   "<b>Terutang per jenis</b>, dan kartu <b>Tenggat terdekat</b>. Profil pajak Entity tampil sebagai label singkat "
+   "di bagian atas.", "173,352"),
   ("Buku Pajak", "/tax/ledger",
-   "Daftar seluruh transaksi berpajak (PPN, pemotongan PPh, PPh Final), bisa disaring per jenis pajak, periode, "
+   "Daftar seluruh transaksi berpajak (PPN, PPh Vendor, PPh Final), bisa disaring per jenis pajak, periode, "
    "sumber dokumen, dan status.", "91,173"),
   ("PPh Final", "/tax/pph-final",
    "Perhitungan PPh Final UMKM 0,5% dari omzet bulanan. Pilih bulan, lihat pratinjau, lalu hitung resmi. Jika "
    "dihitung ulang, sistem hanya membukukan selisihnya, tidak dobel.", "97,234"),
-  ("Pemotongan PPh", "/tax/withholding",
-   "Posisi PPh 23 (jasa), PPh 4 ayat (2) (sewa tanah/bangunan), dan PPh 26 (ke luar negeri) yang telah dipotong. "
-   "Dihitung otomatis dari tagihan/beban yang relevan, tidak perlu hitung manual.", "91,93,235,256"),
+  ("PPh Vendor", "/tax/withholding",
+   "Posisi PPh 23 (jasa dan sewa), PPh 4 ayat (2) (sewa tanah/bangunan), dan PPh 26 (ke luar negeri) atas pembelian "
+   "dari vendor. Vendor dibayar penuh; PPh adalah <b>beban pajak PT</b> di atas harga dan dibayar terpisah ke negara. "
+   "Dihitung otomatis dari tagihan/beban yang relevan, tidak perlu hitung manual.", "91,93,235,256,362"),
   ("PPN", "/tax/ppn",
    "Posisi PPN keluaran (dari penjualan) dan PPN masukan (dari pembelian, yang bisa dikreditkan) untuk tiap "
    "periode pajak.", "91,92,235"),
@@ -716,13 +722,13 @@ FLOWS = [
 
 ("Alur Diagram Pelaporan & Pembayaran Pajak", [
     ("Transaksi (invoice/tagihan/beban) dibuat dengan data pajak di setiap baris.", "normal"),
-    ("Dokumen diposting &rarr; mesin pajak otomatis menentukan PPN keluaran/masukan atau pemotongan PPh yang relevan.", "normal"),
+    ("Dokumen diposting &rarr; mesin pajak otomatis menentukan PPN keluaran/masukan atau PPh (beban pajak PT) yang relevan.", "normal"),
     ("Jika data belum lengkap &rarr; status “Perlu Ditinjau”; belum diakui dalam posisi pajak sampai ditinjau "
      "atau di-override manual (dengan alasan &amp; bukti).", "alt"),
     ("Hasil tercatat permanen di Buku Pajak dan tidak pernah diubah langsung &mdash; koreksi hanya lewat pembatalan "
      "atau pembalikan dokumen sumbernya. (PPh Final UMKM dihitung terpisah tiap bulan lewat menu PPh Final, "
      "bukan otomatis per dokumen.)", "normal"),
-    ("Di akhir periode: cek posisi terutang pada Pemotongan PPh / PPN / PPh Final.", "normal"),
+    ("Di akhir periode: cek posisi terutang pada PPh Vendor / PPN / PPh Final.", "normal"),
     ("<b>Lapor</b>: rekam di Pelaporan &amp; Bukti &mdash; tanggal, nomor bukti terima, DPP, jumlah (bisa dibetulkan "
      "tanpa menghapus data lama).", "normal"),
     ("<b>Bayar</b>: rekam pembayaran dari rekening kas/bank; PPN otomatis dikompensasi dengan kredit PPN masukan.", "normal"),

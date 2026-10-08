@@ -104,19 +104,20 @@
         },
         {
           "title": "Isi baris pengeluaran",
-          "text": "Untuk tiap baris: **Deskripsi** (klik untuk saran; jumlah terakhir terisi otomatis bila nama sama), **Jumlah (sesuai struk)**, **Perlakuan**, dan **Kategori**. Cukup isi satu jumlah sesuai struk atau total harga, misalnya “Pembelian makanan” Rp 300.000 tanpa memecah per menu. Centang **Rinci per barang** bila memang perlu kolom **Kuantitas** dan **Harga Satuan** (desimal boleh koma atau titik).\n\n**Perlakuan**: “Beban” (bawaan, biaya langsung), “Aset” (pembelian barang yang dicatat sebagai aset tetap), atau “Dibayar di Muka”. Kategori yang tampil menyesuaikan perlakuan.\n\n**Kategori** bekerja seperti kolom pelanggan: ketik namanya lalu pilih dari daftar. Bila belum ada, pilih **+ Tambah kategori baru** di bawah daftar, simpan, dan kategori itu langsung terpilih. Kategori baru dicatat ke akun bawaan; untuk memetakannya ke akun tertentu buka Akuntansi > Kategori.\n\nKolom pajak per baris: **Kena potongan PPh?** (sudah terisi otomatis sesuai kategori), kotak **Sudah termasuk PPN 11%** di bawah jumlah (PPN dihitung otomatis, tidak diketik), dan **No. Faktur Pajak** (hanya bila vendor memberi faktur)."
+          "text": "Untuk tiap baris: **Deskripsi** (klik untuk saran; jumlah terakhir terisi otomatis bila nama sama), **Jumlah (sesuai struk)**, **Perlakuan**, dan **Kategori**. Cukup isi satu jumlah sesuai struk atau total harga, misalnya “Pembelian makanan” Rp 300.000 tanpa memecah per menu. Centang **Rinci per barang** bila memang perlu kolom **Kuantitas** dan **Harga Satuan** (desimal boleh koma atau titik).\n\n**Perlakuan**: “Beban” (bawaan, biaya langsung), “Aset” (pembelian barang yang dicatat sebagai aset tetap), atau “Dibayar di Muka”. Kategori yang tampil menyesuaikan perlakuan.\n\n**Kategori** bekerja seperti kolom pelanggan: ketik namanya lalu pilih dari daftar. Bila belum ada, pilih **+ Tambah kategori baru** di bawah daftar, simpan, dan kategori itu langsung terpilih. Kategori baru dicatat ke akun bawaan; untuk memetakannya ke akun tertentu buka Akuntansi > Kategori.\n\nKolom pajak per baris: **Kena PPh?** (sudah terisi otomatis sesuai kategori dan vendor), kotak **Sudah termasuk PPN 11%** di bawah jumlah (PPN dihitung otomatis, tidak diketik), dan **No. Faktur Pajak** (hanya bila vendor memberi faktur)."
         },
         {
-          "title": "Potongan PPh per baris",
-          "text": "Pemotong Pajak PT di menu Pajak bernilai Ya, jadi tiap baris perlu tahu apakah pembayarannya dipotong PPh. **PPN yang ditagih vendor adalah pajak yang berbeda** dari potongan PPh, jadi PPN tidak otomatis berarti PPh tidak berlaku.\n\n**Kategori rutin** terisi otomatis dan hanya tampil sebagai catatan “Potongan PPh otomatis”. **Bukan objek potongan**: Biaya Bank, Biaya Payment Gateway, Gaji & Tunjangan, Kantor & Umum, Perlengkapan & Peralatan Kecil, Makan/Minum & Representasi, Perjalanan & Transportasi, Ekspedisi & Pengiriman, Pajak/Perizinan & Biaya Pemerintah, Asuransi, Pengeluaran Operasional Lainnya, Komunikasi & Internet, Software & Langganan, Hosting/Domain/Cloud, dan Pemasaran & Iklan. **Pasti kena potongan**: Sewa & Ruang Kerja (PPh 4(2) sewa tanah/bangunan), Sewa Kendaraan & Peralatan (PPh 23), Jasa Konsultan & Manajemen, Jasa Hukum/Akuntan/Notaris, Jasa Teknik & Pemeliharaan, Jasa Konstruksi & Renovasi, Jasa Kebersihan/Keamanan/Tenaga Kerja, Katering & Konsumsi Acara, dan Royalti & Hak Cipta. Pembelian **Aset/peralatan** (kolom Perlakuan = Aset) otomatis tidak kena potongan. Pengaturan ini asumsi awal yang perlu dikonfirmasi ke konsultan pajak, dan bisa diubah per kategori di **Akuntansi > Kategori** atau per baris lewat tombol **Ubah**.\n\nKolom **Kena potongan PPh?** selalu tampil di tiap baris dan **sudah terisi otomatis sesuai kategori** (kategori rutin: tidak kena; kategori jasa tertentu: sesuai jenisnya). Anda cukup mengubahnya bila memang berbeda, misalnya jasa dari vendor yang dipotong PPh 23. **Bila tidak dipilih, baris dihitung tidak kena PPh.** Untuk kategori Jasa Profesional, Produksi Konten, dan Influencer & Kontrak Besar, jawab sesuai vendornya; pilihan ‘Vendor luar negeri atau belum yakin’ membuat baris ditinjau dulu. Tarif dan jumlah potongan selalu dihitung aplikasi, tidak diketik."
+          "title": "PPh sebagai beban pajak PT",
+          "text": "Pemotong Pajak PT di menu Pajak bernilai Ya, jadi tiap baris perlu tahu apakah pembeliannya kena PPh. Cara kerjanya: **vendor atau penerima dibayar penuh sesuai nominal**. PPh yang kena menjadi **beban pajak PT di atas harga** dan dibayar **terpisah ke negara**. Biaya PT jadi lebih besar dari nominal, tetapi uang ke vendor tidak dikurangi. **PPN yang ditagih vendor adalah pajak yang berbeda** dari PPh, jadi PPN tidak otomatis berarti PPh tidak berlaku.\n\nContoh: jasa desain Rp 10.000.000 dari vendor dalam negeri, kena PPh 23 sebesar 2%. Vendor menerima Rp 10.000.000, PPh Rp 200.000 dibayar terpisah ke negara, total biaya PT Rp 10.200.000.\n\n**Kategori rutin** terisi otomatis dan tampil sebagai catatan “PPh otomatis”. **Bukan objek PPh**: Biaya Bank, Biaya Payment Gateway, Gaji & Tunjangan, Kantor & Umum, Perlengkapan & Peralatan Kecil, Makan/Minum & Representasi, Perjalanan & Transportasi, Pajak/Perizinan & Biaya Pemerintah, Asuransi, dan Pengeluaran Operasional Lainnya. **Kena PPh 23 untuk vendor dalam negeri (2% dari harga sebelum PPN)**: Komunikasi & Internet, Software & Langganan, Hosting/Domain/Cloud, Pemasaran & Iklan, serta Ekspedisi & Pengiriman. **Pasti kena PPh**: Sewa & Ruang Kerja (PPh 4(2) sewa tanah/bangunan), Sewa Kendaraan & Peralatan (PPh 23), Jasa Konsultan & Manajemen, Jasa Hukum/Akuntan/Notaris, Jasa Teknik & Pemeliharaan, Jasa Konstruksi & Renovasi, Jasa Kebersihan/Keamanan/Tenaga Kerja, Katering & Konsumsi Acara, dan Royalti & Hak Cipta. Pembelian **Aset/peralatan** (kolom Perlakuan = Aset) otomatis tidak kena PPh. Pengaturan ini asumsi awal yang perlu dikonfirmasi ke konsultan pajak, dan bisa diubah per kategori di **Akuntansi > Kategori** atau per baris lewat tombol **Ubah**.\n\n**Vendor luar negeri** (langganan software, iklan Google atau Meta, hosting luar negeri): PPh 23 hanya untuk vendor dalam negeri. Bila vendor ditandai **Domisili Pajak luar negeri** di Data Pajak, kolom **Kena PPh?** otomatis menjawab **Tidak kena PPh** dan baris tidak tertahan. Perlakuan PPh 26 dan PPN luar negeri (PMSE atau PPN jasa luar negeri) perlu dikonfirmasi ke konsultan pajak.\n\nKolom **Kena PPh?** selalu tampil di tiap baris dan **sudah terisi otomatis** sesuai kategori dan vendor. Anda cukup mengubahnya bila memang berbeda. **Bila tidak dipilih, baris dihitung tidak kena PPh.** Untuk kategori Jasa Profesional, Produksi Konten, dan Influencer & Kontrak Besar, jawab sesuai vendornya; pilihan ‘Vendor luar negeri atau belum yakin’ membuat baris ditinjau dulu. Tarif dan jumlah PPh selalu dihitung aplikasi, tidak diketik.",
+          "warning": "Apakah PPh yang ditanggung PT ini boleh menjadi biaya pengurang pajak, dan apakah dianggap tambahan penghasilan bagi vendor, belum dipastikan. Konfirmasikan dengan konsultan pajak."
         },
         {
           "title": "Struk sudah termasuk PPN",
-          "text": "Ketik **jumlah di struk apa adanya**. Bila struk memuat PPN, centang **Sudah termasuk PPN 11%** di bawah jumlah. Aplikasi menghitung sendiri **harga sebelum PPN** dan **PPN** (contoh: struk Rp 397.000 menjadi Rp 357.658 + PPN Rp 39.342), jadi **tidak ada kolom PPN yang diisi manual**, dan potongan PPh dihitung dari harga sebelum PPN, bukan dari angka struk. Kotak ini hanya muncul untuk baris berjumlah 1. Kolom **No. Faktur Pajak** tetap ada untuk PT yang PKP; bila PT belum PKP, PPN dicatat sebagai bagian dari biaya.\n\nPPN di struk adalah **PPN dari vendor atau restoran**, bukan pajak yang Anda setor atau laporkan. Di kartu **Baris** halaman pengeluaran (dan tagihan) ada kolom **PPN** per baris, **Harga sebelum PPN**, serta ringkasan di bawah tabel: PPN dari vendor (bagian dari biaya perusahaan bila PT belum PKP) dan PPh yang dipotong, yang masuk ke Pajak > Pemotongan PPh setelah dicatat."
+          "text": "Ketik **jumlah di struk apa adanya**. Bila struk memuat PPN, centang **Sudah termasuk PPN 11%** di bawah jumlah. Aplikasi menghitung sendiri **harga sebelum PPN** dan **PPN** (contoh: struk Rp 397.000 menjadi Rp 357.658 + PPN Rp 39.342), jadi **tidak ada kolom PPN yang diisi manual**, dan PPh dihitung dari harga sebelum PPN, bukan dari angka struk. Kotak ini hanya muncul untuk baris berjumlah 1. Kolom **No. Faktur Pajak** tetap ada untuk PT yang PKP; bila PT belum PKP, PPN dicatat sebagai bagian dari biaya.\n\nPPN di struk adalah **PPN dari vendor atau restoran**, bukan pajak yang Anda setor atau laporkan. Di kartu **Baris** halaman pengeluaran (dan tagihan) ada kolom **PPN** per baris, **Harga sebelum PPN**, serta tiga angka di bawah tabel: **Dibayar ke vendor** (sudah termasuk PPN dari vendor), **PPh ke negara** (beban pajak PT di atas harga, dibayar terpisah), dan **Total biaya PT** (keduanya). PPh itu masuk ke Pajak > PPh Vendor setelah dicatat.\n\nBila PT belum PKP, PPN dari vendor tidak bisa dikreditkan dan **menjadi bagian dari biaya**. PT tidak menyetor “selisih PPN” ke negara, karena PT memang tidak memungut PPN dari penjualannya. Hanya PT yang PKP menyetor PPN keluaran dikurangi PPN masukan."
         },
         {
           "title": "Bila simpan atau ajukan ditolak",
-          "text": "Pesan merah menyebut **baris dan kolom yang harus diubah** (misalnya “Baris 2 · Kena potongan PPh?”). Di formulir, kolom itu **ditandai merah** lengkap dengan petunjuk singkat di bawahnya; tanda merah hilang begitu kolom disentuh atau diisi. Bila penolakan terjadi dari halaman rincian (Ajukan atau Setujui), tombol **Buka formulir** membawa Anda ke draf dengan kolom bermasalah sudah merah. Setelah menekan simpan, baris yang baru separuh terisi (deskripsi tanpa jumlah atau sebaliknya) juga ditandai merah."
+          "text": "Pesan merah menyebut **baris dan kolom yang harus diubah** (misalnya “Baris 2 · Kena PPh?”). Di formulir, kolom itu **ditandai merah** lengkap dengan petunjuk singkat di bawahnya; tanda merah hilang begitu kolom disentuh atau diisi. Bila penolakan terjadi dari halaman rincian (Ajukan atau Setujui), tombol **Buka formulir** membawa Anda ke draf dengan kolom bermasalah sudah merah. Setelah menekan simpan, baris yang baru separuh terisi (deskripsi tanpa jumlah atau sebaliknya) juga ditandai merah."
         },
         {
           "title": "Isi Catatan dan tekan Simpan sebagai Draf",
@@ -144,7 +145,7 @@
       ],
       "result": [
         "Saldo rekening berkurang dan muncul sebagai pengeluaran di Mutasi Kas & Bank.",
-        "Bila ada PPh potongan, kas keluar sebesar total dikurangi PPh dan PPh dicatat sebagai Utang Pajak. PPN masukan yang bisa dikreditkan masuk ke aset pajak."
+        "Bila ada PPh, kas keluar sebesar total penuh ke penerima. PPh dicatat terpisah sebagai Utang Pajak ke negara sekaligus beban pajak PT (akun Denda & Beban Pajak Lainnya). PPN masukan yang bisa dikreditkan masuk ke aset pajak."
       ],
       "rules": [
         "Harus ada Vendor atau Nama Penerima. Total harus lebih dari nol.",
@@ -250,7 +251,7 @@
         },
         {
           "title": "Isi baris tagihan",
-          "text": "Sama seperti pengeluaran: **Deskripsi**, **Jumlah (sesuai invoice)** (centang **Rinci per barang** untuk Kuantitas dan Harga Satuan), **Perlakuan** (Beban, Aset, Dibayar di Muka), **Kategori**, serta kolom pajak **Kena potongan PPh?** (terisi otomatis sesuai kategori), kotak **Sudah termasuk PPN 11%** (PPN dihitung otomatis), dan **No. Faktur Pajak**. Potongan PPh dan PPN dihitung otomatis dari isian pajak tiap baris dan Data Pajak vendor; hasilnya terlihat di halaman tagihan sebelum disetujui.\n\nPenting: **Kena potongan PPh?** sudah terisi dari kategori; bila tidak dipilih, baris dihitung **tidak kena PPh**. Ubah hanya bila vendor memang dipotong (misalnya jasa dari vendor dalam negeri, atau pilih “belum yakin” agar ditinjau dulu)."
+          "text": "Sama seperti pengeluaran: **Deskripsi**, **Jumlah (sesuai invoice)** (centang **Rinci per barang** untuk Kuantitas dan Harga Satuan), **Perlakuan** (Beban, Aset, Dibayar di Muka), **Kategori**, serta kolom pajak **Kena PPh?** (terisi otomatis sesuai kategori dan vendor), kotak **Sudah termasuk PPN 11%** (PPN dihitung otomatis), dan **No. Faktur Pajak**. PPh dan PPN dihitung otomatis dari isian pajak tiap baris dan Data Pajak vendor; hasilnya terlihat di halaman tagihan sebelum disetujui. Vendor dibayar **penuh**; PPh-nya adalah **beban pajak PT** yang dibayar terpisah ke negara.\n\nPenting: **Kena potongan PPh?** sudah terisi dari kategori; bila tidak dipilih, baris dihitung **tidak kena PPh**. Ubah hanya bila vendor memang kena PPh (misalnya jasa dari vendor dalam negeri, atau pilih “belum yakin” agar ditinjau dulu). Vendor yang Domisili Pajaknya luar negeri otomatis menjawab **Tidak kena PPh**."
         },
         {
           "title": "Simpan sebagai Draf",
@@ -285,7 +286,7 @@
       ],
       "result": [
         "Utang usaha naik dan beban atau aset tercatat. Kas tidak berubah sampai tagihan dibayar.",
-        "Bila ada PPh potongan, Utang Usaha sebesar total dikurangi PPh dan sisanya masuk Utang Pajak. PPN masukan yang dikreditkan masuk aset pajak."
+        "Bila ada PPh, Utang Usaha sebesar total penuh. PPh dicatat terpisah sebagai Utang Pajak ke negara sekaligus beban pajak PT. PPN masukan yang dikreditkan masuk aset pajak."
       ],
       "rules": [
         "Tanggal tagihan tidak boleh di masa depan saat disetujui.",
@@ -298,8 +299,8 @@
       "mistakes": [
         "Mengira Simpan sebagai Draf sudah menambah utang.",
         "Mengisi tanggal tagihan di masa depan.",
-        "Mengisi PPN atau objek potongan PPh padahal mesin pajak belum aktif atau Data Pajak vendor kosong.",
-        "Membandingkan Total di daftar (bersih dari potongan PPh) dengan header detail (bruto)."
+        "Mengisi PPN atau isian PPh padahal mesin pajak belum aktif atau Data Pajak vendor kosong.",
+        "Mengira PPh mengurangi pembayaran ke vendor. Vendor dibayar penuh; PPh ditanggung PT dan dibayar terpisah ke negara."
       ],
       "errors": [
         {
@@ -327,7 +328,7 @@
       "summary": "Mencatat pembayaran atas tagihan yang sudah disetujui, penuh atau sebagian, dan membalikkannya bila salah.",
       "path": "Pembelian > Tagihan > (klik tagihan Disetujui) > Bayar Tagihan",
       "who": "Izin bayar (bills.pay): OWNER dan Finance Admin. Finance Staff dan Approver tidak bisa.",
-      "quick": "Tidak ada form pembayaran mandiri. Pembayaran dimulai dari detail tagihan. Jumlah yang dibayar adalah sisa tagihan (bersih dari PPh potongan).",
+      "quick": "Tidak ada form pembayaran mandiri. Pembayaran dimulai dari detail tagihan. Jumlah yang dibayar ke vendor adalah sisa tagihan sebesar total penuh; PPh dibayar terpisah ke negara lewat menu Pajak.",
       "steps": [
         {
           "title": "Buka tagihan berstatus Disetujui",
@@ -377,14 +378,14 @@
       ],
       "rules": [
         "Pembayaran lebih dari sisa ditolak. Uang muka ke vendor belum didukung.",
-        "Jumlah yang dibayar adalah total dikurangi PPh potongan.",
+        "Jumlah yang dibayar adalah total tagihan penuh; PPh tidak dikurangkan dari pembayaran ke vendor.",
         "Saldo rekening bank yang akan menjadi negatif ditolak.",
         "Satu pembayaran dari layar mengalokasikan ke satu tagihan.",
         "Tagihan yang sudah dibayar tidak bisa di-void sebelum pembayarannya dibalik."
       ],
       "mistakes": [
         "Mencari tombol “Pembayaran baru” di Pembayaran Keluar. Mulailah dari detail tagihan.",
-        "Memasukkan jumlah bruto padahal ada PPh potongan.",
+        "Mengurangi sendiri jumlah pembayaran karena ada PPh. Jangan: vendor dibayar penuh dan PPh dibayar terpisah ke negara.",
         "Membayar dari rekening bank yang saldonya kurang."
       ],
       "errors": [
@@ -500,7 +501,7 @@
       "result": ["Baca saja; tidak ada jurnal."],
       "rules": [
         "Tagihan draf atau menunggu persetujuan tidak masuk Umur Utang.",
-        "Sisa tagihan sudah bersih dari PPh potongan."
+        "Sisa tagihan sebesar total penuh; PPh tidak mengurangi pembayaran ke vendor."
       ],
       "mistakes": [
         "Mengira pembayaran sebagian menghapus tagihan dari daftar. Tagihan tetap tampil dengan sisa.",

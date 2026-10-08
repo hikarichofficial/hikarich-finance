@@ -24,7 +24,7 @@ function TaxKeyOptions() {
           </option>
         ))}
       </optgroup>
-      <optgroup label="Pembelian (potongan PPh)">
+      <optgroup label="Pembelian (PPh)">
         {Object.entries(WHT_OBJECT_LABELS).map(([value, label]) => (
           <option key={value} value={value}>
             {label}

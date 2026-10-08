@@ -98,7 +98,7 @@ export function ExpenseDetailScreen({
           <div>
             <dt>Harga sebelum PPN</dt>
             <dd>{money(expense.subtotal)}</dd>
-            <p className="record-summary-note">Dasar menghitung potongan PPh.</p>
+            <p className="record-summary-note">Dasar menghitung PPh.</p>
           </div>
           <div>
             <dt>PPN dari vendor</dt>
@@ -226,6 +226,7 @@ export function ExpenseDetailScreen({
           <LineTaxSummaryBlock
             summary={taxSummary}
             currency={expense.currency}
+            total={expense.total}
             detailHref={
               expense.status === "draft" || expense.status === "submitted"
                 ? undefined

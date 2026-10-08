@@ -9,10 +9,10 @@ describe("lineTaxSummary", () => {
         vat_input_cost: "42293",
         withheld_total: "0",
       }),
-    ).toEqual({ vatCharged: "42293", vatCreditable: "0", vatCost: "42293", withheld: "0" });
+    ).toEqual({ vatCharged: "42293", vatCreditable: "0", vatCost: "42293", incomeTax: "0" });
   });
 
-  it("reads the recorded determinations in force: VAT not credited stays a cost, withholding adds up", () => {
+  it("reads the recorded determinations in force: VAT not credited stays a cost, income tax adds up", () => {
     const summary = summaryFromDeterminations("42293.0000", [
       { tax_kind: "vat_input", tax_amount: "0", superseded_at: null },
       { tax_kind: "wht_pph23", tax_amount: "7000", superseded_at: null },
@@ -20,7 +20,7 @@ describe("lineTaxSummary", () => {
     ]);
     expect(summary.vatCost).toBe("42293.0000");
     expect(summary.vatCreditable).toBe("0.0000");
-    expect(summary.withheld).toBe("7000.0000");
+    expect(summary.incomeTax).toBe("7000.0000");
   });
 
   it("splits VAT between credited and cost for a PKP company", () => {

@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
-import { listContacts } from "@/services/contacts/contacts";
+import { listContacts, listNonResidentContactIds } from "@/services/contacts/contacts";
 import { getWithholdingAgent } from "@/services/tax/tax";
 import { listActiveCategories } from "@/services/accounting/categories";
 import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
@@ -19,7 +19,7 @@ export default async function NewExpensePage({
 }) {
   const { entity } = await searchParams;
   const { membership } = await requirePermission("bills.create", { entityCode: entity });
-  const [accounts, contacts, categories, suggestions, payeeSuggestions, whtAgent] =
+  const [accounts, contacts, categories, suggestions, payeeSuggestions, whtAgent, foreignPayeeIds] =
     await Promise.all([
       getMoneyControl(membership.entity_id),
       listContacts(membership.entity_id),
@@ -27,6 +27,7 @@ export default async function NewExpensePage({
       listLineSuggestions(membership.entity_id, "expense"),
       listPayeeNameSuggestions(membership.entity_id),
       getWithholdingAgent(membership.entity_id),
+      listNonResidentContactIds(membership.entity_id),
     ]);
   const vendors = listContactsByRole(contacts, "vendor").filter((c) => c.status === "active");
   const backHref = entity
@@ -50,6 +51,7 @@ export default async function NewExpensePage({
           vendors={vendors}
           categories={categories}
           whtAgent={whtAgent}
+          foreignPayeeIds={foreignPayeeIds}
           suggestions={suggestions}
           payeeSuggestions={payeeSuggestions}
           entity={entity}

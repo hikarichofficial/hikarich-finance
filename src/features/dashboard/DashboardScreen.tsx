@@ -2,6 +2,7 @@ import type { DashboardSnapshot } from "@/services/dashboard/dashboard";
 import { HeroSummary } from "./HeroSummary";
 import { KpiStrip } from "./KpiStrip";
 import { CashflowTrend } from "./CashflowTrend";
+import { FlowCard } from "./FlowCard";
 import { ReceivablesPayables } from "./ReceivablesPayables";
 import { TaxSnapshot } from "./TaxSnapshot";
 import { TasksAttention } from "./TasksAttention";
@@ -48,7 +49,29 @@ export function DashboardScreen({
 
       <div className="dashboard-grid">
         <div className="dashboard-column">
-          <CashflowTrend trend={snapshot.trend} currency={snapshot.currency} />
+          <CashflowTrend
+            trend={snapshot.trend}
+            currency={snapshot.currency}
+            selectedMonth={snapshot.period.month}
+          />
+          {snapshot.finance ? (
+            <div className="dashboard-charts-row">
+              <FlowCard
+                side="revenue"
+                flow={snapshot.finance.flow}
+                breakdown={snapshot.finance.revenueBreakdown}
+                currency={snapshot.currency}
+                selectedMonth={snapshot.period.month}
+              />
+              <FlowCard
+                side="expense"
+                flow={snapshot.finance.flow}
+                breakdown={snapshot.finance.expenseBreakdown}
+                currency={snapshot.currency}
+                selectedMonth={snapshot.period.month}
+              />
+            </div>
+          ) : null}
           <ReceivablesPayables
             currency={snapshot.currency}
             receivables={snapshot.receivables}

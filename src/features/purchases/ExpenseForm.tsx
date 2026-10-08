@@ -40,6 +40,7 @@ export function ExpenseForm({
   vendors,
   categories,
   whtAgent,
+  foreignPayeeIds = [],
   suggestions = [],
   payeeSuggestions = [],
   entity,
@@ -52,6 +53,8 @@ export function ExpenseForm({
   categories: readonly CategoryRow[];
   /** The Entity withholds tax: a line whose category does not settle it must be answered. */
   whtAgent?: boolean;
+  /** Vendors recorded as foreign companies: their lines start as "not subject" to PPh. */
+  foreignPayeeIds?: readonly string[];
   /** Descriptions used before, for the popup above each line's description (OWNER, 5 October 2026). */
   suggestions?: readonly LineSuggestion[];
   /** Recipient names typed on earlier expenses, for the popup under "Nama Penerima" (OWNER, 6 October 2026). */
@@ -104,7 +107,12 @@ export function ExpenseForm({
         <input
           type="hidden"
           name="lines"
-          value={buildRecurringLinesJson(rows, "expense", categories)}
+          value={buildRecurringLinesJson(
+            rows,
+            "expense",
+            categories,
+            foreignPayeeIds.includes(payeeId),
+          )}
         />
         {initial ? (
           <>
@@ -196,6 +204,7 @@ export function ExpenseForm({
           kind="expense"
           categories={categories}
           whtAgent={whtAgent}
+          foreignPayee={foreignPayeeIds.includes(payeeId)}
           entity={entity}
           suggestions={suggestions}
           rows={rows}

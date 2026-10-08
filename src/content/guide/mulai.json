@@ -154,7 +154,7 @@
         },
         {
           "title": "Aktifkan Mesin Pajak (OWNER)",
-          "text": "Di bagian **Mesin Pajak**, isi **Hitung Pajak Otomatis Mulai Tanggal** dengan hari pertama pajak harus dihitung, lalu tekan **Aktifkan Mesin Pajak**. Bila diminta verifikasi ulang, tekan tautan “Verifikasi ulang →”, masukkan kode autentikator, lalu ulangi. Bila berhasil tampil “Mesin pajak aktif.”\n\nSetelah aktif, dokumen bertanggal sejak tanggal itu dihitung pajaknya otomatis: PPN keluaran pada invoice, PPN masukan dan PPh potongan pada tagihan dan pengeluaran. Dokumen bertanggal sebelum itu tidak dihitung ulang."
+          "text": "Di bagian **Mesin Pajak**, isi **Hitung Pajak Otomatis Mulai Tanggal** dengan hari pertama pajak harus dihitung, lalu tekan **Aktifkan Mesin Pajak**. Bila diminta verifikasi ulang, tekan tautan “Verifikasi ulang →”, masukkan kode autentikator, lalu ulangi. Bila berhasil tampil “Mesin pajak aktif.”\n\nSetelah aktif, dokumen bertanggal sejak tanggal itu dihitung pajaknya otomatis: PPN keluaran pada invoice, PPN masukan dan PPh (beban pajak PT) pada tagihan dan pengeluaran. Dokumen bertanggal sebelum itu tidak dihitung ulang."
         },
         {
           "title": "Periksa hasilnya",

@@ -114,8 +114,8 @@ export function ContactDetailScreen({
           </div>
           <p className="hint">
             {tax.facts
-              ? `Tercatat berlaku sejak ${formatShortDate(tax.facts.effective_from)}. Dipakai untuk menghitung potongan PPh otomatis.`
-              : "Belum ada data pajak. Tanpa ini, potongan PPh untuk kontak ini akan minta ditinjau."}
+              ? `Tercatat berlaku sejak ${formatShortDate(tax.facts.effective_from)}. Dipakai untuk menghitung PPh otomatis.`
+              : "Belum ada data pajak. Tanpa ini, PPh untuk kontak ini akan minta ditinjau."}
           </p>
           {tax.canRecord ? (
             <ContactTaxFactsForm contactId={contact.id} current={tax.facts} today={tax.today} />

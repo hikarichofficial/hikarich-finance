@@ -102,14 +102,17 @@ export function canIncludeVat(row: RecurringLineRow, kind: RecurringKind): boole
 }
 
 /**
- * `categories` (bill/expense forms): a line nobody answered "Kena potongan PPh?" for, whose category does not settle
+ * `categories` (bill/expense forms): a line nobody answered "Kena PPh?" for, whose category does not settle
  * the withholding either, is sent as "not a withholding object" (OWNER, 8 October 2026: "jika tidak dipilih akan
  * otomatis terhitung tidak kena PPh"). A category that settles it is left to the database, which reads it itself.
+ * `foreignPayee`: the vendor is a foreign company, so an unanswered line is "not subject" whatever its category
+ * says (PPh 23 does not apply to it; its VAT and any PPh 26 are handled apart).
  */
 export function buildRecurringLinesJson(
   rows: readonly RecurringLineRow[],
   kind: RecurringKind,
   categories?: readonly { id: string; tax_category_key?: string | null }[],
+  foreignPayee = false,
 ): string {
   return JSON.stringify(
     rows.flatMap((row) => {
@@ -120,6 +123,9 @@ export function buildRecurringLinesJson(
       // Buying equipment / an asset (OWNER, 8 October 2026: "pembelian peralatan dan perlengkapan, tidak kena PPh"):
       // goods are not a withholding object, so the line is classified without asking.
       if (kind !== "invoice" && row.treatment === "asset" && extra.wht_object === undefined) {
+        extra.wht_object = "wht_none";
+      }
+      if (kind !== "invoice" && foreignPayee && extra.wht_object === undefined) {
         extra.wht_object = "wht_none";
       }
       if (kind !== "invoice" && categories && extra.wht_object === undefined) {

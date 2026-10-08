@@ -27,7 +27,7 @@
         },
         {
           "title": "Pilih Perlakuan Pajak (opsional)",
-          "text": "**Perlakuan Pajak (opsional)** bawaannya **Otomatis dari profil pajak (disarankan)**: pajak dihitung dari profil pajak Entity (lihat [Cara Mengatur Pajak Awal](pengaturan-pajak-awal)). Pilihan lain dikelompokkan dalam dua bagian.\n\n**Penjualan (PPN)**: “Kena PPN”, “Kena PPN (barang mewah, DPP penuh)”, “PPN dibebaskan / tidak dipungut”, “Bukan objek PPN”, “Rumus PPN khusus (minta ditinjau)”, “Digital / PMSE (minta ditinjau)”.\n\n**Pembelian (potongan PPh)**: “Bukan objek potongan PPh”, “Sewa tanah/bangunan (kantor, toko, gudang)”, “Sewa selain tanah/bangunan (kendaraan, alat)”, “Jasa teknik”, “Jasa manajemen”, “Jasa konstruksi”, “Jasa konsultan”, “Jasa lain yang dipotong PPh”, “Royalti”, “Bunga”, “Hadiah / penghargaan”, “Belum yakin (minta ditinjau)”.",
+          "text": "**Perlakuan Pajak (opsional)** bawaannya **Otomatis dari profil pajak (disarankan)**: pajak dihitung dari profil pajak Entity (lihat [Cara Mengatur Pajak Awal](pengaturan-pajak-awal)). Pilihan lain dikelompokkan dalam dua bagian.\n\n**Penjualan (PPN)**: “Kena PPN”, “Kena PPN (barang mewah, DPP penuh)”, “PPN dibebaskan / tidak dipungut”, “Bukan objek PPN”, “Rumus PPN khusus (minta ditinjau)”, “Digital / PMSE (minta ditinjau)”.\n\n**Pembelian (PPh)**: “Bukan objek PPh”, “Sewa tanah/bangunan (kantor, toko, gudang)”, “Sewa selain tanah/bangunan (kendaraan, alat)”, “Jasa teknik”, “Jasa manajemen”, “Jasa konstruksi”, “Jasa konsultan”, “Jasa lain (PPh 23)”, “Royalti”, “Bunga”, “Hadiah / penghargaan”, “Belum yakin (minta ditinjau)”.",
           "warning": "Pilih perlakuan lain hanya bila kategori ini SELALU punya perlakuan pajak tertentu. Pilihan ini hanya dipakai bila baris dokumen tidak menyebut pajaknya sendiri."
         },
         {
@@ -1078,6 +1078,53 @@
         }
       ],
       "related": ["laporan-keuangan-utama", "laporan-penjualan-pembelian"]
+    },
+    {
+      "slug": "membaca-dashboard",
+      "title": "Cara Membaca Dashboard",
+      "summary": "Ringkasan keuangan satu halaman: kartu angka, tren arus kas, pendapatan, beban, utang, piutang, pajak, dan hal yang perlu ditindaklanjuti.",
+      "path": "Ringkasan > Dashboard",
+      "who": "Melihat: setiap bagian muncul bila Anda punya izin untuknya (laporan, kas, invoice, tagihan, pajak). Dashboard hanya membaca.",
+      "quick": "Pilih bulan di kiri atas. Arahkan kursor ke titik atau batang pada grafik untuk melihat angka pastinya, lalu klik untuk membuka laporan bulan itu.",
+      "steps": [
+        {
+          "title": "Pilih bulan",
+          "text": "Panah di samping nama bulan memindahkan seluruh Dashboard ke bulan lain. Laba atau rugi bulan itu tampil besar di kanan atas."
+        },
+        {
+          "title": "Baca kartu angka",
+          "text": "Enam kartu: **Kas & Bank**, **Pendapatan**, **Beban**, **Laba Berjalan** (atau Rugi Berjalan), **Piutang Usaha**, dan **Utang Usaha**. Klik kartu untuk membuka halaman atau laporan di baliknya."
+        },
+        {
+          "title": "Baca Tren Arus Kas",
+          "text": "Garis menunjukkan saldo kas akhir enam bulan terakhir. Angka besar di atasnya adalah saldo bulan terakhir, dengan label perubahan dari bulan sebelumnya.\n\nArahkan kursor ke sebuah titik: tampil kotak berisi bulan, saldo pastinya, dan perubahannya. **Klik titik** untuk membuka laporan Arus Kas bulan itu.",
+          "image": {
+            "file": "dashboard-v2.jpg",
+            "caption": "Dashboard dengan grafik interaktif (angka contoh)."
+          }
+        },
+        {
+          "title": "Baca Pendapatan dan Beban",
+          "text": "Dua kartu berdampingan. Tiap kartu menampilkan angka bulan yang dipilih, perubahan dari bulan sebelumnya (pendapatan naik berwarna hijau, beban naik berwarna merah), enam batang bulanan, dan di bawahnya batang sumber pendapatan atau akun beban terbesar. Arahkan kursor ke batang untuk angka pastinya; **klik batang** untuk membuka Laba Rugi bulan itu."
+        },
+        {
+          "title": "Baca Piutang, Utang, dan Pajak",
+          "text": "Kartu **Piutang Usaha** dan **Utang Usaha** menunjukkan total dan bagian yang jatuh tempo (batang merah). Kartu **Ringkasan Pajak** menunjukkan total terutang per jenis dan tenggat terdekat; **Buka Pajak** membawa Anda ke Ringkasan Pajak. Kartu **Perlu Perhatian** mengumpulkan hal yang perlu ditindaklanjuti."
+        }
+      ],
+      "result": [
+        "Anda tahu kondisi keuangan bulan itu dalam satu layar dan bisa menelusuri tiap angka ke laporannya."
+      ],
+      "rules": [
+        "Semua angka berasal dari jurnal yang sudah diposting; Dashboard tidak menghitung sendiri.",
+        "Grafik hanya menampilkan enam bulan terakhir sampai bulan yang dipilih.",
+        "Bagian yang tidak Anda punya izinnya tidak tampil sama sekali."
+      ],
+      "mistakes": [
+        "Membaca grafik tanpa mengarahkan kursor. Angka pastinya ada di kotak yang muncul, bukan di sumbu.",
+        "Mengira Beban sama dengan uang keluar. Beban dicatat saat tagihan atau beban diposting, bukan saat dibayar."
+      ],
+      "related": ["lihat-piutang", "lihat-utang", "laporan-keuangan-utama", "posisi-ppn-pph"]
     }
   ]
 }

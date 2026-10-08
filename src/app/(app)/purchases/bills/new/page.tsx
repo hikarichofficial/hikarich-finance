@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
-import { listContacts } from "@/services/contacts/contacts";
+import { listContacts, listNonResidentContactIds } from "@/services/contacts/contacts";
 import { getWithholdingAgent } from "@/services/tax/tax";
 import { listActiveCategories } from "@/services/accounting/categories";
 import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
@@ -17,11 +17,12 @@ export default async function NewBillPage({
 }) {
   const { entity } = await searchParams;
   const { membership } = await requirePermission("bills.create", { entityCode: entity });
-  const [contacts, categories, suggestions, whtAgent] = await Promise.all([
+  const [contacts, categories, suggestions, whtAgent, foreignPayeeIds] = await Promise.all([
     listContacts(membership.entity_id),
     listActiveCategories(membership.entity_id),
     listLineSuggestions(membership.entity_id, "bill"),
     getWithholdingAgent(membership.entity_id),
+    listNonResidentContactIds(membership.entity_id),
   ]);
   const vendors = listContactsByRole(contacts, "vendor").filter((c) => c.status === "active");
   const backHref = entity
@@ -44,6 +45,7 @@ export default async function NewBillPage({
           vendors={vendors}
           categories={categories}
           whtAgent={whtAgent}
+          foreignPayeeIds={foreignPayeeIds}
           suggestions={suggestions}
           entity={entity}
           today={todayInBusinessZone()}

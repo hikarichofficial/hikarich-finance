@@ -156,6 +156,11 @@
       "want": "Mengamankan data (backup)",
       "menu": "Administrasi > Backup & Restore",
       "guide": "backup-restore"
+    },
+    {
+      "want": "Melihat kondisi keuangan sekilas: kas, pendapatan, beban, utang, dan piutang",
+      "menu": "Ringkasan > Dashboard",
+      "guide": "membaca-dashboard"
     }
   ],
   "flows": [
@@ -1429,7 +1434,7 @@
                   "actor": "anda",
                   "title": "Catat Pengeluaran",
                   "menu": "Pembelian > Beban > Catat Pengeluaran",
-                  "note": "Pilih rekening pembayar, vendor atau nama penerima, isi satu Jumlah sesuai struk. Struk memuat PPN: centang Sudah termasuk PPN (harga sebelum PPN dihitung otomatis). Kena potongan PPh? sudah terisi dari kategori, ubah bila perlu. Lampirkan struk, simpan sebagai Draf"
+                  "note": "Pilih rekening pembayar, vendor atau nama penerima, isi satu Jumlah sesuai struk. Struk memuat PPN: centang Sudah termasuk PPN (harga sebelum PPN dihitung otomatis). Kena PPh? sudah terisi dari kategori dan vendor, ubah bila perlu. Vendor dibayar penuh; PPh jadi beban pajak PT, dibayar terpisah ke negara. Lampirkan struk, simpan sebagai Draf"
                 },
                 {
                   "kind": "choice",
@@ -1474,7 +1479,7 @@
                   "actor": "anda",
                   "title": "Catat Tagihan",
                   "menu": "Pembelian > Tagihan > Catat Tagihan",
-                  "note": "Isi vendor, tanggal, jatuh tempo, dan satu Jumlah sesuai invoice per baris. Invoice memuat PPN: centang Sudah termasuk PPN. Kena potongan PPh? sudah terisi dari kategori, ubah bila perlu"
+                  "note": "Isi vendor, tanggal, jatuh tempo, dan satu Jumlah sesuai invoice per baris. Invoice memuat PPN: centang Sudah termasuk PPN. Kena PPh? sudah terisi dari kategori dan vendor, ubah bila perlu. Vendor dibayar penuh; PPh jadi beban pajak PT, dibayar terpisah ke negara"
                 },
                 {
                   "kind": "choice",
@@ -2320,7 +2325,7 @@
           "actor": "anda",
           "title": "Buka Ringkasan Pajak",
           "menu": "Pajak > Ringkasan Pajak",
-          "note": "Lihat Kewajiban Terutang, Profil Pajak Entity, dan Tenggat Terdekat"
+          "note": "Lihat Total terutang, PPh Final bulan ini, Perlu ditinjau, grafik Beban pajak per bulan, dan Tenggat terdekat. Arahkan kursor ke batang untuk jumlahnya; klik untuk membuka Buku Pajak bulan itu"
         },
         {
           "kind": "step",
@@ -2369,7 +2374,7 @@
                   "kind": "step",
                   "actor": "anda",
                   "title": "Buka posisi pajak masanya",
-                  "menu": "Pajak > PPN, Pajak > Pemotongan PPh, atau Pajak > PPh Final",
+                  "menu": "Pajak > PPN, Pajak > PPh Vendor, atau Pajak > PPh Final",
                   "note": "Pilih Masa Pajak; yang dibayar adalah Sisa Kekurangan"
                 },
                 {
@@ -2424,7 +2429,7 @@
         {
           "kind": "end",
           "title": "Selesai",
-          "note": "PPh yang dipotong dibayar paling lambat tanggal 15 bulan berikutnya; cek Tenggat Terdekat berkala"
+          "note": "PPh beban pajak PT dibayar ke negara paling lambat tanggal 15 bulan berikutnya; cek Tenggat terdekat berkala"
         }
       ]
     },
@@ -2444,7 +2449,7 @@
           "kind": "step",
           "actor": "anda",
           "title": "Lihat posisi pajak",
-          "menu": "Pajak > PPN, Pemotongan PPh, atau PPh Final",
+          "menu": "Pajak > PPN, PPh Vendor, atau PPh Final",
           "note": "Pilih Masa Pajak, lihat Posisi Tercatat dan Sisa Kekurangan"
         },
         {
@@ -3401,6 +3406,78 @@
           "kind": "end",
           "title": "Selesai",
           "note": "Berhenti langganan: Jeda Aturan (bisa Lanjutkan Aturan) atau Akhiri Aturan, isi Alasan"
+        }
+      ]
+    },
+    {
+      "id": "baca-dashboard",
+      "stage": "Tahap 10 · Laporan",
+      "title": "Melihat Kondisi Keuangan Sekilas: Membaca Dashboard",
+      "summary": "Dashboard menjawab: berapa uang kas, berapa pendapatan dan beban bulan ini, apa yang perlu ditindaklanjuti. Grafiknya bisa diarahkan kursor untuk angka pastinya dan diklik untuk membuka laporannya.",
+      "guides": ["membaca-dashboard", "lihat-piutang", "lihat-utang", "posisi-ppn-pph"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ingin melihat kondisi keuangan PT sekilas"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Buka Dashboard dan pilih bulan",
+          "menu": "Ringkasan > Dashboard",
+          "note": "Panah di samping nama bulan berpindah bulan. Kartu angka: Kas & Bank, Pendapatan, Beban, Laba Berjalan, Piutang Usaha, Utang Usaha"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Baca Tren Arus Kas",
+          "note": "Arahkan kursor ke titik untuk saldo kas akhir bulan itu. Klik titik untuk membuka laporan Arus Kas bulan itu"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Baca kartu Pendapatan dan Beban",
+          "note": "Enam batang bulanan: arahkan kursor untuk jumlah, klik untuk membuka Laba Rugi bulan itu. Di bawahnya sumber pendapatan dan akun beban terbesar"
+        },
+        {
+          "kind": "choice",
+          "question": "Ada yang perlu ditindaklanjuti?",
+          "branches": [
+            {
+              "label": "Perlu Perhatian berisi",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Selesaikan item satu per satu",
+                  "menu": "Dashboard > Perlu Perhatian",
+                  "note": "Setiap item menautkan ke halaman yang menyelesaikannya"
+                }
+              ]
+            },
+            {
+              "label": "Ada tenggat pajak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buka Ringkasan Pajak",
+                  "menu": "Dashboard > Ringkasan Pajak > Buka Pajak",
+                  "note": "Total terutang, tenggat terdekat, dan transaksi yang perlu ditinjau"
+                }
+              ]
+            },
+            {
+              "label": "Tidak ada",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "end",
+          "title": "Selesai",
+          "note": "Dashboard hanya membaca; angkanya berasal dari jurnal yang sudah diposting"
         }
       ]
     },

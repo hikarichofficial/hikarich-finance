@@ -124,7 +124,7 @@ export function BillDetailScreen({
           <div>
             <dt>Harga sebelum PPN</dt>
             <dd>{formatMoney(bill.subtotal, bill.currency)}</dd>
-            <p className="record-summary-note">Dasar menghitung potongan PPh.</p>
+            <p className="record-summary-note">Dasar menghitung PPh.</p>
           </div>
           <div>
             <dt>PPN dari vendor</dt>
@@ -224,6 +224,7 @@ export function BillDetailScreen({
           <LineTaxSummaryBlock
             summary={taxSummary}
             currency={bill.currency}
+            total={bill.total}
             detailHref={
               bill.status === "draft" || bill.status === "submitted"
                 ? undefined
@@ -266,8 +267,8 @@ export function BillDetailScreen({
           <h2 className="dashboard-section-title">Pajak</h2>
         </div>
         <p className="dashboard-empty">
-          Rincian PPN dan potongan PPh tagihan ini ada di bawah Rincian Item; hasilnya masuk ke
-          Pajak &gt; Ringkasan Pajak dan Pemotongan PPh setelah tagihan disetujui.
+          Rincian PPN dan PPh tagihan ini ada di bawah Rincian Item; hasilnya masuk ke Pajak &gt;
+          Ringkasan Pajak dan PPh Vendor setelah tagihan disetujui.
         </p>
       </section>
 

@@ -4,6 +4,7 @@ import {
   getEntityBaseCurrency,
   getNonFinalIncome,
   getTaxOverview,
+  listTaxLedger,
 } from "@/services/tax/tax";
 import { resolveTaxYear, runningTaxPeriod } from "@/domain/tax/tax";
 import { TaxOverviewScreen } from "@/features/tax/TaxOverviewScreen";
@@ -20,11 +21,17 @@ export default async function TaxOverviewPage({
   const period = runningTaxPeriod();
   const currentYear = Number(period.slice(0, 4));
   const shownYear = resolveTaxYear(year, currentYear);
-  const [overview, currency, estimate, nonFinal] = await Promise.all([
+  const [overview, currency, estimate, nonFinal, ledger] = await Promise.all([
     getTaxOverview(membership.entity_id),
     getEntityBaseCurrency(membership.entity_id),
     estimateFinalTax({ entity_id: membership.entity_id, period }),
     getNonFinalIncome(membership.entity_id, shownYear),
+    listTaxLedger({
+      entity_id: membership.entity_id,
+      from: `${shownYear}-01-01`,
+      to: `${shownYear}-12-31`,
+      limit: 1000,
+    }),
   ]);
 
   return (
@@ -36,6 +43,8 @@ export default async function TaxOverviewPage({
       estimatePeriod={period}
       nonFinal={nonFinal}
       currentYear={currentYear}
+      shownYear={shownYear}
+      ledger={ledger}
     />
   );
 }

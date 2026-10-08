@@ -7,7 +7,7 @@
       "slug": "bayar-pajak",
       "title": "Cara Mencatat Pembayaran Pajak dan Pelaporan",
       "summary": "Melihat posisi pajak per masa, mencatat pembayaran, mencatat pelaporan (SPT), dan melampirkan bukti.",
-      "path": "Pajak > Pelaporan & Bukti (posisi di Pajak > PPN, Pemotongan PPh, PPh Final)",
+      "path": "Pajak > Pelaporan & Bukti (posisi di Pajak > PPN, PPh Vendor, PPh Final)",
       "who": "Melihat: tax.view. Mencatat pembayaran, pelaporan, rekonsiliasi, dan bukti: izin tandai lapor (tax.mark_filed), yaitu peran Pajak dan OWNER. Finance Admin tidak punya izin ini. PPh Final bulan yang berakhir dicatat otomatis oleh sistem.",
       "quick": "Mesin pajak harus aktif dulu. Pajak yang bisa dibayar hanya yang sudah diakui dari invoice, tagihan, atau pengeluaran. Pelaporan hanya catatan referensi dan tidak mengubah buku besar.",
       "steps": [
@@ -17,20 +17,20 @@
         },
         {
           "title": "Lihat posisi pajak masa berjalan",
-          "text": "Buka **Pajak > PPN**, **Pajak > Pemotongan PPh**, atau **Pajak > PPh Final**. Pilih **Masa Pajak** (bulan; bawaan bulan lalu) lalu **Terapkan**. Bagian **Posisi Tercatat** menampilkan Terutang (Diakui), Sudah Dibayar, dan Sisa Kekurangan. PPN juga menampilkan PPN Masukan Diakui, Terpakai, dan Tersedia."
+          "text": "Buka **Pajak > PPN**, **Pajak > PPh Vendor**, atau **Pajak > PPh Final**. Pilih **Masa Pajak** (bulan; bawaan bulan lalu) lalu **Terapkan**. Bagian **Posisi Tercatat** menampilkan Terutang (Diakui), Sudah Dibayar, dan Sisa Kekurangan. PPN juga menampilkan PPN Masukan Diakui, Terpakai, dan Tersedia."
         },
         {
           "title": "Khusus PPh Final: dicatat otomatis",
-          "text": "PPh Final dihitung dari invoice yang diterbitkan dalam bulan itu. Selama bulan masih berjalan, yang tampil di kartu **Perkiraan Pajak Bulan Berjalan** (Ringkasan Pajak, Kalender Pajak, dan PPh Final) hanyalah perkiraan: angkanya otomatis ikut bertambah setiap ada invoice terbit dan belum tercatat sebagai kewajiban. Mulai tanggal 1 bulan berikutnya sistem sendiri menghitung dan mencatat PPh Final bulan yang berakhir sebagai terutang, tanpa tombol; bila ada invoice yang terbit belakangan di bulan itu, sistem mencatat selisihnya. Di **Pajak > PPh Final**, **Pratinjau** dan **Posisi Tercatat** menunjukkan hasilnya. Pembayaran dibatasi sebesar yang sudah diakui, jadi bayar setelah angkanya muncul di Posisi Tercatat. Tidak ada laporan bulanan untuk PPh Final: setor tanggal 15 bulan berikutnya, lalu laporkan setahun sekali lewat SPT Tahunan."
+          "text": "PPh Final dihitung dari invoice yang diterbitkan dalam bulan itu. Selama bulan masih berjalan, yang tampil di kartu **Perkiraan PPh Final** (kartu angka di Ringkasan Pajak, serta Kalender Pajak dan PPh Final) hanyalah perkiraan: angkanya otomatis ikut bertambah setiap ada invoice terbit dan belum tercatat sebagai kewajiban. Mulai tanggal 1 bulan berikutnya sistem sendiri menghitung dan mencatat PPh Final bulan yang berakhir sebagai terutang, tanpa tombol; bila ada invoice yang terbit belakangan di bulan itu, sistem mencatat selisihnya. Di **Pajak > PPh Final**, **Pratinjau** dan **Posisi Tercatat** menunjukkan hasilnya. Pembayaran dibatasi sebesar yang sudah diakui, jadi bayar setelah angkanya muncul di Posisi Tercatat. Tidak ada laporan bulanan untuk PPh Final: setor tanggal 15 bulan berikutnya, lalu laporkan setahun sekali lewat SPT Tahunan."
         },
         {
           "title": "Penghasilan di luar PPh Final (forex, bunga, dividen, kripto)",
-          "text": "Penghasilan yang dicatat lewat **Penjualan > Catat Pendapatan** dengan jenis di luar usaha (bunga, dividen, hasil trading forex, kripto, bonus, dan sejenisnya) tidak ikut dasar PPh Final 0,5%. Hasilnya tampil di kartu **Penghasilan di Luar PPh Final** pada **Pajak > Ringkasan Pajak**: hasil bersih per jenis sejak 1 Januari (untung dikurangi rugi dan biaya trading), rincian **Lihat per bulan**, dan **perkiraan pajak 22%** untuk badan. Angka ini hanya perkiraan dan tidak dicatat sebagai kewajiban. Hasil satu tahun ditetapkan otomatis pada 1 Januari tahun berikutnya; SPT Tahunan tetap jatuh tempo 30 April. Pilih tahun lain lewat tautan di bawah kartu. Penilaian ulang investasi yang belum direalisasi ditampilkan tetapi tidak dihitung.",
+          "text": "Penghasilan yang dicatat lewat **Penjualan > Catat Pendapatan** dengan jenis di luar usaha (bunga, dividen, hasil trading forex, kripto, bonus, dan sejenisnya) tidak ikut dasar PPh Final 0,5%. Hasilnya tampil di kartu **Penghasilan di Luar PPh Final** pada **Pajak > Ringkasan Pajak**: hasil bersih per jenis sejak 1 Januari (untung dikurangi rugi dan biaya trading), rincian **Rincian per jenis dan per bulan** (dilipat), dan **perkiraan pajak 22%** untuk badan. Angka ini hanya perkiraan dan tidak dicatat sebagai kewajiban. Hasil satu tahun ditetapkan otomatis pada 1 Januari tahun berikutnya; SPT Tahunan tetap jatuh tempo 30 April. Pilih tahun lain lewat tautan di bawah kartu. Penilaian ulang investasi yang belum direalisasi ditampilkan tetapi tidak dihitung.",
           "tip": "Perkiraan belum memperhitungkan fasilitas, kompensasi rugi, atau pajak yang sudah dipotong pihak lain (misalnya bunga bank). Konfirmasikan dengan konsultan pajak sebelum SPT."
         },
         {
           "title": "Buka Pajak > Pelaporan & Bukti",
-          "text": "Pilih **Jenis Pajak** (PPN, PPh 23 (dipotong), PPh 4(2) sewa tanah/bangunan, PPh 26 (luar negeri), PPh 21 (karyawan), PPh Final UMKM) dan **Masa Pajak**, lalu **Terapkan**. Untuk PPh 21 Anda juga bisa sampai ke sini dari Payroll > Pajak & Kewajiban Payroll dengan menekan **Setor →** pada baris PPh 21.",
+          "text": "Pilih **Jenis Pajak** (PPN, PPh 23 (jasa dan sewa), PPh 4(2) sewa tanah/bangunan, PPh 26 (luar negeri), PPh 21 (karyawan), PPh Final UMKM) dan **Masa Pajak**, lalu **Terapkan**. Untuk PPh 21 Anda juga bisa sampai ke sini dari Payroll > Pajak & Kewajiban Payroll dengan menekan **Setor →** pada baris PPh 21.",
           "image": {
             "file": "pajak-pelaporan.jpg",
             "caption": "Halaman Pelaporan & Bukti."
@@ -54,7 +54,7 @@
         },
         {
           "title": "Pantau Kalender Pajak",
-          "text": "**Pajak > Kalender Pajak** menampilkan langkah Hitung, Bayar, Lapor, Bukti per masa dengan status Selesai, Perlu dikerjakan, Terlambat, atau Akan datang. PPh yang dipotong dibayar paling lambat tanggal 15 bulan berikutnya."
+          "text": "**Pajak > Kalender Pajak** menampilkan langkah Hitung, Bayar, Lapor, Bukti per masa dengan status Selesai, Perlu dikerjakan, Terlambat, atau Akan datang. PPh yang ditanggung PT dibayar ke negara paling lambat tanggal 15 bulan berikutnya."
         }
       ],
       "tables": [
@@ -123,7 +123,7 @@
         },
         {
           "title": "Buka Pajak > Ringkasan Pajak",
-          "text": "Kartu **Penghasilan di Luar PPh Final · (tahun)** menampilkan hasil bersih per jenis penghasilan sejak 1 Januari (untung dikurangi rugi dan biaya), total, dan **Perkiraan pajak tahun ini (22%)**. Tekan **Lihat per bulan** untuk rincian tiap bulan."
+          "text": "Kartu **Penghasilan di Luar PPh Final · (tahun)** menampilkan hasil bersih per jenis penghasilan sejak 1 Januari (untung dikurangi rugi dan biaya), total, dan **Perkiraan pajak tahun ini (22%)**. Empat angka ringkas tampil di atas: **Hasil bersih**, **Perkiraan pajak**, tanggal penetapan, dan tanggal SPT Tahunan. Buka **Rincian per jenis dan per bulan** untuk tabelnya, dan **Catatan perhitungan** untuk batasan perkiraan."
         },
         {
           "title": "Memahami status Berjalan dan Ditetapkan",

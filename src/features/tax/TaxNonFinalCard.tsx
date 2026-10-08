@@ -10,6 +10,7 @@ import { formatShortDate } from "./format";
  * 0,5% final-tax base (interest, dividends, forex and other trading results, crypto, bonus and cashback, ...),
  * read from the journals on every visit, with an ESTIMATE of the yearly tax at 22%. Nothing is recorded: the
  * year is settled on 1 January of the next year and the annual return (SPT Tahunan) is due on 30 April.
+ * Shown as three figures first; the per-type and per-month tables and the caveats sit behind a fold.
  */
 export function TaxNonFinalCard({
   data,
@@ -38,28 +39,41 @@ export function TaxNonFinalCard({
           {settled ? "Ditetapkan" : "Berjalan"}
         </span>
       </div>
-      <p className="hint">
-        Bunga, dividen, hasil trading forex, kripto, bonus dan penghasilan lain di luar usaha. Tidak
-        ikut dasar PPh Final 0,5%. Dihitung dari pembukuan sejak 1 Januari {data.year}; hasil bersih
-        sudah dikurangi rugi dan biaya trading.{" "}
-        {settled
-          ? `Hasil tahun ini ditetapkan pada ${formatShortDate(data.settles_on)}.`
-          : `Hasil tahun ini ditetapkan otomatis pada ${formatShortDate(data.settles_on)}.`}{" "}
-        SPT Tahunan tetap jatuh tempo {formatShortDate(data.annual_return_due)}.
-      </p>
+
+      <div className="tax-split">
+        <div className="tax-split-item">
+          <span>Hasil bersih</span>
+          <strong>{formatMoney(data.total, data.currency)}</strong>
+        </div>
+        <div className="tax-split-item">
+          <span>Perkiraan pajak{rate !== null ? ` (${rate}%)` : ""}</span>
+          <strong>
+            {data.estimated_tax !== null ? formatMoney(data.estimated_tax, data.currency) : "-"}
+          </strong>
+        </div>
+        <div className="tax-split-item">
+          <span>{settled ? "Ditetapkan" : "Ditetapkan otomatis"}</span>
+          <strong>{formatShortDate(data.settles_on)}</strong>
+        </div>
+        <div className="tax-split-item">
+          <span>SPT Tahunan</span>
+          <strong>{formatShortDate(data.annual_return_due)}</strong>
+        </div>
+      </div>
 
       {data.rows.length === 0 ? (
         <p className="dashboard-empty">
-          Belum ada penghasilan di luar PPh Final pada tahun {data.year}.
+          Belum ada penghasilan di luar PPh Final tahun {data.year}.
         </p>
       ) : (
-        <>
+        <details className="tax-fold">
+          <summary>Rincian per jenis dan per bulan</summary>
           <table className="record-table record-table-stacked">
             <thead>
               <tr>
                 <th scope="col">Jenis penghasilan</th>
                 <th scope="col" className="num">
-                  Hasil bersih {data.year}
+                  Hasil bersih
                 </th>
               </tr>
             </thead>
@@ -76,61 +90,47 @@ export function TaxNonFinalCard({
                 </tr>
               ))}
               <tr>
-                <th scope="row">Total hasil bersih</th>
+                <th scope="row">Total</th>
                 <td className="num" data-label="Total">
                   <strong>{formatMoney(data.total, data.currency)}</strong>
                 </td>
               </tr>
             </tbody>
           </table>
-
-          <details>
-            <summary>Lihat per bulan</summary>
-            <table className="record-table record-table-stacked">
-              <thead>
-                <tr>
-                  <th scope="col">Bulan</th>
-                  <th scope="col" className="num">
-                    Hasil bersih
-                  </th>
+          <table className="record-table record-table-stacked">
+            <thead>
+              <tr>
+                <th scope="col">Bulan</th>
+                <th scope="col" className="num">
+                  Hasil bersih
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              {monthsWithActivity.map(({ month, total }) => (
+                <tr key={month}>
+                  <td>{monthNameId(month)}</td>
+                  <td className="num" data-label="Hasil bersih">
+                    {formatMoney(total, data.currency)}
+                  </td>
                 </tr>
-              </thead>
-              <tbody>
-                {monthsWithActivity.map(({ month, total }) => (
-                  <tr key={month}>
-                    <td>{monthNameId(month)}</td>
-                    <td className="num" data-label="Hasil bersih">
-                      {formatMoney(total, data.currency)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </details>
-        </>
+              ))}
+            </tbody>
+          </table>
+        </details>
       )}
 
-      {rate !== null && data.estimated_tax !== null ? (
-        <dl className="record-summary-grid">
-          <div>
-            <dt>
-              Perkiraan pajak tahun {data.year} ({rate}%)
-            </dt>
-            <dd>{formatMoney(data.estimated_tax, data.currency)}</dd>
-          </div>
-        </dl>
-      ) : (
+      <details className="tax-fold">
+        <summary>Catatan perhitungan</summary>
         <p className="hint">
-          Perkiraan pajak belum ditampilkan: jenis wajib pajak Entity belum diisi sebagai badan di
-          Pengaturan Pajak.
+          Bunga, dividen, trading forex, kripto, bonus dan penghasilan lain di luar usaha; tidak
+          ikut dasar PPh Final 0,5%. Sudah dikurangi rugi dan biaya trading. Perkiraan memakai tarif{" "}
+          {rate ?? 22}%{rate === null ? " bila Entity berbentuk badan" : ""}; belum memperhitungkan
+          fasilitas, kompensasi rugi, pajak yang sudah dipotong pihak lain (mis. bunga bank) maupun
+          biaya usaha. Konfirmasikan dengan konsultan pajak sebelum SPT.
         </p>
-      )}
-      <p className="hint">
-        Ini perkiraan dengan asumsi tarif {rate ?? 22}% atas hasil bersih di atas, bukan angka
-        final. Belum memperhitungkan fasilitas, kompensasi rugi, pajak yang sudah dipotong pihak
-        lain (mis. bunga bank), maupun biaya usaha. Konfirmasikan dengan konsultan pajak sebelum
-        SPT.
-      </p>
+      </details>
+
       <p className="hint">
         {settled ? (
           <Link href={yearHref(currentYear)}>Lihat tahun berjalan →</Link>

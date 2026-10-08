@@ -9,7 +9,15 @@ describe("KpiStrip destinations", () => {
     createElement(KpiStrip, {
       currency: "IDR",
       period: { start: "2026-10-01", end: "2026-10-31" },
-      finance: { revenue: "875000", discounts: "125000", expense: "300000", netResult: "575000" },
+      finance: {
+        revenue: "875000",
+        discounts: "125000",
+        expense: "300000",
+        netResult: "575000",
+        flow: [],
+        revenueBreakdown: [],
+        expenseBreakdown: [],
+      },
       cash: null,
       receivables: null,
       payables: null,

@@ -2,7 +2,7 @@ import Link from "next/link";
 import { decodeProblems } from "@/domain/forms/problemTargets";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/services/identity/access";
-import { listContacts } from "@/services/contacts/contacts";
+import { listContacts, listNonResidentContactIds } from "@/services/contacts/contacts";
 import { getWithholdingAgent } from "@/services/tax/tax";
 import { listActiveCategories } from "@/services/accounting/categories";
 import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
@@ -25,11 +25,12 @@ export default async function EditBillPage({
   const { membership } = await requirePermission("bills.edit", { entityCode: entity });
   const draft = await getBillDraftForEdit(id);
   if (!draft || draft.entity_id !== membership.entity_id) notFound();
-  const [contacts, categories, suggestions, whtAgent] = await Promise.all([
+  const [contacts, categories, suggestions, whtAgent, foreignPayeeIds] = await Promise.all([
     listContacts(membership.entity_id),
     listActiveCategories(membership.entity_id),
     listLineSuggestions(membership.entity_id, "bill"),
     getWithholdingAgent(membership.entity_id),
+    listNonResidentContactIds(membership.entity_id),
   ]);
   const vendors = listContactsByRole(contacts, "vendor").filter(
     (c) => c.status === "active" || c.id === draft.vendor_id,
@@ -54,6 +55,7 @@ export default async function EditBillPage({
           vendors={vendors}
           categories={categories}
           whtAgent={whtAgent}
+          foreignPayeeIds={foreignPayeeIds}
           suggestions={suggestions}
           entity={entity}
           today={todayInBusinessZone()}

@@ -34,6 +34,7 @@ export function BillForm({
   vendors,
   categories,
   whtAgent,
+  foreignPayeeIds = [],
   suggestions = [],
   entity,
   today,
@@ -44,6 +45,8 @@ export function BillForm({
   categories: readonly CategoryRow[];
   /** The Entity withholds tax: a line whose category does not settle it must be answered. */
   whtAgent?: boolean;
+  /** Vendors recorded as foreign companies: their lines start as "not subject" to PPh. */
+  foreignPayeeIds?: readonly string[];
   /** Descriptions used before, for the popup above each line's description (OWNER, 5 October 2026). */
   suggestions?: readonly LineSuggestion[];
   entity: string | undefined;
@@ -93,7 +96,12 @@ export function BillForm({
         <input
           type="hidden"
           name="lines"
-          value={buildRecurringLinesJson(rows, "bill", categories)}
+          value={buildRecurringLinesJson(
+            rows,
+            "bill",
+            categories,
+            foreignPayeeIds.includes(vendorId),
+          )}
         />
         {initial ? (
           <>
@@ -159,6 +167,7 @@ export function BillForm({
           kind="bill"
           categories={categories}
           whtAgent={whtAgent}
+          foreignPayee={foreignPayeeIds.includes(vendorId)}
           entity={entity}
           suggestions={suggestions}
           rows={rows}
@@ -172,8 +181,8 @@ export function BillForm({
           <p className="field-problem-hint">{FORM_FIELD_HINTS.lines}</p>
         ) : null}
         <p className="hint">
-          Potongan PPh dan PPN dihitung otomatis dari isian pajak tiap baris dan data pajak vendor.
-          Hasilnya terlihat di halaman tagihan sebelum disetujui.
+          PPh (beban pajak PT) dan PPN dihitung otomatis dari isian pajak tiap baris dan data pajak
+          vendor. Hasilnya terlihat di halaman tagihan sebelum disetujui.
         </p>
 
         <label>

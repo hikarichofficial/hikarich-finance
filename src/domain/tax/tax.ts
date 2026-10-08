@@ -22,7 +22,7 @@ export type TaxDirection = "payable" | "asset";
 
 export const TAX_TYPE_LABELS: Readonly<Record<TaxType, string>> = {
   vat: "PPN",
-  wht_pph23: "PPh 23 (dipotong)",
+  wht_pph23: "PPh 23 (jasa dan sewa)",
   wht_pph4_2: "PPh 4(2) sewa tanah/bangunan",
   wht_pph26: "PPh 26 (luar negeri)",
   wht_pph21: "PPh 21 (karyawan)",
@@ -32,9 +32,9 @@ export const TAX_TYPE_LABELS: Readonly<Record<TaxType, string>> = {
 export const TAX_KIND_LABELS: Readonly<Record<TaxKind, string>> = {
   vat_output: "PPN keluaran",
   vat_input: "PPN masukan",
-  wht_pph23: "PPh 23 dipotong",
-  wht_pph4_2: "PPh 4(2) dipotong",
-  wht_pph26: "PPh 26 dipotong",
+  wht_pph23: "PPh 23 (beban pajak PT)",
+  wht_pph4_2: "PPh 4(2) (beban pajak PT)",
+  wht_pph26: "PPh 26 (beban pajak PT)",
   wht_pph21: "PPh 21 karyawan",
   final_umkm: "PPh Final UMKM",
 };
@@ -57,14 +57,14 @@ export type WhtObject =
   | "wht_review";
 
 export const WHT_OBJECT_LABELS: Readonly<Record<WhtObject, string>> = {
-  wht_none: "Bukan objek potongan PPh",
+  wht_none: "Bukan objek PPh",
   wht_rent_land_building: "Sewa tanah/bangunan (kantor, toko, gudang)",
   wht_rent_movable: "Sewa selain tanah/bangunan (kendaraan, alat)",
   wht_service_technical: "Jasa teknik",
   wht_service_management: "Jasa manajemen",
   wht_service_construction: "Jasa konstruksi",
   wht_service_consulting: "Jasa konsultan",
-  wht_service_other_listed: "Jasa lain yang dipotong PPh",
+  wht_service_other_listed: "Jasa lain (PPh 23)",
   wht_royalty: "Royalti",
   wht_interest: "Bunga",
   wht_prize: "Hadiah / penghargaan",
@@ -77,7 +77,7 @@ export const WHT_OBJECT_LABELS: Readonly<Record<WhtObject, string>> = {
  * engine already understands; the rate and the amount are worked out by the engine, never typed here.
  */
 export const WHT_QUICK_CHOICES: readonly { value: WhtObject; label: string }[] = [
-  { value: "wht_none", label: "Tidak kena potongan PPh" },
+  { value: "wht_none", label: "Tidak kena PPh" },
   { value: "wht_service_other_listed", label: "Kena PPh 23: jasa dari vendor dalam negeri" },
   { value: "wht_rent_land_building", label: "Kena PPh 4(2): sewa tanah/bangunan" },
   { value: "wht_rent_movable", label: "Kena PPh 23: sewa selain tanah/bangunan" },
