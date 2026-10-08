@@ -3054,3 +3054,28 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Draf > Ubah Draf, or map the category in Akuntansi > Kategori). Display only; no rule changed. Whether an
      unmapped category should count as "not a withholding object" for an entity that is a withholding agent stays a
      tax decision for the owner and the adviser.
+
+359. **Withholding on expenses: standard mapping and a "Kena potongan PPh?" column (owner, 8 October 2026).** The PT is
+     recorded as a withholding agent and stays so ("Pemotong Pajak = Ya"), so every expense line needs a withholding
+     classification, and an ordinary expense (a meal) was held back. Official data was gathered (PMK 141/PMK.03/2015,
+     62 kinds of "jasa lain" under PPh 23 at 2%, including internet, website, software, hosting/data, advertising and
+     professional services; PPh 4(2) 10% for rent of land/building; PPh 26 20% or treaty for foreign payees; summary in
+     the project document "riset-potongan-pph-pengeluaran"). PPN charged by a vendor is a separate tax and does not
+     remove the PPh duty. Result: (1) the standard company categories carry a classification where it does not depend
+     on who is paid: "Bukan objek potongan" for Biaya Bank, Biaya Payment Gateway, Gaji & Tunjangan (payroll has its
+     own PPh 21), Kantor & Umum, Perjalanan & Transportasi, Pengeluaran Operasional Lainnya; sewa tanah/bangunan
+     (PPh 4(2)) for Sewa & Ruang Kerja. Later the same day the owner, overwhelmed by the monthly deposit and filing work, asked the app to be set up
+     so routine purchases raise no question: Komunikasi & Internet, Software & Langganan, Hosting/Domain/Cloud and
+     Pemasaran & Iklan also start as "Bukan objek potongan" (an assumption against PMK 141 for domestic vendors, to be
+     confirmed with the tax adviser, who also gives the vendor list that is withheld). (2) Only Jasa Profesional, Produksi
+     Konten and a new standard category "Influencer & Kontrak Besar" (owner: focus on the large items such as building rent
+     and big influencer contracts) stay empty and ask per line. (3) On expense and bill lines a
+     category that settles the withholding shows only a note "Potongan PPh otomatis: ..." with a small "Ubah"; a line
+     whose category does not settle it shows one column "Kena potongan PPh?" with five answers (not subject, PPh 23
+     service, PPh 4(2) land/building rent, PPh 23 other rent, foreign vendor or not sure = review) and it is required
+     while the Entity is a withholding agent. The rate and amount are always worked out by the engine, never typed.
+     (4) The expense detail page now shows "Perhitungan Pajak (sebelum dicatat)" like a bill, so the withholding and
+     the net payment are visible before confirming. Existing Entities: only a standard category without a
+     classification is filled (migration p39); one the owner set is untouched. Working assumption to be confirmed
+     with the tax adviser: foreign vendors (PPh 26 / P3B), individuals (PPh 21 outside payroll) and vendors with a
+     withholding exemption certificate are not decided by the app and go to review.

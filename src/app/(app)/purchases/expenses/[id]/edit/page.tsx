@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
 import { listContacts } from "@/services/contacts/contacts";
+import { getWithholdingAgent } from "@/services/tax/tax";
 import { listActiveCategories } from "@/services/accounting/categories";
 import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
 import { listPayeeNameSuggestions } from "@/services/purchases/expenses";
@@ -25,13 +26,15 @@ export default async function EditExpensePage({
   const { membership } = await requirePermission("bills.edit", { entityCode: entity });
   const draft = await getExpenseDraftForEdit(id);
   if (!draft || draft.entity_id !== membership.entity_id) notFound();
-  const [accounts, contacts, categories, suggestions, payeeSuggestions] = await Promise.all([
-    getMoneyControl(membership.entity_id),
-    listContacts(membership.entity_id),
-    listActiveCategories(membership.entity_id),
-    listLineSuggestions(membership.entity_id, "expense"),
-    listPayeeNameSuggestions(membership.entity_id),
-  ]);
+  const [accounts, contacts, categories, suggestions, payeeSuggestions, whtAgent] =
+    await Promise.all([
+      getMoneyControl(membership.entity_id),
+      listContacts(membership.entity_id),
+      listActiveCategories(membership.entity_id),
+      listLineSuggestions(membership.entity_id, "expense"),
+      listPayeeNameSuggestions(membership.entity_id),
+      getWithholdingAgent(membership.entity_id),
+    ]);
   const vendors = listContactsByRole(contacts, "vendor").filter(
     (c) => c.status === "active" || c.id === draft.payee_id,
   );
@@ -57,6 +60,7 @@ export default async function EditExpensePage({
           )}
           vendors={vendors}
           categories={categories}
+          whtAgent={whtAgent}
           suggestions={suggestions}
           payeeSuggestions={payeeSuggestions}
           entity={entity}

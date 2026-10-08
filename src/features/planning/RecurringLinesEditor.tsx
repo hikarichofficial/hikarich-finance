@@ -4,7 +4,13 @@ import { trimDecimalText } from "@/domain/money/format";
 import { Fragment, useState } from "react";
 import type { CategoryRow } from "@/schemas/categories";
 import type { RecurringKind } from "@/domain/planning/planning";
-import { VAT_TREATMENT_LABELS, WHT_OBJECT_LABELS } from "@/domain/tax/tax";
+import {
+  VAT_TREATMENT_LABELS,
+  WHT_OBJECT_LABELS,
+  WHT_QUICK_CHOICES,
+  categorySettlesWithholding,
+  type WhtObject,
+} from "@/domain/tax/tax";
 import { plainMoneyText } from "@/domain/money/typing";
 import { exactSuggestion, type LineSuggestion } from "@/domain/sales/lineSuggestions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
@@ -178,6 +184,7 @@ export function RecurringLinesEditor({
   suggestions = [],
   entity,
   amountOnly = false,
+  whtAgent,
 }: {
   kind: RecurringKind;
   /** One "Jumlah" amount per line (quantity 1) instead of quantity x unit price (expense form, decision 353). */
@@ -189,11 +196,15 @@ export function RecurringLinesEditor({
   onChange: (rows: RecurringLineRow[]) => void;
   /** Show the per-line tax facts (VAT charged, tax-invoice number, withholding object / VAT treatment). */
   taxFields?: boolean;
+  /** The Entity withholds tax (Pemotong Pajak = Ya): a line whose category does not settle it must be answered. */
+  whtAgent?: boolean;
   /** Descriptions already used before (with their last price), for the popup above the description field. */
   suggestions?: readonly LineSuggestion[];
 }) {
   // Categories added on the spot (decision 340) are usable at once, before the page itself refreshes.
   const [addedCategories, setAddedCategories] = useState<CategoryRow[]>([]);
+  // Lines whose withholding the person chose to change although the category settles it.
+  const [changingWht, setChangingWht] = useState<ReadonlySet<string>>(new Set());
   const [addingFor, setAddingFor] = useState<{
     rowKey: string;
     kind: "revenue" | "expense" | "asset";
@@ -302,6 +313,7 @@ export function RecurringLinesEditor({
                 const rowCategories = allCategories.filter(
                   (category) => category.kind === kindFilter,
                 );
+                const category = allCategories.find((c) => c.id === row.category_id);
                 return (
                   <Fragment key={row.key}>
                     <tr>
@@ -461,22 +473,58 @@ export function RecurringLinesEditor({
                               </label>
                             ) : (
                               <>
-                                <label>
-                                  Objek potongan PPh
-                                  <select
-                                    value={extraText(row, "wht_object")}
-                                    onChange={(event) =>
-                                      updateExtra(row, "wht_object", event.target.value)
-                                    }
-                                  >
-                                    <option value="">Ikut kategori / belum ditentukan</option>
-                                    {Object.entries(WHT_OBJECT_LABELS).map(([value, label]) => (
-                                      <option key={value} value={value}>
-                                        {label}
-                                      </option>
-                                    ))}
-                                  </select>
-                                </label>
+                                {(() => {
+                                  const settledKey = categorySettlesWithholding(
+                                    category?.tax_category_key,
+                                  )
+                                    ? (category?.tax_category_key as WhtObject)
+                                    : null;
+                                  const chosen = extraText(row, "wht_object");
+                                  if (settledKey && chosen === "" && !changingWht.has(row.key)) {
+                                    return (
+                                      <p className="hint plan-lines-wht-auto">
+                                        Potongan PPh otomatis: {WHT_OBJECT_LABELS[settledKey]} (dari
+                                        kategori).{" "}
+                                        <button
+                                          type="button"
+                                          className="btn-ghost"
+                                          onClick={() =>
+                                            setChangingWht(new Set(changingWht).add(row.key))
+                                          }
+                                        >
+                                          Ubah
+                                        </button>
+                                      </p>
+                                    );
+                                  }
+                                  const known = WHT_QUICK_CHOICES.some((c) => c.value === chosen);
+                                  return (
+                                    <label>
+                                      {settledKey ? "Potongan PPh baris ini" : "Kena potongan PPh?"}
+                                      <select
+                                        value={chosen}
+                                        required={!settledKey && whtAgent === true}
+                                        onChange={(event) =>
+                                          updateExtra(row, "wht_object", event.target.value)
+                                        }
+                                      >
+                                        <option value="">
+                                          {settledKey ? "Ikut kategori" : "Pilih jawaban…"}
+                                        </option>
+                                        {WHT_QUICK_CHOICES.map((choice) => (
+                                          <option key={choice.value} value={choice.value}>
+                                            {choice.label}
+                                          </option>
+                                        ))}
+                                        {chosen !== "" && !known ? (
+                                          <option value={chosen}>
+                                            {WHT_OBJECT_LABELS[chosen as WhtObject] ?? chosen}
+                                          </option>
+                                        ) : null}
+                                      </select>
+                                    </label>
+                                  );
+                                })()}
                                 <label>
                                   PPN ditagih vendor
                                   <MoneyInput

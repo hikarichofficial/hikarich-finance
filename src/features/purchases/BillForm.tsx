@@ -30,6 +30,7 @@ import { idleBillActionState } from "./actionsState";
 export function BillForm({
   vendors,
   categories,
+  whtAgent,
   suggestions = [],
   entity,
   today,
@@ -37,6 +38,8 @@ export function BillForm({
 }: {
   vendors: readonly ContactRow[];
   categories: readonly CategoryRow[];
+  /** The Entity withholds tax: a line whose category does not settle it must be answered. */
+  whtAgent?: boolean;
   /** Descriptions used before, for the popup above each line's description (OWNER, 5 October 2026). */
   suggestions?: readonly LineSuggestion[];
   entity: string | undefined;
@@ -122,6 +125,7 @@ export function BillForm({
           amountOnly={!detailed}
           kind="bill"
           categories={categories}
+          whtAgent={whtAgent}
           entity={entity}
           suggestions={suggestions}
           rows={rows}

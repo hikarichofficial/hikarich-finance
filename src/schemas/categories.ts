@@ -25,6 +25,8 @@ export const categoryRowSchema = z.object({
   name: z.string(),
   kind: categoryKindSchema,
   sort_order: z.number().int(),
+  /** The withholding / VAT classification the category starts its lines with; empty when it depends on the line. */
+  tax_category_key: z.string().nullable().optional(),
 });
 export const categoryListSchema = z.array(categoryRowSchema);
 export type CategoryRow = z.infer<typeof categoryRowSchema>;

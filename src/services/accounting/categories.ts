@@ -15,7 +15,7 @@ export async function listActiveCategories(entityId: string): Promise<CategoryRo
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase
     .from("categories")
-    .select("id, entity_id, name, kind, sort_order")
+    .select("id, entity_id, name, kind, sort_order, tax_category_key")
     .eq("entity_id", uuidResultSchema.parse(entityId))
     .eq("is_active", true)
     .order("sort_order")

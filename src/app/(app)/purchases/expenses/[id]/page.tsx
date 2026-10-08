@@ -7,6 +7,8 @@ import { getMoneyControl } from "@/services/money/money";
 import { listContacts } from "@/services/contacts/contacts";
 import { listActiveCategories } from "@/services/accounting/categories";
 import { expenseActions, expensePayeeLabel } from "@/domain/purchases/expenseList";
+import { previewDocumentTax } from "@/services/tax/tax";
+import { TaxPreviewPanel } from "@/features/tax/TaxPreviewPanel";
 import { ExpenseDetailScreen } from "@/features/purchases/ExpenseDetailScreen";
 
 /** Direct Expense Detail (decision 245), gated `bills.view`. The expense is read for the active Entity
@@ -26,17 +28,26 @@ export default async function ExpenseDetailPage({
   const expense = await getExpense(entityId, id);
   if (!expense) notFound();
 
-  const [lines, accounts, contacts, categories] = await Promise.all([
+  const wantsPreview = expense.status === "draft" || expense.status === "submitted";
+  const [lines, accounts, contacts, categories, taxPreview] = await Promise.all([
     getExpenseLines(expense.id),
     getMoneyControl(entityId),
     listContacts(entityId),
     listActiveCategories(entityId),
+    // What the tax engine would decide (withholding included), shown before the expense is recorded.
+    wantsPreview
+      ? previewDocumentTax({ source_type: "expense", source_id: id }).catch(() => null)
+      : Promise.resolve(null),
   ]);
   const vendorNames = new Map(contacts.map((c) => [c.id, c.display_name]));
   const account = accounts.find((a) => a.financial_account_id === expense.financial_account_id);
   const backHref = entity
     ? `/purchases/expenses?entity=${encodeURIComponent(entity)}`
     : "/purchases/expenses";
+
+  const selfHref = entity
+    ? `/purchases/expenses/${id}?entity=${encodeURIComponent(entity)}`
+    : `/purchases/expenses/${id}`;
 
   return (
     <>
@@ -53,6 +64,18 @@ export default async function ExpenseDetailPage({
           canVoid: can(access, entityId, "bills.void"),
           canCreate: can(access, entityId, "bills.create"),
         })}
+        taxPanel={
+          taxPreview ? (
+            <TaxPreviewPanel
+              preview={taxPreview}
+              currency={expense.currency}
+              sourceType="expense"
+              sourceId={id}
+              canOverride={can(access, entityId, "tax.override")}
+              next={selfHref}
+            />
+          ) : null
+        }
         entity={entity}
         backHref={backHref}
         canEdit={can(access, entityId, "bills.edit")}

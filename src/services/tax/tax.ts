@@ -522,6 +522,21 @@ export async function getTaxOverview(entityId: string): Promise<TaxOverview> {
   return callRpc("tax_overview", { p_entity: uuidResultSchema.parse(entityId) }, taxOverviewSchema);
 }
 
+/**
+ * Whether the Entity withholds tax (Pemotong Pajak = Ya), read for the expense and bill forms so a line whose
+ * category does not settle the withholding can ask the question. `undefined` when it cannot be read (no tax
+ * permission, no profile yet): the form then asks nothing it cannot enforce, and the database still decides.
+ */
+export async function getWithholdingAgent(entityId: string): Promise<boolean | undefined> {
+  try {
+    const overview = await getTaxOverview(entityId);
+    const value = overview.profile?.withholding_agent;
+    return value === "yes" ? true : value === "no" ? false : undefined;
+  } catch {
+    return undefined;
+  }
+}
+
 /** Income outside the PPh Final for a calendar year, read from the journals; nothing is recorded (decision 352). */
 export async function getNonFinalIncome(entityId: string, year?: number): Promise<NonFinalIncome> {
   return callRpc(
