@@ -1,9 +1,27 @@
 /**
- * The rules every "type and pick" field shares -- a customer or vendor, a recipient's name, the description of a
- * line (OWNER, 6 October 2026): clicking into the field only puts the cursor there and shows nothing; the popup
- * appears once the person starts typing, straight away from the first character, and narrows as more is typed.
+ * The rules every "type and pick" field shares -- a customer or vendor, a category, a recipient's name, the
+ * description of a line. Since 8 October 2026 (OWNER: "kategori tetap menampilkan semua kategori referensi, kalau
+ * menunggu ketikan bisa saja lupa harus memilih yang mana") clicking into the field opens the list of everything that
+ * can be picked, scrollable, with the add-new row kept in it; typing narrows the list from the first character
+ * (this replaces the rule of 6 October 2026 that the list waited for the first typed character).
  * A suggestion is only ever a convenience -- the person may keep typing something else.
  */
+
+/** How many entries the list shows before anything is typed: the whole reference list, up to a sane ceiling. */
+export const BROWSE_LIMIT = 200;
+
+/** What the list shows. Nothing typed (or the field just shows the chosen name): everything, most recent first as
+ * given. Something typed: the matches of `matchTypeahead`. */
+export function browseTypeahead<T>(
+  typed: string | null,
+  all: readonly T[],
+  nameOf: (item: T) => string,
+  searchLimit = 8,
+  browseLimit = BROWSE_LIMIT,
+): T[] {
+  if (typed === null || !hasTyped(typed)) return all.slice(0, browseLimit);
+  return matchTypeahead(typed, all, nameOf, searchLimit);
+}
 
 export function normalizeTypeahead(text: string): string {
   return text.trim().replace(/\s+/g, " ").toLowerCase();
@@ -15,8 +33,7 @@ export function hasTyped(text: string): boolean {
 }
 
 /**
- * What to offer for what has been typed. Nothing typed: nothing (not "the first few names": the list must not
- * open just because the field was clicked). One character: names that start with it. Two or more: names that
+ * What to offer for what has been typed. Nothing typed: nothing (use `browseTypeahead` to show everything). One character: names that start with it. Two or more: names that
  * start with it first, then names that contain it, each group keeping the order of `all` (most recent first).
  */
 export function matchTypeahead<T>(

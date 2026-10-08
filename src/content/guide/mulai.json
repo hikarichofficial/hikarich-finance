@@ -199,15 +199,15 @@
     },
     {
       "slug": "kolom-ketik-dan-pilih",
-      "title": "Cara Memakai Kolom Ketik-dan-Pilih (Pelanggan, Vendor, Penerima, Deskripsi)",
-      "summary": "Mengisi kolom nama dan deskripsi dengan cepat: ketik beberapa huruf, pilih dari daftar yang muncul, atau tambahkan yang baru bila belum ada.",
+      "title": "Cara Memakai Kolom Ketik-dan-Pilih (Pelanggan, Vendor, Kategori, Penerima, Deskripsi)",
+      "summary": "Mengisi kolom nama, kategori, dan deskripsi dengan cepat: klik untuk melihat semua pilihan, ketik untuk mempersempit, atau tambahkan yang baru bila belum ada.",
       "path": "Muncul di banyak form: Penjualan > Invoice (Pelanggan dan deskripsi baris), Pembelian > Beban (Vendor dan Nama Penerima), Pembelian > Tagihan, Kas & Bank > Transfer, Akuntansi > Jurnal Manual, Aset & Pendanaan (pinjaman, utang-piutang, ekuitas)",
       "who": "Semua pengguna yang boleh mengisi form tersebut. Tidak ada izin khusus; daftar yang muncul hanya berasal dari data Entity yang sedang aktif.",
-      "quick": "Daftar pilihan tidak muncul saat kolom hanya diklik. Daftar baru muncul setelah Anda mengetik, mulai dari huruf pertama, dan makin pendek seiring ketikan bertambah.",
+      "quick": "Klik kolomnya dan seluruh pilihan langsung terbuka (bisa digulir), jadi Anda tidak perlu mengingat apa yang ada. Mengetik mempersempit daftar mulai dari huruf pertama, dan tombol **+ Tambah ... baru** selalu ada di bagian bawah daftar.",
       "steps": [
         {
-          "title": "Klik kolomnya, lalu mulai mengetik",
-          "text": "Mengklik kolom hanya menaruh kursor; belum ada daftar yang terbuka. Ketik satu huruf atau lebih. Pada satu huruf, daftar menampilkan nama yang diawali huruf itu. Mulai dua huruf, nama yang memuat huruf itu di bagian mana pun ikut tampil, dengan yang diawali huruf Anda di atas.",
+          "title": "Klik kolomnya, lihat semua pilihan, atau ketik",
+          "text": "Mengklik kolom membuka seluruh daftar pilihan (pelanggan, vendor, kategori, Brand, Jenis Produk, Variant) yang bisa digulir. Pada kolom nama penerima dan deskripsi baris, yang tampil adalah yang pernah dipakai. Ketik satu huruf atau lebih untuk mempersempit: pada satu huruf, daftar menampilkan nama yang diawali huruf itu. Mulai dua huruf, nama yang memuat huruf itu di bagian mana pun ikut tampil, dengan yang diawali huruf Anda di atas.",
           "tip": "Makin banyak yang diketik, makin pendek daftarnya. Ketik “bud” untuk menemukan “Pak Budi” tanpa menggulir."
         },
         {
@@ -216,7 +216,7 @@
         },
         {
           "title": "Tambahkan bila belum ada",
-          "text": "Bila yang Anda ketik belum ada, baris terakhir daftar menawarkan **+ Tambah “…” sebagai … baru**. Untuk **Pelanggan** dan **Vendor**, ini membuka panel kecil untuk menyimpan kontak baru tanpa meninggalkan form. Untuk **Nama Penerima**, **deskripsi**, **penjelasan**, dan **tujuan/keterangan**, tulisan Anda dipakai apa adanya dan tersimpan bersama dokumen; nama itu muncul di daftar pada pengisian berikutnya."
+          "text": "Baris terakhir daftar selalu menawarkan **+ Tambah … baru** (bila Anda sudah mengetik, tertulis **+ Tambah “…” sebagai … baru**). Untuk **Pelanggan** dan **Vendor**, ini membuka panel kecil untuk menyimpan kontak baru tanpa meninggalkan form. Untuk **Nama Penerima**, **deskripsi**, **penjelasan**, dan **tujuan/keterangan**, tulisan Anda dipakai apa adanya dan tersimpan bersama dokumen; nama itu muncul di daftar pada pengisian berikutnya."
         },
         {
           "title": "Tetap boleh menulis sendiri",

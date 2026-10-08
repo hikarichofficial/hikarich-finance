@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
+  BROWSE_LIMIT,
+  browseTypeahead,
   dedupeNames,
   exactTypeahead,
   hasTyped,
@@ -75,5 +77,25 @@ describe("dedupeNames", () => {
 describe("normalizeTypeahead", () => {
   it("trims, collapses spaces and lowercases", () => {
     expect(normalizeTypeahead("  Toko   JAYA ")).toBe("toko jaya");
+  });
+});
+
+describe("browseTypeahead", () => {
+  const all = ["Toko Bangunan Jaya", "Bangunan Sejahtera", "Jaya Abadi", "CV Maju"];
+
+  it("shows everything, in order, when nothing is typed or the field shows a chosen name", () => {
+    expect(browseTypeahead("", all, name)).toEqual(all);
+    expect(browseTypeahead("   ", all, name)).toEqual(all);
+    expect(browseTypeahead(null, all, name)).toEqual(all);
+  });
+
+  it("narrows to the matches once something is typed", () => {
+    expect(browseTypeahead("j", all, name)).toEqual(["Jaya Abadi"]);
+    expect(browseTypeahead("zzz", all, name)).toEqual([]);
+  });
+
+  it("caps the browse list", () => {
+    const many = Array.from({ length: BROWSE_LIMIT + 5 }, (_, i) => `Nama ${i}`);
+    expect(browseTypeahead("", many, name)).toHaveLength(BROWSE_LIMIT);
   });
 });

@@ -3013,3 +3013,16 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      SVG files regenerated; the PDF's menu texts add Catat Pendapatan, the new Ringkasan Pajak card, the single
      amount, and correct the earlier line that said a bill is paid "through Pembayaran Keluar" (it is paid from the
      bill). The PDF is regenerated and given to the owner with this change.
+
+355. **Pick-or-type fields open the whole list when clicked (owner request, 8 October 2026).** On the expense form the
+     Kategori field showed nothing until something was typed, so a person could forget which categories exist. This
+     reverses the rule of 6 October 2026 (the list waited for the first typed character) for every pick-or-type
+     field: clicking into the field (again, after a pick) opens the full reference list, scrollable and capped at
+     200 entries, in `ContactPicker` (customer, vendor, category, Brand, Jenis Produk, Variant, the product's default
+     category), with the chosen entry marked, scrolling inside the popup (the list area is about 260 px high) while the add row stays in view; typing narrows it as before; the "+ Tambah ... baru" row stays at the
+     bottom even before anything is typed (the panel then opens with an empty name) and is hidden only when what was
+     typed is already on the list. `SuggestTextInput` (recipient, reference, note) and `LineDescriptionInput` list the
+     most recent entries used before when the field is empty. A field that already holds saved text opens its list
+     only after it is edited, except `ContactPicker`, which always opens (the chosen name may be changed). Enter in
+     an untouched field no longer blocks submitting the form. Shared helper `browseTypeahead`; guide
+     "Kolom Ketik-dan-Pilih" updated.

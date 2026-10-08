@@ -3,7 +3,7 @@
 import { useId, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { formatPlain } from "@/domain/money/format";
-import { hasTyped } from "@/domain/shared/typeahead";
+import { browseTypeahead, hasTyped } from "@/domain/shared/typeahead";
 import {
   exactSuggestion,
   matchSuggestions,
@@ -45,12 +45,14 @@ export function LineDescriptionInput({
   const [active, setActive] = useState(-1);
   const [position, setPosition] = useState<PopupPosition | null>(null);
 
-  const matches = matchSuggestions(value, suggestions);
+  // An empty field lists the descriptions used before (OWNER, 8 October 2026); typing narrows the list.
   const typed = hasTyped(value);
+  const matches = typed
+    ? matchSuggestions(value, suggestions)
+    : browseTypeahead("", suggestions, (item) => item.description, 6, 12);
   const showAdd = typed && exactSuggestion(value, suggestions) === undefined;
   const rowCount = matches.length + (showAdd ? 1 : 0);
-  // Open only once something has been typed (OWNER, 6 October 2026): a click into the field shows no list.
-  const open = focused && !dismissed && typed;
+  const open = focused && !dismissed && (typed || suggestions.length > 0);
 
   useLayoutEffect(() => {
     if (!open || !ref.current) return;
@@ -109,7 +111,11 @@ export function LineDescriptionInput({
           setActive(-1);
           onChange(event.target.value);
         }}
-        onFocus={() => setFocused(true)}
+        onFocus={() => {
+          setFocused(true);
+          setDismissed(false);
+        }}
+        onClick={() => setDismissed(false)}
         onBlur={() => setFocused(false)}
         onKeyDown={(event) => {
           if (!open || rowCount === 0) return;
@@ -140,7 +146,9 @@ export function LineDescriptionInput({
             >
               <p className="line-suggest-title">
                 {matches.length > 0
-                  ? "Sesuai huruf yang diketik. Klik untuk memakai, atau lanjut mengetik."
+                  ? typed
+                    ? "Sesuai huruf yang diketik. Klik untuk memakai, atau lanjut mengetik."
+                    : "Pernah dipakai. Klik untuk memakai, atau mulai mengetik."
                   : suggestions.length === 0
                     ? "Belum ada deskripsi tersimpan. Pilih “+ Tambah” di bawah untuk memakai tulisan ini; deskripsi yang sudah dipakai akan muncul di sini lain kali."
                     : "Tidak ada deskripsi dengan huruf ini. Pilih “+ Tambah” di bawah, atau lanjutkan mengetik."}
