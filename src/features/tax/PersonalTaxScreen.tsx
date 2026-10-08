@@ -3,6 +3,7 @@ import { Decimal } from "@/domain/money/decimal";
 import { formatMoney } from "@/domain/money/format";
 import {
   computePersonalTax,
+  type InstallmentResult,
   ptkpAmount,
   ptkpLabel,
   type PersonalTaxResult,
@@ -56,10 +57,13 @@ export function PersonalTaxScreen({
   summary,
   entity,
   currentYear,
+  installment,
 }: {
   summary: PersonalTaxSummary;
   entity: string | undefined;
   currentYear: number;
+  /** The monthly PPh 25 instalment, from last year's tax; null for a year already settled. */
+  installment: InstallmentResult | null;
 }) {
   const result: PersonalTaxResult = computePersonalTax(summary);
   const cur = summary.currency;
@@ -91,6 +95,13 @@ export function PersonalTaxScreen({
   }));
   const hasServiceIncome = prog !== null && !Decimal.parse(prog.gross).isZero();
   const owed = Decimal.parse(result.totalToPay);
+  const settledAmount =
+    prog && final
+      ? Decimal.parse(prog.credit)
+          .add(Decimal.parse(prog.prepaid))
+          .add(Decimal.parse(final.paid))
+          .toString()
+      : "0";
   const overpaid = prog !== null && Decimal.parse(prog.balance).isNegative();
 
   return (
@@ -153,7 +164,7 @@ export function PersonalTaxScreen({
               <p className="pp-answer-note">
                 {overpaid
                   ? `Pajak yang sudah dipotong melebihi pajak progresif ${money(Decimal.parse(prog.balance).abs().toString())}; dikembalikan lewat SPT Tahunan.`
-                  : "Pajak final dan pajak progresif tahun ini, setelah dikurangi pajak yang sudah dipotong."}
+                  : "Pajak final dan pajak progresif tahun ini, setelah dikurangi pajak yang sudah dipotong dan yang sudah Anda setor."}
               </p>
             </div>
             <ul className="pp-equation" aria-label="Rumus">
@@ -168,8 +179,8 @@ export function PersonalTaxScreen({
               </li>
               <li>
                 <i aria-hidden="true">−</i>
-                <span>Sudah dipotong</span>
-                <strong>{money(prog.credit)}</strong>
+                <span>Sudah dipotong & disetor</span>
+                <strong>{money(settledAmount)}</strong>
               </li>
             </ul>
           </section>
@@ -200,6 +211,13 @@ export function PersonalTaxScreen({
                 <Row
                   label={`Pajak final ${ratePercent(final.rate)}`}
                   value={money(final.tax)}
+                  strong
+                />
+                <Row label="Sudah disetor (PPh Final)" value={money(final.paid)} sign="minus" />
+                <Row
+                  label="Kurang bayar"
+                  value={money(Decimal.parse(final.balance).isNegative() ? "0" : final.balance)}
+                  sign="equals"
                   strong
                 />
               </ul>
@@ -298,6 +316,11 @@ export function PersonalTaxScreen({
                   sign="minus"
                 />
                 <Row
+                  label="Sudah disetor (angsuran PPh 25)"
+                  value={money(prog.prepaid)}
+                  sign="minus"
+                />
+                <Row
                   label={overpaid ? "Lebih bayar" : "Kurang bayar"}
                   value={money(Decimal.parse(prog.balance).abs().toString())}
                   sign="equals"
@@ -354,6 +377,36 @@ export function PersonalTaxScreen({
             </div>
 
             <div className="dashboard-column">
+              {installment ? (
+                <section className="dashboard-section">
+                  <div className="dashboard-section-header">
+                    <h2 className="dashboard-section-title">Angsuran PPh 25 bulanan</h2>
+                    <span className="delta-chip">
+                      {installment.kind === "amount" ? "Perkiraan" : "Nihil"}
+                    </span>
+                  </div>
+                  <div className="tax-split">
+                    <div className="tax-split-item">
+                      <span>Per bulan</span>
+                      <strong>{money(installment.monthly)}</strong>
+                    </div>
+                    <div className="tax-split-item">
+                      <span>Disetor tahun ini</span>
+                      <strong>{money(installment.paid)}</strong>
+                    </div>
+                    <div className="tax-split-item">
+                      <span>Jatuh tempo</span>
+                      <strong>Tgl {installment.dueDay} bulan berikutnya</strong>
+                    </div>
+                  </div>
+                  <p className="hint">
+                    {installment.kind === "amount"
+                      ? `Pajak progresif tahun lalu dikurangi pajak yang dipotong (${money(installment.basis)}), dibagi 12. Setor lewat e-Billing lalu catat di Pembelian > Biaya dengan kategori "Setoran PPh 25 (Angsuran)"; angka di sini dan kurang bayar ikut menyesuaikan.`
+                      : installment.reason}
+                  </p>
+                </section>
+              ) : null}
+
               <section className="dashboard-section">
                 <div className="dashboard-section-header">
                   <h2 className="dashboard-section-title">Dari PT Anda (otomatis)</h2>
@@ -443,8 +496,17 @@ export function PersonalTaxScreen({
                 {finalRule ? `; ${finalRule.code} versi ${finalRule.version}` : ""}.
               </li>
               <li>
+                Jatah bebas pajak Rp 500 juta hanya untuk penjualan usaha (PPh Final). Penghasilan
+                jasa tidak memakainya dan dihitung penuh dengan tarif progresif.
+              </li>
+              <li>
+                Pajak yang Anda setor sendiri (PPh Final dan angsuran PPh 25) dicatat sebagai biaya
+                dengan kategori &ldquo;Setoran PPh Final UMKM&rdquo; atau &ldquo;Setoran PPh 25
+                (Angsuran)&rdquo;, lalu otomatis mengurangi kekurangan bayar.
+              </li>
+              <li>
                 Ini perkiraan. Angka tidak dicatat sebagai jurnal; tahun ditetapkan otomatis tiap 1
-                Januari berikutnya. Angsuran PPh 25 bulanan dan penyusutan aset belum dihitung.
+                Januari berikutnya. Penyusutan aset belum dihitung.
               </li>
               {!Decimal.parse(summary.business.withheld_not_credited).isZero() ? (
                 <li>

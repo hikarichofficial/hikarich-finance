@@ -119,7 +119,7 @@
       "steps": [
         {
           "title": "Beri tanda pada kategori (sekali saja)",
-          "text": "Buka **Akuntansi > Kategori** di Buku Pribadi. Kolom **Pajak Pribadi** menawarkan empat tanda. Pendapatan: **Penjualan usaha · PPh Final 0,5%**, **Jasa & pekerjaan bebas · PPh progresif**, dan **Honor dari PT saya · otomatis dari PT**. Pengeluaran: **Biaya usaha & jasa · mengurangi penghasilan neto**. Tanpa tanda berarti pribadi: tercatat di laporan tetapi tidak masuk hitungan pajak. Buku Pribadi baru sudah berisi kategori bawaan yang bertanda.",
+          "text": "Buka **Akuntansi > Kategori** di Buku Pribadi. Kolom **Pajak Pribadi** menawarkan enam tanda. Pendapatan: **Penjualan usaha · PPh Final 0,5%**, **Jasa & pekerjaan bebas · PPh progresif**, dan **Honor dari PT saya · otomatis dari PT**. Pengeluaran: **Biaya usaha & jasa · mengurangi penghasilan neto**, **Setoran PPh Final UMKM** dan **Setoran PPh 25 (angsuran)** (pajak yang sudah Anda bayar sendiri ke negara, bukan biaya usaha). Tanpa tanda berarti pribadi: tercatat di laporan tetapi tidak masuk hitungan pajak. Buku Pribadi baru sudah berisi kategori bawaan yang bertanda.",
           "tip": "Inilah “mesin pemilah” biaya: hanya pengeluaran berkategori Biaya usaha & jasa yang mengurangi penghasilan jasa. Belanja rumah tangga tidak."
         },
         {
@@ -132,7 +132,12 @@
         },
         {
           "title": "Buka Pajak > Pajak Pribadi",
-          "text": "Di atas tampil satu angka: **Perkiraan pajak yang masih harus dibayar**, beserta rumusnya (PPh Final + PPh Progresif − Sudah dipotong). Di bawahnya dua kartu hitungan. **PPh Final UMKM**: penjualan usaha, dikurangi Rp 500 juta bebas pajak untuk orang pribadi, dikali 0,5%. **PPh Progresif**: pendapatan jasa bruto dikurangi biaya usaha menjadi penghasilan neto, dikurangi PTKP menjadi PKP (dibulatkan ke bawah ribuan), lalu dikenai tarif 5%, 15%, 25%, 30%, dan 35% per lapisan, dikurangi pajak yang sudah dipotong."
+          "text": "Di atas tampil satu angka: **Perkiraan pajak yang masih harus dibayar**, beserta rumusnya (PPh Final + PPh Progresif − Sudah dipotong & disetor). Di bawahnya dua kartu hitungan. **PPh Final UMKM**: penjualan usaha, dikurangi Rp 500 juta bebas pajak untuk orang pribadi, dikali 0,5%. **PPh Progresif**: pendapatan jasa bruto dikurangi biaya usaha menjadi penghasilan neto, dikurangi PTKP menjadi PKP (dibulatkan ke bawah ribuan), lalu dikenai tarif 5%, 15%, 25%, 30%, dan 35% per lapisan, dikurangi pajak yang sudah dipotong dan angsuran yang sudah disetor. Kartu **Angsuran PPh 25 bulanan** menampilkan angsuran per bulan untuk tahun ini: pajak progresif tahun lalu dikurangi kreditnya, dibagi 12, dibayar paling lambat tanggal 15 bulan berikutnya. Tahun pertama atau tahun lalu tanpa pajak: Nihil."
+        },
+        {
+          "title": "Catat pajak yang sudah Anda setor",
+          "text": "Setiap kali menyetor pajak sendiri ke negara, catat di **Pembelian > Biaya** dengan kategori **Setoran PPh Final UMKM** (PPh Final 0,5% bulanan, disetor paling lambat tanggal 15 bulan berikutnya) atau **Setoran PPh 25 (Angsuran)** (angsuran bulanan untuk PPh Progresif). Setoran ini tidak mengurangi penghasilan neto; ia mengurangi **kurang bayar** di halaman Pajak Pribadi.",
+          "tip": "Kategori ini sudah ada di Buku Pribadi baru dan di Buku Pribadi lama yang sudah ada. Setoran PPh Final tidak ikut mengurangi PPh Progresif, dan sebaliknya."
         },
         {
           "title": "Pilih status PTKP",
@@ -162,15 +167,18 @@
         "Tidak ada jurnal atau kewajiban pajak yang dicatat dari halaman ini."
       ],
       "rules": [
-        "Penghasilan jasa sebagai pekerja bebas tidak bisa memakai PPh Final 0,5%; dihitung dari penghasilan neto dengan tarif progresif (Pasal 17 UU PPh). Ia tetap dihitung dalam batas omzet Rp 4,8 miliar.",
-        "PPh Final UMKM orang pribadi berlaku tanpa batas waktu dan Rp 500 juta pertama setahun tidak dikenai pajak (PP 20/2026).",
+        "Penghasilan jasa sebagai pekerja bebas tidak bisa memakai PPh Final 0,5% dan tidak memakai jatah Rp 500 juta; dihitung dari penghasilan neto dengan tarif progresif (Pasal 17 UU PPh; PMK 164/2023 Pasal 3). Ia tetap dihitung dalam batas omzet Rp 4,8 miliar.",
+        "PPh Final UMKM orang pribadi berlaku tanpa batas waktu. Rp 500 juta pertama setahun tidak dikenai pajak, tetapi jatah ini hanya untuk penjualan usaha (UU PPh Pasal 7 ayat 2a; PP 55/2022 Pasal 60; PP 20/2026).",
+        "PKP dibulatkan ke bawah ke ribuan penuh (Pasal 17 ayat 4 UU PPh) sebelum tarif dikenakan.",
         "Penghasilan neto dihitung dari pembukuan: pendapatan jasa dikurangi biaya berkategori Biaya usaha & jasa. Bila biaya melebihi pendapatan tidak ada pajak.",
         "Omzet gabungan menjumlahkan semua Entity yang Anda miliki (OWNER). Omzet pasangan dan anak di bawah umur tidak terbaca sistem; pertanyaannya tetap ada di Pengaturan Pajak.",
-        "Ini perkiraan. Angsuran PPh 25 bulanan dan penyusutan aset belum dihitung. Tahun ditetapkan otomatis 1 Januari tahun berikutnya; SPT Tahunan orang pribadi jatuh tempo 31 Maret."
+        "Angsuran PPh 25 mengikuti PMK 215/PMK.03/2018 (pajak tahun lalu dikurangi kredit, dibagi 12). PPh Final tidak punya angsuran PPh 25. Hitungan ulang angsuran bila pajak tahun ini diperkirakan jauh beda (di atas 150% atau di bawah 75%), Pengusaha Tertentu 0,75%, dan penyusutan aset belum dihitung.",
+        "Ini perkiraan. Setoran yang Anda catat memakai kategori Setoran mengurangi kurang bayar dan tidak dicatat sebagai biaya usaha. Tahun ditetapkan otomatis 1 Januari tahun berikutnya; SPT Tahunan orang pribadi jatuh tempo 31 Maret."
       ],
       "mistakes": [
         "Lupa memberi tanda pada kategori. Pendapatan atau biaya tanpa tanda dianggap pribadi dan tidak masuk hitungan.",
         "Mencatat honor PT sebagai jenis jasa biasa sehingga terhitung dua kali. Pakai jenis Honor dari PT Saya.",
+        "Mencatat setoran pajak sebagai Biaya usaha & jasa. Itu mengurangi penghasilan neto padahal setoran adalah pembayaran pajak; pakai kategori Setoran.",
         "Menganggap angka ini final. Konfirmasikan dengan konsultan pajak sebelum SPT."
       ],
       "related": [

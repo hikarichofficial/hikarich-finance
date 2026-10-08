@@ -39,7 +39,9 @@ export interface ProgressiveResult {
   layers: TaxLayer[];
   tax: string;
   credit: string;
-  /** Tax less credit: positive is still to pay, negative is an overpayment. */
+  /** PPh 25 instalments the person has already paid this year (decision 366). */
+  prepaid: string;
+  /** Tax less credit and instalments paid: positive is still to pay, negative is an overpayment. */
   balance: string;
   /** Tax as a share of the gross income, for the figure "x% dari pendapatan jasa". */
   effectiveRate: string;
@@ -53,6 +55,10 @@ export interface FinalResult {
   taxable: string;
   rate: string;
   tax: string;
+  /** Final tax the person has already paid in this year (decision 366). */
+  paid: string;
+  /** Final tax less what has been paid: positive is still to pay. */
+  balance: string;
   /** True while the whole turnover is still inside the free band. */
   insideBand: boolean;
   /** Turnover still free before tax starts. */
@@ -151,7 +157,8 @@ export function computeProgressive(
   const taxable = roundDownTo(afterPtkp, dec(params.pkp_round_down_to));
   const { layers, tax } = progressiveTax(taxable, params.brackets);
   const credit = dec(summary.freelance.own_withheld).add(dec(summary.freelance.pt_withheld));
-  const balance = tax.sub(credit);
+  const prepaid = dec(summary.payments.installment);
+  const balance = tax.sub(credit).sub(prepaid);
   return {
     gross: gross.toString(),
     costs: costs.toString(),
@@ -163,6 +170,7 @@ export function computeProgressive(
     layers,
     tax: tax.toString(),
     credit: credit.toString(),
+    prepaid: prepaid.toString(),
     balance: balance.toString(),
     effectiveRate: percentOf(tax, gross),
     loss,
@@ -185,12 +193,15 @@ export function computeFinal(summary: PersonalTaxSummary, rate: string, band: st
   const bandD = dec(band);
   const taxable = turnover.cmp(bandD) > 0 ? turnover.sub(bandD) : ZERO;
   const tax = taxable.mul(Decimal.parse(rate)).round(0, "half_up");
+  const paid = dec(summary.payments.final);
   return {
     turnover: turnover.toString(),
     band: bandD.toString(),
     taxable: taxable.toString(),
     rate,
     tax: tax.toString(),
+    paid: paid.toString(),
+    balance: tax.sub(paid).toString(),
     insideBand: turnover.cmp(bandD) <= 0,
     bandLeft: (turnover.cmp(bandD) < 0 ? bandD.sub(turnover) : ZERO).toString(),
   };
@@ -240,7 +251,10 @@ export function computePersonalTax(summary: PersonalTaxSummary): PersonalTaxResu
   );
   const ceiling = computeCeiling(summary, final.params.annual_ceiling);
   const totalTax = dec(progressive.tax).add(dec(finalResult.tax));
-  const toPay = dec(progressive.balance).add(dec(finalResult.tax));
+  // The final tax is paid on its own and is not part of the annual return, so an overpayment of one does not
+  // cancel what is owed on the other: each is counted only when positive.
+  const positive = (v: string) => (dec(v).isPositive() ? dec(v) : ZERO);
+  const toPay = positive(progressive.balance).add(positive(finalResult.balance));
   return {
     ready: true,
     notReady: null,
@@ -250,7 +264,7 @@ export function computePersonalTax(summary: PersonalTaxSummary): PersonalTaxResu
     final: finalResult,
     ceiling,
     totalTax: totalTax.toString(),
-    totalToPay: (toPay.isNegative() ? ZERO : toPay).toString(),
+    totalToPay: toPay.toString(),
   };
 }
 
@@ -289,5 +303,69 @@ export function groupTurnoverView(
     share: share.toString(),
     over: total.cmp(ceilingD) > 0,
     parts,
+  };
+}
+
+export interface InstallmentResult {
+  kind: "amount" | "nihil";
+  /** The monthly PPh 25 instalment (0 when nihil). */
+  monthly: string;
+  /** Last year's progressive tax less the tax withheld by others, before dividing by 12. */
+  basis: string;
+  /** Why the instalment is nil, in words. */
+  reason: string | null;
+  /** Instalments already paid in the year shown. */
+  paid: string;
+  /** Day of the next month by which an instalment is paid. */
+  dueDay: number;
+}
+
+/** `value / by` as whole rupiah, rounded half up (value is never negative here). */
+function divideRound(value: Decimal, by: number): Decimal {
+  const units = toBig(value);
+  const divisor = BigInt(by);
+  return Decimal.parse(((units * BigInt(2) + divisor) / (divisor * BigInt(2))).toString());
+}
+
+/**
+ * The monthly PPh 25 instalment of an individual with services income (PMK 215/PMK.03/2018 Art. 2): the tax payable
+ * of last year's annual return less the tax withheld by others (PPh 21, 22, 23, 24), divided by 12, paid by the 15th
+ * of the following month. A taxpayer registered in the year pays nothing that year (Art. 10), and nothing is due when
+ * last year left no tax to pay. Instalments the person paid themselves are not part of the basis. The PPh Final UMKM
+ * has no instalments. An estimate: recalculation when the expected tax moves by more than half is not modelled.
+ */
+export function computeInstallment(
+  prior: PersonalTaxResult | null,
+  current: PersonalTaxSummary,
+): InstallmentResult {
+  const paid = current.payments.installment;
+  const nihil = (reason: string, basis = "0"): InstallmentResult => ({
+    kind: "nihil",
+    monthly: "0",
+    basis,
+    reason,
+    paid,
+    dueDay: 15,
+  });
+  const p = prior?.progressive;
+  if (!prior || !prior.ready || !p || dec(p.gross).isZero()) {
+    return nihil(
+      "Belum ada penghasilan jasa di tahun lalu. Wajib pajak baru tidak membayar angsuran di tahun pendaftarannya.",
+    );
+  }
+  const basis = dec(p.tax).sub(dec(p.credit));
+  if (!basis.isPositive()) {
+    return nihil(
+      "Pajak tahun lalu sudah tertutup oleh pajak yang dipotong, jadi tidak ada angsuran.",
+      "0",
+    );
+  }
+  return {
+    kind: "amount",
+    monthly: divideRound(basis, 12).toString(),
+    basis: basis.toString(),
+    reason: null,
+    paid,
+    dueDay: 15,
   };
 }

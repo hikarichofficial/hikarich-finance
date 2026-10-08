@@ -14,7 +14,11 @@ describe("personal tax roles", () => {
       "freelance",
       "company_payout",
     ]);
-    expect(personalRolesForKind("expense")).toEqual(["business_cost"]);
+    expect(personalRolesForKind("expense")).toEqual([
+      "business_cost",
+      "tax_paid_final",
+      "tax_paid_installment",
+    ]);
     expect(personalRolesForKind("asset")).toEqual([]);
   });
 

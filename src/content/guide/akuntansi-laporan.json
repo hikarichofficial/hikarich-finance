@@ -46,7 +46,7 @@
         },
         {
           "title": "Buku Pribadi: tanda Pajak Pribadi",
-          "text": "Di Buku Pribadi kolom **Perlakuan Pajak** diganti **Pajak Pribadi**, dan pilihan perlakuan PPN/PPh perusahaan tidak tampil. Pilih tanda yang menentukan apakah kategori masuk hitungan pajak: penjualan usaha (PPh Final 0,5%), jasa & pekerjaan bebas (PPh progresif), honor dari PT saya, atau biaya usaha & jasa (mengurangi penghasilan neto). Tanpa tanda berarti pribadi dan tidak dihitung. Tanda yang sama ditanyakan saat menambah kategori di tempat dari Catat Pendapatan.",
+          "text": "Di Buku Pribadi kolom **Perlakuan Pajak** diganti **Pajak Pribadi**, dan pilihan perlakuan PPN/PPh perusahaan tidak tampil. Pilih tanda yang menentukan apakah kategori masuk hitungan pajak: penjualan usaha (PPh Final 0,5%), jasa & pekerjaan bebas (PPh progresif), honor dari PT saya, biaya usaha & jasa (mengurangi penghasilan neto), serta dua setoran pajak yang sudah Anda bayar sendiri (Setoran PPh Final UMKM dan Setoran PPh 25 (Angsuran), mengurangi kurang bayar, bukan biaya). Tanpa tanda berarti pribadi dan tidak dihitung. Tanda yang sama ditanyakan saat menambah kategori di tempat dari Catat Pendapatan.",
           "tip": "Lihat [Cara Membaca Pajak Pribadi](pajak-pribadi) untuk hasilnya."
         }
       ],
