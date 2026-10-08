@@ -90,7 +90,11 @@ export function BillForm({
     <>
       <form {...actionForm} className="record-form record-form-wide">
         <input type="hidden" name="entity" value={entity ?? ""} />
-        <input type="hidden" name="lines" value={buildRecurringLinesJson(rows, "bill")} />
+        <input
+          type="hidden"
+          name="lines"
+          value={buildRecurringLinesJson(rows, "bill", categories)}
+        />
         {initial ? (
           <>
             <input type="hidden" name="bill_id" value={initial.id} />

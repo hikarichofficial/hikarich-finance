@@ -101,7 +101,11 @@ export function ExpenseForm({
     <>
       <form {...actionForm} className="record-form record-form-wide">
         <input type="hidden" name="entity" value={entity ?? ""} />
-        <input type="hidden" name="lines" value={buildRecurringLinesJson(rows, "expense")} />
+        <input
+          type="hidden"
+          name="lines"
+          value={buildRecurringLinesJson(rows, "expense", categories)}
+        />
         {initial ? (
           <>
             <input type="hidden" name="expense_id" value={initial.id} />

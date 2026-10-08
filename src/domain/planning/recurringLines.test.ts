@@ -61,6 +61,50 @@ describe("buildRecurringLinesJson", () => {
   });
 });
 
+describe("withholding default", () => {
+  const categories = [
+    { id: "rent", tax_category_key: "wht_rent_land_building" },
+    { id: "ask", tax_category_key: null },
+  ];
+
+  it("sends 'not a withholding object' when nothing was chosen and the category does not settle it", () => {
+    const [line] = JSON.parse(
+      buildRecurringLinesJson(
+        [row({ description: "Jasa", unit_price: "1000", category_id: "ask" })],
+        "expense",
+        categories,
+      ),
+    );
+    expect(line.wht_object).toBe("wht_none");
+  });
+
+  it("leaves a category that settles it, and the person's own answer, alone", () => {
+    const [byCategory] = JSON.parse(
+      buildRecurringLinesJson(
+        [row({ description: "Sewa", unit_price: "1000", category_id: "rent" })],
+        "expense",
+        categories,
+      ),
+    );
+    expect(byCategory.wht_object).toBeUndefined();
+    const [chosen] = JSON.parse(
+      buildRecurringLinesJson(
+        [
+          row({
+            description: "Jasa",
+            unit_price: "1000",
+            category_id: "ask",
+            extra: { wht_object: "wht_service_other_listed" },
+          }),
+        ],
+        "expense",
+        categories,
+      ),
+    );
+    expect(chosen.wht_object).toBe("wht_service_other_listed");
+  });
+});
+
 describe("serializedRowKeys", () => {
   it("lists the rows that are sent, which is how the database numbers its lines", () => {
     const rows = [

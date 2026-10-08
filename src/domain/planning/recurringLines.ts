@@ -101,9 +101,15 @@ export function canIncludeVat(row: RecurringLineRow, kind: RecurringKind): boole
   return kind !== "invoice" && (quantity === "" || Number(quantity) === 1);
 }
 
+/**
+ * `categories` (bill/expense forms): a line nobody answered "Kena potongan PPh?" for, whose category does not settle
+ * the withholding either, is sent as "not a withholding object" (OWNER, 8 October 2026: "jika tidak dipilih akan
+ * otomatis terhitung tidak kena PPh"). A category that settles it is left to the database, which reads it itself.
+ */
 export function buildRecurringLinesJson(
   rows: readonly RecurringLineRow[],
   kind: RecurringKind,
+  categories?: readonly { id: string; tax_category_key?: string | null }[],
 ): string {
   return JSON.stringify(
     rows.flatMap((row) => {
@@ -115,6 +121,10 @@ export function buildRecurringLinesJson(
       // goods are not a withholding object, so the line is classified without asking.
       if (kind !== "invoice" && row.treatment === "asset" && extra.wht_object === undefined) {
         extra.wht_object = "wht_none";
+      }
+      if (kind !== "invoice" && categories && extra.wht_object === undefined) {
+        const key = categories.find((c) => c.id === row.category_id)?.tax_category_key;
+        if (!key || !key.startsWith("wht_")) extra.wht_object = "wht_none";
       }
       if (row.price_includes_vat && canIncludeVat(row, kind)) {
         const split = splitVatInclusive(unitPrice);

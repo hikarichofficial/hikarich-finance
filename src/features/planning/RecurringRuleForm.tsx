@@ -126,7 +126,7 @@ export function RecurringRuleForm({
         </>
       ) : null}
       <input type="hidden" name="kind" value={kind} />
-      <input type="hidden" name="lines" value={buildRecurringLinesJson(rows, kind)} />
+      <input type="hidden" name="lines" value={buildRecurringLinesJson(rows, kind, categories)} />
 
       <label>
         Jenis Template

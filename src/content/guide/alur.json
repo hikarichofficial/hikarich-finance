@@ -1429,7 +1429,7 @@
                   "actor": "anda",
                   "title": "Catat Pengeluaran",
                   "menu": "Pembelian > Beban > Catat Pengeluaran",
-                  "note": "Pilih rekening pembayar, vendor atau nama penerima, isi satu Jumlah sesuai struk (tanpa harga satuan). Struk memuat PPN: centang Jumlah di struk sudah termasuk PPN, harga sebelum PPN dihitung otomatis. Jawab Kena potongan PPh? bila muncul. Lampirkan struk, simpan sebagai Draf"
+                  "note": "Pilih rekening pembayar, vendor atau nama penerima, isi satu Jumlah sesuai struk. Struk memuat PPN: centang Sudah termasuk PPN (harga sebelum PPN dihitung otomatis). Kena potongan PPh? sudah terisi dari kategori, ubah bila perlu. Lampirkan struk, simpan sebagai Draf"
                 },
                 {
                   "kind": "choice",
@@ -1474,7 +1474,7 @@
                   "actor": "anda",
                   "title": "Catat Tagihan",
                   "menu": "Pembelian > Tagihan > Catat Tagihan",
-                  "note": "Isi vendor, tanggal, jatuh tempo, dan satu Jumlah sesuai invoice per baris. Invoice memuat PPN: centang Jumlah sudah termasuk PPN. Jawab Kena potongan PPh? bila muncul"
+                  "note": "Isi vendor, tanggal, jatuh tempo, dan satu Jumlah sesuai invoice per baris. Invoice memuat PPN: centang Sudah termasuk PPN. Kena potongan PPh? sudah terisi dari kategori, ubah bila perlu"
                 },
                 {
                   "kind": "choice",

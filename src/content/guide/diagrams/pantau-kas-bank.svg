@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 1383" width="710" height="1383" role="img" aria-label="Di Mana Saya Melihat Uang Kas dan Bank, dan Kalau Saldo Terlihat Salah?" font-family="Helvetica, Arial, sans-serif">
-<!-- source: alur.json sha256:6088f2cd31fb2eb3 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<!-- source: alur.json sha256:0f82d4e50fa00420 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
 <title>Di Mana Saya Melihat Uang Kas dan Bank, dan Kalau Saldo Terlihat Salah?</title>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <rect x="250" y="18" width="210" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>

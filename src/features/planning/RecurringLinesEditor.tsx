@@ -125,8 +125,6 @@ export function RecurringLinesEditor({
 }) {
   // Categories added on the spot (decision 340) are usable at once, before the page itself refreshes.
   const [addedCategories, setAddedCategories] = useState<CategoryRow[]>([]);
-  // Lines whose withholding the person chose to change although the category settles it.
-  const [changingWht, setChangingWht] = useState<ReadonlySet<string>>(new Set());
   const [addingFor, setAddingFor] = useState<{
     rowKey: string;
     kind: "revenue" | "expense" | "asset";
@@ -144,7 +142,7 @@ export function RecurringLinesEditor({
   }
   const serialKeys = serializedRowKeys(rows);
   /** Red marks of one row: field -> what to do. */
-  function problemsOf(row: RecurringLineRow, settled: boolean): Partial<Record<LineField, string>> {
+  function problemsOf(row: RecurringLineRow): Partial<Record<LineField, string>> {
     const out: Partial<Record<LineField, string>> = {};
     const line = serialKeys.indexOf(row.key) + 1;
     if (line > 0) {
@@ -163,18 +161,6 @@ export function RecurringLinesEditor({
       const hasAmount = plainMoneyText(row.unit_price.trim()) !== "";
       if (hasDescription && !hasAmount) out.amount = "Isi jumlah, atau hapus baris ini.";
       if (!hasDescription && hasAmount) out.description = "Isi deskripsi, atau hapus baris ini.";
-      if (
-        hasDescription &&
-        hasAmount &&
-        taxFields &&
-        kind !== "invoice" &&
-        whtAgent === true &&
-        !settled &&
-        row.treatment !== "asset" &&
-        extraText(row, "wht_object") === ""
-      ) {
-        out.wht = LINE_FIELD_HINTS.wht;
-      }
     }
     return out;
   }
@@ -305,7 +291,7 @@ export function RecurringLinesEditor({
                 const settledKey = categorySettlesWithholding(category?.tax_category_key)
                   ? (category?.tax_category_key as WhtObject)
                   : null;
-                const marks = problemsOf(row, settledKey !== null);
+                const marks = problemsOf(row);
                 const hint = (field: LineField) =>
                   marks[field] ? <p className="field-problem-hint">{marks[field]}</p> : null;
                 const vatSplit =
@@ -359,6 +345,28 @@ export function RecurringLinesEditor({
                           placeholder="0"
                         />
                         {hint("amount")}
+                        {hint("vat_amount")}
+                        {taxFields && canIncludeVat(row, kind) ? (
+                          <label className="plan-lines-vat-inclusive">
+                            <span>
+                              <input
+                                type="checkbox"
+                                checked={row.price_includes_vat === true}
+                                onChange={(event) =>
+                                  updateRow(row.key, { price_includes_vat: event.target.checked })
+                                }
+                              />{" "}
+                              Sudah termasuk PPN {VAT_RATE_PERCENT}%
+                            </span>
+                            {row.price_includes_vat ? (
+                              <span className="hint">
+                                {vatSplit
+                                  ? `Sebelum PPN: Rp ${formatMoneyTyping(vatSplit.net)} · PPN: Rp ${formatMoneyTyping(vatSplit.vat)}. PPh dihitung dari harga sebelum PPN.`
+                                  : "Isi jumlah di struk; harga sebelum PPN dan PPN dihitung otomatis."}
+                              </span>
+                            ) : null}
+                          </label>
+                        ) : null}
                       </td>
                       {showTreatment ? (
                         <td
@@ -484,98 +492,66 @@ export function RecurringLinesEditor({
                               </label>
                             ) : (
                               <>
-                                {(() => {
-                                  const chosen = extraText(row, "wht_object");
-                                  if (row.treatment === "asset" && chosen === "") {
-                                    return (
-                                      <p className="hint plan-lines-wht-auto">
-                                        Pembelian aset / peralatan: tidak kena potongan PPh
-                                        (otomatis).
-                                      </p>
-                                    );
-                                  }
-                                  if (settledKey && chosen === "" && !changingWht.has(row.key)) {
-                                    return (
-                                      <p className="hint plan-lines-wht-auto">
-                                        Potongan PPh otomatis: {WHT_OBJECT_LABELS[settledKey]} (dari
-                                        kategori).{" "}
-                                        <button
-                                          type="button"
-                                          className="btn-ghost"
-                                          onClick={() =>
-                                            setChangingWht(new Set(changingWht).add(row.key))
+                                {whtAgent === false
+                                  ? null
+                                  : (() => {
+                                      // The answer shown is what will be used: the person's own choice, else the
+                                      // category's, else "not subject" (OWNER, 8 October 2026).
+                                      const chosen = extraText(row, "wht_object");
+                                      const asset = row.treatment === "asset";
+                                      const automatic: string = asset
+                                        ? "wht_none"
+                                        : (settledKey ?? "wht_none");
+                                      const shown = chosen !== "" ? chosen : automatic;
+                                      const options: { value: string; label: string }[] = [
+                                        ...WHT_QUICK_CHOICES,
+                                      ];
+                                      if (!options.some((o) => o.value === shown)) {
+                                        options.push({
+                                          value: shown,
+                                          label: WHT_OBJECT_LABELS[shown as WhtObject] ?? shown,
+                                        });
+                                      }
+                                      const source =
+                                        chosen !== ""
+                                          ? "Pilihan Anda untuk baris ini."
+                                          : asset
+                                            ? "Otomatis: pembelian aset / peralatan tidak kena PPh."
+                                            : settledKey
+                                              ? "Otomatis dari kategori; boleh diubah."
+                                              : "Belum dipilih: dihitung tidak kena PPh.";
+                                      return (
+                                        <label
+                                          className={
+                                            marks.wht
+                                              ? "field-problem plan-lines-wht"
+                                              : "plan-lines-wht"
                                           }
                                         >
-                                          Ubah
-                                        </button>
-                                      </p>
-                                    );
-                                  }
-                                  const known = WHT_QUICK_CHOICES.some((c) => c.value === chosen);
-                                  return (
-                                    <label className={marks.wht ? "field-problem" : undefined}>
-                                      {settledKey ? "Potongan PPh baris ini" : "Kena potongan PPh?"}
-                                      <select
-                                        value={chosen}
-                                        required={!settledKey && whtAgent === true}
-                                        onChange={(event) =>
-                                          updateExtra(row, "wht_object", event.target.value)
-                                        }
-                                      >
-                                        <option value="">
-                                          {settledKey ? "Ikut kategori" : "Pilih jawaban…"}
-                                        </option>
-                                        {WHT_QUICK_CHOICES.map((choice) => (
-                                          <option key={choice.value} value={choice.value}>
-                                            {choice.label}
-                                          </option>
-                                        ))}
-                                        {chosen !== "" && !known ? (
-                                          <option value={chosen}>
-                                            {WHT_OBJECT_LABELS[chosen as WhtObject] ?? chosen}
-                                          </option>
-                                        ) : null}
-                                      </select>
-                                      {hint("wht")}
-                                    </label>
-                                  );
-                                })()}
-                                {canIncludeVat(row, kind) ? (
-                                  <label className="plan-lines-vat-inclusive">
-                                    <span>
-                                      <input
-                                        type="checkbox"
-                                        checked={row.price_includes_vat === true}
-                                        onChange={(event) =>
-                                          updateRow(row.key, {
-                                            price_includes_vat: event.target.checked,
-                                          })
-                                        }
-                                      />{" "}
-                                      Jumlah di struk sudah termasuk PPN {VAT_RATE_PERCENT}%
-                                    </span>
-                                    {row.price_includes_vat ? (
-                                      <span className="hint">
-                                        {vatSplit
-                                          ? `Harga sebelum PPN: Rp ${formatMoneyTyping(vatSplit.net)} · PPN: Rp ${formatMoneyTyping(vatSplit.vat)}. Potongan PPh dihitung dari harga sebelum PPN.`
-                                          : "Isi jumlah di struk, lalu harga sebelum PPN dan PPN dihitung otomatis."}
-                                      </span>
-                                    ) : null}
-                                  </label>
+                                          <strong>Kena potongan PPh?</strong>
+                                          <select
+                                            value={shown}
+                                            onChange={(event) =>
+                                              updateExtra(row, "wht_object", event.target.value)
+                                            }
+                                          >
+                                            {options.map((choice) => (
+                                              <option key={choice.value} value={choice.value}>
+                                                {choice.label}
+                                              </option>
+                                            ))}
+                                          </select>
+                                          <span className="hint">{source}</span>
+                                          {hint("wht")}
+                                        </label>
+                                      );
+                                    })()}
+                                {extraText(row, "tax_amount") !== "" && !vatSplit ? (
+                                  <p className="hint">
+                                    PPN tercatat di baris ini: Rp{" "}
+                                    {formatMoneyTyping(extraText(row, "tax_amount"))}.
+                                  </p>
                                 ) : null}
-                                {vatSplit ? null : (
-                                  <label className={marks.vat_amount ? "field-problem" : undefined}>
-                                    PPN ditagih vendor
-                                    <MoneyInput
-                                      value={extraText(row, "tax_amount")}
-                                      onValueChange={(amount) =>
-                                        updateExtra(row, "tax_amount", amount)
-                                      }
-                                      placeholder="0"
-                                    />
-                                    {hint("vat_amount")}
-                                  </label>
-                                )}
                                 <label
                                   className={marks.vat_invoice_ref ? "field-problem" : undefined}
                                 >

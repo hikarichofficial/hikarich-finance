@@ -4467,3 +4467,21 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
 .plan-lines-vat-inclusive input[type="checkbox"] {
   width: auto;
 }
+
+/* "Kena potongan PPh?" is the one answer that matters on a purchase line: it stands out (OWNER, 8 October 2026). */
+.plan-lines-wht {
+  display: grid;
+  gap: 0.25rem;
+  padding: 0.5rem 0.625rem;
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  background: var(--accent-wash);
+}
+
+.plan-lines-wht strong {
+  font-size: 0.9375rem;
+}
+
+.plan-lines-wht select {
+  font-weight: 600;
+}

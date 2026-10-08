@@ -3081,7 +3081,7 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      withholding exemption certificate are not decided by the app and go to review.
 
 360. **"Harga sudah termasuk PPN", a fuller category table and red marks on what must change (owner, 8 October 2026).**
-     (1) On a bill/expense line of quantity 1 a box "Jumlah di struk sudah termasuk PPN 11%" lets the person type the
+     Same day, second round: the manual column "PPN ditagih vendor" is gone from bill/expense lines ("PPN terhitung otomatis"; "No. Faktur Pajak" stays); "Kena potongan PPh?" is always shown on every line, preselected from the category (or "Tidak kena" when the category settles nothing), can be changed, and an unanswered line is sent as "Bukan objek potongan"; it is hidden only for an Entity that is not a withholding agent. (1) On a bill/expense line of quantity 1 a box "Sudah termasuk PPN 11%" under the amount lets the person type the
      receipt total as it is printed; the form splits it into the price before VAT (total x 100/111, rounded half up)
      and the VAT (the rest), so the two always add up to the receipt and the withholding base is the price before VAT,
      never the receipt total. The split only fills the two ordinary fields (`unit_price`, `tax_amount`); the tax
@@ -3099,5 +3099,5 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      short instruction under it) until the person touches it, the message lists "Yang perlu diubah: Baris 2 · Kena
      potongan PPh?", and on a Detail page a refused submit/approve of a draft links to the edit form with the same
      columns already red (`?problems=`). After pressing save, a half-filled row (description without amount or the
-     reverse) and an unanswered required "Kena potongan PPh?" are red too. Display only: no rule changed and a reason
+     reverse) is red too. Display only: no rule changed and a reason
      the table does not know simply marks nothing (the translated sentence is still shown).
