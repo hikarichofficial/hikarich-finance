@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 478 1338.5" width="478" height="1338.5" role="img" aria-label="Pengaturan yang Dikerjakan Sekali Sebelum Transaksi Pertama" font-family="Helvetica, Arial, sans-serif">
-<!-- source: alur.json sha256:972ac96cdb61c837 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<!-- source: alur.json sha256:41b6777c771ea7ee (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
 <title>Pengaturan yang Dikerjakan Sekali Sebelum Transaksi Pertama</title>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <rect x="134" y="18" width="210" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
