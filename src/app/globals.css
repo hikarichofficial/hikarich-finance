@@ -2658,6 +2658,17 @@ a.kpi-card:hover {
   min-width: 220px;
 }
 
+.list-screen-hint {
+  margin: 0 0 var(--space-4);
+  max-width: 68ch;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+.list-screen-hint a {
+  text-decoration: underline;
+}
+
 .list-empty {
   padding: var(--space-6);
   text-align: center;
@@ -3555,6 +3566,21 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
 
 /* A long reference list scrolls inside the popup (OWNER, 8 October 2026) while the "+ Tambah baru" row below it
  * stays in view. */
+/* Drawn on the page itself (a portal) so a scrolling table or a form can never cut it off. */
+.contact-picker-list.is-floating {
+  position: fixed;
+  top: auto;
+  right: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-picker-list.is-floating ul {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+
 .contact-picker-list ul {
   max-height: 260px;
   margin: 0;

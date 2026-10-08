@@ -39,6 +39,19 @@ export function VendorPaymentsListScreen({
         </div>
       </header>
 
+      <p className="list-screen-hint">
+        Halaman ini hanya riwayat pembayaran <strong>Tagihan</strong>. Untuk membayar, buka{" "}
+        <Link
+          href={
+            entity ? `/purchases/bills?entity=${encodeURIComponent(entity)}` : "/purchases/bills"
+          }
+        >
+          Tagihan
+        </Link>{" "}
+        yang berstatus Disetujui lalu tekan <strong>Bayar Tagihan</strong>. <strong>Beban</strong>{" "}
+        yang langsung dibayar tidak muncul di sini; lihat di menu Beban atau Mutasi Kas &amp; Bank.
+      </p>
+
       <div className="list-screen-toolbar">
         <form method="get" className="list-search-form">
           {entity ? <input type="hidden" name="entity" value={entity} /> : null}

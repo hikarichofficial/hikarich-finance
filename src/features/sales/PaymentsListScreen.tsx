@@ -55,6 +55,14 @@ export function PaymentsListScreen({
         </div>
       </header>
 
+      {view === "refunds" ? (
+        <p className="list-screen-hint">
+          Halaman ini hanya daftar pembayaran yang sudah punya refund. Untuk membuat refund baru,
+          buka <Link href={buildHref("/sales/payments", entity, "")}>Pembayaran Diterima</Link>,
+          klik pembayarannya, lalu tekan <strong>Refund ke Pelanggan</strong>.
+        </p>
+      ) : null}
+
       <div className="list-screen-toolbar">
         <form method="get" className="list-search-form">
           {entity ? <input type="hidden" name="entity" value={entity} /> : null}

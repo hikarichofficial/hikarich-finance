@@ -361,7 +361,8 @@ SECTIONS = [
    "dipotong duluan oleh marketplace. Koreksi dilakukan lewat pembalikan (reversal), bukan edit langsung.", "260"),
   ("Pengembalian Dana", "/sales/refunds",
    "Mengembalikan dana ke pelanggan, sebagian atau penuh, baik dari alokasi pembayaran yang sudah ada maupun dari "
-   "saldo lebih bayar (advance) pelanggan. Diakses dari halaman Pembayaran.", "73,229,263"),
+   "saldo lebih bayar (advance) pelanggan. Halaman ini hanya daftar pembayaran yang sudah punya refund dan tidak punya "
+   "tombol tambah: refund baru dibuat dari detail pembayaran (Pembayaran Diterima > klik pembayaran > Refund ke Pelanggan).", "73,229,263,356"),
   ("Pelanggan", "/sales/customers",
    "Data induk pelanggan. Sistem mendeteksi duplikasi: email/telepon/NPWP yang sama persis akan ditolak, nama yang "
    "mirip akan meminta konfirmasi sebelum disimpan.", "67,445"),
@@ -390,7 +391,8 @@ SECTIONS = [
    "pembayarannya &mdash; tidak ada tahap utang usaha terpisah.", "82,245,353"),
   ("Pembayaran Keluar", "/purchases/payments",
    "Daftar pembayaran ke vendor. Pembayaran baru dimulai dari detail tagihan (tombol Bayar Tagihan), bukan dari "
-   "halaman ini. Pembayaran yang salah catat bisa dibatalkan (dibalik) dari halaman detail pembayaran.", "77,230"),
+   "halaman ini. Hanya memuat pembayaran Tagihan; Beban yang langsung dibayar tidak tampil di sini. Pembayaran yang salah "
+   "catat bisa dibatalkan (dibalik) dari halaman detail pembayaran.", "77,230,356"),
   ("Vendor", "/purchases/vendors",
    "Data induk vendor, dengan deteksi duplikasi yang sama seperti pada data Pelanggan.", "445"),
  ]
