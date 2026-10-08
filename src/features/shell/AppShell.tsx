@@ -33,7 +33,10 @@ export function AppShell({ access, children }: { access: AccessSnapshot; childre
     () => resolveActiveEntity(access, searchParams.get("entity")) ?? switchable[0] ?? null,
     [access, searchParams, switchable],
   );
-  const navigation = useMemo(() => visibleNavigation(membership?.permissions ?? []), [membership]);
+  const navigation = useMemo(
+    () => visibleNavigation(membership?.permissions ?? [], membership?.entity_type),
+    [membership],
+  );
   // Command Menu quick-create registry (P13 Part 4, eleventh increment, DECISIONS 199): filtered here,
   // the same "already scoped before it reaches the component" shape `navigation` above already uses, so
   // `CommandMenu` never re-checks a permission itself.

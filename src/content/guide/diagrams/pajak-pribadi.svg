@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 478 1402.5" width="478" height="1402.5" role="img" aria-label="Pajak Pribadi: Berapa Pajak Tahun Ini untuk Buku Pribadi?" font-family="Helvetica, Arial, sans-serif">
-<!-- source: alur.json sha256:a98122cb292b0d38 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 478 1414.5" width="478" height="1414.5" role="img" aria-label="Pajak Pribadi: Berapa Pajak Tahun Ini untuk Buku Pribadi?" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:21ee321cc2268b20 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
 <title>Pajak Pribadi: Berapa Pajak Tahun Ini untuk Buku Pribadi?</title>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <rect x="134" y="18" width="210" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
@@ -61,7 +61,7 @@
 <text x="144" y="619.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
 <text x="144" y="636" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Catat biaya usaha dengan kategori</text>
 <text x="144" y="649.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Biaya usaha &amp; jasa</text>
-<text x="144" y="664.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pembelian &gt; Biaya</text>
+<text x="144" y="664.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pembelian &gt; Beban</text>
 <text x="144" y="679.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Hanya biaya berkategori ini yang mengurangi</text>
 <text x="144" y="691" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">penghasilan neto. Belanja pribadi tidak</text>
 <polyline points="239,701.5 239,724.5" fill="none" stroke="#444444" stroke-width="1.4"/>
@@ -70,55 +70,56 @@
 <text x="144" y="742.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
 <text x="144" y="759" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Catat setoran pajak yang Anda bayar</text>
 <text x="144" y="772.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">ke negara</text>
-<text x="144" y="787.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pembelian &gt; Biaya (kategori Setoran</text>
+<text x="144" y="787.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pembelian &gt; Beban (kategori Setoran</text>
 <text x="144" y="799.5" font-size="9" fill="#1a4d8f" text-anchor="start">PPh Final UMKM atau Setoran PPh 25)</text>
 <text x="144" y="814.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Paling lambat tanggal 15 bulan berikutnya.</text>
 <text x="144" y="826" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Setoran mengurangi kurang bayar, bukan</text>
 <text x="144" y="837.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">penghasilan neto</text>
 <polyline points="239,848 239,871" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polygon points="239,876 234.5,868 243.5,868" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="134" y="876" width="210" height="81.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<rect x="134" y="876" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
 <text x="144" y="889" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
 <text x="144" y="905.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih status PTKP (sekali setahun)</text>
-<text x="144" y="920.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; Pajak Pribadi &gt; Status PTKP</text>
-<text x="144" y="935.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Mis. TK/0 atau K/1. Sebelum dipilih dihitung</text>
-<text x="144" y="947" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">TK/0</text>
-<polyline points="239,957.5 239,980.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="239,985.5 234.5,977.5 243.5,977.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="134" y="985.5" width="210" height="124" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
-<text x="144" y="998.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
-<text x="144" y="1015" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Menghitung dua perkiraan</text>
-<text x="144" y="1030" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">PPh Final UMKM 0,5% dari penjualan usaha</text>
-<text x="144" y="1041.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">(Rp 500 juta pertama bebas; jasa tidak ikut).</text>
-<text x="144" y="1053" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">PPh Progresif dari penghasilan neto: bruto −</text>
-<text x="144" y="1064.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">biaya − PTKP, PKP dibulatkan ke ribuan, tarif</text>
-<text x="144" y="1076" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">per lapisan, dikurangi pajak yang sudah</text>
-<text x="144" y="1087.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dipotong dan disetor. Angsuran PPh 25 bulanan</text>
-<text x="144" y="1099" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">= pajak tahun lalu dikurangi kredit ÷ 12</text>
-<polyline points="239,1109.5 239,1132.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="239,1137.5 234.5,1129.5 243.5,1129.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="134" y="1137.5" width="210" height="116" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
-<text x="144" y="1150.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="144" y="1167" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Baca hasilnya</text>
-<text x="144" y="1182" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; Pajak Pribadi</text>
-<text x="144" y="1197" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Angka besar = perkiraan yang masih harus</text>
-<text x="144" y="1208.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dibayar; kartu Angsuran PPh 25 menunjukkan</text>
-<text x="144" y="1220" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">angsuran per bulan. Omzet gabungan dengan</text>
-<text x="144" y="1231.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">PT terhadap batas Rp 4,8 miliar tampil di</text>
-<text x="144" y="1243" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">bawahnya</text>
-<polyline points="239,1253.5 239,1276.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="239,1281.5 234.5,1273.5 243.5,1273.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="134" y="1281.5" width="210" height="67" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
-<text x="239" y="1300" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
-<text x="239" y="1313.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Perkiraan, bukan angka final. Ditetapkan 1</text>
-<text x="239" y="1325" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Januari tahun berikutnya; SPT Tahunan 31</text>
-<text x="239" y="1336.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Maret</text>
-<rect x="66.95" y="1374.5" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
-<text x="82.95" y="1382.5" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
-<rect x="137.2" y="1374.5" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
-<text x="153.2" y="1382.5" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
-<rect x="259.91" y="1374.5" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
-<text x="275.91" y="1382.5" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
-<polygon points="360.14,1373.5 366.14,1379.5 360.14,1385.5 354.14,1379.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
-<text x="370.14" y="1382.5" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+<text x="144" y="920.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; Pajak Pribadi (Buku Pribadi) &gt;</text>
+<text x="144" y="932.5" font-size="9" fill="#1a4d8f" text-anchor="start">Status PTKP</text>
+<text x="144" y="947.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Mis. TK/0 atau K/1. Sebelum dipilih dihitung</text>
+<text x="144" y="959" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">TK/0</text>
+<polyline points="239,969.5 239,992.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,997.5 234.5,989.5 243.5,989.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="997.5" width="210" height="124" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="144" y="1010.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="144" y="1027" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Menghitung dua perkiraan</text>
+<text x="144" y="1042" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">PPh Final UMKM 0,5% dari penjualan usaha</text>
+<text x="144" y="1053.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">(Rp 500 juta pertama bebas; jasa tidak ikut).</text>
+<text x="144" y="1065" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">PPh Progresif dari penghasilan neto: bruto −</text>
+<text x="144" y="1076.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">biaya − PTKP, PKP dibulatkan ke ribuan, tarif</text>
+<text x="144" y="1088" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">per lapisan, dikurangi pajak yang sudah</text>
+<text x="144" y="1099.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dipotong dan disetor. Angsuran PPh 25 bulanan</text>
+<text x="144" y="1111" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">= pajak tahun lalu dikurangi kredit ÷ 12</text>
+<polyline points="239,1121.5 239,1144.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,1149.5 234.5,1141.5 243.5,1141.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="1149.5" width="210" height="116" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="144" y="1162.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="144" y="1179" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Baca hasilnya</text>
+<text x="144" y="1194" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pajak &gt; Pajak Pribadi</text>
+<text x="144" y="1209" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Angka besar = perkiraan yang masih harus</text>
+<text x="144" y="1220.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dibayar; kartu Angsuran PPh 25 menunjukkan</text>
+<text x="144" y="1232" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">angsuran per bulan. Omzet gabungan dengan</text>
+<text x="144" y="1243.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">PT terhadap batas Rp 4,8 miliar tampil di</text>
+<text x="144" y="1255" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">bawahnya</text>
+<polyline points="239,1265.5 239,1288.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,1293.5 234.5,1285.5 243.5,1285.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="1293.5" width="210" height="67" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="239" y="1312" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="239" y="1325.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Perkiraan, bukan angka final. Ditetapkan 1</text>
+<text x="239" y="1337" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Januari tahun berikutnya; SPT Tahunan 31</text>
+<text x="239" y="1348.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Maret</text>
+<rect x="66.95" y="1386.5" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="82.95" y="1394.5" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="137.2" y="1386.5" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="153.2" y="1394.5" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="259.91" y="1386.5" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="275.91" y="1394.5" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="360.14,1385.5 366.14,1391.5 360.14,1397.5 354.14,1391.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="370.14" y="1394.5" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
 </svg>

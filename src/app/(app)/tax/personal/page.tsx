@@ -34,10 +34,10 @@ export default async function PersonalTaxPage({
         <header className="tax-hero">
           <div>
             <p className="record-detail-eyebrow">Pajak</p>
-            <h1>Pajak Pribadi</h1>
+            <h1>Omzet Gabungan</h1>
             <p className="record-detail-dates">
-              Halaman ini untuk Buku Pribadi. Buka Buku Pribadi Anda lewat pemilih buku di kiri
-              atas.
+              Omzet semua buku Anda dijumlahkan otomatis untuk batas PPh Final UMKM Rp 4,8 miliar.
+              Pajak penghasilan pribadi ada di Buku Pribadi (pilih lewat pemilih buku di kiri atas).
             </p>
           </div>
           <div className="tax-chips">

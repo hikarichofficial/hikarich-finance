@@ -113,7 +113,7 @@
       "slug": "pajak-pribadi",
       "title": "Cara Membaca Pajak Pribadi (Buku Pribadi)",
       "summary": "Perkiraan pajak tahunan Buku Pribadi: PPh Final UMKM 0,5% untuk penjualan dan PPh Progresif untuk penghasilan neto dari jasa, dihitung otomatis dari catatan Anda dan dari PT Anda.",
-      "path": "Pajak > Pajak Pribadi",
+      "path": "Pajak > Pajak Pribadi (Buku Pribadi). Di Buku PT menunya bernama Pajak > Omzet Gabungan",
       "who": "Melihat: tax.view. Memilih status PTKP: tax.confirm_facts (OWNER, Finance Admin, Tax). Halaman hanya membaca pembukuan dan tidak membuat jurnal.",
       "quick": "Beri tanda pada kategori, catat pendapatan seperti biasa, lalu pilih status PTKP sekali setahun. Pajak final, pajak progresif, kredit pajak yang sudah dipotong, dan omzet gabungan dengan PT dihitung otomatis.",
       "steps": [
@@ -136,7 +136,7 @@
         },
         {
           "title": "Catat pajak yang sudah Anda setor",
-          "text": "Setiap kali menyetor pajak sendiri ke negara, catat di **Pembelian > Biaya** dengan kategori **Setoran PPh Final UMKM** (PPh Final 0,5% bulanan, disetor paling lambat tanggal 15 bulan berikutnya) atau **Setoran PPh 25 (Angsuran)** (angsuran bulanan untuk PPh Progresif). Setoran ini tidak mengurangi penghasilan neto; ia mengurangi **kurang bayar** di halaman Pajak Pribadi.",
+          "text": "Setiap kali menyetor pajak sendiri ke negara, catat di **Pembelian > Beban** dengan kategori **Setoran PPh Final UMKM** (PPh Final 0,5% bulanan, disetor paling lambat tanggal 15 bulan berikutnya) atau **Setoran PPh 25 (Angsuran)** (angsuran bulanan untuk PPh Progresif). Setoran ini tidak mengurangi penghasilan neto; ia mengurangi **kurang bayar** di halaman Pajak Pribadi.",
           "tip": "Kategori ini sudah ada di Buku Pribadi baru dan di Buku Pribadi lama yang sudah ada. Setoran PPh Final tidak ikut mengurangi PPh Progresif, dan sebaliknya."
         },
         {
@@ -171,6 +171,7 @@
         "PPh Final UMKM orang pribadi berlaku tanpa batas waktu. Rp 500 juta pertama setahun tidak dikenai pajak, tetapi jatah ini hanya untuk penjualan usaha (UU PPh Pasal 7 ayat 2a; PP 55/2022 Pasal 60; PP 20/2026).",
         "PKP dibulatkan ke bawah ke ribuan penuh (Pasal 17 ayat 4 UU PPh) sebelum tarif dikenakan.",
         "Penghasilan neto dihitung dari pembukuan: pendapatan jasa dikurangi biaya berkategori Biaya usaha & jasa. Bila biaya melebihi pendapatan tidak ada pajak.",
+        "Di Buku PT menu yang sama bernama Omzet Gabungan dan hanya menampilkan kartu omzet semua buku terhadap batas Rp 4,8 miliar; hitungan pajak pribadi hanya ada di Buku Pribadi.",
         "Omzet gabungan menjumlahkan semua Entity yang Anda miliki (OWNER). Omzet pasangan dan anak di bawah umur tidak terbaca sistem; pertanyaannya tetap ada di Pengaturan Pajak.",
         "Angsuran PPh 25 mengikuti PMK 215/PMK.03/2018 (pajak tahun lalu dikurangi kredit, dibagi 12). PPh Final tidak punya angsuran PPh 25. Hitungan ulang angsuran bila pajak tahun ini diperkirakan jauh beda (di atas 150% atau di bawah 75%), Pengusaha Tertentu 0,75%, dan penyusutan aset belum dihitung.",
         "Ini perkiraan. Setoran yang Anda catat memakai kategori Setoran mengurangi kurang bayar dan tidak dicatat sebagai biaya usaha. Tahun ditetapkan otomatis 1 Januari tahun berikutnya; SPT Tahunan orang pribadi jatuh tempo 31 Maret."

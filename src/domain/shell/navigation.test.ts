@@ -84,6 +84,15 @@ describe("activeNavItem", () => {
 });
 
 describe("visibleNavigation", () => {
+  it("names the combined-turnover page by the kind of book (decision 368)", () => {
+    const label = (type: "company" | "personal") =>
+      visibleNavigation(["tax.view"], type)
+        .find((g) => g.key === "tax")
+        ?.items?.find((i) => i.href === "/tax/personal")?.label;
+    expect(label("company")).toBe("Omzet Gabungan");
+    expect(label("personal")).toBe("Pajak Pribadi");
+  });
+
   it("hides a menu whose pages the person cannot open", () => {
     const keys = visibleNavigation(["invoices.view"]).map((g) => g.key);
     expect(keys).toEqual(["overview", "sales", "guide"]);
