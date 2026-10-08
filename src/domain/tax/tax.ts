@@ -489,3 +489,17 @@ export const RULE_VERIFICATION_LABELS: Readonly<Record<RuleVerificationStatus, s
   verified: "Terverifikasi",
   needs_review: "Perlu Ditinjau",
 };
+
+/** The calendar year a tax screen shows: the `?year=` value when it is a year from 2000 up to the current one,
+ * otherwise the current year (decision 352). */
+export function resolveTaxYear(raw: string | undefined, currentYear: number): number {
+  if (raw === undefined || !/^\d{4}$/.test(raw)) return currentYear;
+  const year = Number(raw);
+  return year >= 2000 && year <= currentYear ? year : currentYear;
+}
+
+/** "Januari" for month 1 to "Desember" for month 12. */
+export function monthNameId(month: number): string {
+  if (!Number.isInteger(month) || month < 1 || month > 12) throw new RangeError("Not a month");
+  return MONTHS_ID[month - 1];
+}

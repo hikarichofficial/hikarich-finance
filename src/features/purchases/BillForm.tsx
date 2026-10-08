@@ -2,6 +2,8 @@
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useState } from "react";
+import { hasDetailedQuantity } from "@/domain/purchases/expenseAmount";
+import { AmountModeToggle } from "./AmountModeToggle";
 import { useActionState } from "@/features/feedback/useActionState";
 import type { CategoryRow } from "@/schemas/categories";
 import type { LineSuggestion } from "@/domain/sales/lineSuggestions";
@@ -54,6 +56,9 @@ export function BillForm({
   const [state, action, pending] = useActionState(createBillAction, idleBillActionState);
   const actionForm = usePreservingForm(action, state);
   // Local copy so a vendor added on the spot is picked straight away without reloading the form.
+  // One amount per line unless the person asks for the detail (decision 353); a draft with a quantity other than
+  // 1 opens in the detailed mode.
+  const [detailed, setDetailed] = useState(initial ? hasDetailedQuantity(initial.lines) : false);
   const [vendorList, setVendorList] = useState<{ id: string; display_name: string }[]>(
     vendors.map((v) => ({ id: v.id, display_name: v.display_name })),
   );
@@ -107,7 +112,14 @@ export function BillForm({
           <input type="date" name="due_date" required defaultValue={initial?.due_date ?? today} />
         </label>
 
+        <AmountModeToggle
+          detailed={detailed}
+          onDetailedChange={setDetailed}
+          onRows={setRows}
+          noun="tagihan"
+        />
         <RecurringLinesEditor
+          amountOnly={!detailed}
           kind="bill"
           categories={categories}
           entity={entity}

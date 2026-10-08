@@ -177,8 +177,11 @@ export function RecurringLinesEditor({
   taxFields = false,
   suggestions = [],
   entity,
+  amountOnly = false,
 }: {
   kind: RecurringKind;
+  /** One "Jumlah" amount per line (quantity 1) instead of quantity x unit price (expense form, decision 353). */
+  amountOnly?: boolean;
   /** The active Entity code, so a category added on the spot lands in the right Entity. */
   entity?: string;
   categories: readonly CategoryRow[];
@@ -222,7 +225,7 @@ export function RecurringLinesEditor({
 
   const showTreatment = kind !== "invoice";
   const showDiscount = kind === "invoice";
-  const columnCount = 6;
+  const columnCount = amountOnly ? 5 : 6;
 
   /** Typing a description that is exactly one used before fills in its price (and category) when those are
    * still empty; the person can change both straight away. */
@@ -266,7 +269,11 @@ export function RecurringLinesEditor({
 
   return (
     <div className="plan-lines-editor">
-      <p className="hint">Baris dengan deskripsi atau harga satuan kosong tidak akan disimpan.</p>
+      <p className="hint">
+        {amountOnly
+          ? "Baris dengan deskripsi atau jumlah kosong tidak akan disimpan."
+          : "Baris dengan deskripsi atau harga satuan kosong tidak akan disimpan."}
+      </p>
       {rows.length === 0 ? (
         <p className="dashboard-empty">Belum ada baris. Tambahkan baris untuk mulai mengisi.</p>
       ) : (
@@ -275,11 +282,13 @@ export function RecurringLinesEditor({
             <thead>
               <tr>
                 <th scope="col">Deskripsi</th>
+                {amountOnly ? null : (
+                  <th scope="col" className="num">
+                    Kuantitas
+                  </th>
+                )}
                 <th scope="col" className="num">
-                  Kuantitas
-                </th>
-                <th scope="col" className="num">
-                  Harga Satuan
+                  {amountOnly ? "Jumlah (sesuai struk)" : "Harga Satuan"}
                 </th>
                 {showTreatment ? <th scope="col">Perlakuan</th> : null}
                 {showDiscount ? <th scope="col">Diskon</th> : null}
@@ -316,16 +325,20 @@ export function RecurringLinesEditor({
                           }
                         />
                       </td>
-                      <td className="num" data-label="Kuantitas">
-                        <input
-                          type="text"
-                          inputMode="decimal"
-                          value={row.quantity}
-                          onChange={(event) => updateRow(row.key, { quantity: event.target.value })}
-                          placeholder="1"
-                        />
-                      </td>
-                      <td className="num" data-label="Harga Satuan">
+                      {amountOnly ? null : (
+                        <td className="num" data-label="Kuantitas">
+                          <input
+                            type="text"
+                            inputMode="decimal"
+                            value={row.quantity}
+                            onChange={(event) =>
+                              updateRow(row.key, { quantity: event.target.value })
+                            }
+                            placeholder="1"
+                          />
+                        </td>
+                      )}
+                      <td className="num" data-label={amountOnly ? "Jumlah" : "Harga Satuan"}>
                         <MoneyInput
                           value={row.unit_price}
                           onValueChange={(unit_price) => updateRow(row.key, { unit_price })}

@@ -24,6 +24,11 @@
           "text": "PPh Final dihitung dari invoice yang diterbitkan dalam bulan itu. Selama bulan masih berjalan, yang tampil di kartu **Perkiraan Pajak Bulan Berjalan** (Ringkasan Pajak, Kalender Pajak, dan PPh Final) hanyalah perkiraan: angkanya otomatis ikut bertambah setiap ada invoice terbit dan belum tercatat sebagai kewajiban. Mulai tanggal 1 bulan berikutnya sistem sendiri menghitung dan mencatat PPh Final bulan yang berakhir sebagai terutang, tanpa tombol; bila ada invoice yang terbit belakangan di bulan itu, sistem mencatat selisihnya. Di **Pajak > PPh Final**, **Pratinjau** dan **Posisi Tercatat** menunjukkan hasilnya. Pembayaran dibatasi sebesar yang sudah diakui, jadi bayar setelah angkanya muncul di Posisi Tercatat. Tidak ada laporan bulanan untuk PPh Final: setor tanggal 15 bulan berikutnya, lalu laporkan setahun sekali lewat SPT Tahunan."
         },
         {
+          "title": "Penghasilan di luar PPh Final (forex, bunga, dividen, kripto)",
+          "text": "Penghasilan yang dicatat lewat **Penjualan > Catat Pendapatan** dengan jenis di luar usaha (bunga, dividen, hasil trading forex, kripto, bonus, dan sejenisnya) tidak ikut dasar PPh Final 0,5%. Hasilnya tampil di kartu **Penghasilan di Luar PPh Final** pada **Pajak > Ringkasan Pajak**: hasil bersih per jenis sejak 1 Januari (untung dikurangi rugi dan biaya trading), rincian **Lihat per bulan**, dan **perkiraan pajak 22%** untuk badan. Angka ini hanya perkiraan dan tidak dicatat sebagai kewajiban. Hasil satu tahun ditetapkan otomatis pada 1 Januari tahun berikutnya; SPT Tahunan tetap jatuh tempo 30 April. Pilih tahun lain lewat tautan di bawah kartu. Penilaian ulang investasi yang belum direalisasi ditampilkan tetapi tidak dihitung.",
+          "tip": "Perkiraan belum memperhitungkan fasilitas, kompensasi rugi, atau pajak yang sudah dipotong pihak lain (misalnya bunga bank). Konfirmasikan dengan konsultan pajak sebelum SPT."
+        },
+        {
           "title": "Buka Pajak > Pelaporan & Bukti",
           "text": "Pilih **Jenis Pajak** (PPN, PPh 23 (dipotong), PPh 4(2) sewa tanah/bangunan, PPh 26 (luar negeri), PPh 21 (karyawan), PPh Final UMKM) dan **Masa Pajak**, lalu **Terapkan**. Untuk PPh 21 Anda juga bisa sampai ke sini dari Payroll > Pajak & Kewajiban Payroll dengan menekan **Setor →** pada baris PPh 21.",
           "image": {

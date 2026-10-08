@@ -17,6 +17,8 @@ import {
   RecurringLinesEditor,
   type RecurringLineRow,
 } from "@/features/planning/RecurringLinesEditor";
+import { hasDetailedQuantity } from "@/domain/purchases/expenseAmount";
+import { AmountModeToggle } from "./AmountModeToggle";
 import { createExpenseAction } from "./expenseActions";
 import { idleExpenseActionState } from "./expenseActionsState";
 
@@ -69,6 +71,9 @@ export function ExpenseForm({
       ? buildInitialRecurringLines(initial.lines)
       : [newRecurringLineRow(1)],
   );
+  // One amount per line, as on the receipt (OWNER, 8 October 2026); a draft that has a quantity other than 1 opens
+  // in the detailed mode so nothing it holds is hidden.
+  const [detailed, setDetailed] = useState(initial ? hasDetailedQuantity(initial.lines) : false);
   const [payeeId, setPayeeId] = useState(initial?.payee_id ?? "");
   // Local copy so a vendor added on the spot is picked straight away without reloading the form.
   const [vendorList, setVendorList] = useState<{ id: string; display_name: string }[]>(
@@ -145,7 +150,14 @@ export function ExpenseForm({
           />
         </label>
 
+        <AmountModeToggle
+          detailed={detailed}
+          onDetailedChange={setDetailed}
+          onRows={setRows}
+          noun="struk"
+        />
         <RecurringLinesEditor
+          amountOnly={!detailed}
           kind="expense"
           categories={categories}
           entity={entity}

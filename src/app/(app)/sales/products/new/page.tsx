@@ -51,6 +51,8 @@ export default async function NewProductPage({
           types={live(types)}
           autoGenerate={settings?.auto_generate ?? false}
           canOverride={can(access, membership.entity_id, "products.sku_override")}
+          canAddMasters={can(access, membership.entity_id, "products.sku_settings")}
+          canAddCategories={can(access, membership.entity_id, "categories.manage")}
         />
       </section>
     </div>
