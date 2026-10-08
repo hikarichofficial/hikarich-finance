@@ -52,6 +52,13 @@ export function TaxPreviewPanel({
       ) : (
         <>
           <p className="hint">Status: {DETERMINATION_STATUS_LABELS[preview.status]}</p>
+          {sourceType !== "invoice" ? (
+            <p className="hint">
+              <strong>PPN masukan</strong> adalah PPN yang ditagih vendor atau restoran di struk.{" "}
+              <strong>PPh dipotong</strong> adalah pajak yang Anda tahan dari pembayaran ke vendor,
+              lalu Anda setor dan laporkan.
+            </p>
+          ) : null}
           {preview.status === "needs_review" ? (
             <div role="alert" className="error">
               <p>Dokumen ini belum bisa dicatat sampai hal berikut diselesaikan:</p>

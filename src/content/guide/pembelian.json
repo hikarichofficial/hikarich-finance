@@ -112,7 +112,7 @@
         },
         {
           "title": "Struk sudah termasuk PPN",
-          "text": "Ketik **jumlah di struk apa adanya**. Bila struk memuat PPN, centang **Sudah termasuk PPN 11%** di bawah jumlah. Aplikasi menghitung sendiri **harga sebelum PPN** dan **PPN** (contoh: struk Rp 397.000 menjadi Rp 357.658 + PPN Rp 39.342), jadi **tidak ada kolom PPN yang diisi manual**, dan potongan PPh dihitung dari harga sebelum PPN, bukan dari angka struk. Kotak ini hanya muncul untuk baris berjumlah 1. Kolom **No. Faktur Pajak** tetap ada untuk PT yang PKP; bila PT belum PKP, PPN dicatat sebagai bagian dari biaya."
+          "text": "Ketik **jumlah di struk apa adanya**. Bila struk memuat PPN, centang **Sudah termasuk PPN 11%** di bawah jumlah. Aplikasi menghitung sendiri **harga sebelum PPN** dan **PPN** (contoh: struk Rp 397.000 menjadi Rp 357.658 + PPN Rp 39.342), jadi **tidak ada kolom PPN yang diisi manual**, dan potongan PPh dihitung dari harga sebelum PPN, bukan dari angka struk. Kotak ini hanya muncul untuk baris berjumlah 1. Kolom **No. Faktur Pajak** tetap ada untuk PT yang PKP; bila PT belum PKP, PPN dicatat sebagai bagian dari biaya.\n\nPPN di struk adalah **PPN dari vendor atau restoran**, bukan pajak yang Anda setor atau laporkan. Di kartu **Baris** halaman pengeluaran (dan tagihan) ada kolom **PPN** per baris, **Harga sebelum PPN**, serta ringkasan di bawah tabel: PPN dari vendor (bagian dari biaya perusahaan bila PT belum PKP) dan PPh yang dipotong, yang masuk ke Pajak > Pemotongan PPh setelah dicatat."
         },
         {
           "title": "Bila simpan atau ajukan ditolak",

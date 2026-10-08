@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname, useSearchParams } from "next/navigation";
 
 /** How long the bar may stay up when a click turns out not to change the page (a download, a blocked leave). */
-const GIVE_UP_AFTER_MS = 12000;
+const GIVE_UP_AFTER_MS = 8000;
 
 /** Decision 339: a Back/Forward step that is still showing the loading skeleton after this long is stuck (a
  * lost request, a cold start); the page is reloaded once instead of leaving the person staring at it. */
-const STUCK_BACK_AFTER_MS = 15000;
+const STUCK_BACK_AFTER_MS = 6000;
 const RELOAD_GUARD_KEY = "hikarich-stuck-reload-at";
 
 /**

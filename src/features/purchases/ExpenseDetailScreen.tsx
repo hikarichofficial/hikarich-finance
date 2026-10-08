@@ -7,6 +7,8 @@ import {
   type ExpenseActionSet,
 } from "@/domain/purchases/expenseList";
 import type { ExpenseLineRow, ExpenseRow } from "@/schemas/expenses";
+import { LineTaxSummaryBlock } from "@/features/tax/LineTaxSummaryBlock";
+import type { LineTaxSummary } from "@/domain/tax/lineTaxSummary";
 import { ExpenseActions } from "./ExpenseActions";
 import { formatShortDate } from "./format";
 
@@ -27,6 +29,7 @@ export function ExpenseDetailScreen({
   canEdit = false,
   documents,
   taxPanel,
+  taxSummary,
 }: {
   expense: ExpenseRow;
   lines: readonly ExpenseLineRow[];
@@ -42,6 +45,8 @@ export function ExpenseDetailScreen({
   documents?: ReactNode;
   /** What the tax engine would decide before the expense is recorded (draft and submitted only). */
   taxPanel?: ReactNode;
+  /** The VAT and withholding of this expense, shown under the lines (preview before recording, recorded after). */
+  taxSummary?: LineTaxSummary;
 }) {
   const suffix = entity ? `?entity=${encodeURIComponent(entity)}` : "";
   const money = (value: string) => formatMoney(value, expense.currency);
@@ -91,12 +96,16 @@ export function ExpenseDetailScreen({
             <dd>{accountName}</dd>
           </div>
           <div>
-            <dt>Subtotal</dt>
+            <dt>Harga sebelum PPN</dt>
             <dd>{money(expense.subtotal)}</dd>
+            <p className="record-summary-note">Dasar menghitung potongan PPh.</p>
           </div>
           <div>
-            <dt>Pajak</dt>
+            <dt>PPN dari vendor</dt>
             <dd>{money(expense.tax_total)}</dd>
+            <p className="record-summary-note">
+              Sudah ada di struk. Bukan pajak yang Anda setor atau laporkan.
+            </p>
           </div>
           <div>
             <dt>Nomor Struk</dt>
@@ -178,10 +187,13 @@ export function ExpenseDetailScreen({
                   Kuantitas
                 </th>
                 <th scope="col" className="num">
-                  Harga Satuan
+                  Harga (sebelum PPN)
                 </th>
                 <th scope="col" className="num">
-                  Total
+                  PPN
+                </th>
+                <th scope="col" className="num">
+                  Total (+ PPN)
                 </th>
               </tr>
             </thead>
@@ -199,6 +211,9 @@ export function ExpenseDetailScreen({
                   <td className="num" data-label="Harga Satuan">
                     {money(line.unit_price)}
                   </td>
+                  <td className="num" data-label="PPN">
+                    {money(line.tax_amount)}
+                  </td>
                   <td className="num" data-label="Total">
                     {money(line.line_total)}
                   </td>
@@ -207,6 +222,17 @@ export function ExpenseDetailScreen({
             </tbody>
           </table>
         )}
+        {taxSummary ? (
+          <LineTaxSummaryBlock
+            summary={taxSummary}
+            currency={expense.currency}
+            detailHref={
+              expense.status === "draft" || expense.status === "submitted"
+                ? undefined
+                : `/tax/determination/expense/${expense.id}${entity ? `?entity=${encodeURIComponent(entity)}` : ""}`
+            }
+          />
+        ) : null}
       </section>
 
       {taxPanel}
