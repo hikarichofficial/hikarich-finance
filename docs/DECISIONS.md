@@ -2928,3 +2928,35 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      MFA, a disabled membership and a disabled user; no per-row shape remains; real contacts are seen and refused
      exactly as before), plus the whole existing authorization and isolation test suite unchanged. Measured after
      decision 348 on production: `my_access()` 138 ms -> 3,6 ms with an identical answer.
+
+350. **Catat Pendapatan: income without an invoice, in plain fields (owner request and confirmations, 8 October
+     2026).** The owner asked that income that does not go through an invoice be easy to enter by owner or staff
+     with no knowledge of debit and credit, and that it be counted everywhere. Found first: income typed into a
+     manual journal never reached the PPh Final base (that base is issued invoices plus marketplace payouts). Built:
+     menu Penjualan > Catat Pendapatan (`/sales/income`, `/new`, `/[id]`), table `income_entries`, RPCs
+     `list_income_categories`, `record_income_entry` (journal: debit the receiving account, credit the income
+     account; one cash movement in; source type `income_entry`) and `reverse_income_entry` (reason of 5 to 500
+     characters; reverses the journal and the movement; an entry is never edited). Owner confirmations: (1) the new
+     menu under Penjualan; (2) business income counts in the PPh Final 0,5% base and in the yearly ceiling, income
+     outside the business (interest, dividend, investment property rent, investment yield, bonus/cashback, crypto,
+     other investment, other) is booked but kept out of the base (follows decisions 344-345); (3) staff entries are
+     recorded immediately with no approval; (4) a manual journal that uses a revenue account shows a warning and a
+     link to the new menu, it is not blocked. Same-system request (owner, same day): every pick-or-type field works
+     like the customer field on an invoice. The kind of income IS a revenue category (the field invoice lines use;
+     type to find it, or "+ Tambah ... baru" in a panel, using `categories.manage` like on an invoice), "Dari
+     siapa" is a customer with the same quick-add panel, reference and note offer earlier entries. Tax follows the
+     account the category credits: a revenue account (class `revenue`, 4xxx) is business turnover, an other-income
+     account (class `other_income`, 7xxx) is not; a category the person adds on the spot uses the default operating
+     revenue account, so it counts as business turnover until it is mapped to another account on the Kategori
+     screen (the form and the guide say so). Ready categories added to every company Entity, and to every new one,
+     by `provision_income_categories` (also called by `provision_default_coa`): Komisi & Afiliasi (4190) and, tied
+     to 7100-7190, Bunga Bank & Deposito, Dividen, Sewa Properti Investasi, Imbal Hasil Investasi, Bonus Cashback &
+     Rebate, Pendapatan Kripto, Pendapatan Investasi Lainnya, Pendapatan di Luar Usaha. `tax_final_evaluate` adds
+     the recorded business entries of the month and of the year before it (also to the Rp 4,8 billion ceiling), and
+     returns `turnover_income`; the scheduled job (decision 346) re-checks the previous two months, so a late or
+     reversed entry creates a revision. Permissions: `invoices.view` to see, `invoices.issue` plus
+     `invoices.confirm_payment` to record, `invoices.void` to cancel; documents attach as target `income_entry`.
+     Dashboard, profit and loss and cash flow read the journal, so they include the entries without any change.
+     Not included (told to the owner): receivables (use Invoice), VAT (the entity is non-PKP), a search index for
+     entries, and income that repeats by itself through Transaksi Berulang (phase 2: needs a generator for entries,
+     like invoices have). Proof: `supabase/tests/99_p37_income_entries.sql`.

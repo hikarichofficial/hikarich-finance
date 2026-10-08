@@ -8,6 +8,11 @@
       "guide": "terima-pembayaran"
     },
     {
+      "want": "Mencatat uang masuk yang tidak punya invoice (penjualan tunai, jasa dibayar langsung, komisi, bunga, dividen)",
+      "menu": "Penjualan > Catat Pendapatan > + Catat Pendapatan",
+      "guide": "catat-pendapatan"
+    },
+    {
       "want": "Menagih pelanggan (membuat invoice)",
       "menu": "Penjualan > Invoice > Buat Invoice",
       "guide": "buat-terbitkan-invoice"
@@ -946,13 +951,15 @@
         "konfirmasi-klaim-pembayaran",
         "bagikan-invoice",
         "buat-terbitkan-invoice",
-        "memahami-piutang-pendapatan"
+        "memahami-piutang-pendapatan",
+        "catat-pendapatan"
       ],
       "items": [
         {
           "kind": "start",
           "actor": "pelanggan",
-          "title": "Pelanggan bilang mau bayar atau sudah transfer"
+          "title": "Pelanggan bilang mau bayar atau sudah transfer",
+          "note": "Tidak ada invoice? Lihat diagram berikutnya (Catat Pendapatan)"
         },
         {
           "kind": "choice",
@@ -1054,6 +1061,105 @@
           "title": "Kirim bukti pembayaran (opsional)",
           "menu": "Penjualan > Pembayaran Diterima > (klik pembayaran)",
           "note": "Isi email, tekan Kirim Bukti Pembayaran"
+        },
+        {
+          "kind": "end",
+          "title": "Selesai"
+        }
+      ]
+    },
+    {
+      "id": "pendapatan-tanpa-invoice",
+      "stage": "Tahap 2 · Penjualan",
+      "title": "Ada Uang Masuk Tanpa Invoice: Catat Pendapatan",
+      "summary": "Penjualan tunai, jasa yang dibayar langsung, komisi, bunga, atau dividen: cukup beberapa kolom, tanpa debit dan kredit, dan otomatis ikut laporan dan pajak.",
+      "guides": ["catat-pendapatan", "terima-pembayaran", "buat-terbitkan-invoice"],
+      "items": [
+        {
+          "kind": "start",
+          "actor": "anda",
+          "title": "Ada uang masuk yang tidak punya invoice"
+        },
+        {
+          "kind": "choice",
+          "question": "Uang ini pembayaran untuk invoice yang sudah diterbitkan?",
+          "branches": [
+            {
+              "label": "Ya, ada invoicenya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Catat sebagai pembayaran invoice",
+                  "menu": "Penjualan > Invoice > (klik invoice) > Catat Pembayaran",
+                  "note": "Jangan dicatat lagi di Catat Pendapatan, agar tidak terhitung dua kali"
+                },
+                {
+                  "kind": "end",
+                  "title": "Selesai"
+                }
+              ]
+            },
+            {
+              "label": "Tidak ada invoice",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buka Catat Pendapatan",
+                  "menu": "Penjualan > Catat Pendapatan > + Catat Pendapatan"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Isi tanggal uang diterima dan ketik jenis pendapatan",
+          "note": "Pilih dari daftar, atau ketik nama baru lalu + Tambah sebagai jenis pendapatan baru"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Isi jumlah dan rekening yang menerima uang",
+          "note": "Dari siapa, nomor bukti, dan keterangan boleh dikosongkan. Pelanggan baru bisa ditambah di tempat"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Jurnal dibuat otomatis dan saldo rekening bertambah",
+          "note": "Pendapatan usaha ikut dasar PPh Final 0,5%; bunga, dividen, dan sejenisnya tercatat tetapi tidak ikut"
+        },
+        {
+          "kind": "choice",
+          "question": "Ada yang salah dicatat?",
+          "branches": [
+            {
+              "label": "Tidak",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Lampirkan bukti (opsional)",
+                  "menu": "Penjualan > Catat Pendapatan > (klik catatan)",
+                  "note": "Foto nota atau bukti transfer"
+                }
+              ]
+            },
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Batalkan lalu catat ulang yang benar",
+                  "menu": "Penjualan > Catat Pendapatan > (klik catatan) > Batalkan Pendapatan",
+                  "note": "Isi alasan; saldo dan pajak kembali seperti semula"
+                }
+              ]
+            }
+          ]
         },
         {
           "kind": "end",

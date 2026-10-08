@@ -17,6 +17,8 @@ export interface JournalAccountOption {
   label: string;
   /** The picker heading this account sits under (income, costs, ... , system-protected last). */
   group: string;
+  /** A revenue or other-income account: income booked here by hand never reaches the PPh Final base (decision 350). */
+  isIncome?: boolean;
 }
 
 interface JournalLineRowState {
@@ -66,6 +68,7 @@ export function JournalDraftForm({
   canOverride,
   descriptionSuggestions = [],
   lineDescriptionSuggestions = [],
+  incomeHref,
 }: {
   accounts: readonly JournalAccountOption[];
   entity: string | undefined;
@@ -75,6 +78,8 @@ export function JournalDraftForm({
   descriptionSuggestions?: readonly string[];
   /** Line descriptions used on earlier manual journals, newest first, offered while typing a line. */
   lineDescriptionSuggestions?: readonly string[];
+  /** Where "Catat Pendapatan" is (only for a person who may record income); omitted otherwise. */
+  incomeHref?: string;
 }) {
   const lineSuggestions: LineSuggestion[] = lineDescriptionSuggestions.map((description) => ({
     description,
@@ -98,6 +103,9 @@ export function JournalDraftForm({
   const totalDebit = sumDecimals(rows.map((row) => amount(row.debit)));
   const totalCredit = sumDecimals(rows.map((row) => amount(row.credit)));
   const balanced = totalDebit.eq(totalCredit) && !totalDebit.isZero();
+  const pickedIncome = rows.some(
+    (row) => row.account_id !== "" && accounts.find((a) => a.id === row.account_id)?.isIncome,
+  );
 
   return (
     <form {...actionForm} className="record-form record-form-wide">
@@ -222,6 +230,18 @@ export function JournalDraftForm({
         </label>
       ) : null}
 
+      {pickedIncome ? (
+        <p role="status" className="hint">
+          Anda memilih akun pendapatan. Pendapatan yang diisi lewat jurnal manual tidak ikut
+          dihitung dalam dasar PPh Final 0,5% dan batas omzet. Untuk pendapatan tanpa invoice,{" "}
+          {incomeHref ? (
+            <a href={incomeHref}>gunakan menu Catat Pendapatan</a>
+          ) : (
+            "gunakan menu Catat Pendapatan"
+          )}
+          : lebih mudah, tanpa debit dan kredit, dan otomatis ikut pajak.
+        </p>
+      ) : null}
       {state.status === "error" ? (
         <p role="alert" className="error">
           {state.message}

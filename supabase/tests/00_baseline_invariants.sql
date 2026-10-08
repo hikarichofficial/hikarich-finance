@@ -197,6 +197,8 @@ declare
                                          -- Marketplace stores and settlements (decision 260)
                                          'create_marketplace_store', 'record_marketplace_settlement',
                                          'reverse_marketplace_settlement', 'preview_marketplace_settlement',
+                                         -- Income entered without an invoice (decision 350)
+                                         'list_income_categories', 'record_income_entry', 'reverse_income_entry',
                                          -- Category to ledger account mapping (decision 265)
                                          'set_category_account',
                                          -- Entity timezone / fiscal-year start in Settings (decision 248)

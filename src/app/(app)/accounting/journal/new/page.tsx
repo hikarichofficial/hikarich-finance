@@ -44,9 +44,22 @@ export default async function NewJournalPage({
       : (GROUP_ORDER as readonly string[]).indexOf(group);
   const options = accounts
     .filter((a) => a.status === "active" && !a.is_group && (a.allows_manual_posting || canOverride))
-    .map((a) => ({ id: a.id, label: `${a.code} · ${a.name}`, group: groupOf(a), code: a.code }))
+    .map((a) => ({
+      id: a.id,
+      label: `${a.code} · ${a.name}`,
+      group: groupOf(a),
+      code: a.code,
+      isIncome: a.account_class === "revenue" || a.account_class === "other_income",
+    }))
     .sort((x, y) => rank(x.group) - rank(y.group) || x.code.localeCompare(y.code))
-    .map(({ id, label, group }) => ({ id, label, group }));
+    .map(({ id, label, group, isIncome }) => ({ id, label, group, isIncome }));
+  const incomeHref =
+    can(access, membership.entity_id, "invoices.issue") &&
+    can(access, membership.entity_id, "invoices.confirm_payment")
+      ? entity
+        ? `/sales/income/new?entity=${encodeURIComponent(entity)}`
+        : "/sales/income/new"
+      : undefined;
   const backHref = entity
     ? `/accounting/journal?entity=${encodeURIComponent(entity)}`
     : "/accounting/journal";
@@ -61,9 +74,10 @@ export default async function NewJournalPage({
           <p className="record-detail-eyebrow">Akuntansi</p>
           <h1>Jurnal Manual</h1>
           <p className="hint">
-            Untuk pembukuan lanjutan. Pendapatan sehari-hari cukup dicatat lewat menu Invoice dan
-            Pembayaran Diterima di bagian Penjualan; pengeluaran lewat menu Beban di bagian
-            Pembelian. Akun dikelompokkan menurut jenisnya; akun sistem ada di paling bawah.
+            Untuk pembukuan lanjutan. Pendapatan sehari-hari cukup dicatat lewat menu Invoice,
+            Pembayaran Diterima, atau Catat Pendapatan (untuk yang tanpa invoice) di bagian
+            Penjualan; pengeluaran lewat menu Beban di bagian Pembelian. Akun dikelompokkan menurut
+            jenisnya; akun sistem ada di paling bawah.
           </p>
         </div>
       </header>
@@ -75,6 +89,7 @@ export default async function NewJournalPage({
           canOverride={canOverride}
           descriptionSuggestions={descriptionSuggestions}
           lineDescriptionSuggestions={lineDescriptionSuggestions}
+          incomeHref={incomeHref}
         />
       </section>
     </div>
