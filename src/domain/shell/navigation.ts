@@ -129,7 +129,7 @@ export const NAVIGATION: readonly NavGroup[] = [
       { label: "Ringkasan Pajak", href: "/tax" },
       { label: "Buku Pajak", href: "/tax/ledger" },
       { label: "PPh Final", href: "/tax/pph" },
-      { label: "Pemotongan PPh", href: "/tax/withholding" },
+      { label: "PPh Vendor", href: "/tax/withholding" },
       { label: "PPN", href: "/tax/ppn" },
       { label: "Kalender Pajak", href: "/tax/calendar" },
       { label: "Pelaporan & Bukti", href: "/tax/filing" },

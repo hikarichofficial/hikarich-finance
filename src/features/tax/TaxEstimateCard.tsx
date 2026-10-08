@@ -29,26 +29,25 @@ export function TaxEstimateCard({
   return (
     <section className="dashboard-section">
       <div className="dashboard-section-header">
-        <h2 className="dashboard-section-title">Perkiraan Pajak Bulan Berjalan</h2>
+        <h2 className="dashboard-section-title">Perkiraan PPh Final · {taxPeriodLabel(period)}</h2>
         <span className="status-badge status-badge-progress">Perkiraan</span>
       </div>
       {estimate.status === "auto_determined" ? (
         <>
-          <dl className="record-summary-grid">
-            <div>
-              <dt>PPh Final UMKM · {taxPeriodLabel(period)}</dt>
-              <dd>{formatMoney(estimate.tax, currency)}</dd>
+          <div className="tax-split">
+            <div className="tax-split-item">
+              <span>PPh Final UMKM</span>
+              <strong>{formatMoney(estimate.tax, currency)}</strong>
             </div>
             {estimate.turnover_month !== undefined ? (
-              <div>
-                <dt>Penjualan bulan ini sampai hari ini</dt>
-                <dd>{formatMoney(estimate.turnover_month, currency)}</dd>
+              <div className="tax-split-item">
+                <span>Penjualan bulan ini</span>
+                <strong>{formatMoney(estimate.turnover_month, currency)}</strong>
               </div>
             ) : null}
-          </dl>
+          </div>
           <p className="hint">
-            Angka ini otomatis bertambah setiap ada invoice terbit. Setelah bulan berakhir, pajaknya
-            dihitung final di menu PPh Final dan baru tercatat sebagai kewajiban.
+            Bertambah otomatis tiap invoice terbit. Final setelah bulan berakhir.
           </p>
         </>
       ) : (

@@ -98,6 +98,7 @@ export function RecurringLinesEditor({
   entity,
   amountOnly = false,
   whtAgent,
+  foreignPayee = false,
   problems = [],
   problemSerial = 0,
   attempted = false,
@@ -114,6 +115,8 @@ export function RecurringLinesEditor({
   taxFields?: boolean;
   /** The Entity withholds tax (Pemotong Pajak = Ya): a line whose category does not settle it must be answered. */
   whtAgent?: boolean;
+  /** The chosen vendor is a foreign company: "Kena PPh?" starts as "not subject" (PPh 23 is for domestic vendors). */
+  foreignPayee?: boolean;
   /** Descriptions already used before (with their last price), for the popup above the description field. */
   suggestions?: readonly LineSuggestion[];
   /** Columns the last refusal was about (database line numbers): painted red with what to do, until changed. */
@@ -478,9 +481,10 @@ export function RecurringLinesEditor({
                                       // category's, else "not subject" (OWNER, 8 October 2026).
                                       const chosen = extraText(row, "wht_object");
                                       const asset = row.treatment === "asset";
-                                      const automatic: string = asset
-                                        ? "wht_none"
-                                        : (settledKey ?? "wht_none");
+                                      const automatic: string =
+                                        asset || foreignPayee
+                                          ? "wht_none"
+                                          : (settledKey ?? "wht_none");
                                       const shown = chosen !== "" ? chosen : automatic;
                                       const options: { value: string; label: string }[] = [
                                         ...WHT_QUICK_CHOICES,
@@ -496,9 +500,15 @@ export function RecurringLinesEditor({
                                           ? "Pilihan Anda untuk baris ini."
                                           : asset
                                             ? "Otomatis: pembelian aset / peralatan tidak kena PPh."
-                                            : settledKey
-                                              ? "Otomatis dari kategori; boleh diubah."
-                                              : "Belum dipilih: dihitung tidak kena PPh.";
+                                            : foreignPayee
+                                              ? "Otomatis tidak kena PPh karena vendor luar negeri. Ubah bila konsultan pajak menyatakan lain."
+                                              : settledKey
+                                                ? "Otomatis dari kategori; boleh diubah."
+                                                : "Belum dipilih: dihitung tidak kena PPh.";
+                                      const borne =
+                                        shown !== "wht_none" && shown !== "wht_review"
+                                          ? " PPh ini beban PT: vendor dibayar penuh, pajaknya dibayar terpisah ke negara."
+                                          : "";
                                       return (
                                         <label
                                           className={
@@ -507,7 +517,7 @@ export function RecurringLinesEditor({
                                               : "plan-lines-wht"
                                           }
                                         >
-                                          <strong>Kena potongan PPh?</strong>
+                                          <strong>Kena PPh?</strong>
                                           <select
                                             value={shown}
                                             onChange={(event) =>
@@ -520,7 +530,10 @@ export function RecurringLinesEditor({
                                               </option>
                                             ))}
                                           </select>
-                                          <span className="hint">{source}</span>
+                                          <span className="hint">
+                                            {source}
+                                            {borne}
+                                          </span>
                                           {hint("wht")}
                                         </label>
                                       );

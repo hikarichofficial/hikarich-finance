@@ -15,7 +15,7 @@ describe("locateProblems", () => {
       "Line 3 carries VAT but no tax-invoice reference; Line 1 has no withholding classification",
     );
     expect(describeProblems(targets)).toEqual([
-      "Baris 1 · Kena potongan PPh?",
+      "Baris 1 · Kena PPh?",
       "Baris 3 · No. Faktur Pajak",
     ]);
   });

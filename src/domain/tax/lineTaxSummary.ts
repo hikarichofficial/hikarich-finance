@@ -5,14 +5,15 @@
  *   - `vatCharged`: the VAT the vendor charged on the receipt (not a tax the company pays to the state),
  *   - `vatCreditable`: the part the company may credit against the VAT it reports (only a PKP company),
  *   - `vatCost`: the part that stays in the expense (a company that is not PKP, or VAT not creditable),
- *   - `withheld`: income tax held back from the payment and paid and reported by the company (PPh 23, 4(2), 26).
+ *   - `incomeTax`: income tax on the purchase (PPh 23, 4(2), 26) that the company bears on top of the price and pays to
+ *     the tax office apart from the vendor (OWNER, 8 October 2026: the vendor is paid in full).
  * Display only: the figures come from the tax engine (a preview before recording, the recorded determinations after).
  */
 export interface LineTaxSummary {
   vatCharged: string;
   vatCreditable: string;
   vatCost: string;
-  withheld: string;
+  incomeTax: string;
 }
 
 function amount(value: string | number): number {
@@ -33,7 +34,7 @@ export function summaryFromPreview(
     vatCharged: taxTotal,
     vatCreditable: preview.vat_input_creditable,
     vatCost: preview.vat_input_cost,
-    withheld: preview.withheld_total,
+    incomeTax: preview.withheld_total,
   };
 }
 
@@ -46,7 +47,7 @@ export function summaryFromDeterminations(
   const creditable = live
     .filter((row) => row.tax_kind === "vat_input")
     .reduce((sum, row) => sum + amount(row.tax_amount), 0);
-  const withheld = live
+  const incomeTax = live
     .filter((row) => row.tax_kind.startsWith("wht_"))
     .reduce((sum, row) => sum + amount(row.tax_amount), 0);
   const charged = amount(taxTotal);
@@ -54,6 +55,6 @@ export function summaryFromDeterminations(
     vatCharged: taxTotal,
     vatCreditable: text(creditable),
     vatCost: text(Math.max(charged - creditable, 0)),
-    withheld: text(withheld),
+    incomeTax: text(incomeTax),
   };
 }

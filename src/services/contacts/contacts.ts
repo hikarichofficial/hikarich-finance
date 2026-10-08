@@ -66,6 +66,29 @@ export async function getContactTaxFacts(contactId: string): Promise<{
   return data as never;
 }
 
+/** The vendors recorded as non-resident (a foreign company) in their tax facts now in force. The expense and bill
+ * forms answer "Kena PPh?" with "not subject" for them by themselves (OWNER, 8 October 2026), because Indonesian
+ * PPh 23 does not apply to them. Empty when the facts cannot be read (no `tax.view`). */
+export async function listNonResidentContactIds(entityId: string): Promise<string[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("tax_contact_facts")
+    .select("contact_id, residency, effective_from")
+    .eq("entity_id", uuidResultSchema.parse(entityId))
+    .is("superseded_at", null)
+    .lte("effective_from", new Date().toISOString().slice(0, 10))
+    .order("effective_from", { ascending: false });
+  if (error || !data) return [];
+  const seen = new Set<string>();
+  const foreign: string[] = [];
+  for (const row of data as { contact_id: string; residency: string }[]) {
+    if (seen.has(row.contact_id)) continue;
+    seen.add(row.contact_id);
+    if (row.residency === "non_resident") foreign.push(row.contact_id);
+  }
+  return foreign;
+}
+
 export interface ContactPatch {
   display_name: string;
   legal_name: string | null;

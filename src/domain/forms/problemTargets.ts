@@ -20,7 +20,7 @@ export const LINE_FIELD_LABELS: Record<LineField, string> = {
   amount: "Jumlah",
   category: "Kategori",
   treatment: "Perlakuan",
-  wht: "Kena potongan PPh?",
+  wht: "Kena PPh?",
   vat_invoice_ref: "No. Faktur Pajak",
   vat_amount: "PPN ditagih vendor",
 };
@@ -139,7 +139,7 @@ export function decodeProblems(text: string | undefined | null): ProblemTarget[]
   return result;
 }
 
-/** "Baris 2 · Kena potongan PPh?" -- one entry per target, for the sentence under the error. */
+/** "Baris 2 · Kena PPh?" -- one entry per target, for the sentence under the error. */
 export function describeProblems(targets: readonly ProblemTarget[]): string[] {
   return targets.map((target) =>
     target.scope === "line"

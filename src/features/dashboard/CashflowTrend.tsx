@@ -1,27 +1,23 @@
 import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
-import { formatMonthLabel } from "./format";
+import { formatPercent, percentChange } from "@/domain/dashboard/chart";
+import { LineChart, type ChartPoint } from "@/features/charts/InteractiveCharts";
+import { formatMonthLabel, formatMonthShort, reportHref } from "./format";
 import type { DashboardTrendPoint } from "@/services/dashboard/dashboard";
 
 /**
- * Cashflow / Trend (Step 09 §8, Step 10 §10 & §12): one restrained line/area chart of closing cash by
- * month, bronze-on-neutral, with an exact per-point tooltip and a numeric legend underneath so the chart
- * is never the only source of the exact figures (Step 10 §12: "always have a table/drill-down source").
- *
- * The chart only ever positions pixels -- `Number(...)` here never feeds a financial computation, every
- * value shown to the person is still the original exact decimal text from `closingCashFromCashFlowRows`.
+ * Tren Arus Kas: closing cash by month as a line chart. Hover a point for the exact balance, click it to open
+ * the Arus Kas report of that month. The big figure above is the latest month; the chip is its change from the
+ * month before. Every figure shown is the database's own decimal text; the chart only positions it.
  */
-
-const WIDTH = 600;
-const HEIGHT = 160;
-const PADDING = 10;
-
 export function CashflowTrend({
   trend,
   currency,
+  selectedMonth,
 }: {
   trend: DashboardTrendPoint[] | null;
   currency: string;
+  selectedMonth: string;
 }) {
   if (!trend || trend.length === 0) {
     return (
@@ -34,76 +30,48 @@ export function CashflowTrend({
     );
   }
 
-  const numeric = trend.map((t) => (t.closingCash === null ? null : Number(t.closingCash)));
-  const known = numeric.filter((v): v is number => v !== null);
-  const min = known.length ? Math.min(...known, 0) : 0;
-  const max = known.length ? Math.max(...known, 0) : 0;
-  const range = max - min || 1;
-  const step = trend.length > 1 ? (WIDTH - PADDING * 2) / (trend.length - 1) : 0;
-
-  const points = trend.map((point, i) => {
-    const value = numeric[i];
+  const points: ChartPoint[] = trend.map((t, i) => {
+    const change = i > 0 ? percentChange(trend[i - 1].closingCash, t.closingCash) : null;
     return {
-      month: point.month,
-      raw: point.closingCash,
-      x: PADDING + step * i,
-      y:
-        value === null ? null : HEIGHT - PADDING - ((value - min) / range) * (HEIGHT - PADDING * 2),
+      key: t.month,
+      short: formatMonthShort(t.month),
+      label: `Saldo kas akhir ${formatMonthLabel(t.month)}`,
+      value: t.closingCash === null ? null : Number(t.closingCash),
+      display: t.closingCash === null ? "-" : formatMoney(t.closingCash, currency),
+      note: change === null ? undefined : `${formatPercent(change)} dari bulan sebelumnya`,
+      href: reportHref("cashflow", t.month),
+      active: t.month === selectedMonth,
     };
   });
 
-  const plotted = points.filter((p) => p.y !== null) as Array<
-    (typeof points)[number] & { y: number }
-  >;
-  const linePath = plotted.map((p, i) => `${i === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
-  const areaPath =
-    plotted.length > 0
-      ? `${linePath} L ${plotted[plotted.length - 1].x} ${HEIGHT - PADDING} L ${plotted[0].x} ${HEIGHT - PADDING} Z`
-      : "";
-
   const latest = trend[trend.length - 1];
+  const change =
+    trend.length > 1
+      ? percentChange(trend[trend.length - 2].closingCash, latest.closingCash)
+      : null;
 
   return (
     <section className="dashboard-section">
       <div className="dashboard-section-header">
         <h2 className="dashboard-section-title">Tren Arus Kas</h2>
-        <Link className="dashboard-section-link" href="/reports/cashflow">
+        <Link className="dashboard-section-link" href="/reports?statement=cashflow">
           Lihat laporan
         </Link>
       </div>
-      <svg
-        className="trend-chart"
-        viewBox={`0 0 ${WIDTH} ${HEIGHT}`}
-        preserveAspectRatio="none"
-        role="img"
-        aria-label="Grafik saldo kas akhir per bulan"
-      >
-        <line
-          className="trend-chart-axis"
-          x1={PADDING}
-          y1={HEIGHT - PADDING}
-          x2={WIDTH - PADDING}
-          y2={HEIGHT - PADDING}
-        />
-        {areaPath ? <path className="trend-chart-area" d={areaPath} /> : null}
-        {linePath ? <path className="trend-chart-line" d={linePath} /> : null}
-        {plotted.map((p) => (
-          <circle key={p.month} className="trend-chart-dot" cx={p.x} cy={p.y} r={3}>
-            <title>
-              {formatMonthLabel(p.month)}: {p.raw !== null ? formatMoney(p.raw, currency) : "-"}
-            </title>
-          </circle>
-        ))}
-      </svg>
-      <div className="trend-legend">
-        <span>{formatMonthLabel(trend[0].month)}</span>
-        <span>
-          Saldo kas akhir {formatMonthLabel(latest.month)}:{" "}
-          <strong>
+      <div className="flow-card-head">
+        <div>
+          <p className="flow-card-figure">
             {latest.closingCash !== null ? formatMoney(latest.closingCash, currency) : "-"}
-          </strong>
-        </span>
+          </p>
+          <p className="flow-card-sub">Saldo kas akhir {formatMonthLabel(latest.month)}</p>
+        </div>
+        {change !== null ? (
+          <span className="delta-chip" data-tone={change >= 0 ? "good" : "bad"}>
+            {formatPercent(change)} vs bulan lalu
+          </span>
+        ) : null}
       </div>
+      <LineChart points={points} ariaLabel="Saldo kas akhir per bulan" />
     </section>
   );
 }

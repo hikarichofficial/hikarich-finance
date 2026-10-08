@@ -2244,7 +2244,7 @@ tbody[id^="pnl-"] {
 
 .kpi-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
   gap: var(--space-4);
 }
 
@@ -2274,8 +2274,9 @@ a.kpi-card:hover {
 
 .kpi-card-value {
   margin: 0;
+  white-space: nowrap;
   font-variant-numeric: tabular-nums;
-  font-size: var(--text-xl);
+  font-size: var(--text-lg);
   font-weight: 600;
   letter-spacing: -0.01em;
 }
@@ -4526,15 +4527,652 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
 
 .line-tax-summary {
   display: grid;
-  gap: var(--space-2);
+  gap: var(--space-3);
   margin-top: var(--space-4);
-  padding: var(--space-3) var(--space-4);
+}
+
+.tax-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.tax-tile {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  padding: var(--space-4);
   border: 1px solid var(--line);
   border-radius: var(--radius-md);
+  background: var(--surface-solid);
+}
+
+.tax-tile-total {
+  border-color: color-mix(in srgb, var(--bronze) 40%, transparent);
+  background: var(--accent-wash);
+}
+
+.tax-tile-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.tax-tile-value {
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.tax-tile-note {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.tax-tile-foot {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+@media (max-width: 720px) {
+  .tax-tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------------------------------------------------
+ * Interactive charts (Dashboard + Tax): hover shows the exact figure, click opens the report behind it.
+ * The plot is plain HTML in percentages so dots and bars are never stretched.
+ * ------------------------------------------------------------------------------------------------------- */
+.chart {
+  --chart-color: var(--bronze);
+  --chart-wash: var(--accent-wash);
+  --chart-soft: color-mix(in srgb, var(--chart-color) 38%, transparent);
+}
+
+.chart[data-tone="success"] {
+  --chart-color: var(--success);
+  --chart-wash: var(--success-wash);
+}
+
+.chart[data-tone="danger"] {
+  --chart-color: var(--danger);
+  --chart-wash: var(--danger-wash);
+}
+
+.chart[data-tone="info"] {
+  --chart-color: var(--info);
+  --chart-wash: var(--info-wash);
+}
+
+.chart-body {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: var(--space-2);
+}
+
+.chart-axis,
+.chart-plot {
+  position: relative;
+  height: 176px;
+}
+
+.chart-axis span {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-tertiary);
+  white-space: nowrap;
+}
+
+.chart-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--line);
+  pointer-events: none;
+}
+
+.chart-plot svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.chart-area {
+  fill: var(--chart-wash);
+  stroke: none;
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--chart-color);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.chart-hit,
+.chart-column {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: block;
+  border-radius: var(--radius-sm);
+  outline-offset: -2px;
+  cursor: pointer;
+}
+
+.chart-hit:hover,
+.chart-column:hover {
+  background: var(--chart-wash);
+}
+
+.chart-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: var(--surface-solid);
+  border: 2px solid var(--chart-color);
+  pointer-events: none;
+  transition: transform var(--motion-fast) var(--motion-ease);
+}
+
+.chart-dot[data-active="true"] {
+  background: var(--chart-color);
+}
+
+.chart-dot[data-hover="true"] {
+  transform: scale(1.5);
+  background: var(--chart-color);
+}
+
+.chart-bar {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 6%;
+  min-height: 0;
+  border-radius: 6px 6px 2px 2px;
+  background: var(--chart-soft);
+  transition:
+    background var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+  transform-origin: bottom;
+}
+
+.chart-bar[data-active="true"] {
+  background: var(--chart-color);
+}
+
+.chart-bar[data-hover="true"] {
+  background: var(--chart-color);
+  transform: scaleY(1.02);
+}
+
+.chart-labels {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  margin: var(--space-2) 0 0 calc(52px + var(--space-2));
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.chart-labels span[data-active="true"] {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.chart-tooltip {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 150px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--ink);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  transform: translate(-50%, calc(-100% - 12px));
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.chart-tooltip[data-side="start"] {
+  transform: translate(-20%, calc(-100% - 12px));
+}
+
+.chart-tooltip[data-side="end"] {
+  transform: translate(-80%, calc(-100% - 12px));
+}
+
+.chart-tooltip-label {
+  font-size: var(--text-2xs);
+  opacity: 0.7;
+}
+
+.chart-tooltip-value {
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-tooltip-note {
+  font-size: var(--text-2xs);
+  opacity: 0.85;
+}
+
+.chart-tooltip-hint {
+  margin-top: 2px;
+  font-size: var(--text-2xs);
+  color: #e9c9a6;
+}
+
+/* A dashboard card that leads with one big figure, a change chip, a chart and a breakdown. */
+.flow-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.flow-card-figure {
+  margin: 0;
+  white-space: nowrap;
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.flow-card-sub {
+  margin: 2px 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.delta-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-2xs);
+  font-weight: 600;
   background: var(--surface-sunken);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+a.delta-chip {
+  text-decoration: none;
+}
+
+.delta-chip[data-tone="good"] {
+  background: var(--success-wash);
+  color: var(--success);
+}
+
+.delta-chip[data-tone="bad"] {
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.share-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.share-bar-top {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+}
+
+.share-bar-name {
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.share-bar-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.share-bar-track {
+  height: 6px;
+  margin-top: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.share-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--bar-color, var(--bronze));
+}
+
+.share-bar-fill[data-tone="success"] {
+  --bar-color: var(--success);
+}
+
+.share-bar-fill[data-tone="danger"] {
+  --bar-color: var(--danger);
+}
+
+.share-bar-fill[data-tone="info"] {
+  --bar-color: var(--info);
+}
+
+.dashboard-charts-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+/* ---- Ringkasan Pajak ------------------------------------------------------------------------------- */
+.tax-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.tax-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.tax-hero h1 {
+  margin: 0;
+}
+
+.tax-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.tax-chip {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  padding: 4px var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-solid);
+  font-size: var(--text-xs);
+}
+
+.tax-chip span {
+  color: var(--text-secondary);
+}
+
+.tax-chip strong {
+  font-weight: 600;
+}
+
+a.tax-chip,
+.share-bar-top,
+.chart-hit,
+.chart-column {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.tax-chip:hover {
+  background: var(--surface-sunken);
+}
+
+a.share-bar-top:hover .share-bar-name {
+  text-decoration: underline;
+}
+
+.tax-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.tax-kpi {
+  position: relative;
+  display: block;
+  padding: var(--space-4) var(--space-5);
+  overflow: hidden;
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+a.tax-kpi:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.tax-kpi::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--kpi-color, var(--bronze));
+}
+
+.tax-kpi[data-tone="danger"] {
+  --kpi-color: var(--danger);
+}
+
+.tax-kpi[data-tone="warning"] {
+  --kpi-color: var(--warning);
+}
+
+.tax-kpi[data-tone="success"] {
+  --kpi-color: var(--success);
+}
+
+.tax-kpi[data-tone="info"] {
+  --kpi-color: var(--info);
+}
+
+.tax-kpi-label {
+  margin: 0;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.tax-kpi-value {
+  margin: var(--space-2) 0 var(--space-1);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.tax-kpi-note {
+  margin: 0;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.tax-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.tax-owed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tax-deadlines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tax-deadline {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--space-1) var(--space-3);
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.tax-deadline:hover {
+  background: var(--surface-sunken);
+}
+
+.tax-deadline-date {
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-1) 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  line-height: 1.1;
+}
+
+.tax-deadline-date strong {
+  font-size: var(--text-lg);
+}
+
+.tax-deadline-date span {
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.tax-deadline-date[data-state="overdue"] {
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.tax-deadline-date[data-state="due"] {
+  background: var(--warning-wash);
+  color: var(--warning);
+}
+
+.tax-deadline-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.tax-deadline-sub {
+  margin: 2px 0 0;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.tax-deadline-amount {
+  grid-column: 2;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
   font-size: var(--text-sm);
 }
 
-.line-tax-summary p {
-  margin: 0;
+.tax-split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+.tax-split-item {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.tax-split-item span {
+  display: block;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.tax-split-item strong {
+  display: block;
+  margin-top: 2px;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .dashboard-charts-row,
+  .tax-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .chart-body {
+    grid-template-columns: 40px 1fr;
+  }
+
+  .chart-labels {
+    margin-left: calc(40px + var(--space-2));
+  }
+
+  .tax-deadline {
+    grid-template-columns: 48px 1fr;
+  }
+}
+
+.tax-fold {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.tax-fold summary {
+  cursor: pointer;
+  color: var(--accent-strong);
+  font-size: var(--text-xs);
+  font-weight: 600;
 }

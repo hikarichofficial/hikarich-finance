@@ -3116,3 +3116,41 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Back reuse a page for 120 s instead of 30 s (saving anything still clears it), a Back stuck on the skeleton reloads
      after 6 s instead of 15 s, and a menu click that did not move the page opens as a normal load after 8 s instead
      of 12 s. Not reproduced is not solved: if it happens again the owner is asked which page and what the clock says.
+
+362. **Income tax on a purchase is a tax cost of the company, not taken out of the vendor's payment; five categories now PPh 23 (owner, 8 October 2026).**
+     (1) Wording and money: "potongan" is gone. The income tax the engine finds on a bill or expense (PPh 23, PPh 4(2)
+     or PPh 26) is the company's own cost on top of the purchase. The vendor, or the payee of an expense, is paid the
+     FULL amount; the tax is a separate liability to the tax office (credit Tax Payables, same tax ledger and calendar
+     as before) AND an expense on top (debit "Denda & Beban Pajak Lainnya", system key TAX_PENALTY_EXPENSE). So the
+     company's total cost is the amount plus the tax, paid to two different places. Migration p41 patches the posting
+     functions in place (bill approval, expense confirmation, base total, the payable of a bill in three functions,
+     the consequence texts) and keeps the `withheld_total` column and its meaning "income tax found on this document".
+     Production held no bill or expense with a non-zero `withheld_total` (checked before the migration), so no posted
+     document changes meaning. (2) Defaults: PMK 141/PMK.03/2015 lists internet, hosting and data services, software
+     services, advertising and freight / logistics as PPh 23 services (research note of 8 October 2026 in the docs
+     project). Komunikasi & Internet, Software & Langganan, Hosting/Domain/Cloud, Pemasaran & Iklan and Ekspedisi &
+     Pengiriman therefore default to "Jasa lain (PPh 23)" for a domestic vendor (new Entities and Entities still on the
+     old "not an object" answer; one the owner set is untouched). A foreign vendor (contact with a non-resident tax
+     domicile) automatically answers "Tidak kena PPh" on the line, because PPh 23 is for domestic vendors and the
+     engine would otherwise hold the document for review; PPh 26 and the PPN on foreign services (PMSE, PPN JLN)
+     stay a question for the tax adviser. (3) Screens: the Baris card shows three figures (Dibayar ke vendor, PPh ke
+     negara, Total biaya PT) plus the PPN note; the menu "Pemotongan PPh" is now "PPh Vendor". (4) Open question for
+     the tax adviser: whether PPh borne by the company is deductible and whether it counts as extra income to the
+     vendor (gross-up). Not decided here; the books show it as a separate tax expense so either answer is a
+     reclassification, not a data change. PPN of a non-PKP company stays a cost (cannot be credited); the company
+     never pays a "difference" to the state because it charges no PPN on its sales.
+
+363. **Modern, number-first Dashboard and Ringkasan Pajak (owner, 8 October 2026).**
+     The owner asked for a modern, professional, elegant look that is not confusing, with far fewer sentences and
+     many more numbers. (1) Dashboard: Tren Arus Kas is an interactive chart; hovering or focusing a point shows the
+     exact closing balance and its change from the month before, and clicking it opens the Arus Kas report of that
+     month. New cards Pendapatan and Beban show the month with its change (more revenue is green, more expense is
+     red), six monthly bars (hover for the amount, click for that month's Laba Rugi) and the biggest revenue sources
+     or expense accounts as share bars. The six months of Laba Rugi are read in parallel with the existing calls (the
+     month shown reuses its own result). The Dashboard's tax card uses the same share bars and date cards. (2)
+     Ringkasan Pajak: four figure cards (Total terutang, PPh Final bulan ini as an estimate, Perkiraan PPh on income
+     outside the final tax, Perlu ditinjau), a yearly bar chart of income tax per month from the tax ledger (click
+     opens that month in Buku Pajak), owed-by-type bars, deadline date cards, short profile labels and the 22%
+     estimate card with its tables and caveats folded away. Display only: every figure is the database's own decimal
+     text; charts and shares use `Number` for positions only. (3) The guide, flow diagrams and PDF follow: a new
+     "Cara Membaca Dashboard" guide and diagram, new images, and the wording of decision 362.

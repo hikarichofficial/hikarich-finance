@@ -19,6 +19,7 @@ import {
   type DashboardPeriod,
   type RecentActivityItem,
 } from "@/domain/dashboard/dashboard";
+import { pnlBreakdown, type BreakdownItem } from "@/domain/dashboard/chart";
 import {
   getCashFlowStatement,
   getProfitAndLoss,
@@ -53,11 +54,23 @@ export interface DashboardFinanceSection {
   discounts: string;
   expense: string;
   netResult: string | null;
+  /** Revenue and expense of the last months, oldest first, ending with the month shown. */
+  flow: DashboardFlowPoint[];
+  /** The biggest revenue sources and expense accounts of the month shown. */
+  revenueBreakdown: BreakdownItem[];
+  expenseBreakdown: BreakdownItem[];
 }
 
 export interface DashboardTrendPoint {
   month: string;
   closingCash: string | null;
+}
+
+/** One month of revenue and expense, for the Pendapatan and Beban charts. */
+export interface DashboardFlowPoint {
+  month: string;
+  revenue: string;
+  expense: string;
 }
 
 export interface DashboardCashSection {
@@ -136,6 +149,7 @@ export async function getDashboardSnapshot(
   const [
     currency,
     financeRows,
+    earlierPnlRows,
     trendRows,
     moneyControlRows,
     reconciliationRows,
@@ -160,6 +174,20 @@ export async function getDashboardSnapshot(
             end_date: period.end,
           }),
         ])
+      : null,
+    // The months before the one shown, for the Pendapatan and Beban charts (the month shown reuses its own result).
+    canReports
+      ? Promise.all(
+          trailingMonths(period, TREND_MONTHS)
+            .slice(0, -1)
+            .map((month) =>
+              getProfitAndLoss({
+                entity_id: entityId,
+                start_date: month.start,
+                end_date: month.end,
+              }).then((rows) => ({ month: month.month, rows })),
+            ),
+        )
       : null,
     canReports
       ? Promise.all(
@@ -191,11 +219,20 @@ export async function getDashboardSnapshot(
         const [pnlRows, equityRows] = financeRows;
         const totals = pnlTotals(pnlRows);
         const net = netResultFromEquityRows(equityRows);
+        const flow = [...(earlierPnlRows ?? []), { month: period.month, rows: pnlRows }].map(
+          ({ month, rows }) => {
+            const t = pnlTotals(rows);
+            return { month, revenue: t.revenue.toString(), expense: t.expense.toString() };
+          },
+        );
         return {
           revenue: totals.revenue.toString(),
           discounts: totals.discounts.toString(),
           expense: totals.expense.toString(),
           netResult: net ? net.toString() : null,
+          flow,
+          revenueBreakdown: pnlBreakdown(pnlRows, "revenue"),
+          expenseBreakdown: pnlBreakdown(pnlRows, "expense"),
         };
       })()
     : null;

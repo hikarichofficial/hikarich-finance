@@ -34,7 +34,7 @@ export default async function TaxWithholdingPage({
   return (
     <TaxPositionScreen
       taxType={taxType}
-      title={`Pemotongan PPh: ${TAX_TYPE_LABELS[taxType]}`}
+      title={`PPh Vendor: ${TAX_TYPE_LABELS[taxType]}`}
       typeOptions={WITHHOLDING_TAX_TYPES.map((t) => ({ value: t, label: TAX_TYPE_LABELS[t] }))}
       period={period}
       position={position}

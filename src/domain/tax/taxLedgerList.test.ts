@@ -152,7 +152,7 @@ describe("taxSourceDocumentHref", () => {
 describe("taxKindLabel / taxTypeLabel", () => {
   it("labels in Indonesian", () => {
     expect(taxKindLabel("vat_output")).toBe("PPN keluaran");
-    expect(taxTypeLabel("wht_pph23")).toBe("PPh 23 (dipotong)");
+    expect(taxTypeLabel("wht_pph23")).toBe("PPh 23 (jasa dan sewa)");
   });
 });
 
