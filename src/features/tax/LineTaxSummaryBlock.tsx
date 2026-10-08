@@ -3,10 +3,10 @@ import { formatMoney } from "@/domain/money/format";
 import type { LineTaxSummary } from "@/domain/tax/lineTaxSummary";
 
 /**
- * Under the lines of a bill or expense: where the money goes (OWNER, 8 October 2026). The vendor is paid the full
- * total, which includes the VAT the vendor or restaurant charged; the income tax (PPh) is the company's own cost on
- * top of that and goes to the tax office separately, so the company's total outlay is larger than the receipt. The
- * PPh flows into Pajak > PPh Vendor (the monthly position) once the document is recorded.
+ * Under the lines of a bill or expense: where the money goes (OWNER, 8 October 2026, second message). The document
+ * total (the contract or receipt amount, VAT included) is the company's whole cost. The income tax (PPh) is taken
+ * out of what the vendor or payee receives and the company pays it to the tax office, so the vendor receives the
+ * total less the PPh. The PPh flows into Pajak > PPh Vendor (the monthly position) once the document is recorded.
  */
 export function LineTaxSummaryBlock({
   summary,
@@ -16,7 +16,7 @@ export function LineTaxSummaryBlock({
 }: {
   summary: LineTaxSummary;
   currency: string;
-  /** What the vendor is paid: the document total, VAT included. */
+  /** The document total, VAT included: the company's whole cost. */
   total: string;
   /** The tax determination of the recorded document. */
   detailHref?: string;
@@ -25,32 +25,32 @@ export function LineTaxSummaryBlock({
   const creditable = Number(summary.vatCreditable);
   const cost = Number(summary.vatCost);
   const incomeTax = Number(summary.incomeTax);
-  const outlay = (Number(total) + incomeTax).toFixed(4);
+  const received = (Number(total) - incomeTax).toFixed(4);
   return (
     <div className="line-tax-summary">
       <div className="tax-tiles">
         <div className="tax-tile">
-          <span className="tax-tile-label">Dibayar ke vendor</span>
-          <strong className="tax-tile-value">{formatMoney(total, currency)}</strong>
+          <span className="tax-tile-label">Diterima vendor</span>
+          <strong className="tax-tile-value">{formatMoney(received, currency)}</strong>
           <span className="tax-tile-note">
             {charged > 0
-              ? `Sudah termasuk PPN dari vendor ${formatMoney(summary.vatCharged, currency)}.`
-              : "Tanpa PPN."}
+              ? `Total dikurangi PPh. Sudah termasuk PPN dari vendor ${formatMoney(summary.vatCharged, currency)}.`
+              : "Total dikurangi PPh. Tanpa PPN."}
           </span>
         </div>
         <div className="tax-tile">
-          <span className="tax-tile-label">PPh ke negara</span>
+          <span className="tax-tile-label">PPh disetor ke negara</span>
           <strong className="tax-tile-value">{formatMoney(summary.incomeTax, currency)}</strong>
           <span className="tax-tile-note">
             {incomeTax > 0
-              ? "Beban pajak PT di atas harga, dibayar terpisah. Masuk Pajak > PPh Vendor."
+              ? "Diambil dari bayaran vendor, disetor PT ke negara. Masuk Pajak > PPh Vendor."
               : "Tidak ada PPh pada pengeluaran ini."}
           </span>
         </div>
         <div className="tax-tile tax-tile-total">
           <span className="tax-tile-label">Total biaya PT</span>
-          <strong className="tax-tile-value">{formatMoney(outlay, currency)}</strong>
-          <span className="tax-tile-note">Dibayar ke vendor ditambah PPh ke negara.</span>
+          <strong className="tax-tile-value">{formatMoney(total, currency)}</strong>
+          <span className="tax-tile-note">Sama dengan jumlah di dokumen.</span>
         </div>
       </div>
       {charged > 0 ? (

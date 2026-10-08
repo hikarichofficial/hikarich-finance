@@ -199,7 +199,7 @@ begin
   perform test_helpers.assert((v ->> 'tax')::numeric = 1100000 and (v ->> 'not_creditable')::numeric = 0, '2.3 input VAT of a PKP with a tax-invoice reference is creditable');
   perform test_helpers.assert(w -> 'rules' -> 0 ->> 'code' = 'PPH23_RATE_2' and (w -> 'rules' -> 0 ->> 'rule_version')::int = 1
     and w -> 'rules' -> 0 ->> 'source_ref' is not null, '2.4 the result names the rule version and its source');
-  perform test_helpers.assert(jsonb_array_length(w -> 'trace') >= 3 and w ->> 'consequence' like '%tax cost of the company%' and jsonb_array_length(w -> 'components') = 1,
+  perform test_helpers.assert(jsonb_array_length(w -> 'trace') >= 3 and w ->> 'consequence' like '%withheld%' and jsonb_array_length(w -> 'components') = 1,
     '2.5 the result is explainable: a trace, a formula and a consequence');
   perform test_helpers.assert((e ->> 'withheld_total')::numeric = 200000 and (e ->> 'vat_input_creditable')::numeric = 1100000, '2.6 the summary totals');
 
@@ -285,7 +285,7 @@ begin
     jsonb_build_array(jsonb_build_object('description', 'Rent', 'unit_price', '2000000', 'wht_object', 'wht_rent_movable')));
   e := public.tax_preview_document('bill', v_id);
   perform test_helpers.assert(e ->> 'status' = 'auto_determined' and (e ->> 'withheld_total')::numeric = 0
-    and test_helpers.res(e, 'wht_pph23') ->> 'consequence' like 'No income tax is added%', '2.17 an exemption certificate: nothing withheld, and the result says why');
+    and test_helpers.res(e, 'wht_pph23') ->> 'consequence' like 'Nothing is withheld%', '2.17 an exemption certificate: nothing withheld, and the result says why');
   -- two rates on one bill
   v_id := public.create_bill_draft(pt, 'key-p7e-b-12', test_helpers.eg('vco'), v_today - 20, v_today + 10,
     jsonb_build_array(jsonb_build_object('description', 'Rent', 'unit_price', '1000000', 'wht_object', 'wht_rent_movable'),
@@ -545,15 +545,15 @@ begin
   perform public.approve_bill(test_helpers.eg('b1'), 'key-p7e-ab-01');
   perform test_helpers.logout();
   select * into b from public.bills where id = test_helpers.eg('b1');
-  perform test_helpers.assert(b.status = 'approved' and b.total = 11100000 and b.withheld_total = 200000 and b.base_total = 11100000 and b.tax_status = 'determined',
-    '5.1 the bill keeps its gross total; the vendor is owed all of it and the income tax is the company''s own cost');
-  perform test_helpers.assert(test_helpers.jc7(b.journal_id, 'ACCOUNTS_PAYABLE') = 11100000 and test_helpers.jc7(b.journal_id, 'TAX_PAYABLE') = 200000
-    and test_helpers.jd7(b.journal_id, 'TAX_ASSET') = 1100000 and test_helpers.jd7(b.journal_id, 'TAX_PENALTY_EXPENSE') = 200000
-    and (select sum(debit) from public.journal_lines where journal_id = b.journal_id) = 11300000
-    and (select sum(credit) from public.journal_lines where journal_id = b.journal_id) = 11300000,
-    '5.2 Dr expense + Dr Tax Asset (creditable VAT) + Dr tax expense; Cr Accounts Payable in full; Cr Tax Payable for the PPh 23');
+  perform test_helpers.assert(b.status = 'approved' and b.total = 11100000 and b.withheld_total = 200000 and b.base_total = 10900000 and b.tax_status = 'determined',
+    '5.1 the bill keeps its gross total; the amount payable is net of withholding');
+  perform test_helpers.assert(test_helpers.jc7(b.journal_id, 'ACCOUNTS_PAYABLE') = 10900000 and test_helpers.jc7(b.journal_id, 'TAX_PAYABLE') = 200000
+    and test_helpers.jd7(b.journal_id, 'TAX_ASSET') = 1100000
+    and (select sum(debit) from public.journal_lines where journal_id = b.journal_id) = 11100000
+    and (select sum(credit) from public.journal_lines where journal_id = b.journal_id) = 11100000,
+    '5.2 Dr expense + Dr Tax Asset (creditable VAT); Cr Accounts Payable net; Cr Tax Payable for the PPh 23 withheld');
   perform test_helpers.assert((select coalesce(sum(debit), 0) from public.journal_lines l join public.ledger_accounts a on a.id = l.ledger_account_id and a.entity_id = l.entity_id
-      where l.journal_id = b.journal_id and coalesce(a.system_key, '') not in ('TAX_ASSET', 'TAX_PENALTY_EXPENSE')) = 10000000,
+      where l.journal_id = b.journal_id and a.system_key is distinct from 'TAX_ASSET') = 10000000,
     '5.3 the expense is the price alone: the creditable VAT is an asset, not a cost');
   perform test_helpers.assert((select count(*) from public.tax_determinations where source_type = 'bill' and source_id = b.id and superseded_at is null) = 2
     and (select tax_amount from public.tax_determinations where source_id = b.id and tax_kind = 'wht_pph23') = 200000
@@ -562,22 +562,22 @@ begin
     '5.4 two determinations: PPh 23 (payable) and input VAT (asset)');
   perform test_helpers.assert((select sum(amount) from public.tax_ledger_entries where journal_id = b.journal_id and tax_kind = 'wht_pph23') = 200000
     and (select sum(amount) from public.tax_ledger_entries where journal_id = b.journal_id and tax_kind = 'vat_input') = 1100000, '5.5 the tax ledger holds both amounts');
-  -- 5.6 the payable is the full total everywhere
-  perform test_helpers.assert((select outstanding from test_helpers.bpos(pt) where bill_id = b.id) = 11100000
-    and (select total from test_helpers.bpos(pt) where bill_id = b.id) = 11100000, '5.6 the bill position shows the full total as payable');
+  -- 5.6 the payable is net of withholding everywhere
+  perform test_helpers.assert((select outstanding from test_helpers.bpos(pt) where bill_id = b.id) = 10900000
+    and (select total from test_helpers.bpos(pt) where bill_id = b.id) = 10900000, '5.6 the bill position shows the net payable');
 
-  -- 5.7 paying the full total settles the bill; paying more than the total is refused
+  -- 5.7 paying the net amount settles the bill; paying the gross is refused
   perform test_helpers.login(v_owner);
-  perform test_helpers.expect_msg(format($q$select public.record_vendor_payment(%L, 'key-p7e-vp-00', %L, %L, %L, 11100001, %L::jsonb)$q$, pt, test_helpers.eg('vco'), test_helpers.eg('bca'), v_today,
-    jsonb_build_array(jsonb_build_object('bill_id', b.id, 'amount', 11100001))::text), 'INVALID', '5.7 the payment cannot exceed the payable');
-  perform public.record_vendor_payment(pt, 'key-p7e-vp-01', test_helpers.eg('vco'), test_helpers.eg('bca'), v_today, 11100000,
-    jsonb_build_array(jsonb_build_object('bill_id', b.id, 'amount', 11100000)));
+  perform test_helpers.expect_msg(format($q$select public.record_vendor_payment(%L, 'key-p7e-vp-00', %L, %L, %L, 11100000, %L::jsonb)$q$, pt, test_helpers.eg('vco'), test_helpers.eg('bca'), v_today,
+    jsonb_build_array(jsonb_build_object('bill_id', b.id, 'amount', 11100000))::text), 'INVALID', '5.7 the payment cannot exceed the payable net of withholding');
+  perform public.record_vendor_payment(pt, 'key-p7e-vp-01', test_helpers.eg('vco'), test_helpers.eg('bca'), v_today, 10900000,
+    jsonb_build_array(jsonb_build_object('bill_id', b.id, 'amount', 10900000)));
   perform test_helpers.logout();
   perform test_helpers.assert((select settlement_status from test_helpers.bpos(pt) where bill_id = b.id) = 'paid'
-    and (select outstanding from test_helpers.bpos(pt) where bill_id = b.id) = 0, '5.8 paying the full total settles the bill');
+    and (select outstanding from test_helpers.bpos(pt) where bill_id = b.id) = 0, '5.8 paying the net amount settles the bill');
   perform test_helpers.assert((select sub_ledger from test_helpers.apc(pt)) = (select ledger_purchases from test_helpers.apc(pt)), '5.9 the AP sub-ledger still equals the General Ledger');
 
-  -- 5.10 an expense paid at once: the full total leaves the account, the income tax is the company's own cost
+  -- 5.10 an expense paid at once: cash out is net of withholding
   perform test_helpers.login(v_owner);
   v_id := public.create_expense_draft(pt, 'key-p7e-x-04', test_helpers.eg('bca'), v_today - 5, jsonb_build_array(
     jsonb_build_object('description', 'Rent', 'unit_price', '3000000', 'wht_object', 'wht_rent_movable')), test_helpers.eg('vco'));
@@ -585,13 +585,12 @@ begin
   perform public.confirm_expense(v_id, 'key-p7e-ce-01');
   perform test_helpers.logout();
   select * into x from public.expenses where id = v_id;
-  perform test_helpers.assert(x.status = 'confirmed' and x.total = 3000000 and x.withheld_total = 60000 and x.base_total = 3000000 and x.tax_status = 'determined',
-    '5.10 the expense is recognised with its income tax');
-  perform test_helpers.assert(test_helpers.jc7(x.journal_id, 'TAX_PAYABLE') = 60000 and (select sum(credit) from public.journal_lines where journal_id = x.journal_id) = 3060000
-    and (select sum(debit) from public.journal_lines where journal_id = x.journal_id) = 3060000
-    and test_helpers.jd7(x.journal_id, 'TAX_PENALTY_EXPENSE') = 60000, '5.11 Cr Tax Payable 60,000 and Dr tax expense 60,000; all 3,000,000 leaves the account');
-  perform test_helpers.assert((select coalesce(sum(amount), 0) from public.money_movements where source_type = 'expense' and source_id = x.id and direction = 'out') = 3000000,
-    '5.12 the money movement out is what actually left the account: the full total');
+  perform test_helpers.assert(x.status = 'confirmed' and x.total = 3000000 and x.withheld_total = 60000 and x.base_total = 2940000 and x.tax_status = 'determined',
+    '5.10 the expense is recognised with its withholding');
+  perform test_helpers.assert(test_helpers.jc7(x.journal_id, 'TAX_PAYABLE') = 60000 and (select sum(credit) from public.journal_lines where journal_id = x.journal_id) = 3000000
+    and (select sum(debit) from public.journal_lines where journal_id = x.journal_id) = 3000000, '5.11 Cr Tax Payable 60,000; the rest leaves the account');
+  perform test_helpers.assert((select coalesce(sum(amount), 0) from public.money_movements where source_type = 'expense' and source_id = x.id and direction = 'out') = 2940000,
+    '5.12 the money movement out is what actually left the account: the total net of the withholding');
   perform test_helpers.eput('x4', v_id);
 
   -- 5.13 a plain expense (wht_none, free-text payee) has a determination of zero and needs no tax facts
@@ -726,7 +725,7 @@ begin
   perform public.submit_bill(v_id, 'key-p7e-sb-32');
   perform public.approve_bill(v_id, 'key-p7e-ab-32');
   select * into b from public.bills where id = v_id;
-  perform test_helpers.assert(b.withheld_total = 100000 and b.base_total = 5550000, '6.21 (setup) bill approved with 100,000 withheld');
+  perform test_helpers.assert(b.withheld_total = 100000 and b.base_total = 5450000, '6.21 (setup) bill approved with 100,000 withheld');
   perform public.void_bill(v_id, 'key-p7e-vb-32', 'Vendor cancelled the service');
   perform test_helpers.logout();
   perform test_helpers.assert((select sum(amount) from public.tax_ledger_entries e join public.tax_determinations x on x.id = e.determination_id where x.source_id = v_id) = 0
@@ -1536,15 +1535,14 @@ begin
   perform test_helpers.logout();
   select * into b from public.bills where id = v_id;
   v_period := date_trunc('month', b.bill_date)::date;
-  perform test_helpers.assert(b.status = 'approved' and b.withheld_total = 600000 and b.base_total = 6000000
-    and test_helpers.jc7(b.journal_id, 'TAX_PAYABLE') = 600000 and test_helpers.jc7(b.journal_id, 'ACCOUNTS_PAYABLE') = 6000000
-    and test_helpers.jd7(b.journal_id, 'TAX_PENALTY_EXPENSE') = 600000,
-    '11.1 the office rent is booked gross; the lessor is owed all of it and the 10% is the company''s own tax cost');
+  perform test_helpers.assert(b.status = 'approved' and b.withheld_total = 600000 and b.base_total = 5400000
+    and test_helpers.jc7(b.journal_id, 'TAX_PAYABLE') = 600000 and test_helpers.jc7(b.journal_id, 'ACCOUNTS_PAYABLE') = 5400000,
+    '11.1 the office rent is booked gross; the lessor is owed the amount net of the 10% withheld');
   perform test_helpers.assert((select count(*) from public.tax_determinations where source_id = b.id and superseded_at is null) = 1
     and (select tax_type = 'wht_pph4_2' and tax_amount = 600000 and direction = 'payable' from public.tax_determinations where source_id = b.id)
     and (select sum(amount) from public.tax_ledger_entries where journal_id = b.journal_id and tax_type = 'wht_pph4_2') = 600000,
     '11.2 one determination and one tax-ledger entry, of the type PPh 4(2)');
-  perform test_helpers.assert((select description from public.journal_lines where journal_id = b.journal_id and description like 'Income tax payable to the tax office:%' limit 1) is not null,
+  perform test_helpers.assert((select description from public.journal_lines where journal_id = b.journal_id and description like 'Income tax withheld:%' limit 1) is not null,
     '11.3 the journal line no longer names PPh 23 for every withholding');
 
   perform test_helpers.login(v_taxer);

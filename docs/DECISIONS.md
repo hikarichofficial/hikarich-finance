@@ -3117,7 +3117,7 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      after 6 s instead of 15 s, and a menu click that did not move the page opens as a normal load after 8 s instead
      of 12 s. Not reproduced is not solved: if it happens again the owner is asked which page and what the clock says.
 
-362. **Income tax on a purchase is a tax cost of the company, not taken out of the vendor's payment; five categories now PPh 23 (owner, 8 October 2026).**
+362. **Income tax on a purchase is a tax cost of the company, not taken out of the vendor's payment; five categories now PPh 23 (owner, 8 October 2026). Part 1 (who bears the tax) was withdrawn by decision 364; the rest stands.**
      (1) Wording and money: "potongan" is gone. The income tax the engine finds on a bill or expense (PPh 23, PPh 4(2)
      or PPh 26) is the company's own cost on top of the purchase. The vendor, or the payee of an expense, is paid the
      FULL amount; the tax is a separate liability to the tax office (credit Tax Payables, same tax ledger and calendar
@@ -3154,3 +3154,20 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      estimate card with its tables and caveats folded away. Display only: every figure is the database's own decimal
      text; charts and shares use `Number` for positions only. (3) The guide, flow diagrams and PDF follow: a new
      "Cara Membaca Dashboard" guide and diagram, new images, and the wording of decision 362.
+
+364. **Income tax on a purchase is borne by the payee again; the contract amount is the company's whole cost (owner, 8 October 2026, after merge of #186).**
+     The owner: "kalau kontrak dengan freelancer tersebut adalah 10jt, masak PT saya yang membayar lebih." Decision 362 part 1
+     (the vendor paid in full, the income tax an extra cost on top) is withdrawn; migration p42 puts the posting back as it
+     was before p41: the vendor or payee receives the total less the income tax, the income tax is a liability to the tax
+     office (credit Tax Payables, same ledger and calendar) paid by the company out of the contract amount, and there is no
+     separate tax expense (the "Denda & Beban Pajak Lainnya" debit of p41 is gone). The company's cost equals the amount
+     on the document. Production held no document with income tax, so nothing posted changes meaning. Kept from 362: the
+     five categories on PPh 23 for a domestic vendor, the foreign-vendor default "Tidak kena PPh", the menu name "PPh
+     Vendor" and the label "Kena PPh?". The Baris card now shows Diterima vendor (total less PPh), PPh disetor ke negara
+     and Total biaya PT (the document total). Not decided: a contract written "net" (the company bears the tax, which needs
+     a gross-up so the payee still nets the contract amount) is not offered; if the owner needs it, it becomes a per-document
+     choice. For an individual freelancer without payroll (PPh 21 non-employee, PMK 168/2023) the rate is Pasal 17(1)(a) on
+     50% of the gross of each payment, PTKP is not deducted at withholding and the base is no longer cumulative; the
+     app does not compute PPh 21 non-employee yet (backlog, with the question of the no-NPWP rate for the tax adviser).
+     Because the PT Perorangan is on the final regime (0,5% of turnover), its costs, including any PPh it bears, do not
+     reduce its tax.

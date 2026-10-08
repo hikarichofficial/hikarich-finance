@@ -54,7 +54,7 @@
         },
         {
           "title": "Pantau Kalender Pajak",
-          "text": "**Pajak > Kalender Pajak** menampilkan langkah Hitung, Bayar, Lapor, Bukti per masa dengan status Selesai, Perlu dikerjakan, Terlambat, atau Akan datang. PPh yang ditanggung PT dibayar ke negara paling lambat tanggal 15 bulan berikutnya."
+          "text": "**Pajak > Kalender Pajak** menampilkan langkah Hitung, Bayar, Lapor, Bukti per masa dengan status Selesai, Perlu dikerjakan, Terlambat, atau Akan datang. PPh yang diambil dari bayaran vendor disetor ke negara paling lambat tanggal 15 bulan berikutnya."
         }
       ],
       "tables": [

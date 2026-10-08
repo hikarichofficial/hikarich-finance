@@ -461,7 +461,7 @@ SECTIONS = [
   ("Ringkasan Pajak", "/tax",
    "Halaman utama modul Pajak, berisi angka lebih dulu daripada kalimat. Empat kartu: <b>Total terutang</b>, "
    "<b>PPh Final bulan ini</b> (perkiraan), <b>Perkiraan PPh</b> tahun berjalan, dan <b>Perlu ditinjau</b>. Di "
-   "bawahnya grafik <b>Beban pajak per bulan</b> (arahkan kursor untuk jumlah, klik untuk membuka Buku Pajak bulan "
+   "bawahnya grafik <b>PPh per bulan</b> (arahkan kursor untuk jumlah, klik untuk membuka Buku Pajak bulan "
    "itu), kartu <b>Penghasilan di Luar PPh Final</b> (hasil bersih forex, bunga, dividen, kripto sejak 1 Januari "
    "dengan perkiraan pajak 22% berlabel asumsi; ditetapkan 1 Januari tahun berikutnya, SPT Tahunan 30 April), batang "
    "<b>Terutang per jenis</b>, dan kartu <b>Tenggat terdekat</b>. Profil pajak Entity tampil sebagai label singkat "
@@ -474,8 +474,8 @@ SECTIONS = [
    "dihitung ulang, sistem hanya membukukan selisihnya, tidak dobel.", "97,234"),
   ("PPh Vendor", "/tax/withholding",
    "Posisi PPh 23 (jasa dan sewa), PPh 4 ayat (2) (sewa tanah/bangunan), dan PPh 26 (ke luar negeri) atas pembelian "
-   "dari vendor. Vendor dibayar penuh; PPh adalah <b>beban pajak PT</b> di atas harga dan dibayar terpisah ke negara. "
-   "Dihitung otomatis dari tagihan/beban yang relevan, tidak perlu hitung manual.", "91,93,235,256,362"),
+   "dari vendor. PPh diambil dari bayaran vendor dan disetor PT ke negara, jadi biaya PT tetap sebesar jumlah di dokumen. "
+   "Dihitung otomatis dari tagihan/beban yang relevan, tidak perlu hitung manual.", "91,93,235,256,364"),
   ("PPN", "/tax/ppn",
    "Posisi PPN keluaran (dari penjualan) dan PPN masukan (dari pembelian, yang bisa dikreditkan) untuk tiap "
    "periode pajak.", "91,92,235"),

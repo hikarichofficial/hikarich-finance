@@ -55,8 +55,8 @@ export function TaxPreviewPanel({
           {sourceType !== "invoice" ? (
             <p className="hint">
               <strong>PPN masukan</strong> adalah PPN yang ditagih vendor atau restoran di struk.{" "}
-              <strong>PPh</strong> adalah beban pajak PT di atas harga: vendor tetap dibayar penuh,
-              dan PPh dibayar terpisah ke negara.
+              <strong>PPh</strong> diambil dari bayaran vendor lalu disetor PT ke negara, jadi biaya
+              PT tetap sebesar jumlah di dokumen.
             </p>
           ) : null}
           {preview.status === "needs_review" ? (
