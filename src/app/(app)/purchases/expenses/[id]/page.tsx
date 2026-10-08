@@ -7,8 +7,9 @@ import { getMoneyControl } from "@/services/money/money";
 import { listContacts } from "@/services/contacts/contacts";
 import { listActiveCategories } from "@/services/accounting/categories";
 import { expenseActions, expensePayeeLabel } from "@/domain/purchases/expenseList";
-import { previewDocumentTax } from "@/services/tax/tax";
 import { TaxPreviewPanel } from "@/features/tax/TaxPreviewPanel";
+import { listTaxDeterminations, previewDocumentTax } from "@/services/tax/tax";
+import { summaryFromDeterminations, summaryFromPreview } from "@/domain/tax/lineTaxSummary";
 import { ExpenseDetailScreen } from "@/features/purchases/ExpenseDetailScreen";
 
 /** Direct Expense Detail (decision 245), gated `bills.view`. The expense is read for the active Entity
@@ -29,7 +30,7 @@ export default async function ExpenseDetailPage({
   if (!expense) notFound();
 
   const wantsPreview = expense.status === "draft" || expense.status === "submitted";
-  const [lines, accounts, contacts, categories, taxPreview] = await Promise.all([
+  const [lines, accounts, contacts, categories, taxPreview, determinations] = await Promise.all([
     getExpenseLines(expense.id),
     getMoneyControl(entityId),
     listContacts(entityId),
@@ -38,7 +39,14 @@ export default async function ExpenseDetailPage({
     wantsPreview
       ? previewDocumentTax({ source_type: "expense", source_id: id }).catch(() => null)
       : Promise.resolve(null),
+    // After recording: the determinations behind the journal (VAT cost or credit, withholding).
+    wantsPreview ? Promise.resolve(null) : listTaxDeterminations("expense", id).catch(() => null),
   ]);
+  const taxSummary = taxPreview
+    ? summaryFromPreview(expense.tax_total, taxPreview)
+    : determinations
+      ? summaryFromDeterminations(expense.tax_total, determinations)
+      : undefined;
   const vendorNames = new Map(contacts.map((c) => [c.id, c.display_name]));
   const account = accounts.find((a) => a.financial_account_id === expense.financial_account_id);
   const backHref = entity
@@ -64,6 +72,7 @@ export default async function ExpenseDetailPage({
           canVoid: can(access, entityId, "bills.void"),
           canCreate: can(access, entityId, "bills.create"),
         })}
+        taxSummary={taxSummary}
         taxPanel={
           taxPreview ? (
             <TaxPreviewPanel

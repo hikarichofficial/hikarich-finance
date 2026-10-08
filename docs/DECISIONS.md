@@ -3101,3 +3101,18 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      columns already red (`?problems=`). After pressing save, a half-filled row (description without amount or the
      reverse) is red too. Display only: no rule changed and a reason
      the table does not know simply marks nothing (the translated sentence is still shown).
+
+361. **Tax row layout, "PPN dari vendor" wording, tax shown in Baris, and a faster way out of a stuck Back (owner, 8 October 2026).**
+     (1) In the line editor the tax fields are three equal cards in one row (Kena potongan PPh?, PPN dari vendor /
+     restoran with the "Sudah termasuk PPN 11%" box and its split, Faktur Pajak); the box no longer sits inside the
+     amount cell, so Deskripsi and Kategori keep their width. (2) Wording: the VAT on a receipt is the vendor's or the
+     restaurant's, not tax the Entity pays or reports. Labels read "Harga sebelum PPN" and "PPN dari vendor" with a note,
+     and the tax preview explains "PPN masukan" and "PPh dipotong". (3) The Baris card of an expense or bill shows a
+     PPN column per line and a summary under the table: the VAT charged, whether it is a cost (Entity not PKP) or
+     credited (PKP), and the PPh withheld (which feeds Pajak > Pemotongan PPh once posted, the same ledger as before).
+     The summary reads the preview before confirming and the non-superseded tax determinations afterwards; no rule
+     changed. (4) Back button: measured on production, a click on a list row and Back both stay in the app (no full
+     page load; list back in 0,8 to 1,0 s), so no fault was reproduced. To make a slow case shorter: repeat visits and
+     Back reuse a page for 120 s instead of 30 s (saving anything still clears it), a Back stuck on the skeleton reloads
+     after 6 s instead of 15 s, and a menu click that did not move the page opens as a normal load after 8 s instead
+     of 12 s. Not reproduced is not solved: if it happens again the owner is asked which page and what the clock says.

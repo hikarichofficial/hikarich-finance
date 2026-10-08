@@ -4,7 +4,8 @@ import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { getBillDetail } from "@/services/purchases/purchases";
 import { getMoneyControl } from "@/services/money/money";
-import { previewDocumentTax } from "@/services/tax/tax";
+import { listTaxDeterminations, previewDocumentTax } from "@/services/tax/tax";
+import { summaryFromDeterminations, summaryFromPreview } from "@/domain/tax/lineTaxSummary";
 import { TaxPreviewPanel } from "@/features/tax/TaxPreviewPanel";
 import { BillDetailScreen } from "@/features/purchases/BillDetailScreen";
 import { todayInBusinessZone } from "@/lib/time";
@@ -45,6 +46,15 @@ export default async function BillDetailPage({
     bill.status === "draft" || bill.status === "submitted"
       ? await previewDocumentTax({ source_type: "bill", source_id: id }).catch(() => null)
       : null;
+  const determinations =
+    bill.status === "draft" || bill.status === "submitted"
+      ? null
+      : await listTaxDeterminations("bill", id).catch(() => null);
+  const taxSummary = taxPreview
+    ? summaryFromPreview(bill.tax_total, taxPreview)
+    : determinations
+      ? summaryFromDeterminations(bill.tax_total, determinations)
+      : undefined;
   const selfHref = entity
     ? `/purchases/bills/${id}?entity=${encodeURIComponent(entity)}`
     : `/purchases/bills/${id}`;
@@ -54,6 +64,7 @@ export default async function BillDetailPage({
       <BillDetailScreen
         bill={bill}
         backHref={backHref}
+        taxSummary={taxSummary}
         taxPanel={
           taxPreview ? (
             <TaxPreviewPanel

@@ -346,27 +346,6 @@ export function RecurringLinesEditor({
                         />
                         {hint("amount")}
                         {hint("vat_amount")}
-                        {taxFields && canIncludeVat(row, kind) ? (
-                          <label className="plan-lines-vat-inclusive">
-                            <span>
-                              <input
-                                type="checkbox"
-                                checked={row.price_includes_vat === true}
-                                onChange={(event) =>
-                                  updateRow(row.key, { price_includes_vat: event.target.checked })
-                                }
-                              />{" "}
-                              Sudah termasuk PPN {VAT_RATE_PERCENT}%
-                            </span>
-                            {row.price_includes_vat ? (
-                              <span className="hint">
-                                {vatSplit
-                                  ? `Sebelum PPN: Rp ${formatMoneyTyping(vatSplit.net)} · PPN: Rp ${formatMoneyTyping(vatSplit.vat)}. PPh dihitung dari harga sebelum PPN.`
-                                  : "Isi jumlah di struk; harga sebelum PPN dan PPN dihitung otomatis."}
-                              </span>
-                            ) : null}
-                          </label>
-                        ) : null}
                       </td>
                       {showTreatment ? (
                         <td
@@ -546,6 +525,30 @@ export function RecurringLinesEditor({
                                         </label>
                                       );
                                     })()}
+                                {canIncludeVat(row, kind) ? (
+                                  <div className="plan-lines-tax-card">
+                                    <strong>PPN dari vendor / restoran</strong>
+                                    <label className="plan-lines-check">
+                                      <input
+                                        type="checkbox"
+                                        checked={row.price_includes_vat === true}
+                                        onChange={(event) =>
+                                          updateRow(row.key, {
+                                            price_includes_vat: event.target.checked,
+                                          })
+                                        }
+                                      />
+                                      <span>Jumlah sudah termasuk PPN {VAT_RATE_PERCENT}%</span>
+                                    </label>
+                                    <span className="hint">
+                                      {row.price_includes_vat
+                                        ? vatSplit
+                                          ? `Sebelum PPN Rp ${formatMoneyTyping(vatSplit.net)} + PPN Rp ${formatMoneyTyping(vatSplit.vat)} (PPN yang dipungut vendor, bukan pajak yang Anda setor). PPh dihitung dari harga sebelum PPN.`
+                                          : "Isi jumlah dulu; PPN dihitung otomatis."
+                                        : "Centang bila struk memuat PPN, yaitu pajak yang dipungut vendor atau restoran (bukan pajak yang Anda setor). Harga sebelum PPN dihitung otomatis."}
+                                    </span>
+                                  </div>
+                                ) : null}
                                 {extraText(row, "tax_amount") !== "" && !vatSplit ? (
                                   <p className="hint">
                                     PPN tercatat di baris ini: Rp{" "}
@@ -553,9 +556,13 @@ export function RecurringLinesEditor({
                                   </p>
                                 ) : null}
                                 <label
-                                  className={marks.vat_invoice_ref ? "field-problem" : undefined}
+                                  className={
+                                    marks.vat_invoice_ref
+                                      ? "field-problem plan-lines-tax-card"
+                                      : "plan-lines-tax-card"
+                                  }
                                 >
-                                  No. Faktur Pajak
+                                  <strong>No. Faktur Pajak</strong>
                                   <input
                                     type="text"
                                     maxLength={100}
@@ -564,6 +571,9 @@ export function RecurringLinesEditor({
                                       updateExtra(row, "vat_invoice_ref", event.target.value)
                                     }
                                   />
+                                  <span className="hint">
+                                    Isi bila vendor memberi faktur pajak.
+                                  </span>
                                   {hint("vat_invoice_ref")}
                                 </label>
                               </>

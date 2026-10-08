@@ -9,6 +9,8 @@ import {
 import { PURCHASE_TREATMENT_LABELS } from "@/domain/purchases/bill";
 import { SETTLEMENT_LABELS } from "@/domain/purchases/settlement";
 import type { BillDetail } from "@/services/purchases/purchases";
+import { LineTaxSummaryBlock } from "@/features/tax/LineTaxSummaryBlock";
+import type { LineTaxSummary } from "@/domain/tax/lineTaxSummary";
 import { BillActions, type BillActionPermissions } from "./BillActions";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
 import { PayBillForm } from "./PayBillForm";
@@ -34,6 +36,7 @@ export function BillDetailScreen({
   backHref,
   payment,
   taxPanel,
+  taxSummary,
   documents,
 }: {
   bill: BillDetail;
@@ -43,6 +46,8 @@ export function BillDetailScreen({
   payment?: { accounts: readonly SettlementAccountOption[]; today: string };
   /** The tax the engine would recognise, shown while the document is not recognised yet (decision 262). */
   taxPanel?: ReactNode;
+  /** The VAT and withholding of this bill, shown under the lines. */
+  taxSummary?: LineTaxSummary;
   /** The attachments of this bill, shown inside the Dokumen section (decision 332). */
   documents?: ReactNode;
 }) {
@@ -117,12 +122,16 @@ export function BillDetailScreen({
             <dd>{formatMoney(bill.total, bill.currency)}</dd>
           </div>
           <div>
-            <dt>Subtotal</dt>
+            <dt>Harga sebelum PPN</dt>
             <dd>{formatMoney(bill.subtotal, bill.currency)}</dd>
+            <p className="record-summary-note">Dasar menghitung potongan PPh.</p>
           </div>
           <div>
-            <dt>Pajak</dt>
+            <dt>PPN dari vendor</dt>
             <dd>{formatMoney(bill.tax_total, bill.currency)}</dd>
+            <p className="record-summary-note">
+              Ditagih vendor di invoice. Bukan pajak yang Anda setor atau laporkan.
+            </p>
           </div>
           {bill.settled !== null ? (
             <div>
@@ -179,10 +188,13 @@ export function BillDetailScreen({
                   Kuantitas
                 </th>
                 <th scope="col" className="num">
-                  Harga Satuan
+                  Harga (sebelum PPN)
                 </th>
                 <th scope="col" className="num">
-                  Total Baris
+                  PPN
+                </th>
+                <th scope="col" className="num">
+                  Total Baris (+ PPN)
                 </th>
               </tr>
             </thead>
@@ -197,6 +209,9 @@ export function BillDetailScreen({
                   <td className="num" data-label="Harga Satuan">
                     {formatMoney(line.unit_price, bill.currency)}
                   </td>
+                  <td className="num" data-label="PPN">
+                    {formatMoney(line.tax_amount, bill.currency)}
+                  </td>
                   <td className="num" data-label="Total Baris">
                     {formatMoney(line.line_total, bill.currency)}
                   </td>
@@ -205,6 +220,17 @@ export function BillDetailScreen({
             </tbody>
           </table>
         )}
+        {taxSummary ? (
+          <LineTaxSummaryBlock
+            summary={taxSummary}
+            currency={bill.currency}
+            detailHref={
+              bill.status === "draft" || bill.status === "submitted"
+                ? undefined
+                : `/tax/determination/bill/${bill.id}`
+            }
+          />
+        ) : null}
       </section>
 
       <section className="dashboard-section">
@@ -239,7 +265,10 @@ export function BillDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Pajak</h2>
         </div>
-        <p className="dashboard-empty">Penentuan pajak per tagihan belum tersedia di tahap ini.</p>
+        <p className="dashboard-empty">
+          Rincian PPN dan potongan PPh tagihan ini ada di bawah Rincian Item; hasilnya masuk ke
+          Pajak &gt; Ringkasan Pajak dan Pemotongan PPh setelah tagihan disetujui.
+        </p>
       </section>
 
       <section className="dashboard-section">
