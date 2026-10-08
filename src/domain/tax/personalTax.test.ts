@@ -4,6 +4,7 @@ import type { PersonalTariffParams, PersonalTaxSummary } from "@/schemas/persona
 import {
   computeCeiling,
   computeFinal,
+  computeInstallment,
   computePersonalTax,
   computeProgressive,
   percentOf,
@@ -40,6 +41,8 @@ function summary(over: {
   sales?: string;
   ptkp?: PersonalTaxSummary["ptkp_status"];
   group?: string[];
+  paidFinal?: string;
+  paidInstallment?: string;
 }): PersonalTaxSummary {
   return {
     applicable: true,
@@ -57,6 +60,11 @@ function summary(over: {
       months: MONTHS,
     },
     costs: { total: over.costs ?? "0", months: MONTHS },
+    payments: {
+      final: over.paidFinal ?? "0",
+      installment: over.paidInstallment ?? "0",
+      installment_months: MONTHS,
+    },
     linked_pt: [],
     group: {
       own_turnover: "0",
@@ -228,6 +236,37 @@ describe("computePersonalTax", () => {
     expect(r.totalToPay).toBe("0");
   });
 
+  it("subtracts what the person has already paid in, each tax on its own", () => {
+    const r = computePersonalTax(
+      summary({
+        sales: "600000000",
+        gross: "120000000",
+        costs: "10000000",
+        withheld: "1000000",
+        paidFinal: "500000",
+        paidInstallment: "1000000",
+      }),
+    );
+    expect(r.final?.balance).toBe("0");
+    expect(r.progressive?.prepaid).toBe("1000000");
+    expect(r.progressive?.balance).toBe("800000");
+    expect(r.totalToPay).toBe("800000");
+  });
+
+  it("does not let an overpaid instalment cancel the final tax still owed", () => {
+    const r = computePersonalTax(
+      summary({
+        sales: "600000000",
+        gross: "100000000",
+        withheld: "9000000",
+        paidInstallment: "1000000",
+      }),
+    );
+    expect(r.progressive?.balance).toBe("-7700000");
+    expect(r.final?.balance).toBe("500000");
+    expect(r.totalToPay).toBe("500000");
+  });
+
   it("says so when the rule data is missing", () => {
     const base = summary({});
     const r = computePersonalTax({ ...base, rules: { final: null, tariff: null } });
@@ -247,5 +286,39 @@ describe("helpers", () => {
     expect(ptkpLabel("TK/0")).toBe("Tidak kawin, tanpa tanggungan");
     expect(ptkpLabel("K/2")).toBe("Kawin, 2 tanggungan");
     expect(ptkpLabel("K/I/3")).toBe("Kawin, istri berpenghasilan, 3 tanggungan");
+  });
+});
+
+describe("computeInstallment", () => {
+  const prior = (over: Parameters<typeof summary>[0]) => computePersonalTax(summary(over));
+
+  it("is last year's tax less credits divided by 12", () => {
+    // gross 120 jt, TK/0: tax 2.800.000 after 10 jt of costs; credit 1.000.000 -> 1.800.000 / 12 = 150.000
+    const r = computeInstallment(
+      prior({ gross: "120000000", costs: "10000000", withheld: "1000000" }),
+      summary({ paidInstallment: "300000" }),
+    );
+    expect(r.kind).toBe("amount");
+    expect(r.basis).toBe("1800000");
+    expect(r.monthly).toBe("150000");
+    expect(r.paid).toBe("300000");
+    expect(r.dueDay).toBe(15);
+  });
+
+  it("rounds to whole rupiah, half up", () => {
+    // tax 3.000.000 (60 jt over TK/0 54 jt = 6 jt? use gross 114 jt: PKP 60 jt -> 3.000.000) less credit 1 -> 2.999.999 / 12
+    const r = computeInstallment(prior({ gross: "114000000", withheld: "1" }), summary({}));
+    expect(r.monthly).toBe("250000");
+  });
+
+  it("is nil for a new taxpayer with no income last year", () => {
+    expect(computeInstallment(null, summary({})).kind).toBe("nihil");
+    expect(computeInstallment(prior({}), summary({})).kind).toBe("nihil");
+  });
+
+  it("is nil when withholding already covers last year's tax", () => {
+    const r = computeInstallment(prior({ gross: "100000000", withheld: "9000000" }), summary({}));
+    expect(r.kind).toBe("nihil");
+    expect(r.reason).toContain("dipotong");
   });
 });

@@ -62,6 +62,12 @@ export const personalTaxSummarySchema = z.discriminatedUnion("applicable", [
       months,
     }),
     costs: z.object({ total: moneyTextSchema, months }),
+    /** Tax the person has already paid in: PPh Final UMKM and the monthly PPh 25 instalment (decision 366). */
+    payments: z.object({
+      final: moneyTextSchema,
+      installment: moneyTextSchema,
+      installment_months: months,
+    }),
     linked_pt: z.array(
       z.object({
         entity_id: uuidResultSchema,

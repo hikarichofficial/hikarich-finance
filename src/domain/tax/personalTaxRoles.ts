@@ -7,6 +7,8 @@ export const PERSONAL_TAX_ROLES = [
   "freelance",
   "company_payout",
   "business_cost",
+  "tax_paid_final",
+  "tax_paid_installment",
 ] as const;
 export type PersonalTaxRole = (typeof PERSONAL_TAX_ROLES)[number];
 
@@ -15,12 +17,14 @@ export const PERSONAL_ROLE_LABELS: Readonly<Record<PersonalTaxRole, string>> = {
   freelance: "Jasa & pekerjaan bebas · PPh progresif",
   company_payout: "Honor dari PT saya · otomatis dari PT",
   business_cost: "Biaya usaha & jasa · mengurangi penghasilan neto",
+  tax_paid_final: "Setoran PPh Final UMKM · pajak yang sudah Anda bayar",
+  tax_paid_installment: "Setoran PPh 25 (angsuran) · pajak yang sudah Anda bayar",
 };
 
 /** Which roles a category of this kind may carry; the database enforces the same pairing. */
 export function personalRolesForKind(kind: string): PersonalTaxRole[] {
   if (kind === "revenue") return ["umkm_business", "freelance", "company_payout"];
-  if (kind === "expense") return ["business_cost"];
+  if (kind === "expense") return ["business_cost", "tax_paid_final", "tax_paid_installment"];
   return [];
 }
 

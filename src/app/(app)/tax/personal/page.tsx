@@ -7,6 +7,7 @@ import {
 } from "@/services/tax/tax";
 import { resolveTaxYear, runningTaxPeriod } from "@/domain/tax/tax";
 import { GroupTurnoverCard } from "@/features/tax/GroupTurnoverCard";
+import { computeInstallment, computePersonalTax } from "@/domain/tax/personalTax";
 import { PersonalTaxScreen } from "@/features/tax/PersonalTaxScreen";
 
 /** Pajak Pribadi (decision 365): the yearly PPh estimate of a Personal book. */
@@ -50,5 +51,21 @@ export default async function PersonalTaxPage({
     );
   }
 
-  return <PersonalTaxScreen summary={summary} entity={entity} currentYear={currentYear} />;
+  // The monthly PPh 25 instalment comes from last year's tax; a year already settled has none to pay.
+  let installment = null;
+  if (shownYear === currentYear) {
+    const prior = await getPersonalTaxSummary(membership.entity_id, shownYear - 1).catch(
+      () => null,
+    );
+    installment = computeInstallment(prior ? computePersonalTax(prior) : null, summary);
+  }
+
+  return (
+    <PersonalTaxScreen
+      summary={summary}
+      entity={entity}
+      currentYear={currentYear}
+      installment={installment}
+    />
+  );
 }

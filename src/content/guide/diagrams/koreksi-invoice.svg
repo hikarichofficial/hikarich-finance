@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 560 618" width="560" height="618" role="img" aria-label="Invoice atau Pembayaran Salah: Dibatalkan, Dikoreksi, atau Dibalik?" font-family="Helvetica, Arial, sans-serif">
-<!-- source: alur.json sha256:553bb41709669c64 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<!-- source: alur.json sha256:a98122cb292b0d38 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
 <title>Invoice atau Pembayaran Salah: Dibatalkan, Dikoreksi, atau Dibalik?</title>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <rect x="200" y="18" width="160" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>

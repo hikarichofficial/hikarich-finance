@@ -3201,3 +3201,28 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      the rounding of PKP to whole thousands (taken from the SPT instructions, not a primary source). Not modelled: monthly
      PPh 25 instalments, depreciation of assets bought for the business, tax withheld on sales (shown as a note only).
      Nothing is recorded as a journal by the estimate; the year settles on 1 January of the next year.
+
+366. **Pajak Pribadi: the three open tax questions settled from primary sources, and PPh 25 instalments plus tax-paid tracking added (builder decision after the owner asked to stop asking; 9 October 2026, one merge).**
+     Research settles decision 365's "uncertain" list; nothing is left for the adviser on these points.
+     (1) Rounding: taxable income (PKP) is rounded DOWN to whole thousands of rupiah (UU PPh Pasal 17 ayat 4; DJP
+     SPT Tahunan OP instructions). The existing `pkp_round_down_to` 1000 rule is correct and unchanged.
+     (2) The Rp 500 juta tax-free band belongs to the final-regime business turnover only (UU PPh Pasal 7 ayat 2a;
+     PP 55/2022 Pasal 60 ayat 2; PMK 164/2023 Pasal 6; carried on by PP 20/2026). Income from free-lance work
+     ("pekerjaan bebas") is outside the final scheme (PMK 164/2023 Pasal 3 ayat 3 huruf a; PP 20/2026 Pasal 56) so it
+     neither consumes nor receives the band: it is taxed progressively on net income. It still counts toward the
+     Rp 4,8 miliar turnover ceiling (existing behaviour kept).
+     (3) PPh 25 for an individual (PMK 215/PMK.03/2018 Pasal 2, 7, 10; DJP "Angsuran PPh Pasal 25"): monthly instalment
+     = (last year's progressive tax less credits for PPh 21/22/23/24) / 12, due on the 15th of the next month; the
+     payment slip (NTPN) doubles as the monthly return; nil in the first year of registration or when last year had no
+     tax to pay; PPh Final has no PPh 25. `computeInstallment` returns that figure (half-up whole rupiah) from last
+     year's computed result, shown as the "Angsuran PPh 25 bulanan" card. Not modelled: recalculation when the
+     expected tax is above 150% or reduction after three months below 75%, "Pengusaha Tertentu" 0,75% of gross
+     at a business location apart from home (not free-lance), depreciation of business assets.
+     (4) Payments the owner makes are recorded, never guessed: two new Personal expense roles `tax_paid_final`
+     ("Setoran PPh Final UMKM") and `tax_paid_installment` ("Setoran PPh 25 (Angsuran)"), both on new account 6060
+     `PERSONAL_INCOME_TAX_PAID`, provisioned for every Personal entity (existing ones too). They are NOT business costs,
+     so net income is unchanged; `personal_tax_summary` returns `payments{final, installment, installment_months}`.
+     Each balance is computed on its own (progressive tax - credit - instalments paid; final tax - final paid) and the
+     total to pay adds only positive balances: an overpayment of one tax is never netted against the other.
+     Migration `20261014100000_p44_personal_tax_payments.sql`, test `99_p44_personal_tax_payments.sql`; guide,
+     flow diagram and PDF updated.

@@ -2461,7 +2461,7 @@
           "actor": "anda",
           "title": "Beri tanda pada kategori (sekali saja)",
           "menu": "Akuntansi > Kategori > kolom Pajak Pribadi",
-          "note": "Penjualan usaha, jasa & pekerjaan bebas, honor dari PT saya, biaya usaha & jasa. Tanpa tanda berarti pribadi dan tidak dihitung"
+          "note": "Penjualan usaha, jasa & pekerjaan bebas, honor dari PT saya, biaya usaha & jasa, setoran PPh Final, setoran PPh 25. Tanpa tanda berarti pribadi dan tidak dihitung"
         },
         {
           "kind": "choice",
@@ -2509,6 +2509,13 @@
         {
           "kind": "step",
           "actor": "anda",
+          "title": "Catat setoran pajak yang Anda bayar ke negara",
+          "menu": "Pembelian > Biaya (kategori Setoran PPh Final UMKM atau Setoran PPh 25)",
+          "note": "Paling lambat tanggal 15 bulan berikutnya. Setoran mengurangi kurang bayar, bukan penghasilan neto"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
           "title": "Pilih status PTKP (sekali setahun)",
           "menu": "Pajak > Pajak Pribadi > Status PTKP",
           "note": "Mis. TK/0 atau K/1. Sebelum dipilih dihitung TK/0"
@@ -2517,14 +2524,14 @@
           "kind": "step",
           "actor": "sistem",
           "title": "Menghitung dua perkiraan",
-          "note": "PPh Final UMKM 0,5% dari penjualan (Rp 500 juta pertama bebas). PPh Progresif dari penghasilan neto: bruto − biaya − PTKP, tarif per lapisan, dikurangi pajak yang sudah dipotong"
+          "note": "PPh Final UMKM 0,5% dari penjualan usaha (Rp 500 juta pertama bebas; jasa tidak ikut). PPh Progresif dari penghasilan neto: bruto − biaya − PTKP, PKP dibulatkan ke ribuan, tarif per lapisan, dikurangi pajak yang sudah dipotong dan disetor. Angsuran PPh 25 bulanan = pajak tahun lalu dikurangi kredit ÷ 12"
         },
         {
           "kind": "step",
           "actor": "anda",
           "title": "Baca hasilnya",
           "menu": "Pajak > Pajak Pribadi",
-          "note": "Angka besar = perkiraan yang masih harus dibayar. Omzet gabungan dengan PT terhadap batas Rp 4,8 miliar tampil di bawahnya"
+          "note": "Angka besar = perkiraan yang masih harus dibayar; kartu Angsuran PPh 25 menunjukkan angsuran per bulan. Omzet gabungan dengan PT terhadap batas Rp 4,8 miliar tampil di bawahnya"
         },
         {
           "kind": "end",
