@@ -1,8 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { CATEGORY_KIND_LABELS } from "./kindLabels";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useActionState } from "@/features/feedback/useActionState";
+import {
+  PERSONAL_ROLE_LABELS,
+  personalRolesForKind,
+  untaggedLabel,
+} from "@/domain/tax/personalTaxRoles";
 import { VAT_TREATMENT_LABELS, WHT_OBJECT_LABELS } from "@/domain/tax/tax";
 import {
   createCategoryAction,
@@ -35,6 +41,39 @@ function TaxKeyOptions() {
   );
 }
 
+/** The Personal-book tag of a category (decision 365): which part of the personal tax it belongs to. */
+export function PersonalRoleSelect({
+  kind,
+  defaultValue,
+  label,
+}: {
+  kind: string;
+  defaultValue?: string | null;
+  /** When given, the select is wrapped in a labelled field; otherwise it is a bare select for a table row. */
+  label?: string;
+}) {
+  const roles = personalRolesForKind(kind);
+  if (roles.length === 0) return null;
+  const select = (
+    <select name="personal_tax_role" defaultValue={defaultValue ?? ""} aria-label="Pajak Pribadi">
+      <option value="">{untaggedLabel(kind)}</option>
+      {roles.map((role) => (
+        <option key={role} value={role}>
+          {PERSONAL_ROLE_LABELS[role]}
+        </option>
+      ))}
+    </select>
+  );
+  return label ? (
+    <label>
+      {label}
+      {select}
+    </label>
+  ) : (
+    select
+  );
+}
+
 function Feedback({ state }: { state: CategoryActionState }) {
   if (state.status === "ok") return <p className="hint">{state.message}</p>;
   if (state.status !== "error") return null;
@@ -46,8 +85,15 @@ function Feedback({ state }: { state: CategoryActionState }) {
 }
 
 /** Add a category (decision 262). The tax mapping is what a line uses when it names no tax fact itself. */
-export function CategoryCreateForm({ entity }: { entity: string | undefined }) {
+export function CategoryCreateForm({
+  entity,
+  personal = false,
+}: {
+  entity: string | undefined;
+  personal?: boolean;
+}) {
   const [state, action, pending] = useActionState(createCategoryAction, IDLE);
+  const [kind, setKind] = useState("expense");
   const actionForm = usePreservingForm(action, state);
   return (
     <form {...actionForm} className="record-form">
@@ -58,7 +104,7 @@ export function CategoryCreateForm({ entity }: { entity: string | undefined }) {
       </label>
       <label>
         Jenis
-        <select name="kind" defaultValue="expense">
+        <select name="kind" value={kind} onChange={(event) => setKind(event.target.value)}>
           {Object.entries(CATEGORY_KIND_LABELS).map(([value, label]) => (
             <option key={value} value={value}>
               {label}
@@ -66,18 +112,32 @@ export function CategoryCreateForm({ entity }: { entity: string | undefined }) {
           ))}
         </select>
       </label>
-      <label>
-        Perlakuan Pajak (opsional)
-        <select name="tax_category_key" defaultValue="">
-          <TaxKeyOptions />
-        </select>
-      </label>
-      <p className="hint">
-        Pajak tetap dihitung otomatis dari profil pajak entitas, jadi biarkan pilihan pertama
-        &quot;Otomatis&quot;. Pilih perlakuan lain hanya jika kategori ini SELALU punya perlakuan
-        pajak tertentu; pilihan ini hanya dipakai bila baris dokumen tidak menyebut pajaknya
-        sendiri.
-      </p>
+      {personal ? (
+        personalRolesForKind(kind).length > 0 ? (
+          <PersonalRoleSelect key={kind} kind={kind} label="Pajak Pribadi" />
+        ) : null
+      ) : (
+        <>
+          <label>
+            Perlakuan Pajak (opsional)
+            <select name="tax_category_key" defaultValue="">
+              <TaxKeyOptions />
+            </select>
+          </label>
+          <p className="hint">
+            Pajak tetap dihitung otomatis dari profil pajak entitas, jadi biarkan pilihan pertama
+            &quot;Otomatis&quot;. Pilih perlakuan lain hanya jika kategori ini SELALU punya
+            perlakuan pajak tertentu; pilihan ini hanya dipakai bila baris dokumen tidak menyebut
+            pajaknya sendiri.
+          </p>
+        </>
+      )}
+      {personal ? (
+        <p className="hint">
+          Tanda ini menentukan apakah kategori masuk hitungan Pajak Pribadi. Tanpa tanda, berarti
+          pribadi dan tidak dihitung.
+        </p>
+      ) : null}
       <Feedback state={state} />
       <button type="submit" className="btn-primary" disabled={pending}>
         {pending ? "Menyimpan…" : "Tambah Kategori"}
@@ -92,11 +152,16 @@ export function CategoryRowForm({
   id,
   taxKey,
   isActive,
+  personalKind,
+  personalRole,
 }: {
   entity: string | undefined;
   id: string;
   taxKey: string | null;
   isActive: boolean;
+  /** Set for a Personal book: the category kind, so the tag choices fit it. */
+  personalKind?: string;
+  personalRole?: string | null;
 }) {
   const [state, action, pending] = useActionState(updateCategoryAction, IDLE);
   const actionForm = usePreservingForm(action, state);
@@ -104,9 +169,16 @@ export function CategoryRowForm({
     <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="id" value={id} />
-      <select name="tax_category_key" defaultValue={taxKey ?? ""} aria-label="Perlakuan pajak">
-        <TaxKeyOptions />
-      </select>
+      {personalKind !== undefined ? (
+        <>
+          <input type="hidden" name="kind" value={personalKind} />
+          <PersonalRoleSelect kind={personalKind} defaultValue={personalRole} />
+        </>
+      ) : (
+        <select name="tax_category_key" defaultValue={taxKey ?? ""} aria-label="Perlakuan pajak">
+          <TaxKeyOptions />
+        </select>
+      )}
       <label className="checkbox-field">
         <input type="checkbox" name="is_active" defaultChecked={isActive} /> Aktif
       </label>

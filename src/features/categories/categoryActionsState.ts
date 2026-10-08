@@ -3,7 +3,7 @@
 export interface QuickCreateCategoryState {
   status: "idle" | "ok" | "error";
   message?: string;
-  category?: { id: string; name: string; kind: string };
+  category?: { id: string; name: string; kind: string; personal_tax_role?: string | null };
 }
 
 export const idleQuickCreateCategoryState: QuickCreateCategoryState = { status: "idle" };

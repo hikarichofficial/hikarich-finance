@@ -18,6 +18,8 @@ export interface IncomeCategoryOption {
   account_name: string | null;
   /** Counts toward the PPh Final 0,5% base (a revenue account) or not (other income). */
   in_turnover: boolean;
+  /** Personal books only: which part of the personal tax the category belongs to (decision 365). */
+  tax_role: string | null;
   available: boolean;
 }
 
@@ -28,6 +30,8 @@ export interface IncomeEntryRow {
   category_id: string;
   currency: string;
   amount: string;
+  /** Tax the client withheld; the amount reached the account less this (decision 365). */
+  tax_withheld: string;
   financial_account_id: string;
   contact_id: string | null;
   income_account_id: string;
@@ -42,7 +46,7 @@ export interface IncomeEntryRow {
 }
 
 const ENTRY_COLUMNS =
-  "id, status, entry_date, category_id, currency, amount::text, financial_account_id, contact_id, income_account_id, in_turnover, reference, note, journal_id, reversal_journal_id, reversed_date, reverse_reason, created_at";
+  "id, status, entry_date, category_id, currency, amount::text, tax_withheld::text, financial_account_id, contact_id, income_account_id, in_turnover, reference, note, journal_id, reversal_journal_id, reversed_date, reverse_reason, created_at";
 
 const categorySchema = z.array(
   z.object({
@@ -51,6 +55,11 @@ const categorySchema = z.array(
     account_code: z.string().nullable(),
     account_name: z.string().nullable(),
     in_turnover: z.boolean(),
+    tax_role: z
+      .string()
+      .nullable()
+      .optional()
+      .transform((v) => v ?? null),
     available: z.boolean(),
   }),
 );
@@ -140,7 +149,10 @@ export async function recordIncomeEntry(input: {
   category_id: string;
   date: string;
   account_id: string;
+  /** The gross amount (what the client owed), not only what reached the account. */
   amount: string;
+  /** Tax withheld by the client, a Personal book only. */
+  withheld?: string;
   contact_id?: string;
   reference?: string;
   note?: string;
@@ -154,6 +166,7 @@ export async function recordIncomeEntry(input: {
       p_date: isoDateSchema.parse(input.date),
       p_account: uuid(input.account_id),
       p_amount: amountText.parse(input.amount),
+      p_withheld: input.withheld ? amountText.parse(input.withheld) : null,
       p_contact: input.contact_id ? uuid(input.contact_id) : null,
       p_reference: input.reference ?? null,
       p_note: input.note ?? null,

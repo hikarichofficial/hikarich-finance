@@ -152,6 +152,12 @@ export default async function IncomeListPage({
                   <td data-label="Rekening">{accountNames.get(row.financial_account_id) ?? "—"}</td>
                   <td className="num" data-label="Jumlah">
                     {formatMoney(row.amount, row.currency)}
+                    {Number(row.tax_withheld) > 0 ? (
+                      <small className="hint">
+                        {" "}
+                        · dipotong {formatMoney(row.tax_withheld, row.currency)}
+                      </small>
+                    ) : null}
                   </td>
                   <td data-label="Status">
                     {row.status === "reversed" ? "Dibatalkan" : "Tercatat"}

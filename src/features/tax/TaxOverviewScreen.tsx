@@ -13,7 +13,10 @@ import {
 } from "@/domain/tax/tax";
 import { incomeTaxByMonth, totalOutstanding } from "@/domain/tax/taxOverview";
 import { BarChart, type ChartPoint } from "@/features/charts/InteractiveCharts";
+import type { PersonalTaxResult } from "@/domain/tax/personalTax";
+import type { TaxGroupTurnover } from "@/schemas/personalTax";
 import type { FinalPreview, NonFinalIncome, TaxLedgerRow, TaxOverview } from "@/schemas/tax";
+import { GroupTurnoverCard } from "./GroupTurnoverCard";
 import { TaxNonFinalCard } from "./TaxNonFinalCard";
 import { formatShortDate } from "./format";
 
@@ -36,6 +39,9 @@ export function TaxOverviewScreen({
   currentYear,
   shownYear,
   ledger,
+  group,
+  ownName,
+  personalTax,
 }: {
   overview: TaxOverview;
   currency: string;
@@ -46,6 +52,11 @@ export function TaxOverviewScreen({
   currentYear: number;
   shownYear: number;
   ledger: TaxLedgerRow[];
+  /** Turnover of this book and the owner's other books together (decision 365). */
+  group: TaxGroupTurnover | null;
+  ownName: string;
+  /** Only for a Personal book: the yearly personal income-tax estimate. */
+  personalTax: PersonalTaxResult | null;
 }) {
   const entityParam = entity ? `entity=${encodeURIComponent(entity)}` : "";
   const qs = entityParam ? `?${entityParam}` : "";
@@ -132,6 +143,20 @@ export function TaxOverviewScreen({
         </div>
       </header>
 
+      {personalTax && personalTax.ready ? (
+        <Link className="pp-answer pp-answer-link" href={withEntity("/tax/personal")}>
+          <div>
+            <p className="pp-answer-label">Pajak Pribadi {personalTax.year} · perkiraan</p>
+            <p className="pp-answer-value">{formatMoney(personalTax.totalToPay, currency)}</p>
+            <p className="pp-answer-note">
+              PPh Final UMKM + PPh Progresif, setelah pajak yang sudah dipotong. Buka untuk melihat
+              perhitungannya.
+            </p>
+          </div>
+          <span className="pp-answer-cta">Lihat perhitungan →</span>
+        </Link>
+      ) : null}
+
       <div className="tax-kpis">
         <Link
           className="tax-kpi"
@@ -210,6 +235,8 @@ export function TaxOverviewScreen({
               ) : null}
             </p>
           </section>
+
+          {group ? <GroupTurnoverCard group={group} currency={currency} ownName={ownName} /> : null}
 
           <TaxNonFinalCard data={nonFinal} currentYear={currentYear} entity={entity} />
         </div>

@@ -3,6 +3,7 @@
 import { translateReason } from "@/domain/authz/translateReason";
 import { revalidatePath } from "next/cache";
 import type { QuickCreateCategoryState } from "./categoryActionsState";
+import { isPersonalTaxRole, personalRolesForKind } from "@/domain/tax/personalTaxRoles";
 import { requirePermission } from "@/services/identity/access";
 import {
   createCategory,
@@ -25,6 +26,12 @@ function text(formData: FormData, name: string): string {
   return typeof value === "string" ? value.trim() : "";
 }
 
+/** The Personal-tax tag from a form, or null; only a tag that fits the kind is accepted. */
+function roleFor(formData: FormData, kind: string): string | null {
+  const role = text(formData, "personal_tax_role");
+  return isPersonalTaxRole(role) && personalRolesForKind(kind).includes(role) ? role : null;
+}
+
 export async function createCategoryAction(
   _previous: CategoryActionState,
   formData: FormData,
@@ -43,6 +50,7 @@ export async function createCategoryAction(
       name,
       kind,
       tax_category_key: text(formData, "tax_category_key") || null,
+      personal_tax_role: roleFor(formData, kind),
     });
   } catch {
     return {
@@ -76,6 +84,7 @@ export async function quickCreateCategoryAction(
       name,
       kind,
       tax_category_key: null,
+      personal_tax_role: roleFor(formData, kind),
     });
     revalidatePath("/accounting/categories");
     return { status: "ok", category: created };
@@ -96,7 +105,12 @@ export async function updateCategoryAction(
     await requirePermission("categories.manage", { entityCode: text(formData, "entity") });
     await updateCategory({
       id: text(formData, "id"),
-      tax_category_key: text(formData, "tax_category_key") || null,
+      tax_category_key: formData.has("tax_category_key")
+        ? text(formData, "tax_category_key") || null
+        : undefined,
+      personal_tax_role: formData.has("personal_tax_role")
+        ? roleFor(formData, text(formData, "kind"))
+        : undefined,
       is_active: text(formData, "is_active") === "on",
     });
   } catch {

@@ -8,6 +8,7 @@ import { TaxSnapshot } from "./TaxSnapshot";
 import { TasksAttention } from "./TasksAttention";
 import { AccountSnapshot } from "./AccountSnapshot";
 import { RecentActivity } from "./RecentActivity";
+import { GroupTurnoverCard } from "@/features/tax/GroupTurnoverCard";
 
 /**
  * Dashboard / Overview screen composition (Step 09 §8, Step 10 §10): Hero + KPI Row up top, then a
@@ -82,6 +83,13 @@ export function DashboardScreen({
         <div className="dashboard-column">
           <TasksAttention items={snapshot.attention} />
           <TaxSnapshot currency={snapshot.currency} tax={snapshot.tax} />
+          {snapshot.taxGroup ? (
+            <GroupTurnoverCard
+              group={snapshot.taxGroup}
+              currency={snapshot.currency}
+              ownName={entityName}
+            />
+          ) : null}
           <AccountSnapshot cash={snapshot.cash} reconciliation={snapshot.reconciliation} />
         </div>
       </div>

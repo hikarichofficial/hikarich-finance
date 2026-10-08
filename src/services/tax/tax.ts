@@ -5,6 +5,13 @@ import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import { isoDateSchema, uuidResultSchema } from "@/schemas/accounting";
 import { entityCurrencyRowSchema } from "@/schemas/dashboard";
 import {
+  personalTaxSummarySchema,
+  setPtkpInputSchema,
+  taxGroupTurnoverSchema,
+  type PersonalTaxSummary,
+  type TaxGroupTurnover,
+} from "@/schemas/personalTax";
+import {
   activateEngineInputSchema,
   computeFinalTaxInputSchema,
   confirmLineInputSchema,
@@ -543,6 +550,42 @@ export async function getNonFinalIncome(entityId: string, year?: number): Promis
     "tax_non_final_income",
     { p_entity: uuidResultSchema.parse(entityId), p_year: year ?? null },
     nonFinalIncomeSchema,
+  );
+}
+
+/** The yearly figures of a Personal book for the Pajak Pribadi screen; `null` when the Entity is not a Personal book
+ * (decision 365). Read only: nothing is recorded. */
+export async function getPersonalTaxSummary(
+  entityId: string,
+  year?: number,
+): Promise<PersonalTaxSummary | null> {
+  const result = await callRpc(
+    "personal_tax_summary",
+    { p_entity: uuidResultSchema.parse(entityId), p_year: year ?? null },
+    personalTaxSummarySchema,
+  );
+  return result.applicable ? result : null;
+}
+
+/** Turnover of this book and the owner's other books together, for the Rp 4,8 miliar ceiling (decision 365). */
+export async function getTaxGroupTurnover(
+  entityId: string,
+  year?: number,
+): Promise<TaxGroupTurnover> {
+  return callRpc(
+    "tax_group_turnover",
+    { p_entity: uuidResultSchema.parse(entityId), p_year: year ?? null },
+    taxGroupTurnoverSchema,
+  );
+}
+
+/** The PTKP status of the person for one tax year (decision 365). */
+export async function setPtkpStatus(input: z.input<typeof setPtkpInputSchema>): Promise<void> {
+  const v = setPtkpInputSchema.parse(input);
+  await callRpc(
+    "personal_tax_set_ptkp",
+    { p_entity: v.entity_id, p_year: v.year, p_status: v.status },
+    z.null(),
   );
 }
 

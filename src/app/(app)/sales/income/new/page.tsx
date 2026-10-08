@@ -48,6 +48,7 @@ export default async function NewIncomePage({
               name: c.name,
               accountName: c.account_name,
               inTurnover: c.in_turnover,
+              taxRole: c.tax_role,
             }))}
           accounts={accounts
             .filter((a) => a.is_active)
@@ -60,6 +61,7 @@ export default async function NewIncomePage({
           customers={customers.map((c) => ({ id: c.id, display_name: c.display_name }))}
           referenceSuggestions={suggestions.references}
           noteSuggestions={suggestions.notes}
+          personal={membership.entity_type === "personal"}
         />
       </section>
     </div>

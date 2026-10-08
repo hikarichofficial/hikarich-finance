@@ -3171,3 +3171,33 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      app does not compute PPh 21 non-employee yet (backlog, with the question of the no-NPWP rate for the tax adviser).
      Because the PT Perorangan is on the final regime (0,5% of turnover), its costs, including any PPh it bears, do not
      reduce its tax.
+
+365. **Pajak Pribadi: the Personal book gets its own yearly income-tax estimate, and the books of one owner count together (owner, 8-9 October 2026, one merge).**
+     The owner: PT Hikarich sells digital products (group access, licences), so it is a goods business on the final 0,5%;
+     the Personal book may receive service income, which must be taxed progressively on NET income, with PTKP and every
+     layer; both books must show the combined turnover (the "konsorsium", for the Rp 4,8 miliar ceiling); and nothing may
+     be a chore: "jangan buat saya repot mengisi integrasi data antara PT dan PRIBADI". Researched first (PP 20/2026, UU HPP
+     Art. 17(1)(a), PMK 168/2023): no time limit for individuals and PT Perorangan; the first Rp 500 juta is still free for
+     an individual; freelance (pekerjaan bebas) income cannot use the final 0,5% but counts toward the ceiling.
+     (1) Sorting: one tag per category, `categories.personal_tax_role` (owner chose "per kategori" and net income from the
+     books): revenue `umkm_business` (sales: final 0,5%), `freelance` (progressive), `company_payout` (money paid by the
+     owner's own PT: cash only, income and withholding come from the PT's documents); expense `business_cost` (reduces
+     net income). No tag means private: in the books, not in the tax. Default Personal categories carry the tags.
+     (2) Automatic integration: other entities where the same user is OWNER form the group; a PT contact is "me" when its
+     NPWP or NIK digits (at least 15) or its normalised legal or brand name match the Personal entity; income = base +
+     withheld, credit = withheld (confirmed expenses by payee, approved bills by vendor). Nothing is filled in.
+     (3) Clients' withholding is one optional field on Catat Pendapatan ("Pajak yang Dipotong Klien"); the form asks for
+     what reached the account, the action records gross = received + withheld (journal: bank, credit account 1310
+     `PERSONAL_TAX_CREDIT`, income at gross). 1310 is a control account but deliberately not `TAX_ASSET`, so the tax
+     control reconciliation is untouched.
+     (4) Calculation (`@/domain/tax/personalTax`, rule data `PERSONAL_INCOME_TARIFF` v1, nothing hard-coded): net = gross
+     services less business costs, never below zero; less PTKP (status chosen once a year, TK/0 until chosen), rounded
+     down to whole thousands; layers 5/15/25/30/35%; less credit. Final: 0,5% of sales above the Rp 500 juta band.
+     (5) Group turnover feeds the final-tax ceiling check (`tax_final_evaluate` patched in place) and is shown as the
+     "Omzet gabungan" card on the Dashboard and Ringkasan Pajak of both books; the question about spouse and minor
+     children stays, because the system cannot read their books. (6) New menu Pajak > Pajak Pribadi, one answer on top and
+     two ladders of steps; Ringkasan Pajak of a Personal book links to it.
+     Uncertain, for the tax adviser: whether freelance income also consumes the Rp 500 juta band (it is not counted now);
+     the rounding of PKP to whole thousands (taken from the SPT instructions, not a primary source). Not modelled: monthly
+     PPh 25 instalments, depreciation of assets bought for the business, tax withheld on sales (shown as a note only).
+     Nothing is recorded as a journal by the estimate; the year settles on 1 January of the next year.
