@@ -8,6 +8,7 @@ import { getProduct } from "@/services/products/products";
 import {
   previewProductSku,
   saveSkuMaster,
+  listSkuMasters,
   saveSkuSettings,
   setProductSku,
   setSkuMasterState,
@@ -16,6 +17,7 @@ import {
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { moneyTextSchema } from "@/schemas/accounting";
 import { skuComponentSchema, skuMasterKindSchema, type SkuPreview } from "@/schemas/sku";
+import type { QuickCreateSkuMasterState } from "./skuActionsState";
 import { z } from "zod";
 
 /**
@@ -213,4 +215,46 @@ export async function addVariantAction(
   }
   revalidatePath("/sales/products");
   return { status: "ok", message: "Variant ditambahkan." };
+}
+
+/** Add a brand, product type or variant from inside the product form (decision 351): the new row is handed back
+ * so the field can select it in place, and nothing redirects. Same permission as the SKU admin screen. */
+export async function quickCreateSkuMasterAction(
+  _previous: QuickCreateSkuMasterState,
+  formData: FormData,
+): Promise<QuickCreateSkuMasterState> {
+  try {
+    const kind = skuMasterKindSchema.parse(text(formData, "kind"));
+    const { membership } = await requirePermission("products.sku_settings", {
+      entityCode: text(formData, "entity"),
+    });
+    const name = text(formData, "name");
+    const code = text(formData, "code").toUpperCase();
+    if (name === "" || name.length > 120) {
+      return { status: "error", message: "Isi nama (maksimal 120 karakter)." };
+    }
+    if (!/^[A-Z0-9]{1,12}$/.test(code)) {
+      return { status: "error", message: "Kode hanya huruf dan angka, 1 sampai 12 karakter." };
+    }
+    const existing = await listSkuMasters(kind, membership.entity_id);
+    const nextSort = existing.reduce((max, row) => Math.max(max, row.sort_order), 0) + 10;
+    const validity = text(formData, "validity_days");
+    const id = await saveSkuMaster({
+      kind,
+      entityId: membership.entity_id,
+      id: null,
+      name,
+      code,
+      description: null,
+      sortOrder: nextSort,
+      variantType: text(formData, "variant_type") || "validity",
+      validityDays: validity === "" ? null : Number(validity),
+      expectedVersion: null,
+    });
+    refresh();
+    return { status: "ok", item: { id, name, code } };
+  } catch (error) {
+    const failed = failure(error);
+    return { status: "error", message: failed.message };
+  }
 }

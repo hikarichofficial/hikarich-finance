@@ -1,3 +1,4 @@
+import { can } from "@/domain/authz/access";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/services/identity/access";
@@ -17,7 +18,7 @@ export default async function EditProductPage({
 }) {
   const { id } = await params;
   const { entity } = await searchParams;
-  const { membership } = await requirePermission("products.edit", { entityCode: entity });
+  const { access, membership } = await requirePermission("products.edit", { entityCode: entity });
   const [product, categories, baseCurrency] = await Promise.all([
     getProduct(membership.entity_id, id),
     listActiveCategories(membership.entity_id),
@@ -45,6 +46,7 @@ export default async function EditProductPage({
           categories={categories.filter((c) => c.kind === "revenue")}
           baseCurrency={baseCurrency}
           entity={entity}
+          canAddCategories={can(access, membership.entity_id, "categories.manage")}
         />
       </section>
     </div>

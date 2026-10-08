@@ -177,6 +177,10 @@
           "tip": "Kode yang masih aktif harus unik. Cari dengan kotak **Cari** di atas tabel."
         },
         {
+          "title": "Atau tambah langsung dari form produk",
+          "text": "Di **Tambah Produk**, kolom **Brand** dan **Jenis Produk** (dan **Variant** di halaman detail produk) bisa diketik: ketik beberapa huruf lalu pilih dari daftar, atau pilih **+ Tambah ... sebagai ... baru**. Panel kecil meminta **Nama** dan **Kode** (kode disarankan otomatis dari nama, boleh diubah), lalu tekan **Simpan & Gunakan**. Kolom **Kategori Pendapatan Bawaan** bekerja sama. Tombol tambah hanya tampil bagi yang punya izin mengatur SKU (untuk kategori: izin kelola kategori)."
+        },
+        {
           "title": "Atur susunan SKU",
           "text": "Di tab **Format & Nomor**, bagian **Susunan SKU** menampilkan empat kode: Brand, Jenis Produk, Nomor Produk, Variant. Pakai tombol ↑ ↓ untuk mengubah urutan, centang **Dipakai** untuk menyalakan atau mematikan sebuah bagian, dan **Wajib** bila bagian itu harus selalu terisi."
         },

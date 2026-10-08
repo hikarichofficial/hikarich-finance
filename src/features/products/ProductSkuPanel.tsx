@@ -7,6 +7,8 @@ import { MoneyInput } from "@/features/shared/MoneyInput";
 import { addVariantAction, setProductSkuAction } from "./skuActions";
 import { idleSkuActionState } from "./skuActionsState";
 import { SkuPreviewField } from "./SkuPreviewField";
+import { ContactPicker } from "@/features/contacts/ContactPicker";
+import { QuickAddSkuMasterDrawer } from "./QuickAddSkuMasterDrawer";
 
 /** Owner / `products.sku_override`: change this product's SKU by hand. Documents already issued keep the SKU they
  * carry; the change is recorded in the history with its reason (decision 324). */
@@ -62,54 +64,69 @@ export function AddVariantForm({
   entity,
   parentId,
   variants,
+  canAddVariants = false,
 }: {
   entity: string | undefined;
   parentId: string;
   variants: readonly { id: string; name: string; code: string }[];
+  /** `products.sku_settings`: may add a variant from here (decision 351). */
+  canAddVariants?: boolean;
 }) {
+  const [variantList, setVariantList] = useState([...variants]);
+  const [addingName, setAddingName] = useState<string | null>(null);
   const [state, run, pending] = useActionState(addVariantAction, idleSkuActionState);
   const form = usePreservingForm(run, state);
   const [variantId, setVariantId] = useState("");
   return (
-    <form {...form} className="record-form">
-      <input type="hidden" name="entity" value={entity ?? ""} />
-      <input type="hidden" name="parent_id" value={parentId} />
-      <label>
-        Variant
-        <select
+    <>
+      <form {...form} className="record-form">
+        <input type="hidden" name="entity" value={entity ?? ""} />
+        <input type="hidden" name="parent_id" value={parentId} />
+        <ContactPicker
+          label="Variant"
           name="variant_id"
-          required
+          noun="variant"
+          contacts={variantList.map((v) => ({ id: v.id, display_name: `${v.name} (${v.code})` }))}
           value={variantId}
-          onChange={(event) => setVariantId(event.target.value)}
-        >
-          <option value="">— Pilih Variant —</option>
-          {variants.map((variant) => (
-            <option key={variant.id} value={variant.id}>
-              {variant.name} ({variant.code})
-            </option>
-          ))}
-        </select>
-      </label>
-      <SkuPreviewField
-        entity={entity}
-        brandId=""
-        typeId=""
-        variantId={variantId}
-        parentId={parentId}
-        label="SKU variant"
-      />
-      <label>
-        Harga variant (opsional, bawaan: harga produk)
-        <MoneyInput name="price" placeholder="mis. 150000" defaultValue="" />
-      </label>
-      {state.status === "error" ? (
-        <p role="alert" className="error">
-          {state.message}
-        </p>
+          onChange={setVariantId}
+          onAddNew={canAddVariants ? (typedName) => setAddingName(typedName) : undefined}
+        />
+        <SkuPreviewField
+          entity={entity}
+          brandId=""
+          typeId=""
+          variantId={variantId}
+          parentId={parentId}
+          label="SKU variant"
+        />
+        <label>
+          Harga variant (opsional, bawaan: harga produk)
+          <MoneyInput name="price" placeholder="mis. 150000" defaultValue="" />
+        </label>
+        {state.status === "error" ? (
+          <p role="alert" className="error">
+            {state.message}
+          </p>
+        ) : null}
+        <button type="submit" className="btn-primary" disabled={pending}>
+          {pending ? "Menyimpan…" : "Tambah Variant"}
+        </button>
+      </form>
+      {addingName !== null ? (
+        <QuickAddSkuMasterDrawer
+          key={`variant-${addingName}`}
+          kind="variant"
+          entity={entity}
+          initialName={addingName}
+          open
+          onClose={() => setAddingName(null)}
+          onCreated={(item) => {
+            setVariantList((list) => [...list, item]);
+            setVariantId(item.id);
+            setAddingName(null);
+          }}
+        />
       ) : null}
-      <button type="submit" className="btn-primary" disabled={pending}>
-        {pending ? "Menyimpan…" : "Tambah Variant"}
-      </button>
-    </form>
+    </>
   );
 }
