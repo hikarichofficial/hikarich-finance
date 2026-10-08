@@ -622,3 +622,29 @@ export const taxDeterminationRowSchema = z.object({
 });
 export const taxDeterminationRowsSchema = z.array(taxDeterminationRowSchema);
 export type TaxDeterminationRow = z.infer<typeof taxDeterminationRowSchema>;
+
+/** `tax_non_final_income` (decision 352): the year's result of income outside the PPh Final, read from the journals. */
+export const nonFinalIncomeSchema = z.object({
+  year: z.number().int(),
+  currency: z.string(),
+  status: z.enum(["running", "settled"]),
+  settles_on: isoDateSchema,
+  annual_return_due: isoDateSchema,
+  taxpayer_kind: z.string().nullable(),
+  /** The assumed income-tax rate (0.22) or null when none is assumed for this kind of taxpayer. */
+  rate: z.string().nullable(),
+  rows: z.array(
+    z.object({
+      code: z.string(),
+      name: z.string(),
+      account_class: z.string(),
+      counted: z.boolean(),
+      months: z.array(signedDecimalTextSchema).length(12),
+      total: signedDecimalTextSchema,
+    }),
+  ),
+  month_totals: z.array(signedDecimalTextSchema).length(12),
+  total: signedDecimalTextSchema,
+  estimated_tax: signedDecimalTextSchema.nullable(),
+});
+export type NonFinalIncome = z.infer<typeof nonFinalIncomeSchema>;

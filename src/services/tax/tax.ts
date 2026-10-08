@@ -11,6 +11,7 @@ import {
   discardRuleInputSchema,
   finalPreviewSchema,
   finalTaxInputSchema,
+  nonFinalIncomeSchema,
   linkTaxEvidenceInputSchema,
   listTaxEvidenceInputSchema,
   listTaxPaymentsInputSchema,
@@ -43,6 +44,7 @@ import {
   taxSourceTypeSchema,
   withdrawOverrideInputSchema,
   type FinalPreview,
+  type NonFinalIncome,
   type ReviewQueueRow,
   type RuleInForceRow,
   type TaxCalendarRow,
@@ -518,6 +520,15 @@ export async function getTaxCalendar(
 
 export async function getTaxOverview(entityId: string): Promise<TaxOverview> {
   return callRpc("tax_overview", { p_entity: uuidResultSchema.parse(entityId) }, taxOverviewSchema);
+}
+
+/** Income outside the PPh Final for a calendar year, read from the journals; nothing is recorded (decision 352). */
+export async function getNonFinalIncome(entityId: string, year?: number): Promise<NonFinalIncome> {
+  return callRpc(
+    "tax_non_final_income",
+    { p_entity: uuidResultSchema.parse(entityId), p_year: year ?? null },
+    nonFinalIncomeSchema,
+  );
 }
 
 // ---- direct read (P13 Part 3e): no RPC reads a stored determination back -- `tax_preview_document` is a live,
