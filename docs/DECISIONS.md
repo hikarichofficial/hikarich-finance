@@ -3037,3 +3037,20 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      holds only bill payments (made with "Bayar Tagihan" on the bill); an expense paid directly (Beban) creates no
      vendor payment and is seen in Beban and Mutasi Kas & Bank. The page now says that and links to Tagihan. No change
      in workflow, permission or accounting; guide "Cara Membalik Pembayaran dan Refund" and the PDF follow.
+
+357. **"+ Tambah" on a line description gives visible feedback (owner question, 8 October 2026).** On the expense form,
+     choosing "+ Tambah ... sebagai deskripsi baru" only keeps the typed text (it is saved with the document and
+     offered from then on; there is no separate list of descriptions), so nothing seemed to change. Now the list
+     closes, a note "Deskripsi dipakai. Tersimpan bersama dokumen ini" appears under the field, and focus moves to the
+     next field (also after picking an existing description). No new table and no change of what is stored; a
+     separate maintained list of descriptions would be a new master-data feature and is not built. Guide "Kolom
+     Ketik-dan-Pilih" follows.
+
+358. **Refusal reasons nested inside another refusal are translated too (owner screenshot, 8 October 2026).** Confirming
+     an expense whose line has no withholding object showed the refusal in English ("...needs review before it can be
+     confirmed: Line 1 has no withholding classification..."): the outer sentence was translated but the reason
+     inside it was not. `translateReason` now translates a captured value that is itself a known reason. The
+     Indonesian text of that reason now says where to fix it (Objek potongan PPh on the line via Tarik Kembali ke
+     Draf > Ubah Draf, or map the category in Akuntansi > Kategori). Display only; no rule changed. Whether an
+     unmapped category should count as "not a withholding object" for an entity that is a withholding agent stays a
+     tax decision for the owner and the adviser.

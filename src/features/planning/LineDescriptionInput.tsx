@@ -43,6 +43,8 @@ export function LineDescriptionInput({
   const [focused, setFocused] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [active, setActive] = useState(-1);
+  // Shown under the field after "+ Tambah": the text is kept, and is saved with the document.
+  const [added, setAdded] = useState(false);
   const [position, setPosition] = useState<PopupPosition | null>(null);
 
   // An empty field lists the descriptions used before (OWNER, 8 October 2026); typing narrows the list.
@@ -79,13 +81,35 @@ export function LineDescriptionInput({
 
   function pick(suggestion: LineSuggestion) {
     onPick(suggestion);
+    setAdded(false);
     setDismissed(true);
+    focusNext();
   }
 
-  // "+ Tambah ... baru": the typed text stays as it is; it is remembered once the document is saved.
+  // Moves on to the next field of the form, so that a pick visibly "lands" (OWNER, 8 October 2026: nothing seemed
+  // to change after "+ Tambah").
+  function focusNext() {
+    const input = ref.current;
+    const form = input?.form;
+    if (!input || !form) return;
+    const fields = Array.from(
+      form.querySelectorAll<HTMLElement>("input, select, textarea, button"),
+    ).filter(
+      (el) =>
+        !(el as HTMLInputElement).disabled &&
+        (el as HTMLInputElement).type !== "hidden" &&
+        el.tabIndex >= 0,
+    );
+    const next = fields[fields.indexOf(input) + 1];
+    next?.focus();
+  }
+
+  // "+ Tambah ... baru": the typed text stays as it is; it is saved with the document and offered from then on.
   function addNew() {
+    setAdded(true);
     setDismissed(true);
     setActive(-1);
+    focusNext();
   }
 
   function chooseRow(index: number) {
@@ -107,6 +131,7 @@ export function LineDescriptionInput({
         aria-controls={open ? listId : undefined}
         aria-autocomplete="list"
         onChange={(event) => {
+          setAdded(false);
           setDismissed(false);
           setActive(-1);
           onChange(event.target.value);
@@ -133,6 +158,11 @@ export function LineDescriptionInput({
           }
         }}
       />
+      {added && !open && value.trim() !== "" ? (
+        <span className="line-suggest-saved" role="status">
+          ✓ Deskripsi dipakai. Tersimpan bersama dokumen ini, lain kali muncul di daftar.
+        </span>
+      ) : null}
       {open && position
         ? createPortal(
             <div
@@ -150,7 +180,7 @@ export function LineDescriptionInput({
                     ? "Sesuai huruf yang diketik. Klik untuk memakai, atau lanjut mengetik."
                     : "Pernah dipakai. Klik untuk memakai, atau mulai mengetik."
                   : suggestions.length === 0
-                    ? "Belum ada deskripsi tersimpan. Pilih “+ Tambah” di bawah untuk memakai tulisan ini; deskripsi yang sudah dipakai akan muncul di sini lain kali."
+                    ? "Belum ada deskripsi tersimpan. Pilih “+ Tambah” di bawah untuk memakai tulisan ini. Deskripsi disimpan saat dokumennya disimpan, lalu muncul di sini lain kali."
                     : "Tidak ada deskripsi dengan huruf ini. Pilih “+ Tambah” di bawah, atau lanjutkan mengetik."}
               </p>
               <ul id={listId} role="listbox">

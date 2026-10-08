@@ -2922,7 +2922,7 @@
   ],
   [
     "Line % has no withholding classification: choose \"not a withholding object\" or the object on the line, or map its category.",
-    "Baris {1} belum punya klasifikasi pemotongan: pilih “Bukan objek potongan PPh” atau objeknya di baris, atau petakan kategorinya."
+    "Baris {1} belum ditentukan objek potongan PPh-nya. Pilih “Bukan objek potongan PPh” (atau objek yang sesuai) pada kolom Objek potongan PPh di baris itu lewat Tarik Kembali ke Draf lalu Ubah Draf, atau petakan kategorinya di Akuntansi > Kategori."
   ],
   [
     "Line % is marked \"not sure\" and waits for a tax review.",
