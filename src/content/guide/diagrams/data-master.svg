@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 478 1339" width="478" height="1339" role="img" aria-label="Mendaftarkan Pelanggan, Vendor, Produk, dan Jasa" font-family="Helvetica, Arial, sans-serif">
-<!-- source: alur.json sha256:694c9006cbc4e35c (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 478 1374" width="478" height="1374" role="img" aria-label="Mendaftarkan Pelanggan, Vendor, Produk, dan Jasa" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:6d007003d1f575c3 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
 <title>Mendaftarkan Pelanggan, Vendor, Produk, dan Jasa</title>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <rect x="134" y="18" width="210" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
@@ -65,70 +65,73 @@
 <text x="123" y="579.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
 <polyline points="355,559.5 355,588.5" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polygon points="355,593.5 350.5,585.5 359.5,585.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="250" y="593.5" width="210" height="83.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<rect x="250" y="593.5" width="210" height="118.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
 <text x="260" y="606.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="260" y="623" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Owner mengisi Brand, Jenis Produk,</text>
-<text x="260" y="636.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">dan Variant</text>
-<text x="260" y="651.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Administrasi &gt; Konfigurasi SKU</text>
-<text x="260" y="666.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Hanya Owner; staf cukup memilih dari daftar</text>
+<text x="260" y="623" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Tambah Brand, Jenis Produk, dan</text>
+<text x="260" y="636.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Variant</text>
+<text x="260" y="651.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Penjualan &gt; Produk &amp; Jasa &gt; Tambah</text>
+<text x="260" y="663.5" font-size="9" fill="#1a4d8f" text-anchor="start">Produk (atau Administrasi &gt; Konfigurasi SKU)</text>
+<text x="260" y="678.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Ketik di kolom Brand atau Jenis Produk lalu pilih</text>
+<text x="260" y="690" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">+ Tambah baru; hanya yang berizin SKU</text>
+<text x="260" y="701.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">melihat tombolnya, yang lain memilih dari daftar</text>
 <rect x="336.01" y="568.5" width="37.98" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
 <text x="355" y="579.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Belum</text>
-<polyline points="123,559.5 123,697" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="355,677 355,697" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,697 355,697" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="239,697 239,720" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="239,725 234.5,717 243.5,717" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="134" y="725" width="210" height="107" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
-<text x="144" y="738" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="144" y="754.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Isi Jenis, Nama, Brand, Jenis</text>
-<text x="144" y="768" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Produk, Satuan, Simpan Produk</text>
-<text x="144" y="783" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Penjualan &gt; Produk &amp; Jasa &gt; Tambah</text>
-<text x="144" y="795" font-size="9" fill="#1a4d8f" text-anchor="start">Produk</text>
-<text x="144" y="810" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Staf tidak mengetik SKU; Pratinjau SKU tampil</text>
-<text x="144" y="821.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">di bawah pilihan</text>
-<polyline points="239,832 239,855" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="239,860 234.5,852 243.5,852" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="134" y="860" width="210" height="80" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
-<text x="144" y="873" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
-<text x="144" y="889.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">SKU dibuat otomatis, mis.</text>
-<text x="144" y="903" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">KEA-EA-001</text>
-<text x="144" y="918" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Nomor tidak pernah kembar dan tidak dipakai</text>
-<text x="144" y="929.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">ulang</text>
-<polyline points="239,940 239,963" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="239,968 234.5,960 243.5,960" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<polygon points="239,968 389,1003 239,1038 89,1003" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
-<text x="239" y="1000" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Produk punya versi lain (masa</text>
-<text x="239" y="1013" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">berlaku, paket)?</text>
-<polyline points="239,1038 239,1054" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,1054 355,1054" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,1054 123,1083" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="123,1088 118.5,1080 127.5,1080" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="18" y="1088" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
-<text x="28" y="1101" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="28" y="1117.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih Variant, tekan Tambah Variant</text>
-<text x="28" y="1132.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Penjualan &gt; Produk &amp; Jasa &gt; (klik</text>
-<text x="28" y="1144.5" font-size="9" fill="#1a4d8f" text-anchor="start">produk) &gt; Variant</text>
-<text x="28" y="1159.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">SKU = SKU produk + kode variant, mis.</text>
-<text x="28" y="1171" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">KEA-EA-001-1B</text>
-<rect x="111.8" y="1063" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
-<text x="123" y="1074" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
-<rect x="337.9" y="1063" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
-<text x="355" y="1074" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
-<polyline points="123,1181.5 123,1201.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="355,1054 355,1201.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,1201.5 355,1201.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="239,1201.5 239,1224.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="239,1229.5 234.5,1221.5 243.5,1221.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="134" y="1229.5" width="210" height="55.5" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
-<text x="239" y="1248" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
-<text x="239" y="1261.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Tidak ada jurnal. Pelanggan, vendor, dan</text>
-<text x="239" y="1273" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">produk aktif bisa dipilih di dokumen baru</text>
-<rect x="66.95" y="1311" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
-<text x="82.95" y="1319" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
-<rect x="137.2" y="1311" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
-<text x="153.2" y="1319" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
-<rect x="259.91" y="1311" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
-<text x="275.91" y="1319" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
-<polygon points="360.14,1310 366.14,1316 360.14,1322 354.14,1316" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
-<text x="370.14" y="1319" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+<polyline points="123,559.5 123,732" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,712 355,732" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,732 355,732" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,732 239,755" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,760 234.5,752 243.5,752" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="760" width="210" height="107" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="144" y="773" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="144" y="789.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Isi Jenis, Nama, Brand, Jenis</text>
+<text x="144" y="803" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Produk, Satuan, Simpan Produk</text>
+<text x="144" y="818" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Penjualan &gt; Produk &amp; Jasa &gt; Tambah</text>
+<text x="144" y="830" font-size="9" fill="#1a4d8f" text-anchor="start">Produk</text>
+<text x="144" y="845" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Staf tidak mengetik SKU; Pratinjau SKU tampil</text>
+<text x="144" y="856.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">di bawah pilihan</text>
+<polyline points="239,867 239,890" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,895 234.5,887 243.5,887" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="895" width="210" height="80" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="144" y="908" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="144" y="924.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">SKU dibuat otomatis, mis.</text>
+<text x="144" y="938" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">KEA-EA-001</text>
+<text x="144" y="953" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Nomor tidak pernah kembar dan tidak dipakai</text>
+<text x="144" y="964.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">ulang</text>
+<polyline points="239,975 239,998" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,1003 234.5,995 243.5,995" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="239,1003 389,1038 239,1073 89,1038" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="239" y="1035" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Produk punya versi lain (masa</text>
+<text x="239" y="1048" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">berlaku, paket)?</text>
+<polyline points="239,1073 239,1089" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,1089 355,1089" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,1089 123,1118" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,1123 118.5,1115 127.5,1115" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="1123" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="1136" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="1152.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Pilih Variant, tekan Tambah Variant</text>
+<text x="28" y="1167.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Penjualan &gt; Produk &amp; Jasa &gt; (klik</text>
+<text x="28" y="1179.5" font-size="9" fill="#1a4d8f" text-anchor="start">produk) &gt; Variant</text>
+<text x="28" y="1194.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">SKU = SKU produk + kode variant, mis.</text>
+<text x="28" y="1206" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">KEA-EA-001-1B</text>
+<rect x="111.8" y="1098" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="1109" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<rect x="337.9" y="1098" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="1109" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
+<polyline points="123,1216.5 123,1236.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,1089 355,1236.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,1236.5 355,1236.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,1236.5 239,1259.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,1264.5 234.5,1256.5 243.5,1256.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="1264.5" width="210" height="55.5" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="239" y="1283" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="239" y="1296.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Tidak ada jurnal. Pelanggan, vendor, dan</text>
+<text x="239" y="1308" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">produk aktif bisa dipilih di dokumen baru</text>
+<rect x="66.95" y="1346" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="82.95" y="1354" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="137.2" y="1346" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="153.2" y="1354" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="259.91" y="1346" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="275.91" y="1354" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="360.14,1345 366.14,1351 360.14,1357 354.14,1351" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="370.14" y="1354" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
 </svg>

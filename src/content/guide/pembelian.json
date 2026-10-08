@@ -168,6 +168,51 @@
       "related": ["tambah-vendor", "catat-tagihan-vendor", "bayar-pajak"]
     },
     {
+      "slug": "tagihan-atau-beban",
+      "title": "Tagihan atau Beban: Apa Bedanya dan Mana yang Dipakai?",
+      "summary": "Beban untuk pengeluaran yang langsung dibayar; Tagihan untuk pembelian yang dibayar nanti dan menjadi utang usaha.",
+      "path": "Pembelian > Beban dan Pembelian > Tagihan",
+      "who": "Beban: dibuat oleh pengguna dengan izin pengeluaran, dikonfirmasi oleh pemilik izin bayar. Tagihan: dibuat bills.create, disetujui bills.approve, dibayar bills.pay.",
+      "quick": "Sudah dibayar saat itu juga (struk, nota)? Pakai **Beban**. Vendor menagih dan Anda membayar nanti? Pakai **Tagihan**. Keduanya mencatat biaya yang sama; bedanya hanya apakah ada utang usaha di antaranya.",
+      "steps": [
+        {
+          "title": "Beban: langsung dibayar, tidak ada utang",
+          "text": "Buka **Pembelian > Beban > Catat Pengeluaran**, pilih **Dibayar dari Rekening**, isi **Jumlah (sesuai struk)** lalu simpan sebagai Draf dan **Konfirmasi & Posting**. Saat konfirmasi, biaya tercatat dan saldo rekening langsung berkurang. Tidak ada tahap utang usaha."
+        },
+        {
+          "title": "Tagihan: utang dulu, bayar belakangan",
+          "text": "Buka **Pembelian > Tagihan > Catat Tagihan**, isi vendor, tanggal, jatuh tempo, dan **Jumlah (sesuai invoice)**. Setelah **Setujui Tagihan**, biaya (atau aset) tercatat dan **utang usaha bertambah**. Saldo rekening belum berubah."
+        },
+        {
+          "title": "Membayar tagihan",
+          "text": "Pembayaran selalu dimulai dari tagihan itu sendiri: buka tagihan yang berstatus Disetujui lalu tekan **Bayar Tagihan**. Saat dibayar, **utang usaha dan saldo rekening sama-sama berkurang**. Biaya tidak bertambah lagi karena sudah tercatat saat tagihan disetujui. Daftar semua pembayaran ada di **Pembelian > Pembayaran Keluar** (hanya daftar, tidak ada tombol pembayaran baru di sana)."
+        },
+        {
+          "title": "Isi satu jumlah saja",
+          "text": "Kedua form cukup meminta satu jumlah per baris sesuai struk atau invoice, jadi belanja makanan tidak perlu dipecah per menu. Centang **Rinci per barang** hanya bila Anda memang ingin kolom Kuantitas dan Harga Satuan."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Beda jurnal Beban dan Tagihan (contoh Rp 500.000)",
+          "columns": ["Kejadian", "Debit", "Kredit"],
+          "rows": [
+            ["Beban dikonfirmasi", "Beban sesuai kategori 500.000", "Kas/Bank 500.000"],
+            ["Tagihan disetujui", "Beban sesuai kategori 500.000", "Utang Usaha 500.000"],
+            ["Tagihan dibayar", "Utang Usaha 500.000", "Kas/Bank 500.000"]
+          ]
+        }
+      ],
+      "result": [
+        "Total biaya di laporan laba rugi sama, baik lewat Beban maupun lewat Tagihan. Bedanya ada di Utang Usaha: hanya Tagihan yang menambah dan mengurangi utang."
+      ],
+      "mistakes": [
+        "Mencatat belanja yang sudah dibayar sebagai Tagihan, lalu harus membayarnya lagi di sistem.",
+        "Mencari tombol pembayaran baru di Pembayaran Keluar. Mulailah dari detail tagihan."
+      ],
+      "related": ["buat-biaya", "catat-tagihan-vendor", "bayar-tagihan-vendor"]
+    },
+    {
       "slug": "catat-tagihan-vendor",
       "title": "Cara Mencatat dan Menyetujui Tagihan Vendor",
       "summary": "Mencatat tagihan dari vendor yang belum dibayar, lalu menyetujuinya sehingga menjadi utang usaha.",

@@ -276,9 +276,11 @@ START_STEPS = [
      "catat di Pembayaran Diterima atau konfirmasi Klaim Pembayaran, dan pilih rekening yang menerima uangnya: "
      "saldo rekening bertambah dan terlihat di halaman detail rekening.", "end"),
     ("<b>Pengeluaran</b> (menu Pembelian &rarr; Beban &rarr; buat): pilih kategori beban, isi deskripsi (saran nama "
-     "muncul seperti pada invoice), jumlah, dan <b>rekening yang membayar</b>. Setelah Konfirmasi, saldo rekening "
-     "berkurang dan jurnal tercatat otomatis. Pembelian dari vendor yang dibayar nanti dicatat sebagai Tagihan, "
-     "lalu dibayar lewat Pembayaran Keluar.", "end"),
+     "muncul seperti pada invoice), <b>satu jumlah sesuai struk</b> (tidak perlu kuantitas dan harga satuan; centang "
+     "&ldquo;Rinci per barang&rdquo; bila memang perlu), dan <b>rekening yang membayar</b>. Setelah Konfirmasi, saldo "
+     "rekening berkurang dan jurnal tercatat otomatis. Pembelian dari vendor yang dibayar nanti dicatat sebagai Tagihan: "
+     "setelah disetujui menjadi utang usaha, lalu dibayar dengan tombol <b>Bayar Tagihan</b> di halaman tagihan itu "
+     "(Pembayaran Keluar hanya daftar riwayatnya).", "end"),
     ("<b>Pembayaran pajak</b> (menu Pajak &rarr; Pelaporan &amp; Bukti): cek dulu posisi terutang di PPN, "
      "Pemotongan PPh, atau PPh Final, lalu rekam pembayaran dari rekening kas/bank, rekam laporan SPT, dan "
      "lampirkan bukti.", "end"),
@@ -340,6 +342,12 @@ SECTIONS = [
    "Invoice juga bisa dikirim atau dikirim ulang ke email pelanggan (termasuk setelah lunas), dengan Riwayat Pengiriman Email. Pada baris invoice: mengeklik atau mengetik di kolom deskripsi memunculkan daftar produk dan baris yang pernah dibuat (harga satuan ikut terisi, "
    "tetap bisa diubah), ada kolom Diskon (persen atau nominal), dan angka uang otomatis diberi pemisah ribuan.",
    "64–66,71,165,257"),
+  ("Catat Pendapatan", "/sales/income",
+   "Mencatat uang masuk yang tidak punya invoice: penjualan tunai, jasa yang dibayar langsung, komisi, bunga, "
+   "dividen, hasil trading. Cukup isi tanggal, jenis pendapatan (ketik untuk mencari atau tambah baru), jumlah, dan "
+   "rekening penerima; jurnal dan saldo rekening diurus otomatis. Pendapatan usaha ikut dasar PPh Final 0,5%; bunga, "
+   "dividen, hasil forex, dan sejenisnya tercatat tetapi tidak ikut dan tampil di Ringkasan Pajak. Salah catat "
+   "dibatalkan dengan alasan, bukan diedit.", "350,352"),
   ("Pembayaran Diterima", "/sales/payments",
    "Daftar seluruh pembayaran masuk dari pelanggan terhadap invoice. Pembayaran yang salah catat bisa dibatalkan "
    "(dibalik/reverse) tanpa menghapus jejaknya. Di halaman detail pembayaran ada tombol Kirim Bukti Pembayaran "
@@ -360,7 +368,8 @@ SECTIONS = [
   ("Produk & Jasa", "/sales/products",
    "Katalog produk/jasa untuk mengisi baris invoice secara cepat dan konsisten. Setiap produk mendapat SKU otomatis "
    "(mis. KEA-EA-001) dari Brand dan Jenis Produk yang dipilih; produk bisa punya variant (mis. KEA-EA-001-1B) dengan "
-   "SKU, harga, dan status sendiri. Item di katalog tidak pernah dihapus permanen, hanya dinonaktifkan.", "245,324"),
+   "SKU, harga, dan status sendiri. Brand, Jenis Produk, Variant, dan Kategori bisa diketik dan ditambah langsung di "
+   "form produk (bagi yang berizin SKU). Item di katalog tidak pernah dihapus permanen, hanya dinonaktifkan.", "245,324,351"),
  ]
 ),
 
@@ -369,15 +378,19 @@ SECTIONS = [
  "pembayaran ke vendor, dan data vendor.",
  [
   ("Tagihan", "/purchases/bills",
-   "Tagihan dari vendor untuk barang/jasa/aset/beban dibayar di muka. Status: Draf &rarr; Diajukan &rarr; Disetujui "
-   "(atau Ditolak/Dibatalkan/Void). Setelah disetujui, data vendor pada tagihan itu dibekukan agar riwayat tidak berubah.",
+   "Tagihan dari vendor untuk barang/jasa/aset/beban dibayar di muka, dibayar nanti. Status: Draf &rarr; Diajukan &rarr; "
+   "Disetujui (atau Ditolak/Dibatalkan/Void). Setelah disetujui, biaya tercatat dan utang usaha bertambah, dan data "
+   "vendor dibekukan agar riwayat tidak berubah. Pembayaran dilakukan dengan tombol Bayar Tagihan di halaman tagihan: "
+   "utang usaha dan saldo rekening berkurang, biaya tidak bertambah lagi. Satu jumlah per baris cukup (kuantitas dan "
+   "harga satuan hanya bila &ldquo;Rinci per barang&rdquo; dicentang).",
    "78,167"),
   ("Beban", "/purchases/expenses",
-   "Pembelian yang dibayar tunai langsung saat terjadi (bukan utang). Konfirmasi pada status Draf langsung "
-   "membukukan beban sekaligus mencatat pembayarannya &mdash; tidak ada tahap utang usaha terpisah.", "82,245"),
+   "Pembelian yang dibayar tunai langsung saat terjadi (bukan utang). Cukup isi satu jumlah sesuai struk, tanpa "
+   "kuantitas dan harga satuan. Konfirmasi pada status Draf langsung membukukan beban sekaligus mencatat "
+   "pembayarannya &mdash; tidak ada tahap utang usaha terpisah.", "82,245,353"),
   ("Pembayaran Keluar", "/purchases/payments",
-   "Pembayaran ke vendor. Satu pembayaran bisa dialokasikan ke beberapa tagihan yang sudah disetujui sekaligus. "
-   "Bisa dibatalkan (dibalik) jika salah catat.", "77,230"),
+   "Daftar pembayaran ke vendor. Pembayaran baru dimulai dari detail tagihan (tombol Bayar Tagihan), bukan dari "
+   "halaman ini. Pembayaran yang salah catat bisa dibatalkan (dibalik) dari halaman detail pembayaran.", "77,230"),
   ("Vendor", "/purchases/vendors",
    "Data induk vendor, dengan deteksi duplikasi yang sama seperti pada data Pelanggan.", "445"),
  ]
@@ -442,8 +455,10 @@ SECTIONS = [
  "pencatatan pelaporan & pembayaran, serta aturan tarif resmi.",
  [
   ("Ringkasan Pajak", "/tax",
-   "Halaman utama modul Pajak: profil pajak Entity, dokumen yang masih menunggu tinjauan, pajak yang terutang, "
-   "dan tenggat waktu terdekat.", "173"),
+   "Halaman utama modul Pajak: perkiraan PPh Final bulan berjalan, kartu <b>Penghasilan di Luar PPh Final</b> "
+   "(hasil bersih forex, bunga, dividen, kripto sejak 1 Januari per jenis dan per bulan, ditambah perkiraan pajak "
+   "22% yang berlabel asumsi; tahun ditetapkan 1 Januari tahun berikutnya, SPT Tahunan 30 April), profil pajak "
+   "Entity, dokumen yang menunggu tinjauan, pajak yang terutang, dan tenggat waktu terdekat.", "173,352"),
   ("Buku Pajak", "/tax/ledger",
    "Daftar seluruh transaksi berpajak (PPN, pemotongan PPh, PPh Final), bisa disaring per jenis pajak, periode, "
    "sumber dokumen, dan status.", "91,173"),
@@ -647,8 +662,9 @@ FLOWS = [
     ("Ajukan untuk disetujui (atau tarik kembali/Recall bila sudah diajukan).", "normal"),
     ("<b>Disetujui</b> &mdash; mendapat nomor resmi, data vendor dibekukan, jurnal tercatat (beban/aset/dibayar "
      "di muka di debit, utang usaha di kredit). Atau <b>Ditolak</b> dengan alasan, kembali ke status Draf.", "normal"),
-    ("Bayar vendor lewat Pembayaran Keluar &mdash; satu pembayaran bisa untuk satu atau beberapa tagihan yang "
-     "sudah disetujui.", "normal"),
+    ("Bayar vendor dengan tombol <b>Bayar Tagihan</b> di halaman tagihan yang sudah disetujui &mdash; utang usaha dan "
+     "saldo rekening berkurang, biaya tidak bertambah lagi (sudah tercatat saat disetujui). Riwayatnya ada di "
+     "Pembayaran Keluar.", "normal"),
     ("Status tagihan otomatis: Menunggu Persetujuan &rarr; Terbuka &rarr; (Jatuh Tempo bila lewat tanggal) &rarr; "
      "<b>Lunas</b>.", "end"),
     ("Bila salah: tagihan Draf/Diajukan dibatalkan langsung; tagihan Disetujui yang belum ada pembayaran aktif "
