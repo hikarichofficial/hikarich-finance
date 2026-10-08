@@ -2900,3 +2900,15 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      and give the policies a per-statement set of allowed Entities, each proven identical to today's answers by a
      test that compares every user, Entity and permission. Not done: unindexed foreign keys and unwrapped
      `auth.uid()` in six policies (advisor notices) -- no measurable effect at this data size.
+
+348. **`my_access()` lists permissions in one pass (owner approval, 8 October 2026).** After decision 347 the owner
+     approved the first step of the recommendation: only the permission list inside `public.my_access()` changes.
+     It no longer calls `app_authz.has_permission` once per permission (about 214 calls, 138 ms per page); it
+     applies the same rule inline: owner = every permission; otherwise (granted by the role or by a membership
+     override) and not denied by an override. The membership, active status, active Entity, active profile and MFA
+     condition are those `my_access` already selects for the row, so fields, order and refusals are unchanged.
+     `app_authz.has_permission` and every row-level-security policy are NOT touched. Proof:
+     `supabase/tests/99_p35_my_access_fast.sql` compares the new list with `has_permission` for every role in two
+     Entities with grant and deny overrides, an OWNER without MFA, a disabled membership and a disabled user. The
+     second step (a per-statement Entity set for the policies) is still open and needs its own equivalent proof and
+     its own owner confirmation.
