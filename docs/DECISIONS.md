@@ -2960,3 +2960,18 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Not included (told to the owner): receivables (use Invoice), VAT (the entity is non-PKP), a search index for
      entries, and income that repeats by itself through Transaksi Berulang (phase 2: needs a generator for entries,
      like invoices have). Proof: `supabase/tests/99_p37_income_entries.sql`.
+
+351. **Brand, product type, variant and default category can be typed and added in place (owner request, 8 October
+     2026).** On Tambah Produk the Brand and Jenis Produk fields were plain lists with no way to add an entry, and
+     the same was true of Variant on the product detail and of Kategori Pendapatan Bawaan. They now use the same
+     type-pick-or-add field as the customer on an invoice (`ContactPicker`): type to find, or "+ Tambah ... baru"
+     opens a small panel (`QuickAddSkuMasterDrawer`: name and code, the code suggested from the name by
+     `suggestSkuCode`, a variant also its kind and validity days) that saves through the existing `save_sku_master`
+     and hands the new row back to the field; a category uses the existing category panel. The add action is
+     `quickCreateSkuMasterAction`, permission `products.sku_settings` (categories: `categories.manage`), so a person
+     without it still picks from the list and the add row is hidden. Everything else about brands, types and
+     variants (order, description, switching off, archiving) stays on Administrasi > SKU. The product detail also
+     shows the add-variant form when no variant exists yet (for a person who may add one). Same day, the income
+     entry detail page (decision 350) was made compact: the tax sentence became a hint under the facts, a long note
+     reveals with "Selengkapnya", the cancel button is a quiet "Salah catat? Batalkan" that reveals its reason form,
+     and the header says "Sudah tersimpan".

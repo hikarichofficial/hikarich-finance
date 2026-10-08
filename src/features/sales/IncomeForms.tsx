@@ -218,8 +218,8 @@ export function ReverseIncomeForm({ entryId, today }: { entryId: string; today: 
   const [open, setOpen] = useState(false);
   if (!open) {
     return (
-      <button type="button" className="btn-secondary" onClick={() => setOpen(true)}>
-        Batalkan Pendapatan
+      <button type="button" className="btn-ghost" onClick={() => setOpen(true)}>
+        Salah catat? Batalkan
       </button>
     );
   }

@@ -7,6 +7,7 @@ import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
 import { listContacts } from "@/services/contacts/contacts";
 import { getIncomeEntry, listIncomeCategories } from "@/services/sales/income";
+import { ExpandableText } from "@/features/shared/ExpandableText";
 import { AttachmentsSection } from "@/features/documents/AttachmentsSection";
 import { ReverseIncomeForm } from "@/features/sales/IncomeForms";
 import { formatShortDate } from "@/features/sales/format";
@@ -48,7 +49,9 @@ export default async function IncomeDetailPage({
         <div>
           <p className="record-detail-eyebrow">Pendapatan</p>
           <h1>{category?.name ?? "Pendapatan"}</h1>
-          <p className="list-screen-summary">{reversed ? "Dibatalkan" : "Tercatat"}</p>
+          <span className={`status-badge status-badge-${reversed ? "neutral" : "success"}`}>
+            {reversed ? "Dibatalkan" : "Sudah tersimpan"}
+          </span>
         </div>
       </header>
 
@@ -74,14 +77,14 @@ export default async function IncomeDetailPage({
             <dt>Nomor bukti / referensi</dt>
             <dd>{entry.reference ?? "—"}</dd>
           </div>
-          <div>
-            <dt>Keterangan</dt>
-            <dd>{entry.note ?? "—"}</dd>
-          </div>
-          <div>
-            <dt>Pajak</dt>
-            <dd>{incomeTaxNote(entry.in_turnover)}</dd>
-          </div>
+          {entry.note ? (
+            <div>
+              <dt>Keterangan</dt>
+              <dd>
+                <ExpandableText text={entry.note} limit={80} />
+              </dd>
+            </div>
+          ) : null}
           {reversed ? (
             <div>
               <dt>Dibatalkan</dt>
@@ -92,8 +95,11 @@ export default async function IncomeDetailPage({
             </div>
           ) : null}
         </dl>
+        <p className="hint">{incomeTaxNote(entry.in_turnover)}</p>
         {!reversed && can(access, entityId, "invoices.void") ? (
-          <ReverseIncomeForm entryId={entry.id} today={todayInBusinessZone()} />
+          <div className="record-actions">
+            <ReverseIncomeForm entryId={entry.id} today={todayInBusinessZone()} />
+          </div>
         ) : null}
       </section>
 

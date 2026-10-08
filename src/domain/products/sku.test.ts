@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { composeSku, describeSkuError, type SkuFormat } from "./sku";
+import { composeSku, describeSkuError, type SkuFormat, suggestSkuCode } from "./sku";
 
 const base: SkuFormat = {
   components: [
@@ -84,5 +84,17 @@ describe("describeSkuError", () => {
         "23505",
       ),
     ).toMatch(/unik/);
+  });
+});
+
+describe("suggestSkuCode", () => {
+  it("takes the initials of several words and the first letters of one word", () => {
+    expect(suggestSkuCode("Kamar Kajian Market")).toBe("KKM");
+    expect(suggestSkuCode("Expert Advisor")).toBe("EA");
+    expect(suggestSkuCode("Hikarich")).toBe("HIK");
+  });
+  it("keeps letters and digits only, at most four", () => {
+    expect(suggestSkuCode("Paket 1 Bulan & Bonus Extra")).toBe("P1BB");
+    expect(suggestSkuCode("  ")).toBe("");
   });
 });

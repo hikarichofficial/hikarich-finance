@@ -39,6 +39,7 @@ export default async function ProductDetailPage({
   const entityId = membership.entity_id;
   const canOverride = can(access, entityId, "products.sku_override");
   const canCreate = can(access, entityId, "products.create");
+  const canAddVariants = can(access, entityId, "products.sku_settings");
   const isVariant = product.parent_product_id !== null;
   const [variantRows, variantMasters, brands, types, history, usedOnDocuments, parent] =
     await Promise.all([
@@ -204,8 +205,13 @@ export default async function ProductDetailPage({
               </tbody>
             </table>
           )}
-          {canCreate && product.sku && offered.length > 0 ? (
-            <AddVariantForm entity={entity} parentId={id} variants={offered} />
+          {canCreate && product.sku && (offered.length > 0 || canAddVariants) ? (
+            <AddVariantForm
+              entity={entity}
+              parentId={id}
+              variants={offered}
+              canAddVariants={canAddVariants}
+            />
           ) : null}
         </section>
       ) : null}

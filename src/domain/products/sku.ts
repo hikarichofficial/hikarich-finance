@@ -145,3 +145,22 @@ export function describeSkuError(message: string, sqlState?: string): string {
   if (sqlState === "42501") return "Anda tidak memiliki izin untuk tindakan ini.";
   return "Perubahan SKU tidak dapat disimpan.";
 }
+
+/**
+ * A code to suggest for a name typed in the quick-add panel (decision 351): several words give their initials
+ * ("Kamar Kajian Market" -> KKM, "Expert Advisor" -> EA), one word gives its first three letters ("Hikarich" ->
+ * HIK). Letters and digits only, at most four characters; the person can change it before saving.
+ */
+export function suggestSkuCode(name: string): string {
+  const words = name
+    .toUpperCase()
+    .replace(/[^A-Z0-9\s]/g, " ")
+    .split(/\s+/)
+    .filter((word) => word !== "");
+  if (words.length === 0) return "";
+  if (words.length === 1) return words[0].slice(0, 3);
+  return words
+    .map((word) => word[0])
+    .join("")
+    .slice(0, 4);
+}
