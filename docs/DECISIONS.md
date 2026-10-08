@@ -3054,3 +3054,16 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Draf > Ubah Draf, or map the category in Akuntansi > Kategori). Display only; no rule changed. Whether an
      unmapped category should count as "not a withholding object" for an entity that is a withholding agent stays a
      tax decision for the owner and the adviser.
+
+359. **Standard expense categories start with a withholding classification (owner, 8 October 2026).** The PT is recorded
+     as a withholding agent, so every expense line needs a classification and an ordinary expense (a meal) was held
+     back. The standard company categories now carry one where it does not depend on who is paid: "Bukan objek
+     potongan" for Biaya Bank, Biaya Payment Gateway, Gaji & Tunjangan (payroll has its own PPh 21), Kantor & Umum,
+     Komunikasi & Internet, Perjalanan & Transportasi, Pengeluaran Operasional Lainnya, and, at the owner's request,
+     Pemasaran & Iklan, Hosting/Domain/Cloud and Software & Langganan (bought mostly from platforms that charge PPN
+     themselves; PPN and PPh withholding are separate taxes, so a domestic vendor that must be withheld is chosen on the
+     line); "Sewa gedung/tanah" (PPh 4(2)) for Sewa & Ruang Kerja; Jasa Profesional and Produksi Konten stay open and
+     are chosen per line. Applies to existing Entities only where a standard category had no classification yet
+     (anything the owner set is untouched) and to new Entities (migration p39). Working assumption, to be confirmed
+     with the tax adviser; a line's own choice wins over its category, and a category can be changed in Akuntansi >
+     Kategori. Whether the PT is a withholding agent at all remains the owner's setting under Pajak.

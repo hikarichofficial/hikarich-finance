@@ -35,8 +35,16 @@ begin
   perform test_helpers.assert((select count(*) from public.categories where entity_id = e_pe and kind = 'revenue') = 4
     and (select count(*) from public.categories where entity_id = e_pe and kind = 'expense') = 9,
     '1.3 personal: 4 income and 9 expense categories');
-  perform test_helpers.assert(not exists (select 1 from public.categories where entity_id in (e_co, e_pe) and tax_category_key is not null),
-    '1.4 the tax classification stays empty (automatic from the tax profile)');
+  perform test_helpers.assert(not exists (select 1 from public.categories where entity_id = e_pe and tax_category_key is not null)
+    and not exists (select 1 from public.categories where entity_id = e_co and kind = 'revenue' and tax_category_key is not null),
+    '1.4 personal categories and company revenue categories carry no tax classification (automatic from the tax profile)');
+  -- Decision 359: the company expense categories that do not depend on the vendor start with a withholding classification.
+  perform test_helpers.assert(
+    (select count(*) from public.categories where entity_id = e_co and kind = 'expense' and tax_category_key = 'wht_none') = 10
+    and (select tax_category_key from public.categories where entity_id = e_co and name = 'Sewa & Ruang Kerja') = 'wht_rent_land_building'
+    and (select count(*) from public.categories where entity_id = e_co and kind = 'expense' and tax_category_key is null) = 2
+    and (select tax_category_key from public.categories where entity_id = e_co and name = 'Jasa Profesional') is null,
+    '1.4b company expense: 10 not-a-withholding-object, rent of land/building, and 2 left to the line (Jasa Profesional, Produksi Konten)');
   perform test_helpers.assert(exists (select 1 from public.category_account_mappings m
       join public.categories c on c.id = m.category_id
       join public.ledger_accounts a on a.id = m.debit_ledger_account_id
