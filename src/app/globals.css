@@ -5803,6 +5803,13 @@ a.pp-answer:hover {
   font-weight: 600;
 }
 
+/* A section's opening line needs air under it: `.dashboard-section` spaces nothing between its children and
+ * `.hint` carries no margin, so the first field of the form below it sat right against the sentence
+ * explaining the page (OWNER, 9 October 2026). */
+.emp-lead {
+  margin-bottom: var(--space-5);
+}
+
 .emp-subtitle {
   margin: var(--space-6) 0 var(--space-3);
   padding-top: var(--space-5);

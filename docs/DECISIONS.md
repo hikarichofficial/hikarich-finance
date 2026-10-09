@@ -3446,3 +3446,8 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      "Gaji sebelum BPJS dan PPh 21" is the one figure set in a larger size; the two lines above it stay quiet.
      No change to what is posted (`employee_set_compensation` and its `label_i`/`component_i`/`kind_i`/
      `amount_i`/`taxable_i`/`bpjs_base_i`/`row_count` fields are untouched) and no migration.
+384. **Air under a section's opening line (OWNER, 9 October 2026; presentation only).** On every employee tab
+     the sentence explaining the page sat flush against whatever came next -- on Gaji & Komponen the "Berlaku
+     mulai" field looked like a line of that sentence. `.dashboard-section` deliberately spaces none of its
+     children and `.hint` carries no margin, so the description `EmployeeShell` renders now also takes
+     `.emp-lead` (one 24px bottom margin). It applies to all five tabs at once rather than to this one page.

@@ -83,7 +83,7 @@ export function EmployeeShell({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">{title}</h2>
         </div>
-        {description ? <p className="hint">{description}</p> : null}
+        {description ? <p className="hint emp-lead">{description}</p> : null}
         {children}
       </section>
     </div>
