@@ -43,6 +43,7 @@ const SOURCE_TYPE_LABELS: Readonly<Record<LoanDetail["source_type"], string>> = 
 export function LoanDetailScreen({
   detail,
   schedule,
+  pastPaid = [],
   currency,
   entity,
   backHref,
@@ -50,6 +51,8 @@ export function LoanDetailScreen({
 }: {
   detail: LoanDetail;
   schedule: readonly LoanScheduleRow[];
+  /** Instalments fully paid under an earlier (replaced) version of the schedule, shown first as history. */
+  pastPaid?: readonly LoanScheduleRow[];
   currency: string;
   entity: string | undefined;
   backHref: string;
@@ -180,7 +183,7 @@ export function LoanDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Jadwal Cicilan</h2>
         </div>
-        {schedule.length === 0 ? (
+        {schedule.length === 0 && pastPaid.length === 0 ? (
           <p className="dashboard-empty">Belum ada jadwal cicilan.</p>
         ) : (
           <table className="record-table record-table-stacked">
@@ -204,6 +207,33 @@ export function LoanDetailScreen({
               </tr>
             </thead>
             <tbody>
+              {pastPaid.map((line) => (
+                <tr key={`old-${line.version_no}-${line.seq}`}>
+                  <td>
+                    {line.seq} <small>(jadwal lama)</small>
+                  </td>
+                  <td data-label="Jatuh Tempo">{formatShortDate(line.due_date)}</td>
+                  <td className="num" data-label="Pokok">
+                    {formatMoney(line.principal_due, currency)}
+                  </td>
+                  <td className="num" data-label="Bunga">
+                    {formatMoney(line.interest_due, currency)}
+                  </td>
+                  <td className="num" data-label="Fee">
+                    {formatMoney(line.fee_due, currency)}
+                  </td>
+                  <td className="num" data-label="Outstanding">
+                    {formatMoney(line.outstanding, currency)}
+                  </td>
+                  <td data-label="Status">
+                    <span
+                      className={`status-badge status-badge-${loanScheduleStateBadge("paid", false).tone}`}
+                    >
+                      {loanScheduleStateBadge("paid", false).text}
+                    </span>
+                  </td>
+                </tr>
+              ))}
               {schedule.map((line) => {
                 const lineBadge = loanScheduleStateBadge(line.state, line.overdue);
                 return (

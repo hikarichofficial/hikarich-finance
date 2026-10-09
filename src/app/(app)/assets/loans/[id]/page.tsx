@@ -31,6 +31,15 @@ export default async function LoanDetailPage({
     getLoanSchedule({ loan_id: id }),
     getEntityBaseCurrency(membership.entity_id),
   ]);
+  // Instalments that were fully paid under an earlier version of the schedule (before a partial early repayment,
+  // a rate change or a restructuring replaced it) are not in the current schedule: show them as history.
+  const pastPaid = (
+    await Promise.all(
+      detail.versions
+        .filter((v) => v.status === "superseded")
+        .map((v) => getLoanSchedule({ loan_id: id, version_no: v.version_no }).catch(() => [])),
+    )
+  ).flatMap((rows) => rows.filter((row) => row.state === "paid"));
   const canManage = can(access, membership.entity_id, "loans.manage");
   const accounts = canManage
     ? (await getMoneyControl(membership.entity_id).catch(() => []))
@@ -67,6 +76,7 @@ export default async function LoanDetailPage({
     <LoanDetailScreen
       detail={detail}
       schedule={schedule}
+      pastPaid={pastPaid}
       currency={currency}
       entity={entity}
       backHref={backHref}
