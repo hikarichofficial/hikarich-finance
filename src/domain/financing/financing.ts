@@ -280,8 +280,7 @@ export interface RateStepYearRow {
 }
 
 export type RateStepYearsResult =
-  | { ok: true; steps: { from: string; rate: string }[] }
-  | { ok: false; message: string };
+  { ok: true; steps: { from: string; rate: string }[] } | { ok: false; message: string };
 
 /**
  * Turns "from year N of the schedule, rate R" rows into the dated steps the database stores. Year 1 starts at the
