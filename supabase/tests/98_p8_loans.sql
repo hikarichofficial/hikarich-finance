@@ -896,4 +896,76 @@ begin
 end
 $$;
 
+
+-- ================================================================ decision 374: Bunga Berjenjang (later rates, Ubah Bunga)
+do $$
+declare
+  pt uuid := test_helpers.entity('p8c_pt');
+  v_owner uuid := 'd0000000-0000-0000-0000-000000000001';
+  v_today date := test_helpers.today(pt);
+  v_bca uuid := test_helpers.g('bca');
+  v_t uuid;
+  v_c uuid;
+  v_pay uuid;
+  v_old uuid;
+  v_new uuid;
+  v public.loan_schedule_versions%rowtype;
+  i12 public.loan_schedule_items%rowtype;
+  i13 public.loan_schedule_items%rowtype;
+begin
+  perform test_helpers.login(v_owner);
+  -- 1. later rates when a loan is made
+  perform test_helpers.expect_msg(format($q$select public.loan_create(%L, 'k-374-c0a', 'borrowed', 'Bank Tier', null, 'Tiered loan', '24000000', %L, 'long', '6', 'annuity', 24, 1, %L, null, null, null, null, %L::jsonb)$q$,
+    pt, v_today - 10, v_today + 20, format('[{"from":"%s","rate":"10"},{"from":"%s","rate":"9"}]', v_today + 400, v_today + 300)), 'INVALID', '374.1 later rates are dated in order');
+  perform test_helpers.expect_msg(format($q$select public.loan_create(%L, 'k-374-c0b', 'borrowed', 'Bank Tier', null, 'Tiered loan', '24000000', %L, 'long', '6', 'annuity', 24, 1, %L, null, null, null, null, %L::jsonb)$q$,
+    pt, v_today - 10, v_today + 20, format('[{"from":"%s","rate":"101"}]', v_today + 400)), 'INVALID', '374.2 a later rate is a percentage up to 100');
+  perform test_helpers.expect_msg(format($q$select public.loan_create(%L, 'k-374-c0c', 'borrowed', 'Bank Tier', null, 'Tiered loan', '1000000', %L, 'long', '0', 'manual', null, null, null, %L::jsonb, null, null, null, %L::jsonb)$q$,
+    pt, v_today - 10, '[{"due_date":"2099-01-01","principal":"1000000"}]', format('[{"from":"%s","rate":"5"}]', v_today + 400)), 'INVALID', '374.3 a manual schedule takes no later rates');
+  -- 6% for the first 12 instalments, 10% from the 13th
+  v_t := public.loan_create(pt, 'k-374-c1', 'borrowed', 'Bank Tier', null, 'Tiered loan', '24000000', v_today - 10, 'long', '6', 'annuity', 24, 1,
+    v_today + 20, null, null, null, null, jsonb_build_array(jsonb_build_object('from', (v_today + 20 + interval '12 months')::date, 'rate', '10')));
+  select * into v from public.loan_schedule_versions where loan_id = v_t;
+  select * into i12 from public.loan_schedule_items where version_id = v.id and seq = 12;
+  select * into i13 from public.loan_schedule_items where version_id = v.id and seq = 13;
+  perform test_helpers.assert(jsonb_array_length(v.rate_steps) = 1 and v.rate = 6
+    and (select sum(principal_due) from public.loan_schedule_items where version_id = v.id) = 24000000, '374.4 the later rate is kept and the schedule adds up');
+  perform test_helpers.assert(i13.principal_due + i13.interest_due > i12.principal_due + i12.interest_due
+    and i13.interest_due > round((24000000 - (select sum(principal_due) from public.loan_schedule_items where version_id = v.id and seq <= 12)) * 0.06 / 12),
+    '374.5 from the 13th instalment the annuity is recomputed at 10%');
+  perform test_helpers.assert((public.loan_detail(v_t) -> 'versions' -> 0 -> 'rate_steps' -> 0 ->> 'rate') = '10', '374.6 loan detail shows the later rates');
+
+  -- 2. Ubah Bunga on a running loan, from a future date
+  v_c := public.loan_create(pt, 'k-374-c2', 'borrowed', 'Bank Float', null, 'Floating loan', '12000000', v_today - 40, 'long', '12', 'annuity', 12, 1, v_today - 5);
+  perform public.loan_activate(v_c, 'k-374-a2', v_today - 30, v_bca);
+  v_pay := public.loan_repay(v_c, 'k-374-p2', v_today - 2, v_bca, '500000', '100000', '0', 'Instalment 1');
+  select id into v_old from public.loan_schedule_versions where loan_id = v_c and status = 'active';
+  perform test_helpers.logout();
+  perform test_helpers.login(v_owner, 'aal2', interval '1 hour');
+  perform test_helpers.expect_msg(format($q$select public.loan_change_rate(%L, 'k-374-r0', %L, '15', 'Floating rate starts')$q$, v_c, v_today + 40), 'STEP_UP_REQUIRED', '374.7 a recent verification is required');
+  perform test_helpers.logout();
+  perform test_helpers.login(v_owner);
+  perform test_helpers.expect_msg(format($q$select public.loan_change_rate(%L, 'k-374-r1', %L, '15', 'no')$q$, v_c, v_today + 40), 'INVALID', '374.8 a reason is required');
+  perform test_helpers.expect_msg(format($q$select public.loan_change_rate(%L, 'k-374-r2', %L, '15', 'Floating rate starts')$q$, v_c, v_today - 10), 'INVALID', '374.9 not before the last activity');
+  perform test_helpers.expect_msg(format($q$select public.loan_change_rate(%L, 'k-374-r3', %L, '15', 'Floating rate starts')$q$, v_c, v_today + 4000), 'INVALID', '374.10 a date after the last instalment changes nothing');
+  v_new := public.loan_change_rate(v_c, 'k-374-r4', v_today + 40, '15', 'Floating rate starts');
+  perform test_helpers.assert(public.loan_change_rate(v_c, 'k-374-r4', v_today + 40, '15', 'Floating rate starts') = v_new, '374.11 a change of rate replays');
+  select * into v from public.loan_schedule_versions where id = v_new;
+  perform test_helpers.assert(v.status = 'active' and v.version_no = 2 and v.installments = 12 and v.principal_basis = app_private.loan_outstanding(v_c)
+    and (select sum(principal_due) from public.loan_schedule_items where version_id = v_new) = app_private.loan_outstanding(v_c)
+    and v.maturity_date = (select maturity_date from public.loan_schedule_versions where id = v_old)
+    and (v.rate_steps -> -1 ->> 'rate') = '15' and (select status from public.loan_schedule_versions where id = v_old) = 'superseded',
+    '374.12 the new schedule keeps the term, schedules what is owed, records the new rate and keeps the old one as history');
+  perform test_helpers.assert((select bool_and(n.due_date = o.due_date and n.interest_due = o.interest_due)
+      from public.loan_schedule_items n join public.loan_schedule_items o on o.version_id = v_old and o.due_date = n.due_date
+      where n.version_id = v_new and n.due_date < v_today + 40 and o.seq > 1),
+    '374.13 instalments before the new rate keep their amounts');
+  perform test_helpers.assert((select max(interest_due) from public.loan_schedule_items where version_id = v_new and due_date >= v_today + 40)
+      > (select max(interest_due) from public.loan_schedule_items where version_id = v_old and due_date >= v_today + 40),
+    '374.14 instalments from the new rate carry more interest at 15%');
+  perform test_helpers.expect_msg(format($q$select public.loan_reverse_payment(%L, 'k-374-rv', %L, 'Wrong amount entered')$q$, v_pay, v_today), 'CONFLICT', '374.15 a payment made before the change cannot be reversed');
+  perform test_helpers.controls8c(pt, 'after Bunga Berjenjang');
+  perform test_helpers.logout();
+end
+$$;
+
 rollback;

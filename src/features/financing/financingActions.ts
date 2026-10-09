@@ -23,6 +23,7 @@ import {
   reverseObligationSettlement,
   revalueLoanFx,
   restructureLoan,
+  changeLoanRate,
   setLoanAsset,
   setLoanFxTerms,
   settleObligation,
@@ -97,6 +98,17 @@ function equityPaths(formData: FormData): string[] {
   return ["/assets/equity", `/assets/equity/${text(formData, "event_id")}`];
 }
 
+/** The later rates of a loan form (decision 374): rows `step_from_N` / `step_rate_N`; empty rows are skipped. */
+function rateSteps(formData: FormData): { from: string; rate: string }[] | undefined {
+  const steps: { from: string; rate: string }[] = [];
+  for (let n = 0; n < 20; n += 1) {
+    const from = text(formData, `step_from_${n}`);
+    const rate = text(formData, `step_rate_${n}`).replace(",", ".");
+    if (from && rate) steps.push({ from, rate });
+  }
+  return steps.length > 0 ? steps : undefined;
+}
+
 // ================================================================ loans
 export async function createLoanAction(
   _previous: FinancingActionState,
@@ -122,6 +134,7 @@ export async function createLoanAction(
       installments: Number(text(formData, "installments")),
       step_months: Number(text(formData, "step_months")) as never,
       first_due: text(formData, "first_due"),
+      rate_steps: rateSteps(formData),
     });
   } catch (error) {
     return errorState(
@@ -206,17 +219,39 @@ export async function restructureLoanAction(
       restructureLoan({
         loan_id: text(formData, "loan_id"),
         idempotency_key: randomUUID(),
-        effective_date: text(formData, "effective_date"),
+        // The form's date field is named "date" (the shared DateField); reading "effective_date" sent nothing.
+        effective_date: text(formData, "date"),
         rate_percent: text(formData, "rate_percent") || "0",
         method: text(formData, "method") as never,
         installments: installments ? Number(installments) : undefined,
         step_months: stepMonths ? (Number(stepMonths) as never) : undefined,
         first_due: firstDue || undefined,
+        rate_steps: rateSteps(formData),
         reason: text(formData, "reason"),
       }),
     "Restrukturisasi tidak dapat disimpan. Periksa tanggal efektif, bunga, jumlah cicilan dan alasan.",
     loanPaths(formData),
     "Jadwal pinjaman baru tersimpan.",
+  );
+}
+
+/** Ubah Bunga (decision 374). The database requires a recent step-up. */
+export async function changeLoanRateAction(
+  _previous: FinancingActionState,
+  formData: FormData,
+): Promise<FinancingActionState> {
+  return run(
+    () =>
+      changeLoanRate({
+        loan_id: text(formData, "loan_id"),
+        idempotency_key: randomUUID(),
+        from: text(formData, "rate_from"),
+        rate_percent: text(formData, "new_rate").replace(",", "."),
+        reason: text(formData, "reason"),
+      }),
+    "Bunga tidak dapat diubah. Periksa tanggal mulai, bunga baru dan alasan.",
+    loanPaths(formData),
+    "Bunga baru tersimpan. Cicilan mulai tanggal itu sudah dihitung ulang.",
   );
 }
 

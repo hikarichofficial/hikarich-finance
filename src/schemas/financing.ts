@@ -20,6 +20,10 @@ const optionalText = (max: number) => z.string().trim().max(max).optional();
 const ratePercentSchema = z.string().regex(/^\d{1,3}(\.\d{1,4})?$/, "Bunga harus berupa persen");
 const stepMonthsSchema = z.union([z.literal(1), z.literal(3), z.literal(6), z.literal(12)]);
 
+/** Later interest rates (decision 374): each applies to the instalments due on or after its date. */
+export const loanRateStepSchema = z.object({ from: isoDateSchema, rate: ratePercentSchema });
+export const loanRateStepsSchema = z.array(loanRateStepSchema).max(20);
+
 export const taxReviewStatusSchema = z.enum(["not_applicable", "needs_review", "reviewed"]);
 export const obligationKindSchema = z.enum(["receivable", "payable"]);
 export const obligationStatusSchema = z.enum(["open", "settled", "void"]);
@@ -203,6 +207,7 @@ export const createLoanInputSchema = z
     first_due: isoDateSchema.optional(),
     /** A manual schedule lists its installments; they add up to the principal. */
     items: z.array(loanItemInputSchema).min(1).max(600).optional(),
+    rate_steps: loanRateStepsSchema.optional(),
     asset_id: z.uuid().optional(),
     related_entity_id: z.uuid().optional(),
     relationship_basis: optionalText(300),
@@ -278,6 +283,16 @@ export const restructureLoanInputSchema = z.object({
   step_months: stepMonthsSchema.optional(),
   first_due: isoDateSchema.optional(),
   items: z.array(loanItemInputSchema).min(1).max(600).optional(),
+  rate_steps: loanRateStepsSchema.optional(),
+  reason: reasonSchema,
+});
+
+/** Ubah Bunga (decision 374): a new rate from a date (may be in the future); the term stays. */
+export const changeLoanRateInputSchema = z.object({
+  loan_id: z.uuid(),
+  idempotency_key: idempotencyKeySchema,
+  from: isoDateSchema,
+  rate_percent: ratePercentSchema,
   reason: reasonSchema,
 });
 
@@ -484,6 +499,10 @@ export const loanDetailSchema = z.object({
       principal_basis: signedDecimalTextSchema,
       maturity_date: isoDateSchema.nullable(),
       reason: z.string().nullable(),
+      rate_steps: z
+        .array(z.object({ from: isoDateSchema, rate: z.string() }))
+        .optional()
+        .default([]),
     }),
   ),
   payments: z.array(loanPaymentSchema),

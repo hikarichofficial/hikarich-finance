@@ -2889,7 +2889,7 @@
         {
           "kind": "end",
           "title": "Selesai",
-          "note": "Cicilan salah: Batalkan Pembayaran. Syarat berubah: Restrukturisasi Jadwal. Sisa dihapus: Hapus Sisa"
+          "note": "Cicilan salah: Batalkan Pembayaran. Bunga berubah: Ubah Bunga. Sulit dibayar: Restrukturisasi Jadwal. Sisa dihapus: Hapus Sisa"
         }
       ]
     },

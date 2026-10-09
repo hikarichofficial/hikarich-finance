@@ -3302,3 +3302,21 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      (c) Fixed-then-floating interest is already possible with "Restrukturisasi Jadwal" (new rate, effective date, remaining
      instalments, recalculated from the remaining principal); the form and the guide now say so. The annuity formula is the
      standard PMT; no change.
+
+374. **Bunga Berjenjang: later interest rates on a loan, and Ubah Bunga (owner, 9 October 2026).**
+     (a) A loan can be made with an opening rate and up to 20 later rates, each from a date (for example 6% fixed, then 10% from
+     the fourth year). An instalment uses the rate in force on its due date; an annuity's payment is recomputed from the
+     remaining balance and remaining instalments whenever the rate changes; flat and interest-only use the rate of each period.
+     Stored on the schedule version (`loan_schedule_versions.rate_steps`), shown as "Bunga Berikutnya" on the loan.
+     (b) "Ubah Bunga" on a running loan (`loan_change_rate`): a new rate from a date, which may lie in the future. Instalments due
+     before that date keep their amounts (what is unpaid on them is carried over); the instalments from that date are
+     recalculated from the remaining principal over the same number of instalments, so the term and the due dates do not
+     change. The old schedule stays as history and, as with a restructuring, payments made under it can no longer be reversed
+     afterwards; the form says so. A manual schedule cannot change its rate this way (Restrukturisasi Jadwal replaces it).
+     (c) Restrukturisasi Jadwal can carry later rates too, and its text now says it is for a loan that is hard to pay; a
+     change of rate alone uses Ubah Bunga.
+     (d) Bug fixed: Restrukturisasi Jadwal sent no effective date (the form's field is "date", the action read
+     "effective_date"), so it could never be saved.
+     Migration `20261017100000_p48_loan_rate_steps.sql`; tests in `98_p8_loans.sql` (374.1-374.15); guide updated. Rebuilt
+     in this session from the description of the same feature built in a session that could not send it; that copy is
+     superseded by this one.
