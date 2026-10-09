@@ -1,42 +1,15 @@
-import { notFound } from "next/navigation";
-import { can } from "@/domain/authz/access";
-import { requirePermission } from "@/services/identity/access";
+import { getBpjsEnrolment, getCompensation, getTaxProfile } from "@/services/payroll/payroll";
+import { loadEmployeeContext, payrollHref } from "@/features/payroll/employeeContext";
+import { EmployeeShell } from "@/features/payroll/EmployeeShell";
 import {
-  getBpjsEnrolment,
-  getCompensation,
-  getEmploymentHistory,
-  getEntityBaseCurrency,
-  getTaxProfile,
-  listEmployees,
-} from "@/services/payroll/payroll";
-import { EmployeeDetailScreen } from "@/features/payroll/EmployeeDetailScreen";
-import {
-  BpjsForm,
-  CompensationForm,
-  EmploymentForm,
-  EndEmployeeForm,
-  TaxOpeningForm,
-  TaxProfileForm,
-  UpdateEmployeeForm,
-} from "@/features/payroll/EmployeeForms";
-import { todayInBusinessZone } from "@/lib/time";
+  Checklist,
+  EmployeeSummary,
+  type ChecklistItem,
+} from "@/features/payroll/EmployeeSections";
+import { formatMoney } from "@/domain/money/format";
 
-/** Employee Detail (P13 Part 3g, first increment, Step 09 §10, §17: "compensation is permission-gated").
- * No per-employee RPC returns the row itself (`employee_code`/`full_name`/`status`/dates/current employment) --
- * only `employee_list`, Entity-scoped -- so the page fetches the register for the active Entity and looks up
- * the one row by id, the same shape Account Detail already uses for `money_control`. An id belonging to a
- * different Entity, or one the caller cannot see (`payroll.employee_view` failed already, above), lands here
- * as "not found", never a cross-Entity leak. Compensation/BPJS (`payroll.compensation_view`) and the tax
- * profile (`payroll.tax_view`) are fetched only when the viewer's own membership holds that permission --
- * checked with `can()` against the already-loaded access snapshot, the same helper Journal Detail uses to
- * gate its action buttons, applied here to gate a data fetch instead. Skipping the fetch entirely (rather
- * than calling it and catching FORBIDDEN) keeps a viewer without the permission from ever triggering the
- * RPC's own denial, matching Step 09 §17's "isolated as a sensitive module" framing.
- *
- * The write forms are gated on the permission each RPC checks: `payroll.employee_edit` (update, employment,
- * end; plus `payroll.tax_view` for the tax profile), `payroll.compensation_edit` (compensation, BPJS; plus
- * `payroll.compensation_view` and `payroll.tax_view` for the opening tax figures). */
-export default async function EmployeeDetailPage({
+/** Employee overview: who they are and which areas are still to be filled in, each a link to its own page. */
+export default async function EmployeeOverviewPage({
   params,
   searchParams,
 }: {
@@ -45,115 +18,72 @@ export default async function EmployeeDetailPage({
 }) {
   const { id } = await params;
   const { entity } = await searchParams;
-  const { access, membership } = await requirePermission("payroll.employee_view", {
-    entityCode: entity,
-  });
-  const entityId = membership.entity_id;
+  const ctx = await loadEmployeeContext(id, entity);
+  const { employee, currency } = ctx;
 
-  const entries = await listEmployees({ entity_id: entityId, include_ended: true });
-  const employee = entries.find((row) => row.id === id);
-  if (!employee) notFound();
-
-  const canViewCompensation = can(access, entityId, "payroll.compensation_view");
-  const canViewTax = can(access, entityId, "payroll.tax_view");
-
-  const [history, currency, compensation, bpjs, taxProfile] = await Promise.all([
-    getEmploymentHistory(id),
-    getEntityBaseCurrency(entityId),
-    canViewCompensation ? getCompensation({ employee_id: id }) : Promise.resolve(null),
-    canViewCompensation ? getBpjsEnrolment({ employee_id: id }) : Promise.resolve(null),
-    canViewTax ? getTaxProfile({ employee_id: id }) : Promise.resolve(null),
+  const [compensation, bpjs, taxProfile] = await Promise.all([
+    ctx.canViewCompensation ? getCompensation({ employee_id: id }) : Promise.resolve(null),
+    ctx.canViewCompensation ? getBpjsEnrolment({ employee_id: id }) : Promise.resolve(null),
+    ctx.canViewTax ? getTaxProfile({ employee_id: id }) : Promise.resolve(null),
   ]);
 
-  const canEdit = can(access, entityId, "payroll.employee_edit");
-  const canEditCompensation = can(access, entityId, "payroll.compensation_edit");
-  const canEditTax = canEdit && canViewTax;
-  const canSetTaxOpening = canEditCompensation && canViewCompensation && canViewTax;
-  const today = todayInBusinessZone();
-
-  const backHref = entity
-    ? `/payroll/employees?entity=${encodeURIComponent(entity)}`
-    : "/payroll/employees";
+  const base = `/payroll/employees/${id}`;
+  const items: ChecklistItem[] = [];
+  if (compensation) {
+    const count = compensation.components.length;
+    items.push({
+      key: "gaji",
+      title: "Gaji & komponen",
+      done: count > 0,
+      text:
+        count > 0
+          ? `${count} komponen, total penghasilan ${formatMoney(compensation.earnings_total, currency)}`
+          : "Belum ada komponen gaji. Payroll tidak bisa dihitung tanpa ini.",
+      href: payrollHref(`${base}/gaji`, entity),
+    });
+  }
+  if (taxProfile) {
+    const complete =
+      taxProfile.recorded &&
+      taxProfile.tax_id_status !== "unknown" &&
+      taxProfile.ptkp_status !== "unknown";
+    items.push({
+      key: "pajak",
+      title: "Data pajak",
+      done: complete,
+      text: complete
+        ? `PTKP ${taxProfile.ptkp_status}`
+        : "NPWP/NIK dan status PTKP belum lengkap. PPh 21 dihitung 0 dan ditandai sampai diisi.",
+      href: payrollHref(`${base}/pajak`, entity),
+    });
+  }
+  if (bpjs) {
+    const count = bpjs.enrolled.length;
+    items.push({
+      key: "bpjs",
+      title: "BPJS",
+      done: count > 0,
+      text: count > 0 ? `${count} program terdaftar` : "Belum ada kepesertaan BPJS.",
+      href: payrollHref(`${base}/bpjs`, entity),
+    });
+  }
 
   return (
-    <EmployeeDetailScreen
+    <EmployeeShell
       employee={employee}
-      history={history}
-      compensation={compensation}
-      bpjs={bpjs}
-      taxProfile={taxProfile}
-      currency={currency}
-      backHref={backHref}
-      actionsPanel={
-        canEdit || canEditCompensation ? (
-          <div
-            style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", alignItems: "flex-start" }}
-          >
-            {canEdit ? (
-              <UpdateEmployeeForm
-                employeeId={id}
-                fullName={employee.full_name}
-                joinDate={employee.join_date}
-              />
-            ) : null}
-            {canEdit ? (
-              <EmploymentForm
-                employeeId={id}
-                employmentType={employee.employment_type}
-                positionTitle={employee.position_title}
-                department={employee.department}
-                today={today}
-              />
-            ) : null}
-            {canEditCompensation ? (
-              <CompensationForm
-                employeeId={id}
-                current={(compensation?.components ?? []).map((c) => ({
-                  component: c.component,
-                  kind: c.kind,
-                  label: c.label,
-                  amount: c.amount,
-                  taxable: c.taxable,
-                  bpjsBase: c.bpjs_base,
-                }))}
-                today={today}
-              />
-            ) : null}
-            {canEditTax ? (
-              <TaxProfileForm
-                employeeId={id}
-                current={
-                  taxProfile?.recorded
-                    ? {
-                        taxIdStatus: taxProfile.tax_id_status,
-                        ptkpStatus: taxProfile.ptkp_status,
-                        taxMethod: taxProfile.tax_method,
-                      }
-                    : null
-                }
-                today={today}
-              />
-            ) : null}
-            {canEditCompensation ? (
-              <BpjsForm
-                employeeId={id}
-                current={(bpjs?.enrolled ?? []).map((e) => ({
-                  component: e.component,
-                  rateKey: e.rate_key,
-                  memberRef: e.member_ref,
-                }))}
-                today={today}
-              />
-            ) : null}
-            {canSetTaxOpening ? (
-              <TaxOpeningForm employeeId={id} year={Number(today.slice(0, 4))} />
-            ) : null}
-            {canEdit && employee.status === "active" ? (
-              <EndEmployeeForm employeeId={id} today={today} />
-            ) : null}
-          </div>
-        ) : undefined
-      }
-    />
+      entity={entity}
+      active="ringkasan"
+      showPay={ctx.canViewCompensation}
+      showTax={ctx.canViewTax}
+      title="Ringkasan"
+    >
+      <EmployeeSummary employee={employee} />
+      {items.length > 0 ? (
+        <>
+          <h3 className="emp-subtitle">Kelengkapan data untuk payroll</h3>
+          <Checklist items={items} />
+        </>
+      ) : null}
+    </EmployeeShell>
   );
 }
