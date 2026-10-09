@@ -3,6 +3,7 @@ import { can } from "@/domain/authz/access";
 import { AuthzError } from "@/domain/authz/errors";
 import { requireAccess } from "@/services/identity/access";
 import { getEntityBaseCurrency, getPayslip } from "@/services/payroll/payroll";
+import { getEntityLetterhead } from "@/services/settings/settings";
 import { PayslipDetailScreen } from "@/features/payroll/PayslipDetailScreen";
 
 /**
@@ -35,9 +36,14 @@ export default async function PayslipDetailPage({
   const detail = await getPayslip(id).catch(() => null);
   if (!detail) notFound();
 
-  const currency = await getEntityBaseCurrency(entityId);
+  const [currency, issuer] = await Promise.all([
+    getEntityBaseCurrency(entityId),
+    getEntityLetterhead(entityId),
+  ]);
   const qs = entity ? `?entity=${encodeURIComponent(entity)}` : "";
   const backHref = `/payroll/payslips${qs}`;
 
-  return <PayslipDetailScreen detail={detail} currency={currency} backHref={backHref} />;
+  return (
+    <PayslipDetailScreen detail={detail} currency={currency} issuer={issuer} backHref={backHref} />
+  );
 }

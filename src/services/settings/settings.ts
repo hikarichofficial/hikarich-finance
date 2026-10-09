@@ -242,6 +242,47 @@ export async function getEntityLogo(entityId: string): Promise<string | null> {
   return typeof logo === "string" && logo.startsWith("data:image/") ? logo : null;
 }
 
+/** Who the company is, for the top of a document an employee or a customer reads: the brand name if there is
+ * one, the postal address and one contact line, plus the logo. One RLS-governed read of the Entity and its
+ * profile -- `getEntitySettingsOverview` would do five for a page that needs none of the rest (decision 382). */
+export async function getEntityLetterhead(entityId: string): Promise<{
+  name: string;
+  addressLines: string[];
+  contact: string | null;
+  logo: string | null;
+}> {
+  const supabase = await createSupabaseServerClient();
+  const [entityRes, profileRes] = await Promise.all([
+    supabase.from("entities").select("legal_name, brand_name").eq("id", entityId).maybeSingle(),
+    supabase
+      .from("entity_profiles")
+      .select(
+        "address_line, city, province, postal_code, contact_email, contact_phone, logo_data_url",
+      )
+      .eq("entity_id", entityId)
+      .maybeSingle(),
+  ]);
+  const entity = entityRes.data as { legal_name?: string; brand_name?: string | null } | null;
+  const profile = profileRes.data as Record<string, string | null> | null;
+
+  const text = (key: string): string | null => {
+    const value = profile?.[key];
+    return typeof value === "string" && value.trim() !== "" ? value.trim() : null;
+  };
+  const place = [text("city"), text("province"), text("postal_code")].filter(Boolean).join(", ");
+  const contact = [text("contact_email"), text("contact_phone")].filter(Boolean).join(" \u00b7 ");
+  const logo = profile?.logo_data_url;
+
+  return {
+    name: entity?.brand_name?.trim() || entity?.legal_name?.trim() || "",
+    addressLines: [text("address_line"), place || null].filter((line): line is string =>
+      Boolean(line),
+    ),
+    contact: contact === "" ? null : contact,
+    logo: typeof logo === "string" && logo.startsWith("data:image/") ? logo : null,
+  };
+}
+
 /** The saved invoice arrangement (decision 310): always a usable layout, the standard one when none is saved. */
 export async function getInvoiceLayout(entityId: string): Promise<InvoiceLayout> {
   const supabase = await createSupabaseServerClient();

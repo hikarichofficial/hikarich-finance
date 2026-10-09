@@ -14,6 +14,10 @@ export type ComponentKind = "earning" | "deduction";
 export interface ComponentPreset {
   readonly label: string;
   readonly kind: ComponentKind;
+  /**
+   * For an earning: it counts towards the PPh 21 base. For a deduction: it lowers that base, which only an
+   * unpaid absence does -- a loan instalment or kasbon comes off take-home pay alone (decision 381).
+   */
   readonly taxable: boolean;
   readonly bpjsBase: boolean;
   /** One short line shown under the chip's name so a person can tell similar components apart. */
@@ -101,7 +105,8 @@ export const COMPONENT_PRESETS: readonly ComponentPreset[] = [
   {
     label: "Potongan Absensi",
     kind: "deduction",
-    taxable: false,
+    // Unpaid days really are less income, so this one does lower the PPh 21 base (decision 381).
+    taxable: true,
     bpjsBase: false,
     hint: "Tidak masuk / terlambat",
   },

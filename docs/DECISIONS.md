@@ -3399,3 +3399,36 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      `manual` schedule still opens on Anuitas, because Restrukturisasi always writes a generated schedule. The
      RPC contracts (`tax_record_payment`, `loan_restructure`) are unchanged -- only the prefilled values are.
      No migration.
+381. **A deduction lowers the PPh 21 base only when it is marked taxable (OWNER, 9 October 2026; this DOES change
+     tax meaning, and was asked and answered before it was built).** The engine took every "potongan" off both
+     take-home pay and the month's taxable income (`v_taxable := ... - v_red - v_adj_red`), so a loan instalment or
+     a kasbon repayment lowered the PPh 21 due. That is wrong for PPh 21: the employee received the income in full
+     and is paying back their own debt out of it, so nothing has been reduced for tax. An unpaid absence is the
+     opposite -- the income was never earned -- and must still lower the base. The component's own `taxable` flag,
+     which until now the engine read for earnings only, decides it for deductions too: true means less income
+     (Potongan Absensi), false means take-home only (Potongan Pinjaman Karyawan, Potongan Kasbon, Potongan
+     Lainnya). The same rule applies to one-off adjustments, whose `payroll_adjustment_add(..., p_taxable)` already
+     carries the flag and still defaults to true. Gross pay, net pay and the BPJS wage base are unchanged, and no
+     RPC signature changes. Migration `20261020100000_p52_deduction_tax_base.sql` (`payroll_compute_line`,
+     search_path pinned); the preset for Potongan Absensi flips to `taxable: true`; the editor already labels the
+     flag "Mengurangi dasar PPh 21" on a deduction row and now says in one line when to tick it; tests in
+     `99_p9_2_engine.sql` and `compensationPresets.test.ts`; the payroll guide is updated. Components saved before
+     this migration keep the flag they were stored with (the old form defaulted a deduction to taxable), so a
+     deduction entered earlier should be re-checked on the Gaji & Komponen page.
+382. **The payslip is a sheet, not a screen of tables (OWNER, 9 October 2026; presentation only, no figure is
+     recomputed).** The payslip will be printed and emailed to employees, so Payslip Detail is now the sheet
+     itself (`PayslipDocument.tsx`) on the same document canvas the invoice and receipt already use
+     (`.doc-page`, `.no-print`, the print stylesheet), with the company letterhead on top and a print button
+     beside it. It is laid out around the single line a payslip has to make obvious, which is what the OWNER
+     asked for: **Penghasilan Bruto − Potongan = Gaji Dibawa Pulang**. The Potongan column is split under
+     headings, which decision 381 is what makes meaningful: the potongan that is really less income and so
+     lowers the PPh 21 base, the employee's own BPJS and PPh 21, and the potongan that lowers take-home pay
+     only. A "Dasar Perhitungan PPh 21" block then shows that base built up from the lines above it, so the
+     tax can be followed by eye on the printed page. Everything is read from the issued snapshot; the two
+     sums the view makes itself are checked against the snapshot's `net_pay`, and a sheet that does not add
+     up says so rather than printing a number that was not paid. The run number, the amount actually paid
+     out and the tax method move to a "Catatan internal" section marked `no-print`, so the employee's copy
+     carries none of it. Without `payroll.tax_view` the snapshot has no `tax` key (decision 180) and the
+     sheet prints no tax figure at all, not even one derived from gross and net. New
+     `getEntityLetterhead(entityId)` reads the Entity name, address, contact and logo in one pass, instead of
+     `getEntitySettingsOverview`'s five queries for a page that needs none of the rest. No migration.

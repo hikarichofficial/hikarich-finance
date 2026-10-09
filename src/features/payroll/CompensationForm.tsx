@@ -353,6 +353,12 @@ export function CompensationForm({
         BPJS dan PPh 21 dihitung otomatis saat proses payroll dibuat. {countPosted} komponen akan
         disimpan.
       </p>
+      <p className="hint">
+        Pada baris potongan, centang &ldquo;Mengurangi dasar PPh 21&rdquo; hanya bila karyawan
+        memang menerima lebih sedikit, misalnya potongan absensi. Cicilan pinjaman, kasbon dan
+        sejenisnya tidak dicentang: gaji tetap diterima penuh lalu dipakai membayar utang, jadi
+        pajaknya tidak ikut berkurang.
+      </p>
     </PayrollToggleForm>
   );
 }
