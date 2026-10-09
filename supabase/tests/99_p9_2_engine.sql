@@ -472,4 +472,24 @@ begin
 end
 $$;
 
+-- ================================================================ decision 378: no tax data at all (no profile row) is a review flag, not an error
+do $$
+declare
+  pt uuid := test_helpers.entity('p9b_pt');
+  v_pay uuid := 'f0000000-0000-0000-0000-000000000002';
+  e uuid;
+  v_run uuid;
+begin
+  perform test_helpers.login(v_pay);
+  e := public.employee_create(pt, 'key-p9b-Z378', 'Employee Z', '2025-05-01', 'permanent', 'Clerk');
+  perform public.employee_set_compensation(e, 'key-p9b-Z378-c', '2025-05-01', jsonb_build_array(
+    jsonb_build_object('component', 'basic', 'kind', 'earning', 'label', 'Gaji pokok', 'amount', '5000000')));
+  v_run := public.payroll_run_create(pt, 'key-p9b-r378', '2025-08-17', '2025-08-28');
+  perform public.payroll_run_calculate(v_run);
+  perform test_helpers.assert((select review_flags from public.payroll_run_lines(v_run) where employee_id = e) = array['tax_facts_missing'], '378: an employee with no tax data is flagged for review');
+  perform test_helpers.assert((select pph21::numeric from public.payroll_run_lines(v_run) where employee_id = e) = 0, '378: and has PPh 21 of 0 until the tax data is filled');
+  perform test_helpers.logout();
+end
+$$;
+
 rollback;

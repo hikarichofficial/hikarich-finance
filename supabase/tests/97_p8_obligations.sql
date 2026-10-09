@@ -183,7 +183,7 @@ declare
 begin
   perform test_helpers.login(v_owner);
   perform test_helpers.expect_msg(format('select public.obligation_settle(%L, ''key-p8b-s-0a'', %L, %L, ''6000000'')', v_r, v_d1, v_bca), 'INVALID', 'more than the outstanding amount');
-  perform test_helpers.expect_msg(format('select public.obligation_settle(%L, ''key-p8b-s-0b'', %L, %L, ''2000000'', ''100000'')', v_r, v_d1, v_bca), 'INVALID', 'interest needs a note');
+  perform test_helpers.expect_msg(format('select public.obligation_settle(%L, ''key-p8b-s-0b'', %L, %L, ''2000000'', ''0'', ''10000'')', v_r, v_d1, v_bca), 'INVALID', 'a fee needs a note');
   perform test_helpers.expect_msg(format('select public.obligation_settle(%L, ''key-p8b-s-0c'', %L, %L, ''2000000'')', v_r, test_helpers.today(pt) - 31, v_bca), 'INVALID', 'not before the obligation');
   perform test_helpers.expect_msg(format('select public.obligation_settle(%L, ''key-p8b-s-0d'', %L, %L, ''2000000'')', v_r, v_today + 1, v_bca), 'INVALID', 'not in the future');
   perform test_helpers.expect_msg(format('select public.obligation_settle(%L, ''key-p8b-s-0e'', %L, %L, ''0'')', v_r, v_d1, v_bca), 'INVALID', 'a settlement has a principal');

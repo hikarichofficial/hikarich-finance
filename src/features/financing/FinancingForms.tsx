@@ -3,7 +3,7 @@
 import { StepUpLink } from "@/features/feedback/StepUp";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { SuggestTextInput } from "@/features/shared/SuggestTextInput";
-import { useState, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
 import {
   activateLoanAction,
@@ -68,6 +68,16 @@ function Feedback({ state, next }: { state: FinancingActionState; next: string }
   );
 }
 
+/**
+ * Only one command form is open at a time on a loan's Detail screen: the panel keeps the label of the open one
+ * (a form outside a panel falls back to its own state). A form closes after it saves, so the next time it opens
+ * it is fresh instead of showing the last values.
+ */
+const OpenCommandContext = createContext<{
+  active: string | null;
+  setActive: (label: string | null) => void;
+} | null>(null);
+
 /** One command form that opens from a button, like `RefundForm`. */
 function CommandForm({
   action,
@@ -90,14 +100,25 @@ function CommandForm({
 }) {
   const [state, formAction, pending] = useActionState(action, idleFinancingActionState);
   const formActionForm = usePreservingForm(formAction, state);
-  const [open, setOpen] = useState(false);
+  const panel = useContext(OpenCommandContext);
+  const [localOpen, setLocalOpen] = useState(false);
+  // The result the form had when it was opened: a newer "ok" result means it saved, so it closes again.
+  const [openedWith, setOpenedWith] = useState(state);
+  const wanted = panel ? panel.active === openLabel : localOpen;
+  const saved = state.status === "ok" && state !== openedWith;
+  const open = wanted && !saved;
+  const openForm = () => {
+    setOpenedWith(state);
+    if (panel) panel.setActive(openLabel);
+    else setLocalOpen(true);
+  };
 
   if (!open) {
     return (
       <button
         type="button"
         className={primary ? "btn-primary" : "btn-secondary"}
-        onClick={() => setOpen(true)}
+        onClick={openForm}
       >
         {openLabel}
       </button>
@@ -651,8 +672,9 @@ export function LoanActionsPanel({
   canPrepay: boolean;
 }) {
   const common = { idName: "loan_id", id: loanId, next };
+  const [active, setActive] = useState<string | null>(null);
   return (
-    <>
+    <OpenCommandContext.Provider value={{ active, setActive }}>
       {status === "draft" ? (
         <>
           <CommandForm
@@ -888,7 +910,7 @@ export function LoanActionsPanel({
           <ReasonField />
         </CommandForm>
       ) : null}
-    </>
+    </OpenCommandContext.Provider>
   );
 }
 
