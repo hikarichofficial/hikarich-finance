@@ -2758,7 +2758,7 @@
                   "actor": "anda",
                   "title": "Tambah Pinjaman",
                   "menu": "Aset & Pendanaan > Pinjaman > Tambah Pinjaman",
-                  "note": "Isi Jenis Pinjaman, pokok, bunga, jumlah cicilan. Hanya Owner dan Finance Admin"
+                  "note": "Isi Jenis Pinjaman, pokok, bunga, jumlah cicilan, dan tahap bunga bila bunganya berubah (Bunga Berjenjang). Hanya Owner dan Finance Admin"
                 },
                 {
                   "kind": "step",
