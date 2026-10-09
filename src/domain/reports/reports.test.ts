@@ -906,17 +906,21 @@ describe("reportSubrouteHref", () => {
     );
   });
 
-  it("forwards assets-loans to Kontrol Aset Tetap and tax to the Tax Ledger (decision 244)", () => {
-    expect(reportSubrouteHref("assets-loans", undefined)).toBe("/reports?statement=asset_control");
+  // Decision 393: one "Aset & Pinjaman" item that opened fixed-asset control alone is now two items, each
+  // landing on the report it is named after.
+  it("forwards loans and assets to their own tabs, and tax to the Tax Ledger", () => {
+    expect(reportSubrouteHref("loans", undefined)).toBe("/reports?statement=loan_summary");
+    expect(reportSubrouteHref("assets", undefined)).toBe("/reports?statement=asset_control");
     expect(reportSubrouteHref("tax", undefined)).toBe("/tax/ledger");
     expect(reportSubrouteHref("tax", "HKR 01")).toBe("/tax/ledger?entity=HKR+01");
   });
 
-  it("maps exactly the five sub-routes with an existing destination", () => {
+  it("maps exactly the six sub-routes with an existing destination", () => {
     expect(Object.keys(REPORT_SUBROUTE_TARGETS).sort()).toEqual([
-      "assets-loans",
+      "assets",
       "cashflow",
       "custom",
+      "loans",
       "payroll",
       "tax",
     ]);

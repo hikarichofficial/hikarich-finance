@@ -31,7 +31,10 @@ import { formatShortDate } from "./format";
  */
 
 export interface PayslipIssuer {
+  /** The name this Entity heads its documents with (decision 391): for a PT, normally the legal name. */
   name: string;
+  /** The brand name under it, when the Entity asked for both. */
+  secondName: string | null;
   addressLines: readonly string[];
   contact: string | null;
   logo: string | null;
@@ -145,6 +148,9 @@ export function PayslipDocument({
           ) : null}
           <div>
             <p className="slip-issuer-name">{issuer.name}</p>
+            {issuer.secondName ? (
+              <p className="slip-issuer-brand">{issuer.secondName}</p>
+            ) : null}
             {issuer.addressLines.map((line) => (
               <p key={line} className="slip-issuer-line">
                 {line}
@@ -197,7 +203,10 @@ export function PayslipDocument({
 
           {taxReducing.length > 0 ? (
             <>
-              <p className="slip-group">Mengurangi penghasilan, jadi mengurangi dasar PPh 21</p>
+              <p className="slip-group">
+                Potongan dari penghasilan
+                <span className="no-print"> — mengurangi dasar PPh 21</span>
+              </p>
               <LineRows lines={taxReducing} currency={currency} />
             </>
           ) : null}
@@ -218,8 +227,12 @@ export function PayslipDocument({
           {takeHomeOnly.length > 0 ? (
             <>
               <p className="slip-group">
-                Tidak mengurangi dasar PPh 21 — penghasilan tetap diterima penuh, lalu dipakai
-                membayar kewajiban ke perusahaan
+                Potongan lain
+                <span className="no-print">
+                  {" "}
+                  — tidak mengurangi dasar PPh 21; penghasilan tetap diterima penuh, lalu dipakai
+                  membayar kewajiban ke perusahaan
+                </span>
               </p>
               <LineRows lines={takeHomeOnly} currency={currency} />
             </>
@@ -236,7 +249,7 @@ export function PayslipDocument({
 
       <section className="slip-takehome">
         <div>
-          <p className="slip-kicker">Gaji Dibawa Pulang</p>
+          <p className="slip-kicker">Take Home Pay</p>
           <p className="slip-takehome-sub">Penghasilan bruto dikurangi seluruh potongan di atas</p>
         </div>
         <p className="slip-takehome-amount">{formatMoney(detail.net_pay, currency)}</p>
@@ -310,10 +323,9 @@ export function PayslipDocument({
       ) : null}
 
       <footer className="slip-foot">
-        <span>
-          Diterbitkan {formatShortDate(detail.issued_at.slice(0, 10))} · {detail.run_number}
-          {detail.revision > 1 ? ` revisi ${detail.revision}` : ""}
-        </span>
+        {/* The run number and its revision are a payroll-office fact, not the employee's: they stay in
+            Catatan internal, which never prints (OWNER, 10 October 2026). */}
+        <span>Diterbitkan {formatShortDate(detail.issued_at.slice(0, 10))}</span>
         <span>Dokumen ini dibuat otomatis dan sah tanpa tanda tangan.</span>
       </footer>
     </article>

@@ -110,13 +110,17 @@ export function isFiscalYearClosureActive(closure: { reversed_at: string | null 
 
 /** The `/reports/*` nav sub-items (`src/domain/shell/navigation.ts`) that forward to a screen which already
  * exists: most to a `/reports?statement=` tab, `tax` to the Tax Ledger screen (OWNER choice, decision 244).
- * `assets-loans` goes to Kontrol Aset Tetap (OWNER choice, decision 244). Sales/Purchase and Saved Reports
- * have their own routes since decision 252. */
+ * Sales/Purchase and Saved Reports have their own routes since decision 252.
+ *
+ * `assets-loans` used to be one item called "Aset & Pinjaman" that opened Kontrol Aset Tetap alone (decision
+ * 244), so the one thing its name promised and this company actually has -- a bank loan -- was nowhere on the
+ * page it opened. It is now two items, each landing on what it is called (decision 393). */
 export const REPORT_SUBROUTE_TARGETS = {
   cashflow: { statement: "cashflow" },
   payroll: { statement: "payroll_summary" },
   custom: { statement: "custom" },
-  "assets-loans": { statement: "asset_control" },
+  loans: { statement: "loan_summary" },
+  assets: { statement: "asset_control" },
   tax: { path: "/tax/ledger" },
 } as const satisfies Record<string, { statement: string } | { path: string }>;
 

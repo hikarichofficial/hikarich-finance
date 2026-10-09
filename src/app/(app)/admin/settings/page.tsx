@@ -10,6 +10,8 @@ import { CreateEntityForm } from "@/features/settings/CreateEntityForm";
 import { EntityIdentityForm } from "@/features/settings/EntityIdentityForm";
 import { EntityLogoForm } from "@/features/settings/EntityLogoForm";
 import { NegativeBalanceBlockForm } from "@/features/settings/NegativeBalanceBlockForm";
+import { DocumentNameForm } from "@/features/settings/DocumentNameForm";
+import { documentNameStyle } from "@/domain/settings/documentNames";
 import { TimeSettingsForm } from "@/features/settings/TimeSettingsForm";
 
 /** Settings (unbuilt-screens backlog, decision 243). Gated on `settings.view`, the permission
@@ -38,6 +40,9 @@ export default async function SettingsPage({
   const blockedKinds = Array.isArray(negativeBalanceValue)
     ? (negativeBalanceValue as string[])
     : [];
+  const nameStyle = documentNameStyle(
+    overview.settings.find((s) => s.setting_key === "document.name_style")?.setting_value,
+  );
 
   return (
     <SettingsScreen
@@ -57,6 +62,13 @@ export default async function SettingsPage({
             <EntityLogoForm
               entity={entity}
               logo={logo}
+              stepUpHref={`/auth/step-up?next=${encodeURIComponent(here)}`}
+            />
+            <DocumentNameForm
+              entity={entity}
+              legalName={overview.entity.legal_name}
+              brandName={overview.entity.brand_name}
+              style={nameStyle}
               stepUpHref={`/auth/step-up?next=${encodeURIComponent(here)}`}
             />
           </>

@@ -1329,8 +1329,13 @@ function PayrollSummaryTable({
               <td className="num">{formatMoney(row.employer_bpjs, currency)}</td>
               <td className="num">{row.pph21 === null ? "—" : formatMoney(row.pph21, currency)}</td>
               <td className="num">{formatMoney(row.net_pay, currency)}</td>
-              <td className="num">{formatMoney(row.net_unpaid, currency)}</td>
-              <td className="num">{formatMoney(row.bpjs_unpaid, currency)}</td>
+              {/* Null until the run is posted: there is nothing owed yet, which is not the same as zero. */}
+              <td className="num">
+                {row.net_unpaid === null ? "—" : formatMoney(row.net_unpaid, currency)}
+              </td>
+              <td className="num">
+                {row.bpjs_unpaid === null ? "—" : formatMoney(row.bpjs_unpaid, currency)}
+              </td>
               <td className="num">
                 {row.pph21_period_outstanding === null
                   ? "—"

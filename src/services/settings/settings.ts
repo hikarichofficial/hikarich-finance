@@ -4,6 +4,11 @@ import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import { IdentityError, identityFailure } from "@/domain/settings/identityFailure";
 import { type InvoiceLayout, parseInvoiceLayout } from "@/domain/sales/invoiceLayout";
 import {
+  documentNameStyle,
+  documentNames,
+  type DocumentNameStyle,
+} from "@/domain/settings/documentNames";
+import {
   approvalRuleListSchema,
   createEntityInputSchema,
   entityIdentityInputSchema,
@@ -273,14 +278,47 @@ export async function getEntityLetterhead(entityId: string): Promise<{
   const contact = [text("contact_email"), text("contact_phone")].filter(Boolean).join(" \u00b7 ");
   const logo = profile?.logo_data_url;
 
+  const names = documentNames(entity?.legal_name ?? null, entity?.brand_name ?? null, style);
+
   return {
-    name: entity?.brand_name?.trim() || entity?.legal_name?.trim() || "",
+    name: names.primary,
+    secondName: names.secondary,
     addressLines: [text("address_line"), place || null].filter((line): line is string =>
       Boolean(line),
     ),
     contact: contact === "" ? null : contact,
     logo: typeof logo === "string" && logo.startsWith("data:image/") ? logo : null,
   };
+}
+
+/** Saves which name the Entity's documents are headed with (decision 391). Needs a recent step-up. */
+export async function setDocumentNameStyle(
+  entityId: string,
+  style: DocumentNameStyle,
+): Promise<DocumentNameStyle> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase.rpc("set_document_name_style", {
+    p_entity: entityId,
+    p_style: style,
+  });
+  if (error) {
+    const code = parseAuthzCode(error.message);
+    if (code) throw new AuthzError(code, error.message);
+    throw new Error("Pengaturan nama dokumen tidak dapat disimpan.");
+  }
+  return documentNameStyle(data);
+}
+
+/** What the Entity chose, or the standing default when nothing is saved yet. */
+export async function getDocumentNameStyle(entityId: string): Promise<DocumentNameStyle> {
+  const supabase = await createSupabaseServerClient();
+  const { data } = await supabase
+    .from("entity_settings")
+    .select("setting_value")
+    .eq("entity_id", entityId)
+    .eq("setting_key", "document.name_style")
+    .maybeSingle();
+  return documentNameStyle((data as { setting_value?: unknown } | null)?.setting_value);
 }
 
 /** The saved invoice arrangement (decision 310): always a usable layout, the standard one when none is saved. */

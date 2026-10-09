@@ -215,6 +215,8 @@ declare
                                          -- Which account kinds may never go negative, in Settings (decision 55,
                                          -- OWNER answer 4 October 2026)
                                          'set_negative_balance_block',
+                                         -- Which of the Entity's names its documents carry (decision 391)
+                                         'set_document_name_style',
                                          -- The SKU generator (decision 324)
                                          'preview_product_sku', 'set_product_sku', 'sku_master_in_use',
                                          'product_used_on_documents', 'save_sku_master', 'set_sku_master_state',

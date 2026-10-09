@@ -1,6 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import {
+  DOCUMENT_NAME_STYLE_LABELS,
+  documentNameStyle,
+} from "@/domain/settings/documentNames";
 import { redirect } from "next/navigation";
 import { setFlash } from "@/lib/flash";
 import { LOGO_MAX_UPLOAD_BYTES, LogoImageError, compressLogo } from "@/lib/logoImage";
@@ -17,6 +21,7 @@ import {
   createEntity,
   setEntityLogo,
   setInvoiceLayout,
+  setDocumentNameStyle,
   setNegativeBalanceBlock,
   updateEntityIdentity,
   updateEntityTimeSettings,
@@ -105,6 +110,30 @@ export async function setNegativeBalanceBlockAction(
         ? "Tidak ada jenis akun yang dikunci."
         : `Saldo ${kinds.join(", ")} tidak boleh minus.`,
   };
+}
+
+export async function setDocumentNameStyleAction(
+  _previous: TimeSettingsState,
+  formData: FormData,
+): Promise<TimeSettingsState> {
+  const style = documentNameStyle(text(formData, "name_style"));
+  try {
+    const { membership } = await requirePermission("system.entity_config", {
+      entityCode: text(formData, "entity"),
+    });
+    await setDocumentNameStyle(membership.entity_id, style);
+  } catch (error) {
+    if (error instanceof AuthzError) {
+      return {
+        status: "error",
+        message: describeAuthzError(error),
+        stepUp: error.code === "STEP_UP_REQUIRED",
+      };
+    }
+    return { status: "error", message: "Pengaturan nama dokumen tidak dapat disimpan." };
+  }
+  revalidatePath("/admin/settings");
+  return { status: "ok", message: `Dokumen memakai ${DOCUMENT_NAME_STYLE_LABELS[style]}.` };
 }
 
 const IDENTITY_FAILURE_TEXT: Record<IdentityFailureKind, string> = {

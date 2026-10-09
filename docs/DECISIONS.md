@@ -3515,3 +3515,28 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      who are fully supported and have no income of their own count (so not siblings, nephews or in-laws, even
      when they are on the Kartu Keluarga), and a married woman is normally TK/0 unless she holds a statement
      that her husband has no income. The amounts themselves were already versioned rules in the database.
+391. **The Entity says once which of its names its documents carry (OWNER, 9 October 2026; presentation
+     only).** An invoice already led with the legal name and put the brand under it (decision 272), but the
+     payslip took whichever name was set and preferred the brand, so a PT's payslip -- a tax document -- could
+     go out under a trading name. Rather than hard-code the rule per document, the Entity now answers it once
+     in Pengaturan: `legal` (the legal name alone), `brand` (the brand alone), or `both` (the legal name with
+     the brand under it, the behaviour so far and the default). Each choice shows what it would actually print
+     using this Entity's own names. Setting key `document.name_style`, written by
+     `set_document_name_style` under `system.entity_config` and a recent step-up, the same shape as
+     `set_negative_balance_block` (decision 55); migration `20261022100000_p54_document_name_style.sql`.
+     Nothing about an amount, a tax or an authorization depends on it.
+
+392. **An unposted payroll run no longer breaks the whole Payroll report (OWNER report, 10 October 2026).**
+     `/reports?statement=payroll_summary` showed "Terjadi masalah saat memuat halaman ini." as soon as the
+     Entity had a run that was not posted yet. `payroll_summary_report` works out `net_unpaid`,
+     `bpjs_unpaid` and `pph21_period_outstanding` only for a run that is posted/partially paid/paid/closed and
+     returns null otherwise -- nothing is owed yet -- but the client schema declared the first two as plain
+     text, so zod rejected the row and the page errored out. They are nullable now and the report prints "—",
+     which is the truth: not zero, not yet owed. The RPC is unchanged; this was never a database fault.
+
+393. **"Aset & Pinjaman" in Laporan becomes two items (OWNER report, 10 October 2026).** One nav item of that
+     name opened Kontrol Aset Tetap alone (decision 244's own choice), so the one thing its name promised and
+     this company actually has -- a bank loan -- was nowhere on the page it opened, and the guide had to carry
+     a step explaining that the menu does not show loans. It is now **Pinjaman** (Ringkasan Pinjaman) and
+     **Aset Tetap** (Kontrol Aset Tetap): each lands on the report it is named after. `/reports/assets-loans`
+     is replaced by `/reports/loans` and `/reports/assets`.

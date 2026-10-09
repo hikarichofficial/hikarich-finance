@@ -692,8 +692,13 @@ export const payrollSummaryRowSchema = z.object({
   employer_bpjs: signedDecimalTextSchema,
   pph21: taxMoney,
   net_pay: signedDecimalTextSchema,
-  net_unpaid: signedDecimalTextSchema,
-  bpjs_unpaid: signedDecimalTextSchema,
+  /**
+   * What is still owed, which `payroll_summary_report` only works out once a run is posted: a draft or a
+   * calculated run has nothing owed yet and the RPC returns null for these, so the report used to fail to
+   * parse and the whole page errored as soon as one unposted run existed (decision 392).
+   */
+  net_unpaid: signedDecimalTextSchema.nullable(),
+  bpjs_unpaid: signedDecimalTextSchema.nullable(),
   pph21_period_outstanding: taxMoney,
 });
 export const payrollSummarySchema = z.array(payrollSummaryRowSchema);
