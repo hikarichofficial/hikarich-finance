@@ -3191,21 +3191,6 @@ a.kpi-card:hover {
   padding-top: 0;
 }
 
-.plan-lines-tax-fields {
-  display: flex;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-}
-
-.plan-lines-tax-fields label {
-  display: flex;
-  flex: 1 1 14rem;
-  flex-direction: column;
-  gap: var(--space-1);
-  font-size: var(--text-xs);
-  color: var(--text-secondary);
-}
-
 /* Popup of names already used, above a line's description field (OWNER, 5 October 2026). Drawn on the page
    itself so the scrolling table around the field can never clip it. */
 .line-suggest {

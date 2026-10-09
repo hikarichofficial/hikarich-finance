@@ -2503,21 +2503,21 @@
           "kind": "step",
           "actor": "anda",
           "title": "Catat biaya usaha dengan kategori Biaya usaha & jasa",
-          "menu": "Pembelian > Biaya",
+          "menu": "Pembelian > Beban",
           "note": "Hanya biaya berkategori ini yang mengurangi penghasilan neto. Belanja pribadi tidak"
         },
         {
           "kind": "step",
           "actor": "anda",
           "title": "Catat setoran pajak yang Anda bayar ke negara",
-          "menu": "Pembelian > Biaya (kategori Setoran PPh Final UMKM atau Setoran PPh 25)",
+          "menu": "Pembelian > Beban (kategori Setoran PPh Final UMKM atau Setoran PPh 25)",
           "note": "Paling lambat tanggal 15 bulan berikutnya. Setoran mengurangi kurang bayar, bukan penghasilan neto"
         },
         {
           "kind": "step",
           "actor": "anda",
           "title": "Pilih status PTKP (sekali setahun)",
-          "menu": "Pajak > Pajak Pribadi > Status PTKP",
+          "menu": "Pajak > Pajak Pribadi (Buku Pribadi) > Status PTKP",
           "note": "Mis. TK/0 atau K/1. Sebelum dipilih dihitung TK/0"
         },
         {

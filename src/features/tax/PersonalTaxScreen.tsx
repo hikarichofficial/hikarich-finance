@@ -401,7 +401,7 @@ export function PersonalTaxScreen({
                   </div>
                   <p className="hint">
                     {installment.kind === "amount"
-                      ? `Pajak progresif tahun lalu dikurangi pajak yang dipotong (${money(installment.basis)}), dibagi 12. Setor lewat e-Billing lalu catat di Pembelian > Biaya dengan kategori "Setoran PPh 25 (Angsuran)"; angka di sini dan kurang bayar ikut menyesuaikan.`
+                      ? `Pajak progresif tahun lalu dikurangi pajak yang dipotong (${money(installment.basis)}), dibagi 12. Setor lewat e-Billing lalu catat di Pembelian > Beban dengan kategori "Setoran PPh 25 (Angsuran)"; angka di sini dan kurang bayar ikut menyesuaikan.`
                       : installment.reason}
                   </p>
                 </section>

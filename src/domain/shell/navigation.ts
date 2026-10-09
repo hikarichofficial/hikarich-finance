@@ -36,7 +36,11 @@ export interface NavItem {
    * Assets & Financing spans three independent capabilities). Omitted for links visible to every
    * signed-in member of the Entity (e.g. Overview). */
   readonly permission?: readonly string[];
+  /** A different label for one kind of book (decision 368): the same page is "Pajak Pribadi" in a Personal book. */
+  readonly labelByEntityType?: Readonly<Partial<Record<EntityKind, string>>>;
 }
+
+export type EntityKind = "company" | "personal" | "other";
 
 export interface NavGroup {
   readonly key: string;
@@ -127,7 +131,11 @@ export const NAVIGATION: readonly NavGroup[] = [
     permission: ["tax.view"],
     items: [
       { label: "Ringkasan Pajak", href: "/tax" },
-      { label: "Pajak Pribadi", href: "/tax/personal" },
+      {
+        label: "Omzet Gabungan",
+        href: "/tax/personal",
+        labelByEntityType: { personal: "Pajak Pribadi" },
+      },
       { label: "Buku Pajak", href: "/tax/ledger" },
       { label: "PPh Final", href: "/tax/pph" },
       { label: "PPh Vendor", href: "/tax/withholding" },
@@ -295,14 +303,20 @@ function hasAny(granted: readonly string[], required: readonly string[] | undefi
  * its own gate passes (or, having none, its menu's gate); a menu survives when at least one of its items
  * is visible, and keeps only those. Order is preserved -- the sitemap's order IS the product hierarchy (Step 09 §29).
  */
-export function visibleNavigation(permissions: readonly string[]): NavGroup[] {
+export function visibleNavigation(
+  permissions: readonly string[],
+  entityType?: EntityKind | null,
+): NavGroup[] {
   const result: NavGroup[] = [];
   for (const group of NAVIGATION) {
     // An item without its own gate inherits its menu's gate (decision 254: before this, such items made
     // their menu appear for people who could not open any of its pages).
-    const items: readonly NavItem[] | undefined = group.items?.filter((item) =>
-      hasAny(permissions, item.permission ?? group.permission),
-    );
+    const items: readonly NavItem[] | undefined = group.items
+      ?.filter((item) => hasAny(permissions, item.permission ?? group.permission))
+      .map((item) => {
+        const label = entityType ? item.labelByEntityType?.[entityType] : undefined;
+        return label ? { ...item, label } : item;
+      });
     const groupVisible = group.items
       ? (items?.length ?? 0) > 0
       : hasAny(permissions, group.permission);

@@ -456,7 +456,7 @@ export function RecurringLinesEditor({
                         <td colSpan={columnCount}>
                           <div className="plan-lines-tax-fields">
                             {kind === "invoice" ? (
-                              <label>
+                              <label className="plan-lines-tax-card">
                                 Perlakuan PPN
                                 <select
                                   value={extraText(row, "vat_treatment")}
@@ -513,8 +513,8 @@ export function RecurringLinesEditor({
                                         <label
                                           className={
                                             marks.wht
-                                              ? "field-problem plan-lines-wht"
-                                              : "plan-lines-wht"
+                                              ? "field-problem plan-lines-tax-card plan-lines-wht"
+                                              : "plan-lines-tax-card plan-lines-wht"
                                           }
                                         >
                                           <strong>Kena PPh?</strong>

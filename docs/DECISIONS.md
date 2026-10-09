@@ -3226,3 +3226,16 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      total to pay adds only positive balances: an overpayment of one tax is never netted against the other.
      Migration `20261014100000_p44_personal_tax_payments.sql`, test `99_p44_personal_tax_payments.sql`; guide,
      flow diagram and PDF updated.
+
+367. **Purchase line tax cards back to three compact equal cards (owner complaint, 9 October 2026).**
+     An obsolete rule `.plan-lines-tax-fields label { flex: 1 1 14rem }` from the older layout still matched labels inside the new
+     card grid, so the tick-box row grew to 14rem tall and the cards stretched to about 320px, and it also overrode the card
+     font and colour. Removed it; "Kena PPh?" and the invoice "Perlakuan PPN" field now use the same `plan-lines-tax-card` look.
+     Also corrected the menu name in the guide and the Personal tax screen: the menu is Pembelian > Beban, not "Biaya".
+
+368. **The page at /tax/personal is named by the kind of book (owner, 9 October 2026).**
+     In a Personal book the menu is "Pajak Pribadi" (the yearly income-tax estimate). In a company (PT) book it was wrongly
+     called "Pajak Pribadi" although it only shows the combined-turnover card; there it is now "Omzet Gabungan": the turnover of
+     all the owner's books against the Rp 4,8 miliar ceiling of PPh Final UMKM, with a note that personal income tax lives in the
+     Personal book. `NavItem.labelByEntityType` and `visibleNavigation(permissions, entityType)` do this; the Sidebar and the
+     Command Menu both read the relabelled list. Guide updated.
