@@ -5630,7 +5630,15 @@ a.pp-answer:hover {
   font-size: var(--text-sm);
 }
 
+/* The presets are grouped by what they do to pay, so a wall of a dozen chips reads as two short, ordinary
+ * lists -- and the grouping itself is the shortest way to teach the distinction decision 381 rests on. */
 .comp-suggest {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.comp-suggest-group {
   display: flex;
   flex-direction: column;
   gap: var(--space-2);
@@ -5666,8 +5674,11 @@ a.pp-answer:hover {
   border-color: var(--accent);
 }
 
-.record-form .comp-add {
-  align-self: flex-start;
+/* Typing a name is one more way to add a component, so it sits with the presets rather than as its own
+ * full-width button below them; the dashed edge is what marks it as the open-ended one. */
+.comp-suggest-own {
+  border-style: dashed;
+  background: transparent;
 }
 
 .comp-total {
@@ -5696,9 +5707,20 @@ a.pp-answer:hover {
 }
 
 .comp-total-net {
-  padding-top: var(--space-2);
+  align-items: baseline;
+  padding-top: var(--space-3);
   border-top: 1px solid var(--line);
+}
+
+.comp-total-net dt {
+  color: var(--foreground);
   font-weight: 600;
+}
+
+.comp-total-net dd {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
 }
 
 .choice-cards {

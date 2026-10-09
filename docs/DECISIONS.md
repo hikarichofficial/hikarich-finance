@@ -3432,3 +3432,17 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      sheet prints no tax figure at all, not even one derived from gross and net. New
      `getEntityLetterhead(entityId)` reads the Entity name, address, contact and logo in one pass, instead of
      `getEntitySettingsOverview`'s five queries for a page that needs none of the rest. No migration.
+383. **Gaji & Komponen says each thing once (OWNER, 9 October 2026; presentation only).** The page showed the
+     components twice: a read-only table of what is in effect, then an editor already pre-filled with those
+     same components, their amounts and their flags. The only fact the table carried that the editor did not
+     was when each component started, so that moved onto the editor's own row ("Berlaku sejak 9 Okt 2026 ·
+     gaji_pokok", in place of the bare "Kode: gaji_pokok"), and the table now appears only for someone who may
+     see pay but not edit it -- for whom it is the whole page. The running totals at the top of the page went
+     with it: the editor's own totals are the live ones and were saying the same thing a second time. (b) The
+     twelve preset chips are split under "Tambah penghasilan" and "Tambah potongan", which halves how heavy the
+     block reads and is also the shortest way to teach the distinction decision 381 rests on; "Ketik nama
+     sendiri" is now a dashed chip among them rather than a button of its own below. (c) The note about which
+     potongan lowers the PPh 21 base appears only once a potongan is actually on the form. (d) In the totals,
+     "Gaji sebelum BPJS dan PPh 21" is the one figure set in a larger size; the two lines above it stay quiet.
+     No change to what is posted (`employee_set_compensation` and its `label_i`/`component_i`/`kind_i`/
+     `amount_i`/`taxable_i`/`bpjs_base_i`/`row_count` fields are untouched) and no migration.
