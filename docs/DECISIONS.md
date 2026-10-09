@@ -3364,3 +3364,10 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      stays complete. (c) Settling a Piutang Lain / Utang Lain no longer needs a note for ordinary interest, the same as
      loans (decision 376); only a fee or penalty still needs one. Migration `20261019100000_p50_obligation_interest_note.sql`
      (the function body is otherwise unchanged); test 97_p8_obligations updated.
+378. **Payroll calculation when an employee has no tax profile (found while testing on production).** Calculating a run
+     for an employee with no tax data failed with a misleading "reason of at least 5 letters" message, because a JSON
+     null (not SQL null) reached the PPh 21 step. The engine now treats a missing or JSON-null tax block as missing tax
+     facts: the line is flagged `tax_facts_missing` and PPh 21 is 0 until the data is filled in. The Hitung Payroll
+     screen also shows its own error ("check the employee data: salary, tax, BPJS") instead of the generic one.
+     Migration `20261019110000_p51_payroll_missing_tax_data.sql` (`payroll_compute_line`, search_path pinned); test in
+     `99_p9_2_engine.sql`.

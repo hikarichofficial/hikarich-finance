@@ -402,7 +402,9 @@ export async function payrollRunCommandAction(
   } catch (error) {
     return errorState(
       error,
-      "Perintah tidak dapat dijalankan. Periksa isian (alasan minimal 5 huruf) lalu coba lagi.",
+      command === "calculate"
+        ? "Payroll tidak dapat dihitung. Periksa data karyawan (gaji, pajak, BPJS) lalu coba lagi."
+        : "Perintah tidak dapat dijalankan. Periksa isian (alasan minimal 5 huruf) lalu coba lagi.",
     );
   }
   revalidateRun(runId);
