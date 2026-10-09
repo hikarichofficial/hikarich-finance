@@ -481,7 +481,7 @@
         },
         {
           "title": "Isi jadwal cicilan",
-          "text": "**Bunga per Tahun (%)** (bawaan 0). **Cara Hitung Cicilan**: “Anuitas (cicilan sama tiap kali)”, “Flat (pokok dan bunga tetap)”, atau “Bunga saja, pokok di akhir”. **Jumlah Cicilan** (1 sampai 600), **Jarak Antar Cicilan** (Tiap bulan, Tiap 3 bulan, Tiap 6 bulan, Tiap tahun), dan **Tanggal Cicilan Pertama**. Untuk bunga yang berubah (Bunga Berjenjang), tekan **+ Tambah tahap bunga** di **Bunga berikutnya** lalu isi **Mulai tanggal** dan **Bunga per tahun (%)**, sampai 20 tahap; misalnya 6% lalu 10% mulai tahun ke-4. Cicilan yang jatuh tempo mulai tanggal itu memakai bunga baru, dan cicilan anuitas dihitung ulang dari sisa pokok. Tekan **Simpan Pinjaman**.",
+          "text": "**Bunga per Tahun (%)** (bawaan 0). **Cara Hitung Cicilan**: “Anuitas (cicilan sama tiap kali)”, “Flat (pokok dan bunga tetap)”, atau “Bunga saja, pokok di akhir”. **Jumlah Cicilan** (1 sampai 600), **Jarak Antar Cicilan** (Tiap bulan, Tiap 3 bulan, Tiap 6 bulan, Tiap tahun), dan **Tanggal Cicilan Pertama**. Untuk bunga yang berubah (Bunga Berjenjang), tekan **+ Tambah tahap bunga** di **Bunga berikutnya** lalu isi **Mulai tahun ke-** dan **Bunga per tahun (%)**, sampai 20 tahap; misalnya pinjaman 10 tahun dengan bunga 6%, lalu 10% mulai tahun ke-4 dan 12% mulai tahun ke-7. Tahun ke-1 dimulai pada Tanggal Cicilan Pertama, jadi tidak perlu memilih tanggal. Cicilan mulai tahun itu memakai bunga baru, dan cicilan anuitas dihitung ulang dari sisa pokok. Tekan **Simpan Pinjaman**.",
           "warning": "Tanggal Cicilan Pertama tidak boleh sebelum Tanggal Perjanjian, dan nanti tidak boleh jatuh sebelum tanggal uang diterima atau diberikan."
         },
         {
@@ -597,7 +597,7 @@
       "summary": "Mencatat pembayaran cicilan pinjaman yang Anda terima atau cicilan yang Anda terima dari peminjam, termasuk membatalkan, menghapus sisa, dan mengubah jadwal.",
       "path": "Aset & Pendanaan > Pinjaman > (klik pinjaman Berjalan) > Tindakan",
       "who": "Semua tindakan di sini: loans.manage (OWNER dan Finance Admin). Hapus Sisa Pinjaman, Restrukturisasi Jadwal, dan membatalkan penghapusan juga perlu verifikasi ulang kode autentikator.",
-      "quick": "Isi **Pokok**, **Bunga**, dan **Biaya / Denda** sesuai bukti bank. Sistem membagi pembayaran ke cicilan yang paling lama belum lunas, dan pinjaman otomatis **Lunas** saat pokoknya habis.",
+      "quick": "Pilih **Cicilan sesuai jadwal**, isi berapa cicilan yang dibayar (1, 2, dan seterusnya); pokok dan bunganya terisi otomatis dari jadwal. Mau membayar sebagian pokok lebih awal? Pilih **Pelunasan dipercepat**. Pinjaman otomatis **Lunas** saat pokoknya habis.",
       "steps": [
         {
           "title": "Buka pinjaman yang Berjalan",
@@ -605,8 +605,14 @@
         },
         {
           "title": "Catat cicilan",
-          "text": "Di bagian **Tindakan**, tekan **Bayar Cicilan** (pinjaman diterima) atau **Catat Cicilan Diterima** (pinjaman diberikan). Isi **Tanggal Bayar**, **Dibayar dari Rekening** (atau **Uang Masuk ke Rekening**), **Pokok**, **Bunga**, dan **Biaya / Denda**. Isi **Catatan** bila ada bunga atau biaya (wajib). Tekan **Simpan Pembayaran**. Hasilnya “Pembayaran cicilan tersimpan.”",
-          "tip": "Pisahkan angka sesuai bukti bank. Bunga dan denda dicatat sebagai beban (atau pendapatan, untuk pinjaman diberikan), bukan mengurangi pokok."
+          "text": "Di bagian **Tindakan**, tekan **Bayar Cicilan** (pinjaman diterima) atau **Catat Cicilan Diterima** (pinjaman diberikan). Isi **Tanggal Bayar** dan **Dibayar dari Rekening** (atau **Uang Masuk ke Rekening**). Di **Yang dibayar**, pilih **Cicilan sesuai jadwal** (bawaan), lalu isi **Jumlah cicilan yang dibayar**: 1 untuk satu bulan, 2 untuk dua bulan sekaligus, atau angka lain sampai sisa cicilan. Di bawahnya langsung tampil **Cicilan ke-…**, Pokok, bunga, dan Total yang akan dicatat; angkanya diambil dari jadwal sehingga tidak perlu diketik. Cicilan yang terlambat ikut terhitung lebih dulu. **Catatan** boleh dikosongkan. Tekan **Simpan Pembayaran**. Hasilnya “Pembayaran cicilan tersimpan.”",
+          "tip": "Bunga memang bagian dari cicilan, jadi tidak perlu catatan. Pilih **Jumlah lain (isi sendiri)** hanya bila bukti bank berbeda dari jadwal, misalnya ada denda; bunga dan denda dicatat sebagai beban (atau pendapatan, untuk pinjaman diberikan), bukan mengurangi pokok."
+        },
+        {
+          "title": "Bayar sebagian pokok lebih awal (pelunasan dipercepat)",
+          "text": "Di **Yang dibayar**, pilih **Pelunasan dipercepat (bayar sebagian pokok)**. Isi **Pokok yang dibayar sekarang**, lalu pilih **Setelah itu**: **Persingkat jangka waktu (cicilan tetap sama)** sehingga pinjaman lunas lebih cepat, atau **Perkecil cicilan (jangka waktu tetap)** sehingga tiap cicilan lebih kecil. Tekan **Simpan Pembayaran**. Jadwal sisa dihitung ulang dari sisa pokok dan jadwal lama tersimpan di **Riwayat Jadwal**. Bila Pokok sama dengan Outstanding, pinjaman langsung **Lunas** tanpa jadwal baru.",
+          "tip": "Bunga cicilan yang sudah jatuh tempo dibayar dulu lewat **Cicilan sesuai jadwal**. Pelunasan dipercepat hanya untuk pokok.",
+          "warning": "Setelah jadwal dihitung ulang, pembayaran ini sudah menjadi riwayat dan tidak bisa dibatalkan lagi. Pilihan ini tidak tersedia untuk jadwal manual; pakai Restrukturisasi Jadwal."
         },
         {
           "title": "Periksa hasilnya",
@@ -666,15 +672,16 @@
       ],
       "rules": [
         "Hanya pinjaman Berjalan yang bisa dibayar, dihapus sisanya, atau direstrukturisasi.",
-        "Minimal salah satu dari Pokok, Bunga, atau Biaya / Denda harus lebih dari nol. Pokok tidak boleh melebihi Outstanding.",
+        "Jumlah cicilan yang dibayar minimal 1 dan tidak lebih dari cicilan yang belum lunas. Pokok tidak boleh melebihi Outstanding.",
+        "Catatan hanya wajib untuk biaya atau denda yang tidak ada di jadwal. Bunga cicilan tidak memerlukan catatan.",
         "Tanggal tidak boleh di masa depan dan tidak boleh sebelum aktivitas terakhir pada pinjaman itu.",
-        "Jumlah pembayaran tidak harus sama dengan jadwal. Pembayaran dialokasikan ke cicilan yang paling lama belum lunas lebih dulu.",
+        "Pada Jumlah lain (isi sendiri), jumlah tidak harus sama dengan jadwal. Pembayaran dialokasikan ke cicilan yang paling lama belum lunas lebih dulu.",
         "Rekening harus aktif dan bermata uang dasar Entity.",
         "Jumlah Dihapus tidak boleh melebihi Outstanding."
       ],
       "mistakes": [
-        "Mengisi seluruh pembayaran di Pokok padahal sebagian adalah bunga, sehingga beban bunga tidak tercatat dan sisa pokok terlalu kecil.",
-        "Mengisi bunga atau biaya tanpa Catatan.",
+        "Memilih Jumlah lain dan mengisi seluruh pembayaran di Pokok padahal sebagian adalah bunga, sehingga beban bunga tidak tercatat dan sisa pokok terlalu kecil. Pilih Cicilan sesuai jadwal agar terpisah otomatis.",
+        "Mengisi biaya atau denda di luar jadwal tanpa Catatan.",
         "Memakai Hapus Sisa Pinjaman untuk pelunasan padahal ada uang yang dibayar.",
         "Membuat pinjaman baru untuk syarat yang berubah, padahal cukup Ubah Bunga atau Restrukturisasi Jadwal."
       ],
@@ -692,8 +699,20 @@
           "meaning": "Kurangi Pokok."
         },
         {
-          "message": "Bunga atau biaya memerlukan catatan yang menjelaskannya.",
-          "meaning": "Isi Catatan."
+          "message": "Biaya atau denda yang tidak ada di jadwal memerlukan catatan yang menjelaskannya",
+          "meaning": "Isi Catatan, atau kosongkan Biaya / Denda bila memang tidak ada."
+        },
+        {
+          "message": "Pilih antara 1 dan <angka> cicilan",
+          "meaning": "Jumlah cicilan yang dibayar harus antara 1 dan jumlah cicilan yang belum lunas."
+        },
+        {
+          "message": "Tidak ada cicilan yang menunggu dibayar",
+          "meaning": "Semua cicilan sudah lunas; pakai Jumlah lain atau Pelunasan dipercepat bila masih ada sisa pokok."
+        },
+        {
+          "message": "Pelunasan sebagian tidak dapat disimpan. Periksa jumlah pokok, tanggal dan rekening.",
+          "meaning": "Pesan umum saat pelunasan dipercepat gagal."
         },
         {
           "message": "tanggal tidak boleh sebelum aktivitas terakhir pada pinjaman ini (<tanggal>)",

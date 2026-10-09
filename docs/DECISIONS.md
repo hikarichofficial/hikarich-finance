@@ -3320,3 +3320,39 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Migration `20261017100000_p48_loan_rate_steps.sql`; tests in `98_p8_loans.sql` (374.1-374.15); guide updated. Rebuilt
      in this session from the description of the same feature built in a session that could not send it; that copy is
      superseded by this one.
+
+375. **Bunga Berjenjang entered by year instead of by date (owner, 9 October 2026).**
+     The owner asked that the later rates of a loan be entered as "mulai tahun ke-N" (e.g. a 10-year loan, a new rate
+     from year 4, another from year 7) rather than by picking dates. The form now asks "Mulai tahun ke-" (whole number,
+     2 to the loan term in years); year 1 starts at the first installment date, so year N starts at the installment
+     due (N - 1) x 12 months after it -- the same date `app_private.loan_plan` gives that installment. The server action
+     converts years to the dated steps the database already stores (decision 374, unchanged), and refuses year 1,
+     years not strictly rising, years past the term and a missing first installment date. Restrukturisasi counts years
+     from the new schedule's first installment date. Ubah Bunga on a running loan keeps its date ("berlaku mulai"),
+     because it records a real change on a known day. No database change. `src/domain/financing/financing.ts`
+     (`rateStepsFromYears`, unit-tested), `financingActions.ts`, `FinancingForms.tsx`; guide, diagrams and PDF updated.
+
+376. **Paying a loan: instalments from the schedule, partial early repayment, no note for ordinary interest, phones as
+     Group 1, clearer amount label (owner, 9 October 2026).**
+     (a) The owner found that "Bayar Cicilan" asked for principal and interest by hand and refused an ordinary
+     instalment without a note ("Bunga atau biaya memerlukan catatan"). The form now offers "Cicilan sesuai jadwal":
+     choose how many instalments (1, 2, ...), the amounts are taken from the schedule by the new
+     `loan_pay_installments` (arrears first; what is part paid counts only for what is left), with a live preview. The
+     older typed form stays as "Jumlah lain (isi sendiri)" for what the schedule does not cover.
+     (b) A note is required only for a fee or penalty that is not on the schedule; interest never needs one
+     (`loan_repay` now delegates to `app_private.loan_repay_core`). Interest is still flagged `needs_review` for tax
+     (decision 106). Interest and fee on Piutang Lain / Utang Lain (`obligation_settle`) still ask for a note: not part of
+     this request, raised as a finding.
+     (c) "Pelunasan dipercepat" (`loan_prepay`): pays part of the principal; the payment belongs to no instalment (a null
+     allocation) and the schedule is recalculated from the balance into a new version, either shortening the term (the
+     instalment stays about the same, the last one is smaller) or lowering the instalment (same term). Overdue and part
+     paid instalments carry over; paid ones are left out; later rate steps still apply. Paying the whole principal closes
+     the loan with no new version. A manual schedule is refused (use Restrukturisasi Jadwal). No step-up, because it is a
+     payment; like Ubah Bunga it makes earlier payments history, so a prepayment cannot be reversed afterwards
+     (decision 374).
+     (d) Name keywords iphone, ipad, tablet, smartphone, handphone, hp, ponsel, telepon now suggest fiscal Group 1
+     (with laptops and computers); the "Smartphone & Gadget" asset category already existed.
+     (e) The amount column of the Beban and Tagihan lines is "Nominal (Rp)", with a hint that it is the total price and
+     that the quantity needs "Rinci per barang" (an owner typed 1 for an iPhone, which recorded Rp 1).
+     Migration `20261018100000_p49_loan_payments.sql`; tests 376.1-376.14 in `98_p8_loans.sql`, unit tests for
+     `sumNextInstallments`, `unpaidInstallments` and the phone keywords; guide, diagrams and PDF updated.

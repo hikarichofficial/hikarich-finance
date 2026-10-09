@@ -32,6 +32,8 @@ import {
   type FinancingActionState,
 } from "./financingActions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { formatMoney } from "@/domain/money/format";
+import { sumNextInstallments, type UnpaidInstallment } from "@/domain/financing/financing";
 
 /**
  * The financing write forms: create a loan / other receivable or payable / equity event, and the commands
@@ -227,7 +229,7 @@ function PartyField({
 }
 
 // ================================================================ create forms
-/** Bunga Berjenjang (decision 374): later rates, each from a date, up to 20 rows. */
+/** Bunga Berjenjang (decisions 374/375): later rates, each from a year of the schedule, up to 20 rows. */
 function RateStepsField({ hint }: { hint: string }) {
   const [rows, setRows] = useState(0);
   return (
@@ -237,8 +239,16 @@ function RateStepsField({ hint }: { hint: string }) {
       {Array.from({ length: rows }, (_, n) => (
         <div key={n} className="form-row">
           <label>
-            Mulai tanggal
-            <input type="date" name={`step_from_${n}`} required />
+            Mulai tahun ke-
+            <input
+              type="number"
+              name={`step_year_${n}`}
+              min={2}
+              max={50}
+              step={1}
+              inputMode="numeric"
+              required
+            />
           </label>
           <label>
             Bunga per tahun (%)
@@ -349,7 +359,7 @@ export function LoanCreateForm({
         Tanggal Cicilan Pertama
         <input type="date" name="first_due" required />
       </label>
-      <RateStepsField hint="Untuk bunga yang berubah, misalnya tetap 3 tahun lalu mengambang: isi tanggal mulai dan bunganya. Cicilan yang jatuh tempo mulai tanggal itu memakai bunga baru; cicilan anuitas dihitung ulang dari sisa pokok." />
+      <RateStepsField hint="Untuk bunga yang berubah, misalnya pinjaman 10 tahun: tahun ke-1 sampai ke-3 memakai bunga di atas, mulai tahun ke-4 bunganya lain. Isi tahun mulai dan bunganya. Tahun dihitung dari Tanggal Cicilan Pertama; cicilan anuitas dihitung ulang dari sisa pokok." />
       <p className="hint">
         Pinjaman disimpan sebagai draf. Uang baru dicatat saat pinjaman diaktifkan di halaman
         detailnya.
@@ -490,6 +500,114 @@ export function EquityCreateForm({
   );
 }
 
+/**
+ * What a loan payment pays (decision 376): the next N instalments straight from the schedule (the amounts are not
+ * typed), a partial early repayment of the principal, or amounts typed by hand for what the schedule does not cover.
+ */
+function RepayFields({
+  lent,
+  unpaid,
+  currency,
+  canPrepay,
+}: {
+  lent: boolean;
+  unpaid: readonly UnpaidInstallment[];
+  currency: string;
+  canPrepay: boolean;
+}) {
+  const [mode, setMode] = useState<"installments" | "prepay" | "custom">(
+    unpaid.length > 0 ? "installments" : "custom",
+  );
+  const [count, setCount] = useState(1);
+  const safeCount = Math.min(Math.max(1, count || 1), Math.max(1, unpaid.length));
+  const totals = sumNextInstallments(unpaid, safeCount);
+  const taken = [...unpaid].sort((a, b) => a.seq - b.seq).slice(0, totals.count);
+  const first = taken[0]?.seq;
+  const last = taken[taken.length - 1]?.seq;
+  return (
+    <>
+      <label>
+        {lent ? "Yang diterima" : "Yang dibayar"}
+        <select name="mode" value={mode} onChange={(e) => setMode(e.target.value as typeof mode)}>
+          {unpaid.length > 0 ? <option value="installments">Cicilan sesuai jadwal</option> : null}
+          {canPrepay ? (
+            <option value="prepay">Pelunasan dipercepat (bayar sebagian pokok)</option>
+          ) : null}
+          <option value="custom">Jumlah lain (isi sendiri)</option>
+        </select>
+      </label>
+      {mode === "installments" ? (
+        <>
+          <label>
+            Jumlah cicilan yang {lent ? "diterima" : "dibayar"} (1 sampai {unpaid.length})
+            <input
+              type="number"
+              name="count"
+              min={1}
+              max={unpaid.length}
+              step={1}
+              inputMode="numeric"
+              required
+              value={count}
+              onChange={(e) => setCount(Number(e.target.value))}
+            />
+          </label>
+          <dl className="hint">
+            <div>
+              <dt>
+                {first === last ? `Cicilan ke-${first}` : `Cicilan ke-${first} sampai ke-${last}`}
+              </dt>
+              <dd>
+                Pokok {formatMoney(totals.principal, currency)}, bunga{" "}
+                {formatMoney(totals.interest, currency)}
+                {Number(totals.fee) > 0 ? `, biaya ${formatMoney(totals.fee, currency)}` : ""}
+              </dd>
+            </div>
+            <div>
+              <dt>Total</dt>
+              <dd>{formatMoney(totals.total, currency)}</dd>
+            </div>
+          </dl>
+          <p className="hint">
+            Jumlahnya diambil dari jadwal, jadi tidak perlu diketik. Cicilan yang terlambat ikut
+            terhitung lebih dulu.
+          </p>
+        </>
+      ) : null}
+      {mode === "prepay" ? (
+        <>
+          <MoneyField name="prepay_principal" label="Pokok yang dibayar sekarang" required />
+          <label>
+            Setelah itu
+            <select name="prepay_mode" defaultValue="shorten">
+              <option value="shorten">Persingkat jangka waktu (cicilan tetap sama)</option>
+              <option value="reduce">Perkecil cicilan (jangka waktu tetap)</option>
+            </select>
+          </label>
+          <p className="hint">
+            Jadwal sisa dihitung ulang dari sisa pokok. Bunga yang sudah jatuh tempo dibayar lewat
+            Cicilan sesuai jadwal. Setelah jadwal berubah, pembayaran ini tidak bisa dibatalkan
+            lagi.
+          </p>
+        </>
+      ) : null}
+      {mode === "custom" ? (
+        <>
+          <MoneyField name="principal" label="Pokok" defaultValue="0" />
+          <MoneyField name="interest" label="Bunga" defaultValue="0" />
+          <MoneyField name="fee" label="Biaya / Denda" defaultValue="0" />
+        </>
+      ) : null}
+      <label>
+        {mode === "custom"
+          ? "Catatan (wajib bila ada biaya atau denda di luar jadwal)"
+          : "Catatan (opsional)"}
+        <input name="note" maxLength={1000} />
+      </label>
+    </>
+  );
+}
+
 // ================================================================ loan detail commands
 export function LoanActionsPanel({
   loanId,
@@ -505,6 +623,9 @@ export function LoanActionsPanel({
   fxLatestRevaluationId,
   assets,
   currentAssetId,
+  unpaid,
+  currency,
+  canPrepay,
 }: {
   loanId: string;
   lent: boolean;
@@ -523,6 +644,11 @@ export function LoanActionsPanel({
   /** Fixed assets this (borrowed) loan can be linked to as the thing it financed (Step 01 #19). */
   assets?: readonly FinancingOption[];
   currentAssetId?: string | null;
+  /** What is still owed on each instalment that is not fully paid (decision 376). */
+  unpaid: readonly UnpaidInstallment[];
+  currency: string;
+  /** A generated (not manual) schedule can be recalculated after a partial early repayment. */
+  canPrepay: boolean;
 }) {
   const common = { idName: "loan_id", id: loanId, next };
   return (
@@ -569,13 +695,7 @@ export function LoanActionsPanel({
               label={lent ? "Uang Masuk ke Rekening" : "Dibayar dari Rekening"}
               accounts={accounts}
             />
-            <MoneyField name="principal" label="Pokok" defaultValue="0" />
-            <MoneyField name="interest" label="Bunga" defaultValue="0" />
-            <MoneyField name="fee" label="Biaya / Denda" defaultValue="0" />
-            <label>
-              Catatan (wajib jika ada bunga atau biaya)
-              <input name="note" maxLength={1000} />
-            </label>
+            <RepayFields lent={lent} unpaid={unpaid} currency={currency} canPrepay={canPrepay} />
           </CommandForm>
           <CommandForm
             {...common}
@@ -631,7 +751,7 @@ export function LoanActionsPanel({
               Tanggal Cicilan Pertama (jadwal baru)
               <input type="date" name="first_due" required />
             </label>
-            <RateStepsField hint="Bunga berikutnya untuk jadwal baru ini, jika sudah diketahui." />
+            <RateStepsField hint="Bunga berikutnya untuk jadwal baru ini, jika sudah diketahui. Tahun dihitung dari Tanggal Cicilan Pertama jadwal baru." />
             <ReasonField />
             <p className="hint">
               Untuk pinjaman yang sulit dibayar: jadwal diganti mulai tanggal efektif dengan cara

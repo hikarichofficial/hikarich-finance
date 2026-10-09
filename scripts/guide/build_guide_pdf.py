@@ -276,7 +276,7 @@ START_STEPS = [
      "catat di Pembayaran Diterima atau konfirmasi Klaim Pembayaran, dan pilih rekening yang menerima uangnya: "
      "saldo rekening bertambah dan terlihat di halaman detail rekening.", "end"),
     ("<b>Pengeluaran</b> (menu Pembelian &rarr; Beban &rarr; buat): pilih kategori beban, isi deskripsi (saran nama "
-     "muncul seperti pada invoice), <b>satu jumlah sesuai struk</b> (tidak perlu kuantitas dan harga satuan; centang "
+     "muncul seperti pada invoice), <b>satu nominal (harga total di struk, bukan banyaknya barang)</b> (tidak perlu kuantitas dan harga satuan; centang "
      "&ldquo;Rinci per barang&rdquo; bila memang perlu), dan <b>rekening yang membayar</b>. Setelah Konfirmasi, saldo "
      "rekening berkurang dan jurnal tercatat otomatis. Pembelian dari vendor yang dibayar nanti dicatat sebagai Tagihan: "
      "setelah disetujui menjadi utang usaha, lalu dibayar dengan tombol <b>Bayar Tagihan</b> di halaman tagihan itu "
@@ -321,8 +321,12 @@ START_TIPS = [
     "Aktivitas Terbaru). Saldo, total, Laba Rugi, dan Neraca memakai warna biasa.",
     "Pinjaman bank tidak masuk kartu Utang Usaha (hanya tagihan vendor); sisa pokoknya tampil di kartu Pinjaman di Dashboard "
     "dan di Aset &amp; Pendanaan &rarr; Pinjaman. Bunga pinjaman berubah (misalnya bunga tetap lalu mengambang)? Isi "
-    "tahap bunga (Bunga Berjenjang) saat membuat pinjaman, atau tekan Ubah Bunga pada pinjaman berjalan: cicilan mulai "
-    "tanggal itu dihitung ulang dari sisa pokok dengan jangka waktu yang sama. Restrukturisasi Jadwal untuk pinjaman "
+    "tahap bunga (Bunga Berjenjang) saat membuat pinjaman, cukup tahun mulainya (misalnya mulai tahun ke-4), atau tekan "
+    "Ubah Bunga pada pinjaman berjalan: cicilan berikutnya dihitung ulang dari sisa pokok dengan jangka waktu yang sama. "
+    "Membayar cicilan: tekan Bayar Cicilan, pilih Cicilan sesuai jadwal lalu isi berapa cicilan yang dibayar (1, 2, dan "
+    "seterusnya); pokok dan bunga terisi otomatis dan bunga tidak perlu catatan. Mau bayar sebagian pokok lebih awal? "
+    "Pilih Pelunasan dipercepat, lalu pilih jangka waktu dipersingkat atau cicilan diperkecil. "
+    "Restrukturisasi Jadwal untuk pinjaman "
     "yang sulit dibayar.",
 ]
 
@@ -397,7 +401,7 @@ SECTIONS = [
    "harga satuan hanya bila &ldquo;Rinci per barang&rdquo; dicentang).",
    "78,167"),
   ("Beban", "/purchases/expenses",
-   "Pembelian yang dibayar tunai langsung saat terjadi (bukan utang). Cukup isi satu jumlah sesuai struk, tanpa "
+   "Pembelian yang dibayar tunai langsung saat terjadi (bukan utang). Cukup isi satu nominal, yaitu harga total di struk, tanpa "
    "kuantitas dan harga satuan. Konfirmasi pada status Draf langsung membukukan beban sekaligus mencatat "
    "pembayarannya &mdash; tidak ada tahap utang usaha terpisah.", "82,245,353"),
   ("Pembayaran Keluar", "/purchases/payments",

@@ -42,7 +42,9 @@ export function AmountModeToggle({
         Rinci per barang (kuantitas × harga satuan)
       </label>
       <p className="hint">
-        Isi satu jumlah saja sesuai {noun}. Rincian per barang hanya bila perlu.
+        {detailed
+          ? "Isi Kuantitas (banyaknya barang) dan Harga Satuan (harga satu barang)."
+          : `Kolom Nominal (Rp) diisi dengan harga total sesuai ${noun}, bukan banyaknya barang. Untuk mengisi banyaknya barang, centang Rinci per barang.`}
       </p>
     </>
   );

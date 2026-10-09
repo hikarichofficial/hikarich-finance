@@ -9,6 +9,9 @@ import {
   equityNeedsApproval,
   loanOutstanding,
   loanPlan,
+  rateStepsFromYears,
+  sumNextInstallments,
+  unpaidInstallments,
   type EquityKind,
   type LoanPlanInput,
 } from "./financing";
@@ -198,5 +201,104 @@ describe("labels and rules", () => {
     expect(equityNeedsApproval("capital_return")).toBe(true);
     expect(equityNeedsApproval("contribution")).toBe(false);
     expect(equityNeedsApproval("distribution_received")).toBe(false);
+  });
+});
+
+describe("Bunga Berjenjang by year (decision 375)", () => {
+  it("year N starts at the installment due (N - 1) years after the first", () => {
+    expect(
+      rateStepsFromYears("2026-11-30", 120, 1, [
+        { year: 4, rate: "9.5" },
+        { year: 7, rate: "11" },
+      ]),
+    ).toEqual({
+      ok: true,
+      steps: [
+        { from: "2029-11-30", rate: "9.5" },
+        { from: "2032-11-30", rate: "11" },
+      ],
+    });
+    expect(rateStepsFromYears("2028-02-29", 24, 1, [{ year: 2, rate: "8" }])).toEqual({
+      ok: true,
+      steps: [{ from: "2029-02-28", rate: "8" }],
+    });
+    expect(rateStepsFromYears("", 12, 1, [])).toEqual({ ok: true, steps: [] });
+  });
+
+  it("refuses year 1, unordered years, years past the term and a missing first due date", () => {
+    expect(rateStepsFromYears("2026-11-01", 120, 1, [{ year: 1, rate: "8" }]).ok).toBe(false);
+    expect(
+      rateStepsFromYears("2026-11-01", 120, 1, [
+        { year: 5, rate: "8" },
+        { year: 5, rate: "9" },
+      ]).ok,
+    ).toBe(false);
+    expect(rateStepsFromYears("2026-11-01", 36, 1, [{ year: 4, rate: "8" }]).ok).toBe(false);
+    expect(rateStepsFromYears("2026-11-01", 30, 1, [{ year: 3, rate: "8" }]).ok).toBe(true);
+    expect(rateStepsFromYears("2026-11-01", 10, 12, [{ year: 10, rate: "8" }]).ok).toBe(true);
+    expect(rateStepsFromYears("", 12, 1, [{ year: 2, rate: "8" }]).ok).toBe(false);
+  });
+});
+
+describe("paying the next N instalments (decision 376)", () => {
+  const rows = [
+    { seq: 3, due_date: "2026-12-01", principal: "900000.00", interest: "100000.50", fee: "0.00" },
+    {
+      seq: 4,
+      due_date: "2027-01-01",
+      principal: "910000.00",
+      interest: "90000.25",
+      fee: "5000.00",
+    },
+    { seq: 5, due_date: "2027-02-01", principal: "920000.00", interest: "80000.00", fee: "0.00" },
+  ];
+  it("adds the next N instalments in order and ignores the rest", () => {
+    expect(sumNextInstallments(rows, 1)).toEqual({
+      count: 1,
+      principal: "900000.00",
+      interest: "100000.50",
+      fee: "0.00",
+      total: "1000000.50",
+    });
+    expect(sumNextInstallments([...rows].reverse(), 2)).toEqual({
+      count: 2,
+      principal: "1810000.00",
+      interest: "190000.75",
+      fee: "5000.00",
+      total: "2005000.75",
+    });
+  });
+  it("never takes more instalments than are unpaid", () => {
+    expect(sumNextInstallments(rows, 9).count).toBe(3);
+    expect(sumNextInstallments([], 2)).toMatchObject({ count: 0, total: "0" });
+  });
+});
+
+describe("the unpaid instalments of a schedule (decision 376)", () => {
+  const row = (seq: number, version_no: number, state: string, paidP: string, paidI: string) => ({
+    version_no,
+    seq,
+    due_date: "2026-12-01",
+    principal_due: "900000.00",
+    interest_due: "100000.00",
+    fee_due: "0.00",
+    paid_principal: paidP,
+    paid_interest: paidI,
+    paid_fee: "0.00",
+    state,
+  });
+  it("keeps only the current version, skips paid ones and shows what is left on part-paid ones", () => {
+    const result = unpaidInstallments(
+      [
+        row(1, 1, "paid", "900000.00", "100000.00"),
+        row(2, 2, "paid", "900000.00", "100000.00"),
+        row(4, 2, "scheduled", "0.00", "0.00"),
+        row(3, 2, "partially_paid", "400000.00", "100000.00"),
+      ],
+      2,
+    );
+    expect(result.map((r) => r.seq)).toEqual([3, 4]);
+    expect(result[0]).toMatchObject({ principal: "500000.00", interest: "0.00", fee: "0.00" });
+    expect(result[1]).toMatchObject({ principal: "900000.00", interest: "100000.00" });
   });
 });

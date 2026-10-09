@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 478 1122" width="478" height="1122" role="img" aria-label="Menagih Pelanggan: dari Invoice sampai Menjadi Piutang" font-family="Helvetica, Arial, sans-serif">
-<!-- source: alur.json sha256:d79025ae739ca8e4 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<!-- source: alur.json sha256:b5da00a754afacfc (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
 <title>Menagih Pelanggan: dari Invoice sampai Menjadi Piutang</title>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <rect x="134" y="18" width="210" height="29.5" rx="14.75" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
