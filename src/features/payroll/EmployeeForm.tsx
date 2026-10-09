@@ -40,7 +40,8 @@ export function EmployeeForm({ entity, today }: { entity: string | undefined; to
         <input name="department" maxLength={120} />
       </label>
       <p className="hint">
-        Setelah disimpan, isi gaji, data pajak dan BPJS di halaman karyawan tersebut.
+        Setelah disimpan, Anda diarahkan ke halaman karyawan; lengkapi gaji, pajak dan BPJS lewat
+        tab masing-masing.
       </p>
       {state.status === "error" ? (
         <p role="alert" className="error">

@@ -3032,15 +3032,15 @@
         {
           "kind": "step",
           "actor": "anda",
-          "title": "Atur Gaji & Komponen",
-          "menu": "Payroll > Karyawan > (klik karyawan) > Atur Gaji & Komponen",
-          "note": "Centang Dihitung untuk PPh 21 dan Masuk dasar upah BPJS"
+          "title": "Isi Gaji & Komponen",
+          "menu": "Payroll > Karyawan > (klik karyawan) > tab Gaji & Komponen",
+          "note": "Pilih nama komponen dari daftar atau ketik sendiri; kode terisi otomatis"
         },
         {
           "kind": "step",
           "actor": "anda",
-          "title": "Atur Data Pajak",
-          "menu": "Payroll > Karyawan > (klik karyawan) > Atur Data Pajak",
+          "title": "Isi Data Pajak",
+          "menu": "Payroll > Karyawan > (klik karyawan) > tab Pajak",
           "note": "Isi Status NPWP/NIK, Status PTKP, Metode Pajak. Jangan Belum diketahui"
         },
         {
@@ -3053,9 +3053,9 @@
                 {
                   "kind": "step",
                   "actor": "anda",
-                  "title": "Atur BPJS",
-                  "menu": "Payroll > Karyawan > (klik karyawan) > Atur BPJS",
-                  "note": "Pilih Kepesertaan tiap program dan Tingkat Risiko JKK"
+                  "title": "Pilih paket BPJS",
+                  "menu": "Payroll > Karyawan > (klik karyawan) > tab BPJS",
+                  "note": "Pilih satu paket (Lengkap bila ikut semua) dan Tingkat Risiko JKK"
                 }
               ]
             },
@@ -3076,7 +3076,7 @@
                   "kind": "step",
                   "actor": "anda",
                   "title": "Isi Saldo Awal Pajak",
-                  "menu": "Payroll > Karyawan > (klik karyawan) > Isi Saldo Awal Pajak",
+                  "menu": "Payroll > Karyawan > (klik karyawan) > tab Pajak > Saldo awal pajak",
                   "note": "Isi penghasilan bruto dan PPh 21 yang sudah dipotong"
                 }
               ]
@@ -3096,7 +3096,7 @@
         {
           "kind": "end",
           "title": "Selesai",
-          "note": "Berhenti bekerja: Karyawan Berhenti. Pindah jabatan: Catat Perubahan Jabatan"
+          "note": "Berhenti bekerja atau pindah jabatan: tab Pekerjaan"
         }
       ]
     },

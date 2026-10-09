@@ -3371,3 +3371,20 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      screen also shows its own error ("check the employee data: salary, tax, BPJS") instead of the generic one.
      Migration `20261019110000_p51_payroll_missing_tax_data.sql` (`payroll_compute_line`, search_path pinned); test in
      `99_p9_2_engine.sql`.
+379. **Employee screens rebuilt: one page per area, a component editor with presets, a BPJS package choice (OWNER request,
+     9 October 2026; no change to economic or tax meaning).** (a) The employee page was one long page of buttons that
+     opened forms. It is now a profile header with tabs, each tab its own address: Ringkasan (with a "what is still
+     missing" list linking to the area), Gaji & Komponen, Pajak, BPJS and Pekerjaan (job history, personal data,
+     leaving). The tabs follow the same permissions as before (`payroll.compensation_view`, `payroll.tax_view`; edit
+     forms need `payroll.employee_edit` / `payroll.compensation_edit`). (b) Salary components: the name is picked from
+     a list (Gaji Pokok, tunjangan jabatan/keluarga/transport/makan/komunikasi, lembur, bonus, potongan pinjaman,
+     kasbon, absensi, lainnya) or typed freely; the code is made from the name (`componentCode`, always inside the
+     database pattern, numbered if two rows would clash, and an existing component keeps its saved code); a preset
+     fills the kind and the two flags (fixed allowances count for the BPJS wage, irregular ones do not, a deduction
+     does not lower the PPh 21 base); a running total is shown. The fields posted to `employee_set_compensation` are
+     unchanged. (c) BPJS: one package is chosen (Lengkap, Hanya Kesehatan, Hanya Ketenagakerjaan, Tidak ikut) instead
+     of five "no change / yes / no" choices; "Lengkap" is preselected when nothing is recorded yet and JKK risk
+     level 1 is preselected (changeable). The posted fields to `employee_set_bpjs` are unchanged. (d) Saldo Awal
+     Pajak is offered only for someone who may have been paid before this app (from February, joined before this
+     month), with a worked example and "Sampai Bulan" prefilled with last month. No migration; unit tests in
+     `compensationPresets.test.ts`; the guide is updated to the new pages.
