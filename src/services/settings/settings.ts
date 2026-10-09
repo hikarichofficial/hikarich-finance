@@ -256,7 +256,9 @@ export async function getEntityLetterhead(entityId: string): Promise<{
     supabase.from("entities").select("legal_name, brand_name").eq("id", entityId).maybeSingle(),
     supabase
       .from("entity_profiles")
-      .select("address_line, city, province, postal_code, contact_email, contact_phone, logo_data_url")
+      .select(
+        "address_line, city, province, postal_code, contact_email, contact_phone, logo_data_url",
+      )
       .eq("entity_id", entityId)
       .maybeSingle(),
   ]);
@@ -273,7 +275,9 @@ export async function getEntityLetterhead(entityId: string): Promise<{
 
   return {
     name: entity?.brand_name?.trim() || entity?.legal_name?.trim() || "",
-    addressLines: [text("address_line"), place || null].filter((line): line is string => Boolean(line)),
+    addressLines: [text("address_line"), place || null].filter((line): line is string =>
+      Boolean(line),
+    ),
     contact: contact === "" ? null : contact,
     logo: typeof logo === "string" && logo.startsWith("data:image/") ? logo : null,
   };

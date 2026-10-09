@@ -44,11 +44,6 @@ export default async function PayslipDetailPage({
   const backHref = `/payroll/payslips${qs}`;
 
   return (
-    <PayslipDetailScreen
-      detail={detail}
-      currency={currency}
-      issuer={issuer}
-      backHref={backHref}
-    />
+    <PayslipDetailScreen detail={detail} currency={currency} issuer={issuer} backHref={backHref} />
   );
 }
