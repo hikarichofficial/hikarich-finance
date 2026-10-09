@@ -692,8 +692,9 @@ export interface PayrollSummaryTotals {
   employeeBpjs: Decimal;
   employerBpjs: Decimal;
   netPay: Decimal;
-  netUnpaid: Decimal;
-  bpjsUnpaid: Decimal;
+  /** Null only when no run is posted yet, so nothing is owed anywhere (decision 392). */
+  netUnpaid: Decimal | null;
+  bpjsUnpaid: Decimal | null;
   taxAllowance: Decimal | null;
   pph21: Decimal | null;
   pph21PeriodOutstanding: Decimal | null;
@@ -721,8 +722,8 @@ export function payrollSummaryTotals(
     employer_bpjs: string;
     pph21: string | null;
     net_pay: string;
-    net_unpaid: string;
-    bpjs_unpaid: string;
+    net_unpaid: string | null;
+    bpjs_unpaid: string | null;
     pph21_period_outstanding: string | null;
   }[],
 ): PayrollSummaryTotals {
@@ -731,8 +732,8 @@ export function payrollSummaryTotals(
     employeeBpjs: sumDecimals(rows.map((r) => Decimal.parse(r.employee_bpjs))),
     employerBpjs: sumDecimals(rows.map((r) => Decimal.parse(r.employer_bpjs))),
     netPay: sumDecimals(rows.map((r) => Decimal.parse(r.net_pay))),
-    netUnpaid: sumDecimals(rows.map((r) => Decimal.parse(r.net_unpaid))),
-    bpjsUnpaid: sumDecimals(rows.map((r) => Decimal.parse(r.bpjs_unpaid))),
+    netUnpaid: sumMaskedColumn(rows.map((r) => r.net_unpaid)),
+    bpjsUnpaid: sumMaskedColumn(rows.map((r) => r.bpjs_unpaid)),
     taxAllowance: sumMaskedColumn(rows.map((r) => r.tax_allowance)),
     pph21: sumMaskedColumn(rows.map((r) => r.pph21)),
     pph21PeriodOutstanding: sumMaskedColumn(rows.map((r) => r.pph21_period_outstanding)),

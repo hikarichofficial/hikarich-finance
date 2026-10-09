@@ -1362,8 +1362,12 @@ function PayrollSummaryTable({
             {totals.pph21 === null ? "—" : formatMoney(totals.pph21.toString(), currency)}
           </td>
           <td className="num">{formatMoney(totals.netPay.toString(), currency)}</td>
-          <td className="num">{formatMoney(totals.netUnpaid.toString(), currency)}</td>
-          <td className="num">{formatMoney(totals.bpjsUnpaid.toString(), currency)}</td>
+          <td className="num">
+            {totals.netUnpaid === null ? "—" : formatMoney(totals.netUnpaid.toString(), currency)}
+          </td>
+          <td className="num">
+            {totals.bpjsUnpaid === null ? "—" : formatMoney(totals.bpjsUnpaid.toString(), currency)}
+          </td>
           <td className="num">
             {totals.pph21PeriodOutstanding === null
               ? "—"

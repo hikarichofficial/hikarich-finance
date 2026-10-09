@@ -247,17 +247,21 @@ export async function getEntityLogo(entityId: string): Promise<string | null> {
   return typeof logo === "string" && logo.startsWith("data:image/") ? logo : null;
 }
 
-/** Who the company is, for the top of a document an employee or a customer reads: the brand name if there is
- * one, the postal address and one contact line, plus the logo. One RLS-governed read of the Entity and its
- * profile -- `getEntitySettingsOverview` would do five for a page that needs none of the rest (decision 382). */
+/** Who the company is, for the top of a document an employee or a customer reads: the name or names the
+ * Entity chose for its documents (decision 391), the postal address and one contact line, plus the logo.
+ * One RLS-governed read -- `getEntitySettingsOverview` would do five for a page that needs none of the rest
+ * (decision 382). */
 export async function getEntityLetterhead(entityId: string): Promise<{
+  /** The name a document is headed with: for a PT, normally the legal name. */
   name: string;
+  /** The brand name under it, when the Entity asked for both and the two differ. */
+  secondName: string | null;
   addressLines: string[];
   contact: string | null;
   logo: string | null;
 }> {
   const supabase = await createSupabaseServerClient();
-  const [entityRes, profileRes] = await Promise.all([
+  const [entityRes, profileRes, styleRes] = await Promise.all([
     supabase.from("entities").select("legal_name, brand_name").eq("id", entityId).maybeSingle(),
     supabase
       .from("entity_profiles")
@@ -266,9 +270,16 @@ export async function getEntityLetterhead(entityId: string): Promise<{
       )
       .eq("entity_id", entityId)
       .maybeSingle(),
+    supabase
+      .from("entity_settings")
+      .select("setting_value")
+      .eq("entity_id", entityId)
+      .eq("setting_key", "document.name_style")
+      .maybeSingle(),
   ]);
   const entity = entityRes.data as { legal_name?: string; brand_name?: string | null } | null;
   const profile = profileRes.data as Record<string, string | null> | null;
+  const style = documentNameStyle((styleRes.data as { setting_value?: unknown } | null)?.setting_value);
 
   const text = (key: string): string | null => {
     const value = profile?.[key];

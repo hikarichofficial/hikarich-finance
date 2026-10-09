@@ -743,11 +743,30 @@ describe("payrollSummaryTotals", () => {
     expect(totals.employeeBpjs.toString()).toBe("3500000.0000");
     expect(totals.employerBpjs.toString()).toBe("5500000.0000");
     expect(totals.netPay.toString()).toBe("81000000.0000");
-    expect(totals.netUnpaid.toString()).toBe("36000000.0000");
-    expect(totals.bpjsUnpaid.toString()).toBe("5000000.0000");
+    expect(totals.netUnpaid?.toString()).toBe("36000000.0000");
+    expect(totals.bpjsUnpaid?.toString()).toBe("5000000.0000");
     expect(totals.taxAllowance?.toString()).toBe("1800000.0000");
     expect(totals.pph21?.toString()).toBe("2500000.0000");
     expect(totals.pph21PeriodOutstanding?.toString()).toBe("1500000.0000");
+  });
+
+  // Decision 392: before a run is posted nothing is owed yet, which the RPC reports as null, not zero.
+  it("leaves the owed totals null while no run is posted", () => {
+    const row = {
+      gross_pay: "50000000.0000",
+      tax_allowance: null,
+      employee_bpjs: "2000000.0000",
+      employer_bpjs: "3000000.0000",
+      pph21: null,
+      net_pay: "45000000.0000",
+      net_unpaid: null,
+      bpjs_unpaid: null,
+      pph21_period_outstanding: null,
+    };
+    const totals = payrollSummaryTotals([row]);
+    expect(totals.netUnpaid).toBeNull();
+    expect(totals.bpjsUnpaid).toBeNull();
+    expect(totals.grossPay.toString()).toBe("50000000.0000");
   });
 
   it("returns null, not zero, for a masked column that is null on every row", () => {
