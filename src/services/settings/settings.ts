@@ -279,7 +279,9 @@ export async function getEntityLetterhead(entityId: string): Promise<{
   ]);
   const entity = entityRes.data as { legal_name?: string; brand_name?: string | null } | null;
   const profile = profileRes.data as Record<string, string | null> | null;
-  const style = documentNameStyle((styleRes.data as { setting_value?: unknown } | null)?.setting_value);
+  const style = documentNameStyle(
+    (styleRes.data as { setting_value?: unknown } | null)?.setting_value,
+  );
 
   const text = (key: string): string | null => {
     const value = profile?.[key];
