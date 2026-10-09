@@ -929,10 +929,10 @@
     {
       "slug": "laporan-pajak-payroll-aset-pinjaman",
       "title": "Memahami Laporan Pajak, Payroll, Aset, dan Pinjaman",
-      "summary": "Mengetahui ke mana menu Pajak, Payroll, dan Aset & Pinjaman di Laporan membawa Anda, dan membaca tab pinjaman, payroll, aset, dan konsolidasi.",
-      "path": "Laporan > Pajak; Laporan > Payroll; Laporan > Aset & Pinjaman; tab di Laporan > Laporan Keuangan",
+      "summary": "Mengetahui ke mana menu Pajak, Payroll, Pinjaman dan Aset Tetap di Laporan membawa Anda, dan membaca tab pinjaman, payroll, aset, dan konsolidasi.",
+      "path": "Laporan > Pajak; Laporan > Payroll; Laporan > Pinjaman; Laporan > Aset Tetap; tab di Laporan > Laporan Keuangan",
       "who": "Menu Laporan: reports.view. Pajak: tax.view. Pinjaman: loans.view. Kontrol Aset Tetap: assets.view dan accounting.view; Jadwal Penyusutan Fiskal: assets.view dan tax.view; Mutasi/Pelepasan Aset: assets.view. Payroll: payroll.compensation_view bersama izin menjalankan, menyetujui, atau membayar payroll; Kontrol Payroll juga accounting.view. Pada peran bawaan tab Payroll hanya terbuka untuk OWNER, dan Analisis Konsolidasi (reports.cross_entity) juga hanya OWNER.",
-      "quick": "Menu **Pajak**, **Payroll**, dan **Aset & Pinjaman** di Laporan hanyalah pintasan ke **Buku Besar Pajak**, tab **Ringkasan Payroll**, dan tab **Kontrol Aset Tetap**; tab pinjaman dan lainnya hanya ada di deretan tab Laporan Keuangan.",
+      "quick": "Menu **Pajak**, **Payroll**, **Pinjaman** dan **Aset Tetap** di Laporan adalah pintasan ke **Buku Besar Pajak**, tab **Ringkasan Payroll**, tab **Ringkasan Pinjaman**, dan tab **Kontrol Aset Tetap**; tab lainnya ada di deretan tab Laporan Keuangan.",
       "steps": [
         {
           "title": "Laporan > Pajak membuka Buku Besar Pajak",
@@ -943,12 +943,12 @@
           "text": "Tab **Ringkasan Payroll** memakai **Dari** dan **Sampai**. Kolom: **No. Run**, **Periode**, **Status**, **Jml. Karyawan**, **Gaji Kotor**, **Tunjangan Pajak**, **BPJS Karyawan**, **BPJS Perusahaan**, **PPh 21**, **Gaji Bersih**, **Belum Dibayar**, **BPJS Belum Disetor**, **PPh 21 Belum Disetor**, dan baris **Total**. Kolom pajak berisi tanda strip bila Anda tidak berhak melihat pajak payroll. Bila kosong: “Tidak ada payroll run pada periode ini.”.\n\nTab **Kontrol Payroll** (**Per tanggal**) mencocokkan dua akun, Utang Gaji Karyawan dan Utang BPJS, dengan kolom **Sub-Ledger**, **Ledger (Payroll Run)**, **Ledger (Lainnya)**, **Ledger (Total)**, **Selisih**, dan **Status** (**Seimbang** atau **Tidak Seimbang**)."
         },
         {
-          "title": "Laporan > Aset & Pinjaman membuka Kontrol Aset Tetap",
+          "title": "Laporan > Aset Tetap membuka Kontrol Aset Tetap",
           "text": "Menu ini membuka tab **Kontrol Aset Tetap** (**Per tanggal**) dengan dua baris, Biaya Perolehan Aset Tetap dan Akumulasi Penyusutan, dan kolom **Sub-Ledger**, **Ledger (Alur Kerja Aset)**, **Ledger (Lainnya)**, **Ledger (Total)**, **Selisih**, **Status**. Seimbang berarti daftar aset sama dengan buku besar.\n\nTab aset lain: **Jadwal Penyusutan Fiskal** (pilih **Aset**; kolom **Tahun Fiskal**, **Nilai Awal**, **Penyusutan**, **Nilai Akhir**, dan baris **Total Penyusutan Fiskal**) serta **Mutasi/Pelepasan Aset** (**Dari**, **Sampai**; kolom **Tanggal**, **Aset**, **Peristiwa**, **Hasil Pelepasan**, **Laba/Rugi**, **Jurnal**, **Status**)."
         },
         {
           "title": "Tab pinjaman",
-          "text": "Menu Aset & Pinjaman tidak membuka pinjaman. Buka Laporan > Laporan Keuangan lalu pilih tab **Pinjaman Jatuh Tempo** (**Sampai Tanggal**; kolom **No. Pinjaman**, **Arah**, **Pihak**, **Cicilan Ke**, **Jatuh Tempo** dengan “(N hari)” bila terlambat, **Pokok Tertunggak**, **Bunga Tertunggak**, **Biaya Tertunggak**, **Status**, dan baris “Total (N terlambat)”) atau **Ringkasan Pinjaman** (**Dari**, **Sampai**; kolom **Pokok Awal**, **Pencairan**, **Pokok Dibayar**, **Pokok Dihapusbukukan**, **Pokok Akhir**, **Bunga Dibayar**, **Biaya Dibayar**). Nomor pinjaman menautkan ke detail pinjaman."
+          "text": "Menu **Pinjaman** membuka tab **Ringkasan Pinjaman** (**Dari**, **Sampai**; kolom **Pokok Awal**, **Pencairan**, **Pokok Dibayar**, **Pokok Dihapusbukukan**, **Pokok Akhir**, **Bunga Dibayar**, **Biaya Dibayar**). Untuk jatuh tempo, buka Laporan > Laporan Keuangan lalu pilih tab **Pinjaman Jatuh Tempo** (**Sampai Tanggal**; kolom **No. Pinjaman**, **Arah**, **Pihak**, **Cicilan Ke**, **Jatuh Tempo** dengan “(N hari)” bila terlambat, **Pokok Tertunggak**, **Bunga Tertunggak**, **Biaya Tertunggak**, **Status**, dan baris “Total (N terlambat)”) atau **Ringkasan Pinjaman** (**Dari**, **Sampai**; kolom **Pokok Awal**, **Pencairan**, **Pokok Dibayar**, **Pokok Dihapusbukukan**, **Pokok Akhir**, **Bunga Dibayar**, **Biaya Dibayar**). Nomor pinjaman menautkan ke detail pinjaman."
         },
         {
           "title": "Tab Analisis Konsolidasi (OWNER)",

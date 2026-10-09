@@ -290,11 +290,10 @@ export function CompensationForm({
         ))}
       </div>
 
-      {suggestions.length > 0 && rows.length < 30 ? (
+      {rows.length < 30 ? (
         <div className="comp-suggest">
           {(["earning", "deduction"] as const).map((kind) => {
             const group = suggestions.filter((preset) => preset.kind === kind);
-            if (group.length === 0) return null;
             return (
               <div key={kind} className="comp-suggest-group">
                 <span className="comp-suggest-title">
@@ -324,30 +323,32 @@ export function CompensationForm({
                       {preset.label}
                     </button>
                   ))}
-                  {kind === "earning" && rows.length < 30 ? (
-                    <button
-                      type="button"
-                      className="comp-suggest-chip comp-suggest-own"
-                      onClick={() =>
-                        setRows((previous) => [
-                          ...previous,
-                          {
-                            id: newId(),
-                            savedCode: "",
-                            label: "",
-                            kind: "earning",
-                            amount: "",
-                            taxable: true,
-                            bpjsBase: false,
-                            flagsTouched: false,
-                            effectiveFrom: "",
-                          },
-                        ])
-                      }
-                    >
-                      Ketik nama sendiri
-                    </button>
-                  ) : null}
+                  {/* Each group gets its own, so a potongan with a name of the OWNER's choosing is one click
+                      away too (OWNER, 9 October 2026). A new potongan starts outside the PPh 21 base, which
+                      is right for the common ones (pinjaman, kasbon) and a tick away for an absence. */}
+                  <button
+                    type="button"
+                    className="comp-suggest-chip comp-suggest-own"
+                    data-kind={kind}
+                    onClick={() =>
+                      setRows((previous) => [
+                        ...previous,
+                        {
+                          id: newId(),
+                          savedCode: "",
+                          label: "",
+                          kind,
+                          amount: "",
+                          taxable: kind === "earning",
+                          bpjsBase: false,
+                          flagsTouched: false,
+                          effectiveFrom: "",
+                        },
+                      ])
+                    }
+                  >
+                    Ketik nama sendiri
+                  </button>
                 </div>
               </div>
             );

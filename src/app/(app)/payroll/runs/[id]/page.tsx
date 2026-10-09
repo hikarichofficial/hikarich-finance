@@ -22,6 +22,9 @@ import {
   RunCommandForm,
 } from "@/features/payroll/PayrollRunForms";
 import { todayInBusinessZone } from "@/lib/time";
+import { prorataFor } from "@/domain/payroll/prorata";
+import { formatShortDate } from "@/features/payroll/format";
+import type { AdjustmentEmployee } from "@/features/payroll/PayrollRunForms";
 
 /**
  * Payroll Run Detail (P13 Part 3g, second increment, Step 09 §17). Same compound-permission rule as the
@@ -93,10 +96,51 @@ export default async function PayrollRunDetailPage({
     showCalculate && lines.length === 0 && can(access, entityId, "payroll.employee_view")
       ? await listEmployees({ entity_id: entityId, include_ended: false }).catch(() => [])
       : [];
-  const adjustmentEmployees =
+  // The pro-rata offer needs each employee's join/exit dates, which the payroll lines do not carry, so the
+  // register is read once more when there are lines to match it against (decision 388). Without
+  // `payroll.employee_view` there are no dates and so no offer -- the adjustment is simply typed by hand.
+  const dated =
+    lines.length > 0 && can(access, entityId, "payroll.employee_view")
+      ? await listEmployees({ entity_id: entityId, include_ended: true }).catch(() => [])
+      : [];
+  const datesById = new Map(dated.map((e) => [e.id, e]));
+
+  const adjustmentEmployees: AdjustmentEmployee[] =
     lines.length > 0
-      ? lines.map((l) => ({ id: l.employee_id, label: `${l.employee_code} — ${l.employee_name}` }))
-      : activeEmployees.map((e) => ({ id: e.id, label: `${e.employee_code} — ${e.full_name}` }));
+      ? lines.map((l) => {
+          const who = datesById.get(l.employee_id);
+          const figures = who
+            ? prorataFor(
+                {
+                  periodStart: run.period_start,
+                  periodEnd: run.period_end,
+                  joinDate: who.join_date,
+                  exitDate: who.exit_date,
+                  grossPay: l.gross_pay,
+                },
+                currency,
+              )
+            : null;
+          const startsLate = who ? who.join_date > run.period_start : false;
+          return {
+            id: l.employee_id,
+            label: `${l.employee_code} — ${l.employee_name}`,
+            prorata: figures
+              ? {
+                  ...figures,
+                  grossPay: l.gross_pay,
+                  reason: startsLate
+                    ? `Mulai bekerja ${formatShortDate(who!.join_date)}`
+                    : `Berhenti ${formatShortDate(who!.exit_date ?? run.period_end)}`,
+                }
+              : null,
+          };
+        })
+      : activeEmployees.map((e) => ({
+          id: e.id,
+          label: `${e.employee_code} — ${e.full_name}`,
+          prorata: null,
+        }));
   const accounts = showPay ? await getMoneyControl(entityId).catch(() => []) : [];
   const confirmedPayments = payments.filter((p) => p.status === "confirmed");
   const hasActions =
@@ -130,7 +174,7 @@ export default async function PayrollRunDetailPage({
           >
             {showCalculate ? <RunCommandForm runId={id} command="calculate" today={today} /> : null}
             {showCalculate && adjustmentEmployees.length > 0 ? (
-              <AdjustmentForm runId={id} employees={adjustmentEmployees} />
+              <AdjustmentForm runId={id} employees={adjustmentEmployees} currency={currency} />
             ) : null}
             {showCalculate && adjustments.length > 0 ? (
               <RemoveAdjustmentForm

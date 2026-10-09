@@ -110,13 +110,17 @@ export function isFiscalYearClosureActive(closure: { reversed_at: string | null 
 
 /** The `/reports/*` nav sub-items (`src/domain/shell/navigation.ts`) that forward to a screen which already
  * exists: most to a `/reports?statement=` tab, `tax` to the Tax Ledger screen (OWNER choice, decision 244).
- * `assets-loans` goes to Kontrol Aset Tetap (OWNER choice, decision 244). Sales/Purchase and Saved Reports
- * have their own routes since decision 252. */
+ * Sales/Purchase and Saved Reports have their own routes since decision 252.
+ *
+ * `assets-loans` used to be one item called "Aset & Pinjaman" that opened Kontrol Aset Tetap alone (decision
+ * 244), so the one thing its name promised and this company actually has -- a bank loan -- was nowhere on the
+ * page it opened. It is now two items, each landing on what it is called (decision 393). */
 export const REPORT_SUBROUTE_TARGETS = {
   cashflow: { statement: "cashflow" },
   payroll: { statement: "payroll_summary" },
   custom: { statement: "custom" },
-  "assets-loans": { statement: "asset_control" },
+  loans: { statement: "loan_summary" },
+  assets: { statement: "asset_control" },
   tax: { path: "/tax/ledger" },
 } as const satisfies Record<string, { statement: string } | { path: string }>;
 
@@ -688,8 +692,9 @@ export interface PayrollSummaryTotals {
   employeeBpjs: Decimal;
   employerBpjs: Decimal;
   netPay: Decimal;
-  netUnpaid: Decimal;
-  bpjsUnpaid: Decimal;
+  /** Null only when no run is posted yet, so nothing is owed anywhere (decision 392). */
+  netUnpaid: Decimal | null;
+  bpjsUnpaid: Decimal | null;
   taxAllowance: Decimal | null;
   pph21: Decimal | null;
   pph21PeriodOutstanding: Decimal | null;
@@ -717,8 +722,8 @@ export function payrollSummaryTotals(
     employer_bpjs: string;
     pph21: string | null;
     net_pay: string;
-    net_unpaid: string;
-    bpjs_unpaid: string;
+    net_unpaid: string | null;
+    bpjs_unpaid: string | null;
     pph21_period_outstanding: string | null;
   }[],
 ): PayrollSummaryTotals {
@@ -727,8 +732,8 @@ export function payrollSummaryTotals(
     employeeBpjs: sumDecimals(rows.map((r) => Decimal.parse(r.employee_bpjs))),
     employerBpjs: sumDecimals(rows.map((r) => Decimal.parse(r.employer_bpjs))),
     netPay: sumDecimals(rows.map((r) => Decimal.parse(r.net_pay))),
-    netUnpaid: sumDecimals(rows.map((r) => Decimal.parse(r.net_unpaid))),
-    bpjsUnpaid: sumDecimals(rows.map((r) => Decimal.parse(r.bpjs_unpaid))),
+    netUnpaid: sumMaskedColumn(rows.map((r) => r.net_unpaid)),
+    bpjsUnpaid: sumMaskedColumn(rows.map((r) => r.bpjs_unpaid)),
     taxAllowance: sumMaskedColumn(rows.map((r) => r.tax_allowance)),
     pph21: sumMaskedColumn(rows.map((r) => r.pph21)),
     pph21PeriodOutstanding: sumMaskedColumn(rows.map((r) => r.pph21_period_outstanding)),

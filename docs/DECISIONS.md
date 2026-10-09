@@ -3451,3 +3451,92 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      mulai" field looked like a line of that sentence. `.dashboard-section` deliberately spaces none of its
      children and `.hint` carries no margin, so the description `EmployeeShell` renders now also takes
      `.emp-lead` (one 24px bottom margin). It applies to all five tabs at once rather than to this one page.
+385. **NIK recorded beside NPWP, and asked for when the employee is added (OWNER, 9 October 2026; no change to
+     how PPh 21 is computed).** The tax profile held one identifier, `tax_id`, which is the right input for
+     PPh 21: what is reported is the NPWP when there is one and the NIK when there is not. But an employer
+     needs both on file -- BPJS registration asks for the NIK, and someone who registered an NPWP before the
+     2024 NIK integration has two different numbers -- so a form that asks for both and keeps one would throw
+     away what was typed. `employee_tax_profiles.national_id` (16 digits, nullable) now holds the NIK.
+     It is identity, never arithmetic: nothing in the payroll engine, the PPh 21 computation or any report
+     reads it, and `tax_id` alone remains the tax identifier. It is masked on read exactly as `tax_id` is
+     (`national_id_masked`, last four digits), the full number still only through `employee_tax_identifier`'s
+     step-up, and it joins `tax_id` in the audit trigger's redaction list -- the P9 invariant test caught that
+     omission before it shipped. `employee_set_tax_profile` takes one more optional trailing argument
+     (`p_national_id`); the old eight-argument form is dropped so there is no overload to resolve. On Tambah
+     Karyawan both numbers are optional fields; filling either writes the tax profile from the join date with
+     `tax_id_status = has_tax_id` and `ptkp_status = unknown`, so payroll still flags the line until someone
+     sets PTKP on the Pajak tab, and a failure there leaves the employee created and says so in the flash
+     rather than pretending. Migration `20261021100000_p53_employee_national_id.sql`; tests in
+     `99_p9_1_employees.sql`.
+
+386. **A potongan can be typed too (OWNER, 9 October 2026; presentation only).** Decision 383 grouped the
+     preset chips and put "Ketik nama sendiri" with the penghasilan ones only, so a potongan with a name of
+     the OWNER's own choosing had no one-click route. Each group now has its own, and the row it adds takes
+     that group's kind: a typed potongan starts outside the PPh 21 base, which is right for the common ones
+     and one tick away for an absence (decision 381). The chips block also no longer disappears once every
+     preset in a group is already on the form.
+387. **One employee per row of a payroll run, read top to bottom (OWNER, 9 October 2026; presentation only).**
+     The Baris Gaji Karyawan cell ran "EMP-2026-0001 — UJI COBA Karyawan" straight into the review badges and
+     then into a paragraph of flag text, so a run of three people read as a wall. The cell is now a small
+     code line, the name in its own weight, the review badges, and the informational note last and quiet. The
+     two part-month notes are also cut to one short clause each ("Mulai bekerja di tengah bulan; gaji belum
+     diprorata."), because decision 388 now offers the figure itself instead of telling the reader what to do.
+
+388. **Pro-rata worked out for a part month, and filled into the adjustment (OWNER, 9 October 2026; the engine
+     is untouched).** The payroll rules deliberately pay a mid-month joiner or leaver a full month and flag
+     the line: what a part month is worth is an employment question, not an arithmetic one, so the locked
+     engine does not decide it. Tambah Penyesuaian now does the arithmetic instead. Choosing an employee whose
+     join or exit date falls inside the period shows the month's gross as calculated, the pro-rated gross and
+     the difference, and one button fills the form with a deduction for that difference, named "Prorata masa
+     kerja (17 dari 31 hari)". The split is by calendar days of the period, counting the first and last day
+     worked -- the measure a monthly-paid Indonesian contract normally uses, and the only one this app can
+     compute, holding no working calendar; the form says so and the amount stays editable. The deduction is
+     marked as lowering the PPh 21 base, which decision 381 makes meaningful and which is right here: this is
+     pay that was never earned, unlike a loan instalment. It goes through `payroll_adjustment_add` exactly as
+     a hand-typed adjustment does -- no migration, no new RPC, nothing recomputed. `prorataFor`
+     (`src/domain/payroll/prorata.ts`) does the arithmetic on the minor units, so the pro-rated part and the
+     deduction always add back up to the gross; the run page reads the employee register once more for the
+     dates, which the payroll lines do not carry, and offers nothing without `payroll.employee_view`.
+
+389. **The run summary reads in three tiers (OWNER, 9 October 2026; presentation only).** Sixteen equal-weight
+     items sat in one flat grid -- period, pay date, headcount, six money totals, two BPJS rows that each
+     wrapped onto three lines, the calculation revision and two journal links -- so nothing stood out and the
+     page looked scattered. Now: the month's three figures across the top (Gaji Bruto, Gaji Bersih, Sudah
+     Dibayar, the last in the success colour once it matches), then three small groups under them (what comes
+     off the employee, the tax, what the company owes each BPJS body), then one quiet line carrying the dates,
+     the headcount, the calculation revision and the journal links. A BPJS body's row says "lunas" or "belum
+     dibayar" rather than printing a second full amount, which is what made those two rows wrap. Every figure
+     and every link that was there is still there; `tax_view` masking (decision 180) is unchanged.
+
+390. **PTKP explained where it is chosen (OWNER, 9 October 2026; no change to the computation).** The Pajak
+     tab asked for a PTKP status with no hint of what the eight codes mean, and the OWNER could not tell which
+     to pick. One line above the field now says it: the letter is the marital status, the number is the count
+     of dependants (maximum three), it is judged as at 1 January of the tax year, only straight-line relatives
+     who are fully supported and have no income of their own count (so not siblings, nephews or in-laws, even
+     when they are on the Kartu Keluarga), and a married woman is normally TK/0 unless she holds a statement
+     that her husband has no income. The amounts themselves were already versioned rules in the database.
+391. **The Entity says once which of its names its documents carry (OWNER, 9 October 2026; presentation
+     only).** An invoice already led with the legal name and put the brand under it (decision 272), but the
+     payslip took whichever name was set and preferred the brand, so a PT's payslip -- a tax document -- could
+     go out under a trading name. Rather than hard-code the rule per document, the Entity now answers it once
+     in Pengaturan: `legal` (the legal name alone), `brand` (the brand alone), or `both` (the legal name with
+     the brand under it, the behaviour so far and the default). Each choice shows what it would actually print
+     using this Entity's own names. Setting key `document.name_style`, written by
+     `set_document_name_style` under `system.entity_config` and a recent step-up, the same shape as
+     `set_negative_balance_block` (decision 55); migration `20261022100000_p54_document_name_style.sql`.
+     Nothing about an amount, a tax or an authorization depends on it.
+
+392. **An unposted payroll run no longer breaks the whole Payroll report (OWNER report, 10 October 2026).**
+     `/reports?statement=payroll_summary` showed "Terjadi masalah saat memuat halaman ini." as soon as the
+     Entity had a run that was not posted yet. `payroll_summary_report` works out `net_unpaid`,
+     `bpjs_unpaid` and `pph21_period_outstanding` only for a run that is posted/partially paid/paid/closed and
+     returns null otherwise -- nothing is owed yet -- but the client schema declared the first two as plain
+     text, so zod rejected the row and the page errored out. They are nullable now and the report prints "—",
+     which is the truth: not zero, not yet owed. The RPC is unchanged; this was never a database fault.
+
+393. **"Aset & Pinjaman" in Laporan becomes two items (OWNER report, 10 October 2026).** One nav item of that
+     name opened Kontrol Aset Tetap alone (decision 244's own choice), so the one thing its name promised and
+     this company actually has -- a bank loan -- was nowhere on the page it opened, and the guide had to carry
+     a step explaining that the menu does not show loans. It is now **Pinjaman** (Ringkasan Pinjaman) and
+     **Aset Tetap** (Kontrol Aset Tetap): each lands on the report it is named after. `/reports/assets-loans`
+     is replaced by `/reports/loans` and `/reports/assets`.

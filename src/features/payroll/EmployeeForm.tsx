@@ -39,6 +39,19 @@ export function EmployeeForm({ entity, today }: { entity: string | undefined; to
         Departemen (opsional)
         <input name="department" maxLength={120} />
       </label>
+      <label>
+        NIK (opsional, 16 angka)
+        <input name="national_id" inputMode="numeric" maxLength={20} autoComplete="off" />
+      </label>
+      <label>
+        NPWP (opsional, 15 atau 16 angka)
+        <input name="tax_id" inputMode="numeric" maxLength={20} autoComplete="off" />
+      </label>
+      <p className="hint">
+        Keduanya boleh dikosongkan dan diisi nanti. Yang dipakai sebagai identitas PPh 21 adalah
+        NPWP bila ada, kalau tidak NIK-nya. Status PTKP belum ikut terisi di sini, jadi lengkapi
+        lewat tab Pajak sebelum payroll pertama.
+      </p>
       <p className="hint">
         Setelah disimpan, Anda diarahkan ke halaman karyawan; lengkapi gaji, pajak dan BPJS lewat
         tab masing-masing.

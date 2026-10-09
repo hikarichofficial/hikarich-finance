@@ -141,6 +141,17 @@ export function TaxProfileForm({
         <input name="tax_id" maxLength={40} inputMode="numeric" autoComplete="off" />
       </label>
       <label>
+        NIK (opsional, 16 angka)
+        <input name="national_id" maxLength={40} inputMode="numeric" autoComplete="off" />
+      </label>
+      <p className="hint">
+        PTKP ditentukan dari keadaan pada 1 Januari tahun pajak. Huruf menunjukkan status kawin (TK
+        atau K), angkanya jumlah tanggungan, maksimal 3. Yang boleh dihitung hanya keluarga garis
+        lurus yang ditanggung penuh dan tidak berpenghasilan: orang tua, mertua, anak kandung, anak
+        angkat. Adik, kakak, keponakan dan ipar tidak termasuk. Karyawan perempuan yang sudah
+        menikah umumnya TK/0, kecuali ada surat keterangan bahwa suaminya tidak berpenghasilan.
+      </p>
+      <label>
         Status PTKP
         <select name="ptkp_status" defaultValue={current?.ptkpStatus ?? "unknown"}>
           {PTKP_OPTIONS.map((status) => (

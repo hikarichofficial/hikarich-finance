@@ -5676,7 +5676,7 @@ a.pp-answer:hover {
 
 /* Typing a name is one more way to add a component, so it sits with the presets rather than as its own
  * full-width button below them; the dashed edge is what marks it as the open-ended one. */
-.comp-suggest-own {
+.comp-suggest-chip.comp-suggest-own {
   border-style: dashed;
   background: transparent;
 }
@@ -5941,6 +5941,13 @@ a.pp-answer:hover {
   letter-spacing: -0.01em;
 }
 
+.slip-issuer-brand {
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--slip-muted);
+}
+
 .slip-issuer-line {
   margin: 0;
   font-size: 12px;
@@ -6158,4 +6165,194 @@ a.pp-answer:hover {
   .slip-takehome {
     break-inside: avoid;
   }
+}
+
+/* ================================================================ Proses Payroll (decisions 387-389)
+ * The run summary used to be one flat grid of sixteen equal items, so the three figures a person actually
+ * opens the page for sat among the dates, the headcount and the journal links, and the two BPJS rows wrapped
+ * onto three lines each. It now reads in three tiers: the month's three totals, then what each party owes,
+ * then one quiet line of context. */
+.run-headline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.run-headline > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.run-headline span {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.run-headline strong {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-headline > div[data-paid="true"] strong {
+  color: var(--success);
+}
+
+.run-groups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+.run-groups h3 {
+  margin: 0 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.run-groups dl {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.run-groups dl > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.run-groups dt {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.run-groups dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-5) 0 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* One employee per row of the run, read top to bottom instead of as a paragraph. */
+.run-who {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.run-who-code {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.run-who-name {
+  font-weight: 600;
+}
+
+.run-who-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: 2px;
+}
+
+.run-who-note {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* The pro-rata offer inside Tambah Penyesuaian: the figures first, then one button that fills the form. */
+.prorata-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.prorata-lead {
+  margin: 0;
+  font-weight: 600;
+}
+
+.prorata-figures {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.prorata-figures > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.prorata-figures dt {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.prorata-figures dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.prorata-cut {
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--line);
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .run-headline,
+  .run-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .run-groups {
+    gap: var(--space-4);
+  }
+}
+
+/* What each document-name choice would actually print, inside its radio card (decision 391). */
+.doc-name-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+
+.doc-name-primary {
+  font-weight: 600;
+}
+
+.doc-name-secondary {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
 }

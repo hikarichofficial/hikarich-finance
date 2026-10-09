@@ -160,8 +160,14 @@ export function TaxProfileCard({ taxProfile }: { taxProfile: TaxProfile }) {
       </div>
       {taxProfile.tax_id_masked ? (
         <div>
-          <dt>Nomor (disamarkan)</dt>
+          <dt>NPWP/NIK untuk pajak (disamarkan)</dt>
           <dd>{taxProfile.tax_id_masked}</dd>
+        </div>
+      ) : null}
+      {taxProfile.national_id_masked ? (
+        <div>
+          <dt>NIK (disamarkan)</dt>
+          <dd>{taxProfile.national_id_masked}</dd>
         </div>
       ) : null}
       <div>

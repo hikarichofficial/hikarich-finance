@@ -22,6 +22,20 @@ function money(value: string | null, currency: string): string {
 }
 
 /**
+ * What is owed to a BPJS body, and how much of it has gone out. "Lunas" and "belum dibayar" say in a word
+ * what a second full amount beside the first made the reader work out, which is what pushed these two rows
+ * onto three lines each.
+ */
+function bpjsDue(due: string, paid: string, currency: string): string {
+  const owed = Number(due);
+  const settled = Number(paid);
+  if (owed === 0) return formatMoney(due, currency);
+  if (settled >= owed) return `${formatMoney(due, currency)} · lunas`;
+  if (settled === 0) return `${formatMoney(due, currency)} · belum dibayar`;
+  return `${formatMoney(due, currency)} · terbayar ${formatMoney(paid, currency)}`;
+}
+
+/**
  * Payroll Run Detail (P13 Part 3g, second increment, Step 09 §17's own period -> employees -> calculation ->
  * review -> approval -> post/pay -> close wizard). This component itself only reads; the
  * run's commands (calculate, adjust, submit, approve, return, discard, post, pay, close, reopen, correct) are
@@ -84,116 +98,102 @@ export function PayrollRunDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Ringkasan</h2>
         </div>
-        <dl className="record-summary-grid">
+        {/* Three figures carry the month -- what it cost, what the staff get, what has gone out -- and the
+            rest is grouped under them: what comes off the employee, the tax, and what the company owes the
+            two BPJS bodies. The dates, the headcount and the links sit in one quiet line at the bottom.
+            Before (decision 389) this was sixteen equal-weight items in one flat grid, several of them
+            wrapping onto three lines (OWNER, 9 October 2026). */}
+        <div className="run-headline">
           <div>
-            <dt>Periode</dt>
-            <dd>
-              {formatShortDate(run.period_start)} – {formatShortDate(run.period_end)}
-            </dd>
+            <span>Gaji Bruto</span>
+            <strong>{formatMoney(run.gross_pay_total, currency)}</strong>
           </div>
           <div>
-            <dt>Tanggal Bayar</dt>
-            <dd>{formatShortDate(run.pay_date)}</dd>
+            <span>Gaji Bersih</span>
+            <strong>{formatMoney(run.net_pay_total, currency)}</strong>
           </div>
-          <div>
-            <dt>Jumlah Karyawan</dt>
-            <dd>{run.employee_count}</dd>
+          <div data-paid={run.net_paid === run.net_pay_total ? "true" : undefined}>
+            <span>Sudah Dibayar</span>
+            <strong>{formatMoney(run.net_paid, currency)}</strong>
           </div>
-          {run.review_count > 0 ? (
-            <div>
-              <dt>Perlu Ditinjau</dt>
-              <dd>{run.review_count} baris</dd>
-            </div>
-          ) : null}
-          <div>
-            <dt>Gaji Bruto</dt>
-            <dd>{formatMoney(run.gross_pay_total, currency)}</dd>
-          </div>
-          <div>
-            <dt>Tunjangan Pajak</dt>
-            <dd>{money(run.tax_allowance_total, currency)}</dd>
-          </div>
-          <div>
-            <dt>BPJS Karyawan</dt>
-            <dd>{formatMoney(run.employee_bpjs_total, currency)}</dd>
-          </div>
-          <div>
-            <dt>BPJS Perusahaan</dt>
-            <dd>{formatMoney(run.employer_bpjs_total, currency)}</dd>
-          </div>
-          <div>
-            <dt>PPh 21</dt>
-            <dd>{money(run.pph21_total, currency)}</dd>
-          </div>
-          <div>
-            <dt>Dasar Pengenaan Pajak</dt>
-            <dd>{money(run.tax_base_total, currency)}</dd>
-          </div>
-          <div>
-            <dt>Gaji Bersih</dt>
-            <dd>{formatMoney(run.net_pay_total, currency)}</dd>
-          </div>
-          <div>
-            <dt>Gaji Bersih Terbayar</dt>
-            <dd>{formatMoney(run.net_paid, currency)}</dd>
-          </div>
-          <div>
-            <dt>BPJS Kesehatan</dt>
-            <dd>
-              {formatMoney(run.bpjs_kes_due, currency)} · terbayar{" "}
-              {formatMoney(run.bpjs_kes_paid, currency)}
-            </dd>
-          </div>
-          <div>
-            <dt>BPJS Ketenagakerjaan</dt>
-            <dd>
-              {formatMoney(run.bpjs_tk_due, currency)} · terbayar{" "}
-              {formatMoney(run.bpjs_tk_paid, currency)}
-            </dd>
-          </div>
-          {Number(run.bpjs_paid) > Number(run.bpjs_kes_paid) + Number(run.bpjs_tk_paid) ? (
-            <div>
-              <dt>BPJS Terbayar (belum dipisah)</dt>
-              <dd>{formatMoney(run.bpjs_paid, currency)}</dd>
-            </div>
-          ) : null}
+        </div>
+
+        <div className="run-groups">
+          <section>
+            <h3>Dipotong dari karyawan</h3>
+            <dl>
+              <div>
+                <dt>BPJS karyawan</dt>
+                <dd>{formatMoney(run.employee_bpjs_total, currency)}</dd>
+              </div>
+              <div>
+                <dt>PPh 21</dt>
+                <dd>{money(run.pph21_total, currency)}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section>
+            <h3>Pajak</h3>
+            <dl>
+              <div>
+                <dt>Dasar pengenaan pajak</dt>
+                <dd>{money(run.tax_base_total, currency)}</dd>
+              </div>
+              <div>
+                <dt>Tunjangan pajak</dt>
+                <dd>{money(run.tax_allowance_total, currency)}</dd>
+              </div>
+            </dl>
+          </section>
+
+          <section>
+            <h3>Ditanggung perusahaan</h3>
+            <dl>
+              <div>
+                <dt>BPJS Kesehatan</dt>
+                <dd>{bpjsDue(run.bpjs_kes_due, run.bpjs_kes_paid, currency)}</dd>
+              </div>
+              <div>
+                <dt>BPJS Ketenagakerjaan</dt>
+                <dd>{bpjsDue(run.bpjs_tk_due, run.bpjs_tk_paid, currency)}</dd>
+              </div>
+              {Number(run.bpjs_paid) > Number(run.bpjs_kes_paid) + Number(run.bpjs_tk_paid) ? (
+                <div>
+                  <dt>Terbayar belum dipisah</dt>
+                  <dd>{formatMoney(run.bpjs_paid, currency)}</dd>
+                </div>
+              ) : null}
+            </dl>
+          </section>
+        </div>
+
+        <p className="run-meta">
+          <span>
+            {formatShortDate(run.period_start)} – {formatShortDate(run.period_end)}
+          </span>
+          <span>Dibayar {formatShortDate(run.pay_date)}</span>
+          <span>{run.employee_count} karyawan</span>
+          {run.review_count > 0 ? <span>{run.review_count} baris perlu ditinjau</span> : null}
           {run.calculated_at ? (
-            <div>
-              <dt>Terakhir Dihitung</dt>
-              <dd>
-                {formatShortDate(run.calculated_at.slice(0, 10))} (revisi {run.calc_version})
-              </dd>
-            </div>
-          ) : null}
-          {run.note ? (
-            <div>
-              <dt>Catatan</dt>
-              <dd>{run.note}</dd>
-            </div>
-          ) : null}
-          {run.correction_reason ? (
-            <div>
-              <dt>Alasan Koreksi</dt>
-              <dd>{run.correction_reason}</dd>
-            </div>
+            <span>
+              Dihitung {formatShortDate(run.calculated_at.slice(0, 10))} (revisi {run.calc_version})
+            </span>
           ) : null}
           {run.journal_id ? (
-            <div>
-              <dt>Jurnal</dt>
-              <dd>
-                <Link href={`/accounting/journal/${run.journal_id}${qs}`}>Lihat →</Link>
-              </dd>
-            </div>
+            <Link href={`/accounting/journal/${run.journal_id}${qs}`}>Jurnal</Link>
           ) : null}
           {run.reversal_journal_id ? (
-            <div>
-              <dt>Jurnal Pembalik</dt>
-              <dd>
-                <Link href={`/accounting/journal/${run.reversal_journal_id}${qs}`}>Lihat →</Link>
-              </dd>
-            </div>
+            <Link href={`/accounting/journal/${run.reversal_journal_id}${qs}`}>
+              Jurnal pembalik
+            </Link>
           ) : null}
-        </dl>
+        </p>
+
+        {run.note ? <p className="hint">Catatan: {run.note}</p> : null}
+        {run.correction_reason ? (
+          <p className="hint">Alasan koreksi: {run.correction_reason}</p>
+        ) : null}
         {run.differences.length > 0 ? (
           <ul className="hint" style={{ marginTop: "0.75rem" }}>
             {run.differences.map((diff) => (
@@ -241,21 +241,27 @@ export function PayrollRunDetailScreen({
             {lines.map((line) => (
               <tr key={line.line_id}>
                 <td>
-                  {line.employee_code} — {line.employee_name}
-                  {line.review_flags.length > 0 ? (
-                    <div>
-                      {line.review_flags.map((flag) => (
-                        <span key={flag} className="status-badge status-badge-attention">
-                          {describePayrollFlag(flag)}
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
-                  {line.info_flags.length > 0 ? (
-                    <p className="hint">
-                      {line.info_flags.map((flag) => describePayrollFlag(flag)).join(" ")}
-                    </p>
-                  ) : null}
+                  {/* Name first and on its own line, the code above it in small type, and anything the run
+                      wants to say about the line under both -- rather than one paragraph of prose running
+                      into the next (OWNER, 9 October 2026). */}
+                  <span className="run-who">
+                    <span className="run-who-code">{line.employee_code}</span>
+                    <strong className="run-who-name">{line.employee_name}</strong>
+                    {line.review_flags.length > 0 ? (
+                      <span className="run-who-flags">
+                        {line.review_flags.map((flag) => (
+                          <span key={flag} className="status-badge status-badge-attention">
+                            {describePayrollFlag(flag)}
+                          </span>
+                        ))}
+                      </span>
+                    ) : null}
+                    {line.info_flags.length > 0 ? (
+                      <span className="run-who-note">
+                        {line.info_flags.map((flag) => describePayrollFlag(flag)).join(" ")}
+                      </span>
+                    ) : null}
+                  </span>
                 </td>
                 <td className="num" data-label="Gaji Bruto">
                   {formatMoney(line.gross_pay, currency)}

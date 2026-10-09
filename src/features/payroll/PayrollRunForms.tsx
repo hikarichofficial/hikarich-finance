@@ -11,10 +11,25 @@ import {
   reversePayrollPaymentAction,
 } from "./payrollActions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { formatMoney } from "@/domain/money/format";
 
 export interface PayrollOption {
   id: string;
   label: string;
+}
+
+/** An employee on the adjustment form, with the pro-rata figures when this month is a part month. */
+export interface AdjustmentEmployee extends PayrollOption {
+  prorata?: {
+    daysWorked: number;
+    daysInPeriod: number;
+    proratedGross: string;
+    deduction: string;
+    label: string;
+    /** "Mulai bekerja 15 Okt 2026" or "Berhenti 10 Okt 2026", for the line that explains the figure. */
+    reason: string;
+    grossPay: string;
+  } | null;
 }
 
 export type PayrollRunCommand =
@@ -143,10 +158,20 @@ export function RunCommandForm({
 export function AdjustmentForm({
   runId,
   employees,
+  currency,
 }: {
   runId: string;
-  employees: readonly PayrollOption[];
+  employees: readonly AdjustmentEmployee[];
+  currency: string;
 }) {
+  const [employeeId, setEmployeeId] = useState("");
+  const [kind, setKind] = useState<"earning" | "deduction">("earning");
+  const [label, setLabel] = useState("");
+  const [amount, setAmount] = useState("");
+  const [taxable, setTaxable] = useState(true);
+
+  const prorata = employees.find((e) => e.id === employeeId)?.prorata ?? null;
+
   return (
     <PayrollToggleForm
       action={addPayrollAdjustmentAction}
@@ -156,7 +181,12 @@ export function AdjustmentForm({
       <input type="hidden" name="run_id" value={runId} />
       <label>
         Karyawan
-        <select name="employee_id" required defaultValue="">
+        <select
+          name="employee_id"
+          required
+          value={employeeId}
+          onChange={(event) => setEmployeeId(event.target.value)}
+        >
           <option value="" disabled>
             Pilih karyawan
           </option>
@@ -167,23 +197,87 @@ export function AdjustmentForm({
           ))}
         </select>
       </label>
+
+      {/* Pro-rata for a part month, worked out from this run's own figures and filled into the fields below,
+          so the amount is never typed by hand (OWNER, 9 October 2026; decision 388). */}
+      {prorata ? (
+        <div className="prorata-card">
+          <p className="prorata-lead">
+            {prorata.reason} — bekerja {prorata.daysWorked} dari {prorata.daysInPeriod} hari bulan
+            ini.
+          </p>
+          <dl className="prorata-figures">
+            <div>
+              <dt>Gaji sebulan penuh</dt>
+              <dd>{formatMoney(prorata.grossPay, currency)}</dd>
+            </div>
+            <div>
+              <dt>Gaji prorata</dt>
+              <dd>{formatMoney(prorata.proratedGross, currency)}</dd>
+            </div>
+            <div className="prorata-cut">
+              <dt>Potongan yang perlu dicatat</dt>
+              <dd>{formatMoney(prorata.deduction, currency)}</dd>
+            </div>
+          </dl>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => {
+              setKind("deduction");
+              setLabel(prorata.label);
+              setAmount(prorata.deduction);
+              // Pay that was never earned really is less income, so it lowers the PPh 21 base (decision 381).
+              setTaxable(true);
+            }}
+          >
+            Isi potongan prorata
+          </button>
+          <p className="hint">
+            Dihitung per hari kalender. Kalau perusahaan memakai hari kerja, ubah jumlahnya sendiri.
+          </p>
+        </div>
+      ) : null}
+
       <label>
         Jenis
-        <select name="kind" defaultValue="earning">
+        <select
+          name="kind"
+          value={kind}
+          onChange={(event) => setKind(event.target.value as "earning" | "deduction")}
+        >
           <option value="earning">Penghasilan (mis. bonus, lembur)</option>
           <option value="deduction">Potongan (mis. kasbon)</option>
         </select>
       </label>
       <label>
         Nama Penyesuaian
-        <input name="label" required maxLength={120} />
+        <input
+          name="label"
+          required
+          maxLength={120}
+          value={label}
+          onChange={(event) => setLabel(event.target.value)}
+        />
       </label>
       <label>
         Jumlah
-        <MoneyInput name="amount" required placeholder="0" />
+        <MoneyInput
+          name="amount"
+          required
+          placeholder="0"
+          value={amount}
+          onValueChange={setAmount}
+        />
       </label>
       <label className="checkbox-field">
-        <input type="checkbox" name="taxable" defaultChecked /> Dihitung untuk PPh 21
+        <input
+          type="checkbox"
+          name="taxable"
+          checked={taxable}
+          onChange={(event) => setTaxable(event.target.checked)}
+        />{" "}
+        {kind === "earning" ? "Dihitung untuk PPh 21" : "Mengurangi dasar PPh 21"}
       </label>
     </PayrollToggleForm>
   );
