@@ -9,6 +9,7 @@ import {
   activateLoanAction,
   cancelEquityEventAction,
   cancelLoanAction,
+  changeLoanRateAction,
   confirmEquityEventAction,
   createEquityEventAction,
   createLoanAction,
@@ -226,6 +227,41 @@ function PartyField({
 }
 
 // ================================================================ create forms
+/** Bunga Berjenjang (decision 374): later rates, each from a date, up to 20 rows. */
+function RateStepsField({ hint }: { hint: string }) {
+  const [rows, setRows] = useState(0);
+  return (
+    <fieldset>
+      <legend>Bunga berikutnya (opsional)</legend>
+      <p className="hint">{hint}</p>
+      {Array.from({ length: rows }, (_, n) => (
+        <div key={n} className="form-row">
+          <label>
+            Mulai tanggal
+            <input type="date" name={`step_from_${n}`} required />
+          </label>
+          <label>
+            Bunga per tahun (%)
+            <input name={`step_rate_${n}`} inputMode="decimal" required />
+          </label>
+        </div>
+      ))}
+      <div className="form-row">
+        {rows < 20 ? (
+          <button type="button" className="btn-ghost" onClick={() => setRows(rows + 1)}>
+            + Tambah tahap bunga
+          </button>
+        ) : null}
+        {rows > 0 ? (
+          <button type="button" className="btn-ghost" onClick={() => setRows(rows - 1)}>
+            Hapus tahap terakhir
+          </button>
+        ) : null}
+      </div>
+    </fieldset>
+  );
+}
+
 export function LoanCreateForm({
   entity,
   isCompany,
@@ -313,6 +349,7 @@ export function LoanCreateForm({
         Tanggal Cicilan Pertama
         <input type="date" name="first_due" required />
       </label>
+      <RateStepsField hint="Untuk bunga yang berubah, misalnya tetap 3 tahun lalu mengambang: isi tanggal mulai dan bunganya. Cicilan yang jatuh tempo mulai tanggal itu memakai bunga baru; cicilan anuitas dihitung ulang dari sisa pokok." />
       <p className="hint">
         Pinjaman disimpan sebagai draf. Uang baru dicatat saat pinjaman diaktifkan di halaman
         detailnya.
@@ -594,12 +631,35 @@ export function LoanActionsPanel({
               Tanggal Cicilan Pertama (jadwal baru)
               <input type="date" name="first_due" required />
             </label>
+            <RateStepsField hint="Bunga berikutnya untuk jadwal baru ini, jika sudah diketahui." />
             <ReasonField />
             <p className="hint">
-              Dipakai juga saat bunga berubah (misalnya masa bunga tetap selesai dan bunga
-              mengambang berlaku): isi bunga baru, tanggal efektif, dan sisa cicilan; cicilan
-              dihitung ulang dari sisa pokok. Jadwal lama berhenti di tanggal efektif; pembayaran
-              yang sudah tercatat tidak berubah. Perlu verifikasi ulang sebelum menyimpan.
+              Untuk pinjaman yang sulit dibayar: jadwal diganti mulai tanggal efektif dengan cara
+              hitung, bunga, dan jumlah cicilan yang baru, dari sisa pokok. Jadwal lama tersimpan
+              sebagai riwayat; pembayaran sebelumnya tidak berubah dan tidak bisa dibatalkan lagi.
+              Kalau yang berubah hanya bunganya, pakai Ubah Bunga. Perlu verifikasi ulang.
+            </p>
+          </CommandForm>
+          <CommandForm
+            {...common}
+            action={changeLoanRateAction}
+            openLabel="Ubah Bunga"
+            submitLabel="Simpan Bunga Baru"
+          >
+            <label>
+              Bunga Baru Berlaku Mulai
+              <input type="date" name="rate_from" required defaultValue={today} />
+            </label>
+            <label>
+              Bunga Baru per Tahun (%)
+              <input name="new_rate" inputMode="decimal" required />
+            </label>
+            <ReasonField />
+            <p className="hint">
+              Boleh tanggal yang akan datang. Cicilan yang jatuh tempo sebelum tanggal itu tetap;
+              cicilan mulai tanggal itu dihitung ulang dari sisa pokok dengan jangka waktu yang
+              sama. Jadwal lama tersimpan sebagai riwayat, dan pembayaran yang dicatat sebelum
+              perubahan tidak bisa dibatalkan lagi setelahnya. Perlu verifikasi ulang.
             </p>
           </CommandForm>
         </>

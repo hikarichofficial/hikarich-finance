@@ -481,7 +481,7 @@
         },
         {
           "title": "Isi jadwal cicilan",
-          "text": "**Bunga per Tahun (%)** (bawaan 0). **Cara Hitung Cicilan**: “Anuitas (cicilan sama tiap kali)”, “Flat (pokok dan bunga tetap)”, atau “Bunga saja, pokok di akhir”. **Jumlah Cicilan** (1 sampai 600), **Jarak Antar Cicilan** (Tiap bulan, Tiap 3 bulan, Tiap 6 bulan, Tiap tahun), dan **Tanggal Cicilan Pertama**. Tekan **Simpan Pinjaman**.",
+          "text": "**Bunga per Tahun (%)** (bawaan 0). **Cara Hitung Cicilan**: “Anuitas (cicilan sama tiap kali)”, “Flat (pokok dan bunga tetap)”, atau “Bunga saja, pokok di akhir”. **Jumlah Cicilan** (1 sampai 600), **Jarak Antar Cicilan** (Tiap bulan, Tiap 3 bulan, Tiap 6 bulan, Tiap tahun), dan **Tanggal Cicilan Pertama**. Untuk bunga yang berubah (Bunga Berjenjang), tekan **+ Tambah tahap bunga** di **Bunga berikutnya** lalu isi **Mulai tanggal** dan **Bunga per tahun (%)**, sampai 20 tahap; misalnya 6% lalu 10% mulai tahun ke-4. Cicilan yang jatuh tempo mulai tanggal itu memakai bunga baru, dan cicilan anuitas dihitung ulang dari sisa pokok. Tekan **Simpan Pinjaman**.",
           "warning": "Tanggal Cicilan Pertama tidak boleh sebelum Tanggal Perjanjian, dan nanti tidak boleh jatuh sebelum tanggal uang diterima atau diberikan."
         },
         {
@@ -524,7 +524,7 @@
         "Menyimpan pinjaman hanya membuat draf. Tidak ada jurnal dan tidak ada perubahan saldo sebelum Aktifkan Pinjaman.",
         "Tanggal uang diterima tidak boleh di masa depan dan tidak boleh sebelum Tanggal Perjanjian. Cicilan pertama tidak boleh jatuh sebelum tanggal itu.",
         "Rekening yang dipilih harus rekening aktif bermata uang dasar Entity. Untuk pinjaman bermata uang asing, lihat [Cara Mencatat Pinjaman dalam Mata Uang Asing](pinjaman-mata-uang-asing).",
-        "Jumlah, bunga, dan jadwal tidak bisa diedit setelah pinjaman dibuat. Perubahan jadwal memakai Restrukturisasi Jadwal.",
+        "Jumlah, bunga, dan jadwal tidak bisa diedit setelah pinjaman dibuat. Bunga yang berubah memakai Ubah Bunga; syarat lain yang berubah memakai Restrukturisasi Jadwal.",
         "Jadwal bunga hanyalah rencana. Yang masuk buku adalah bunga yang Anda isi saat mencatat pembayaran.",
         "Entity Pribadi tidak punya isian Jangka Waktu; pinjaman diterima masuk ke akun Pinjaman Pribadi.",
         "Pinjaman diberikan tercatat di akun Piutang Lain-lain, tetapi tidak muncul di daftar Piutang Lain yang dipakai untuk catatan sederhana.",
@@ -622,8 +622,13 @@
           "text": "Tekan **Hapus Sisa Pinjaman**, isi **Tanggal**, **Jumlah Dihapus** (bawaan: seluruh Outstanding), dan **Alasan** (5 sampai 1000 karakter), lalu **Simpan Penghapusan**. Layar meminta verifikasi ulang. Penghapusan tampil di Riwayat Pembayaran dengan Jenis “Penghapusan”, dan bisa dibatalkan lewat **Batalkan Pembayaran**."
         },
         {
-          "title": "Restrukturisasi Jadwal bila syarat cicilan atau bunga berubah",
-          "text": "Tekan **Restrukturisasi Jadwal**. Isi **Tanggal Efektif**, **Bunga per Tahun (%)**, **Cara Hitung Cicilan**, **Jumlah Cicilan (sisa jadwal baru)**, **Jarak Antar Cicilan**, **Tanggal Cicilan Pertama (jadwal baru)**, dan **Alasan**, lalu **Simpan Jadwal Baru**. Layar meminta verifikasi ulang. Jadwal lama berhenti di tanggal efektif dan muncul di **Riwayat Jadwal** (Versi, Metode, Bunga, Berlaku Sejak, Status Berlaku atau Digantikan). Pembayaran yang sudah tercatat tidak berubah, dan tidak ada jurnal baru. Inilah cara memakai bunga mengambang: bila bank menetapkan bunga tetap beberapa tahun lalu berubah mengikuti bunga pasar, restrukturisasi pada tanggal bunga berubah dengan bunga baru dan sisa cicilan yang tersisa, sehingga cicilan dihitung ulang dari sisa pokok."
+          "title": "Ubah Bunga bila hanya bunganya yang berubah",
+          "text": "Tekan **Ubah Bunga**. Isi **Bunga Baru Berlaku Mulai** (boleh tanggal yang akan datang), **Bunga Baru per Tahun (%)**, dan **Alasan**, lalu **Simpan Bunga Baru**. Layar meminta verifikasi ulang. Cicilan yang jatuh tempo sebelum tanggal itu tetap seperti semula (yang belum dibayar ikut terbawa); cicilan mulai tanggal itu dihitung ulang dari sisa pokok dengan jangka waktu yang sama. Jadwal lama tampil di **Riwayat Jadwal**, dan di Ringkasan muncul **Bunga Berikutnya**.",
+          "warning": "Pembayaran yang dicatat sebelum perubahan bunga menjadi riwayat dan tidak bisa dibatalkan lagi setelahnya. Batalkan pembayaran yang salah lebih dulu, baru ubah bunga."
+        },
+        {
+          "title": "Restrukturisasi Jadwal bila pinjaman sulit dibayar",
+          "text": "Tekan **Restrukturisasi Jadwal**. Isi **Tanggal Efektif**, **Bunga per Tahun (%)**, **Cara Hitung Cicilan**, **Jumlah Cicilan (sisa jadwal baru)**, **Jarak Antar Cicilan**, **Tanggal Cicilan Pertama (jadwal baru)**, dan **Alasan**, lalu **Simpan Jadwal Baru**. Layar meminta verifikasi ulang. Jadwal lama berhenti di tanggal efektif dan muncul di **Riwayat Jadwal** (Versi, Metode, Bunga, Berlaku Sejak, Status Berlaku atau Digantikan). Pembayaran yang sudah tercatat tidak berubah, dan tidak ada jurnal baru. Inilah cara memakai bunga mengambang: bila bank menetapkan bunga tetap beberapa tahun lalu berubah mengikuti bunga pasar, restrukturisasi pada tanggal bunga berubah dengan bunga baru dan sisa cicilan yang tersisa, sehingga cicilan dihitung ulang dari sisa pokok. Bila hanya bunganya yang berubah, **Ubah Bunga** lebih sederhana: jangka waktu tetap dan tanggal cicilan tidak berubah."
         }
       ],
       "tables": [
@@ -671,7 +676,7 @@
         "Mengisi seluruh pembayaran di Pokok padahal sebagian adalah bunga, sehingga beban bunga tidak tercatat dan sisa pokok terlalu kecil.",
         "Mengisi bunga atau biaya tanpa Catatan.",
         "Memakai Hapus Sisa Pinjaman untuk pelunasan padahal ada uang yang dibayar.",
-        "Membuat pinjaman baru untuk syarat yang berubah, padahal cukup Restrukturisasi Jadwal."
+        "Membuat pinjaman baru untuk syarat yang berubah, padahal cukup Ubah Bunga atau Restrukturisasi Jadwal."
       ],
       "errors": [
         {
@@ -717,6 +722,14 @@
         {
           "message": "Restrukturisasi tidak dapat disimpan. Periksa tanggal efektif, bunga, jumlah cicilan dan alasan.",
           "meaning": "Pesan umum saat restrukturisasi gagal."
+        },
+        {
+          "message": "Bunga baru tidak bisa mulai sebelum aktivitas terakhir pinjaman ini",
+          "meaning": "Tanggal mulai bunga baru harus sama atau setelah pembayaran terakhir yang dicatat."
+        },
+        {
+          "message": "Tidak ada cicilan yang jatuh tempo pada atau setelah tanggal itu; bunga baru tidak mengubah apa pun",
+          "meaning": "Tanggal mulai bunga baru jatuh setelah cicilan terakhir. Pilih tanggal yang lebih awal."
         }
       ],
       "related": ["catat-pinjaman", "pinjaman-mata-uang-asing", "transfer-antar-rekening"]

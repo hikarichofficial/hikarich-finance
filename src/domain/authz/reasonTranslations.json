@@ -3235,5 +3235,42 @@
   [
     "the logo is too large (about 300 KB at most)",
     "ukuran logo terlalu besar (maksimal sekitar 280 KB)"
+  ],
+  [
+    "a loan has at most 20 later interest rates",
+    "Pinjaman paling banyak punya 20 tahap bunga berikutnya"
+  ],
+  ["a later interest rate has an unreadable start date", "Tanggal mulai tahap bunga tidak terbaca"],
+  [
+    "later interest rates start after %, each after the one before",
+    "Tahap bunga dimulai setelah {1}, dan tiap tahap setelah tahap sebelumnya"
+  ],
+  [
+    "a manual schedule carries its own amounts; later interest rates apply to a generated schedule",
+    "Jadwal manual memakai jumlahnya sendiri; tahap bunga hanya untuk jadwal yang dihitung otomatis"
+  ],
+  [
+    "a manual schedule carries its own amounts; use Restrukturisasi Jadwal to replace it",
+    "Jadwal manual memakai jumlahnya sendiri; pakai Restrukturisasi Jadwal untuk menggantinya"
+  ],
+  [
+    "a change of interest needs a reason of 5 to 1000 characters",
+    "Perubahan bunga perlu alasan 5 sampai 1000 karakter"
+  ],
+  [
+    "the new rate cannot start before the last activity on this loan (%)",
+    "Bunga baru tidak bisa mulai sebelum aktivitas terakhir pinjaman ini ({1})"
+  ],
+  [
+    "no instalment falls due on or after %; the new rate would change nothing",
+    "Tidak ada cicilan yang jatuh tempo pada atau setelah {1}; bunga baru tidak mengubah apa pun"
+  ],
+  [
+    "no principal is left for the instalments from %",
+    "Tidak ada sisa pokok untuk cicilan mulai {1}"
+  ],
+  [
+    "only an active loan can change its interest (now %)",
+    "Hanya pinjaman aktif yang bisa diubah bunganya (sekarang {1})"
   ]
 ]

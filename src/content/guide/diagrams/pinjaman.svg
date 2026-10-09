@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 742 1495" width="742" height="1495" role="img" aria-label="Meminjam atau Meminjamkan Uang: Catat Pinjaman dan Cicilannya" font-family="Helvetica, Arial, sans-serif">
-<!-- source: alur.json sha256:1127c668bda75572 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 742 1506.5" width="742" height="1506.5" role="img" aria-label="Meminjam atau Meminjamkan Uang: Catat Pinjaman dan Cicilannya" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:17e3fd568652bfb0 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
 <title>Meminjam atau Meminjamkan Uang: Catat Pinjaman dan Cicilannya</title>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <rect x="291" y="18" width="160" height="56.5" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
@@ -178,18 +178,19 @@
 <polyline points="189,1334.5 553,1334.5" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polyline points="371,1334.5 371,1357.5" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polygon points="371,1362.5 366.5,1354.5 375.5,1354.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="291" y="1362.5" width="160" height="78.5" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<rect x="291" y="1362.5" width="160" height="90" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
 <text x="371" y="1381" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
 <text x="371" y="1394.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Cicilan salah: Batalkan</text>
-<text x="371" y="1406" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Pembayaran. Syarat berubah:</text>
-<text x="371" y="1417.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Restrukturisasi Jadwal. Sisa</text>
-<text x="371" y="1429" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">dihapus: Hapus Sisa</text>
-<rect x="198.95" y="1467" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
-<text x="214.95" y="1475" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
-<rect x="269.2" y="1467" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
-<text x="285.2" y="1475" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
-<rect x="391.91" y="1467" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
-<text x="407.91" y="1475" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
-<polygon points="492.14,1466 498.14,1472 492.14,1478 486.14,1472" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
-<text x="502.14" y="1475" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+<text x="371" y="1406" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Pembayaran. Bunga berubah:</text>
+<text x="371" y="1417.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Ubah Bunga. Sulit dibayar:</text>
+<text x="371" y="1429" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Restrukturisasi Jadwal. Sisa</text>
+<text x="371" y="1440.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">dihapus: Hapus Sisa</text>
+<rect x="198.95" y="1478.5" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="214.95" y="1486.5" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="269.2" y="1478.5" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="285.2" y="1486.5" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="391.91" y="1478.5" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="407.91" y="1486.5" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="492.14,1477.5 498.14,1483.5 492.14,1489.5 486.14,1483.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="502.14" y="1486.5" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
 </svg>

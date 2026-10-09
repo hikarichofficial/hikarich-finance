@@ -141,6 +141,16 @@ export function LoanDetailScreen({
                 <dt>Bunga</dt>
                 <dd>{trimDecimalText(activeVersion.rate ?? "0")}% / tahun</dd>
               </div>
+              {activeVersion.rate_steps.length > 0 ? (
+                <div>
+                  <dt>Bunga Berikutnya</dt>
+                  <dd>
+                    {activeVersion.rate_steps
+                      .map((s) => `${trimDecimalText(s.rate)}% mulai ${formatShortDate(s.from)}`)
+                      .join("; ")}
+                  </dd>
+                </div>
+              ) : null}
             </>
           ) : null}
           {detail.asset_id ? (
@@ -328,7 +338,12 @@ export function LoanDetailScreen({
                     <td>{version.version_no}</td>
                     <td data-label="Metode">{LOAN_METHOD_LABELS[version.method as LoanMethod]}</td>
                     <td className="num" data-label="Bunga">
-                      {version.rate}%
+                      {trimDecimalText(version.rate)}%
+                      {version.rate_steps.length > 0
+                        ? `, lalu ${version.rate_steps
+                            .map((s) => `${trimDecimalText(s.rate)}% (${formatShortDate(s.from)})`)
+                            .join(", ")}`
+                        : ""}
                     </td>
                     <td data-label="Berlaku Sejak">
                       {version.effective_from ? formatShortDate(version.effective_from) : "—"}

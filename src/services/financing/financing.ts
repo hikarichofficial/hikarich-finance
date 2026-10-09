@@ -36,6 +36,7 @@ import {
   recordFinancingTaxReviewInputSchema,
   repayLoanInputSchema,
   restructureLoanInputSchema,
+  changeLoanRateInputSchema,
   reverseDividendPaymentInputSchema,
   reverseEquityEventInputSchema,
   reverseLoanFxRevaluationInputSchema,
@@ -225,6 +226,7 @@ export async function createLoan(input: z.input<typeof createLoanInputSchema>): 
       p_asset: v.asset_id ?? null,
       p_related: v.related_entity_id ?? null,
       p_basis: v.relationship_basis ?? null,
+      p_rate_steps: v.rate_steps && v.rate_steps.length > 0 ? v.rate_steps : null,
     },
     uuidResultSchema,
   );
@@ -307,6 +309,26 @@ export async function restructureLoan(
       p_step_months: v.step_months ?? null,
       p_first_due: v.first_due ?? null,
       p_items: v.items ?? null,
+      p_reason: v.reason,
+      p_rate_steps: v.rate_steps && v.rate_steps.length > 0 ? v.rate_steps : null,
+    },
+    uuidResultSchema,
+  );
+}
+
+/** Ubah Bunga (decision 374): the instalments from `from` on are recalculated at the new rate from the remaining
+ * principal; earlier ones stay. Needs a recent step-up. Returns the new schedule version id. */
+export async function changeLoanRate(
+  input: z.input<typeof changeLoanRateInputSchema>,
+): Promise<string> {
+  const v = changeLoanRateInputSchema.parse(input);
+  return callRpc(
+    "loan_change_rate",
+    {
+      p_loan: v.loan_id,
+      p_key: v.idempotency_key,
+      p_from: v.from,
+      p_rate: v.rate_percent,
       p_reason: v.reason,
     },
     uuidResultSchema,
