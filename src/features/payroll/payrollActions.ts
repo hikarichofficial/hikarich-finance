@@ -68,7 +68,8 @@ function errorState(error: unknown, fallback: string): PayrollActionState {
 
 function revalidateEmployee(employeeId: string): void {
   revalidatePath("/payroll/employees");
-  revalidatePath(`/payroll/employees/${employeeId}`);
+  // "layout": the employee's own sub-pages (gaji, pajak, bpjs, pekerjaan) refresh with the overview.
+  revalidatePath(`/payroll/employees/${employeeId}`, "layout");
 }
 
 function revalidateRun(runId: string): void {

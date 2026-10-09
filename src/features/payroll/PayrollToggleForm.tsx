@@ -20,12 +20,18 @@ export function PayrollToggleForm({
   openLabel,
   submitLabel,
   primary,
+  wide,
+  alwaysOpen,
   children,
 }: {
   action: PayrollFormAction;
   openLabel: string;
   submitLabel: string;
   primary?: boolean;
+  /** A form with a row editor inside: the 480px cap of `.record-form` is lifted. */
+  wide?: boolean;
+  /** The form is the content of its own page (an employee sub-page): no opening button, no "Tutup". */
+  alwaysOpen?: boolean;
   children: ReactNode;
 }) {
   const [state, formAction, pending] = useActionState(action, IDLE);
@@ -35,7 +41,7 @@ export function PayrollToggleForm({
   const search = useSearchParams().toString();
   const stepUpNext = search === "" ? pathname : `${pathname}?${search}`;
 
-  if (!open) {
+  if (!open && !alwaysOpen) {
     return (
       <button
         type="button"
@@ -48,8 +54,8 @@ export function PayrollToggleForm({
   }
 
   return (
-    <form {...formActionForm} className="record-form">
-      <strong>{openLabel}</strong>
+    <form {...formActionForm} className={wide ? "record-form record-form-wide" : "record-form"}>
+      {alwaysOpen ? null : <strong>{openLabel}</strong>}
       {children}
       {state.status === "error" ? (
         <p role="alert" className="error">
@@ -65,9 +71,11 @@ export function PayrollToggleForm({
       <button type="submit" className="btn-primary" disabled={pending}>
         {pending ? "Menyimpan…" : submitLabel}
       </button>
-      <button type="button" className="btn-secondary" onClick={() => setOpen(false)}>
-        Tutup
-      </button>
+      {alwaysOpen ? null : (
+        <button type="button" className="btn-secondary" onClick={() => setOpen(false)}>
+          Tutup
+        </button>
+      )}
     </form>
   );
 }

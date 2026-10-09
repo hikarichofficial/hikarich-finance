@@ -6,12 +6,13 @@ import {
   endEmployeeAction,
   recordEmploymentAction,
   setBpjsAction,
-  setCompensationAction,
   setTaxOpeningAction,
   setTaxProfileAction,
   updateEmployeeAction,
 } from "./payrollActions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+
+export { CompensationForm, type CompensationRowView } from "./CompensationForm";
 
 /** Change the name, and the join date while no posted Payroll has counted the employee (`employee_update`). */
 export function UpdateEmployeeForm({
@@ -28,6 +29,7 @@ export function UpdateEmployeeForm({
       action={updateEmployeeAction}
       openLabel="Ubah Data"
       submitLabel="Simpan Perubahan"
+      alwaysOpen
     >
       <input type="hidden" name="employee_id" value={employeeId} />
       <label>
@@ -64,6 +66,7 @@ export function EmploymentForm({
       action={recordEmploymentAction}
       openLabel="Catat Perubahan Jabatan"
       submitLabel="Simpan Jabatan"
+      alwaysOpen
     >
       <input type="hidden" name="employee_id" value={employeeId} />
       <label>
@@ -95,122 +98,6 @@ export function EmploymentForm({
   );
 }
 
-export interface CompensationRowView {
-  component: string;
-  kind: string;
-  label: string;
-  amount: string;
-  taxable: boolean;
-  bpjsBase: boolean;
-}
-
-const EMPTY_ROW: CompensationRowView = {
-  component: "",
-  kind: "earning",
-  label: "",
-  amount: "",
-  taxable: true,
-  bpjsBase: false,
-};
-
-const FIRST_ROW: CompensationRowView = {
-  component: "gaji_pokok",
-  kind: "earning",
-  label: "Gaji Pokok",
-  amount: "",
-  taxable: true,
-  bpjsBase: true,
-};
-
-/**
- * Salary components from a date (`employee_set_compensation`, `payroll.compensation_edit`). Each component
- * is effective-dated on its own: a row saved here replaces that component from the date given, and a
- * component left out keeps its current amount. A row with no name and no amount is ignored.
- */
-export function CompensationForm({
-  employeeId,
-  current,
-  today,
-}: {
-  employeeId: string;
-  current: readonly CompensationRowView[];
-  today: string;
-}) {
-  const [rows, setRows] = useState<readonly CompensationRowView[]>(
-    current.length > 0 ? current : [FIRST_ROW],
-  );
-
-  return (
-    <PayrollToggleForm
-      action={setCompensationAction}
-      openLabel="Atur Gaji & Komponen"
-      submitLabel="Simpan Kompensasi"
-    >
-      <input type="hidden" name="employee_id" value={employeeId} />
-      <input type="hidden" name="row_count" value={rows.length} />
-      <label>
-        Berlaku Sejak
-        <input type="date" name="effective_from" required defaultValue={today} />
-      </label>
-      <p className="hint">
-        Isi komponen yang baru atau berubah saja; komponen lain tetap seperti sebelumnya. Kosongkan
-        nama dan jumlah pada baris yang tidak dipakai.
-      </p>
-      {rows.map((row, index) => (
-        <fieldset key={index}>
-          <legend>Komponen {index + 1}</legend>
-          <label>
-            Nama
-            <input
-              name={`label_${index}`}
-              maxLength={120}
-              defaultValue={row.label}
-              placeholder="mis. Tunjangan Transport"
-            />
-          </label>
-          <label>
-            Kode (huruf kecil, tanpa spasi)
-            <input
-              name={`component_${index}`}
-              maxLength={41}
-              defaultValue={row.component}
-              placeholder="mis. tunjangan_transport"
-            />
-          </label>
-          <label>
-            Jenis
-            <select name={`kind_${index}`} defaultValue={row.kind}>
-              <option value="earning">Penghasilan</option>
-              <option value="deduction">Potongan</option>
-            </select>
-          </label>
-          <label>
-            Jumlah per Bulan
-            <MoneyInput name={`amount_${index}`} defaultValue={row.amount} placeholder="0" />
-          </label>
-          <label className="checkbox-field">
-            <input type="checkbox" name={`taxable_${index}`} defaultChecked={row.taxable} />{" "}
-            Dihitung untuk PPh 21
-          </label>
-          <label className="checkbox-field">
-            <input type="checkbox" name={`bpjs_base_${index}`} defaultChecked={row.bpjsBase} />{" "}
-            Masuk dasar upah BPJS (hanya penghasilan)
-          </label>
-        </fieldset>
-      ))}
-      {rows.length < 30 ? (
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={() => setRows((previous) => [...previous, EMPTY_ROW])}
-        >
-          Tambah Komponen
-        </button>
-      ) : null}
-    </PayrollToggleForm>
-  );
-}
-
 export interface TaxProfileView {
   taxIdStatus: string;
   ptkpStatus: string;
@@ -234,6 +121,7 @@ export function TaxProfileForm({
       action={setTaxProfileAction}
       openLabel="Atur Data Pajak"
       submitLabel="Simpan Data Pajak"
+      alwaysOpen
     >
       <input type="hidden" name="employee_id" value={employeeId} />
       <label>
@@ -282,15 +170,24 @@ export function TaxProfileForm({
   );
 }
 
-const BPJS_PROGRAMS = [
-  { code: "bpjs_kes", label: "BPJS Kesehatan" },
-  { code: "bpjs_jht", label: "BPJS Ketenagakerjaan: JHT" },
-  { code: "bpjs_jp", label: "BPJS Ketenagakerjaan: JP" },
-  { code: "bpjs_jkk", label: "BPJS Ketenagakerjaan: JKK" },
-  { code: "bpjs_jkm", label: "BPJS Ketenagakerjaan: JKM" },
-] as const;
+const BPJS_KES = "bpjs_kes";
+const BPJS_TK = ["bpjs_jht", "bpjs_jp", "bpjs_jkk", "bpjs_jkm"] as const;
+const BPJS_ALL = [BPJS_KES, ...BPJS_TK] as const;
 
 const JKK_GRADES = ["grade_1", "grade_2", "grade_3", "grade_4", "grade_5"] as const;
+
+type BpjsPackage = "full" | "kes" | "tk" | "none";
+
+const BPJS_PACKAGES: readonly { key: BpjsPackage; title: string; text: string }[] = [
+  {
+    key: "full",
+    title: "Lengkap",
+    text: "BPJS Kesehatan + BPJS Ketenagakerjaan (JHT, JP, JKK, JKM). Pilihan umum untuk karyawan tetap.",
+  },
+  { key: "kes", title: "Hanya Kesehatan", text: "BPJS Kesehatan saja." },
+  { key: "tk", title: "Hanya Ketenagakerjaan", text: "JHT, JP, JKK dan JKM tanpa BPJS Kesehatan." },
+  { key: "none", title: "Tidak ikut BPJS", text: "Tidak ada iuran BPJS di payroll karyawan ini." },
+];
 
 export interface BpjsRowView {
   component: string;
@@ -298,9 +195,30 @@ export interface BpjsRowView {
   memberRef: string | null;
 }
 
+function packageOf(current: readonly BpjsRowView[]): BpjsPackage {
+  if (current.length === 0) return "full";
+  const has = (code: string) => current.some((row) => row.component === code);
+  const kes = has(BPJS_KES);
+  const tk = BPJS_TK.some(has);
+  if (kes && tk) return "full";
+  if (kes) return "kes";
+  if (tk) return "tk";
+  return "none";
+}
+
+function includes(choice: BpjsPackage, code: string): boolean {
+  if (choice === "full") return true;
+  if (choice === "kes") return code === BPJS_KES;
+  if (choice === "tk") return code !== BPJS_KES;
+  return false;
+}
+
 /**
- * BPJS enrolment from a date (`employee_set_bpjs`, `payroll.compensation_edit`). Each program is
- * effective-dated on its own, so only the programs set to "Terdaftar" or "Tidak terdaftar" are sent.
+ * BPJS enrolment from a date (`employee_set_bpjs`, `payroll.compensation_edit`). OWNER, 9 October 2026: five
+ * programs with a "no change / yes / no" choice each was too much, so one package is picked instead ("Lengkap"
+ * for a person with nothing recorded yet) and the five programs are posted from it: "yes" for each program in the
+ * package, "no" for a program the person is enrolled in now but the package leaves out. The posted fields are the
+ * same as before (`enrolled_*`, `rate_key_bpjs_jkk`, `member_ref_*`).
  */
 export function BpjsForm({
   employeeId,
@@ -311,87 +229,144 @@ export function BpjsForm({
   current: readonly BpjsRowView[];
   today: string;
 }) {
+  const [choice, setChoice] = useState<BpjsPackage>(() => packageOf(current));
+  const existing = (code: string) => current.find((row) => row.component === code);
+  const enrolledNow = (code: string) => existing(code) !== undefined;
+  const memberRef = (codes: readonly string[]) =>
+    codes.map((code) => existing(code)?.memberRef).find((value) => value) ?? "";
+
   return (
-    <PayrollToggleForm action={setBpjsAction} openLabel="Atur BPJS" submitLabel="Simpan BPJS">
+    <PayrollToggleForm
+      action={setBpjsAction}
+      openLabel="Atur BPJS"
+      submitLabel="Simpan BPJS"
+      alwaysOpen
+    >
       <input type="hidden" name="employee_id" value={employeeId} />
       <label>
-        Berlaku Sejak
+        Berlaku mulai
         <input type="date" name="effective_from" required defaultValue={today} />
       </label>
       <p className="hint">
-        BPJS Kesehatan dan BPJS Ketenagakerjaan (JHT, JP, JKK, JKM) adalah dua badan yang berbeda
-        dan dibayar terpisah. Pilih hanya program yang berubah; sisanya biarkan Tidak diubah.
+        Pilih paket kepesertaan saja; iuran dihitung otomatis dari gaji tiap bulan. BPJS Kesehatan
+        dan BPJS Ketenagakerjaan dibayar terpisah.
       </p>
-      {BPJS_PROGRAMS.map((program) => {
-        const existing = current.find((row) => row.component === program.code);
-        return (
-          <fieldset key={program.code}>
-            <legend>
-              {program.label}
-              {existing ? " (sekarang terdaftar)" : ""}
-            </legend>
+
+      <div className="choice-cards" role="radiogroup" aria-label="Paket BPJS">
+        {BPJS_PACKAGES.map((option) => (
+          <button
+            key={option.key}
+            type="button"
+            role="radio"
+            aria-checked={choice === option.key}
+            className="choice-card"
+            onClick={() => setChoice(option.key)}
+          >
+            <strong>{option.title}</strong>
+            <span>{option.text}</span>
+          </button>
+        ))}
+      </div>
+
+      {BPJS_ALL.map((code) => {
+        const inPackage = includes(choice, code);
+        const value = inPackage ? "yes" : enrolledNow(code) ? "no" : "";
+        return <input key={code} type="hidden" name={`enrolled_${code}`} value={value} />;
+      })}
+
+      {includes(choice, "bpjs_jkk") ? (
+        <label>
+          Tingkat risiko JKK
+          <select
+            name="rate_key_bpjs_jkk"
+            defaultValue={existing("bpjs_jkk")?.rateKey ?? "grade_1"}
+          >
+            {JKK_GRADES.map((grade, index) => (
+              <option key={grade} value={grade}>
+                Tingkat {index + 1}
+                {index === 0 ? " (kantor, jasa, digital)" : ""}
+              </option>
+            ))}
+          </select>
+        </label>
+      ) : null}
+
+      {choice !== "none" ? (
+        <details className="comp-optional">
+          <summary>Nomor kartu BPJS (opsional)</summary>
+          {includes(choice, BPJS_KES) ? (
             <label>
-              Kepesertaan
-              <select name={`enrolled_${program.code}`} defaultValue="">
-                <option value="">Tidak diubah</option>
-                <option value="yes">Terdaftar</option>
-                <option value="no">Tidak terdaftar</option>
-              </select>
-            </label>
-            {program.code === "bpjs_jkk" ? (
-              <label>
-                Tingkat Risiko JKK
-                <select name={`rate_key_${program.code}`} defaultValue={existing?.rateKey ?? ""}>
-                  <option value="">Pilih tingkat risiko</option>
-                  {JKK_GRADES.map((grade, index) => (
-                    <option key={grade} value={grade}>
-                      Tingkat {index + 1}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            ) : null}
-            <label>
-              Nomor Anggota (opsional)
+              Nomor BPJS Kesehatan
               <input
-                name={`member_ref_${program.code}`}
+                name={`member_ref_${BPJS_KES}`}
                 maxLength={60}
-                defaultValue={existing?.memberRef ?? ""}
+                defaultValue={memberRef([BPJS_KES])}
               />
             </label>
-          </fieldset>
-        );
-      })}
+          ) : null}
+          {choice !== "kes" ? (
+            <label>
+              Nomor BPJS Ketenagakerjaan
+              <input name="member_ref_bpjs_jht" maxLength={60} defaultValue={memberRef(BPJS_TK)} />
+            </label>
+          ) : null}
+        </details>
+      ) : null}
     </PayrollToggleForm>
   );
 }
 
 /**
  * Income and PPh 21 already withheld this tax year before the books start (`employee_set_tax_opening`,
- * Step 17), for an employee whose first Payroll here is not January.
+ * Step 17). Only for an employee who was already paid earlier this tax year outside this app; a new employee
+ * needs nothing here (the screen does not offer it then).
  */
-export function TaxOpeningForm({ employeeId, year }: { employeeId: string; year: number }) {
+export function TaxOpeningForm({
+  employeeId,
+  year,
+  defaultMonth,
+}: {
+  employeeId: string;
+  year: number;
+  /** The month before the current one: the last month already paid elsewhere when the app is started now. */
+  defaultMonth: number;
+}) {
   return (
     <PayrollToggleForm
       action={setTaxOpeningAction}
-      openLabel="Isi Saldo Awal Pajak"
+      openLabel="Isi Saldo Awal Pajak (karyawan lama)"
       submitLabel="Simpan Saldo Awal Pajak"
+      alwaysOpen
     >
       <input type="hidden" name="employee_id" value={employeeId} />
       <p className="hint">
-        Untuk karyawan yang sudah digaji sebelum memakai aplikasi ini: isi total penghasilan dan PPh
-        21 yang sudah dipotong pada tahun pajak itu.
+        <strong>
+          Hanya bila karyawan ini sudah digaji sebelum Anda memakai aplikasi, pada tahun pajak yang
+          sama.
+        </strong>{" "}
+        Supaya PPh 21 sisa tahun dihitung benar, aplikasi perlu tahu berapa penghasilan dan PPh 21
+        yang sudah terpotong sampai bulan terakhir sebelum pakai aplikasi. Contoh: mulai memakai
+        aplikasi di Oktober, isi &quot;Sampai Bulan&quot; 9, lalu total gaji kena pajak dan total
+        PPh 21 dari slip Januari–September. Karyawan baru atau yang baru pertama digaji lewat
+        aplikasi: lewati saja, tidak perlu diisi.
       </p>
       <label>
         Tahun Pajak
         <input type="number" name="tax_year" required min={2000} max={2100} defaultValue={year} />
       </label>
       <label>
-        Sampai Bulan (1-11)
-        <input type="number" name="through_month" required min={1} max={11} />
+        Sampai Bulan ke- (1 sampai 11)
+        <input
+          type="number"
+          name="through_month"
+          required
+          min={1}
+          max={11}
+          defaultValue={defaultMonth}
+        />
       </label>
       <label>
-        Total Penghasilan Bruto Kena Pajak
+        Total Penghasilan Bruto Kena Pajak (Januari sampai bulan itu)
         <MoneyInput name="taxable_gross" required placeholder="0" />
       </label>
       <label>
@@ -417,6 +392,7 @@ export function EndEmployeeForm({ employeeId, today }: { employeeId: string; tod
       action={endEmployeeAction}
       openLabel="Karyawan Berhenti"
       submitLabel="Simpan Tanggal Berhenti"
+      alwaysOpen
     >
       <input type="hidden" name="employee_id" value={employeeId} />
       <label>
