@@ -256,13 +256,13 @@ begin
   -- instalment or kasbon does not: the employee did receive that income and is paying back their own debt from it).
   select gross_pay::numeric, tax_base::numeric, pph21::numeric into v_gross, v_base, v_tax
     from public.payroll_run_lines(v_run) where employee_id = test_helpers.g('A');
-  v_adj2 := public.payroll_adjustment_add(v_run, 'key-p9b-ad7', test_helpers.g('A'), 'deduction', 'Cicilan pinjaman', '200000', false);
+  v_adj2 := public.payroll_adjustment_add(v_run, 'key-p9b-ad381a', test_helpers.g('A'), 'deduction', 'Cicilan pinjaman', '200000', false);
   perform public.payroll_run_calculate(v_run);
   select * into r from public.payroll_run_lines(v_run) where employee_id = test_helpers.g('A');
   perform test_helpers.assert(r.gross_pay::numeric = v_gross - 200000, 'A: an untaxed deduction still lowers gross pay');
   perform test_helpers.assert(r.tax_base::numeric = v_base and r.pph21::numeric = v_tax, 'A: but not the PPh 21 base');
   perform public.payroll_adjustment_remove(v_adj2);
-  v_adj2 := public.payroll_adjustment_add(v_run, 'key-p9b-ad8', test_helpers.g('A'), 'deduction', 'Potongan absen', '200000', true);
+  v_adj2 := public.payroll_adjustment_add(v_run, 'key-p9b-ad381b', test_helpers.g('A'), 'deduction', 'Potongan absen', '200000', true);
   perform public.payroll_run_calculate(v_run);
   select * into r from public.payroll_run_lines(v_run) where employee_id = test_helpers.g('A');
   perform test_helpers.assert(r.tax_base::numeric = v_base - 200000, 'A: a taxable deduction does lower the PPh 21 base');

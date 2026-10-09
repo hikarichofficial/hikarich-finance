@@ -354,10 +354,10 @@ export function CompensationForm({
         disimpan.
       </p>
       <p className="hint">
-        Pada baris potongan, centang &ldquo;Mengurangi dasar PPh 21&rdquo; hanya bila karyawan memang
-        menerima lebih sedikit, misalnya potongan absensi. Cicilan pinjaman, kasbon dan sejenisnya
-        tidak dicentang: gaji tetap diterima penuh lalu dipakai membayar utang, jadi pajaknya tidak
-        ikut berkurang.
+        Pada baris potongan, centang &ldquo;Mengurangi dasar PPh 21&rdquo; hanya bila karyawan
+        memang menerima lebih sedikit, misalnya potongan absensi. Cicilan pinjaman, kasbon dan
+        sejenisnya tidak dicentang: gaji tetap diterima penuh lalu dipakai membayar utang, jadi
+        pajaknya tidak ikut berkurang.
       </p>
     </PayrollToggleForm>
   );
