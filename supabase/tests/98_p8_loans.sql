@@ -949,6 +949,7 @@ begin
   perform test_helpers.expect_msg(format($q$select public.loan_change_rate(%L, 'k-374-r3', %L, '15', 'Floating rate starts')$q$, v_c, v_today + 4000), 'INVALID', '374.10 a date after the last instalment changes nothing');
   v_new := public.loan_change_rate(v_c, 'k-374-r4', v_today + 40, '15', 'Floating rate starts');
   perform test_helpers.assert(public.loan_change_rate(v_c, 'k-374-r4', v_today + 40, '15', 'Floating rate starts') = v_new, '374.11 a change of rate replays');
+  perform test_helpers.logout();
   select * into v from public.loan_schedule_versions where id = v_new;
   perform test_helpers.assert(v.status = 'active' and v.version_no = 2 and v.installments = 12 and v.principal_basis = app_private.loan_outstanding(v_c)
     and (select sum(principal_due) from public.loan_schedule_items where version_id = v_new) = app_private.loan_outstanding(v_c)
@@ -962,6 +963,7 @@ begin
   perform test_helpers.assert((select max(interest_due) from public.loan_schedule_items where version_id = v_new and due_date >= v_today + 40)
       > (select max(interest_due) from public.loan_schedule_items where version_id = v_old and due_date >= v_today + 40),
     '374.14 instalments from the new rate carry more interest at 15%');
+  perform test_helpers.login(v_owner);
   perform test_helpers.expect_msg(format($q$select public.loan_reverse_payment(%L, 'k-374-rv', %L, 'Wrong amount entered')$q$, v_pay, v_today), 'CONFLICT', '374.15 a payment made before the change cannot be reversed');
   perform test_helpers.controls8c(pt, 'after Bunga Berjenjang');
   perform test_helpers.logout();
