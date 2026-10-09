@@ -3239,3 +3239,18 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      all the owner's books against the Rp 4,8 miliar ceiling of PPh Final UMKM, with a note that personal income tax lives in the
      Personal book. `NavItem.labelByEntityType` and `visibleNavigation(permissions, entityType)` do this; the Sidebar and the
      Command Menu both read the relabelled list. Guide updated.
+
+369. **PPh 21 on fees to individuals who are not employees (builder decision, 9 October 2026, one merge with 370 if any).**
+     The owner asked the builder to settle tax rules from sources. PMK 168/2023 (read from the official text): Pasal 12 ayat (3)
+     the base for a non-employee is 50% of the gross; Pasal 16 ayat (3) the rate is the progressive rate of UU PPh Pasal 17 ayat (1)
+     huruf a applied to that base, for each tax period and no longer accumulated over the year (the old continuing / non-continuing
+     distinction of PMK 252/2008 and PER-16/PJ/2016 is gone). No PTKP is deducted by the withholder. A payee without a tax number: rate x 1,2
+     (UU PPh Pasal 21 ayat 5a; an individual with a valid NIK counts as having one, so the existing "has a tax number" fact is used).
+     New withholding object `wht_pph21_non_employee` (catalogue entry), new rule `PPH21_NON_EMPLOYEE` v1 (the layers are read from
+     `PERSONAL_INCOME_TARIFF`, not repeated), `PPH26_RATE_20` v2 adds the object (a non-resident individual is article 26), and the
+     determination function `tax_eval_wht` learns the fourth tax (type `wht_pph21`, shared with payroll: same ledger, payment, filing,
+     reconciliation and 15th / 20th deadlines). A company payee goes to review (it is a PPh 23 matter). Migration
+     `20261015100000_p45_pph21_non_employee.sql`, test `99_p45_pph21_non_employee.sql`.
+     Limit, stated in the guide: the layers are applied to each document, not to the sum of one payee's payments in the same month, because
+     the engine determines one document at a time; a payee paid several times a month may be under-withheld at the higher layers.
+     Not modelled: Bupot 21/26 export, the NIK check against the tax office, PPh 21 for continuing foreign experts.
