@@ -9,7 +9,7 @@
       "summary": "Mendaftarkan karyawan baru, lalu mengisi gaji, data pajak, dan BPJS supaya ia bisa masuk Payroll bulanan.",
       "path": "Payroll > Karyawan",
       "who": "Lihat daftar karyawan: payroll.employee_view. Tambah dan ubah data karyawan, catat perubahan jabatan, tandai berhenti: payroll.employee_edit. Atur gaji dan BPJS: payroll.compensation_edit. Lihat gaji dan BPJS: payroll.compensation_view. Lihat data pajak: payroll.tax_view (mengubah data pajak butuh payroll.employee_edit dan payroll.tax_view sekaligus). Semua izin ini dipegang OWNER dan peran Payroll; peran lain tidak punya. Payroll hanya tersedia untuk Entity berbentuk perusahaan.",
-      "quick": "Setelah **Simpan**, karyawan belum bisa digaji dengan benar sampai **Atur Gaji & Komponen** dan **Atur Data Pajak** diisi; **Atur BPJS** diisi bila ia ikut BPJS.",
+      "quick": "Setelah **Simpan**, karyawan belum bisa digaji dengan benar sampai tab **Gaji & Komponen** dan tab **Pajak** diisi; tab **BPJS** diisi bila ia ikut BPJS.",
       "steps": [
         {
           "title": "Buka Payroll > Karyawan",
@@ -29,27 +29,27 @@
           }
         },
         {
-          "title": "Atur gaji dan komponennya",
-          "text": "Di bagian **Tindakan**, tekan **Atur Gaji & Komponen**. Isi **Berlaku Sejak**, lalu untuk tiap komponen isi **Nama**, **Kode (huruf kecil, tanpa spasi)**, **Jenis** (Penghasilan atau Potongan), dan **Jumlah per Bulan**. Dua kotak centang penting: **Dihitung untuk PPh 21** dan **Masuk dasar upah BPJS (hanya penghasilan)**.\n\nBaris pertama sudah berisi “Gaji Pokok” (kode gaji_pokok) dengan kedua kotak tercentang. Tekan **Tambah Komponen** untuk tunjangan atau potongan lain, lalu **Simpan Kompensasi**.",
-          "tip": "Saat gaji berubah, isi hanya komponen yang berubah dengan **Berlaku Sejak** yang baru. Komponen yang tidak Anda isi tetap seperti sebelumnya. Kosongkan nama dan jumlah pada baris yang tidak dipakai."
+          "title": "Isi gaji dan komponennya",
+          "text": "Buka tab **Gaji & Komponen**. Di bawah daftar komponen yang berlaku ada bagian **Ubah gaji atau tambah komponen**. Isi **Berlaku mulai**. Baris pertama sudah berisi “Gaji Pokok”; isi jumlahnya. Untuk komponen lain, tekan salah satu tombol di **Tambah dari daftar** (Tunjangan Transport, Tunjangan Makan, Uang Lembur, Potongan Pinjaman Karyawan, dan lainnya) atau **Komponen lain (ketik sendiri)** lalu ketik namanya. Nama bisa dipilih dari daftar atau diketik bebas; **kode dibuat otomatis** dari nama.\n\nSetiap baris memilih **Penghasilan** atau **Potongan**, dan dua pilihan: **Kena PPh 21** serta **Dasar upah BPJS**. Untuk nama dari daftar, pilihan itu terisi sendiri (tunjangan tetap seperti jabatan dan keluarga masuk dasar upah BPJS; transport, makan, lembur dan bonus tidak; potongan pinjaman tidak mengurangi dasar PPh 21). Anda bisa mengubahnya. Di bawah baris ada total penghasilan, total potongan, dan gaji sebelum BPJS dan PPh 21. Tekan **Simpan Gaji & Komponen**.",
+          "tip": "Saat gaji berubah, isi hanya komponen yang berubah dengan **Berlaku mulai** yang baru. Komponen yang tidak Anda ubah tetap seperti sebelumnya. Tombol × menghapus baris yang belum disimpan."
         },
         {
-          "title": "Atur data pajak karyawan",
-          "text": "Tekan **Atur Data Pajak**. Isi **Berlaku Sejak**, **Status NPWP/NIK** (Punya NPWP/NIK, Tidak punya NPWP/NIK, atau Belum diketahui), **Nomor NPWP/NIK (15 atau 16 angka; isi hanya bila punya)**, **Status PTKP** (TK/0 sampai TK/3, K/0 sampai K/3), dan **Metode Pajak**: “Ditanggung karyawan” atau “Ditanggung perusahaan (gross-up)”. Tekan **Simpan Data Pajak**. Arti metode pajak dijelaskan di [Memahami PPh 21 dan Pajak Payroll](memahami-pajak-payroll).",
+          "title": "Isi data pajak karyawan",
+          "text": "Buka tab **Pajak**. Di bagian **Ubah data pajak** isi **Berlaku Sejak**, **Status NPWP/NIK** (Punya NPWP/NIK, Tidak punya NPWP/NIK, atau Belum diketahui), **Nomor NPWP/NIK (15 atau 16 angka; isi hanya bila punya)**, **Status PTKP** (TK/0 sampai TK/3, K/0 sampai K/3), dan **Metode Pajak**: “Ditanggung karyawan” atau “Ditanggung perusahaan (gross-up)”. Tekan **Simpan Data Pajak**. Arti metode pajak dijelaskan di [Memahami PPh 21 dan Pajak Payroll](memahami-pajak-payroll).",
           "warning": "Jangan biarkan **Status NPWP/NIK** atau **Status PTKP** di “Belum diketahui”. Payroll karyawan itu akan bertanda “Data pajak karyawan (NPWP/NIK atau status PTKP) belum lengkap.” dan tidak bisa diajukan."
         },
         {
-          "title": "Atur BPJS bila karyawan ikut",
-          "text": "Tekan **Atur BPJS**. Isi **Berlaku Sejak**, lalu untuk tiap program (BPJS Kesehatan, BPJS Ketenagakerjaan: JHT, JP, JKK, JKM) pilih **Kepesertaan**: Tidak diubah, Terdaftar, atau Tidak terdaftar. Untuk JKK pilih juga **Tingkat Risiko JKK** (Tingkat 1 sampai Tingkat 5). **Nomor Anggota (opsional)** boleh diisi. Tekan **Simpan BPJS**.\n\nIuran dihitung dari komponen gaji yang bertanda **Masuk dasar upah BPJS**.",
+          "title": "Pilih paket BPJS",
+          "text": "Buka tab **BPJS**. Di bagian **Atur kepesertaan** pilih satu paket: **Lengkap** (BPJS Kesehatan dan BPJS Ketenagakerjaan: JHT, JP, JKK, JKM; terpilih lebih dulu untuk karyawan yang belum punya data BPJS), **Hanya Kesehatan**, **Hanya Ketenagakerjaan**, atau **Tidak ikut BPJS**. Bila JKK ikut, pilih **Tingkat risiko JKK** (Tingkat 1 untuk kantor, jasa, dan digital; sampai Tingkat 5). **Nomor kartu BPJS (opsional)** boleh diisi. Tekan **Simpan BPJS**.\n\nIuran dihitung otomatis tiap bulan dari komponen gaji yang bertanda **Dasar upah BPJS**.",
           "warning": "BPJS Kesehatan dan BPJS Ketenagakerjaan adalah dua badan yang berbeda dan dibayar terpisah. Aplikasi mencatat utang keduanya di dua akun yang berbeda."
         },
         {
-          "title": "Isi Saldo Awal Pajak bila perlu",
-          "text": "Hanya untuk karyawan yang sudah digaji sebelum Anda memakai aplikasi ini dan yang Payroll pertamanya di sini bukan bulan Januari. Tekan **Isi Saldo Awal Pajak**, lalu isi **Tahun Pajak**, **Sampai Bulan (1-11)**, **Total Penghasilan Bruto Kena Pajak**, **Total Iuran Pensiun/JHT yang Dipotong**, **Total PPh 21 yang Sudah Dipotong**, dan **Catatan (opsional)**. Tekan **Simpan Saldo Awal Pajak**."
+          "title": "Isi saldo awal pajak bila perlu",
+          "text": "Hanya untuk karyawan yang sudah digaji sebelum Anda memakai aplikasi ini pada tahun pajak yang sama. Bagian ini muncul di tab **Pajak** (dengan judul **Saldo awal pajak (hanya karyawan lama)**) hanya untuk karyawan yang masuk sebelum bulan ini dan mulai bulan Februari; karyawan baru tidak perlu mengisinya. Isi **Tahun Pajak**, **Sampai Bulan ke-** (terisi bulan lalu), **Total Penghasilan Bruto Kena Pajak**, **Total Iuran Pensiun/JHT yang Dipotong**, **Total PPh 21 yang Sudah Dipotong**, dan **Catatan (opsional)**. Contoh: mulai memakai aplikasi di Oktober, isi bulan 9 dan total Januari sampai September dari slip gaji. Tekan **Simpan Saldo Awal Pajak**."
         },
         {
           "title": "Ubah data, catat perubahan jabatan, atau tandai berhenti",
-          "text": "**Ubah Data** mengubah nama dan tanggal masuk. **Catat Perubahan Jabatan** menyimpan jabatan, departemen, atau jenis karyawan baru mulai tanggal **Berlaku Sejak**, dan riwayatnya tampil di bagian **Riwayat Jabatan**. **Karyawan Berhenti** meminta **Tanggal Berhenti** dan **Alasan** (minimal 5 karakter), lalu karyawan berstatus Berhenti dan tidak masuk Payroll bulan berikutnya."
+          "text": "Semuanya ada di tab **Pekerjaan**. **Ubah data karyawan** mengubah nama dan tanggal masuk. **Catat perubahan jabatan** menyimpan jabatan, departemen, atau jenis karyawan baru mulai tanggal **Berlaku Sejak**, dan riwayatnya tampil di **Riwayat jabatan**. **Karyawan berhenti** meminta **Tanggal Berhenti** dan **Alasan** (minimal 5 karakter), lalu karyawan berstatus Berhenti dan tidak masuk Payroll bulan berikutnya."
         }
       ],
       "result": [
@@ -246,11 +246,11 @@
           "rows": [
             [
               "Karyawan belum punya komponen gaji pada bulan ini.",
-              "Isi **Atur Gaji & Komponen** di halaman karyawan dengan **Berlaku Sejak** yang tidak lebih lambat dari bulan itu."
+              "Isi tab **Gaji & Komponen** di halaman karyawan dengan **Berlaku Sejak** yang tidak lebih lambat dari bulan itu."
             ],
             [
               "Data pajak karyawan (NPWP/NIK atau status PTKP) belum lengkap.",
-              "Isi **Atur Data Pajak** di halaman karyawan."
+              "Isi tab **Pajak** di halaman karyawan."
             ],
             [
               "Tidak ada aturan tarif efektif (TER) yang berlaku untuk bulan ini.",
@@ -262,7 +262,7 @@
             ],
             [
               "Data penghasilan dan pajak bulan-bulan sebelumnya belum lengkap; isi saldo awal pajak atau selesaikan bulan sebelumnya.",
-              "Pada bulan pajak terakhir, aplikasi butuh data bulan sebelumnya. Posting bulan sebelumnya atau isi **Isi Saldo Awal Pajak**."
+              "Pada bulan pajak terakhir, aplikasi butuh data bulan sebelumnya. Posting bulan sebelumnya atau isi **Saldo awal pajak** di tab **Pajak**."
             ],
             [
               "Ada bulan sebelumnya pada tahun pajak yang sama yang belum diposting.",
@@ -274,7 +274,7 @@
             ],
             [
               "Pilihan tarif BPJS Ketenagakerjaan: JKK belum diisi pada data BPJS karyawan.",
-              "Pilih **Tingkat Risiko JKK** di **Atur BPJS**."
+              "Pilih **Tingkat Risiko JKK** di tab **BPJS**."
             ],
             [
               "Perhitungan gross-up tidak konvergen; periksa data karyawan.",
@@ -450,7 +450,7 @@
       "steps": [
         {
           "title": "Isi data pajak yang dibutuhkan",
-          "text": "Perhitungan memakai tiga data di halaman karyawan (**Atur Data Pajak**): **Status NPWP/NIK**, **Status PTKP**, dan **Metode Pajak**. Tanpa NPWP/NIK, aturan yang berlaku di sistem saat ini mengenakan tarif lebih tinggi. Isinya dijelaskan di [Cara Menambah Karyawan dan Mengisi Data Gajinya](tambah-karyawan)."
+          "text": "Perhitungan memakai tiga data di halaman karyawan (tab **Pajak**): **Status NPWP/NIK**, **Status PTKP**, dan **Metode Pajak**. Tanpa NPWP/NIK, aturan yang berlaku di sistem saat ini mengenakan tarif lebih tinggi. Isinya dijelaskan di [Cara Menambah Karyawan dan Mengisi Data Gajinya](tambah-karyawan)."
         },
         {
           "title": "Pahami dua cara hitung",
@@ -515,7 +515,7 @@
       ],
       "rules": [
         "Tarif dan batas pajak adalah data aturan di aplikasi, berlaku mulai tanggal tertentu, dan tidak diketik di layar karyawan atau Payroll.",
-        "Bulan pajak terakhir (Desember atau bulan berhenti) membutuhkan data penghasilan dan pajak bulan-bulan sebelumnya. Posting bulan sebelumnya atau isi **Isi Saldo Awal Pajak** untuk karyawan yang baru mulai memakai aplikasi di tengah tahun.",
+        "Bulan pajak terakhir (Desember atau bulan berhenti) membutuhkan data penghasilan dan pajak bulan-bulan sebelumnya. Posting bulan sebelumnya atau isi **Saldo awal pajak** di tab **Pajak** untuk karyawan yang baru mulai memakai aplikasi di tengah tahun.",
         "Bila pajak yang sudah dipotong ternyata lebih besar dari hitungan tahunan, kelebihannya tidak dikembalikan lewat penggajian; aplikasi hanya memberi catatan di baris karyawan itu.",
         "Setoran PPh 21 ke negara dicatat di Pajak > Pelaporan & Bukti (Jenis Pajak PPh 21 (karyawan)), atau lewat tautan **Setor →** pada baris PPh 21. Kolom Dibayar pada baris PPh 21 terisi setelah setoran itu tercatat; sebelum itu kolom Sisa sama dengan Terutang.",
         "Buku Besar Pajak Karyawan hanya memuat Payroll yang sudah diposting (dan angka Saldo Awal).",
@@ -530,7 +530,7 @@
       "errors": [
         {
           "message": "Data pajak karyawan (NPWP/NIK atau status PTKP) belum lengkap.",
-          "meaning": "Lengkapi **Atur Data Pajak** karyawan itu lalu hitung ulang Payroll."
+          "meaning": "Lengkapi tab **Pajak** karyawan itu lalu hitung ulang Payroll."
         },
         {
           "message": "Tidak ada aturan tarif efektif (TER) yang berlaku untuk bulan ini.",
@@ -550,7 +550,7 @@
         },
         {
           "message": "Tahun pajak ini sebelum karyawan bergabung.",
-          "meaning": "Pada **Isi Saldo Awal Pajak**, **Tahun Pajak** lebih awal dari Tanggal Masuk karyawan."
+          "meaning": "Pada **Saldo awal pajak** di tab **Pajak**, **Tahun Pajak** lebih awal dari Tanggal Masuk karyawan."
         },
         {
           "message": "Payroll tahun pajak itu sudah diposting untuk karyawan ini; angka saldo awal tidak bisa diubah.",
