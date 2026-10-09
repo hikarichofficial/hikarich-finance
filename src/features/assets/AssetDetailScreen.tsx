@@ -12,6 +12,7 @@ import { DEPRECIATION_METHOD_LABELS, DISPOSAL_TYPE_LABELS } from "@/domain/asset
 import { fiscalClassLabel } from "@/domain/assets/fiscalClasses";
 import type { AssetDetail } from "@/schemas/assets";
 import { formatMonth, formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Asset Detail (P13 Part 3f, first increment, Step 09 §10, §16: "asset detail, acquisition source,
@@ -48,7 +49,7 @@ export function AssetDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar aset</Link>
+        <BackLink href={backHref}>← Kembali ke daftar aset</BackLink>
       </p>
 
       <header className="record-detail-header">

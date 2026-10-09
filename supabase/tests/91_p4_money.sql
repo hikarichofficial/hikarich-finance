@@ -224,7 +224,9 @@ declare
   v_acct uuid := 'b0000000-0000-0000-0000-000000000006';
   v_bca uuid := (select id from public.financial_accounts where name = 'BCA Main');
   v_usd uuid := (select id from public.financial_accounts where name = 'USD Account');
-  v_interest uuid := test_helpers.acct(pt, 'INTEREST_INCOME');
+  v_interest uuid := test_helpers.acct(pt, 'OFFICE_GENERAL_EXPENSE');
+  v_income uuid := test_helpers.acct(pt, 'INTEREST_INCOME');
+  v_revenue uuid := test_helpers.acct(pt, 'OTHER_OPERATING_REVENUE');
   v_fee uuid := test_helpers.acct(pt, 'BANK_FEE_EXPENSE');
   v_adj uuid;
   v_before bigint;
@@ -241,7 +243,12 @@ begin
     and (select source_type from public.money_movements where id = v_adj) = 'money_adjustment', 'the adjustment is a movement of its own');
   perform test_helpers.assert(public.record_balance_adjustment(pt, 'key-p4-adj-1', v_bca, 'in', 12500, null, date '2026-09-30', v_interest, 'Interest credited by the bank') = v_adj, 'an adjustment replays on the same key');
   perform test_helpers.assert((select count(*) from public.money_movements where entity_id = pt and component = 'adjustment') = 1, 'the retry did not adjust twice');
-  perform test_helpers.assert((select debit::numeric - credit::numeric from public.trial_balance(pt) where code = '7100') = -12500, 'the counter account carries the treatment: interest income');
+  perform test_helpers.assert((select debit::numeric - credit::numeric from public.trial_balance(pt) where code = '6500') = -12500, 'the counter account carries the treatment');
+
+  -- income is never booked through an adjustment: it would reach the ledger but never the tax base
+  perform test_helpers.expect_msg(format('select public.record_balance_adjustment(%L, ''key-p4-adj-inc-1'', %L, ''in'', 100, null, date ''2026-09-30'', %L, ''Lupa dicatat sebelumnya'')', pt, v_bca, v_revenue), 'INVALID', 'a revenue account cannot be the counter account of an adjustment');
+  perform test_helpers.expect_msg(format('select public.record_balance_adjustment(%L, ''key-p4-adj-inc-2'', %L, ''in'', 100, null, date ''2026-09-30'', %L, ''Bunga bank belum dicatat'')', pt, v_bca, v_income), 'INVALID', 'an other-income account cannot be the counter account of an adjustment');
+  perform test_helpers.expect_msg(format('select public.record_balance_adjustment(%L, ''key-p4-adj-inc-3'', %L, ''out'', 100, null, date ''2026-09-30'', %L, ''Koreksi pendapatan salah'')', pt, v_bca, v_revenue), 'INVALID', 'nor in the outgoing direction');
   perform test_helpers.assert(not exists (select 1 from public.money_control(pt) where difference::numeric <> 0), 'an adjustment keeps money and ledger together');
 
   -- a foreign-currency adjustment keeps its original amount and rate
@@ -706,7 +713,7 @@ begin
   select greatest(0, 4700000 - movement_balance) into v_short from test_helpers.mc(pt) where financial_account_id = v_bca;
   if v_short > 0 then
     perform test_helpers.login(v_acct);
-    perform public.record_balance_adjustment(pt, 'key-p4-rc-top', v_bca, 'in', v_short, null, date '2026-09-01', test_helpers.acct(pt, 'INTEREST_INCOME'), 'Top up the test account balance');
+    perform public.record_balance_adjustment(pt, 'key-p4-rc-top', v_bca, 'in', v_short, null, date '2026-09-01', test_helpers.acct(pt, 'OWNER_CAPITAL'), 'Top up the test account balance');
     perform test_helpers.logout();
   end if;
   perform test_helpers.login(v_owner);
@@ -1001,9 +1008,9 @@ begin
   v_c := public.create_financial_account(g, 'key-gate-c', 'bank', 'Gate C', 'USD');
   perform test_helpers.logout();
   perform test_helpers.login(v_acct);
-  perform public.record_balance_adjustment(g, 'key-gate-f1', v_a, 'in', 2000000000, null, date '2026-11-01', test_helpers.acct(g, 'INTEREST_INCOME'), 'Synthetic starting funds A');
-  perform public.record_balance_adjustment(g, 'key-gate-f2', v_b, 'in', 1000000000, null, date '2026-11-01', test_helpers.acct(g, 'INTEREST_INCOME'), 'Synthetic starting funds B');
-  perform public.record_balance_adjustment(g, 'key-gate-f3', v_c, 'in', 50000, 16000, date '2026-11-01', test_helpers.acct(g, 'INTEREST_INCOME'), 'Synthetic starting funds C');
+  perform public.record_balance_adjustment(g, 'key-gate-f1', v_a, 'in', 2000000000, null, date '2026-11-01', test_helpers.acct(g, 'OWNER_CAPITAL'), 'Synthetic starting funds A');
+  perform public.record_balance_adjustment(g, 'key-gate-f2', v_b, 'in', 1000000000, null, date '2026-11-01', test_helpers.acct(g, 'OWNER_CAPITAL'), 'Synthetic starting funds B');
+  perform public.record_balance_adjustment(g, 'key-gate-f3', v_c, 'in', 50000, 16000, date '2026-11-01', test_helpers.acct(g, 'OWNER_CAPITAL'), 'Synthetic starting funds C');
   perform test_helpers.logout();
 
   select coalesce(sum(l.credit - l.debit), 0) into v_pl_before
@@ -1147,7 +1154,7 @@ begin
   v_u2 := public.create_financial_account(e, 'key-edge-a-4', 'bank', 'Edge USD Two', 'USD');
   perform test_helpers.logout();
   perform test_helpers.login(v_acct);
-  v_adj1 := public.record_balance_adjustment(e, 'key-edge-f-1', v_e1, 'in', 1000000, null, date '2026-09-05', test_helpers.acct(e, 'INTEREST_INCOME'), 'Synthetic starting funds');
+  v_adj1 := public.record_balance_adjustment(e, 'key-edge-f-1', v_e1, 'in', 1000000, null, date '2026-09-05', test_helpers.acct(e, 'OWNER_CAPITAL'), 'Synthetic starting funds');
   perform test_helpers.logout();
 
   -- (2) the hard negative-balance block also stops a reversal that would overdraw the account
@@ -1162,7 +1169,7 @@ begin
   perform test_helpers.expect_msg(format('select public.reverse_transfer(%L, ''key-edge-r-1'', date ''2026-09-08'', ''Reverse the funding'')', v_t), 'CONFLICT', 'a reversal cannot overdraw a blocked account');
   perform test_helpers.logout();
   perform test_helpers.login(v_acct);
-  v_adj_in := public.record_balance_adjustment(e, 'key-edge-f-3', v_e2, 'in', 900000, null, date '2026-09-09', test_helpers.acct(e, 'INTEREST_INCOME'), 'Synthetic top-up of Edge Two');
+  v_adj_in := public.record_balance_adjustment(e, 'key-edge-f-3', v_e2, 'in', 900000, null, date '2026-09-09', test_helpers.acct(e, 'OWNER_CAPITAL'), 'Synthetic top-up of Edge Two');
   perform test_helpers.logout();
   perform test_helpers.login(v_owner);
   perform public.reverse_transfer(v_t, 'key-edge-r-2', date '2026-09-10', 'Reverse the funding');
@@ -1173,7 +1180,7 @@ begin
 
   -- (3) one exchange rate for a transfer between two accounts of the same foreign currency
   perform test_helpers.login(v_acct);
-  perform public.record_balance_adjustment(e, 'key-edge-f-4', v_u1, 'in', 1000, 16000, date '2026-09-11', test_helpers.acct(e, 'INTEREST_INCOME'), 'Synthetic USD funds');
+  perform public.record_balance_adjustment(e, 'key-edge-f-4', v_u1, 'in', 1000, 16000, date '2026-09-11', test_helpers.acct(e, 'OWNER_CAPITAL'), 'Synthetic USD funds');
   perform test_helpers.logout();
   perform test_helpers.login(v_owner);
   perform test_helpers.expect_msg(format('select public.create_transfer(%L, ''key-edge-t-2'', %L, %L, date ''2026-09-12'', 100, null, 0, 16000, 19000, ''USD move'', null, true)', e, v_u1, v_u2),
@@ -1217,7 +1224,7 @@ begin
   perform test_helpers.expect_msg(format('select public.create_reconciliation_session(%L, ''key-edge-s-2'', %L, date ''2026-10-01'', date ''2026-10-31'', 0, 0)', e, v_e2), 'CONFLICT', 'a discarded session is not replayed');
 
   -- (6) a movement booked a few days after the statement's period still clears a line inside it
-  v_adj_oct := public.record_balance_adjustment(e, 'key-edge-f-5', v_e1, 'in', 500000, null, date '2026-10-02', test_helpers.acct(e, 'INTEREST_INCOME'), 'Synthetic late booking');
+  v_adj_oct := public.record_balance_adjustment(e, 'key-edge-f-5', v_e1, 'in', 500000, null, date '2026-10-02', test_helpers.acct(e, 'OWNER_CAPITAL'), 'Synthetic late booking');
   v_s3 := public.create_reconciliation_session(e, 'key-edge-s-3', v_e1, date '2026-09-01', date '2026-09-30', 0, 1500000);
   perform public.add_statement_lines(v_s3, '[
     {"date":"2026-09-05","amount":"1000000","description":"EDGE FUNDS"},
@@ -1230,7 +1237,7 @@ begin
 
   -- (7) something booked inside a reconciled window afterwards makes its evidence stale
   perform test_helpers.assert(not exists (select 1 from public.period_close_checks(v_period) where code = 'reconciliation_stale'), 'nothing is stale yet');
-  perform public.record_balance_adjustment(e, 'key-edge-f-6', v_e1, 'in', 100000, null, date '2026-09-15', test_helpers.acct(e, 'INTEREST_INCOME'), 'Synthetic backdated booking');
+  perform public.record_balance_adjustment(e, 'key-edge-f-6', v_e1, 'in', 100000, null, date '2026-09-15', test_helpers.acct(e, 'OWNER_CAPITAL'), 'Synthetic backdated booking');
   perform test_helpers.assert(exists (select 1 from public.period_close_checks(v_period) where code = 'reconciliation_stale' and severity = 'warning' and item_count = 1), 'Close warns that a completed reconciliation is stale');
   perform test_helpers.logout();
 end

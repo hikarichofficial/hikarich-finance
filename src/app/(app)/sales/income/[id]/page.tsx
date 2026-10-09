@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { formatMoney } from "@/domain/money/format";
@@ -12,6 +11,7 @@ import { AttachmentsSection } from "@/features/documents/AttachmentsSection";
 import { ReverseIncomeForm } from "@/features/sales/IncomeForms";
 import { formatShortDate } from "@/features/sales/format";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** One income entry (decision 350), gated `invoices.view`. Cancelling needs `invoices.void`; documents follow
  * the usual `documents.upload` rule. */
@@ -44,7 +44,7 @@ export default async function IncomeDetailPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar pendapatan</Link>
+        <BackLink href={backHref}>← Kembali ke daftar pendapatan</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

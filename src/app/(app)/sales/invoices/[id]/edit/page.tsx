@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
@@ -10,6 +9,7 @@ import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { InvoiceForm } from "@/features/sales/InvoiceForm";
 import { listPaymentLinks } from "@/services/sales/paymentLinks";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Edit a DRAFT invoice (Step 09 §11, decision 261), gated `invoices.edit` -- the permission
  * `update_invoice_draft` checks. An issued invoice is "not found" here: it is corrected instead. */
@@ -42,7 +42,7 @@ export default async function EditInvoicePage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke invoice</Link>
+        <BackLink href={backHref}>← Kembali ke invoice</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

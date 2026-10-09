@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { listActiveCategories } from "@/services/accounting/categories";
 import { listPayeeNameSuggestions } from "@/services/purchases/expenses";
@@ -8,6 +7,7 @@ import {
   listActivePaymentChannels,
 } from "@/services/planning/planning";
 import { RecurringRuleForm } from "@/features/planning/RecurringRuleForm";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Recurring Rule create form (P13 Part 3h, sixth increment, Step 09 §13, §18). Gated on
  * `planning.recurring_edit`, the exact permission `create_recurring_rule` itself checks -- the same
@@ -38,7 +38,7 @@ export default async function NewRecurringRulePage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link
+        <BackLink
           href={
             entity
               ? `/planning/recurring?entity=${encodeURIComponent(entity)}`
@@ -46,7 +46,7 @@ export default async function NewRecurringRulePage({
           }
         >
           ← Kembali ke daftar transaksi berulang
-        </Link>
+        </BackLink>
       </p>
       <header className="record-detail-header">
         <div>

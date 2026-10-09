@@ -11,6 +11,7 @@ import { LineTaxSummaryBlock } from "@/features/tax/LineTaxSummaryBlock";
 import type { LineTaxSummary } from "@/domain/tax/lineTaxSummary";
 import { ExpenseActions } from "./ExpenseActions";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Direct Expense Detail (Step 09 §10/§12, decision 245): Header, Actions, Ringkasan, Baris, and links to
  * its journal(s) and to the expense it replaces or is replaced by. */
@@ -54,7 +55,7 @@ export function ExpenseDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar pengeluaran</Link>
+        <BackLink href={backHref}>← Kembali ke daftar pengeluaran</BackLink>
       </p>
 
       <header className="record-detail-header">

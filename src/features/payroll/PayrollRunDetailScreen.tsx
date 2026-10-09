@@ -15,6 +15,7 @@ import type {
   PayrollRunDetail,
 } from "@/schemas/payroll";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 function money(value: string | null, currency: string): string {
   return value === null ? "—" : formatMoney(value, currency);
@@ -61,7 +62,7 @@ export function PayrollRunDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke Proses Payroll</Link>
+        <BackLink href={backHref}>← Kembali ke Proses Payroll</BackLink>
       </p>
 
       <header className="record-detail-header">

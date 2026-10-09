@@ -10,6 +10,7 @@ import {
 } from "@/domain/financing/equityList";
 import type { EquityDetail } from "@/schemas/financing";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Capital & Equity Detail (P13 Part 3f, fourth increment, Step 09 §10, §16). Follows the same narrower "Standard
@@ -43,7 +44,7 @@ export function EquityDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke Modal & Ekuitas</Link>
+        <BackLink href={backHref}>← Kembali ke Modal & Ekuitas</BackLink>
       </p>
 
       <header className="record-detail-header">

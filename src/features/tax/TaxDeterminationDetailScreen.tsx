@@ -5,6 +5,7 @@ import { DETERMINATION_STATUS_LABELS, DETERMINATION_STATUS_TONE } from "@/domain
 import { formatTaxRate, taxKindLabel, taxSourceDocumentHref } from "@/domain/tax/taxLedgerList";
 import type { TaxDeterminationRow } from "@/schemas/tax";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 const SOURCE_TYPE_LABELS: Readonly<Record<string, string>> = {
   invoice: "Invoice Penjualan",
@@ -50,7 +51,7 @@ export function TaxDeterminationDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke buku besar pajak</Link>
+        <BackLink href={backHref}>← Kembali ke buku besar pajak</BackLink>
       </p>
 
       <header className="record-detail-header">

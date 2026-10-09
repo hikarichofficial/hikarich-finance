@@ -13,7 +13,7 @@
       "steps": [
         {
           "title": "Catat pembelian dengan Perlakuan “Aset”",
-          "text": "Barang yang dipakai bertahun-tahun (laptop, mesin, kendaraan) dicatat lewat Pengeluaran atau Tagihan Vendor. Pada baris pembelian, pilih **Perlakuan** “Aset”. Caranya ada di [Cara Membuat Biaya](buat-biaya) dan [Cara Mencatat dan Menyetujui Tagihan Vendor](catat-tagihan-vendor). Begitu pengeluaran dikonfirmasi atau tagihan disetujui, sistem otomatis mendaftarkan aset berstatus Draf dari baris itu, tanpa jurnal tambahan.",
+          "text": "Barang yang dipakai bertahun-tahun (laptop, mesin, kendaraan) dicatat lewat Pengeluaran atau Tagihan Vendor. Pada baris pembelian, pilih **Perlakuan** “Aset”, lalu pilih **Kategori** yang sesuai: sudah tersedia kategori aset siap pakai, misalnya “Laptop, Komputer & Tablet”, “Smartphone & Gadget”, “Peralatan Kantor”, “Meja, Kursi & Furnitur Kantor”, “Mobil & Kendaraan Roda Empat”, “Motor & Kendaraan Roda Dua”, “Mesin & Peralatan Produksi”, “Bangunan Permanen”, dan “Tanah”, masing-masing sudah terhubung ke akun aset tetapnya. Perlakuan “Dibayar di muka” memakai kategori yang berawalan “Dibayar di Muka”, “Deposit”, atau “Uang Muka”. Caranya ada di [Cara Membuat Biaya](buat-biaya) dan [Cara Mencatat dan Menyetujui Tagihan Vendor](catat-tagihan-vendor). Begitu pengeluaran dikonfirmasi atau tagihan disetujui, sistem otomatis mendaftarkan aset berstatus Draf dari baris itu, tanpa jurnal tambahan.",
           "tip": "Barang kecil yang habis dipakai dalam sebulan tetap memakai Perlakuan “Beban”."
         },
         {

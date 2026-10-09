@@ -20,6 +20,7 @@ import type {
 import { RecurringRuleActions, type RecurringRuleActionPermissions } from "./RecurringRuleActions";
 import { RecurringRuleForm } from "./RecurringRuleForm";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Only "invoices" and "bills" have a Detail route to link to yet -- "expenses" has no Detail screen built
  * in this repository so far (Part 3b shipped only Bills List/Detail, decisions 167-168), so a generated
@@ -89,7 +90,7 @@ export function RecurringRuleDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar transaksi berulang</Link>
+        <BackLink href={backHref}>← Kembali ke daftar transaksi berulang</BackLink>
       </p>
 
       <header className="record-detail-header">

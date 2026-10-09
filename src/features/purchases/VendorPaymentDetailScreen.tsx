@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import { vendorPaymentRowStatus } from "@/domain/purchases/vendorPaymentsList";
 import type { VendorPaymentRow } from "@/schemas/purchases";
 import { VendorPaymentActions, type VendorPaymentActionPermissions } from "./VendorPaymentActions";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Payment Made Detail (P13 unbuilt-screens backlog, Step 09 §10): Header/Actions/Ringkasan only, the same
@@ -29,7 +29,7 @@ export function VendorPaymentDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar pembayaran</Link>
+        <BackLink href={backHref}>← Kembali ke daftar pembayaran</BackLink>
       </p>
 
       <header className="record-detail-header">

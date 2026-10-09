@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { getEntityBaseCurrency } from "@/services/tax/tax";
 import { AccountForm } from "@/features/money/AccountForm";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Add Account (Step 09 §13, decision 258), gated `money.edit` -- the permission
  * `create_financial_account` itself checks. */
@@ -20,7 +20,7 @@ export default async function NewAccountPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar rekening</Link>
+        <BackLink href={backHref}>← Kembali ke daftar rekening</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

@@ -46,6 +46,21 @@ describe("eligibleCounterAccounts", () => {
     expect(result).toHaveLength(0);
   });
 
+  it.each(["revenue", "contra_revenue", "other_income"])(
+    "excludes an income account (%s): income goes through Catat Pendapatan so it reaches the tax",
+    (account_class) => {
+      expect(eligibleCounterAccounts([account({ account_class })])).toHaveLength(0);
+    },
+  );
+
+  it("still offers expense and other-expense accounts", () => {
+    const result = eligibleCounterAccounts([
+      account({ account_class: "expense" }),
+      account({ account_class: "other_expense" }),
+    ]);
+    expect(result).toHaveLength(2);
+  });
+
   it("does not require allows_manual_posting, since the RPC itself does not check it", () => {
     const result = eligibleCounterAccounts([account({ allows_manual_posting: false })]);
     expect(result).toHaveLength(1);

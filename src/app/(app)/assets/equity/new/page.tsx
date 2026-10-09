@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { listContacts } from "@/services/contacts/contacts";
 import { listPurposeSuggestions } from "@/services/financing/purposeSuggestions";
 import { EQUITY_KIND_LABELS } from "@/domain/financing/financing";
 import { EquityCreateForm } from "@/features/financing/FinancingForms";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 const COMPANY_KINDS = ["contribution", "capital_return", "dividend"] as const;
 const PERSONAL_KINDS = [
@@ -35,7 +35,7 @@ export default async function NewEquityEventPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke Modal & Ekuitas</Link>
+        <BackLink href={backHref}>← Kembali ke Modal & Ekuitas</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

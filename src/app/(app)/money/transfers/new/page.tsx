@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl, listTransferDescriptionSuggestions } from "@/services/money/money";
 import { TransferForm } from "@/features/money/TransferForm";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Transfer create form (P13 Part 3c, Step 09 §13). Gated on `money.transfer_create`, the exact permission
  * `create_transfer` itself checks (decision 162's precedent); every role template that grants
@@ -25,13 +25,13 @@ export default async function NewTransferPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link
+        <BackLink
           href={
             entity ? `/money/transfers?entity=${encodeURIComponent(entity)}` : "/money/transfers"
           }
         >
           ← Kembali ke daftar transfer
-        </Link>
+        </BackLink>
       </p>
       <header className="record-detail-header">
         <div>

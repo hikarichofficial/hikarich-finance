@@ -1928,7 +1928,7 @@
                   "actor": "anda",
                   "title": "Owner atau Accountant mencatat penyesuaian",
                   "menu": "Akuntansi > Penyesuaian Lanjutan",
-                  "note": "Isi rekening, Arah, Jumlah, Akun Lawan, dan Alasan minimal 10 karakter"
+                  "note": "Isi rekening, Arah, Jumlah, Akun Lawan (bukan akun pendapatan), dan Alasan minimal 10 karakter"
                 },
                 {
                   "kind": "step",
@@ -2016,9 +2016,9 @@
                 {
                   "kind": "step",
                   "actor": "anda",
-                  "title": "Biaya admin atau bunga bank belum tercatat: Penyesuaian Lanjutan",
+                  "title": "Biaya admin bank belum tercatat: Penyesuaian Lanjutan",
                   "menu": "Akuntansi > Penyesuaian Lanjutan",
-                  "note": "Langsung diposting tanpa draf dan tanpa tombol batal"
+                  "note": "Langsung diposting tanpa draf dan tanpa tombol batal. Bunga bank dan pendapatan lain lewat Penjualan > Catat Pendapatan, bukan di sini"
                 },
                 {
                   "kind": "end",

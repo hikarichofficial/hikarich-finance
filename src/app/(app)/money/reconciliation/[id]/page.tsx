@@ -26,6 +26,7 @@ import {
   MatchForm,
   ReopenSessionForm,
 } from "@/features/money/ReconciliationForms";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Reconciliation session workspace (Step 09 §13, decision 251). The session header is a direct read of
@@ -77,7 +78,7 @@ export default async function ReconciliationSessionPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke rekonsiliasi</Link>
+        <BackLink href={backHref}>← Kembali ke rekonsiliasi</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

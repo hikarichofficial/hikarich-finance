@@ -1,4 +1,3 @@
-import Link from "next/link";
 import type { ReactNode } from "react";
 import { formatMoney } from "@/domain/money/format";
 import { paymentRowStatus, refundStatusDisplay } from "@/domain/sales/paymentsList";
@@ -6,6 +5,7 @@ import type { PaymentListRow, ReceiptDocument } from "@/schemas/sales";
 import { PaymentActions, type PaymentActionPermissions } from "./PaymentActions";
 import { ReceiptDocumentView } from "./ReceiptDocumentView";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Payment Detail (P13 unbuilt-screens backlog, Step 09 §10/§11), reachable from either Payments Received or
@@ -44,7 +44,7 @@ export function PaymentDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar pembayaran</Link>
+        <BackLink href={backHref}>← Kembali ke daftar pembayaran</BackLink>
       </p>
 
       <header className="record-detail-header">

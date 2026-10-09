@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { getSkuSettings, listSkuMasters } from "@/services/products/sku";
 import { listActiveCategories } from "@/services/accounting/categories";
 import { getEntityBaseCurrency } from "@/services/accounting/ledger";
 import { ProductForm } from "@/features/products/ProductForm";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** New Product (decision 245), gated `products.create` -- the `products_insert` RLS permission. Only
  * revenue categories are offered as a product's default, since a product is what an invoice line sells. */
@@ -33,7 +33,7 @@ export default async function NewProductPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar produk</Link>
+        <BackLink href={backHref}>← Kembali ke daftar produk</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useSyncExternalStore } from "react";
+import { createPortal } from "react-dom";
 import { useActionState } from "@/features/feedback/useActionState";
 import { Drawer } from "@/features/shell/Drawer";
 import { quickCreateCategoryAction } from "./categoryActions";
@@ -56,11 +57,26 @@ export function QuickAddCategoryDrawer({
     // eslint-disable-next-line react-hooks/exhaustive-deps -- onCreated is re-created each render
   }, [state]);
 
+  // The drawer is opened from inside another form (the expense / invoice / income form). It is drawn on the
+  // page body, outside that form, and its own submit never reaches the outer form: an outer form that handles
+  // `onSubmit` itself (usePreservingForm) used to take the click, so "Simpan & Gunakan" did nothing.
+  const mounted = useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false,
+  );
+  if (!mounted) return null;
+
   const kindLabel = (CATEGORY_KIND_LABELS as Record<string, string>)[kind] ?? kind;
 
-  return (
+  return createPortal(
     <Drawer open={open} onClose={onClose} title="Tambah Kategori Baru">
-      <form ref={formRef} action={formAction} className="record-form">
+      <form
+        ref={formRef}
+        action={formAction}
+        className="record-form"
+        onSubmit={(event) => event.stopPropagation()}
+      >
         <input type="hidden" name="entity" value={entity ?? ""} />
         <input type="hidden" name="kind" value={kind} />
         <label>
@@ -90,6 +106,7 @@ export function QuickAddCategoryDrawer({
           </button>
         </div>
       </form>
-    </Drawer>
+    </Drawer>,
+    document.body,
   );
 }

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { listContacts, listNonResidentContactIds } from "@/services/contacts/contacts";
 import { getWithholdingAgent } from "@/services/tax/tax";
@@ -7,6 +6,7 @@ import { listLineSuggestions } from "@/services/accounting/lineSuggestions";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { BillForm } from "@/features/purchases/BillForm";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Record Bill (Step 09 §12, decision 257), gated `bills.create` -- the permission `create_bill_draft`
  * itself checks. Only active vendors are offered. */
@@ -32,7 +32,7 @@ export default async function NewBillPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar tagihan</Link>
+        <BackLink href={backHref}>← Kembali ke daftar tagihan</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

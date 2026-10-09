@@ -4,6 +4,7 @@ import type { ContactRow } from "@/schemas/contacts";
 import { formatShortDate } from "./format";
 import { ContactStatusButton } from "./ContactStatusButton";
 import { ContactTaxFactsForm, type ContactTaxFacts } from "./ContactTaxFactsForm";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Contact Detail, shared by Customer Detail (`/sales/customers/[id]`) and Vendor Detail
@@ -36,7 +37,7 @@ export function ContactDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← {backLabel}</Link>
+        <BackLink href={backHref}>← {backLabel}</BackLink>
       </p>
 
       <header className="record-detail-header">

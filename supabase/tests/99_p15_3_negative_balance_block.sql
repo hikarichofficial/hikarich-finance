@@ -80,7 +80,7 @@ begin
   v_bank := public.create_financial_account(e1, 'key-nb-a-1', 'bank', 'NB Bank', 'IDR');
   v_cash := public.create_financial_account(e1, 'key-nb-a-2', 'cash', 'NB Cash', 'IDR');
   perform public.record_balance_adjustment(e1, 'key-nb-f-1', v_bank, 'in', 100000, null, date '2026-09-05',
-    test_helpers.acct(e1, 'INTEREST_INCOME'), 'Synthetic starting funds');
+    test_helpers.acct(e1, 'BANK_FEE_EXPENSE'), 'Synthetic starting funds');
   -- unblocked: an overdraft is allowed (only a soft warning elsewhere, not enforced here)
   perform public.create_transfer(e1, 'key-nb-t-1', v_bank, v_cash, date '2026-09-06', 150000, null, 0, null, null,
     'Overdraw while unblocked', null, true);

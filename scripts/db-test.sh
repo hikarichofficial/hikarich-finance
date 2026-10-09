@@ -235,7 +235,7 @@ commit;
 begin;
 select test_helpers.login('$MC_ACCT');
 select public.record_balance_adjustment((select id from public.entities where code = 'conc_money'), 'conc-fund-a', (select id from public.financial_accounts where name = 'Conc A'),
-  'in', 1000000000, null, date '2026-11-01', (select id from public.ledger_accounts where entity_id = (select id from public.entities where code = 'conc_money') and system_key = 'INTEREST_INCOME'), 'Synthetic starting funds');
+  'in', 1000000000, null, date '2026-11-01', (select id from public.ledger_accounts where entity_id = (select id from public.entities where code = 'conc_money') and system_key = 'OWNER_CAPITAL'), 'Synthetic starting funds');
 commit;
 begin;
 select test_helpers.login('$MC_OWNER');
@@ -295,7 +295,7 @@ SQL
   MC_ENT="$ent"
   MC_A="$(mc_q "select id from public.financial_accounts where name = 'Conc A'")"
   MC_B="$(mc_q "select id from public.financial_accounts where name = 'Conc B'")"
-  MC_INCOME="$(mc_q "select id from public.ledger_accounts where entity_id = '$ent' and system_key = 'INTEREST_INCOME'")"
+  MC_INCOME="$(mc_q "select id from public.ledger_accounts where entity_id = '$ent' and system_key = 'OWNER_CAPITAL'")"
   money_workers mixed 6 mc_gen_mixed
   result="$(mc_q "select (select count(*) from public.money_movements where entity_id = '$ent' and source_type = 'money_adjustment') || '/' || (select count(*) from public.transfers where entity_id = '$ent' and reference is null and status = 'confirmed')")"
   if [[ "$result" != "25/24" ]]; then

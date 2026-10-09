@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { listLedgerAccounts } from "@/services/accounting/ledger";
 import { getEntityBaseCurrency } from "@/services/assets/assets";
 import { OpeningAssetForm } from "@/features/assets/OpeningAssetForm";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 const FIXED_ASSET_KEYS = new Set([
   "FIXED_ASSET_EQUIPMENT",
@@ -43,7 +43,7 @@ export default async function OpeningAssetPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={`/assets${qs}`}>← Kembali ke daftar aset</Link>
+        <BackLink href={`/assets${qs}`}>← Kembali ke daftar aset</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

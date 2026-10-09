@@ -1,7 +1,7 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { EmployeeForm } from "@/features/payroll/EmployeeForm";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Tambah Karyawan, gated `payroll.employee_edit` -- the permission `employee_create` itself checks. */
 export default async function NewEmployeePage({
@@ -18,7 +18,7 @@ export default async function NewEmployeePage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar karyawan</Link>
+        <BackLink href={backHref}>← Kembali ke daftar karyawan</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
 import { listContacts, listNonResidentContactIds } from "@/services/contacts/contacts";
@@ -9,6 +8,7 @@ import { listPayeeNameSuggestions } from "@/services/purchases/expenses";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { ExpenseForm } from "@/features/purchases/ExpenseForm";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Record Expense (Step 09 §12/§22, decision 245), gated `bills.create` -- the permission
  * `create_expense_draft` itself checks. Only active accounts and active vendors are offered. */
@@ -37,7 +37,7 @@ export default async function NewExpensePage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar pengeluaran</Link>
+        <BackLink href={backHref}>← Kembali ke daftar pengeluaran</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

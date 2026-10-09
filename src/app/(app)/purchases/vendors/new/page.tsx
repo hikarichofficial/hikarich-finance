@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { ContactForm } from "@/features/contacts/ContactForm";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Tambah Vendor (decision 258), gated `contacts.create` -- the permission `create_contact` itself checks. */
 export default async function NewContactPage({
@@ -17,7 +17,7 @@ export default async function NewContactPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar vendor</Link>
+        <BackLink href={backHref}>← Kembali ke daftar vendor</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

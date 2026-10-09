@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
 import { listContacts } from "@/services/contacts/contacts";
@@ -6,6 +5,7 @@ import { listPurposeSuggestions } from "@/services/financing/purposeSuggestions"
 import { obligationKindTitle } from "@/domain/financing/obligationList";
 import { ObligationCreateForm } from "@/features/financing/FinancingForms";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 const LIST_HREF: Readonly<Record<"receivable" | "payable", string>> = {
   receivable: "/assets/other-receivables",
@@ -36,7 +36,7 @@ export default async function NewObligationPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar {title.toLowerCase()}</Link>
+        <BackLink href={backHref}>← Kembali ke daftar {title.toLowerCase()}</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

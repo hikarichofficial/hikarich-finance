@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import { PLAN_PERIOD_TYPE_LABELS, monthRangeInclusive } from "@/domain/planning/planning";
 import { planStatusBadge } from "@/domain/planning/budgetList";
@@ -7,6 +6,7 @@ import type { BudgetLineRow, BudgetReportRow, BudgetRow } from "@/schemas/planni
 import { BudgetActions, type BudgetActionPermissions } from "./BudgetActions";
 import { BudgetLinesEditor } from "./BudgetLinesEditor";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Budget Detail (P13 Part 3h, second increment, Step 09 §10, §18: "period-based editable planning tables
@@ -51,7 +51,7 @@ export function BudgetDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar anggaran</Link>
+        <BackLink href={backHref}>← Kembali ke daftar anggaran</BackLink>
       </p>
 
       <header className="record-detail-header">

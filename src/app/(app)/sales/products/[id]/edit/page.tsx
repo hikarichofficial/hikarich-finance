@@ -1,11 +1,11 @@
 import { can } from "@/domain/authz/access";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/services/identity/access";
 import { getProduct } from "@/services/products/products";
 import { listActiveCategories } from "@/services/accounting/categories";
 import { getEntityBaseCurrency } from "@/services/accounting/ledger";
 import { ProductForm } from "@/features/products/ProductForm";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Ubah Produk (task 95): the edit form on its own page, apart from the read-only detail. Gated
  * `products.edit` -- the permission the `products_update` RLS policy itself checks. Saving returns to the detail. */
@@ -32,7 +32,7 @@ export default async function EditProductPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke detail produk</Link>
+        <BackLink href={backHref}>← Kembali ke detail produk</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

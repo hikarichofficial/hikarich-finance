@@ -1,5 +1,4 @@
 import type { ReactNode } from "react";
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import {
   BPJS_COMPONENT_LABELS,
@@ -17,6 +16,7 @@ import type {
   TaxProfile,
 } from "@/schemas/payroll";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Employee Detail (P13 Part 3g, first increment, Step 09 §10, §17: "compensation is permission-gated").
@@ -59,7 +59,7 @@ export function EmployeeDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar karyawan</Link>
+        <BackLink href={backHref}>← Kembali ke daftar karyawan</BackLink>
       </p>
 
       <header className="record-detail-header">

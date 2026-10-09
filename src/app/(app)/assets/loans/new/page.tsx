@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { listContacts } from "@/services/contacts/contacts";
 import { listPurposeSuggestions } from "@/services/financing/purposeSuggestions";
 import { LoanCreateForm } from "@/features/financing/FinancingForms";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Tambah Pinjaman, gated `loans.manage` -- the permission `loan_create` itself checks. The loan is saved as a
  * draft; money moves only when it is activated on Loan Detail. */
@@ -21,7 +21,7 @@ export default async function NewLoanPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar pinjaman</Link>
+        <BackLink href={backHref}>← Kembali ke daftar pinjaman</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

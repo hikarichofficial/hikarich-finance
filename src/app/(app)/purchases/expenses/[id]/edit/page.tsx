@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { decodeProblems } from "@/domain/forms/problemTargets";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/services/identity/access";
@@ -12,6 +11,7 @@ import { getExpenseDraftForEdit } from "@/services/purchases/purchases";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { ExpenseForm } from "@/features/purchases/ExpenseForm";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Edit a DRAFT expense (Step 09 §12), gated `bills.edit` -- the permission `update_expense_draft` checks.
  * Anything that is no longer a draft is "not found" here: a confirmed expense is corrected instead. */
@@ -47,7 +47,7 @@ export default async function EditExpensePage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke pengeluaran</Link>
+        <BackLink href={backHref}>← Kembali ke pengeluaran</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

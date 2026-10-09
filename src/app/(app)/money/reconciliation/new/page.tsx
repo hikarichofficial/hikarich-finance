@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl, getReconciliationStatus } from "@/services/money/money";
 import { newSessionDefaults } from "@/domain/money/reconciliationSession";
 import { NewSessionForm } from "@/features/money/ReconciliationForms";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Start a reconciliation session for one account (decision 251). Gated `money.reconcile`, the permission
  * `create_reconciliation_session` checks. The period and opening balance default to continuing from the
@@ -30,7 +30,7 @@ export default async function NewReconciliationPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke rekonsiliasi</Link>
+        <BackLink href={backHref}>← Kembali ke rekonsiliasi</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

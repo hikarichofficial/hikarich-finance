@@ -1,9 +1,9 @@
 import { closeCheckText } from "@/domain/accounting/closeCheckText";
-import Link from "next/link";
 import { periodStatusDisplay } from "@/domain/accounting/periodsList";
 import type { AccountingPeriodRow, PeriodCheck } from "@/schemas/accounting";
 import { PeriodActions, type PeriodActionPermissions } from "./PeriodActions";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Accounting Period Close Detail (P13, Step 09 §14: "Period Close screen presents a checklist of
@@ -30,7 +30,7 @@ export function PeriodCloseScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar periode</Link>
+        <BackLink href={backHref}>← Kembali ke daftar periode</BackLink>
       </p>
 
       <header className="record-detail-header">

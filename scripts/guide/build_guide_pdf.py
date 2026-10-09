@@ -315,6 +315,8 @@ START_TIPS = [
     "Jika salah memasukkan data awal (misalnya rekening), perbaiki atau hapus lewat halaman detailnya selama belum ada transaksi.",
     "Angka dan tanggal yang sudah diposting tidak diubah langsung. Koreksi dilakukan lewat pembatalan atau pembalikan, "
     "sehingga riwayat tetap utuh.",
+    "Tautan &quot;&larr; Kembali ke ...&quot; di halaman data membawa Anda ke halaman yang dibuka sebelumnya (misalnya Aktivitas "
+    "Terbaru), seperti tombol Back browser; bila halaman dibuka langsung, tautan itu menuju daftar aslinya.",
 ]
 
 # ----------------------------------------------------------------------------
@@ -440,7 +442,9 @@ SECTIONS = [
   ("Kategori", "/accounting/categories",
    "Mengatur kategori penjualan/pembelian: ke akun apa suatu kategori dibukukan, dan perlakuan pajak khususnya "
    "(opsional; pajak tetap dihitung otomatis dari profil pajak). Setiap Entity sudah memiliki kategori standar "
-   "(misalnya Penjualan Produk) dan akun dapat dipetakan sendiri lewat formulir di baris kategori.", "262"),
+   "(misalnya Penjualan Produk), termasuk kategori Aset siap pakai (laptop, smartphone, peralatan kantor, kendaraan, "
+   "bangunan, tanah) dan biaya dibayar di muka untuk baris pengeluaran berperlakuan Aset; akun dapat dipetakan sendiri "
+   "lewat formulir di baris kategori.", "262,371"),
   ("Periode Akuntansi", "/accounting/periods",
    "Status tiap bulan pembukuan: Terbuka / Dalam Tinjauan Penutupan / Ditutup / Dibuka Kembali. Dari sini memulai "
    "proses tutup bulan, melihat checklist pemblokirnya, atau membuka kembali periode yang sudah ditutup (dengan "
@@ -450,7 +454,8 @@ SECTIONS = [
    "satu kali; selisih yang tidak terjelaskan otomatis masuk ke akun “Selisih Migrasi”.", "43,44,245"),
   ("Penyesuaian Lanjutan", "/accounting/advanced-adjustments",
    "Untuk koreksi saldo kas/bank di luar jalur normal (misalnya biaya administrasi bank yang dipotong otomatis "
-   "oleh bank). Selalu membutuhkan alasan tertulis.", "54,232"),
+   "oleh bank). Selalu membutuhkan alasan tertulis. Tidak bisa dipakai untuk mencatat pendapatan: pendapatan "
+   "(termasuk bunga bank) dicatat lewat Penjualan &gt; Catat Pendapatan agar pajaknya ikut terhitung.", "54,232,370"),
  ]
 ),
 

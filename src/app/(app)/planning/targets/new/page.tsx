@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { CreatePlanForm } from "@/features/planning/CreatePlanForm";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Revenue Target create form (P13 Part 3h, fifth increment, Step 09 §13, §18). Gated on
  * `planning.budget_edit`, the exact permission `create_revenue_target` itself checks (decision 185's own
@@ -18,13 +18,13 @@ export default async function NewRevenueTargetPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link
+        <BackLink
           href={
             entity ? `/planning/targets?entity=${encodeURIComponent(entity)}` : "/planning/targets"
           }
         >
           ← Kembali ke daftar target pendapatan
-        </Link>
+        </BackLink>
       </p>
       <header className="record-detail-header">
         <div>

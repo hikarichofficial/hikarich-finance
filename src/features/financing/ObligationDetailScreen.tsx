@@ -15,6 +15,7 @@ import {
 } from "@/domain/financing/obligationList";
 import type { ObligationDetail } from "@/schemas/financing";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Other Receivable / Other Payable Detail (P13 Part 3f, third increment, Step 09 §10, §16). Follows the same
@@ -50,7 +51,7 @@ export function ObligationDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar {title.toLowerCase()}</Link>
+        <BackLink href={backHref}>← Kembali ke daftar {title.toLowerCase()}</BackLink>
       </p>
 
       <header className="record-detail-header">

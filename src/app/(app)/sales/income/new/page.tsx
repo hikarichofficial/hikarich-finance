@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
 import { listContacts } from "@/services/contacts/contacts";
@@ -6,6 +5,7 @@ import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { listIncomeCategories, listIncomeTextSuggestions } from "@/services/sales/income";
 import { IncomeForm } from "@/features/sales/IncomeForms";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Catat Pendapatan, new entry (decision 350). Gated `invoices.issue`, the permission the RPC asks for first;
  * the RPC also needs `invoices.confirm_payment`, and says so in words when it is missing. */
@@ -29,7 +29,7 @@ export default async function NewIncomePage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar pendapatan</Link>
+        <BackLink href={backHref}>← Kembali ke daftar pendapatan</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

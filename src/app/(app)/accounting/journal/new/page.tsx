@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import {
@@ -9,6 +8,7 @@ import {
 import { accountClassLabel } from "@/domain/accounting/coaList";
 import { JournalDraftForm } from "@/features/accounting/JournalDraftForm";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Order of the account groups in the picker: what a person records most often (income, costs) first, the
  * system-protected accounts last. */
@@ -67,7 +67,7 @@ export default async function NewJournalPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar jurnal</Link>
+        <BackLink href={backHref}>← Kembali ke daftar jurnal</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

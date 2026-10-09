@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import {
   BPJS_COMPONENT_LABELS,
@@ -11,6 +10,7 @@ import {
 import { payslipStatusBadge } from "@/domain/payroll/payslipList";
 import type { PayslipDetail } from "@/schemas/payroll";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 function bpjsRows(share: Readonly<Record<string, string>>): readonly [string, string][] {
   return Object.entries(share).filter(([, amount]) => amount !== "0");
@@ -48,7 +48,7 @@ export function PayslipDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke Slip Gaji</Link>
+        <BackLink href={backHref}>← Kembali ke Slip Gaji</BackLink>
       </p>
 
       <header className="record-detail-header">

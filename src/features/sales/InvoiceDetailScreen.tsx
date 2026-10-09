@@ -11,6 +11,7 @@ import { RecordPaymentForm } from "./RecordPaymentForm";
 import type { InvoiceLayout } from "@/domain/sales/invoiceLayout";
 import { InvoiceDocumentView, formatDocumentDate } from "./InvoiceDocumentView";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Invoice Detail (P13 Part 3a, Step 09 §10, §11): Header / Summary / Activity / Documents, in the Standard
@@ -68,7 +69,7 @@ export function InvoiceDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar invoice</Link>
+        <BackLink href={backHref}>← Kembali ke daftar invoice</BackLink>
       </p>
 
       <header className="record-detail-header">
