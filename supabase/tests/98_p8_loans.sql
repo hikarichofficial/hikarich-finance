@@ -310,7 +310,7 @@ begin
   perform test_helpers.put('draft', v_draft);
   perform test_helpers.expect_msg(format('select public.loan_repay(%L, ''k-p8c-r0z'', %L, %L, ''1000'')', v_draft, v_today, v_bca), 'CONFLICT', 'a draft loan cannot be repaid');
   perform test_helpers.expect_msg(format('select public.loan_repay(%L, ''k-p8c-r0a'', %L, %L, ''12000001'')', v_l, i1.due_date, v_bca), 'INVALID', 'more than the outstanding principal');
-  perform test_helpers.expect_msg(format('select public.loan_repay(%L, ''k-p8c-r0b'', %L, %L, ''900000'', ''120000'')', v_l, i1.due_date, v_bca), 'INVALID', 'interest needs a note');
+  perform test_helpers.expect_msg(format('select public.loan_repay(%L, ''k-p8c-r0b'', %L, %L, ''900000'', ''0'', ''5000'')', v_l, i1.due_date, v_bca), 'INVALID', 'a fee off the schedule needs a note (interest alone does not)');
   perform test_helpers.expect_msg(format('select public.loan_repay(%L, ''k-p8c-r0c'', %L, %L, ''0'', ''0'', ''0'')', v_l, i1.due_date, v_bca), 'INVALID', 'a payment needs an amount');
   perform test_helpers.expect_msg(format('select public.loan_repay(%L, ''k-p8c-r0d'', %L, %L, ''900000'')', v_l, v_today + 1, v_bca), 'INVALID', 'not in the future');
   perform test_helpers.expect_msg(format('select public.loan_repay(%L, ''k-p8c-r0e'', %L, %L, ''900000'')', v_l, v_today - 91, v_bca), 'INVALID', 'not before the proceeds');
@@ -695,7 +695,7 @@ begin
   perform public.loan_activate(v_g, 'k-p8c-pe4', v_today - 28, v_bank);
   perform public.loan_repay(v_b, 'k-p8c-pe5', v_today - 20, v_bank, '1000000', '30000', '5000', 'Interest and transfer fee');
   perform public.loan_repay(v_g, 'k-p8c-pe6', v_today - 10, v_bank, '1000000', '15000', '0', 'Interest from my sibling');
-  perform test_helpers.expect_msg(format('select public.loan_repay(%L, ''k-p8c-pe7'', %L, %L, ''1000'', ''100'')', v_g, v_today - 9, v_bank), 'INVALID', 'interest needs a note here too');
+  perform test_helpers.expect_msg(format('select public.loan_repay(%L, ''k-p8c-pe7'', %L, %L, ''1000'', ''0'', ''100'')', v_g, v_today - 9, v_bank), 'INVALID', 'a fee needs a note here too');
   perform test_helpers.logout();
   perform test_helpers.assert((select principal_account_id from public.loans where id = v_b) = test_helpers.acct(pe, 'PERSONAL_LOAN') and (select term_class from public.loans where id = v_b) is null, 'a personal loan received sits on Personal Loans / Debt');
   perform test_helpers.assert(test_helpers.bal(pe, 'PERSONAL_LOAN') = -4000000 and test_helpers.bal(pe, 'PERSONAL_INTEREST_EXPENSE') = 30000 and test_helpers.bal(pe, 'OTHER_PERSONAL_EXPENSE') = 5000, 'personal interest and fees use the personal expense accounts');
@@ -966,6 +966,100 @@ begin
   perform test_helpers.login(v_owner);
   perform test_helpers.expect_msg(format($q$select public.loan_reverse_payment(%L, 'k-374-rv', %L, 'Wrong amount entered')$q$, v_pay, v_today), 'CONFLICT', '374.15 a payment made before the change cannot be reversed');
   perform test_helpers.controls8c(pt, 'after Bunga Berjenjang');
+  perform test_helpers.logout();
+end
+$$;
+
+-- ================================================================ decision 376: paying a loan (N instalments, prepayment)
+do $$
+declare
+  pt uuid := test_helpers.entity('p8c_pt');
+  v_owner uuid := 'd0000000-0000-0000-0000-000000000001';
+  v_viewer uuid := 'd0000000-0000-0000-0000-000000000004';
+  v_today date := test_helpers.today(pt);
+  v_bca uuid := test_helpers.g('bca');
+  v_l uuid;
+  v_s uuid;
+  v_f uuid;
+  v_p uuid;
+  v_pp uuid;
+  v_ver uuid;
+  v_old numeric;
+  v_first_old numeric;
+  v_first_new numeric;
+  v_cnt_old integer;
+  v_mat_old date;
+  v_out numeric;
+begin
+  perform test_helpers.login(v_owner);
+  v_l := public.loan_create(pt, 'k-376-c1', 'borrowed', 'Bank Pay', null, 'Pay loan', '12000000', v_today - 40, 'long', '12', 'annuity', 12, 1, v_today - 5);
+  perform public.loan_activate(v_l, 'k-376-a1', v_today - 30, v_bca);
+  -- 1. the number of instalments is checked against the schedule
+  perform test_helpers.expect_msg(format($q$select public.loan_pay_installments(%L, 'k-376-n0', %L, %L, 0)$q$, v_l, v_today - 2, v_bca), 'INVALID', '376.1 at least one instalment');
+  perform test_helpers.expect_msg(format($q$select public.loan_pay_installments(%L, 'k-376-n13', %L, %L, 13)$q$, v_l, v_today - 2, v_bca), 'INVALID', '376.2 not more instalments than are unpaid');
+  -- 2. two instalments at once, the amounts from the schedule, interest without a note
+  v_p := public.loan_pay_installments(v_l, 'k-376-n2', v_today - 2, v_bca, 2);
+  perform test_helpers.assert(public.loan_pay_installments(v_l, 'k-376-n2', v_today - 2, v_bca, 2) = v_p, '376.3 paying instalments replays on the same key');
+  perform test_helpers.logout();
+  perform test_helpers.assert(
+    (select principal + interest from public.loan_payments where id = v_p)
+      = (select sum(principal_due + interest_due) from public.loan_schedule_items i join public.loan_schedule_versions v on v.id = i.version_id and v.status = 'active' where i.seq <= 2 and i.loan_id = v_l)
+    and (select count(*) from app_private.loan_items(v_l) where state = 'paid') = 2
+    and (select note from public.loan_payments where id = v_p) is null,
+    '376.4 two instalments are paid from the schedule, interest included, with no note');
+  perform test_helpers.login(v_owner);
+  -- 3. a fee that is not on the schedule still needs a note
+  perform test_helpers.expect_msg(format($q$select public.loan_repay(%L, 'k-376-f0', %L, %L, '1000', '0', '5000')$q$, v_l, v_today, v_bca), 'INVALID', '376.5 a fee off the schedule needs a note');
+  -- 4. prepayment, lowering the instalment (the term stays)
+  perform test_helpers.expect_msg(format($q$select public.loan_prepay(%L, 'k-376-m0', %L, %L, '3000000', 'sometime')$q$, v_l, v_today - 1, v_bca), 'INVALID', '376.6 the way to recalculate must be chosen');
+  perform test_helpers.expect_msg(format($q$select public.loan_prepay(%L, 'k-376-m1', %L, %L, '99000000', 'reduce')$q$, v_l, v_today - 1, v_bca), 'INVALID', '376.7 a prepayment cannot exceed the principal');
+  select principal_due + interest_due into v_first_old from public.loan_schedule_items i join public.loan_schedule_versions v on v.id = i.version_id and v.status = 'active' where i.seq = 3 and i.loan_id = v_l;
+  v_pp := public.loan_prepay(v_l, 'k-376-m2', v_today - 1, v_bca, '3000000', 'reduce');
+  perform test_helpers.assert(public.loan_prepay(v_l, 'k-376-m2', v_today - 1, v_bca, '3000000', 'reduce') = v_pp, '376.8 a prepayment replays on the same key');
+  select id into v_ver from public.loan_schedule_versions where loan_id = v_l and status = 'active';
+  select principal_due + interest_due into v_first_new from public.loan_schedule_items where version_id = v_ver order by seq limit 1;
+  perform test_helpers.logout();
+  perform test_helpers.assert(
+    (select version_no from public.loan_schedule_versions where id = v_ver) = 2
+    and (select count(*) from public.loan_schedule_items where version_id = v_ver) = 10
+    and (select sum(principal_due) from public.loan_schedule_items where version_id = v_ver) = app_private.loan_outstanding(v_l)
+    and v_first_new < v_first_old
+    and (select count(*) from public.loan_payment_allocations where payment_id = v_pp and item_id is null) = 1,
+    '376.9 lowering the instalment keeps the 10 instalments left, schedules exactly what is owed and attaches the prepayment to no instalment');
+  perform test_helpers.login(v_owner);
+  perform test_helpers.expect_msg(format($q$select public.loan_reverse_payment(%L, 'k-376-rv', %L, 'Wrong amount entered')$q$, v_pp, v_today), 'CONFLICT', '376.10 a prepayment cannot be reversed once the schedule was recalculated');
+  -- 5. prepayment, shortening the term (the instalment stays)
+  v_s := public.loan_create(pt, 'k-376-c2', 'borrowed', 'Bank Short', null, 'Short loan', '12000000', v_today - 40, 'long', '12', 'annuity', 12, 1, v_today - 5);
+  perform public.loan_activate(v_s, 'k-376-a2', v_today - 30, v_bca);
+  perform public.loan_pay_installments(v_s, 'k-376-s1', v_today - 2, v_bca, 1);
+  select principal_due + interest_due, (select max(due_date) from public.loan_schedule_items where version_id = i.version_id)
+    into v_first_old, v_mat_old
+  from public.loan_schedule_items i join public.loan_schedule_versions v on v.id = i.version_id and v.status = 'active' where i.seq = 2 and i.loan_id = v_s;
+  perform public.loan_prepay(v_s, 'k-376-s2', v_today - 1, v_bca, '3000000', 'shorten');
+  select id into v_ver from public.loan_schedule_versions where loan_id = v_s and status = 'active';
+  select principal_due + interest_due into v_first_new from public.loan_schedule_items where version_id = v_ver order by seq limit 1;
+  perform test_helpers.logout();
+  perform test_helpers.assert(
+    (select count(*) from public.loan_schedule_items where version_id = v_ver) < 11
+    and v_first_new <= v_first_old
+    and (select max(due_date) from public.loan_schedule_items where version_id = v_ver) < v_mat_old
+    and (select sum(principal_due) from public.loan_schedule_items where version_id = v_ver) = app_private.loan_outstanding(v_s),
+    '376.11 shortening keeps the instalment, ends the loan earlier and schedules exactly what is owed');
+  perform test_helpers.login(v_owner);
+  -- 6. paying off everything closes the loan and leaves the schedule alone
+  v_f := public.loan_create(pt, 'k-376-c3', 'borrowed', 'Bank Full', null, 'Full loan', '6000000', v_today - 40, 'long', '12', 'annuity', 6, 1, v_today - 5);
+  perform public.loan_activate(v_f, 'k-376-a3', v_today - 30, v_bca);
+  perform public.loan_prepay(v_f, 'k-376-f1', v_today - 1, v_bca, '6000000', 'shorten');
+  perform test_helpers.assert((select status from public.loans where id = v_f) = 'closed'
+    and (select count(*) from public.loan_schedule_versions where loan_id = v_f) = 1, '376.12 repaying the whole principal closes the loan without a new schedule');
+  -- 7. a viewer cannot pay
+  perform test_helpers.logout();
+  perform test_helpers.login(v_viewer);
+  perform test_helpers.expect_msg(format($q$select public.loan_pay_installments(%L, 'k-376-v1', %L, %L, 1)$q$, v_l, v_today, v_bca), 'FORBIDDEN', '376.13 a viewer cannot pay instalments');
+  perform test_helpers.expect_msg(format($q$select public.loan_prepay(%L, 'k-376-v2', %L, %L, '1000', 'reduce')$q$, v_l, v_today, v_bca), 'FORBIDDEN', '376.14 a viewer cannot prepay');
+  perform test_helpers.logout();
+  perform test_helpers.login(v_owner);
+  perform test_helpers.controls8c(pt, 'after paying loans by instalments and prepayment');
   perform test_helpers.logout();
 end
 $$;
