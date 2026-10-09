@@ -5847,3 +5847,286 @@ a.pp-answer:hover {
   color: var(--accent-strong);
   font-size: var(--text-sm);
 }
+
+/* ================================================================ Slip gaji (decision 382)
+ * The payslip sheet an employee is handed or emailed. It shares the document canvas the invoice and receipt
+ * already use (`.doc-page`, `.no-print`, the print stylesheet) and, like them, is deliberately fixed-ink on
+ * white rather than themed: it is printed as often as it is read on screen, and a dark-mode sheet would come
+ * out of the printer wrong. The layout follows the one line the sheet has to make obvious --
+ * penghasilan bruto - potongan = gaji dibawa pulang -- with the potongan column split into the part that
+ * lowers the PPh 21 base and the part that only lowers take-home pay (decision 381). */
+.slip {
+  --slip-ink: #191714;
+  --slip-muted: #777069;
+  --slip-line: rgba(25, 23, 20, 0.14);
+  --slip-accent: #b77a43;
+  position: relative;
+  padding: 36px 36px 28px;
+  background: #fff;
+  color: var(--slip-ink);
+  border: 1px solid var(--slip-line);
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(25, 23, 20, 0.08);
+}
+
+.slip[data-void="true"]::before {
+  content: "DIBATALKAN";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(48px, 12vw, 120px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #9b2c2c;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.slip-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--slip-ink);
+}
+
+.slip-issuer {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.slip-logo {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.slip-issuer-name {
+  margin: 0 0 2px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.slip-issuer-line {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--slip-muted);
+}
+
+.slip-title {
+  text-align: right;
+}
+
+.slip-kicker {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--slip-accent);
+}
+
+.slip-period {
+  margin: 2px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.slip-number {
+  margin: 0;
+  font-size: 12px;
+  color: var(--slip-muted);
+}
+
+.slip-who {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--slip-line);
+}
+
+.slip-who span {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--slip-muted);
+}
+
+.slip-who strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.slip-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+  padding: 22px 0;
+}
+
+.slip-col h3,
+.slip-tax h3,
+.slip-employer h3 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--slip-accent);
+}
+
+.slip-group {
+  margin: 14px 0 6px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--slip-muted);
+}
+
+.slip-group:first-of-type {
+  margin-top: 0;
+}
+
+.slip-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 5px 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.slip-line[data-muted="true"] {
+  color: var(--slip-muted);
+}
+
+.slip-num {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.slip-line-total {
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--slip-line);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.slip-takehome {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  background: #faf7f3;
+  border: 1px solid var(--slip-line);
+  border-radius: 12px;
+}
+
+.slip-takehome-sub {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--slip-muted);
+}
+
+.slip-takehome-amount {
+  margin: 0;
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.slip-tax,
+.slip-employer {
+  padding-top: 22px;
+  margin-top: 22px;
+  border-top: 1px solid var(--slip-line);
+}
+
+.slip-note {
+  margin: 16px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--slip-muted);
+}
+
+.slip-note-void {
+  padding: 10px 14px;
+  color: #9b2c2c;
+  background: rgba(155, 44, 44, 0.07);
+  border-radius: 10px;
+}
+
+.slip-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 26px;
+  padding-top: 14px;
+  border-top: 1px solid var(--slip-line);
+  font-size: 11px;
+  color: var(--slip-muted);
+}
+
+.doc-actions-end {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 720px) {
+  .slip {
+    padding: 22px 18px 20px;
+  }
+
+  .slip-who {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .slip-columns {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+}
+
+@media print {
+  .slip {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .slip[data-void="true"]::before {
+    opacity: 0.08;
+  }
+
+  .slip-takehome {
+    background: transparent;
+  }
+
+  /* Keep a section and its heading together rather than let a page break land inside one. */
+  .slip-col,
+  .slip-tax,
+  .slip-employer,
+  .slip-takehome {
+    break-inside: avoid;
+  }
+}

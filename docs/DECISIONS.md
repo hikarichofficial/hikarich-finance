@@ -3415,3 +3415,20 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      `99_p9_2_engine.sql` and `compensationPresets.test.ts`; the payroll guide is updated. Components saved before
      this migration keep the flag they were stored with (the old form defaulted a deduction to taxable), so a
      deduction entered earlier should be re-checked on the Gaji & Komponen page.
+382. **The payslip is a sheet, not a screen of tables (OWNER, 9 October 2026; presentation only, no figure is
+     recomputed).** The payslip will be printed and emailed to employees, so Payslip Detail is now the sheet
+     itself (`PayslipDocument.tsx`) on the same document canvas the invoice and receipt already use
+     (`.doc-page`, `.no-print`, the print stylesheet), with the company letterhead on top and a print button
+     beside it. It is laid out around the single line a payslip has to make obvious, which is what the OWNER
+     asked for: **Penghasilan Bruto − Potongan = Gaji Dibawa Pulang**. The Potongan column is split under
+     headings, which decision 381 is what makes meaningful: the potongan that is really less income and so
+     lowers the PPh 21 base, the employee's own BPJS and PPh 21, and the potongan that lowers take-home pay
+     only. A "Dasar Perhitungan PPh 21" block then shows that base built up from the lines above it, so the
+     tax can be followed by eye on the printed page. Everything is read from the issued snapshot; the two
+     sums the view makes itself are checked against the snapshot's `net_pay`, and a sheet that does not add
+     up says so rather than printing a number that was not paid. The run number, the amount actually paid
+     out and the tax method move to a "Catatan internal" section marked `no-print`, so the employee's copy
+     carries none of it. Without `payroll.tax_view` the snapshot has no `tax` key (decision 180) and the
+     sheet prints no tax figure at all, not even one derived from gross and net. New
+     `getEntityLetterhead(entityId)` reads the Entity name, address, contact and logo in one pass, instead of
+     `getEntitySettingsOverview`'s five queries for a page that needs none of the rest. No migration.
