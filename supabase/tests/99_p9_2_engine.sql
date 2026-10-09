@@ -200,6 +200,9 @@ declare
   j jsonb;
   v_adj uuid;
   v_adj2 uuid;
+  v_base numeric;
+  v_tax numeric;
+  v_gross numeric;
 begin
   perform test_helpers.login(v_pay);
   perform public.employee_set_tax_profile(test_helpers.g('E'), 'key-p9b-E-t2', '2025-06-01', 'has_tax_id', '3200000000000005', 'TK/1');
@@ -248,6 +251,25 @@ begin
   perform test_helpers.assert((select pph21::numeric from public.payroll_run_lines(v_run) where employee_id = test_helpers.g('A')) = 29135, 'back to the plain month');
   perform test_helpers.assert((public.payroll_run_get(v_run) ->> 'net_pay_total')::numeric = 49162591, 'and to the plain totals');
   perform test_helpers.assert((select count(*) from public.payroll_adjustments_list(v_run)) = 0, 'no adjustments left');
+
+  -- decision 381: a deduction only lowers the PPh 21 base when it is marked taxable (an unpaid absence does, a loan
+  -- instalment or kasbon does not: the employee did receive that income and is paying back their own debt from it).
+  select gross_pay::numeric, tax_base::numeric, pph21::numeric into v_gross, v_base, v_tax
+    from public.payroll_run_lines(v_run) where employee_id = test_helpers.g('A');
+  v_adj2 := public.payroll_adjustment_add(v_run, 'key-p9b-ad7', test_helpers.g('A'), 'deduction', 'Cicilan pinjaman', '200000', false);
+  perform public.payroll_run_calculate(v_run);
+  select * into r from public.payroll_run_lines(v_run) where employee_id = test_helpers.g('A');
+  perform test_helpers.assert(r.gross_pay::numeric = v_gross - 200000, 'A: an untaxed deduction still lowers gross pay');
+  perform test_helpers.assert(r.tax_base::numeric = v_base and r.pph21::numeric = v_tax, 'A: but not the PPh 21 base');
+  perform public.payroll_adjustment_remove(v_adj2);
+  v_adj2 := public.payroll_adjustment_add(v_run, 'key-p9b-ad8', test_helpers.g('A'), 'deduction', 'Potongan absen', '200000', true);
+  perform public.payroll_run_calculate(v_run);
+  select * into r from public.payroll_run_lines(v_run) where employee_id = test_helpers.g('A');
+  perform test_helpers.assert(r.tax_base::numeric = v_base - 200000, 'A: a taxable deduction does lower the PPh 21 base');
+  perform public.payroll_adjustment_remove(v_adj2);
+  perform public.payroll_run_calculate(v_run);
+  perform test_helpers.assert((select tax_base::numeric from public.payroll_run_lines(v_run) where employee_id = test_helpers.g('A')) = v_base, 'A: back to the plain base');
+
   perform test_helpers.logout();
 end
 $$;

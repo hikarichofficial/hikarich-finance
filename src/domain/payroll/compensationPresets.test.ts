@@ -76,10 +76,17 @@ describe("findPreset", () => {
     expect(findPreset("")).toBeNull();
   });
 
-  it("keeps deductions out of the PPh 21 base and the BPJS base", () => {
+  it("keeps every deduction out of the BPJS wage base", () => {
     for (const preset of COMPONENT_PRESETS.filter((p) => p.kind === "deduction")) {
-      expect(preset.taxable).toBe(false);
       expect(preset.bpjsBase).toBe(false);
+    }
+  });
+
+  // Decision 381: paying back a debt is not less income, so only an unpaid absence lowers the PPh 21 base.
+  it("lowers the PPh 21 base for an unpaid absence but not for a loan or kasbon", () => {
+    expect(findPreset("Potongan Absensi")?.taxable).toBe(true);
+    for (const label of ["Potongan Pinjaman Karyawan", "Potongan Kasbon", "Potongan Lainnya"]) {
+      expect(findPreset(label)?.taxable).toBe(false);
     }
   });
 });
