@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 742 1529.5" width="742" height="1529.5" role="img" aria-label="Meminjam atau Meminjamkan Uang: Catat Pinjaman dan Cicilannya" font-family="Helvetica, Arial, sans-serif">
-<!-- source: alur.json sha256:c40fab764e66a3e0 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 742 1564" width="742" height="1564" role="img" aria-label="Meminjam atau Meminjamkan Uang: Catat Pinjaman dan Cicilannya" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:b5da00a754afacfc (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
 <title>Meminjam atau Meminjamkan Uang: Catat Pinjaman dan Cicilannya</title>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <rect x="291" y="18" width="160" height="56.5" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
@@ -85,22 +85,25 @@
 <polyline points="98,1096 280,1096" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polyline points="189,1096 189,1119" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polygon points="189,1124 184.5,1116 193.5,1116" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="109" y="1124" width="160" height="105.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<rect x="109" y="1124" width="160" height="140" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
 <text x="119" y="1137" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
 <text x="119" y="1153.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Catat tiap cicilan</text>
 <text x="119" y="1168.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Pinjaman &gt; (klik pinjaman)</text>
 <text x="119" y="1180.5" font-size="9" fill="#1a4d8f" text-anchor="start">&gt; Bayar Cicilan atau Catat Cicilan</text>
 <text x="119" y="1192.5" font-size="9" fill="#1a4d8f" text-anchor="start">Diterima</text>
-<text x="119" y="1207.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Isi Pokok, Bunga, Biaya / Denda</text>
-<text x="119" y="1219" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">sesuai bukti bank</text>
-<polyline points="189,1229.5 189,1252.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="189,1257.5 184.5,1249.5 193.5,1249.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="109" y="1257.5" width="160" height="80" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
-<text x="119" y="1270.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
-<text x="119" y="1287" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Outstanding turun, status</text>
-<text x="119" y="1300.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Lunas bila pokok habis</text>
-<text x="119" y="1315.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pembayaran tercatat bernomor</text>
-<text x="119" y="1327" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">LPY</text>
+<text x="119" y="1207.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pilih Cicilan sesuai jadwal dan</text>
+<text x="119" y="1219" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">jumlah cicilan; pokok dan bunga</text>
+<text x="119" y="1230.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">terisi otomatis. Atau Pelunasan</text>
+<text x="119" y="1242" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dipercepat untuk bayar sebagian</text>
+<text x="119" y="1253.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">pokok</text>
+<polyline points="189,1264 189,1287" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="189,1292 184.5,1284 193.5,1284" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="109" y="1292" width="160" height="80" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="119" y="1305" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="119" y="1321.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Outstanding turun, status</text>
+<text x="119" y="1335" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Lunas bila pokok habis</text>
+<text x="119" y="1350" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pembayaran tercatat bernomor</text>
+<text x="119" y="1361.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">LPY</text>
 <rect x="155.83" y="197.5" width="66.33" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
 <text x="189" y="208.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya, berjadwal</text>
 <polyline points="553,188.5 553,217.5" fill="none" stroke="#444444" stroke-width="1.4"/>
@@ -175,24 +178,24 @@
 <polyline points="462,709 644,709" fill="none" stroke="#444444" stroke-width="1.4"/>
 <rect x="512.28" y="197.5" width="81.44" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
 <text x="553" y="208.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak, sederhana</text>
-<polyline points="189,1337.5 189,1357.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="553,709 553,1357.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="189,1357.5 553,1357.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="371,1357.5 371,1380.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="371,1385.5 366.5,1377.5 375.5,1377.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="291" y="1385.5" width="160" height="90" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
-<text x="371" y="1404" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
-<text x="371" y="1417.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Cicilan salah: Batalkan</text>
-<text x="371" y="1429" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Pembayaran. Bunga berubah:</text>
-<text x="371" y="1440.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Ubah Bunga. Sulit dibayar:</text>
-<text x="371" y="1452" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Restrukturisasi Jadwal. Sisa</text>
-<text x="371" y="1463.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">dihapus: Hapus Sisa</text>
-<rect x="198.95" y="1501.5" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
-<text x="214.95" y="1509.5" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
-<rect x="269.2" y="1501.5" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
-<text x="285.2" y="1509.5" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
-<rect x="391.91" y="1501.5" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
-<text x="407.91" y="1509.5" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
-<polygon points="492.14,1500.5 498.14,1506.5 492.14,1512.5 486.14,1506.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
-<text x="502.14" y="1509.5" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+<polyline points="189,1372 189,1392" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="553,709 553,1392" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="189,1392 553,1392" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="371,1392 371,1415" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="371,1420 366.5,1412 375.5,1412" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="291" y="1420" width="160" height="90" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="371" y="1438.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="371" y="1452" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Cicilan salah: Batalkan</text>
+<text x="371" y="1463.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Pembayaran. Bunga berubah:</text>
+<text x="371" y="1475" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Ubah Bunga. Sulit dibayar:</text>
+<text x="371" y="1486.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Restrukturisasi Jadwal. Sisa</text>
+<text x="371" y="1498" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">dihapus: Hapus Sisa</text>
+<rect x="198.95" y="1536" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="214.95" y="1544" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="269.2" y="1536" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="285.2" y="1544" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="391.91" y="1536" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="407.91" y="1544" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="492.14,1535 498.14,1541 492.14,1547 486.14,1541" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="502.14" y="1544" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
 </svg>

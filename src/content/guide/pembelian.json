@@ -104,7 +104,7 @@
         },
         {
           "title": "Isi baris pengeluaran",
-          "text": "Untuk tiap baris: **Deskripsi** (klik untuk saran; jumlah terakhir terisi otomatis bila nama sama), **Jumlah (sesuai struk)**, **Perlakuan**, dan **Kategori**. Cukup isi satu jumlah sesuai struk atau total harga, misalnya “Pembelian makanan” Rp 300.000 tanpa memecah per menu. Centang **Rinci per barang** bila memang perlu kolom **Kuantitas** dan **Harga Satuan** (desimal boleh koma atau titik).\n\n**Perlakuan**: “Beban” (bawaan, biaya langsung), “Aset” (pembelian barang yang dicatat sebagai aset tetap), atau “Dibayar di Muka”. Kategori yang tampil menyesuaikan perlakuan.\n\n**Kategori** bekerja seperti kolom pelanggan: ketik namanya lalu pilih dari daftar. Bila belum ada, pilih **+ Tambah kategori baru** di bawah daftar, simpan, dan kategori itu langsung terpilih. Kategori baru dicatat ke akun bawaan; untuk memetakannya ke akun tertentu buka Akuntansi > Kategori.\n\nKolom pajak per baris: **Kena PPh?** (sudah terisi otomatis sesuai kategori dan vendor), kotak **Sudah termasuk PPN 11%** di bawah jumlah (PPN dihitung otomatis, tidak diketik), dan **No. Faktur Pajak** (hanya bila vendor memberi faktur)."
+          "text": "Untuk tiap baris: **Deskripsi** (klik untuk saran; jumlah terakhir terisi otomatis bila nama sama), **Nominal (Rp)**, **Perlakuan**, dan **Kategori**. Cukup isi satu nominal, yaitu harga total sesuai struk (bukan banyaknya barang), misalnya “Pembelian makanan” Rp 300.000 tanpa memecah per menu. Centang **Rinci per barang** bila memang perlu kolom **Kuantitas** dan **Harga Satuan** (desimal boleh koma atau titik).\n\n**Perlakuan**: “Beban” (bawaan, biaya langsung), “Aset” (pembelian barang yang dicatat sebagai aset tetap), atau “Dibayar di Muka”. Kategori yang tampil menyesuaikan perlakuan.\n\n**Kategori** bekerja seperti kolom pelanggan: ketik namanya lalu pilih dari daftar. Bila belum ada, pilih **+ Tambah kategori baru** di bawah daftar, simpan, dan kategori itu langsung terpilih. Kategori baru dicatat ke akun bawaan; untuk memetakannya ke akun tertentu buka Akuntansi > Kategori.\n\nKolom pajak per baris: **Kena PPh?** (sudah terisi otomatis sesuai kategori dan vendor), kotak **Sudah termasuk PPN 11%** di bawah jumlah (PPN dihitung otomatis, tidak diketik), dan **No. Faktur Pajak** (hanya bila vendor memberi faktur)."
         },
         {
           "title": "PPh pada pembelian dari vendor",
@@ -189,11 +189,11 @@
       "steps": [
         {
           "title": "Beban: langsung dibayar, tidak ada utang",
-          "text": "Buka **Pembelian > Beban > Catat Pengeluaran**, pilih **Dibayar dari Rekening**, isi **Jumlah (sesuai struk)** lalu simpan sebagai Draf dan **Konfirmasi & Posting**. Saat konfirmasi, biaya tercatat dan saldo rekening langsung berkurang. Tidak ada tahap utang usaha."
+          "text": "Buka **Pembelian > Beban > Catat Pengeluaran**, pilih **Dibayar dari Rekening**, isi **Nominal (Rp)** lalu simpan sebagai Draf dan **Konfirmasi & Posting**. Saat konfirmasi, biaya tercatat dan saldo rekening langsung berkurang. Tidak ada tahap utang usaha."
         },
         {
           "title": "Tagihan: utang dulu, bayar belakangan",
-          "text": "Buka **Pembelian > Tagihan > Catat Tagihan**, isi vendor, tanggal, jatuh tempo, dan **Jumlah (sesuai invoice)**. Setelah **Setujui Tagihan**, biaya (atau aset) tercatat dan **utang usaha bertambah**. Saldo rekening belum berubah."
+          "text": "Buka **Pembelian > Tagihan > Catat Tagihan**, isi vendor, tanggal, jatuh tempo, dan **Nominal (Rp)**. Setelah **Setujui Tagihan**, biaya (atau aset) tercatat dan **utang usaha bertambah**. Saldo rekening belum berubah."
         },
         {
           "title": "Membayar tagihan",
@@ -250,7 +250,7 @@
         },
         {
           "title": "Isi baris tagihan",
-          "text": "Sama seperti pengeluaran: **Deskripsi**, **Jumlah (sesuai invoice)** (centang **Rinci per barang** untuk Kuantitas dan Harga Satuan), **Perlakuan** (Beban, Aset, Dibayar di Muka), **Kategori**, serta kolom pajak **Kena PPh?** (terisi otomatis sesuai kategori dan vendor), kotak **Sudah termasuk PPN 11%** (PPN dihitung otomatis), dan **No. Faktur Pajak**. PPh dan PPN dihitung otomatis dari isian pajak tiap baris dan Data Pajak vendor; hasilnya terlihat di halaman tagihan sebelum disetujui. Vendor menerima total dikurangi PPh; PPh disetor PT ke negara, jadi biaya PT tetap sebesar total.\n\nPenting: **Kena potongan PPh?** sudah terisi dari kategori; bila tidak dipilih, baris dihitung **tidak kena PPh**. Ubah hanya bila vendor memang kena PPh (misalnya jasa dari vendor dalam negeri, atau pilih “belum yakin” agar ditinjau dulu). Vendor yang Domisili Pajaknya luar negeri otomatis menjawab **Tidak kena PPh**."
+          "text": "Sama seperti pengeluaran: **Deskripsi**, **Nominal (Rp)** (centang **Rinci per barang** untuk Kuantitas dan Harga Satuan), **Perlakuan** (Beban, Aset, Dibayar di Muka), **Kategori**, serta kolom pajak **Kena PPh?** (terisi otomatis sesuai kategori dan vendor), kotak **Sudah termasuk PPN 11%** (PPN dihitung otomatis), dan **No. Faktur Pajak**. PPh dan PPN dihitung otomatis dari isian pajak tiap baris dan Data Pajak vendor; hasilnya terlihat di halaman tagihan sebelum disetujui. Vendor menerima total dikurangi PPh; PPh disetor PT ke negara, jadi biaya PT tetap sebesar total.\n\nPenting: **Kena potongan PPh?** sudah terisi dari kategori; bila tidak dipilih, baris dihitung **tidak kena PPh**. Ubah hanya bila vendor memang kena PPh (misalnya jasa dari vendor dalam negeri, atau pilih “belum yakin” agar ditinjau dulu). Vendor yang Domisili Pajaknya luar negeri otomatis menjawab **Tidak kena PPh**."
         },
         {
           "title": "Simpan sebagai Draf",

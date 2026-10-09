@@ -1,6 +1,7 @@
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { formatMoney } from "@/domain/money/format";
+import { unpaidInstallments } from "@/domain/financing/financing";
 import { getMoneyControl } from "@/services/money/money";
 import { LoanActionsPanel } from "@/features/financing/FinancingForms";
 import { requirePermission } from "@/services/identity/access";
@@ -53,6 +54,9 @@ export default async function LoanDetailPage({
       id: p.id,
       label: `${p.number} · ${p.date} · ${formatMoney(p.principal, currency)} pokok`,
     }));
+  // What is still owed on each instalment of the current schedule (decision 376): the form pays the next N of them.
+  const activeVersion = detail.versions.find((v) => v.status === "active");
+  const unpaid = unpaidInstallments(schedule, activeVersion?.version_no);
   const backHref = entity ? `/assets/loans?entity=${encodeURIComponent(entity)}` : "/assets/loans";
   // Only the most recent POSTED FX revaluation can be reversed (decision 281); `fx_revaluations` is already
   // newest-first.
@@ -82,6 +86,9 @@ export default async function LoanDetailPage({
             fxLatestRevaluationId={fxLatestRevaluationId}
             assets={assets}
             currentAssetId={detail.asset_id}
+            unpaid={unpaid}
+            currency={currency}
+            canPrepay={activeVersion?.method !== "manual"}
           />
         ) : undefined
       }

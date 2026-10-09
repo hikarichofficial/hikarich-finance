@@ -88,7 +88,7 @@ export const settleObligationInputSchema = z.object({
   principal: moneyTextSchema,
   interest: moneyTextSchema.default("0"),
   fee: moneyTextSchema.default("0"),
-  /** Needed when interest or a fee is paid: what it is. */
+  /** Needed only for a fee or penalty that is not on the schedule: what it is (decision 376). */
   note: optionalText(1000),
 });
 
@@ -255,6 +255,27 @@ export const repayLoanInputSchema = z.object({
   interest: moneyTextSchema.default("0"),
   fee: moneyTextSchema.default("0"),
   /** Needed when interest or a fee is paid: what it is. */
+  note: optionalText(1000),
+});
+
+/** Pays the next N unpaid instalments; the database takes the amounts from the schedule (decision 376). */
+export const payLoanInstallmentsInputSchema = z.object({
+  loan_id: z.uuid(),
+  idempotency_key: idempotencyKeySchema,
+  date: isoDateSchema,
+  account_id: z.uuid(),
+  count: z.number().int().min(1).max(600),
+  note: optionalText(1000),
+});
+
+/** Pays part of the principal early; what is left is recalculated, shortening the term or lowering the instalment. */
+export const prepayLoanInputSchema = z.object({
+  loan_id: z.uuid(),
+  idempotency_key: idempotencyKeySchema,
+  date: isoDateSchema,
+  account_id: z.uuid(),
+  principal: moneyTextSchema,
+  mode: z.enum(["shorten", "reduce"]),
   note: optionalText(1000),
 });
 

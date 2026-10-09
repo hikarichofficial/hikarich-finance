@@ -3272,5 +3272,19 @@
   [
     "only an active loan can change its interest (now %)",
     "Hanya pinjaman aktif yang bisa diubah bunganya (sekarang {1})"
+  ],
+  [
+    "a fee or penalty that is not on the schedule needs a note that explains it",
+    "Biaya atau denda yang tidak ada di jadwal memerlukan catatan yang menjelaskannya"
+  ],
+  ["no instalment is waiting to be paid", "Tidak ada cicilan yang menunggu dibayar"],
+  ["choose between 1 and % instalments", "Pilih antara 1 dan {1} cicilan"],
+  [
+    "choose to shorten the term or to lower the instalment",
+    "Pilih apakah jangka waktu dipersingkat atau cicilan diperkecil"
+  ],
+  [
+    "no instalment is left to carry the remaining principal",
+    "Tidak ada cicilan tersisa untuk menampung sisa pokok"
   ]
 ]

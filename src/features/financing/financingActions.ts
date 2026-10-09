@@ -20,6 +20,8 @@ import {
   createLoan,
   createObligation,
   payDividend,
+  payLoanInstallments,
+  prepayLoan,
   repayLoan,
   reverseDividendPayment,
   reverseEquityEvent,
@@ -185,25 +187,55 @@ export async function activateLoanAction(
   );
 }
 
+/**
+ * Pays a loan (decision 376). The form offers three ways: the next N instalments from the schedule (the database
+ * works out the amounts), a partial early repayment of the principal (the rest is recalculated), or amounts typed by
+ * hand for what the schedule does not cover.
+ */
 export async function repayLoanAction(
   _previous: FinancingActionState,
   formData: FormData,
 ): Promise<FinancingActionState> {
+  const mode = text(formData, "mode") || "custom";
+  const common = {
+    loan_id: text(formData, "loan_id"),
+    idempotency_key: randomUUID(),
+    date: text(formData, "date"),
+    account_id: text(formData, "account_id"),
+    note: text(formData, "note") || undefined,
+  };
+  if (mode === "installments") {
+    return run(
+      () => payLoanInstallments({ ...common, count: Number(text(formData, "count")) }),
+      "Pembayaran cicilan tidak dapat disimpan. Periksa jumlah cicilan, tanggal dan rekening.",
+      loanPaths(formData),
+      "Pembayaran cicilan tersimpan.",
+    );
+  }
+  if (mode === "prepay") {
+    return run(
+      () =>
+        prepayLoan({
+          ...common,
+          principal: text(formData, "prepay_principal"),
+          mode: text(formData, "prepay_mode") as never,
+        }),
+      "Pelunasan sebagian tidak dapat disimpan. Periksa jumlah pokok, tanggal dan rekening.",
+      loanPaths(formData),
+      "Pelunasan sebagian tersimpan; jadwal sisa dihitung ulang.",
+    );
+  }
   return run(
     () =>
       repayLoan({
-        loan_id: text(formData, "loan_id"),
-        idempotency_key: randomUUID(),
-        date: text(formData, "date"),
-        account_id: text(formData, "account_id"),
+        ...common,
         principal: text(formData, "principal") || "0",
         interest: text(formData, "interest") || "0",
         fee: text(formData, "fee") || "0",
-        note: text(formData, "note") || undefined,
       }),
-    "Pembayaran cicilan tidak dapat disimpan. Periksa jumlah, tanggal dan rekening.",
+    "Pembayaran tidak dapat disimpan. Periksa jumlah, tanggal dan rekening.",
     loanPaths(formData),
-    "Pembayaran cicilan tersimpan.",
+    "Pembayaran tersimpan.",
   );
 }
 

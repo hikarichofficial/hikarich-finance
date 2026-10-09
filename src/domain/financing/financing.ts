@@ -280,7 +280,8 @@ export interface RateStepYearRow {
 }
 
 export type RateStepYearsResult =
-  { ok: true; steps: { from: string; rate: string }[] } | { ok: false; message: string };
+  | { ok: true; steps: { from: string; rate: string }[] }
+  | { ok: false; message: string };
 
 /**
  * Turns "from year N of the schedule, rate R" rows into the dated steps the database stores. Year 1 starts at the
@@ -321,4 +322,85 @@ export function rateStepsFromYears(
     previous = row.year;
   }
   return { ok: true, steps };
+}
+
+// ---- paying the next N instalments (decision 376)
+/** What is still owed on one instalment that is not fully paid (due less what was paid). */
+export interface UnpaidInstallment {
+  seq: number;
+  due_date: string;
+  principal: string;
+  interest: string;
+  fee: string;
+}
+
+export interface InstallmentTotals {
+  count: number;
+  principal: string;
+  interest: string;
+  fee: string;
+  total: string;
+}
+
+/**
+ * The amounts of the next `count` unpaid instalments, as the form previews them. The database computes the same
+ * sum itself (`loan_pay_installments`); this is only what the person sees before saving.
+ */
+export function sumNextInstallments(
+  rows: readonly UnpaidInstallment[],
+  count: number,
+): InstallmentTotals {
+  const take = [...rows].sort((a, b) => a.seq - b.seq).slice(0, Math.max(0, Math.floor(count)));
+  const scale = take.length > 0 ? Decimal.parse(take[0].principal).scale : 0;
+  let principal = Decimal.zero(scale);
+  let interest = Decimal.zero(scale);
+  let fee = Decimal.zero(scale);
+  for (const row of take) {
+    principal = principal.add(Decimal.parse(row.principal));
+    interest = interest.add(Decimal.parse(row.interest));
+    fee = fee.add(Decimal.parse(row.fee));
+  }
+  return {
+    count: take.length,
+    principal: principal.toString(),
+    interest: interest.toString(),
+    fee: fee.toString(),
+    total: principal.add(interest).add(fee).toString(),
+  };
+}
+
+/** One row of `loan_schedule`, as far as the unpaid view needs it. */
+export interface ScheduleRowForPayment {
+  version_no: number;
+  seq: number;
+  due_date: string;
+  principal_due: string;
+  interest_due: string;
+  fee_due: string;
+  paid_principal: string;
+  paid_interest: string;
+  paid_fee: string;
+  state: string;
+}
+
+function remaining(due: string, paid: string): string {
+  const left = Decimal.parse(due).sub(Decimal.parse(paid));
+  return (left.isNegative() ? Decimal.zero(left.scale) : left).toString();
+}
+
+/** The instalments of one schedule version that are not fully paid, with what is still owed on each. */
+export function unpaidInstallments(
+  rows: readonly ScheduleRowForPayment[],
+  versionNo: number | undefined,
+): UnpaidInstallment[] {
+  return rows
+    .filter((row) => row.version_no === versionNo && row.state !== "paid")
+    .map((row) => ({
+      seq: row.seq,
+      due_date: row.due_date,
+      principal: remaining(row.principal_due, row.paid_principal),
+      interest: remaining(row.interest_due, row.paid_interest),
+      fee: remaining(row.fee_due, row.paid_fee),
+    }))
+    .sort((a, b) => a.seq - b.seq);
 }

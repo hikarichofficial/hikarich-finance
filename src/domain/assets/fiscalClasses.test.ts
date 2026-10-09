@@ -44,6 +44,10 @@ describe("fiscal classes", () => {
     expect(suggestFiscalClass("Laptop kerja")?.key).toBe("group_1");
     expect(suggestFiscalClass("Meja kantor kayu jati")?.key).toBe("group_1");
     expect(suggestFiscalClass("Rak gudang")?.key).toBe("group_1");
+    expect(suggestFiscalClass("Iphone 18 Pro Max 256 Gb")?.key).toBe("group_1");
+    expect(suggestFiscalClass("HP Samsung untuk admin")?.key).toBe("group_1");
+    expect(suggestFiscalClass("Handphone")?.key).toBe("group_1");
+    expect(suggestFiscalClass("iPad Air")?.key).toBe("group_1");
     expect(suggestFiscalClass("Meja kerja")?.key).toBe("group_1");
     expect(suggestFiscalClass("Lemari besi arsip")?.key).toBe("group_2");
     expect(suggestFiscalClass("AC Daikin 1 PK")?.key).toBe("group_2");

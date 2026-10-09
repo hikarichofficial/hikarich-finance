@@ -2813,7 +2813,7 @@
                   "actor": "anda",
                   "title": "Catat tiap cicilan",
                   "menu": "Pinjaman > (klik pinjaman) > Bayar Cicilan atau Catat Cicilan Diterima",
-                  "note": "Isi Pokok, Bunga, Biaya / Denda sesuai bukti bank"
+                  "note": "Pilih Cicilan sesuai jadwal dan jumlah cicilan; pokok dan bunga terisi otomatis. Atau Pelunasan dipercepat untuk bayar sebagian pokok"
                 },
                 {
                   "kind": "step",

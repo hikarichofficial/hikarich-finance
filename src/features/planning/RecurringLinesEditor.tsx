@@ -259,7 +259,7 @@ export function RecurringLinesEditor({
     <div className="plan-lines-editor">
       <p className="hint">
         {amountOnly
-          ? "Baris dengan deskripsi atau jumlah kosong tidak akan disimpan."
+          ? "Baris dengan deskripsi atau nominal kosong tidak akan disimpan."
           : "Baris dengan deskripsi atau harga satuan kosong tidak akan disimpan."}
       </p>
       {rows.length === 0 ? (
@@ -276,7 +276,7 @@ export function RecurringLinesEditor({
                   </th>
                 )}
                 <th scope="col" className="num">
-                  {amountOnly ? "Jumlah (sesuai struk)" : "Harga Satuan"}
+                  {amountOnly ? "Nominal (Rp)" : "Harga Satuan"}
                 </th>
                 {showTreatment ? <th scope="col">Perlakuan</th> : null}
                 {showDiscount ? <th scope="col">Diskon</th> : null}

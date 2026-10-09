@@ -34,6 +34,8 @@ import {
   payDividendInputSchema,
   periodInputSchema,
   recordFinancingTaxReviewInputSchema,
+  payLoanInstallmentsInputSchema,
+  prepayLoanInputSchema,
   repayLoanInputSchema,
   restructureLoanInputSchema,
   changeLoanRateInputSchema,
@@ -240,6 +242,43 @@ export async function activateLoan(
   return callRpc(
     "loan_activate",
     { p_loan: v.loan_id, p_key: v.idempotency_key, p_date: v.date, p_account: v.account_id },
+    uuidResultSchema,
+  );
+}
+
+/** Pays the next N unpaid instalments, the amounts taken from the schedule by the database. Returns the payment id. */
+export async function payLoanInstallments(
+  input: z.input<typeof payLoanInstallmentsInputSchema>,
+): Promise<string> {
+  const v = payLoanInstallmentsInputSchema.parse(input);
+  return callRpc(
+    "loan_pay_installments",
+    {
+      p_loan: v.loan_id,
+      p_key: v.idempotency_key,
+      p_date: v.date,
+      p_account: v.account_id,
+      p_count: v.count,
+      p_note: v.note ?? null,
+    },
+    uuidResultSchema,
+  );
+}
+
+/** Partial early repayment of the principal; the rest of the schedule is recalculated. Returns the payment id. */
+export async function prepayLoan(input: z.input<typeof prepayLoanInputSchema>): Promise<string> {
+  const v = prepayLoanInputSchema.parse(input);
+  return callRpc(
+    "loan_prepay",
+    {
+      p_loan: v.loan_id,
+      p_key: v.idempotency_key,
+      p_date: v.date,
+      p_account: v.account_id,
+      p_principal: v.principal,
+      p_mode: v.mode,
+      p_note: v.note ?? null,
+    },
     uuidResultSchema,
   );
 }
