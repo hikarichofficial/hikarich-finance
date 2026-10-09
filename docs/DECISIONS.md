@@ -3388,3 +3388,14 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Pajak is offered only for someone who may have been paid before this app (from February, joined before this
      month), with a worked example and "Sampai Bulan" prefilled with last month. No migration; unit tests in
      `compensationPresets.test.ts`; the guide is updated to the new pages.
+380. **Two findings from the production run of the loan and tax screens, fixed as presentation only (OWNER
+     request, 9 October 2026; no change to economic or tax meaning).** (a) `/tax/filing`'s "Catat Pembayaran"
+     printed the outstanding amount as the raw database decimal ("150537.0000") because the hint used the string
+     straight from `tax_position`; it now goes through `formatMoney` with the Entity's own currency, the same as
+     the summary above it, and so does the VAT input-tax line next to it. (b) Restrukturisasi Jadwal opened with
+     "Bunga per Tahun" at 0 and the calculation method at Anuitas regardless of the loan, so a restructure that
+     was only meant to change the term silently dropped the rate to 0 unless it was retyped. Both fields now open
+     on the active schedule's own rate (trailing zeros trimmed: "12.0000" shows as "12") and its own method; a
+     `manual` schedule still opens on Anuitas, because Restrukturisasi always writes a generated schedule. The
+     RPC contracts (`tax_record_payment`, `loan_restructure`) are unchanged -- only the prefilled values are.
+     No migration.

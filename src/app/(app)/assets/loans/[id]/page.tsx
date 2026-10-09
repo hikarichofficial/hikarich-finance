@@ -99,6 +99,8 @@ export default async function LoanDetailPage({
             unpaid={unpaid}
             currency={currency}
             canPrepay={activeVersion?.method !== "manual"}
+            currentRate={activeVersion?.rate ?? null}
+            currentMethod={activeVersion?.method ?? null}
           />
         ) : undefined
       }
