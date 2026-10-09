@@ -12,6 +12,7 @@ import {
   type ComponentPreset,
 } from "@/domain/payroll/compensationPresets";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { formatShortDate } from "./format";
 import { PayrollToggleForm } from "./PayrollToggleForm";
 import { setCompensationAction } from "./payrollActions";
 
@@ -22,6 +23,8 @@ export interface CompensationRowView {
   amount: string;
   taxable: boolean;
   bpjsBase: boolean;
+  /** When this component started, shown on its row so the read-only table above is not needed as well. */
+  effectiveFrom?: string;
 }
 
 interface Row {
@@ -35,6 +38,8 @@ interface Row {
   bpjsBase: boolean;
   /** True once the person changed a flag by hand: a later change of the name then leaves the flags alone. */
   flagsTouched: boolean;
+  /** Empty for a row that is not saved yet. */
+  effectiveFrom: string;
 }
 
 function fromPreset(id: number, preset: ComponentPreset): Row {
@@ -47,6 +52,7 @@ function fromPreset(id: number, preset: ComponentPreset): Row {
     taxable: preset.taxable,
     bpjsBase: preset.bpjsBase,
     flagsTouched: false,
+    effectiveFrom: "",
   };
 }
 
@@ -94,6 +100,7 @@ export function CompensationForm({
         taxable: c.taxable,
         bpjsBase: c.bpjsBase,
         flagsTouched: true,
+        effectiveFrom: c.effectiveFrom ?? "",
       }));
     }
     return [fromPreset(newId(), COMPONENT_PRESETS[0])];
@@ -165,6 +172,8 @@ export function CompensationForm({
   }
 
   const countPosted = rows.filter((row) => row.label.trim() !== "" || row.amount !== "").length;
+  // The potongan note is only worth the reader's time once there is a potongan on the form.
+  const hasDeduction = rows.some((row) => row.kind === "deduction");
 
   return (
     <PayrollToggleForm
@@ -273,7 +282,8 @@ export function CompensationForm({
                 </label>
               ) : null}
               <span className="comp-code" title="Kode dibuat otomatis dari nama">
-                {codes[index] ? `Kode: ${codes[index]}` : "Kode otomatis"}
+                {row.effectiveFrom ? `Berlaku sejak ${formatShortDate(row.effectiveFrom)} · ` : ""}
+                {codes[index] ? codes[index] : "kode otomatis"}
               </span>
             </div>
           </div>
@@ -282,57 +292,67 @@ export function CompensationForm({
 
       {suggestions.length > 0 && rows.length < 30 ? (
         <div className="comp-suggest">
-          <span className="comp-suggest-title">Tambah dari daftar</span>
-          <div className="comp-suggest-chips">
-            {suggestions.map((preset) => (
-              <button
-                key={preset.label}
-                type="button"
-                className="comp-suggest-chip"
-                data-kind={preset.kind}
-                title={preset.hint}
-                onClick={() =>
-                  setRows((previous) => {
-                    // A lone empty first row is replaced instead of pushed down.
-                    const onlyBlank =
-                      previous.length === 1 &&
-                      previous[0].label.trim() === "" &&
-                      previous[0].amount === "";
-                    return onlyBlank
-                      ? [fromPreset(newId(), preset)]
-                      : [...previous, fromPreset(newId(), preset)];
-                  })
-                }
-              >
-                + {preset.label}
-              </button>
-            ))}
-          </div>
+          {(["earning", "deduction"] as const).map((kind) => {
+            const group = suggestions.filter((preset) => preset.kind === kind);
+            if (group.length === 0) return null;
+            return (
+              <div key={kind} className="comp-suggest-group">
+                <span className="comp-suggest-title">
+                  {kind === "earning" ? "Tambah penghasilan" : "Tambah potongan"}
+                </span>
+                <div className="comp-suggest-chips">
+                  {group.map((preset) => (
+                    <button
+                      key={preset.label}
+                      type="button"
+                      className="comp-suggest-chip"
+                      data-kind={preset.kind}
+                      title={preset.hint}
+                      onClick={() =>
+                        setRows((previous) => {
+                          // A lone empty first row is replaced instead of pushed down.
+                          const onlyBlank =
+                            previous.length === 1 &&
+                            previous[0].label.trim() === "" &&
+                            previous[0].amount === "";
+                          return onlyBlank
+                            ? [fromPreset(newId(), preset)]
+                            : [...previous, fromPreset(newId(), preset)];
+                        })
+                      }
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
+                  {kind === "earning" && rows.length < 30 ? (
+                    <button
+                      type="button"
+                      className="comp-suggest-chip comp-suggest-own"
+                      onClick={() =>
+                        setRows((previous) => [
+                          ...previous,
+                          {
+                            id: newId(),
+                            savedCode: "",
+                            label: "",
+                            kind: "earning",
+                            amount: "",
+                            taxable: true,
+                            bpjsBase: false,
+                            flagsTouched: false,
+                            effectiveFrom: "",
+                          },
+                        ])
+                      }
+                    >
+                      Ketik nama sendiri
+                    </button>
+                  ) : null}
+                </div>
+              </div>
+            );
+          })}
         </div>
-      ) : null}
-
-      {rows.length < 30 ? (
-        <button
-          type="button"
-          className="btn-secondary comp-add"
-          onClick={() =>
-            setRows((previous) => [
-              ...previous,
-              {
-                id: newId(),
-                savedCode: "",
-                label: "",
-                kind: "earning",
-                amount: "",
-                taxable: true,
-                bpjsBase: false,
-                flagsTouched: false,
-              },
-            ])
-          }
-        >
-          + Komponen lain (ketik sendiri)
-        </button>
       ) : null}
 
       <dl className="comp-total" aria-live="polite">
@@ -353,12 +373,13 @@ export function CompensationForm({
         BPJS dan PPh 21 dihitung otomatis saat proses payroll dibuat. {countPosted} komponen akan
         disimpan.
       </p>
-      <p className="hint">
-        Pada baris potongan, centang &ldquo;Mengurangi dasar PPh 21&rdquo; hanya bila karyawan
-        memang menerima lebih sedikit, misalnya potongan absensi. Cicilan pinjaman, kasbon dan
-        sejenisnya tidak dicentang: gaji tetap diterima penuh lalu dipakai membayar utang, jadi
-        pajaknya tidak ikut berkurang.
-      </p>
+      {hasDeduction ? (
+        <p className="hint">
+          Centang &ldquo;Mengurangi dasar PPh 21&rdquo; hanya bila karyawan memang menerima lebih
+          sedikit, misalnya potongan absensi. Cicilan pinjaman dan kasbon tidak dicentang: gaji
+          tetap diterima penuh lalu dipakai membayar utang, jadi pajaknya tidak ikut berkurang.
+        </p>
+      ) : null}
     </PayrollToggleForm>
   );
 }

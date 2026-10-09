@@ -27,27 +27,29 @@ export default async function EmployeePayPage({
       showPay
       showTax={ctx.canViewTax}
       title="Gaji & Komponen"
-      description="Komponen gaji yang berlaku saat ini. BPJS dan PPh 21 dihitung otomatis dari sini saat payroll dibuat."
+      description="Komponen yang berlaku sekarang, dan tempat mengubahnya. BPJS dan PPh 21 dihitung otomatis dari sini saat proses payroll dibuat."
     >
-      <CompensationTable compensation={compensation} currency={ctx.currency} />
+      {/* The editor already lists every component with its amount, flags and start date, so showing the
+          read-only table as well said the same thing twice (OWNER, 9 October 2026). Someone who may look but
+          not edit still needs it. */}
       {ctx.canEditCompensation ? (
-        <>
-          <h3 className="emp-subtitle">Ubah gaji atau tambah komponen</h3>
-          <CompensationForm
-            employeeId={id}
-            current={compensation.components.map((c) => ({
-              component: c.component,
-              kind: c.kind,
-              label: c.label,
-              amount: c.amount,
-              taxable: c.taxable,
-              bpjsBase: c.bpjs_base,
-            }))}
-            today={ctx.today}
-            currency={ctx.currency}
-          />
-        </>
-      ) : null}
+        <CompensationForm
+          employeeId={id}
+          current={compensation.components.map((c) => ({
+            component: c.component,
+            kind: c.kind,
+            label: c.label,
+            amount: c.amount,
+            taxable: c.taxable,
+            bpjsBase: c.bpjs_base,
+            effectiveFrom: c.effective_from,
+          }))}
+          today={ctx.today}
+          currency={ctx.currency}
+        />
+      ) : (
+        <CompensationTable compensation={compensation} currency={ctx.currency} />
+      )}
     </EmployeeShell>
   );
 }
