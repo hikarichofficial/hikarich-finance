@@ -596,8 +596,10 @@ export function LoanActionsPanel({
             </label>
             <ReasonField />
             <p className="hint">
-              Jadwal lama berhenti di tanggal efektif; pembayaran yang sudah tercatat tidak berubah.
-              Perlu verifikasi ulang sebelum menyimpan.
+              Dipakai juga saat bunga berubah (misalnya masa bunga tetap selesai dan bunga
+              mengambang berlaku): isi bunga baru, tanggal efektif, dan sisa cicilan; cicilan
+              dihitung ulang dari sisa pokok. Jadwal lama berhenti di tanggal efektif; pembayaran
+              yang sudah tercatat tidak berubah. Perlu verifikasi ulang sebelum menyimpan.
             </p>
           </CommandForm>
         </>

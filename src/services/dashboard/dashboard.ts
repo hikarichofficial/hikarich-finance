@@ -48,6 +48,8 @@ import type { MoneyControlRow, ReconciliationStatusRow } from "@/schemas/money";
 import type { ArAgingRow } from "@/schemas/sales";
 import type { ApAgingRow } from "@/schemas/purchases";
 import type { TaxCalendarRow, TaxOverview } from "@/schemas/tax";
+import { listLoans } from "@/services/financing/financing";
+import { Decimal } from "@/domain/money/decimal";
 
 const TREND_MONTHS = 6;
 const RECENT_ACTIVITY_LIMIT = 8;
@@ -96,6 +98,13 @@ export interface DashboardPayablesSection {
   aging: ApAgingRow[];
 }
 
+/** Loans the Entity has borrowed and still owes: what is left of the principal, and what is past due. */
+export interface DashboardLoansSection {
+  total: string;
+  overdue: string;
+  count: number;
+}
+
 export interface DashboardTaxSection {
   overview: TaxOverview;
   deadlines: TaxCalendarRow[];
@@ -119,6 +128,7 @@ export interface DashboardSnapshot {
   reconciliation: ReconciliationStatusRow[] | null;
   receivables: DashboardReceivablesSection | null;
   payables: DashboardPayablesSection | null;
+  loans: DashboardLoansSection | null;
   tax: DashboardTaxSection | null;
   /** Turnover of this book and the owner's other books together, for the ceiling of the final tax. */
   taxGroup: TaxGroupTurnover | null;
@@ -152,6 +162,7 @@ export async function getDashboardSnapshot(
   const canBills = can(access, entityId, "bills.view");
   const canDocuments = can(access, entityId, "documents.view");
   const canTax = can(access, entityId, "tax.view");
+  const canLoans = can(access, entityId, "loans.view");
   const canMissingEvidence = canBills && canDocuments;
 
   const [
@@ -172,6 +183,7 @@ export async function getDashboardSnapshot(
     taxReviewRows,
     claimRows,
     taxGroup,
+    loanRows,
   ] = await Promise.all([
     getEntityBaseCurrency(entityId),
     canReports
@@ -224,6 +236,15 @@ export async function getDashboardSnapshot(
     // Read-only and optional: the Dashboard never fails because of it.
     canTax
       ? getTaxGroupTurnover(entityId, Number(period.start.slice(0, 4))).catch(() => null)
+      : null,
+    // What the Entity still owes banks and other lenders (a loan is not "Utang Usaha", which is vendor bills only).
+    canLoans
+      ? listLoans({
+          entity_id: entityId,
+          direction: "borrowed",
+          status: "active",
+          limit: 200,
+        }).catch(() => null)
       : null,
   ]);
 
@@ -287,6 +308,22 @@ export async function getDashboardSnapshot(
       })()
     : null;
 
+  const loans: DashboardLoansSection | null =
+    loanRows && loanRows.length > 0
+      ? {
+          total: loanRows
+            .reduce((sum, loan) => sum.add(Decimal.parse(loan.outstanding)), Decimal.zero(2))
+            .toString(),
+          overdue: loanRows
+            .reduce(
+              (sum, loan) => sum.add(Decimal.parse(loan.overdue_amount ?? "0")),
+              Decimal.zero(2),
+            )
+            .toString(),
+          count: loanRows.length,
+        }
+      : null;
+
   const tax: DashboardTaxSection | null =
     taxOverview && taxCalendarRows
       ? {
@@ -320,6 +357,7 @@ export async function getDashboardSnapshot(
     reconciliation: reconciliationRows,
     receivables,
     payables,
+    loans,
     tax,
     taxGroup,
     attention,

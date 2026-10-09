@@ -1,9 +1,9 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/services/identity/access";
 import { getContact } from "@/services/contacts/contacts";
 import { matchesContactRole } from "@/domain/contacts/contactsList";
 import { ContactEditForm } from "@/features/contacts/ContactEditForm";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Ubah Vendor (finding #90), gated `contacts.edit` -- the permission the update policy itself checks. */
 export default async function EditContactPage({
@@ -31,7 +31,7 @@ export default async function EditContactPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke detail vendor</Link>
+        <BackLink href={backHref}>← Kembali ke detail vendor</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

@@ -19,6 +19,7 @@ import {
 } from "@/domain/financing/loanList";
 import type { LoanDetail, LoanScheduleRow } from "@/schemas/financing";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 const SOURCE_TYPE_LABELS: Readonly<Record<LoanDetail["source_type"], string>> = {
   proceeds: "Pencairan",
@@ -64,7 +65,7 @@ export function LoanDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar pinjaman</Link>
+        <BackLink href={backHref}>← Kembali ke daftar pinjaman</BackLink>
       </p>
 
       <header className="record-detail-header">

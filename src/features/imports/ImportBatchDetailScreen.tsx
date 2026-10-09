@@ -12,6 +12,7 @@ import {
 import type { ImportBatchRow, ImportRowRow, ImportRowStatus } from "@/schemas/imports";
 import { formatShortDate } from "./format";
 import { ImportBatchActions } from "./ImportBatchActions";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Import batch Detail (P13 unbuilt-screens backlog, decision 241): the batch header plus its rows, filterable
@@ -53,7 +54,7 @@ export function ImportBatchDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke riwayat impor</Link>
+        <BackLink href={backHref}>← Kembali ke riwayat impor</BackLink>
       </p>
 
       <header className="record-detail-header">

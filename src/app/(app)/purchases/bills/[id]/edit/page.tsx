@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { decodeProblems } from "@/domain/forms/problemTargets";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/services/identity/access";
@@ -10,6 +9,7 @@ import { getBillDraftForEdit } from "@/services/purchases/purchases";
 import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { BillForm } from "@/features/purchases/BillForm";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Edit a DRAFT bill (Step 09 §12, decision 261), gated `bills.edit` -- the permission `update_bill_draft`
  * checks. Anything that is no longer a draft is "not found" here: a recognised bill is corrected instead. */
@@ -42,7 +42,7 @@ export default async function EditBillPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke tagihan</Link>
+        <BackLink href={backHref}>← Kembali ke tagihan</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

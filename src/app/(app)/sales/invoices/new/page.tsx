@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
 import { listContacts } from "@/services/contacts/contacts";
@@ -8,6 +7,7 @@ import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { InvoiceForm } from "@/features/sales/InvoiceForm";
 import { listPaymentLinks } from "@/services/sales/paymentLinks";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Create Invoice (Step 09 §11, decision 257), gated `invoices.create` -- the permission
  * `create_invoice_draft` itself checks. Only active customers and active accounts are offered. */
@@ -33,7 +33,7 @@ export default async function NewInvoicePage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar invoice</Link>
+        <BackLink href={backHref}>← Kembali ke daftar invoice</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

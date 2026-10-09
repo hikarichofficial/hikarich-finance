@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import {
   transferActivityTimeline,
@@ -7,6 +6,7 @@ import {
 } from "@/domain/money/transferList";
 import { TransferActions, type TransferActionPermissions } from "./TransferActions";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Transfer Detail (P13 Part 3c, Step 09 §10, §13): Header/Summary/Activity, the same Standard Record Detail
@@ -31,7 +31,7 @@ export function TransferDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar transfer</Link>
+        <BackLink href={backHref}>← Kembali ke daftar transfer</BackLink>
       </p>
 
       <header className="record-detail-header">

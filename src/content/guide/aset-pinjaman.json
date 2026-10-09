@@ -13,7 +13,7 @@
       "steps": [
         {
           "title": "Catat pembelian dengan Perlakuan “Aset”",
-          "text": "Barang yang dipakai bertahun-tahun (laptop, mesin, kendaraan) dicatat lewat Pengeluaran atau Tagihan Vendor. Pada baris pembelian, pilih **Perlakuan** “Aset”. Caranya ada di [Cara Membuat Biaya](buat-biaya) dan [Cara Mencatat dan Menyetujui Tagihan Vendor](catat-tagihan-vendor). Begitu pengeluaran dikonfirmasi atau tagihan disetujui, sistem otomatis mendaftarkan aset berstatus Draf dari baris itu, tanpa jurnal tambahan.",
+          "text": "Barang yang dipakai bertahun-tahun (laptop, mesin, kendaraan) dicatat lewat Pengeluaran atau Tagihan Vendor. Pada baris pembelian, pilih **Perlakuan** “Aset”, lalu pilih **Kategori** yang sesuai: sudah tersedia kategori aset siap pakai, misalnya “Laptop, Komputer & Tablet”, “Smartphone & Gadget”, “Peralatan Kantor”, “Meja, Kursi & Furnitur Kantor”, “Mobil & Kendaraan Roda Empat”, “Motor & Kendaraan Roda Dua”, “Mesin & Peralatan Produksi”, “Bangunan Permanen”, dan “Tanah”, masing-masing sudah terhubung ke akun aset tetapnya. Perlakuan “Dibayar di muka” memakai kategori yang berawalan “Dibayar di Muka”, “Deposit”, atau “Uang Muka”. Caranya ada di [Cara Membuat Biaya](buat-biaya) dan [Cara Mencatat dan Menyetujui Tagihan Vendor](catat-tagihan-vendor). Begitu pengeluaran dikonfirmasi atau tagihan disetujui, sistem otomatis mendaftarkan aset berstatus Draf dari baris itu, tanpa jurnal tambahan.",
           "tip": "Barang kecil yang habis dipakai dalam sebulan tetap memakai Perlakuan “Beban”."
         },
         {
@@ -622,8 +622,8 @@
           "text": "Tekan **Hapus Sisa Pinjaman**, isi **Tanggal**, **Jumlah Dihapus** (bawaan: seluruh Outstanding), dan **Alasan** (5 sampai 1000 karakter), lalu **Simpan Penghapusan**. Layar meminta verifikasi ulang. Penghapusan tampil di Riwayat Pembayaran dengan Jenis “Penghapusan”, dan bisa dibatalkan lewat **Batalkan Pembayaran**."
         },
         {
-          "title": "Restrukturisasi Jadwal bila syarat cicilan berubah",
-          "text": "Tekan **Restrukturisasi Jadwal**. Isi **Tanggal Efektif**, **Bunga per Tahun (%)**, **Cara Hitung Cicilan**, **Jumlah Cicilan (sisa jadwal baru)**, **Jarak Antar Cicilan**, **Tanggal Cicilan Pertama (jadwal baru)**, dan **Alasan**, lalu **Simpan Jadwal Baru**. Layar meminta verifikasi ulang. Jadwal lama berhenti di tanggal efektif dan muncul di **Riwayat Jadwal** (Versi, Metode, Bunga, Berlaku Sejak, Status Berlaku atau Digantikan). Pembayaran yang sudah tercatat tidak berubah, dan tidak ada jurnal baru."
+          "title": "Restrukturisasi Jadwal bila syarat cicilan atau bunga berubah",
+          "text": "Tekan **Restrukturisasi Jadwal**. Isi **Tanggal Efektif**, **Bunga per Tahun (%)**, **Cara Hitung Cicilan**, **Jumlah Cicilan (sisa jadwal baru)**, **Jarak Antar Cicilan**, **Tanggal Cicilan Pertama (jadwal baru)**, dan **Alasan**, lalu **Simpan Jadwal Baru**. Layar meminta verifikasi ulang. Jadwal lama berhenti di tanggal efektif dan muncul di **Riwayat Jadwal** (Versi, Metode, Bunga, Berlaku Sejak, Status Berlaku atau Digantikan). Pembayaran yang sudah tercatat tidak berubah, dan tidak ada jurnal baru. Inilah cara memakai bunga mengambang: bila bank menetapkan bunga tetap beberapa tahun lalu berubah mengikuti bunga pasar, restrukturisasi pada tanggal bunga berubah dengan bunga baru dan sisa cicilan yang tersisa, sehingga cicilan dihitung ulang dari sisa pokok."
         }
       ],
       "tables": [

@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import { PLAN_PERIOD_TYPE_LABELS, monthRangeInclusive } from "@/domain/planning/planning";
 import { planStatusBadge } from "@/domain/planning/budgetList";
@@ -10,6 +9,7 @@ import type {
 import { RevenueTargetActions, type RevenueTargetActionPermissions } from "./RevenueTargetActions";
 import { RevenueTargetLinesEditor } from "./RevenueTargetLinesEditor";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Revenue Target Detail (P13 Part 3h, third increment, Step 09 §10, §18: "period-based editable planning
@@ -47,7 +47,7 @@ export function RevenueTargetDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar target pendapatan</Link>
+        <BackLink href={backHref}>← Kembali ke daftar target pendapatan</BackLink>
       </p>
 
       <header className="record-detail-header">

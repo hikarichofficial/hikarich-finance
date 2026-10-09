@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import {
   accountListStatus,
@@ -13,6 +12,7 @@ import {
   EditAccountDetailsForm,
   ToggleAccountActiveForm,
 } from "./AccountManageForms";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Account Detail (P13 Part 3c, Step 09 §10, §13: "Account detail resembles a clean bank ledger with filters,
@@ -64,7 +64,7 @@ export function AccountDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar akun</Link>
+        <BackLink href={backHref}>← Kembali ke daftar akun</BackLink>
       </p>
 
       <header className="record-detail-header">
@@ -183,12 +183,12 @@ export function AccountDetailScreen({
                     {movement.reverses_movement_id ? " (pembalik)" : ""}
                   </td>
                   <td data-label="Jurnal">{movement.journal_number ?? "—"}</td>
-                  <td className="num" data-label="Masuk">
+                  <td className="num amt-in" data-label="Masuk">
                     {movement.direction === "in"
                       ? formatMoney(movement.amount, movement.currency)
                       : ""}
                   </td>
-                  <td className="num" data-label="Keluar">
+                  <td className="num amt-out" data-label="Keluar">
                     {movement.direction === "out"
                       ? formatMoney(movement.amount, movement.currency)
                       : ""}

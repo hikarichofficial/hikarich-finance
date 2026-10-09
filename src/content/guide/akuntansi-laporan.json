@@ -13,7 +13,7 @@
       "steps": [
         {
           "title": "Buka Akuntansi > Kategori",
-          "text": "Halaman **Kategori** menampilkan jumlah kategori dan tabel dengan kolom **Nama**, **Jenis**, **Perlakuan Pajak**, dan **Akun & Berlaku Sejak**. Entity baru sudah berisi kategori standar (misalnya “Penjualan Produk”, “Pemasaran & Iklan”, “Sewa & Ruang Kerja”) yang sudah terhubung ke akun yang tepat. Kategori yang dinonaktifkan tampil dengan tambahan “(tidak aktif)” di belakang namanya. Bila kosong tampil “Belum ada kategori.”",
+          "text": "Halaman **Kategori** menampilkan jumlah kategori dan tabel dengan kolom **Nama**, **Jenis**, **Perlakuan Pajak**, dan **Akun & Berlaku Sejak**. Entity baru sudah berisi kategori standar (misalnya “Penjualan Produk”, “Pemasaran & Iklan”, “Sewa & Ruang Kerja”) yang sudah terhubung ke akun yang tepat. Termasuk 35 kategori jenis **Aset** untuk PT (peralatan, kendaraan, bangunan, tanah, serta biaya dibayar di muka dan deposit) dan 8 untuk Buku Pribadi, yang muncul di baris pengeluaran berperlakuan “Aset” atau “Dibayar di muka”. Kategori yang dinonaktifkan tampil dengan tambahan “(tidak aktif)” di belakang namanya. Bila kosong tampil “Belum ada kategori.”",
           "tip": "Kategori bukan daftar pelanggan atau vendor. Pelanggan ada di Penjualan > Pelanggan dan vendor di Pembelian > Vendor.",
           "image": {
             "file": "kategori-daftar-v2.jpg",
@@ -368,7 +368,7 @@
       "steps": [
         {
           "title": "Pastikan memang perlu penyesuaian",
-          "text": "Jangan memakai halaman ini untuk transaksi biasa. Uang masuk dicatat lewat Invoice dan Pembayaran Diterima, uang keluar lewat Beban, dan pindah rekening lewat Transfer. Pakai penyesuaian hanya untuk selisih yang jelas sebabnya, misalnya biaya admin bank atau bunga bank yang belum tercatat, atau saldo awal rekening bermata uang asing (lihat [Cara Mengisi Saldo Awal Rekening](saldo-awal))."
+          "text": "Jangan memakai halaman ini untuk transaksi biasa. Uang masuk dicatat lewat Invoice dan Pembayaran Diterima, uang keluar lewat Beban, dan pindah rekening lewat Transfer. Pakai penyesuaian hanya untuk selisih yang jelas sebabnya, misalnya biaya admin bank yang belum tercatat, atau saldo awal rekening bermata uang asing (lihat [Cara Mengisi Saldo Awal Rekening](saldo-awal)). **Pendapatan tidak bisa dicatat di sini**, termasuk bunga bank dan koreksi penjualan: pendapatan masuk ke pajak hanya lewat invoice atau Penjualan > Catat Pendapatan, jadi akun pendapatan sengaja tidak ditawarkan sebagai Akun Lawan."
         },
         {
           "title": "Buka Akuntansi > Penyesuaian Lanjutan",
@@ -384,7 +384,7 @@
         },
         {
           "title": "Pilih Akun Lawan",
-          "text": "**Akun Lawan** (tampil berupa kode akun diikuti nama, misalnya 6300 lalu Beban Administrasi Bank) adalah akun yang menampung sisi lain: beban untuk biaya, pendapatan untuk bunga. Akun grup, akun tidak aktif, akun kontrol (kas dan bank, piutang, utang, pajak, aset tetap, dan sejenisnya), dan penampung saldo awal tidak ditawarkan.",
+          "text": "**Akun Lawan** (tampil berupa kode akun diikuti nama, misalnya 6300 lalu Beban Administrasi Bank) adalah akun yang menampung sisi lain, biasanya beban untuk biaya (misalnya Beban Administrasi Bank). Akun pendapatan, potongan pendapatan, dan pendapatan lain tidak ditawarkan. Akun grup, akun tidak aktif, akun kontrol (kas dan bank, piutang, utang, pajak, aset tetap, dan sejenisnya), dan penampung saldo awal tidak ditawarkan.",
           "tip": "Ragu memilih akun lawan? Tanyakan akuntan Anda dulu. Salah pilih akun lawan mengubah laba atau neraca."
         },
         {
@@ -1099,7 +1099,7 @@
         },
         {
           "title": "Baca kartu angka",
-          "text": "Enam kartu: **Kas & Bank**, **Pendapatan**, **Beban**, **Laba Berjalan** (atau Rugi Berjalan), **Piutang Usaha**, dan **Utang Usaha**. Klik kartu untuk membuka halaman atau laporan di baliknya."
+          "text": "Enam kartu: **Kas & Bank**, **Pendapatan**, **Beban**, **Laba Berjalan** (atau Rugi Berjalan), **Piutang Usaha**, dan **Utang Usaha** (hanya tagihan vendor). Bila ada pinjaman bank yang berjalan, kartu ketujuh **Pinjaman** menampilkan sisa pokoknya; pinjaman tidak masuk Utang Usaha. Klik kartu untuk membuka halaman atau laporan di baliknya."
         },
         {
           "title": "Baca Tren Arus Kas",

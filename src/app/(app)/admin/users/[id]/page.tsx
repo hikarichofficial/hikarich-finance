@@ -1,5 +1,4 @@
 import { StepUpLink } from "@/features/feedback/StepUp";
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
@@ -21,6 +20,7 @@ import {
   MembershipStatusForm,
   PermissionOverrideForm,
 } from "@/features/admin/UserAccessForms";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Member Detail (decision 246): role, status, overrides and the resulting permission read-out, plus the
  * access-change forms the viewer may use. The membership is looked up within the active Entity only. */
@@ -65,7 +65,7 @@ export default async function MemberDetailPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={`/admin/users${suffix}`}>← Kembali ke daftar pengguna</Link>
+        <BackLink href={`/admin/users${suffix}`}>← Kembali ke daftar pengguna</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

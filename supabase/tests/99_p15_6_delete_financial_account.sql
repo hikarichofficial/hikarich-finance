@@ -50,7 +50,7 @@ begin
   -- an account that has received a movement cannot be deleted
   perform test_helpers.login(v_owner);
   perform public.record_balance_adjustment(pt, 'key-del-adj-1', v_used, 'in', 1000, null, date '2026-09-30',
-    test_helpers.acct(pt, 'INTEREST_INCOME'), 'Bunga bank uji hapus rekening');
+    test_helpers.acct(pt, 'BANK_FEE_EXPENSE'), 'Bunga bank uji hapus rekening');
   perform test_helpers.expect_msg(format('select public.delete_financial_account(%L)', v_used), 'CONFLICT', 'an account with movements cannot be deleted');
   perform test_helpers.assert(exists (select 1 from public.financial_accounts where id = v_used), 'the used account is still there');
 

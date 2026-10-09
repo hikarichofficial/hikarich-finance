@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import { calendarDetailText } from "@/domain/tax/calendarDetailText";
 import { CALENDAR_STATE_BADGE_TONE, type TaxCalendarRange } from "@/domain/tax/taxCalendarList";
@@ -11,6 +10,7 @@ import {
 import type { FinalPreview, TaxCalendarRow } from "@/schemas/tax";
 import { TaxEstimateCard } from "./TaxEstimateCard";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Tax Calendar (P13 unbuilt-screens backlog, "Tax Calendar" nav item, Step 09 §15, decision 233): every step
@@ -63,9 +63,9 @@ export function TaxCalendarScreen({
       </div>
 
       <p className="hint">
-        <Link href={`/tax${entity ? `?entity=${encodeURIComponent(entity)}` : ""}`}>
+        <BackLink href={`/tax${entity ? `?entity=${encodeURIComponent(entity)}` : ""}`}>
           ← Kembali ke Ringkasan Pajak
-        </Link>
+        </BackLink>
       </p>
 
       <TaxEstimateCard

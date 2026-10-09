@@ -1,8 +1,8 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
 import { listLedgerAccounts } from "@/services/accounting/ledger";
 import { BalanceAdjustmentForm } from "@/features/money/BalanceAdjustmentForm";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Advanced Adjustments (P13 unbuilt-screens backlog, Step 09 §14, Step 01 §28, decision 232). Gated
  * `money.adjust`, the exact permission `record_balance_adjustment` itself checks -- `navigation.ts` nests
@@ -29,11 +29,11 @@ export default async function BalanceAdjustmentPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link
+        <BackLink
           href={entity ? `/money/accounts?entity=${encodeURIComponent(entity)}` : "/money/accounts"}
         >
           ← Kembali ke daftar akun
-        </Link>
+        </BackLink>
       </p>
       <header className="record-detail-header">
         <div>

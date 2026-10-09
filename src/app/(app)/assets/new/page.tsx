@@ -4,6 +4,7 @@ import { requirePermission } from "@/services/identity/access";
 import { getEntityBaseCurrency, listPendingAssetLines } from "@/services/assets/assets";
 import { RegisterPendingAssetForm } from "@/features/assets/AssetForms";
 import { formatShortDate } from "@/features/assets/format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Daftarkan Aset, gated `assets.manage` -- the permission `asset_register_pending` itself checks. An
  * asset is never typed in: it is registered from an approved bill line or a confirmed expense line that
@@ -25,7 +26,7 @@ export default async function NewAssetPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={`/assets${qs}`}>← Kembali ke daftar aset</Link>
+        <BackLink href={`/assets${qs}`}>← Kembali ke daftar aset</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

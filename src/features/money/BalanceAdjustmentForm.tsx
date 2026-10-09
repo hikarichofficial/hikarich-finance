@@ -77,6 +77,12 @@ export function BalanceAdjustmentForm({
       </label>
 
       <p className="hint">
+        Halaman ini hanya untuk koreksi saldo (misalnya biaya admin bank). Untuk uang masuk dari
+        penjualan, bunga, atau pendapatan lain, catat lewat Penjualan &gt; Catat Pendapatan agar
+        pajaknya ikut terhitung.
+      </p>
+
+      <p className="hint">
         Isi kurs di bawah ini hanya jika mata uang akun berbeda dari mata uang dasar Entity.
       </p>
       <label>

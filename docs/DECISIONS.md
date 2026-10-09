@@ -3254,3 +3254,51 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Limit, stated in the guide: the layers are applied to each document, not to the sum of one payee's payments in the same month, because
      the engine determines one document at a time; a payee paid several times a month may be under-withheld at the higher layers.
      Not modelled: Bupot 21/26 export, the NIK check against the tax office, PPh 21 for continuing foreign experts.
+
+370. **"Penyesuaian Lanjutan" can no longer book income (owner question, 9 October 2026).**
+     The owner added Rp 5.000.000 through the balance adjustment against revenue account 4100 and saw no tax change. The
+     adjustment is a plain journal; the tax base (PPh Final UMKM turnover, "Omzet Gabungan", the personal-tax summary) is built
+     from issued invoices, marketplace settlements and recorded income (Catat Pendapatan), never from a free journal, so income
+     booked there reached the books but never the tax. Decision: an adjustment may not touch an account of class revenue,
+     contra_revenue or other_income, in either direction. `record_balance_adjustment` refuses it (migration
+     `20261016100000_p46_adjustment_not_income.sql`, patched in place), the form no longer offers those accounts
+     (`eligibleCounterAccounts`) and says to use Penjualan > Catat Pendapatan, which makes the same journal and also reaches the
+     tax. Expense and other-expense accounts (bank fee, FX loss) stay allowed. Already-booked adjustments are left as they are
+     (the one on prod is test data, to be cleared with the planned test-data reset). Guide and PDF updated.
+
+371. **Asset categories for the expense form, and "Tambah kategori baru" saves again (owner, 9 October 2026).**
+     (a) On an expense line the Perlakuan "Aset" and "Dibayar di muka" only offer categories of kind `asset` (the database
+     requires it, `purchase_prepare_lines`), and no Entity had any: only expense and revenue categories were ever provisioned, so
+     buying a phone showed "Belum ada kategori". Migration `20261016110000_p47_asset_categories.sql` adds
+     `provision_asset_categories`: for a company 26 fixed-asset categories (laptop, smartphone, printer, storage, telephone / router
+     / CCTV, studio gear, production machines, shop / kitchen, tools, AC / genset, office equipment, furniture, the four vehicle
+     classes, land, permanent and non-permanent buildings, rented-building renovation, installations, construction in progress,
+     leasing, plantations, art, other) each posting to its fixed-asset account (found by account code), and 9 prepaid / deposit ones
+     (names start with "Dibayar di Muka", "Deposit" or "Uang Muka") posting to 1300 / 1310; for a Personal book 8. Existing
+     Entities receive them now, new ones through `provision_default_coa` (patched in place). Intangibles (software, website) are
+     not offered: the purchase rules only accept fixed-asset accounts for "Aset".
+     (b) "Simpan & Gunakan" in the add-a-category panel did nothing on the expense form: the panel sat inside the expense form, and
+     that form handles its own `onSubmit` (usePreservingForm), so it took the click. The panel is now drawn on the page body and stops
+     its own submit from reaching any outer form.
+
+372. **"← Kembali ke ..." returns to the page the person was on before (owner, 9 October 2026).**
+     Complaint: opening an invoice from Aktivitas Terbaru and going back landed in the Invoice menu. The browser's own Back button
+     was already right (checked live: Aktivitas Terbaru -> invoice -> Back = Aktivitas Terbaru); the culprit was the fixed
+     "Kembali ke daftar invoice" link on record pages, which always opened the list. All such links are now `BackLink`: the shell
+     remembers the page visited before the current one (`PathMemoryTracker`, `createPathMemory`), and a plain click takes the
+     browser's history step back to it. It falls back to the fixed list (still its `href`) when there is no previous page (opened
+     directly, bookmark, reload), when the previous page is the same page, or when it is a `/new` or `/edit` form (so saving a
+     record and pressing "Kembali" lands on the list, not on the form that was just saved). Modified clicks (new tab) keep the
+     normal link. Rule in `backNavigation.ts`, unit-tested. Guide updated.
+
+373. **Green for money in, red for money out; the loan card; rate changes (owner, 9 October 2026).**
+     (a) Direction of money is coloured with the theme tokens `--success` / `--danger` (`.amt-in`, `.amt-out`; `.stmt-in/out`
+     now use them too, so dark mode works): movements of an account and the cash activity list, Rekening Koran, customer payments
+     (in), vendor payments (out), the Arus Kas totals by sign, and Aktivitas Terbaru (payments carry "+" / "−", invoices stay
+     neutral). Balances, totals, Laba Rugi and Neraca stay neutral; a negative balance stays red. Meaning is never colour alone
+     (column headers, "+" / "−", the amount's own minus sign).
+     (b) A loan is not "Utang Usaha" (that card is vendor bills only): the Dashboard gets a "Pinjaman" card with the principal still
+     owed on active borrowed loans (and what is overdue), shown only when there is one and the viewer holds `loans.view`.
+     (c) Fixed-then-floating interest is already possible with "Restrukturisasi Jadwal" (new rate, effective date, remaining
+     instalments, recalculated from the remaining principal); the form and the guide now say so. The annuity formula is the
+     standard PMT; no change.

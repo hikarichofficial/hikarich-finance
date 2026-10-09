@@ -35,7 +35,7 @@ begin
   v_used := public.create_financial_account(pt, 'key-rm-0002', 'bank', 'BCA Uji', 'IDR');
   select ledger_account_id into v_ledger from public.financial_accounts where id = v_used;
   perform public.record_balance_adjustment(pt, 'key-rm-adj-1', v_used, 'in', 5000, null, date '2026-09-30',
-    test_helpers.acct(pt, 'INTEREST_INCOME'), 'Saldo uji hapus rekening');
+    test_helpers.acct(pt, 'BANK_FEE_EXPENSE'), 'Saldo uji hapus rekening');
   select count(*) into v_moves from public.money_movements where financial_account_id = v_used;
   select count(*) into v_lines from public.journal_lines where ledger_account_id = v_ledger;
   perform test_helpers.logout();

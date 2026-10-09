@@ -120,7 +120,7 @@ export function VendorPaymentsListScreen({
                   </td>
                   <td data-label="Vendor">{row.vendor_name}</td>
                   <td data-label="Tanggal">{formatShortDate(row.payment_date)}</td>
-                  <td className="num" data-label="Jumlah">
+                  <td className="num amt-out" data-label="Jumlah">
                     {formatMoney(row.amount, row.currency)}
                   </td>
                   <td data-label="Status">

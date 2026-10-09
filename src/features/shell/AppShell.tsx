@@ -10,6 +10,7 @@ import { Sidebar } from "./Sidebar";
 import { TopBar } from "./TopBar";
 import { CommandMenu } from "./CommandMenu";
 import { NavigationProgress } from "./NavigationProgress";
+import { PathMemoryTracker } from "./PathMemory";
 
 const COLLAPSE_STORAGE_KEY = "hikarich.sidebar.collapsed";
 
@@ -114,6 +115,7 @@ export function AppShell({ access, children }: { access: AccessSnapshot; childre
   return (
     <div className="app-shell" data-sidebar={sidebarState}>
       <NavigationProgress />
+      <PathMemoryTracker />
       <Sidebar
         groups={navigation}
         entityCode={membership.entity_code}

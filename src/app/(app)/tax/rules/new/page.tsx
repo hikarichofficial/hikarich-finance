@@ -1,10 +1,10 @@
-import Link from "next/link";
 import { notFound } from "next/navigation";
 import { requirePermission } from "@/services/identity/access";
 import { listTaxRuleVersions } from "@/services/tax/tax";
 import { ruleFormDefaults } from "@/domain/tax/ruleAuthoring";
 import { TaxRuleForm } from "@/features/tax/TaxRuleForm";
 import { todayInBusinessZone } from "@/lib/time";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** New tax rule draft, or a new version of an existing rule, or editing a draft (decision 249). Gated on
  * `tax.manage_rules`, which `tax_rule_draft_save` itself checks. `?from=<id>` copies a published rule into
@@ -42,7 +42,7 @@ export default async function NewTaxRulePage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={cancelHref}>← Kembali</Link>
+        <BackLink href={cancelHref}>← Kembali</BackLink>
       </p>
       <header className="record-detail-header">
         <div>

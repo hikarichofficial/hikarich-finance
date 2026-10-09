@@ -46,6 +46,7 @@ export function DashboardScreen({
         cash={snapshot.cash}
         receivables={snapshot.receivables}
         payables={snapshot.payables}
+        loans={snapshot.loans}
       />
 
       <div className="dashboard-grid">

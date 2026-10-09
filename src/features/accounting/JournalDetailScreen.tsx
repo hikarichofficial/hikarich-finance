@@ -12,6 +12,7 @@ import {
 import type { JournalEntryRow, JournalLineRow, LedgerAccountRow } from "@/schemas/accounting";
 import { JournalActions, type JournalActionPermissions } from "./JournalActions";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Journal Detail (P13 Part 3d, Step 09 §10, §14). Step 09 §14 only names the Journal List's own requirements
@@ -53,7 +54,7 @@ export function JournalDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar jurnal</Link>
+        <BackLink href={backHref}>← Kembali ke daftar jurnal</BackLink>
       </p>
 
       <header className="record-detail-header">

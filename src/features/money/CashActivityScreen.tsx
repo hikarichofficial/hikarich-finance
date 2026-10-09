@@ -114,12 +114,12 @@ export function CashActivityScreen({
                     {movement.reverses_movement_id ? " (pembalik)" : ""}
                   </td>
                   <td data-label="Jurnal">{movement.journal_number ?? "—"}</td>
-                  <td className="num" data-label="Masuk">
+                  <td className="num amt-in" data-label="Masuk">
                     {movement.direction === "in"
                       ? formatMoney(movement.amount, movement.account_currency)
                       : ""}
                   </td>
-                  <td className="num" data-label="Keluar">
+                  <td className="num amt-out" data-label="Keluar">
                     {movement.direction === "out"
                       ? formatMoney(movement.amount, movement.account_currency)
                       : ""}

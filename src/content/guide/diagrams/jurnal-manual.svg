@@ -1,5 +1,5 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 478 1451.5" width="478" height="1451.5" role="img" aria-label="Perlu Mengoreksi Pembukuan: Kapan Memakai Jurnal Manual?" font-family="Helvetica, Arial, sans-serif">
-<!-- source: alur.json sha256:21ee321cc2268b20 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 478 1466.5" width="478" height="1466.5" role="img" aria-label="Perlu Mengoreksi Pembukuan: Kapan Memakai Jurnal Manual?" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:1127c668bda75572 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
 <title>Perlu Mengoreksi Pembukuan: Kapan Memakai Jurnal Manual?</title>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <rect x="134" y="18" width="210" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
@@ -23,17 +23,19 @@
 <text x="28" y="294" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Jurnal manual tidak mengubah saldo rekening</text>
 <polyline points="123,304.5 123,327.5" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polygon points="123,332.5 118.5,324.5 127.5,324.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="18" y="332.5" width="210" height="95" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<rect x="18" y="332.5" width="210" height="118" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
 <text x="28" y="345.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="28" y="362" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Biaya admin atau bunga bank belum</text>
-<text x="28" y="375.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">tercatat: Penyesuaian Lanjutan</text>
+<text x="28" y="362" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Biaya admin bank belum tercatat:</text>
+<text x="28" y="375.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Penyesuaian Lanjutan</text>
 <text x="28" y="390.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Penyesuaian Lanjutan</text>
 <text x="28" y="405.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Langsung diposting tanpa draf dan tanpa</text>
-<text x="28" y="417" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">tombol batal</text>
-<polyline points="123,427.5 123,450.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="123,455.5 118.5,447.5 127.5,447.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="18" y="455.5" width="210" height="29.5" rx="14.75" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
-<text x="123" y="474" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Jurnal manual tidak diperlukan</text>
+<text x="28" y="417" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">tombol batal. Bunga bank dan pendapatan lain</text>
+<text x="28" y="428.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">lewat Penjualan &gt; Catat Pendapatan, bukan di</text>
+<text x="28" y="440" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">sini</text>
+<polyline points="123,450.5 123,473.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,478.5 118.5,470.5 127.5,470.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="478.5" width="210" height="29.5" rx="14.75" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="123" y="497" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Jurnal manual tidak diperlukan</text>
 <rect x="111.8" y="184" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
 <text x="123" y="195" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
 <polyline points="355,175 355,204" fill="none" stroke="#444444" stroke-width="1.4"/>
@@ -61,92 +63,92 @@
 <text x="260" y="482.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">bernomor</text>
 <rect x="301.29" y="184" width="107.42" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
 <text x="355" y="195" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Bukan, koreksi lanjutan</text>
-<polyline points="123,485 123,513" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="355,493 355,513" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,513 355,513" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="239,513 239,536" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="239,541 234.5,533 243.5,533" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<polygon points="239,541 389,576 239,611 89,576" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
-<text x="239" y="579.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Isi draf sudah benar?</text>
-<polyline points="239,611 239,627" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,627 355,627" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,627 123,656" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="123,661 118.5,653 127.5,653" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="18" y="661" width="210" height="81.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
-<text x="28" y="674" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="28" y="690.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Posting Jurnal</text>
-<text x="28" y="705.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Jurnal &gt; (klik draf)</text>
-<text x="28" y="720.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Periode bulan itu harus Terbuka atau Dibuka</text>
-<text x="28" y="732" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Kembali</text>
-<polyline points="123,742.5 123,765.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="123,770.5 118.5,762.5 127.5,762.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="18" y="770.5" width="210" height="68.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
-<text x="28" y="783.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
-<text x="28" y="800" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Status Terposting, bernomor JV, ikut</text>
-<text x="28" y="813.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">ke laporan</text>
-<text x="28" y="828.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Laba Rugi, Neraca, dan Buku Besar berubah</text>
-<rect x="111.8" y="636" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
-<text x="123" y="647" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
-<polyline points="355,627 355,656" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="355,661 350.5,653 359.5,653" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="250" y="661" width="210" height="55" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
-<text x="260" y="674" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="260" y="690.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Buang Draf</text>
-<text x="260" y="705.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Dihapus permanen tanpa dampak akuntansi</text>
-<rect x="337.66" y="636" width="34.68" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
-<text x="355" y="647" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Salah</text>
-<polyline points="123,839 123,859" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="355,716 355,859" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,859 355,859" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="239,859 239,882" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="239,887 234.5,879 243.5,879" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<polygon points="239,887 389,922 239,957 89,922" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
-<text x="239" y="919" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Jurnal yang sudah diposting</text>
-<text x="239" y="932" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">ternyata salah?</text>
-<polyline points="239,957 239,973" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,973 355,973" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,973 123,1002" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="123,1007 118.5,999 127.5,999" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="18" y="1007" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
-<text x="28" y="1020" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="28" y="1036.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Balik Jurnal (Reverse)</text>
-<text x="28" y="1051.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Jurnal &gt; (klik jurnal</text>
-<text x="28" y="1063.5" font-size="9" fill="#1a4d8f" text-anchor="start">Terposting)</text>
-<text x="28" y="1078.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Isi Tanggal Pembalikan dan Alasan (minimal 5</text>
-<text x="28" y="1090" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">karakter)</text>
-<polyline points="123,1100.5 123,1123.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="123,1128.5 118.5,1120.5 127.5,1120.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="18" y="1128.5" width="210" height="68.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
-<text x="28" y="1141.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
-<text x="28" y="1158" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Jurnal Pembalik dibuat, debit dan</text>
-<text x="28" y="1171.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">kredit tertukar</text>
-<text x="28" y="1186.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Jurnal asli tetap tercatat sebagai riwayat</text>
-<polyline points="123,1197 123,1220" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="123,1225 118.5,1217 127.5,1217" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="18" y="1225" width="210" height="69" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
-<text x="28" y="1238" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="28" y="1254.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Buat Jurnal Manual pengganti yang</text>
-<text x="28" y="1268" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">benar</text>
-<text x="28" y="1283" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Jurnal &gt; Jurnal Manual</text>
-<rect x="111.8" y="982" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
-<text x="123" y="993" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
-<rect x="337.9" y="982" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
-<text x="355" y="993" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
-<polyline points="123,1294 123,1314" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="355,973 355,1314" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="123,1314 355,1314" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="239,1314 239,1337" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="239,1342 234.5,1334 243.5,1334" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="134" y="1342" width="210" height="55.5" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
-<text x="239" y="1360.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
-<text x="239" y="1374" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Draf yang dibiarkan menahan penutupan</text>
-<text x="239" y="1385.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">periode bulan itu: posting atau buang</text>
-<rect x="66.95" y="1423.5" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
-<text x="82.95" y="1431.5" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
-<rect x="137.2" y="1423.5" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
-<text x="153.2" y="1431.5" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
-<rect x="259.91" y="1423.5" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
-<text x="275.91" y="1431.5" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
-<polygon points="360.14,1422.5 366.14,1428.5 360.14,1434.5 354.14,1428.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
-<text x="370.14" y="1431.5" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+<polyline points="123,508 123,528" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,493 355,528" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,528 355,528" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,528 239,551" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,556 234.5,548 243.5,548" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="239,556 389,591 239,626 89,591" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="239" y="594.5" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Isi draf sudah benar?</text>
+<polyline points="239,626 239,642" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,642 355,642" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,642 123,671" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,676 118.5,668 127.5,668" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="676" width="210" height="81.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="689" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="705.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Posting Jurnal</text>
+<text x="28" y="720.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Jurnal &gt; (klik draf)</text>
+<text x="28" y="735.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Periode bulan itu harus Terbuka atau Dibuka</text>
+<text x="28" y="747" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Kembali</text>
+<polyline points="123,757.5 123,780.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,785.5 118.5,777.5 127.5,777.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="785.5" width="210" height="68.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="28" y="798.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="28" y="815" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Status Terposting, bernomor JV, ikut</text>
+<text x="28" y="828.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">ke laporan</text>
+<text x="28" y="843.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Laba Rugi, Neraca, dan Buku Besar berubah</text>
+<rect x="111.8" y="651" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="662" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<polyline points="355,642 355,671" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,676 350.5,668 359.5,668" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="676" width="210" height="55" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="689" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="705.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Buang Draf</text>
+<text x="260" y="720.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Dihapus permanen tanpa dampak akuntansi</text>
+<rect x="337.66" y="651" width="34.68" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="662" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Salah</text>
+<polyline points="123,854 123,874" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,731 355,874" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,874 355,874" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,874 239,897" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,902 234.5,894 243.5,894" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="239,902 389,937 239,972 89,937" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="239" y="934" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Jurnal yang sudah diposting</text>
+<text x="239" y="947" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">ternyata salah?</text>
+<polyline points="239,972 239,988" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,988 355,988" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,988 123,1017" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,1022 118.5,1014 127.5,1014" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="1022" width="210" height="93.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="1035" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="1051.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Balik Jurnal (Reverse)</text>
+<text x="28" y="1066.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Jurnal &gt; (klik jurnal</text>
+<text x="28" y="1078.5" font-size="9" fill="#1a4d8f" text-anchor="start">Terposting)</text>
+<text x="28" y="1093.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Isi Tanggal Pembalikan dan Alasan (minimal 5</text>
+<text x="28" y="1105" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">karakter)</text>
+<polyline points="123,1115.5 123,1138.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,1143.5 118.5,1135.5 127.5,1135.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="1143.5" width="210" height="68.5" rx="8" fill="#e6f2e8" stroke="#2f5233" stroke-width="1.4"/>
+<text x="28" y="1156.5" font-size="7" font-weight="bold" fill="#2f5233" text-anchor="start">SISTEM (OTOMATIS)</text>
+<text x="28" y="1173" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Jurnal Pembalik dibuat, debit dan</text>
+<text x="28" y="1186.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">kredit tertukar</text>
+<text x="28" y="1201.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Jurnal asli tetap tercatat sebagai riwayat</text>
+<polyline points="123,1212 123,1235" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,1240 118.5,1232 127.5,1232" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="1240" width="210" height="69" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="1253" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="1269.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Buat Jurnal Manual pengganti yang</text>
+<text x="28" y="1283" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">benar</text>
+<text x="28" y="1298" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Jurnal &gt; Jurnal Manual</text>
+<rect x="111.8" y="997" width="22.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="1008" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ya</text>
+<rect x="337.9" y="997" width="34.2" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="1008" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak</text>
+<polyline points="123,1309 123,1329" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,988 355,1329" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,1329 355,1329" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="239,1329 239,1352" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="239,1357 234.5,1349 243.5,1349" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="134" y="1357" width="210" height="55.5" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="239" y="1375.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="239" y="1389" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Draf yang dibiarkan menahan penutupan</text>
+<text x="239" y="1400.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">periode bulan itu: posting atau buang</text>
+<rect x="66.95" y="1438.5" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="82.95" y="1446.5" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="137.2" y="1438.5" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="153.2" y="1446.5" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="259.91" y="1438.5" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="275.91" y="1446.5" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="360.14,1437.5 366.14,1443.5 360.14,1449.5 354.14,1443.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="370.14" y="1446.5" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
 </svg>

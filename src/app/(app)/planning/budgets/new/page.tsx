@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { CreatePlanForm } from "@/features/planning/CreatePlanForm";
+import { BackLink } from "@/features/shell/BackLink";
 
 /** Budget create form (P13 Part 3h, fifth increment, Step 09 §13, §18). Gated on `planning.budget_edit`, the
  * exact permission `create_budget` itself checks (decision 184's own confirmed mapping) -- the same
@@ -18,13 +18,13 @@ export default async function NewBudgetPage({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link
+        <BackLink
           href={
             entity ? `/planning/budgets?entity=${encodeURIComponent(entity)}` : "/planning/budgets"
           }
         >
           ← Kembali ke daftar anggaran
-        </Link>
+        </BackLink>
       </p>
       <header className="record-detail-header">
         <div>

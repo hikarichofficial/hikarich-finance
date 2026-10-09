@@ -5,6 +5,7 @@ import { ruleAuthoringActions } from "@/domain/tax/ruleAuthoring";
 import type { TaxRuleVersionRow } from "@/schemas/tax";
 import { TaxRuleDraftActions } from "./TaxRuleDraftActions";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Tax Rule Detail (decision 239, Step 05 §13): one version of one rule code, read-only -- its parameters,
@@ -36,7 +37,7 @@ export function TaxRuleDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke aturan pajak</Link>
+        <BackLink href={backHref}>← Kembali ke aturan pajak</BackLink>
       </p>
 
       <header className="record-detail-header">

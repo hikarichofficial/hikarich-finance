@@ -783,14 +783,17 @@ function CashFlowTable({ rows, currency }: { rows: readonly CashFlowRow[]; curre
         </tr>
       </thead>
       <tbody>
-        {CASH_FLOW_BUCKET_ORDER.map((bucket) => (
-          <tr key={bucket}>
-            <td>{CASH_FLOW_BUCKET_LABELS[bucket]}</td>
-            <td className="num">
-              {formatMoney(cashFlowBucketValue(totals, bucket).toString(), currency)}
-            </td>
-          </tr>
-        ))}
+        {CASH_FLOW_BUCKET_ORDER.map((bucket) => {
+          const value = cashFlowBucketValue(totals, bucket);
+          // Money in is green and money out is red (owner, 9 October 2026); the amount keeps its own sign.
+          const tone = value.isNegative() ? " amt-out" : value.isZero() ? "" : " amt-in";
+          return (
+            <tr key={bucket}>
+              <td>{CASH_FLOW_BUCKET_LABELS[bucket]}</td>
+              <td className={`num${tone}`}>{formatMoney(value.toString(), currency)}</td>
+            </tr>
+          );
+        })}
       </tbody>
       <tfoot>
         <tr>

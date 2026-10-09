@@ -15,6 +15,7 @@ import { BillActions, type BillActionPermissions } from "./BillActions";
 import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
 import { PayBillForm } from "./PayBillForm";
 import { formatShortDate } from "./format";
+import { BackLink } from "@/features/shell/BackLink";
 
 /**
  * Bill Detail (P13 Part 3b, Step 09 §10, §12): Header / Summary / Line Items / Activity / Accounting / Tax /
@@ -73,7 +74,7 @@ export function BillDetailScreen({
   return (
     <div className="record-detail">
       <p className="record-detail-back">
-        <Link href={backHref}>← Kembali ke daftar tagihan</Link>
+        <BackLink href={backHref}>← Kembali ke daftar tagihan</BackLink>
       </p>
 
       <header className="record-detail-header">
