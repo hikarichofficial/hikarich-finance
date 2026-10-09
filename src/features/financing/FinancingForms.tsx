@@ -629,6 +629,16 @@ function RepayFields({
   );
 }
 
+/**
+ * The rate a schedule stores ("12.0000") shown the way someone types a percent ("12"), so the
+ * Restrukturisasi form opens on the loan's own rate instead of 0 (OWNER, 9 October 2026).
+ */
+function tidyRatePercent(rate: string | null | undefined): string {
+  if (!rate) return "0";
+  const trimmed = rate.includes(".") ? rate.replace(/0+$/, "").replace(/\.$/, "") : rate;
+  return trimmed === "" || trimmed === "-" ? "0" : trimmed;
+}
+
 // ================================================================ loan detail commands
 export function LoanActionsPanel({
   loanId,
@@ -647,6 +657,8 @@ export function LoanActionsPanel({
   unpaid,
   currency,
   canPrepay,
+  currentRate,
+  currentMethod,
 }: {
   loanId: string;
   lent: boolean;
@@ -670,9 +682,17 @@ export function LoanActionsPanel({
   currency: string;
   /** A generated (not manual) schedule can be recalculated after a partial early repayment. */
   canPrepay: boolean;
+  /** The rate the active schedule runs on, so Restrukturisasi starts from it instead of 0 (OWNER, 9 October 2026). */
+  currentRate?: string | null;
+  /** The way the active schedule is calculated, so Restrukturisasi starts from it. */
+  currentMethod?: "annuity" | "flat" | "interest_only" | "manual" | null;
 }) {
   const common = { idName: "loan_id", id: loanId, next };
   const [active, setActive] = useState<string | null>(null);
+  const currentRatePercent = tidyRatePercent(currentRate);
+  // "manual" has no generated schedule to copy: Restrukturisasi always writes a generated one.
+  const currentMethod_ =
+    currentMethod && currentMethod !== "manual" ? currentMethod : ("annuity" as const);
   return (
     <OpenCommandContext.Provider value={{ active, setActive }}>
       {status === "draft" ? (
@@ -739,11 +759,11 @@ export function LoanActionsPanel({
             <DateField label="Tanggal Efektif" today={today} />
             <label>
               Bunga per Tahun (%)
-              <input name="rate_percent" inputMode="decimal" defaultValue="0" />
+              <input name="rate_percent" inputMode="decimal" defaultValue={currentRatePercent} />
             </label>
             <label>
               Cara Hitung Cicilan
-              <select name="method" defaultValue="annuity">
+              <select name="method" defaultValue={currentMethod_}>
                 <option value="annuity">Anuitas (cicilan sama tiap kali)</option>
                 <option value="flat">Flat (pokok dan bunga tetap)</option>
                 <option value="interest_only">Bunga saja, pokok di akhir</option>

@@ -129,6 +129,7 @@ export function TaxFilingScreen({
         entityId={entityId}
         entity={entity}
         accounts={paymentAccounts}
+        currency={currency}
         outstanding={position.outstanding_payable}
         assetAvailable={position.asset_available}
       />
@@ -391,6 +392,7 @@ function RecordPaymentForm({
   entityId,
   entity,
   accounts,
+  currency,
   outstanding,
   assetAvailable,
 }: {
@@ -399,6 +401,7 @@ function RecordPaymentForm({
   entityId: string;
   entity: string | undefined;
   accounts: readonly FinancialAccountPickerRow[];
+  currency: string;
   outstanding: string;
   assetAvailable: string;
 }) {
@@ -426,8 +429,10 @@ function RecordPaymentForm({
         <h2 className="dashboard-section-title">Catat Pembayaran</h2>
       </div>
       <p className="hint">
-        Sisa kekurangan saat ini: {outstanding}
-        {taxType === "vat" ? ` -- PPN Masukan tersedia untuk kompensasi: ${assetAvailable}` : ""}
+        Sisa kekurangan saat ini: {formatMoney(outstanding, currency)}
+        {taxType === "vat"
+          ? ` -- PPN Masukan tersedia untuk kompensasi: ${formatMoney(assetAvailable, currency)}`
+          : ""}
       </p>
       <form {...actionForm} className="record-form">
         <input type="hidden" name="entity_id" value={entityId} />

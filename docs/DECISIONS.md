@@ -3371,3 +3371,31 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      screen also shows its own error ("check the employee data: salary, tax, BPJS") instead of the generic one.
      Migration `20261019110000_p51_payroll_missing_tax_data.sql` (`payroll_compute_line`, search_path pinned); test in
      `99_p9_2_engine.sql`.
+379. **Employee screens rebuilt: one page per area, a component editor with presets, a BPJS package choice (OWNER request,
+     9 October 2026; no change to economic or tax meaning).** (a) The employee page was one long page of buttons that
+     opened forms. It is now a profile header with tabs, each tab its own address: Ringkasan (with a "what is still
+     missing" list linking to the area), Gaji & Komponen, Pajak, BPJS and Pekerjaan (job history, personal data,
+     leaving). The tabs follow the same permissions as before (`payroll.compensation_view`, `payroll.tax_view`; edit
+     forms need `payroll.employee_edit` / `payroll.compensation_edit`). (b) Salary components: the name is picked from
+     a list (Gaji Pokok, tunjangan jabatan/keluarga/transport/makan/komunikasi, lembur, bonus, potongan pinjaman,
+     kasbon, absensi, lainnya) or typed freely; the code is made from the name (`componentCode`, always inside the
+     database pattern, numbered if two rows would clash, and an existing component keeps its saved code); a preset
+     fills the kind and the two flags (fixed allowances count for the BPJS wage, irregular ones do not, a deduction
+     does not lower the PPh 21 base); a running total is shown. The fields posted to `employee_set_compensation` are
+     unchanged. (c) BPJS: one package is chosen (Lengkap, Hanya Kesehatan, Hanya Ketenagakerjaan, Tidak ikut) instead
+     of five "no change / yes / no" choices; "Lengkap" is preselected when nothing is recorded yet and JKK risk
+     level 1 is preselected (changeable). The posted fields to `employee_set_bpjs` are unchanged. (d) Saldo Awal
+     Pajak is offered only for someone who may have been paid before this app (from February, joined before this
+     month), with a worked example and "Sampai Bulan" prefilled with last month. No migration; unit tests in
+     `compensationPresets.test.ts`; the guide is updated to the new pages.
+380. **Two findings from the production run of the loan and tax screens, fixed as presentation only (OWNER
+     request, 9 October 2026; no change to economic or tax meaning).** (a) `/tax/filing`'s "Catat Pembayaran"
+     printed the outstanding amount as the raw database decimal ("150537.0000") because the hint used the string
+     straight from `tax_position`; it now goes through `formatMoney` with the Entity's own currency, the same as
+     the summary above it, and so does the VAT input-tax line next to it. (b) Restrukturisasi Jadwal opened with
+     "Bunga per Tahun" at 0 and the calculation method at Anuitas regardless of the loan, so a restructure that
+     was only meant to change the term silently dropped the rate to 0 unless it was retyped. Both fields now open
+     on the active schedule's own rate (trailing zeros trimmed: "12.0000" shows as "12") and its own method; a
+     `manual` schedule still opens on Anuitas, because Restrukturisasi always writes a generated schedule. The
+     RPC contracts (`tax_record_payment`, `loan_restructure`) are unchanged -- only the prefilled values are.
+     No migration.
