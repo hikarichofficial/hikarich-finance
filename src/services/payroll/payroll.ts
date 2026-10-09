@@ -197,6 +197,7 @@ export async function setTaxProfile(
       p_ptkp_status: v.ptkp_status,
       p_tax_method: v.tax_method,
       p_note: v.note ?? null,
+      p_national_id: v.national_id ?? null,
     },
     uuidResultSchema,
   );

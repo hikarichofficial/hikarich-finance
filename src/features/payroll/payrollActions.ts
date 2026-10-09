@@ -104,8 +104,33 @@ export async function createEmployeeAction(
       "Karyawan tidak dapat disimpan. Periksa nama, tanggal masuk dan jabatan.",
     );
   }
+  // NIK/NPWP are optional on the Add form, and they live in the tax profile, so they are a second call
+  // (decision 385). The employee already exists by now, so a failure here never undoes that: it is reported in
+  // the flash and the numbers can be entered on the Pajak tab. PTKP stays "unknown" until someone sets it,
+  // which is what already makes payroll flag the line rather than guess.
+  const nik = text(formData, "national_id");
+  const npwp = text(formData, "tax_id");
+  let taxNote = "";
+  if (nik !== "" || npwp !== "") {
+    const identifier = npwp !== "" ? npwp : nik;
+    try {
+      await setTaxProfile({
+        employee_id: employeeId,
+        idempotency_key: randomUUID(),
+        effective_from: text(formData, "join_date"),
+        tax_id_status: "has_tax_id",
+        tax_id: identifier,
+        national_id: nik || undefined,
+        ptkp_status: "unknown",
+        tax_method: "employee_borne",
+      });
+    } catch {
+      taxNote = " NIK/NPWP belum tersimpan; isi lewat tab Pajak.";
+    }
+  }
+
   revalidatePath("/payroll/employees");
-  await setFlash("Karyawan tersimpan.");
+  await setFlash(`Karyawan tersimpan.${taxNote}`);
   redirect(
     entity
       ? `/payroll/employees/${employeeId}?entity=${encodeURIComponent(entity)}`
@@ -237,6 +262,7 @@ export async function setTaxProfileAction(
       effective_from: text(formData, "effective_from"),
       tax_id_status: text(formData, "tax_id_status") as never,
       tax_id: text(formData, "tax_id") || undefined,
+      national_id: text(formData, "national_id") || undefined,
       ptkp_status: text(formData, "ptkp_status") as never,
       tax_method: text(formData, "tax_method") as never,
       note: text(formData, "note") || undefined,

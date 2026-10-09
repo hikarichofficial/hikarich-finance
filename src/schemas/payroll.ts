@@ -153,6 +153,8 @@ export const setTaxProfileInputSchema = z
     tax_id_status: taxIdStatusSchema,
     /** A 15 or 16 digit tax number (punctuation is ignored), exactly when the status is has_tax_id. */
     tax_id: z.string().trim().max(40).optional(),
+    /** The NIK (16 digits), identity only: it is not the PPh 21 identifier, `tax_id` is. */
+    national_id: z.string().trim().max(40).optional(),
     ptkp_status: ptkpStatusSchema,
     tax_method: taxMethodSchema.default("employee_borne"),
     note: optionalText(500),
@@ -173,6 +175,10 @@ export const setTaxProfileInputSchema = z
         path: ["tax_id"],
         message: "Kosongkan nomor pajak bila statusnya bukan 'punya NPWP/NIK'",
       });
+    }
+    const nik = digitsOnly(v.national_id ?? "");
+    if (nik.length > 0 && !/^\d{16}$/.test(nik)) {
+      ctx.addIssue({ code: "custom", path: ["national_id"], message: "NIK terdiri dari 16 digit" });
     }
   });
 
@@ -292,6 +298,7 @@ export const taxProfileSchema = z.discriminatedUnion("recorded", [
     effective_from: isoDateSchema,
     tax_id_status: taxIdStatusSchema,
     tax_id_masked: z.string().nullable(),
+    national_id_masked: z.string().nullable().default(null),
     ptkp_status: ptkpStatusSchema,
     tax_method: taxMethodSchema,
     note: z.string().nullable(),

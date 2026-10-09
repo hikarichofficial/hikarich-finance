@@ -247,6 +247,15 @@ begin
   perform test_helpers.assert(j::text not like '%1234567890%', 'the profile never carries the full identifier');
   perform test_helpers.expect_msg(format('select public.employee_set_tax_profile(%L, ''k-p9a-t8'', ''2025-01-01'', ''unknown'', null, ''unknown'')', e1), 'CONFLICT', 'one fact set per date');
 
+  -- decision 385: the NIK is kept beside the tax number, masked the same way, and is never the tax identifier
+  perform test_helpers.assert(j ->> 'national_id_masked' is null, 'no NIK was given, so none is shown');
+  perform test_helpers.expect_msg(format('select public.employee_set_tax_profile(%L, ''k-p9a-n1'', ''2025-02-01'', ''has_tax_id'', ''1234567890123456'', ''TK/0'', ''employee_borne'', null, ''123'')', e1), 'INVALID', 'a NIK is 16 digits');
+  perform public.employee_set_tax_profile(e1, 'k-p9a-n2', '2025-02-01', 'has_tax_id', '123456789012345', 'TK/0', 'employee_borne', null, '3201234567890001');
+  j := public.employee_tax_profile_get(e1, '2025-02-01');
+  perform test_helpers.assert(j ->> 'national_id_masked' = '************0001', 'the NIK is masked to its last four digits');
+  perform test_helpers.assert(j ->> 'tax_id_masked' = '***********2345', 'the tax identifier is still the NPWP, not the NIK');
+  perform test_helpers.assert(j::text not like '%320123456789%', 'the profile never carries the full NIK');
+
   -- effective dating: the status changes from a later date
   perform public.employee_set_tax_profile(e1, 'k-p9a-t9', '2025-09-01', 'has_tax_id', '1234567890123456', 'K/1', 'gross_up', 'Married');
   perform test_helpers.assert(public.employee_tax_profile_get(e1, '2025-08-31') ->> 'ptkp_status' = 'TK/0', 'before the change');

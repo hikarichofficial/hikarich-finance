@@ -3451,3 +3451,27 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      mulai" field looked like a line of that sentence. `.dashboard-section` deliberately spaces none of its
      children and `.hint` carries no margin, so the description `EmployeeShell` renders now also takes
      `.emp-lead` (one 24px bottom margin). It applies to all five tabs at once rather than to this one page.
+385. **NIK recorded beside NPWP, and asked for when the employee is added (OWNER, 9 October 2026; no change to
+     how PPh 21 is computed).** The tax profile held one identifier, `tax_id`, which is the right input for
+     PPh 21: what is reported is the NPWP when there is one and the NIK when there is not. But an employer
+     needs both on file -- BPJS registration asks for the NIK, and someone who registered an NPWP before the
+     2024 NIK integration has two different numbers -- so a form that asks for both and keeps one would throw
+     away what was typed. `employee_tax_profiles.national_id` (16 digits, nullable) now holds the NIK.
+     It is identity, never arithmetic: nothing in the payroll engine, the PPh 21 computation or any report
+     reads it, and `tax_id` alone remains the tax identifier. It is masked on read exactly as `tax_id` is
+     (`national_id_masked`, last four digits), the full number still only through `employee_tax_identifier`'s
+     step-up, and it joins `tax_id` in the audit trigger's redaction list -- the P9 invariant test caught that
+     omission before it shipped. `employee_set_tax_profile` takes one more optional trailing argument
+     (`p_national_id`); the old eight-argument form is dropped so there is no overload to resolve. On Tambah
+     Karyawan both numbers are optional fields; filling either writes the tax profile from the join date with
+     `tax_id_status = has_tax_id` and `ptkp_status = unknown`, so payroll still flags the line until someone
+     sets PTKP on the Pajak tab, and a failure there leaves the employee created and says so in the flash
+     rather than pretending. Migration `20261021100000_p53_employee_national_id.sql`; tests in
+     `99_p9_1_employees.sql`.
+
+386. **A potongan can be typed too (OWNER, 9 October 2026; presentation only).** Decision 383 grouped the
+     preset chips and put "Ketik nama sendiri" with the penghasilan ones only, so a potongan with a name of
+     the OWNER's own choosing had no one-click route. Each group now has its own, and the row it adds takes
+     that group's kind: a typed potongan starts outside the PPh 21 base, which is right for the common ones
+     and one tick away for an absence (decision 381). The chips block also no longer disappears once every
+     preset in a group is already on the form.

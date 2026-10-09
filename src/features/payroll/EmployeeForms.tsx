@@ -141,6 +141,10 @@ export function TaxProfileForm({
         <input name="tax_id" maxLength={40} inputMode="numeric" autoComplete="off" />
       </label>
       <label>
+        NIK (opsional, 16 angka)
+        <input name="national_id" maxLength={40} inputMode="numeric" autoComplete="off" />
+      </label>
+      <label>
         Status PTKP
         <select name="ptkp_status" defaultValue={current?.ptkpStatus ?? "unknown"}>
           {PTKP_OPTIONS.map((status) => (

@@ -5676,7 +5676,7 @@ a.pp-answer:hover {
 
 /* Typing a name is one more way to add a component, so it sits with the presets rather than as its own
  * full-width button below them; the dashed edge is what marks it as the open-ended one. */
-.comp-suggest-own {
+.comp-suggest-chip.comp-suggest-own {
   border-style: dashed;
   background: transparent;
 }
