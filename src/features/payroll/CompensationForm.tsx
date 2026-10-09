@@ -85,18 +85,16 @@ export function CompensationForm({
 }) {
   const [rows, setRows] = useState<readonly Row[]>(() => {
     if (current.length > 0) {
-      return current.map(
-        (c): Row => ({
-          id: newId(),
-          savedCode: c.component,
-          label: c.label,
-          kind: c.kind === "deduction" ? "deduction" : "earning",
-          amount: c.amount,
-          taxable: c.taxable,
-          bpjsBase: c.bpjsBase,
-          flagsTouched: true,
-        }),
-      );
+      return current.map((c): Row => ({
+        id: newId(),
+        savedCode: c.component,
+        label: c.label,
+        kind: c.kind === "deduction" ? "deduction" : "earning",
+        amount: c.amount,
+        taxable: c.taxable,
+        bpjsBase: c.bpjsBase,
+        flagsTouched: true,
+      }));
     }
     return [fromPreset(newId(), COMPONENT_PRESETS[0])];
   });
