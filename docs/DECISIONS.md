@@ -3320,3 +3320,14 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Migration `20261017100000_p48_loan_rate_steps.sql`; tests in `98_p8_loans.sql` (374.1-374.15); guide updated. Rebuilt
      in this session from the description of the same feature built in a session that could not send it; that copy is
      superseded by this one.
+
+375. **Bunga Berjenjang entered by year instead of by date (owner, 9 October 2026).**
+     The owner asked that the later rates of a loan be entered as "mulai tahun ke-N" (e.g. a 10-year loan, a new rate
+     from year 4, another from year 7) rather than by picking dates. The form now asks "Mulai tahun ke-" (whole number,
+     2 to the loan term in years); year 1 starts at the first installment date, so year N starts at the installment
+     due (N - 1) x 12 months after it -- the same date `app_private.loan_plan` gives that installment. The server action
+     converts years to the dated steps the database already stores (decision 374, unchanged), and refuses year 1,
+     years not strictly rising, years past the term and a missing first installment date. Restrukturisasi counts years
+     from the new schedule's first installment date. Ubah Bunga on a running loan keeps its date ("berlaku mulai"),
+     because it records a real change on a known day. No database change. `src/domain/financing/financing.ts`
+     (`rateStepsFromYears`, unit-tested), `financingActions.ts`, `FinancingForms.tsx`; guide, diagrams and PDF updated.

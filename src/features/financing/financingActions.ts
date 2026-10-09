@@ -7,6 +7,11 @@ import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { requirePermission } from "@/services/identity/access";
 import {
+  rateStepsFromYears,
+  type RateStepYearRow,
+  type RateStepYearsResult,
+} from "@/domain/financing/financing";
+import {
   activateLoan,
   cancelEquityEvent,
   cancelLoan,
@@ -98,15 +103,28 @@ function equityPaths(formData: FormData): string[] {
   return ["/assets/equity", `/assets/equity/${text(formData, "event_id")}`];
 }
 
-/** The later rates of a loan form (decision 374): rows `step_from_N` / `step_rate_N`; empty rows are skipped. */
-function rateSteps(formData: FormData): { from: string; rate: string }[] | undefined {
-  const steps: { from: string; rate: string }[] = [];
+/**
+ * The later rates of a loan form (Bunga Berjenjang, decisions 374/375): rows `step_year_N` / `step_rate_N`, each
+ * "from year N of the schedule"; empty rows are skipped. Years become the dated steps the database stores, counted
+ * from the form's first installment date.
+ */
+function rateSteps(formData: FormData): RateStepYearsResult {
+  const rows: RateStepYearRow[] = [];
   for (let n = 0; n < 20; n += 1) {
-    const from = text(formData, `step_from_${n}`);
+    const year = text(formData, `step_year_${n}`);
     const rate = text(formData, `step_rate_${n}`).replace(",", ".");
-    if (from && rate) steps.push({ from, rate });
+    if (year && rate) rows.push({ year: Number(year), rate });
   }
-  return steps.length > 0 ? steps : undefined;
+  return rateStepsFromYears(
+    text(formData, "first_due"),
+    Number(text(formData, "installments")) || 0,
+    Number(text(formData, "step_months")) || 1,
+    rows,
+  );
+}
+
+function stepsOrNone(steps: readonly { from: string; rate: string }[]) {
+  return steps.length > 0 ? [...steps] : undefined;
 }
 
 // ================================================================ loans
@@ -117,6 +135,8 @@ export async function createLoanAction(
   const entity = text(formData, "entity");
   const direction = text(formData, "direction");
   const termClass = text(formData, "term_class");
+  const steps = rateSteps(formData);
+  if (!steps.ok) return { status: "error", message: steps.message };
   let loanId: string;
   try {
     const { membership } = await requirePermission("loans.manage", { entityCode: entity });
@@ -134,7 +154,7 @@ export async function createLoanAction(
       installments: Number(text(formData, "installments")),
       step_months: Number(text(formData, "step_months")) as never,
       first_due: text(formData, "first_due"),
-      rate_steps: rateSteps(formData),
+      rate_steps: stepsOrNone(steps.steps),
     });
   } catch (error) {
     return errorState(
@@ -214,6 +234,8 @@ export async function restructureLoanAction(
   const installments = text(formData, "installments");
   const stepMonths = text(formData, "step_months");
   const firstDue = text(formData, "first_due");
+  const steps = rateSteps(formData);
+  if (!steps.ok) return { status: "error", message: steps.message };
   return run(
     () =>
       restructureLoan({
@@ -226,7 +248,7 @@ export async function restructureLoanAction(
         installments: installments ? Number(installments) : undefined,
         step_months: stepMonths ? (Number(stepMonths) as never) : undefined,
         first_due: firstDue || undefined,
-        rate_steps: rateSteps(formData),
+        rate_steps: stepsOrNone(steps.steps),
         reason: text(formData, "reason"),
       }),
     "Restrukturisasi tidak dapat disimpan. Periksa tanggal efektif, bunga, jumlah cicilan dan alasan.",

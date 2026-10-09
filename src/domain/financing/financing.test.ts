@@ -9,6 +9,7 @@ import {
   equityNeedsApproval,
   loanOutstanding,
   loanPlan,
+  rateStepsFromYears,
   type EquityKind,
   type LoanPlanInput,
 } from "./financing";
@@ -198,5 +199,41 @@ describe("labels and rules", () => {
     expect(equityNeedsApproval("capital_return")).toBe(true);
     expect(equityNeedsApproval("contribution")).toBe(false);
     expect(equityNeedsApproval("distribution_received")).toBe(false);
+  });
+});
+
+describe("Bunga Berjenjang by year (decision 375)", () => {
+  it("year N starts at the installment due (N - 1) years after the first", () => {
+    expect(
+      rateStepsFromYears("2026-11-30", 120, 1, [
+        { year: 4, rate: "9.5" },
+        { year: 7, rate: "11" },
+      ]),
+    ).toEqual({
+      ok: true,
+      steps: [
+        { from: "2029-11-30", rate: "9.5" },
+        { from: "2032-11-30", rate: "11" },
+      ],
+    });
+    expect(rateStepsFromYears("2028-02-29", 24, 1, [{ year: 2, rate: "8" }])).toEqual({
+      ok: true,
+      steps: [{ from: "2029-02-28", rate: "8" }],
+    });
+    expect(rateStepsFromYears("", 12, 1, [])).toEqual({ ok: true, steps: [] });
+  });
+
+  it("refuses year 1, unordered years, years past the term and a missing first due date", () => {
+    expect(rateStepsFromYears("2026-11-01", 120, 1, [{ year: 1, rate: "8" }]).ok).toBe(false);
+    expect(
+      rateStepsFromYears("2026-11-01", 120, 1, [
+        { year: 5, rate: "8" },
+        { year: 5, rate: "9" },
+      ]).ok,
+    ).toBe(false);
+    expect(rateStepsFromYears("2026-11-01", 36, 1, [{ year: 4, rate: "8" }]).ok).toBe(false);
+    expect(rateStepsFromYears("2026-11-01", 30, 1, [{ year: 3, rate: "8" }]).ok).toBe(true);
+    expect(rateStepsFromYears("2026-11-01", 10, 12, [{ year: 10, rate: "8" }]).ok).toBe(true);
+    expect(rateStepsFromYears("", 12, 1, [{ year: 2, rate: "8" }]).ok).toBe(false);
   });
 });

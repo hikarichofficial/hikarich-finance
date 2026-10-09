@@ -321,8 +321,9 @@ START_TIPS = [
     "Aktivitas Terbaru). Saldo, total, Laba Rugi, dan Neraca memakai warna biasa.",
     "Pinjaman bank tidak masuk kartu Utang Usaha (hanya tagihan vendor); sisa pokoknya tampil di kartu Pinjaman di Dashboard "
     "dan di Aset &amp; Pendanaan &rarr; Pinjaman. Bunga pinjaman berubah (misalnya bunga tetap lalu mengambang)? Isi "
-    "tahap bunga (Bunga Berjenjang) saat membuat pinjaman, atau tekan Ubah Bunga pada pinjaman berjalan: cicilan mulai "
-    "tanggal itu dihitung ulang dari sisa pokok dengan jangka waktu yang sama. Restrukturisasi Jadwal untuk pinjaman "
+    "tahap bunga (Bunga Berjenjang) saat membuat pinjaman, cukup tahun mulainya (misalnya mulai tahun ke-4), atau tekan "
+    "Ubah Bunga pada pinjaman berjalan: cicilan berikutnya dihitung ulang dari sisa pokok dengan jangka waktu yang sama. "
+    "Restrukturisasi Jadwal untuk pinjaman "
     "yang sulit dibayar.",
 ]
 

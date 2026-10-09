@@ -481,7 +481,7 @@
         },
         {
           "title": "Isi jadwal cicilan",
-          "text": "**Bunga per Tahun (%)** (bawaan 0). **Cara Hitung Cicilan**: “Anuitas (cicilan sama tiap kali)”, “Flat (pokok dan bunga tetap)”, atau “Bunga saja, pokok di akhir”. **Jumlah Cicilan** (1 sampai 600), **Jarak Antar Cicilan** (Tiap bulan, Tiap 3 bulan, Tiap 6 bulan, Tiap tahun), dan **Tanggal Cicilan Pertama**. Untuk bunga yang berubah (Bunga Berjenjang), tekan **+ Tambah tahap bunga** di **Bunga berikutnya** lalu isi **Mulai tanggal** dan **Bunga per tahun (%)**, sampai 20 tahap; misalnya 6% lalu 10% mulai tahun ke-4. Cicilan yang jatuh tempo mulai tanggal itu memakai bunga baru, dan cicilan anuitas dihitung ulang dari sisa pokok. Tekan **Simpan Pinjaman**.",
+          "text": "**Bunga per Tahun (%)** (bawaan 0). **Cara Hitung Cicilan**: “Anuitas (cicilan sama tiap kali)”, “Flat (pokok dan bunga tetap)”, atau “Bunga saja, pokok di akhir”. **Jumlah Cicilan** (1 sampai 600), **Jarak Antar Cicilan** (Tiap bulan, Tiap 3 bulan, Tiap 6 bulan, Tiap tahun), dan **Tanggal Cicilan Pertama**. Untuk bunga yang berubah (Bunga Berjenjang), tekan **+ Tambah tahap bunga** di **Bunga berikutnya** lalu isi **Mulai tahun ke-** dan **Bunga per tahun (%)**, sampai 20 tahap; misalnya pinjaman 10 tahun dengan bunga 6%, lalu 10% mulai tahun ke-4 dan 12% mulai tahun ke-7. Tahun ke-1 dimulai pada Tanggal Cicilan Pertama, jadi tidak perlu memilih tanggal. Cicilan mulai tahun itu memakai bunga baru, dan cicilan anuitas dihitung ulang dari sisa pokok. Tekan **Simpan Pinjaman**.",
           "warning": "Tanggal Cicilan Pertama tidak boleh sebelum Tanggal Perjanjian, dan nanti tidak boleh jatuh sebelum tanggal uang diterima atau diberikan."
         },
         {

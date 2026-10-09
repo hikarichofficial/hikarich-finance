@@ -227,7 +227,7 @@ function PartyField({
 }
 
 // ================================================================ create forms
-/** Bunga Berjenjang (decision 374): later rates, each from a date, up to 20 rows. */
+/** Bunga Berjenjang (decisions 374/375): later rates, each from a year of the schedule, up to 20 rows. */
 function RateStepsField({ hint }: { hint: string }) {
   const [rows, setRows] = useState(0);
   return (
@@ -237,8 +237,16 @@ function RateStepsField({ hint }: { hint: string }) {
       {Array.from({ length: rows }, (_, n) => (
         <div key={n} className="form-row">
           <label>
-            Mulai tanggal
-            <input type="date" name={`step_from_${n}`} required />
+            Mulai tahun ke-
+            <input
+              type="number"
+              name={`step_year_${n}`}
+              min={2}
+              max={50}
+              step={1}
+              inputMode="numeric"
+              required
+            />
           </label>
           <label>
             Bunga per tahun (%)
@@ -349,7 +357,7 @@ export function LoanCreateForm({
         Tanggal Cicilan Pertama
         <input type="date" name="first_due" required />
       </label>
-      <RateStepsField hint="Untuk bunga yang berubah, misalnya tetap 3 tahun lalu mengambang: isi tanggal mulai dan bunganya. Cicilan yang jatuh tempo mulai tanggal itu memakai bunga baru; cicilan anuitas dihitung ulang dari sisa pokok." />
+      <RateStepsField hint="Untuk bunga yang berubah, misalnya pinjaman 10 tahun: tahun ke-1 sampai ke-3 memakai bunga di atas, mulai tahun ke-4 bunganya lain. Isi tahun mulai dan bunganya. Tahun dihitung dari Tanggal Cicilan Pertama; cicilan anuitas dihitung ulang dari sisa pokok." />
       <p className="hint">
         Pinjaman disimpan sebagai draf. Uang baru dicatat saat pinjaman diaktifkan di halaman
         detailnya.
@@ -631,7 +639,7 @@ export function LoanActionsPanel({
               Tanggal Cicilan Pertama (jadwal baru)
               <input type="date" name="first_due" required />
             </label>
-            <RateStepsField hint="Bunga berikutnya untuk jadwal baru ini, jika sudah diketahui." />
+            <RateStepsField hint="Bunga berikutnya untuk jadwal baru ini, jika sudah diketahui. Tahun dihitung dari Tanggal Cicilan Pertama jadwal baru." />
             <ReasonField />
             <p className="hint">
               Untuk pinjaman yang sulit dibayar: jadwal diganti mulai tanggal efektif dengan cara
