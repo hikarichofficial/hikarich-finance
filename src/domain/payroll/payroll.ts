@@ -184,10 +184,10 @@ const FLAG_TEXT: Readonly<Record<string, string>> = {
   gross_up_not_converged: "Perhitungan gross-up tidak konvergen; periksa data karyawan.",
   negative_gross_pay: "Penghasilan bruto negatif; periksa potongan dan penyesuaian.",
   negative_net_pay: "Gaji bersih negatif; periksa potongan dan penyesuaian.",
-  joined_during_month:
-    "Karyawan mulai bekerja di tengah bulan ini. Gaji dihitung penuh satu bulan (belum diprorata); sesuaikan lewat penyesuaian bila perlu.",
-  left_during_month:
-    "Karyawan berhenti di tengah bulan ini. Gaji dihitung penuh satu bulan (belum diprorata); sesuaikan lewat penyesuaian bila perlu.",
+  // Short on purpose: the run screen offers the pro-rata figure itself now (decision 388), so the line does
+  // not have to explain what to do about it.
+  joined_during_month: "Mulai bekerja di tengah bulan; gaji belum diprorata.",
+  left_during_month: "Berhenti di tengah bulan; gaji belum diprorata.",
 };
 
 /**

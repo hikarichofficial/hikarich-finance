@@ -3475,3 +3475,43 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      that group's kind: a typed potongan starts outside the PPh 21 base, which is right for the common ones
      and one tick away for an absence (decision 381). The chips block also no longer disappears once every
      preset in a group is already on the form.
+387. **One employee per row of a payroll run, read top to bottom (OWNER, 9 October 2026; presentation only).**
+     The Baris Gaji Karyawan cell ran "EMP-2026-0001 — UJI COBA Karyawan" straight into the review badges and
+     then into a paragraph of flag text, so a run of three people read as a wall. The cell is now a small
+     code line, the name in its own weight, the review badges, and the informational note last and quiet. The
+     two part-month notes are also cut to one short clause each ("Mulai bekerja di tengah bulan; gaji belum
+     diprorata."), because decision 388 now offers the figure itself instead of telling the reader what to do.
+
+388. **Pro-rata worked out for a part month, and filled into the adjustment (OWNER, 9 October 2026; the engine
+     is untouched).** The payroll rules deliberately pay a mid-month joiner or leaver a full month and flag
+     the line: what a part month is worth is an employment question, not an arithmetic one, so the locked
+     engine does not decide it. Tambah Penyesuaian now does the arithmetic instead. Choosing an employee whose
+     join or exit date falls inside the period shows the month's gross as calculated, the pro-rated gross and
+     the difference, and one button fills the form with a deduction for that difference, named "Prorata masa
+     kerja (17 dari 31 hari)". The split is by calendar days of the period, counting the first and last day
+     worked -- the measure a monthly-paid Indonesian contract normally uses, and the only one this app can
+     compute, holding no working calendar; the form says so and the amount stays editable. The deduction is
+     marked as lowering the PPh 21 base, which decision 381 makes meaningful and which is right here: this is
+     pay that was never earned, unlike a loan instalment. It goes through `payroll_adjustment_add` exactly as
+     a hand-typed adjustment does -- no migration, no new RPC, nothing recomputed. `prorataFor`
+     (`src/domain/payroll/prorata.ts`) does the arithmetic on the minor units, so the pro-rated part and the
+     deduction always add back up to the gross; the run page reads the employee register once more for the
+     dates, which the payroll lines do not carry, and offers nothing without `payroll.employee_view`.
+
+389. **The run summary reads in three tiers (OWNER, 9 October 2026; presentation only).** Sixteen equal-weight
+     items sat in one flat grid -- period, pay date, headcount, six money totals, two BPJS rows that each
+     wrapped onto three lines, the calculation revision and two journal links -- so nothing stood out and the
+     page looked scattered. Now: the month's three figures across the top (Gaji Bruto, Gaji Bersih, Sudah
+     Dibayar, the last in the success colour once it matches), then three small groups under them (what comes
+     off the employee, the tax, what the company owes each BPJS body), then one quiet line carrying the dates,
+     the headcount, the calculation revision and the journal links. A BPJS body's row says "lunas" or "belum
+     dibayar" rather than printing a second full amount, which is what made those two rows wrap. Every figure
+     and every link that was there is still there; `tax_view` masking (decision 180) is unchanged.
+
+390. **PTKP explained where it is chosen (OWNER, 9 October 2026; no change to the computation).** The Pajak
+     tab asked for a PTKP status with no hint of what the eight codes mean, and the OWNER could not tell which
+     to pick. One line above the field now says it: the letter is the marital status, the number is the count
+     of dependants (maximum three), it is judged as at 1 January of the tax year, only straight-line relatives
+     who are fully supported and have no income of their own count (so not siblings, nephews or in-laws, even
+     when they are on the Kartu Keluarga), and a married woman is normally TK/0 unless she holds a statement
+     that her husband has no income. The amounts themselves were already versioned rules in the database.
