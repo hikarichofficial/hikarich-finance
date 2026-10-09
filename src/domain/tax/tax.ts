@@ -54,6 +54,7 @@ export type WhtObject =
   | "wht_royalty"
   | "wht_interest"
   | "wht_prize"
+  | "wht_pph21_non_employee"
   | "wht_review";
 
 export const WHT_OBJECT_LABELS: Readonly<Record<WhtObject, string>> = {
@@ -68,6 +69,7 @@ export const WHT_OBJECT_LABELS: Readonly<Record<WhtObject, string>> = {
   wht_royalty: "Royalti",
   wht_interest: "Bunga",
   wht_prize: "Hadiah / penghargaan",
+  wht_pph21_non_employee: "Honor / jasa orang pribadi (PPh 21, bukan pegawai)",
   wht_review: "Belum yakin (minta ditinjau)",
 };
 
@@ -79,6 +81,10 @@ export const WHT_OBJECT_LABELS: Readonly<Record<WhtObject, string>> = {
 export const WHT_QUICK_CHOICES: readonly { value: WhtObject; label: string }[] = [
   { value: "wht_none", label: "Tidak kena PPh" },
   { value: "wht_service_other_listed", label: "Kena PPh 23: jasa dari vendor dalam negeri" },
+  {
+    value: "wht_pph21_non_employee",
+    label: "Kena PPh 21: honor/jasa orang pribadi (bukan pegawai)",
+  },
   { value: "wht_rent_land_building", label: "Kena PPh 4(2): sewa tanah/bangunan" },
   { value: "wht_rent_movable", label: "Kena PPh 23: sewa selain tanah/bangunan" },
   { value: "wht_review", label: "Vendor luar negeri atau belum yakin (minta ditinjau)" },

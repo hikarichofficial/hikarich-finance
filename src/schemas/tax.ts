@@ -60,6 +60,7 @@ export const whtObjectSchema = z.enum([
   "wht_royalty",
   "wht_interest",
   "wht_prize",
+  "wht_pph21_non_employee",
   "wht_review",
 ]);
 
