@@ -148,9 +148,7 @@ export function PayslipDocument({
           ) : null}
           <div>
             <p className="slip-issuer-name">{issuer.name}</p>
-            {issuer.secondName ? (
-              <p className="slip-issuer-brand">{issuer.secondName}</p>
-            ) : null}
+            {issuer.secondName ? <p className="slip-issuer-brand">{issuer.secondName}</p> : null}
             {issuer.addressLines.map((line) => (
               <p key={line} className="slip-issuer-line">
                 {line}

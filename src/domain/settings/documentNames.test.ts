@@ -1,9 +1,5 @@
 import { describe, expect, it } from "vitest";
-import {
-  DEFAULT_DOCUMENT_NAME_STYLE,
-  documentNameStyle,
-  documentNames,
-} from "./documentNames";
+import { DEFAULT_DOCUMENT_NAME_STYLE, documentNameStyle, documentNames } from "./documentNames";
 
 const LEGAL = "PT Hikarich Group Indonesia";
 const BRAND = "Hikarich";

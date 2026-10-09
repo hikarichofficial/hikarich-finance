@@ -1,10 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import {
-  DOCUMENT_NAME_STYLE_LABELS,
-  documentNameStyle,
-} from "@/domain/settings/documentNames";
+import { DOCUMENT_NAME_STYLE_LABELS, documentNameStyle } from "@/domain/settings/documentNames";
 import { redirect } from "next/navigation";
 import { setFlash } from "@/lib/flash";
 import { LOGO_MAX_UPLOAD_BYTES, LogoImageError, compressLogo } from "@/lib/logoImage";

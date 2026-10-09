@@ -184,7 +184,9 @@ export function PayrollRunDetailScreen({
             <Link href={`/accounting/journal/${run.journal_id}${qs}`}>Jurnal</Link>
           ) : null}
           {run.reversal_journal_id ? (
-            <Link href={`/accounting/journal/${run.reversal_journal_id}${qs}`}>Jurnal pembalik</Link>
+            <Link href={`/accounting/journal/${run.reversal_journal_id}${qs}`}>
+              Jurnal pembalik
+            </Link>
           ) : null}
         </p>
 
