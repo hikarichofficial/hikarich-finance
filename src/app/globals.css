@@ -4208,11 +4208,13 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
   font-size: 1.15rem;
   font-variant-numeric: tabular-nums;
 }
-.stmt-in {
-  color: #1f7a4d;
+.stmt-in,
+.amt-in {
+  color: var(--success);
 }
-.stmt-out {
-  color: #b4432f;
+.stmt-out,
+.amt-out {
+  color: var(--danger);
 }
 .stmt-current-month td {
   font-weight: 600;

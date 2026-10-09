@@ -1099,7 +1099,7 @@
         },
         {
           "title": "Baca kartu angka",
-          "text": "Enam kartu: **Kas & Bank**, **Pendapatan**, **Beban**, **Laba Berjalan** (atau Rugi Berjalan), **Piutang Usaha**, dan **Utang Usaha**. Klik kartu untuk membuka halaman atau laporan di baliknya."
+          "text": "Enam kartu: **Kas & Bank**, **Pendapatan**, **Beban**, **Laba Berjalan** (atau Rugi Berjalan), **Piutang Usaha**, dan **Utang Usaha** (hanya tagihan vendor). Bila ada pinjaman bank yang berjalan, kartu ketujuh **Pinjaman** menampilkan sisa pokoknya; pinjaman tidak masuk Utang Usaha. Klik kartu untuk membuka halaman atau laporan di baliknya."
         },
         {
           "title": "Baca Tren Arus Kas",

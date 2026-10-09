@@ -317,6 +317,11 @@ START_TIPS = [
     "sehingga riwayat tetap utuh.",
     "Tautan &quot;&larr; Kembali ke ...&quot; di halaman data membawa Anda ke halaman yang dibuka sebelumnya (misalnya Aktivitas "
     "Terbaru), seperti tombol Back browser; bila halaman dibuka langsung, tautan itu menuju daftar aslinya.",
+    "Warna angka: hijau = uang masuk, merah = uang keluar (mutasi rekening, Rekening Koran, Arus Kas, daftar pembayaran, "
+    "Aktivitas Terbaru). Saldo, total, Laba Rugi, dan Neraca memakai warna biasa.",
+    "Pinjaman bank tidak masuk kartu Utang Usaha (hanya tagihan vendor); sisa pokoknya tampil di kartu Pinjaman di Dashboard "
+    "dan di Aset &amp; Pendanaan &rarr; Pinjaman. Bunga pinjaman berubah (misalnya bunga tetap lalu mengambang)? Pakai "
+    "Restrukturisasi Jadwal pada pinjaman itu.",
 ]
 
 # ----------------------------------------------------------------------------

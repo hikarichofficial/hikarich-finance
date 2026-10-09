@@ -41,7 +41,20 @@ export function RecentActivity({
                 <p className="dashboard-list-item-detail">{item.counterparty}</p>
               </div>
               <div className="dashboard-list-item-end">
-                <span className="dashboard-list-item-value">
+                <span
+                  className={`dashboard-list-item-value${
+                    item.kind === "customer_payment"
+                      ? " amt-in"
+                      : item.kind === "vendor_payment"
+                        ? " amt-out"
+                        : ""
+                  }`}
+                >
+                  {item.kind === "customer_payment"
+                    ? "+ "
+                    : item.kind === "vendor_payment"
+                      ? "− "
+                      : ""}
                   {formatMoney(item.amount, item.currency)}
                 </span>
                 <span className="dashboard-list-item-date">{formatShortDate(item.date)}</span>

@@ -38,3 +38,29 @@ describe("KpiStrip destinations", () => {
     expect(html).toContain("Sudah dikurangi diskon");
   });
 });
+
+// Decision 373: a bank loan is not "Utang Usaha"; it has its own card with the principal still owed.
+describe("KpiStrip loan card", () => {
+  const base = {
+    currency: "IDR",
+    period: { start: "2026-10-01", end: "2026-10-31" },
+    finance: null,
+    cash: null,
+    receivables: null,
+    payables: null,
+  };
+
+  it("shows the principal still owed and links to the loans", () => {
+    const html = renderToStaticMarkup(
+      createElement(KpiStrip, { ...base, loans: { total: "500000000", overdue: "0", count: 1 } }),
+    );
+    expect(html).toContain("Pinjaman");
+    expect(html).toContain("1 pinjaman berjalan");
+    expect(html).toContain('href="/assets/loans"');
+  });
+
+  it("shows nothing when there is no loan", () => {
+    const html = renderToStaticMarkup(createElement(KpiStrip, { ...base, loans: null }));
+    expect(html).not.toContain("Pinjaman");
+  });
+});

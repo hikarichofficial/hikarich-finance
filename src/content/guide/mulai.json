@@ -102,7 +102,8 @@
         "PT dan Pribadi tidak pernah digabung di satu halaman. Satu-satunya laporan lintas Entity adalah Analisis Konsolidasi (khusus kas, perlu izin tambahan).",
         "Akun yang dinonaktifkan melihat pesan “Akun ini dinonaktifkan. Hubungi OWNER.”",
         "Pintasan Ctrl+K atau Cmd+K tidak aktif saat kursor berada di kolom isian.",
-        "Tautan “← Kembali ke …” di halaman data (invoice, tagihan, pengeluaran, dan lainnya) membawa Anda ke halaman yang Anda buka sebelumnya, sama seperti tombol Back browser. Misalnya dari Aktivitas Terbaru membuka invoice, “Kembali” mengembalikan ke Aktivitas Terbaru, bukan ke daftar Invoice. Bila halaman dibuka langsung (tautan, bookmark, atau setelah muat ulang), tautan itu menuju daftar aslinya."
+        "Tautan “← Kembali ke …” di halaman data (invoice, tagihan, pengeluaran, dan lainnya) membawa Anda ke halaman yang Anda buka sebelumnya, sama seperti tombol Back browser. Misalnya dari Aktivitas Terbaru membuka invoice, “Kembali” mengembalikan ke Aktivitas Terbaru, bukan ke daftar Invoice. Bila halaman dibuka langsung (tautan, bookmark, atau setelah muat ulang), tautan itu menuju daftar aslinya.",
+        "Warna angka: hijau berarti uang masuk dan merah berarti uang keluar, di mutasi rekening, Rekening Koran, Arus Kas, daftar pembayaran, dan Aktivitas Terbaru (pembayaran diterima diberi tanda +, pembayaran keluar tanda −). Saldo, total, Laba Rugi, dan Neraca memakai warna biasa."
       ],
       "mistakes": [
         "Mencatat transaksi saat Entity aktif salah. Selalu periksa label di kiri atas sebelum menekan Simpan.",

@@ -3290,3 +3290,15 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      directly, bookmark, reload), when the previous page is the same page, or when it is a `/new` or `/edit` form (so saving a
      record and pressing "Kembali" lands on the list, not on the form that was just saved). Modified clicks (new tab) keep the
      normal link. Rule in `backNavigation.ts`, unit-tested. Guide updated.
+
+373. **Green for money in, red for money out; the loan card; rate changes (owner, 9 October 2026).**
+     (a) Direction of money is coloured with the theme tokens `--success` / `--danger` (`.amt-in`, `.amt-out`; `.stmt-in/out`
+     now use them too, so dark mode works): movements of an account and the cash activity list, Rekening Koran, customer payments
+     (in), vendor payments (out), the Arus Kas totals by sign, and Aktivitas Terbaru (payments carry "+" / "−", invoices stay
+     neutral). Balances, totals, Laba Rugi and Neraca stay neutral; a negative balance stays red. Meaning is never colour alone
+     (column headers, "+" / "−", the amount's own minus sign).
+     (b) A loan is not "Utang Usaha" (that card is vendor bills only): the Dashboard gets a "Pinjaman" card with the principal still
+     owed on active borrowed loans (and what is overdue), shown only when there is one and the viewer holds `loans.view`.
+     (c) Fixed-then-floating interest is already possible with "Restrukturisasi Jadwal" (new rate, effective date, remaining
+     instalments, recalculated from the remaining principal); the form and the guide now say so. The annuity formula is the
+     standard PMT; no change.

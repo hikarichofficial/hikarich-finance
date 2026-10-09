@@ -4,6 +4,7 @@ import { Decimal } from "@/domain/money/decimal";
 import type {
   DashboardCashSection,
   DashboardFinanceSection,
+  DashboardLoansSection,
   DashboardPayablesSection,
   DashboardReceivablesSection,
 } from "@/services/dashboard/dashboard";
@@ -52,6 +53,7 @@ export function KpiStrip({
   cash,
   receivables,
   payables,
+  loans = null,
 }: {
   currency: string;
   /** The month the dashboard shows; the profit cards open the Laba Rugi report of that same month. */
@@ -60,6 +62,8 @@ export function KpiStrip({
   cash: DashboardCashSection | null;
   receivables: DashboardReceivablesSection | null;
   payables: DashboardPayablesSection | null;
+  /** Loans still owed; shown only when there is one. */
+  loans?: DashboardLoansSection | null;
 }) {
   const cards: KpiCardProps[] = [];
 
@@ -116,6 +120,17 @@ export function KpiStrip({
         ? "Tidak ada yang jatuh tempo"
         : `${formatMoney(payables.overdue, currency)} jatuh tempo`,
       href: "/purchases/bills",
+    });
+  }
+
+  if (loans) {
+    cards.push({
+      label: "Pinjaman",
+      value: formatMoney(loans.total, currency),
+      context: Decimal.parse(loans.overdue).isZero()
+        ? `${loans.count} pinjaman berjalan`
+        : `${formatMoney(loans.overdue, currency)} jatuh tempo`,
+      href: "/assets/loans",
     });
   }
 
