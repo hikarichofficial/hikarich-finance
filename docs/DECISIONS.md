@@ -3540,3 +3540,21 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      a step explaining that the menu does not show loans. It is now **Pinjaman** (Ringkasan Pinjaman) and
      **Aset Tetap** (Kontrol Aset Tetap): each lands on the report it is named after. `/reports/assets-loans`
      is replaced by `/reports/loans` and `/reports/assets`.
+394. **PTKP is the whole year's, however many months were worked (OWNER, 10 October 2026, after checking the
+     regulation; this changes the tax every mid-year joiner and leaver pays).** The seeded rule
+     `PPH21_ANNUAL` version 1 carried `"ptkp_proration":"months_worked"`, so the December recalculation gave
+     an employee who started in October only 3/12 of their PTKP. The OWNER asked for the source to be checked
+     before anything was changed, and it does not support that: PER-16/PJ/2016 Lampiran example I.6.1.1
+     (Suwondo, a permanent employee starting 1 September) counts only the income of the months worked but
+     applies the **full annual PTKP** (Rp 58,500,000 for K/0), and PMK 168/2023 changed how the monthly
+     withholding is found (TER) without touching that. Only biaya jabatan follows the months worked, through
+     its Rp 500,000 per-month cap. Prorating the PTKP inflates the taxable income, so the employer withholds
+     more from the employee than the law asks and over-pays the state: on this Entity's own figures, an
+     employee joining in October on Rp 8,463,320 a month was taxed Rp 531,000 for 2026 where the answer is
+     Rp 0. A published rule version is never edited (Step 05 §15), so the fix is a new published version 2,
+     identical but for that key, dated 2024-01-02 the way decision 303's TER correction was. No code changed:
+     `pph21_annual` already read the parameter and already accepted `full_year`. Migration
+     `20261023100000_p55_ptkp_full_year.sql`. The P9 engine test asserted the old behaviour in so many words
+     ("A: PTKP is prorated to the months worked") and now asserts the new one; `99_p9_4_controls.sql` gains a
+     check against the published rule itself, so a later version that reintroduced the proration fails the
+     suite rather than quietly overcharging every mid-year joiner. Nothing posted used version 1.
