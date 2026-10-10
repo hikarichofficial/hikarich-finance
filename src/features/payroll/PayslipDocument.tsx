@@ -112,6 +112,9 @@ export function PayslipDocument({
       .map((a, index) => ({ key: `an-${index}`, label: a.label, amount: a.amount })),
   ];
   const bpjsEmployee = bpjsLines(detail.bpjs_employee);
+  // Decision 396: PPh 21 over-withheld across the year, handed back with this month's pay. It belongs with
+  // the earnings, not the deductions -- it is money coming to the employee, not leaving them.
+  const refund = Decimal.parse(detail.tax_refund);
   const bpjsEmployer = bpjsLines(detail.bpjs_employer);
 
   const gross = sum(earnings.map((l) => l.amount));
@@ -126,7 +129,7 @@ export function PayslipDocument({
 
   // The snapshot is the authority; these sums only present it. If they disagree, say so rather than print on.
   const netPay = Decimal.parse(detail.net_pay);
-  const mismatch = detail.tax ? !gross.sub(deductionsTotal).eq(netPay) : false;
+  const mismatch = detail.tax ? !gross.sub(deductionsTotal).add(refund).eq(netPay) : false;
 
   const taxableEarnings = sum([
     ...detail.components.filter((c) => c.kind === "earning" && c.taxable).map((c) => c.amount),
@@ -194,6 +197,15 @@ export function PayslipDocument({
             <span>Penghasilan Bruto</span>
             <span className="slip-num">{formatMoney(gross.toString(), currency)}</span>
           </div>
+          {refund.isPositive() ? (
+            <>
+              <p className="slip-group">Dikembalikan ke Anda</p>
+              <div className="slip-line">
+                <span>Kelebihan potong PPh 21 selama setahun</span>
+                <span className="slip-num">{formatMoney(refund.toString(), currency)}</span>
+              </div>
+            </>
+          ) : null}
         </section>
 
         <section className="slip-col">
@@ -248,7 +260,11 @@ export function PayslipDocument({
       <section className="slip-takehome">
         <div>
           <p className="slip-kicker">Take Home Pay</p>
-          <p className="slip-takehome-sub">Penghasilan bruto dikurangi seluruh potongan di atas</p>
+          <p className="slip-takehome-sub">
+            {refund.isPositive()
+              ? "Penghasilan bruto dikurangi seluruh potongan, ditambah pengembalian di atas"
+              : "Penghasilan bruto dikurangi seluruh potongan di atas"}
+          </p>
         </div>
         <p className="slip-takehome-amount">{formatMoney(detail.net_pay, currency)}</p>
       </section>

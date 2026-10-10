@@ -130,6 +130,12 @@ export function PayrollRunDetailScreen({
                 <dt>PPh 21</dt>
                 <dd>{money(run.pph21_total, currency)}</dd>
               </div>
+              {Number(run.tax_refund_total) > 0 ? (
+                <div>
+                  <dt>Dikembalikan ke karyawan</dt>
+                  <dd>{formatMoney(run.tax_refund_total, currency)}</dd>
+                </div>
+              ) : null}
             </dl>
           </section>
 

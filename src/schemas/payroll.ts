@@ -409,6 +409,8 @@ export const payrollRunDetailSchema = payrollRunRowSchema.extend({
   calc_version: z.number().int(),
   calculated_at: z.string().nullable(),
   tax_base_total: taxMoney,
+  /** PPh 21 handed back to employees in this run (decision 396). */
+  tax_refund_total: signedDecimalTextSchema.default("0"),
   rules: z.array(
     z.object({
       code: z.string(),
@@ -451,6 +453,8 @@ export const payrollLineSchema = z.object({
   tax_method: taxMethodSchema.nullable(),
   pph21: taxMoney,
   tax_allowance: taxMoney,
+  /** PPh 21 over-withheld across the year and handed back in this run (decision 396); 0 in a normal month. */
+  tax_refund: signedDecimalTextSchema,
   net_pay: signedDecimalTextSchema,
   net_paid: signedDecimalTextSchema,
   /** The trace of the tax calculation (rule, category, rate, base); null without `payroll.tax_view`. */
@@ -619,8 +623,12 @@ export const payslipDetailSchema = z.object({
       pph21: signedDecimalTextSchema,
       allowance: signedDecimalTextSchema,
       withheld_from_employee: signedDecimalTextSchema,
+      /** Over-withholding handed back with this payslip (decision 396); absent on a slip issued before it. */
+      refund: signedDecimalTextSchema.default("0"),
     })
     .optional(),
+  /** The same figure outside the tax block, so a viewer without `payroll.tax_view` still sees the pay. */
+  tax_refund: signedDecimalTextSchema.default("0"),
   net_pay: signedDecimalTextSchema,
   net_paid: signedDecimalTextSchema,
 });
@@ -667,6 +675,43 @@ export const annualReconciliationRowSchema = z.object({
 });
 export const annualReconciliationSchema = z.array(annualReconciliationRowSchema);
 export type AnnualReconciliationRow = z.infer<typeof annualReconciliationRowSchema>;
+
+/**
+ * Bukti Potong 1721-A1 (decision 397): the year's figures for one employee, as the certificate states them.
+ * `tax_id` is null unless the reader has stepped up recently -- the RPC withholds it, exactly as
+ * `employee_tax_identifier` does -- and the five computed figures are null when the employee's tax profile is
+ * incomplete, which is also what `status: "incomplete"` says.
+ */
+export const withholdingCertificateInputSchema = z.object({
+  entity_id: z.uuid(),
+  year: z.number().int().min(2000).max(2100),
+  employee_id: z.uuid().optional(),
+});
+
+export const withholdingCertificateRowSchema = z.object({
+  employee_id: z.uuid(),
+  employee_code: z.string(),
+  employee_name: z.string(),
+  tax_id: z.string().nullable(),
+  ptkp_status: z.string().nullable(),
+  position_title: z.string().nullable(),
+  months_worked: z.number().int(),
+  first_month: z.number().int(),
+  last_month: z.number().int(),
+  gross_income: signedDecimalTextSchema,
+  occupational_cost: taxMoney,
+  pension_deduction: signedDecimalTextSchema,
+  net_income: taxMoney,
+  ptkp: taxMoney,
+  pkp: taxMoney,
+  annual_tax: taxMoney,
+  withheld: signedDecimalTextSchema,
+  refunded: signedDecimalTextSchema,
+  borne_by_employee: signedDecimalTextSchema,
+  status: z.enum(["reconciled", "under_withheld", "over_withheld", "incomplete"]),
+});
+export const withholdingCertificateSchema = z.array(withholdingCertificateRowSchema);
+export type WithholdingCertificateRow = z.infer<typeof withholdingCertificateRowSchema>;
 
 export const payrollPeriodInputSchema = z.object({
   entity_id: z.uuid(),

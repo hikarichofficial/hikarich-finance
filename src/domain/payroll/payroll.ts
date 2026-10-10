@@ -208,7 +208,8 @@ export function describePayrollFlag(flag: string): string {
     return `Pilihan tarif ${label} belum diisi pada data BPJS karyawan.`;
   }
   if (code === "tax_overwithheld") {
-    return `PPh 21 yang sudah dipotong lebih besar ${value} dari perhitungan; tidak dikembalikan melalui penggajian.`;
+    // Decision 396: it is returned to the employee in this run, so the note says so rather than the opposite.
+    return `PPh 21 yang sudah dipotong setahun lebih besar ${value} dari perhitungan; kelebihannya dikembalikan ke karyawan pada payroll ini.`;
   }
   return flag;
 }

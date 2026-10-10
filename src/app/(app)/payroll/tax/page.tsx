@@ -7,6 +7,7 @@ import {
   getEmployeeTaxLedger,
   getEntityBaseCurrency,
   getPayrollLiabilities,
+  getWithholdingCertificates,
 } from "@/services/payroll/payroll";
 import { PayrollTaxScreen } from "@/features/payroll/PayrollTaxScreen";
 
@@ -37,10 +38,13 @@ export default async function PayrollTaxPage({
   const asOf = resolveAsOfDate(as_of);
   const taxYear = resolveTaxYear(year);
 
-  const [liabilities, reconciliation, taxLedger, currency] = await Promise.all([
+  const [liabilities, reconciliation, certificates, taxLedger, currency] = await Promise.all([
     getPayrollLiabilities({ entity_id: entityId, as_of: asOf }),
     canViewTax
       ? getAnnualReconciliation({ entity_id: entityId, year: taxYear })
+      : Promise.resolve(null),
+    canViewTax
+      ? getWithholdingCertificates({ entity_id: entityId, year: taxYear })
       : Promise.resolve(null),
     canViewTax
       ? getEmployeeTaxLedger({ entity_id: entityId, year: taxYear })
@@ -52,6 +56,7 @@ export default async function PayrollTaxPage({
     <PayrollTaxScreen
       liabilities={liabilities}
       reconciliation={reconciliation}
+      certificates={certificates}
       taxLedger={taxLedger}
       asOf={asOf}
       year={taxYear}
