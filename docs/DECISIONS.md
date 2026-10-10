@@ -3572,3 +3572,25 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Entity used before first, then the shapes that follow from the period type and the year, and anything
      else can still be typed. Revenue Target's own line editor carries no category yet -- Step 01 #23 names
      none -- which decision 396 changes; Perkiraan's two dropdowns are short fixed lists and keep them.
+396. **PPh 21 over-withheld over the year goes back to the employee in the December payroll (OWNER,
+     10 October 2026; this changes what the tax ledger carries and what employees are paid).** The December
+     recalculation already found the figure -- the year's tax against what was withheld month by month -- and
+     reported anything negative as `tax_overwithheld` before dropping it (`greatest(v_due, 0)`), leaving the
+     employee to reclaim it in their own annual return. Under PPh 21 the excess is the employer's to return,
+     handed over with the bukti potong. Decision 394 makes it more common, not less: a mid-year joiner now
+     gets the whole year's PTKP, so their annual tax is often nil while TER has taken a slice every month.
+     The OWNER asked for it to be automatic so employees are not put to any trouble.
+     It is carried as its own figure, not as a negative PPh 21: `pph21` stays what was withheld this month
+     (zero in a month that only refunds), so `tax_allowance <= pph21` and everything that reads the tax as an
+     amount owed keep their meaning, and the tax layer is never handed a negative total to interpret. The new
+     `payroll_run_lines.tax_refund` / `payroll_runs.tax_refund_total` carry the money going back. Net pay
+     rises by it; the journal books Tax Payables **net** of it, so a month of refunds debits that account
+     instead of crediting it, which is what returning withheld tax does to the liability; the determination
+     and the tax ledger carry the same net figure, so the month's PPh 21 -- and the SPT Masa built from it --
+     is already after the refund; the payslip shows it under "Dikembalikan ke Anda", in the earnings column,
+     because it is money coming to the employee. `payroll_run_differences` checks the netted figure against
+     the journal and the determination, and gains a check that the lines' refunds add up to the run's.
+     Migration `20261024100000_p56_pph21_refund.sql` (six functions replaced; `payroll_run_lines` is dropped
+     and recreated because its row gains a column). The P9 engine test asserted the old behaviour in so many
+     words ("H: over-withholding is reported, not refunded through payroll") and now asserts the refund and
+     the larger net pay.

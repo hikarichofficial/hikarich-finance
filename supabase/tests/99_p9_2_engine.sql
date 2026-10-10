@@ -434,12 +434,16 @@ begin
   perform test_helpers.assert((r.tax_calc ->> 'occupational_cost')::numeric = 2917750 and (r.tax_calc ->> 'pkp')::numeric = 0, 'A: occupational cost still follows the months worked, and nothing is taxable');
   perform test_helpers.assert((r.tax_calc ->> 'annual_tax')::numeric = 0 and (r.tax_calc ->> 'withheld_before')::numeric = 262215, 'A: annual tax and what was withheld before');
   perform test_helpers.assert(r.pph21::numeric = 0 and r.info_flags @> array['tax_overwithheld:262215'], 'A: December takes nothing more and reports the over-withholding');
+  -- Decision 396: and it is handed back, so A's December is 262,215 larger than the pay itself.
+  perform test_helpers.assert(r.tax_refund::numeric = 262215, 'A: the over-withholding is refunded in this run');
   -- H, by hand (12 months): gross 55,000,000 + 5,000,000 = 60,000,000; cost min(3,000,000; 6,000,000) = 3,000,000; PTKP 54,000,000;
-  -- PKP 3,000,000; tax 150,000 - 5,000,000 withheld = -4,850,000: no tax this month, over-withholding reported, no refund.
+  -- PKP 3,000,000; tax 150,000 - 5,000,000 withheld = -4,850,000: nothing more is withheld, and the 4,850,000
+  -- already taken goes back to H with December's pay (decision 396), so net pay is 5,000,000 + 4,850,000.
   select * into r from public.payroll_run_lines(v_dec) where employee_id = test_helpers.g('H');
-  perform test_helpers.assert(r.pph21::numeric = 0 and r.info_flags = array['tax_overwithheld:4850000'], 'H: over-withholding is reported, not refunded through payroll');
+  perform test_helpers.assert(r.pph21::numeric = 0 and r.info_flags = array['tax_overwithheld:4850000'], 'H: the over-withholding is reported');
   perform test_helpers.assert((r.tax_calc ->> 'annual_tax')::numeric = 150000 and (r.tax_calc ->> 'due')::numeric = -4850000, 'H: the working shows the negative balance');
-  perform test_helpers.assert(r.net_pay::numeric = 5000000, 'H: net pay is not reduced');
+  perform test_helpers.assert(r.tax_refund::numeric = 4850000, 'H: and it is refunded through payroll');
+  perform test_helpers.assert(r.net_pay::numeric = 9850000, 'H: net pay carries the refund');
 
   -- the opening figures are a record: a later revision replaces the earlier one
   perform public.employee_set_tax_opening(test_helpers.g('H'), 'key-p9b-o5', 2025, 11, '55000000', '0', '150000', 'Corrected withholding');

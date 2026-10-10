@@ -409,6 +409,8 @@ export const payrollRunDetailSchema = payrollRunRowSchema.extend({
   calc_version: z.number().int(),
   calculated_at: z.string().nullable(),
   tax_base_total: taxMoney,
+  /** PPh 21 handed back to employees in this run (decision 396). */
+  tax_refund_total: signedDecimalTextSchema.default("0"),
   rules: z.array(
     z.object({
       code: z.string(),
@@ -451,6 +453,8 @@ export const payrollLineSchema = z.object({
   tax_method: taxMethodSchema.nullable(),
   pph21: taxMoney,
   tax_allowance: taxMoney,
+  /** PPh 21 over-withheld across the year and handed back in this run (decision 396); 0 in a normal month. */
+  tax_refund: signedDecimalTextSchema,
   net_pay: signedDecimalTextSchema,
   net_paid: signedDecimalTextSchema,
   /** The trace of the tax calculation (rule, category, rate, base); null without `payroll.tax_view`. */
@@ -619,8 +623,12 @@ export const payslipDetailSchema = z.object({
       pph21: signedDecimalTextSchema,
       allowance: signedDecimalTextSchema,
       withheld_from_employee: signedDecimalTextSchema,
+      /** Over-withholding handed back with this payslip (decision 396); absent on a slip issued before it. */
+      refund: signedDecimalTextSchema.default("0"),
     })
     .optional(),
+  /** The same figure outside the tax block, so a viewer without `payroll.tax_view` still sees the pay. */
+  tax_refund: signedDecimalTextSchema.default("0"),
   net_pay: signedDecimalTextSchema,
   net_paid: signedDecimalTextSchema,
 });
