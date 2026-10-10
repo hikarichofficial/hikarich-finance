@@ -147,6 +147,30 @@ begin
     and r.difference::numeric = -29135 and r.status = 'over_withheld', 'reconciliation: A is over-withheld');
   perform test_helpers.assert((select status from public.payroll_annual_reconciliation(pt, 2025) where employee_id = test_helpers.g('E')) = 'incomplete', 'reconciliation: unknown tax facts are incomplete, not guessed');
   perform test_helpers.assert((select status from public.payroll_annual_reconciliation(pt, 2025) where employee_id = test_helpers.g('C')) in ('over_withheld', 'under_withheld', 'reconciled'), 'reconciliation: C has a status');
+
+  -- the annual withholding certificate, 1721-A1 (decision 397): the same figures as the reconciliation above,
+  -- with the working the form asks for. A is over-withheld, so what the certificate says the employee bore is
+  -- what was withheld less what December handed back (nothing here: A has no December refund in this fixture).
+  select * into r from public.payroll_withholding_certificate(pt, 2025) where employee_id = test_helpers.g('A');
+  perform test_helpers.assert(r.months_worked = 10 and r.first_month = 3 and r.last_month = 12, 'certificate: A worked March to December');
+  perform test_helpers.assert(r.gross_income::numeric = 5827000 and r.occupational_cost::numeric = 291350
+    and r.pension_deduction::numeric = 150000 and r.net_income::numeric = 5385650, 'certificate: A gross, biaya jabatan and neto');
+  perform test_helpers.assert(r.ptkp::numeric = 54000000 and r.pkp::numeric = 0 and r.annual_tax::numeric = 0, 'certificate: A PTKP full year, no PKP');
+  perform test_helpers.assert(r.withheld::numeric = 29135 and r.refunded::numeric = 0 and r.borne_by_employee::numeric = 29135
+    and r.status = 'over_withheld', 'certificate: A bore what was withheld');
+  perform test_helpers.assert(r.ptkp_status = 'TK/0' and r.employee_code is not null, 'certificate: A carries the PTKP status');
+  perform test_helpers.assert(r.tax_id = '3200000000000001', 'certificate: the NPWP is on the form after a recent step-up');
+  perform test_helpers.assert((select status from public.payroll_withholding_certificate(pt, 2025) where employee_id = test_helpers.g('E')) = 'incomplete',
+    'certificate: unknown tax facts are incomplete, not guessed');
+  perform test_helpers.assert((select count(*) from public.payroll_withholding_certificate(pt, 2025, test_helpers.g('A'))) = 1, 'certificate: one employee at a time');
+  perform test_helpers.expect_msg(format('select * from public.payroll_withholding_certificate(%L, 1999)', pt), 'INVALID', 'certificate: a plausible tax year');
+  perform test_helpers.logout();
+  -- a stale login still lists every figure; only the identifier is withheld, so the screen can show who is
+  -- ready to issue before asking anyone to verify again (unlike `employee_tax_identifier`, which refuses outright)
+  perform test_helpers.login(v_pay, 'aal2', interval '3 hours');
+  select * into r from public.payroll_withholding_certificate(pt, 2025) where employee_id = test_helpers.g('A');
+  perform test_helpers.assert(r.tax_id is null and r.annual_tax::numeric = 0 and r.withheld::numeric = 29135,
+    'certificate: a stale login sees the figures but not the NPWP');
   perform test_helpers.logout();
 end
 $$;
@@ -248,6 +272,7 @@ begin
   perform test_helpers.expect_msg(format('select * from public.payroll_liability_report(%L)', pt), 'FORBIDDEN', 'accountant: liabilities');
   perform test_helpers.expect_msg(format('select * from public.payroll_employee_tax_ledger(%L, 2025)', pt), 'FORBIDDEN', 'accountant: employee tax ledger');
   perform test_helpers.expect_msg(format('select * from public.payroll_annual_reconciliation(%L, 2025)', pt), 'FORBIDDEN', 'accountant: annual reconciliation');
+  perform test_helpers.expect_msg(format('select * from public.payroll_withholding_certificate(%L, 2025)', pt), 'FORBIDDEN', 'accountant: withholding certificate');
   perform test_helpers.expect_msg(format('select * from public.employee_list(%L)', pt), 'FORBIDDEN', 'accountant: employee list');
   perform test_helpers.expect_error('select * from public.payroll_payslips', '42501', 'accountant: payslip table is closed');
   perform test_helpers.expect_error('select * from public.payroll_payments', '42501', 'accountant: payment table is closed');
@@ -255,6 +280,7 @@ begin
   perform test_helpers.login(v_tax);
   perform test_helpers.expect_msg(format('select * from public.payroll_run_list(%L)', pt), 'FORBIDDEN', 'tax role: run list');
   perform test_helpers.expect_msg(format('select * from public.payroll_annual_reconciliation(%L, 2025)', pt), 'FORBIDDEN', 'tax role: annual reconciliation');
+  perform test_helpers.expect_msg(format('select * from public.payroll_withholding_certificate(%L, 2025)', pt), 'FORBIDDEN', 'tax role: withholding certificate');
   perform test_helpers.logout();
   -- the payroll role sees its reports; an unauthenticated caller sees nothing
   perform test_helpers.login(v_pay);

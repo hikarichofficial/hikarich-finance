@@ -676,6 +676,43 @@ export const annualReconciliationRowSchema = z.object({
 export const annualReconciliationSchema = z.array(annualReconciliationRowSchema);
 export type AnnualReconciliationRow = z.infer<typeof annualReconciliationRowSchema>;
 
+/**
+ * Bukti Potong 1721-A1 (decision 397): the year's figures for one employee, as the certificate states them.
+ * `tax_id` is null unless the reader has stepped up recently -- the RPC withholds it, exactly as
+ * `employee_tax_identifier` does -- and the five computed figures are null when the employee's tax profile is
+ * incomplete, which is also what `status: "incomplete"` says.
+ */
+export const withholdingCertificateInputSchema = z.object({
+  entity_id: z.uuid(),
+  year: z.number().int().min(2000).max(2100),
+  employee_id: z.uuid().optional(),
+});
+
+export const withholdingCertificateRowSchema = z.object({
+  employee_id: z.uuid(),
+  employee_code: z.string(),
+  employee_name: z.string(),
+  tax_id: z.string().nullable(),
+  ptkp_status: z.string().nullable(),
+  position_title: z.string().nullable(),
+  months_worked: z.number().int(),
+  first_month: z.number().int(),
+  last_month: z.number().int(),
+  gross_income: signedDecimalTextSchema,
+  occupational_cost: taxMoney,
+  pension_deduction: signedDecimalTextSchema,
+  net_income: taxMoney,
+  ptkp: taxMoney,
+  pkp: taxMoney,
+  annual_tax: taxMoney,
+  withheld: signedDecimalTextSchema,
+  refunded: signedDecimalTextSchema,
+  borne_by_employee: signedDecimalTextSchema,
+  status: z.enum(["reconciled", "under_withheld", "over_withheld", "incomplete"]),
+});
+export const withholdingCertificateSchema = z.array(withholdingCertificateRowSchema);
+export type WithholdingCertificateRow = z.infer<typeof withholdingCertificateRowSchema>;
+
 export const payrollPeriodInputSchema = z.object({
   entity_id: z.uuid(),
   from: isoDateSchema.optional(),

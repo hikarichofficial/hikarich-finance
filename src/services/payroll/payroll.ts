@@ -47,6 +47,8 @@ import {
   taxLedgerSchema,
   taxProfileSchema,
   updateEmployeeInputSchema,
+  withholdingCertificateInputSchema,
+  withholdingCertificateSchema,
   type AnnualReconciliationRow,
   type BpjsEnrolment,
   type Compensation,
@@ -64,6 +66,7 @@ import {
   type PayslipRow,
   type TaxLedgerRow,
   type TaxProfile,
+  type WithholdingCertificateRow,
 } from "@/schemas/payroll";
 
 /**
@@ -519,6 +522,23 @@ export async function getAnnualReconciliation(
     "payroll_annual_reconciliation",
     { p_entity: v.entity_id, p_year: v.year },
     annualReconciliationSchema,
+  );
+}
+
+/**
+ * The annual withholding certificates (Bukti Potong 1721-A1, decision 397). Like the annual reconciliation
+ * this needs `payroll.tax_view`, which the RPC raises a hard `FORBIDDEN` without, so the caller gates the
+ * fetch. The full NPWP comes back only when the reader stepped up in the last 30 minutes; the RPC decides
+ * that, not the page.
+ */
+export async function getWithholdingCertificates(
+  input: z.input<typeof withholdingCertificateInputSchema>,
+): Promise<WithholdingCertificateRow[]> {
+  const v = withholdingCertificateInputSchema.parse(input);
+  return callRpc(
+    "payroll_withholding_certificate",
+    { p_entity: v.entity_id, p_year: v.year, p_employee: v.employee_id ?? null },
+    withholdingCertificateSchema,
   );
 }
 

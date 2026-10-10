@@ -4,9 +4,15 @@ import { PAYROLL_LIABILITY_LABELS, payrollPeriodName } from "@/domain/payroll/pa
 import {
   TAX_LEDGER_SOURCE_LABELS,
   annualReconciliationStatusBadge,
+  certificateHref,
   pph21DepositHref,
 } from "@/domain/payroll/taxLiabilities";
-import type { AnnualReconciliationRow, PayrollLiabilityRow, TaxLedgerRow } from "@/schemas/payroll";
+import type {
+  AnnualReconciliationRow,
+  PayrollLiabilityRow,
+  TaxLedgerRow,
+  WithholdingCertificateRow,
+} from "@/schemas/payroll";
 import { formatShortDate } from "./format";
 
 function money(value: string | null, currency: string): string {
@@ -33,6 +39,7 @@ function money(value: string | null, currency: string): string {
 export function PayrollTaxScreen({
   liabilities,
   reconciliation,
+  certificates,
   taxLedger,
   asOf,
   year,
@@ -42,6 +49,7 @@ export function PayrollTaxScreen({
 }: {
   liabilities: readonly PayrollLiabilityRow[];
   reconciliation: readonly AnnualReconciliationRow[] | null;
+  certificates: readonly WithholdingCertificateRow[] | null;
   taxLedger: readonly TaxLedgerRow[] | null;
   asOf: string;
   year: number;
@@ -201,6 +209,74 @@ export function PayrollTaxScreen({
         </section>
       ) : null}
 
+      {certificates ? (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Bukti Potong Tahunan {year}</h2>
+          </div>
+          <p className="hint">
+            Formulir 1721-A1 untuk tiap karyawan: rangkuman penghasilan dan PPh 21 setahun yang
+            dipakai karyawan untuk mengisi SPT Tahunan mereka sendiri, paling lambat 31 Maret{" "}
+            {year + 1}.
+          </p>
+          {certificates.length === 0 ? (
+            <div className="list-empty">
+              <p>Tidak ada karyawan pada tahun pajak ini.</p>
+            </div>
+          ) : (
+            <table className="record-table record-table-stacked">
+              <thead>
+                <tr>
+                  <th scope="col">Karyawan</th>
+                  <th scope="col" className="num">
+                    Penghasilan Bruto
+                  </th>
+                  <th scope="col" className="num">
+                    PPh 21 Setahun
+                  </th>
+                  <th scope="col" className="num">
+                    Ditanggung Karyawan
+                  </th>
+                  <th scope="col">Status</th>
+                  <th scope="col">Tindakan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {certificates.map((row) => {
+                  const badge = annualReconciliationStatusBadge(row.status);
+                  return (
+                    <tr key={row.employee_id}>
+                      <td>
+                        {row.employee_code} — {row.employee_name}
+                      </td>
+                      <td className="num" data-label="Penghasilan Bruto">
+                        {formatMoney(row.gross_income, currency)}
+                      </td>
+                      <td className="num" data-label="PPh 21 Setahun">
+                        {money(row.annual_tax, currency)}
+                      </td>
+                      <td className="num" data-label="Ditanggung Karyawan">
+                        {formatMoney(row.borne_by_employee, currency)}
+                      </td>
+                      <td data-label="Status">
+                        <span className={`status-badge status-badge-${badge.tone}`}>
+                          {badge.text}
+                        </span>
+                      </td>
+                      <td data-label="Tindakan">
+                        <Link href={certificateHref(row.employee_id, year, entity)}>
+                          Bukti potong →
+                        </Link>
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          )}
+        </section>
+      ) : null}
+
       {taxLedger ? (
         <section className="dashboard-section">
           <div className="dashboard-section-header">
@@ -263,7 +339,7 @@ export function PayrollTaxScreen({
 
       {!canViewTax ? (
         <p className="hint">
-          Rekonsiliasi tahunan dan buku besar pajak karyawan memerlukan izin{" "}
+          Rekonsiliasi tahunan, bukti potong dan buku besar pajak karyawan memerlukan izin{" "}
           <code>payroll.tax_view</code>.
         </p>
       ) : null}

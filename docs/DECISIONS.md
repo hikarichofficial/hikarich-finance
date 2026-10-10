@@ -3594,3 +3594,24 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      and recreated because its row gains a column). The P9 engine test asserted the old behaviour in so many
      words ("H: over-withholding is reported, not refunded through payroll") and now asserts the refund and
      the larger net pay.
+397. **The annual withholding certificate, Bukti Potong 1721-A1 (OWNER, 10 October 2026).** The payslip
+     answers one month; the employee also needs the year's statement to file their own SPT Tahunan by
+     31 March. The OWNER asked for the document and chose the 1721-A1 form, and asked where it should live:
+     it sits in **Payroll → Pajak & Kewajiban Payroll**, one row per employee for the chosen tax year with a
+     printable sheet per employee, rather than on each employee's own page -- the person issuing them does it
+     for everyone at once, in the same place they already read the annual reconciliation.
+     Nothing on the certificate is computed afresh: `payroll_withholding_certificate` reads the year's posted
+     payroll lines plus any `employee_tax_openings`, combines them exactly as the December payroll's own
+     year-to-date does (openings for the months they cover, posted lines for the months after), and runs them
+     through the same `app_private.pph21_annual` the December payslip used -- so the certificate and the last
+     payslip cannot disagree. A refund handed back in December (decision 396) is subtracted from what was
+     withheld, and the sheet states **PPh 21 yang ditanggung karyawan**, which is the figure the employee's
+     own return needs. An employee whose PTKP status or NPWP is not recorded comes back as `incomplete` with
+     the five computed figures null, rather than a guessed form.
+     The full NPWP is on the sheet, because the form is not usable without it, and is the one field behind a
+     recent step-up (Step 06 #8). Unlike `employee_tax_identifier`, which refuses outright, the certificate
+     returns the identifier as null and every other figure as normal, so the list shows who is ready to issue
+     before anyone is asked to verify again. The sheet reuses the payslip's `.slip` / `.doc-page` / `.no-print`
+     furniture, so the two print alike and no new styling was needed.
+     Migration `20261025100000_p57_bukti_potong.sql`; `payroll.tax_view` required, as the annual
+     reconciliation already is.

@@ -90,6 +90,17 @@ export const TAX_LEDGER_SOURCE_LABELS: Readonly<Record<"run" | "opening", string
   opening: "Saldo Awal",
 };
 
+/** One employee's Bukti Potong 1721-A1 for the year (decision 397). */
+export function certificateHref(
+  employeeId: string,
+  year: number,
+  entity: string | undefined,
+): string {
+  const qs = new URLSearchParams({ year: String(year) });
+  if (entity) qs.set("entity", entity);
+  return `/payroll/tax/bukti-potong/${employeeId}?${qs.toString()}`;
+}
+
 /** The Filing & Evidence screen for PPh 21 of the month the row belongs to (decision 303): record the deposit there. */
 export function pph21DepositHref(periodStart: string, entity: string | undefined): string {
   const qs = new URLSearchParams({ type: "wht_pph21", period: periodStart.slice(0, 7) });
