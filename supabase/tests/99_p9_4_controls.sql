@@ -139,8 +139,9 @@ begin
   perform test_helpers.assert((select tax_allowance::numeric from public.payroll_employee_tax_ledger(pt, 2025, test_helpers.g('C'))) = 230179, 'C: the allowance is on the ledger');
   perform test_helpers.expect_msg(format('select * from public.payroll_employee_tax_ledger(%L, 1999)', pt), 'INVALID', 'a plausible tax year');
 
-  -- annual reconciliation, by hand for A (10 months, March to December): gross 5,827,000 - 5% cost 291,350 - pension 150,000 = 5,385,650 < PTKP 45,000,000
-  -- so the annual tax is 0 against 29,135 withheld
+  -- annual reconciliation, by hand for A (10 months, March to December): gross 5,827,000 - 5% cost 291,350 -
+  -- pension 150,000 = 5,385,650 < PTKP 54,000,000 (the whole year's, decision 394) so the annual tax is 0
+  -- against 29,135 withheld
   select * into r from public.payroll_annual_reconciliation(pt, 2025) where employee_id = test_helpers.g('A');
   perform test_helpers.assert(r.months_worked = 10 and r.gross_income::numeric = 5827000 and r.annual_tax::numeric = 0 and r.withheld::numeric = 29135
     and r.difference::numeric = -29135 and r.status = 'over_withheld', 'reconciliation: A is over-withheld');
@@ -267,3 +268,33 @@ end
 $$;
 
 rollback;
+
+-- ================================================================ PTKP is not prorated (decision 394)
+-- PER-16/PJ/2016 Lampiran I.6.1.1: a permanent employee who starts work mid-year counts only the income of
+-- the months worked, but is given the FULL annual PTKP. Prorating it would tax them on income the law puts
+-- out of reach. Checked against the published rule itself, so a later version that reintroduced the
+-- proration would fail here rather than quietly overcharge every mid-year joiner.
+do $$
+declare
+  v_rule jsonb;
+  v_a jsonb;
+begin
+  select params into v_rule from public.tax_rule_versions
+    where code = 'PPH21_ANNUAL' and status = 'published'
+    order by effective_from desc, rule_version desc limit 1;
+  perform test_helpers.assert(v_rule ->> 'ptkp_proration' = 'full_year', 'the published annual rule gives the whole year PTKP');
+
+  -- Three months worked, TK/0: gross 25,389,960, biaya jabatan 5% = 1,269,498 (under the 500,000 x 3 cap),
+  -- PTKP 54,000,000 -> nothing is taxable.
+  v_a := app_private.pph21_annual(v_rule, 'TK/0', false, 25389960, 0, 3);
+  perform test_helpers.assert((v_a ->> 'ptkp')::numeric = 54000000, 'three months worked still gets the whole year PTKP');
+  perform test_helpers.assert((v_a ->> 'occupational_cost')::numeric = 1269498, 'biaya jabatan is 5% while under the per-month cap');
+  perform test_helpers.assert((v_a ->> 'annual_tax')::numeric = 0, 'and so there is no tax to pay');
+
+  -- The per-month cap on biaya jabatan still bites: twelve months at 20,000,000 is 12,000,000 of 5%, capped
+  -- at 500,000 x 12 = 6,000,000.
+  v_a := app_private.pph21_annual(v_rule, 'TK/0', false, 240000000, 0, 12);
+  perform test_helpers.assert((v_a ->> 'occupational_cost')::numeric = 6000000, 'biaya jabatan is still capped per month of work');
+  perform test_helpers.assert((v_a ->> 'ptkp')::numeric = 54000000, 'a full year gets the same PTKP as a part year');
+end
+$$;

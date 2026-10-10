@@ -423,15 +423,17 @@ begin
   perform public.payroll_run_calculate(v_dec);
   perform test_helpers.assert((select review_flags from public.payroll_run_lines(v_dec) where employee_id = test_helpers.g('A')) = '{}', 'A: clean once the earlier run is gone');
   perform test_helpers.assert((select review_flags from public.payroll_run_lines(v_dec) where employee_id = test_helpers.g('I')) = array['ytd_incomplete'], 'I: still incomplete');
-  -- A, by hand (10 months: March to December): gross 52,443,000 + 5,912,000 = 58,355,000; pension 1,350,000 + 150,000 = 1,500,000;
-  -- occupational cost min(5% x 58,355,000 = 2,917,750; 500,000 x 10) = 2,917,750; PTKP 54,000,000 x 10/12 = 45,000,000;
-  -- PKP = floor((58,355,000 - 2,917,750 - 1,500,000 - 45,000,000)/1000) x 1000 = 8,937,000; tax 5% = 446,850; less 262,215 = 184,635.
+  -- A, by hand (10 months: March to December): gross 52,443,000 + 5,912,000 = 58,355,000; pension 1,350,000 +
+  -- 150,000 = 1,500,000; occupational cost min(5% x 58,355,000 = 2,917,750; 500,000 x 10) = 2,917,750; PTKP
+  -- 54,000,000 -- the whole year's, not ten twelfths of it (decision 394): someone who starts work in March is
+  -- still given the full PTKP, only the biaya jabatan cap follows the months worked. Net 53,937,250 is under
+  -- the PTKP, so there is no PKP and no annual tax, and the 262,215 taken over the year is over-withheld.
   select * into r from public.payroll_run_lines(v_dec) where employee_id = test_helpers.g('A');
   perform test_helpers.assert(r.tax_mode = 'annual' and r.tax_base::numeric = 5912000, 'A: the last tax month is computed annually');
-  perform test_helpers.assert((r.tax_calc ->> 'months')::int = 10 and (r.tax_calc ->> 'ptkp')::numeric = 45000000, 'A: PTKP is prorated to the months worked');
-  perform test_helpers.assert((r.tax_calc ->> 'occupational_cost')::numeric = 2917750 and (r.tax_calc ->> 'pkp')::numeric = 8937000, 'A: occupational cost and PKP (rounded down to 1,000)');
-  perform test_helpers.assert((r.tax_calc ->> 'annual_tax')::numeric = 446850 and (r.tax_calc ->> 'withheld_before')::numeric = 262215, 'A: annual tax and what was withheld before');
-  perform test_helpers.assert(r.pph21::numeric = 184635, 'A: December tax = annual tax - withheld before');
+  perform test_helpers.assert((r.tax_calc ->> 'months')::int = 10 and (r.tax_calc ->> 'ptkp')::numeric = 54000000, 'A: the whole year PTKP, however many months were worked');
+  perform test_helpers.assert((r.tax_calc ->> 'occupational_cost')::numeric = 2917750 and (r.tax_calc ->> 'pkp')::numeric = 0, 'A: occupational cost still follows the months worked, and nothing is taxable');
+  perform test_helpers.assert((r.tax_calc ->> 'annual_tax')::numeric = 0 and (r.tax_calc ->> 'withheld_before')::numeric = 262215, 'A: annual tax and what was withheld before');
+  perform test_helpers.assert(r.pph21::numeric = 0 and r.info_flags @> array['tax_overwithheld:262215'], 'A: December takes nothing more and reports the over-withholding');
   -- H, by hand (12 months): gross 55,000,000 + 5,000,000 = 60,000,000; cost min(3,000,000; 6,000,000) = 3,000,000; PTKP 54,000,000;
   -- PKP 3,000,000; tax 150,000 - 5,000,000 withheld = -4,850,000: no tax this month, over-withholding reported, no refund.
   select * into r from public.payroll_run_lines(v_dec) where employee_id = test_helpers.g('H');
