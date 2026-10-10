@@ -1,0 +1,38 @@
+name: Format probe (temporary)
+on:
+  push:
+    branches: [perencanaan-picker]
+permissions:
+  contents: read
+jobs:
+  probe:
+    name: Format probe
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Report prettier differences as annotations
+        run: |
+          pnpm exec prettier --list-different . > /tmp/files.txt || true
+          cat /tmp/files.txt
+          node -e '
+            const { execSync } = require("child_process");
+            const fs = require("fs");
+            const files = fs.readFileSync("/tmp/files.txt", "utf8").split("\n").filter(Boolean);
+            for (const f of files) {
+              let d = "";
+              try {
+                const out = execSync("node_modules/.bin/prettier " + JSON.stringify(f), { maxBuffer: 1e8 }).toString();
+                fs.writeFileSync("/tmp/fmt.out", out);
+                try { execSync("diff -u " + JSON.stringify(f) + " /tmp/fmt.out", { maxBuffer: 1e8 }); }
+                catch (e) { d = (e.stdout || "").toString(); }
+              } catch (e) { d = "ERR " + e.message; }
+              const enc = d.slice(0, 2500).replace(/%/g, "%25").replace(/\r/g, "%0D").replace(/\n/g, "%0A");
+              console.log("::error file=" + f + ",line=1::" + enc);
+            }
+          '
