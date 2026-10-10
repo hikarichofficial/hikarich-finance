@@ -72,6 +72,12 @@ export type DocumentPurpose = z.infer<typeof documentPurposeSchema>;
 export const documentPurposeRowSchema = z.object({ id: z.uuid(), name: z.string() });
 export type DocumentPurposeRow = z.infer<typeof documentPurposeRowSchema>;
 
+/** The same type as the management list sees it, where a type out of use is still shown (decision 401). */
+export const managedDocumentPurposeRowSchema = documentPurposeRowSchema.extend({
+  is_active: z.boolean(),
+});
+export type ManagedDocumentPurposeRow = z.infer<typeof managedDocumentPurposeRowSchema>;
+
 /** The full MIME allowlist (`documents_mime_type_check`): evidence images/PDFs plus the two import file
  * types (a batch's raw upload is itself linkable evidence — Step 08 §17). */
 export const documentMimeTypeSchema = z.enum([
