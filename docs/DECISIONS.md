@@ -3615,3 +3615,49 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      furniture, so the two print alike and no new styling was needed.
      Migration `20261025100000_p57_bukti_potong.sql`; `payroll.tax_view` required, as the annual
      reconciliation already is.
+398. **Catat Pelaporan fills in the three amounts itself, and says where No. Tanda Terima comes from (OWNER,
+     10 October 2026).** The OWNER asked what "No. Tanda Terima" and "Dasar Pengenaan" should be filled with
+     and whether it could be automatic. Two different answers. The amounts can be and now are: the form opens
+     with the masa's own figures from this Entity's books -- `base`, `accrued_payable` and, for PPN,
+     `accrued_asset`, the same ones the position summary above the form already shows -- so the normal case is
+     to glance and submit rather than work them out and retype them, which is where a digit goes wrong. They
+     stay editable on purpose: what is recorded here is what the SPT actually said, and a difference between
+     that and the books is exactly what Rekonsiliasi Masa below exists to surface -- typing the books' figure
+     over it would hide it.
+     No. Tanda Terima cannot be automatic: it is the NTTE on the Bukti Penerimaan Elektronik that DJP Online
+     issues when the SPT is submitted, so it is only knowable after filing, outside this system. The field now
+     says so instead of leaving the person guessing.
+399. **A Revenue Target may be split per revenue category (OWNER, 10 October 2026, who asked for it and for a
+     recommendation).** A Budget has carried a category since P10 (Step 01 #22); a Revenue Target carried only
+     a month, so the screen could say the month missed its target and nothing about which line of business
+     missed it. Step 01 #23 names no dimension, so the dimension is added rather than assumed and the category
+     is OPTIONAL: a line with no category is the Entity's whole revenue, which is what every existing target
+     already means, so nothing already written changes. A target can now be the Entity total, one line per
+     revenue category, or both.
+     The parts are deliberately not forced to add up to the total, and the report does not add them together:
+     they are two different sums. The Entity row is measured against `invoices.base_total`, the amount booked
+     at issue; a category row against the issued invoice LINES carrying that category (`base_amount` less
+     `base_discount_amount`), which excludes tax and anything booked outside an invoice line. A plan that
+     covers two product lines out of five is a normal thing to write. Open AR and the 3-month forecast stay on
+     the Entity row: a receivable is owed on a document, not on a category, and splitting either across lines
+     would invent a figure.
+     Only a revenue category is accepted, and only this Entity's own. The line cap rises from 120 to 1200,
+     since a target may now carry a line per category per month. Migration
+     `20261026100000_p58_revenue_target_category.sql`; the flat month list becomes the same grid Anggaran uses,
+     with the Entity total as a fixed first row and category rows added under it through the Picker.
+400. **THR Keagamaan is worked out and offered, not typed (OWNER, 10 October 2026).** The OWNER asked for the
+     automatic calculation to cover "gajinya jika mereka kerja dari tengah bulan, atau tengah tahun untuk
+     pembayaran THR". The mid-month half is decision 388; this is the THR half.
+     Permenaker 6/2016: at least one continuous month of service earns it (Pasal 2); twelve months or more is
+     one month's wage, one to eleven months is proportional at months/12 (Pasal 3(1)); and for a monthly-paid
+     worker the wage is gaji pokok plus tunjangan tetap (Pasal 3(2)) -- not gross pay, so the figure is taken
+     from the line's own `bpjs_wage_base`, which is that exact sum, rather than `gross_pay` which would
+     wrongly include overtime and tunjangan tidak tetap. Masa kerja is counted in whole completed months, as
+     the regulation counts it.
+     Like the pro-rata offer it only computes: the Tambah Penyesuaian form shows one month's wage and what is
+     owed, and fills in a taxable earning adjustment that then goes through `payroll_adjustment_add` like any
+     hand-typed one -- so a company paying more than the regulation requires just edits the amount. It is
+     offered on every run rather than only before a holiday, because which month THR is paid in is the
+     company's own decision and the figure is the same either way. THR is taxable; the month's TER picks it up
+     with the rest of the gross once the adjustment is on the line (PMK 168/2023), so no tax rule changed.
+     `src/domain/payroll/thr.ts` with its own tests; no migration.

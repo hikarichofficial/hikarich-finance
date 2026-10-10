@@ -1,6 +1,7 @@
 "use client";
 
 import { ContactPicker } from "@/features/contacts/ContactPicker";
+import { Picker } from "@/features/shared/Picker";
 import { SuggestTextInput } from "@/features/shared/SuggestTextInput";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { useState } from "react";
@@ -103,6 +104,13 @@ export function RecurringRuleForm({
     mode === "edit" && rule && rule.due_day_of_month == null ? "offset" : "day",
   );
   const template = rule?.template;
+  // The registers the Picker offers (decision 395/399): an account carries its currency in the label, the
+  // way the dropdown it replaces did, because two accounts can share a name in different currencies.
+  const accountItems = accounts.map((account) => ({
+    id: account.id,
+    label: `${account.name} (${account.currency})`,
+  }));
+  const channelItems = channels.map((channel) => ({ id: channel.id, label: channel.name }));
   const today = todayInBusinessZone();
   const submitLabel = mode === "create" ? "Buat Transaksi Berulang" : "Simpan Perubahan";
   const pendingLabel = mode === "create" ? "Membuat…" : "Menyimpan…";
@@ -276,34 +284,22 @@ export function RecurringRuleForm({
               contacts={customers}
               defaultValue={templateField(template, "customer_id")}
             />
-            <label>
-              Akun Pembayaran (opsional)
-              <select
-                name="payment_account_id"
-                defaultValue={templateField(template, "payment_account_id")}
-              >
-                <option value="">Tidak ditentukan</option>
-                {accounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.name} ({account.currency})
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Kanal Pembayaran (opsional)
-              <select
-                name="payment_channel_id"
-                defaultValue={templateField(template, "payment_channel_id")}
-              >
-                <option value="">Tidak ditentukan</option>
-                {channels.map((channel) => (
-                  <option key={channel.id} value={channel.id}>
-                    {channel.name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <Picker
+              label="Akun Pembayaran (opsional)"
+              name="payment_account_id"
+              noun="akun"
+              optional
+              items={accountItems}
+              defaultValue={templateField(template, "payment_account_id")}
+            />
+            <Picker
+              label="Kanal Pembayaran (opsional)"
+              name="payment_channel_id"
+              noun="kanal"
+              optional
+              items={channelItems}
+              defaultValue={templateField(template, "payment_channel_id")}
+            />
             <label>
               Mata Uang (opsional, 3 huruf)
               <input
@@ -343,19 +339,13 @@ export function RecurringRuleForm({
 
         {kind === "bill" ? (
           <>
-            <label>
-              Vendor
-              <select name="vendor_id" required defaultValue={templateField(template, "vendor_id")}>
-                <option value="" disabled>
-                  Pilih vendor…
-                </option>
-                {vendors.map((vendor) => (
-                  <option key={vendor.id} value={vendor.id}>
-                    {vendor.display_name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <ContactPicker
+              label="Vendor"
+              name="vendor_id"
+              noun="vendor"
+              contacts={vendors}
+              defaultValue={templateField(template, "vendor_id")}
+            />
             <label>
               Referensi Vendor (opsional)
               <input
@@ -396,34 +386,21 @@ export function RecurringRuleForm({
 
         {kind === "expense" ? (
           <>
-            <label>
-              Akun Pembayar
-              <select
-                name="account_id"
-                required
-                defaultValue={templateField(template, "account_id")}
-              >
-                <option value="" disabled>
-                  Pilih akun…
-                </option>
-                {accounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.name} ({account.currency})
-                  </option>
-                ))}
-              </select>
-            </label>
-            <label>
-              Penerima (vendor, opsional jika nama diisi)
-              <select name="payee_id" defaultValue={templateField(template, "payee_id")}>
-                <option value="">Tidak ditentukan</option>
-                {vendors.map((vendor) => (
-                  <option key={vendor.id} value={vendor.id}>
-                    {vendor.display_name}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <Picker
+              label="Akun Pembayar"
+              name="account_id"
+              noun="akun"
+              items={accountItems}
+              defaultValue={templateField(template, "account_id")}
+            />
+            <ContactPicker
+              label="Penerima (vendor, opsional jika nama diisi)"
+              name="payee_id"
+              noun="vendor"
+              optional
+              contacts={vendors}
+              defaultValue={templateField(template, "payee_id")}
+            />
             <SuggestTextInput
               label="Nama Penerima (opsional jika vendor dipilih)"
               name="payee_name"

@@ -140,6 +140,9 @@ export function TaxFilingScreen({
         entity={entity}
         alreadyFiled={position.filing_id !== null}
         filedReference={position.filed_reference}
+        reportedBase={position.base}
+        reportedTax={position.accrued_payable}
+        reportedCredit={position.accrued_asset}
       />
       <ReconcilePeriodForm
         taxType={taxType}
@@ -522,6 +525,18 @@ function RecordPaymentForm({
   );
 }
 
+/**
+ * Recording what was filed (decision 398). The three amounts used to be empty boxes the person had to work
+ * out and retype, which is both the slowest part of closing a masa and the easiest place to mistype a digit.
+ * They now arrive filled with what this Entity's own books say for the masa -- the same `base`,
+ * `accrued_payable` and `accrued_asset` the position summary above shows -- so the normal case is to glance
+ * at them and submit. They stay editable, because what is recorded here is what the SPT actually said: if
+ * DJP's figure differs, that difference is the whole point of the reconciliation below, and typing the books'
+ * figure over it would hide it.
+ *
+ * No. Tanda Terima is not ours to generate: it is the NTTE on the Bukti Penerimaan Elektronik that DJP
+ * Online issues the moment the SPT is submitted, so the field says where to copy it from.
+ */
 function RecordFilingForm({
   taxType,
   period,
@@ -529,6 +544,9 @@ function RecordFilingForm({
   entity,
   alreadyFiled,
   filedReference,
+  reportedBase,
+  reportedTax,
+  reportedCredit,
 }: {
   taxType: FilingTaxType;
   period: string;
@@ -536,6 +554,10 @@ function RecordFilingForm({
   entity: string | undefined;
   alreadyFiled: boolean;
   filedReference: string | null;
+  /** What the books say for the masa; the person may overwrite any of them with what the SPT said. */
+  reportedBase: string;
+  reportedTax: string;
+  reportedCredit: string;
 }) {
   const [state, action, pending] = useActionState(recordTaxFilingAction, idleTaxFilingActionState);
   const actionForm = usePreservingForm(action, state);
@@ -567,19 +589,27 @@ function RecordFilingForm({
         <label>
           No. Tanda Terima (3-200 karakter)
           <input type="text" name="reference" required minLength={3} maxLength={200} />
+          <span className="hint">
+            Nomor NTTE pada Bukti Penerimaan Elektronik (BPE) yang diterbitkan DJP Online begitu SPT
+            dikirim. Salin dari BPE-nya; nomor ini tidak bisa dibuat sendiri.
+          </span>
         </label>
+        <p className="hint">
+          Angka di bawah sudah terisi dari pembukuan masa ini. Ubah hanya jika angka pada SPT
+          berbeda; selisihnya memang yang dicari pada Rekonsiliasi Masa di bawah.
+        </p>
         <label>
           Dasar Pengenaan yang Dilaporkan
-          <MoneyInput name="reported_base" required placeholder="0" />
+          <MoneyInput name="reported_base" required placeholder="0" defaultValue={reportedBase} />
         </label>
         <label>
           Pajak yang Dilaporkan
-          <MoneyInput name="reported_tax" required placeholder="0" />
+          <MoneyInput name="reported_tax" required placeholder="0" defaultValue={reportedTax} />
         </label>
         {taxType === "vat" ? (
           <label>
             Kredit PPN yang Dilaporkan (opsional)
-            <MoneyInput name="reported_credit" placeholder="0" />
+            <MoneyInput name="reported_credit" placeholder="0" defaultValue={reportedCredit} />
           </label>
         ) : null}
         <label>

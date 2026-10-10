@@ -306,12 +306,14 @@ export const createRevenueTargetInputSchema = z
 export const revenueTargetLineInputSchema = z.object({
   period_month: monthSchema,
   target_amount: moneyTextSchema,
+  /** A revenue category, or absent for the Entity's total -- which is what every target had before 399. */
+  category_id: z.uuid().optional(),
 });
 
 export const setRevenueTargetLinesInputSchema = z.object({
   target_id: z.uuid(),
   expected_version: z.number().int().min(1).optional(),
-  lines: z.array(revenueTargetLineInputSchema).max(120),
+  lines: z.array(revenueTargetLineInputSchema).max(1200),
 });
 
 export const activateRevenueTargetInputSchema = z.object({ target_id: z.uuid() });
@@ -342,12 +344,16 @@ export const revenueTargetLineRowSchema = z.object({
   target_id: z.uuid(),
   period_month: isoDateSchema,
   target_amount: signedDecimalTextSchema,
+  category_id: z.uuid().nullable().default(null),
 });
 export const revenueTargetLineListSchema = z.array(revenueTargetLineRowSchema);
 export type RevenueTargetLineRow = z.infer<typeof revenueTargetLineRowSchema>;
 
 export const revenueTargetReportRowSchema = z.object({
   period_month: isoDateSchema,
+  /** null on the Entity's own row; a revenue category on a split row (decision 399). */
+  category_id: z.uuid().nullable(),
+  category_name: z.string().nullable(),
   target_amount: signedDecimalTextSchema,
   actual_amount: signedDecimalTextSchema,
   ar_outstanding_amount: signedDecimalTextSchema,

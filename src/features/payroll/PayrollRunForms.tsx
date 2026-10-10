@@ -18,7 +18,10 @@ export interface PayrollOption {
   label: string;
 }
 
-/** An employee on the adjustment form, with the pro-rata figures when this month is a part month. */
+/**
+ * An employee on the adjustment form, with the two figures the form can work out rather than ask for: the
+ * pro-rata of a part month (decision 388) and the THR this month would owe (decision 400).
+ */
 export interface AdjustmentEmployee extends PayrollOption {
   prorata?: {
     daysWorked: number;
@@ -29,6 +32,13 @@ export interface AdjustmentEmployee extends PayrollOption {
     /** "Mulai bekerja 15 Okt 2026" or "Berhenti 10 Okt 2026", for the line that explains the figure. */
     reason: string;
     grossPay: string;
+  } | null;
+  thr?: {
+    monthsOfService: number;
+    fullAmount: string;
+    amount: string;
+    proportional: boolean;
+    label: string;
   } | null;
 }
 
@@ -170,7 +180,9 @@ export function AdjustmentForm({
   const [amount, setAmount] = useState("");
   const [taxable, setTaxable] = useState(true);
 
-  const prorata = employees.find((e) => e.id === employeeId)?.prorata ?? null;
+  const chosen = employees.find((e) => e.id === employeeId);
+  const prorata = chosen?.prorata ?? null;
+  const thr = chosen?.thr ?? null;
 
   return (
     <PayrollToggleForm
@@ -235,6 +247,47 @@ export function AdjustmentForm({
           </button>
           <p className="hint">
             Dihitung per hari kalender. Kalau perusahaan memakai hari kerja, ubah jumlahnya sendiri.
+          </p>
+        </div>
+      ) : null}
+
+      {/* THR Keagamaan, worked out from this line's own wage base and masa kerja (OWNER, 10 October 2026;
+          decision 400). Offered on every run rather than only before a holiday: which month a company pays
+          it in is its own decision, and the figure is the same either way. */}
+      {thr ? (
+        <div className="prorata-card">
+          <p className="prorata-lead">
+            Masa kerja {thr.monthsOfService} bulan
+            {thr.proportional
+              ? " — THR dibayar proporsional (Permenaker 6/2016 Pasal 3)."
+              : " — berhak THR satu bulan upah penuh."}
+          </p>
+          <dl className="prorata-figures">
+            <div>
+              <dt>Satu bulan upah (gaji pokok + tunjangan tetap)</dt>
+              <dd>{formatMoney(thr.fullAmount, currency)}</dd>
+            </div>
+            <div className="prorata-cut">
+              <dt>THR yang perlu dibayar</dt>
+              <dd>{formatMoney(thr.amount, currency)}</dd>
+            </div>
+          </dl>
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() => {
+              setKind("earning");
+              setLabel(thr.label);
+              setAmount(thr.amount);
+              // THR is taxable income; the month's TER picks it up with the rest of the gross.
+              setTaxable(true);
+            }}
+          >
+            Isi THR
+          </button>
+          <p className="hint">
+            Dasarnya gaji pokok + tunjangan tetap, bukan gaji bruto. Kalau perusahaan memberi lebih
+            dari ketentuan, ubah saja jumlahnya.
           </p>
         </div>
       ) : null}
