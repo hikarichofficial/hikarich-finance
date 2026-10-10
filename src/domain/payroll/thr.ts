@@ -82,7 +82,7 @@ export function thrFor(basis: ThrBasis, currency: string): Thr | null {
   }
 
   // Exact integer arithmetic on the minor units: multiply before dividing, so months/12 never rounds first.
-  const part = Decimal.fromUnits((full.units * BigInt(months)) / 12n, full.scale);
+  const part = Decimal.fromUnits((full.units * BigInt(months)) / BigInt(12), full.scale);
   return {
     monthsOfService: months,
     fullAmount: full.toString(),
