@@ -9,6 +9,7 @@ import { setBudgetLinesAction } from "./actions";
 import { idlePlanningActionState } from "./actionsState";
 import { formatMonthLabel } from "./format";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { Picker } from "@/features/shared/Picker";
 
 /**
  * Budget "set lines" editable grid (P13 Part 3h, fifth increment, Step 09 §18: "period-based editable
@@ -137,20 +138,20 @@ export function BudgetLinesEditor({
               {rows.map((row) => (
                 <tr key={row.key}>
                   <td>
-                    <select
+                    {/* A Picker rather than a dropdown (OWNER, 10 October 2026): clicking shows every
+                        category still free, typing narrows it. Categories already on another row are left
+                        out, the same rule the dropdown followed. */}
+                    <Picker
+                      label="Kategori"
+                      name={`category_${row.key}`}
+                      items={availableCategoriesFor(row.key).map((category) => ({
+                        id: category.id,
+                        label: category.name,
+                      }))}
+                      noun="kategori"
                       value={row.categoryId}
-                      onChange={(event) => setCategory(row.key, event.target.value)}
-                      required
-                    >
-                      <option value="" disabled>
-                        Pilih kategori…
-                      </option>
-                      {availableCategoriesFor(row.key).map((category) => (
-                        <option key={category.id} value={category.id}>
-                          {category.name}
-                        </option>
-                      ))}
-                    </select>
+                      onChange={(id) => setCategory(row.key, id)}
+                    />
                   </td>
                   {months.map((month) => (
                     <td key={month} className="num">

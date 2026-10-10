@@ -6,6 +6,9 @@ import { PLAN_PERIOD_TYPE_LABELS, type PlanPeriodType } from "@/domain/planning/
 import { createBudgetAction, createRevenueTargetAction } from "./actions";
 import { idlePlanningActionState } from "./actionsState";
 import { todayInBusinessZone } from "@/lib/time";
+import { SuggestTextInput } from "@/features/shared/SuggestTextInput";
+import { planNameSuggestions } from "@/domain/planning/planNames";
+import { useState } from "react";
 
 /**
  * Create-shell form for a Budget or Revenue Target (P13 Part 3h, fifth increment, Step 09 §18). The two
@@ -22,10 +25,13 @@ export function CreatePlanForm({
   kind,
   entityId,
   entity,
+  usedNames = [],
 }: {
   kind: "budget" | "revenue_target";
   entityId: string;
   entity: string | undefined;
+  /** Names this Entity has given its plans before, most recent first: offered ahead of the generated ones. */
+  usedNames?: readonly string[];
 }) {
   const [state, action, pending] = useActionState(
     kind === "budget" ? createBudgetAction : createRevenueTargetAction,
@@ -34,20 +40,34 @@ export function CreatePlanForm({
   const actionForm = usePreservingForm(action, state);
   const today = todayInBusinessZone();
   const submitLabel = kind === "budget" ? "Simpan Anggaran" : "Simpan Target Pendapatan";
+  // The suggested titles follow the period type once it is chosen, so picking "Bulanan" first offers a
+  // monthly name rather than an annual one (OWNER, 10 October 2026).
+  const [periodType, setPeriodType] = useState<PlanPeriodType | "">("");
+  const names = planNameSuggestions(kind, Number(today.slice(0, 4)), usedNames, periodType);
 
   return (
     <form {...actionForm} className="record-form">
       <input type="hidden" name="entity_id" value={entityId} />
       {entity ? <input type="hidden" name="entity" value={entity} /> : null}
 
-      <label>
-        Nama
-        <input type="text" name="name" required minLength={2} maxLength={200} />
-      </label>
+      <SuggestTextInput
+        label="Nama"
+        name="name"
+        suggestions={names}
+        noun={kind === "budget" ? "nama anggaran" : "nama target"}
+        required
+        maxLength={200}
+        placeholder="Pilih dari daftar atau ketik sendiri"
+      />
 
       <label>
         Jenis Periode
-        <select name="period_type" required defaultValue="">
+        <select
+          name="period_type"
+          required
+          value={periodType}
+          onChange={(event) => setPeriodType(event.target.value as PlanPeriodType | "")}
+        >
           <option value="" disabled>
             Pilih jenis periode…
           </option>

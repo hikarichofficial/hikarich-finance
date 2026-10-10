@@ -1,4 +1,5 @@
 import { requirePermission } from "@/services/identity/access";
+import { listBudgets } from "@/services/planning/planning";
 import { CreatePlanForm } from "@/features/planning/CreatePlanForm";
 import { BackLink } from "@/features/shell/BackLink";
 
@@ -14,6 +15,12 @@ export default async function NewBudgetPage({
 }) {
   const { entity } = await searchParams;
   const { membership } = await requirePermission("planning.budget_edit", { entityCode: entity });
+
+  // Names used before are offered first in the name picker (decision 395); a read that fails just
+  // means no suggestions from history, never a broken page.
+  const usedNames = (await listBudgets({ entity_id: membership.entity_id }).catch(() => [])).map(
+    (row) => row.name,
+  );
 
   return (
     <div className="record-detail">
@@ -33,7 +40,12 @@ export default async function NewBudgetPage({
         </div>
       </header>
       <section className="dashboard-section">
-        <CreatePlanForm kind="budget" entityId={membership.entity_id} entity={entity} />
+        <CreatePlanForm
+          kind="budget"
+          entityId={membership.entity_id}
+          entity={entity}
+          usedNames={usedNames}
+        />
       </section>
     </div>
   );
