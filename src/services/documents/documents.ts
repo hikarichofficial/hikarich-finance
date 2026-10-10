@@ -16,7 +16,9 @@ import {
   replaceDocumentLinkInputSchema,
   unlinkDocumentInputSchema,
   documentPurposeRowSchema,
+  managedDocumentPurposeRowSchema,
   type DocumentPurposeRow,
+  type ManagedDocumentPurposeRow,
   type DocumentDownloadGrant,
   type DocumentLinkRow,
   type DocumentRow,
@@ -156,6 +158,49 @@ export async function listDocumentPurposes(entityId: string): Promise<DocumentPu
   const parsed = z.array(documentPurposeRowSchema).safeParse(data);
   if (!parsed.success) throw new Error("Respons jenis lampiran tidak dikenali.");
   return parsed.data;
+}
+
+/**
+ * Every attachment type this Entity added, in use or not (decision 401): what the management list reads.
+ * `listDocumentPurposes` above stays as it is -- the upload form must only offer types in use.
+ */
+export async function listManagedDocumentPurposes(
+  entityId: string,
+): Promise<ManagedDocumentPurposeRow[]> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("document_purposes")
+    .select("id, name, is_active")
+    .eq("entity_id", uuidResultSchema.parse(entityId))
+    .order("name");
+  if (error) throw new Error("Gagal memuat jenis lampiran.");
+  const parsed = z.array(managedDocumentPurposeRowSchema).safeParse(data);
+  if (!parsed.success) throw new Error("Respons jenis lampiran tidak dikenali.");
+  return parsed.data;
+}
+
+/** Renames an attachment type (decision 401). */
+export async function renameDocumentPurpose(input: {
+  purpose_id: string;
+  name: string;
+}): Promise<void> {
+  await callRpc(
+    "rename_document_purpose",
+    { p_purpose: uuidResultSchema.parse(input.purpose_id), p_name: input.name },
+    z.null(),
+  );
+}
+
+/** Takes an attachment type out of use, or puts it back (decision 401). */
+export async function setDocumentPurposeActive(input: {
+  purpose_id: string;
+  active: boolean;
+}): Promise<void> {
+  await callRpc(
+    "set_document_purpose_active",
+    { p_purpose: uuidResultSchema.parse(input.purpose_id), p_active: input.active },
+    z.null(),
+  );
 }
 
 /** Adds an attachment type (or returns the one with the same name). */

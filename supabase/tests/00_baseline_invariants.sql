@@ -85,6 +85,7 @@ declare
                                          'money_control', 'account_activity', 'create_financial_account',
                                          'update_financial_account', 'set_financial_account_active',
                                          'delete_financial_account', 'remove_financial_account', 'record_email_delivery', 'create_document_purpose',
+                                         'rename_document_purpose', 'set_document_purpose_active',
                                          'record_balance_adjustment', 'create_transfer', 'confirm_transfer',
                                          'cancel_transfer', 'reverse_transfer', 'create_reconciliation_session',
                                          'discard_reconciliation_session', 'add_statement_lines',

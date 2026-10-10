@@ -62,5 +62,9 @@ redeploy.
 
 ## Not part of go-live
 
-Import Wizard screens and document attachments (file storage) are not built yet. Tax items that could
-not be confirmed from a primary text are listed in `docs/DECISIONS.md` (decisions 256-261, 269).
+Tax items that could not be confirmed from a primary text are listed in `docs/DECISIONS.md`
+(decisions 256-261, 269); they need the OWNER's tax adviser, not code.
+
+The Import Wizard and file attachments were built by decision 275, so they are no longer on this list.
+Attachments need `SUPABASE_SERVICE_ROLE_KEY` set in Vercel Production (the private bucket); without it the
+upload form is absent rather than broken.

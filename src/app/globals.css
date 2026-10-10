@@ -6356,3 +6356,24 @@ a.pp-answer:hover {
   color: var(--text-secondary);
   font-size: var(--text-sm);
 }
+
+/* ================================================================ Jenis lampiran (decision 401)
+ * The two inline bits of the attachment-type manager: the rename field with its buttons on one line, and
+ * the row's own actions beside each other. Both wrap on a narrow screen rather than overflowing, and both
+ * sit inside a `.record-table-stacked` cell, so they inherit that table's own stacked behaviour. */
+.purpose-edit-form,
+.purpose-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.purpose-edit-form input[type="text"] {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+tr[data-muted="true"] td {
+  color: var(--text-secondary);
+}
