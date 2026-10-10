@@ -116,13 +116,25 @@ describe("revenue targets", () => {
     expect(result.success).toBe(true);
   });
 
-  it("rejects more than 120 monthly lines", () => {
-    const lines = Array.from({ length: 121 }, (_, i) => ({
+  // 1200 since decision 399: a target may carry a line per month PER revenue category, not just per month.
+  it("rejects more than 1200 lines", () => {
+    const lines = Array.from({ length: 1201 }, (_, i) => ({
       period_month: "2027-01-01",
       target_amount: String(i),
     }));
     expect(setRevenueTargetLinesInputSchema.safeParse({ target_id: ENTITY, lines }).success).toBe(
       false,
     );
+  });
+
+  it("accepts a line with a revenue category and one without (decision 399)", () => {
+    const result = setRevenueTargetLinesInputSchema.safeParse({
+      target_id: ENTITY,
+      lines: [
+        { period_month: "2027-01-01", target_amount: "3000000" },
+        { period_month: "2027-01-01", target_amount: "1800000", category_id: ENTITY },
+      ],
+    });
+    expect(result.success).toBe(true);
   });
 });
