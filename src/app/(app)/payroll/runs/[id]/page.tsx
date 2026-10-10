@@ -23,6 +23,7 @@ import {
 } from "@/features/payroll/PayrollRunForms";
 import { todayInBusinessZone } from "@/lib/time";
 import { prorataFor } from "@/domain/payroll/prorata";
+import { thrFor } from "@/domain/payroll/thr";
 import { formatShortDate } from "@/features/payroll/format";
 import type { AdjustmentEmployee } from "@/features/payroll/PayrollRunForms";
 
@@ -122,9 +123,22 @@ export default async function PayrollRunDetailPage({
               )
             : null;
           const startsLate = who ? who.join_date > run.period_start : false;
+          // THR from the same register read: masa kerja at the pay date against the line's own wage base
+          // (gaji pokok + tunjangan tetap), which is what Permenaker 6/2016 Pasal 3(2) asks for.
+          const thr = who
+            ? thrFor(
+                {
+                  joinDate: who.join_date,
+                  payDate: run.pay_date,
+                  wageBase: l.bpjs_wage_base,
+                },
+                currency,
+              )
+            : null;
           return {
             id: l.employee_id,
             label: `${l.employee_code} — ${l.employee_name}`,
+            thr,
             prorata: figures
               ? {
                   ...figures,
@@ -140,6 +154,7 @@ export default async function PayrollRunDetailPage({
           id: e.id,
           label: `${e.employee_code} — ${e.full_name}`,
           prorata: null,
+          thr: null,
         }));
   const accounts = showPay ? await getMoneyControl(entityId).catch(() => []) : [];
   const confirmedPayments = payments.filter((p) => p.status === "confirmed");

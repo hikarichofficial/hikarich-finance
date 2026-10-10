@@ -567,6 +567,7 @@ declare
   v_month date := date_trunc('month', v_today)::date;
   v_month_end date := (v_month + interval '1 month - 1 day')::date;
   v_target uuid;
+  v_target2 uuid;
   v_many jsonb;
   rep record;
   v_rows integer;
@@ -577,9 +578,10 @@ begin
   perform test_helpers.expect_msg(format('select public.create_revenue_target(%L, ''key-p10-rt-02'', ''Bad'', ''monthly'', %L, %L)', pt, v_month_end, v_month),
     'INVALID', 'the end date cannot be before the start date');
 
-  select jsonb_agg(jsonb_build_object('period_month', v_month, 'target_amount', '1')) into v_many from generate_series(1, 121);
+  -- 1200 lines since decision 399: a target may now carry one line per month PER revenue category.
+  select jsonb_agg(jsonb_build_object('period_month', v_month, 'target_amount', '1')) into v_many from generate_series(1, 1201);
   perform test_helpers.expect_msg(format('select public.set_revenue_target_lines(%L, %L::jsonb)', v_target, v_many::text),
-    'INVALID', 'a revenue target cannot have more than 120 monthly lines');
+    'INVALID', 'a revenue target cannot have more than 1200 lines');
   perform test_helpers.expect_msg(format('select public.set_revenue_target_lines(%L, %L::jsonb)', v_target,
     jsonb_build_array(jsonb_build_object('period_month', v_month, 'target_amount', '-1'))::text),
     'INVALID', 'a negative target amount is refused');
@@ -600,10 +602,41 @@ begin
   select count(*) into v_rows from public.get_revenue_target_report(v_target);
   perform test_helpers.assert(v_rows = 1, 'one monthly line is reported');
   select * into rep from public.get_revenue_target_report(v_target) limit 1;
+  perform test_helpers.assert(rep.category_id is null and rep.category_name is null, 'a line without a category is the Entity row (decision 399)');
   perform test_helpers.assert(rep.target_amount = 1500000 and rep.actual_amount = 2000000 and rep.ar_outstanding_amount = 800000
     and rep.variance_amount = 500000 and rep.forecast_amount = 0,
     'Target 1.5jt, Actual 2jt (issued), AR outstanding 800rb after a 1.2jt payment, Variance +500rb, forecast 0 (decision 250)');
+  perform test_helpers.logout();
 
+  -- ---------------------------------------------- split per revenue category (decision 399)
+  -- A second target over the same month, written as the Entity total plus one category row. The category's
+  -- own actual comes from the issued invoice LINES carrying it (the 2,000,000 'Jasa A' line), not from the
+  -- invoice total, and open AR and the forecast stay on the Entity row only.
+  perform test_helpers.login(v_admin);
+  v_target2 := public.create_revenue_target(pt, 'key-p10-rt-03', 'Target per Kategori', 'monthly', v_month, v_month_end);
+  perform test_helpers.expect_msg(format('select public.set_revenue_target_lines(%L, %L::jsonb)', v_target2,
+    jsonb_build_array(jsonb_build_object('period_month', v_month, 'target_amount', '1', 'category_id', test_helpers.g('cat_exp')))::text),
+    'INVALID', 'a revenue target cannot be split by an expense category');
+  perform test_helpers.expect_msg(format('select public.set_revenue_target_lines(%L, %L::jsonb)', v_target2,
+    jsonb_build_array(jsonb_build_object('period_month', v_month, 'target_amount', '1', 'category_id', test_helpers.g('cat_other')))::text),
+    'INVALID', 'nor by another Entity''s category');
+  perform test_helpers.assert(public.set_revenue_target_lines(v_target2, jsonb_build_array(
+      jsonb_build_object('period_month', v_month, 'target_amount', '3000000'),
+      jsonb_build_object('period_month', v_month, 'target_amount', '1800000', 'category_id', test_helpers.g('cat_bg_rev'))
+    )) = 2, 'the total and the category line are stored together');
+  select count(*) into v_rows from public.get_revenue_target_report(v_target2);
+  perform test_helpers.assert(v_rows = 2, 'the report prints the Entity row and the category row separately, not added up');
+  select * into rep from public.get_revenue_target_report(v_target2) where category_id is null;
+  perform test_helpers.assert(rep.target_amount = 3000000 and rep.actual_amount = 2000000 and rep.ar_outstanding_amount = 800000
+    and rep.variance_amount = -1000000, 'the Entity row still measures the invoice total and carries the open AR');
+  select * into rep from public.get_revenue_target_report(v_target2) where category_id = test_helpers.g('cat_bg_rev');
+  perform test_helpers.assert(rep.category_name = 'Consulting Revenue' and rep.target_amount = 1800000
+    and rep.actual_amount = 2000000 and rep.variance_amount = 200000
+    and rep.ar_outstanding_amount = 0 and rep.forecast_amount is null,
+    'the category row measures that category''s invoice lines, with no AR and no forecast of its own');
+  perform test_helpers.logout();
+
+  perform test_helpers.login(v_admin);
   perform public.close_revenue_target(v_target);
   perform test_helpers.expect_msg(format('select public.close_revenue_target(%L)', v_target), 'INVALID', 'the revenue target is already closed');
   perform test_helpers.expect_msg(format('select public.set_revenue_target_lines(%L, ''[]''::jsonb)', v_target), 'INVALID', 'a closed revenue target cannot be edited');

@@ -1,6 +1,7 @@
 import { formatMoney } from "@/domain/money/format";
 import { PLAN_PERIOD_TYPE_LABELS, monthRangeInclusive } from "@/domain/planning/planning";
 import { planStatusBadge } from "@/domain/planning/budgetList";
+import type { CategoryRow } from "@/schemas/categories";
 import type {
   RevenueTargetLineRow,
   RevenueTargetReportRow,
@@ -15,10 +16,13 @@ import { BackLink } from "@/features/shell/BackLink";
  * Revenue Target Detail (P13 Part 3h, third increment, Step 09 §10, §18: "period-based editable planning
  * tables with Actual vs Budget/Target comparisons"). No per-target RPC returns the row itself -- only
  * `list_revenue_targets`, Entity-scoped -- so this screen fetches the register and finds the row by id, the
- * same precedent decisions 169/179/183/184 already established. Unlike Budgets, a revenue target has no
- * category breakdown (Step 01 #23 names no "Category -> Subcategory" the way #22 does for Budgets) and no
- * Committed/Remaining/%Used columns -- `get_revenue_target_report` returns only Target, Actual (issued
- * invoice revenue) and AR Outstanding per month, entity-wide. "Perkiraan" is `forecast_amount`: the
+ * same precedent decisions 169/179/183/184 already established. Unlike Budgets there are no
+ * Committed/Remaining/%Used columns -- `get_revenue_target_report` returns Target, Actual (issued invoice
+ * revenue) and AR Outstanding. Since decision 399 a target may also be split per revenue category, so the
+ * report carries a "Target" column naming what each row is about: the whole Entity, or one category. The
+ * Entity row and the category rows of a month are deliberately not added together -- they are two different
+ * sums (the invoice total against the invoice lines of that category), and the parts need not cover the
+ * whole. Open AR and "Perkiraan" belong to the Entity row only, for the same reason. "Perkiraan" is the
  * 3-month average issued revenue for the current and future months, "—" for past months (decision 250). The report is already ordered by the RPC itself (`period_month`) -- rendered in that order.
  * Activate/Close are rendered as actual buttons by `RevenueTargetActions` (P13 Part 3h, fourth increment).
  * "Atur Baris Target Pendapatan" (P13 Part 3h, fifth increment) renders `RevenueTargetLinesEditor` -- gated
@@ -29,6 +33,7 @@ export function RevenueTargetDetailScreen({
   target,
   report,
   lines,
+  categories,
   currency,
   backHref,
   permissions,
@@ -36,6 +41,7 @@ export function RevenueTargetDetailScreen({
   target: RevenueTargetRow;
   report: readonly RevenueTargetReportRow[];
   lines: readonly RevenueTargetLineRow[];
+  categories: readonly CategoryRow[];
   currency: string;
   backHref: string;
   permissions: RevenueTargetActionPermissions;
@@ -102,6 +108,7 @@ export function RevenueTargetDetailScreen({
             key={target.version}
             targetId={target.id}
             months={months}
+            categories={categories}
             existingLines={lines}
             expectedVersion={target.version}
             currency={currency}
@@ -126,6 +133,7 @@ export function RevenueTargetDetailScreen({
             <thead>
               <tr>
                 <th scope="col">Bulan</th>
+                <th scope="col">Target</th>
                 <th scope="col" className="num">
                   Target
                 </th>
@@ -145,11 +153,22 @@ export function RevenueTargetDetailScreen({
             </thead>
             <tbody>
               {report.map((line) => (
-                <tr key={line.period_month}>
+                <tr key={`${line.period_month}-${line.category_id ?? "total"}`}>
                   <td>{formatShortDate(line.period_month)}</td>
+                  <td>
+                    {line.category_id === null ? (
+                      <strong>Seluruh Entitas</strong>
+                    ) : (
+                      (line.category_name ?? "Kategori")
+                    )}
+                  </td>
                   <td className="num">{formatMoney(line.target_amount, currency)}</td>
                   <td className="num">{formatMoney(line.actual_amount, currency)}</td>
-                  <td className="num">{formatMoney(line.ar_outstanding_amount, currency)}</td>
+                  <td className="num">
+                    {line.category_id === null
+                      ? formatMoney(line.ar_outstanding_amount, currency)
+                      : "—"}
+                  </td>
                   <td className="num">{formatMoney(line.variance_amount, currency)}</td>
                   <td className="num">
                     {line.forecast_amount === null
