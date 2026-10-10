@@ -18,9 +18,9 @@ export default async function NewRevenueTargetPage({
 
   // Names used before are offered first in the name picker (decision 395); a read that fails just
   // means no suggestions from history, never a broken page.
-  const usedNames = (await listRevenueTargets({ entity_id: membership.entity_id }).catch(() => [])).map(
-    (row) => row.name,
-  );
+  const usedNames = (
+    await listRevenueTargets({ entity_id: membership.entity_id }).catch(() => [])
+  ).map((row) => row.name);
 
   return (
     <div className="record-detail">
