@@ -3558,3 +3558,17 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      ("A: PTKP is prorated to the months worked") and now asserts the new one; `99_p9_4_controls.sql` gains a
      check against the published rule itself, so a later version that reintroduced the proration fails the
      suite rather than quietly overcharging every mid-year joiner. Nothing posted used version 1.
+395. **The Picker, named and used in Perencanaan (OWNER, 10 October 2026).** The OWNER asked for one name for
+     the behaviour the customer/vendor field already had, so it can be asked for by name instead of described
+     each time: a field you click to see the whole list, type to narrow, pick with a click or Enter, with
+     "+ Tambah ... baru" as the last row. It is the **Picker**. `src/features/shared/Picker.tsx` is that name
+     made real -- a thin generic wrapper over `ContactPicker`, which is where the behaviour grew and where the
+     implementation still lives; twenty-odd screens already call `ContactPicker`, so inverting the two is a
+     tidy-up to do on its own rather than inside a feature. (a) Anggaran's line editor picks its category with
+     a Picker instead of a dropdown; categories already used on another row stay out, the rule the dropdown
+     followed. (b) The **Nama** of a Budget or Revenue Target is not an account and has no register to pick
+     from, but an empty box still asks the person to invent a wording, so it offers suggestions with the same
+     behaviour (`SuggestTextInput`, which decision 2xx already built for expense recipients): the names this
+     Entity used before first, then the shapes that follow from the period type and the year, and anything
+     else can still be typed. Revenue Target's own line editor carries no category yet -- Step 01 #23 names
+     none -- which decision 396 changes; Perkiraan's two dropdowns are short fixed lists and keep them.
