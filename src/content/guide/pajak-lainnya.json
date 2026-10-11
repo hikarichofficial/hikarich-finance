@@ -21,7 +21,7 @@
         },
         {
           "title": "Khusus PPh Final: dicatat otomatis",
-          "text": "PPh Final dihitung dari invoice yang diterbitkan dalam bulan itu. Selama bulan masih berjalan, yang tampil di kartu **Perkiraan PPh Final** (kartu angka di Ringkasan Pajak, serta Kalender Pajak dan PPh Final) hanyalah perkiraan: angkanya otomatis ikut bertambah setiap ada invoice terbit dan belum tercatat sebagai kewajiban. Mulai tanggal 1 bulan berikutnya sistem sendiri menghitung dan mencatat PPh Final bulan yang berakhir sebagai terutang, tanpa tombol; bila ada invoice yang terbit belakangan di bulan itu, sistem mencatat selisihnya. Di **Pajak > PPh Final**, **Pratinjau** dan **Posisi Tercatat** menunjukkan hasilnya. Pembayaran dibatasi sebesar yang sudah diakui, jadi bayar setelah angkanya muncul di Posisi Tercatat. Tidak ada laporan bulanan untuk PPh Final: setor tanggal 15 bulan berikutnya, lalu laporkan setahun sekali lewat SPT Tahunan."
+          "text": "PPh Final dihitung dari invoice yang diterbitkan dalam bulan itu. Selama bulan masih berjalan, yang tampil di kartu **Perkiraan PPh Final** (kartu angka di Ringkasan Pajak, serta Kalender Pajak dan PPh Final) hanyalah perkiraan: angkanya otomatis ikut bertambah setiap ada invoice terbit dan belum tercatat sebagai kewajiban. Mulai tanggal 1 bulan berikutnya sistem sendiri menghitung dan mencatat PPh Final bulan yang berakhir sebagai terutang, tanpa tombol; bila ada invoice, pendapatan, atau settlement marketplace yang diposting belakangan dengan tanggal di bulan yang sudah berakhir, sistem langsung menghitung ulang saat itu juga dan mencatat selisihnya (bila gagal, dicoba ulang tiap 15 menit). Di **Pajak > PPh Final**, **Pratinjau** dan **Posisi Tercatat** menunjukkan hasilnya. Pembayaran dibatasi sebesar yang sudah diakui, jadi bayar setelah angkanya muncul di Posisi Tercatat. Tidak ada laporan bulanan untuk PPh Final: setor tanggal 15 bulan berikutnya, lalu laporkan setahun sekali lewat SPT Tahunan."
         },
         {
           "title": "Penghasilan di luar PPh Final (forex, bunga, dividen, kripto)",
@@ -42,7 +42,7 @@
         },
         {
           "title": "Catat Pelaporan (SPT)",
-          "text": "Di bagian pelaporan isi **Tanggal Lapor**, **No. Tanda Terima**, **Dasar Pengenaan yang Dilaporkan**, **Pajak yang Dilaporkan**, dan **Kredit PPN yang Dilaporkan (opsional)**. Tekan **Catat Pelaporan**. Bila periode sudah pernah dilaporkan, tombol menjadi **Catat Amendemen** dan catatan wajib."
+          "text": "**PPh Final UMKM tidak punya laporan bulanan**, jadi tidak ada No. Tanda Terima (NTTE) untuk bulan Januari sampai November: untuk jenis itu bagian ini diganti penjelasan, dan yang dicatat hanya pembayarannya (isi NTPN dan kode billing di kolom Referensi, lampirkan bukti bayar). Nomor tanda terima SPT Tahunan dicatat pada masa Desember. Jangan mencatat pembayaran pajak lewat menu Beban, karena bebannya sudah dicatat otomatis oleh sistem. Di bagian pelaporan isi **Tanggal Lapor**, **No. Tanda Terima**, **Dasar Pengenaan yang Dilaporkan**, **Pajak yang Dilaporkan**, dan **Kredit PPN yang Dilaporkan (opsional)**. Tekan **Catat Pelaporan**. Bila periode sudah pernah dilaporkan, tombol menjadi **Catat Amendemen** dan catatan wajib."
         },
         {
           "title": "Rekonsiliasi periode",

@@ -6,7 +6,13 @@ import { monthRange, summarizeIncome } from "@/domain/sales/income";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
 import { listContacts } from "@/services/contacts/contacts";
-import { listIncomeCategories, listIncomeEntries } from "@/services/sales/income";
+import { getEntityBaseCurrency } from "@/services/tax/tax";
+import {
+  listIncomeCategories,
+  listIncomeEntries,
+  sumInvoiceRevenue,
+} from "@/services/sales/income";
+import { Decimal } from "@/domain/money/decimal";
 import { formatShortDate } from "@/features/sales/format";
 import { ReportExportButtons } from "@/features/reports/ReportExportButtons";
 import { todayInBusinessZone } from "@/lib/time";
@@ -27,11 +33,13 @@ export default async function IncomeListPage({
   const canRecord =
     can(access, entityId, "invoices.issue") && can(access, entityId, "invoices.confirm_payment");
 
-  const [entries, categories, accounts, contacts] = await Promise.all([
+  const baseCurrency = await getEntityBaseCurrency(entityId).catch(() => "IDR");
+  const [entries, categories, accounts, contacts, invoiceRevenue] = await Promise.all([
     listIncomeEntries(entityId, range),
     listIncomeCategories(entityId).catch(() => []),
     getMoneyControl(entityId).catch(() => []),
     listContacts(entityId).catch(() => []),
+    sumInvoiceRevenue(entityId, baseCurrency, range).catch(() => null),
   ]);
   const categoryNames = new Map(categories.map((c) => [c.id, c.name]));
   const accountNames = new Map(accounts.map((a) => [a.financial_account_id, a.name]));
@@ -85,6 +93,10 @@ export default async function IncomeListPage({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Ringkasan Bulan Ini</h2>
         </div>
+        <p className="hint">
+          Halaman ini hanya berisi pendapatan yang dicatat tanpa invoice. Pendapatan dari invoice
+          yang terbit ada di menu Invoice dan dijumlahkan di baris terakhir ringkasan ini.
+        </p>
         <table className="record-table record-table-stacked">
           <thead>
             <tr>
@@ -108,11 +120,37 @@ export default async function IncomeListPage({
               </td>
             </tr>
             <tr>
-              <th scope="row">Total ({summary.count} catatan)</th>
+              <th scope="row">Total tanpa invoice ({summary.count} catatan)</th>
               <td className="num" data-label="Jumlah">
                 <strong>{formatMoney(summary.total, currency)}</strong>
               </td>
             </tr>
+            {invoiceRevenue ? (
+              <>
+                <tr>
+                  <td>
+                    Pendapatan dari invoice terbit bulan ini ({invoiceRevenue.count} invoice,
+                    sebelum PPN) <Link href={withEntity("/sales/invoices")}>Lihat invoice</Link>
+                  </td>
+                  <td className="num" data-label="Jumlah">
+                    {formatMoney(invoiceRevenue.total, baseCurrency)}
+                  </td>
+                </tr>
+                <tr>
+                  <th scope="row">Total seluruh pendapatan bulan ini (invoice + tanpa invoice)</th>
+                  <td className="num" data-label="Jumlah">
+                    <strong>
+                      {formatMoney(
+                        Decimal.parse(invoiceRevenue.total)
+                          .add(Decimal.parse(summary.total))
+                          .toString(),
+                        baseCurrency,
+                      )}
+                    </strong>
+                  </td>
+                </tr>
+              </>
+            ) : null}
           </tbody>
         </table>
 

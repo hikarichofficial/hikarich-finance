@@ -6404,3 +6404,33 @@ tr[data-muted="true"] td {
   gap: var(--space-2);
   margin: var(--space-3) 0 0;
 }
+
+/* Attachment preview popup (decision 408) */
+.modal-panel.attachment-preview {
+  width: min(960px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: calc(100vh - var(--space-6));
+}
+.attachment-preview-title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.attachment-preview-frame {
+  width: 100%;
+  height: min(70vh, 720px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent, inherit);
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}

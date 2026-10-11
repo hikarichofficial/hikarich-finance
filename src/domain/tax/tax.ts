@@ -254,6 +254,26 @@ export const DIFFERENCE_LABELS: Readonly<Record<DifferenceCode, string>> = {
   overpaid: "Kelebihan bayar",
 };
 
+/**
+ * PPh Final UMKM has no monthly return: it is paid by billing code (the proof is the NTPN, which counts as the
+ * monthly return) and the income is reported once a year in the SPT Tahunan, which the books record against the
+ * December masa (decision 341 for the calendar, 408 for the screens). So for that type, in every month but
+ * December, there is no filing to record and none to miss.
+ */
+export function hasNoReturnToRecord(taxType: string, period: string): boolean {
+  return taxType === "final_umkm" && period.slice(5, 7) !== "12";
+}
+
+export function relevantDifferences<T extends { code: string }>(
+  taxType: string,
+  period: string,
+  differences: readonly T[],
+): T[] {
+  return hasNoReturnToRecord(taxType, period)
+    ? differences.filter((d) => d.code !== "filing_missing")
+    : [...differences];
+}
+
 export type EvidencePurpose =
   "filing_receipt" | "payment_proof" | "withholding_slip" | "tax_invoice" | "other";
 

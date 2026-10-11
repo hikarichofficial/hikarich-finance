@@ -1,9 +1,13 @@
+import Link from "next/link";
 import { translateReason } from "@/domain/authz/translateReason";
+import { differenceDetailText } from "@/domain/tax/differenceText";
 import { formatMoney } from "@/domain/money/format";
 import {
   DETERMINATION_STATUS_LABELS,
   DETERMINATION_STATUS_TONE,
   DIFFERENCE_LABELS,
+  hasNoReturnToRecord,
+  relevantDifferences,
   taxPeriodLabel,
   type DeterminationStatus,
 } from "@/domain/tax/tax";
@@ -131,7 +135,9 @@ export function TaxFinalScreen({
             <dd>
               {position.filed_reference
                 ? `Dilaporkan (${position.filed_reference})`
-                : "Belum dilaporkan"}
+                : hasNoReturnToRecord("final_umkm", period)
+                  ? "Tidak ada laporan bulanan (SPT Tahunan)"
+                  : "Belum dilaporkan"}
             </dd>
           </div>
           <div>
@@ -143,12 +149,12 @@ export function TaxFinalScreen({
             <dd>{formatShortDate(position.as_of)}</dd>
           </div>
         </dl>
-        {position.differences.length > 0 ? (
+        {relevantDifferences("final_umkm", period, position.differences).length > 0 ? (
           <ul className="dashboard-list">
-            {position.differences.map((diff, i) => (
+            {relevantDifferences("final_umkm", period, position.differences).map((diff, i) => (
               <li key={i} className="dashboard-list-item">
                 <p className="dashboard-list-item-title">{DIFFERENCE_LABELS[diff.code]}</p>
-                <p className="dashboard-list-item-detail">{diff.text}</p>
+                <p className="dashboard-list-item-detail">{differenceDetailText(diff, currency)}</p>
                 {diff.amount !== null ? (
                   <span className="dashboard-list-item-value">
                     {formatMoney(diff.amount, currency)}
@@ -175,7 +181,19 @@ export function TaxFinalScreen({
           </p>
         ) : periodEnded && recorded === 0 && Number(preview.tax) > 0 ? (
           <p className="hint">
-            Belum tercatat. Sistem akan mencatatnya pada pengecekan harian berikutnya.
+            Belum tercatat. Sistem mencatatnya otomatis pada pengecekan berikutnya (tiap 15 menit).
+          </p>
+        ) : null}
+        {recorded > 0 && Number(position.outstanding_payable) > 0 ? (
+          <p className="hint">
+            Pajak ini belum dibayar. Bayar lewat kode billing sebelum tanggal 15 bulan berikutnya,
+            lalu catat di{" "}
+            <Link
+              href={`/tax/filing?type=final_umkm&period=${period.slice(0, 7)}${entity ? `&entity=${entity}` : ""}`}
+            >
+              Pelaporan &amp; Bukti &gt; Catat Pembayaran
+            </Link>
+            . Jangan mencatatnya lewat menu Beban, supaya bebannya tidak tercatat dua kali.
           </p>
         ) : null}
       </section>

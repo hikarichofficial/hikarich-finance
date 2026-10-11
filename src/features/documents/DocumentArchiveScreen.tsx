@@ -1,3 +1,4 @@
+import { AttachmentPreviewLink } from "./AttachmentPreviewLink";
 import Link from "next/link";
 import { documentTargetTypesLabel, formatDocumentSize } from "@/domain/documents/documents";
 import type { DocumentArchiveRow } from "@/schemas/documents";
@@ -78,7 +79,13 @@ export function DocumentArchiveScreen({
           <tbody>
             {rows.map((r) => (
               <tr key={r.document_id}>
-                <td>{r.file_name}</td>
+                <td>
+                  <AttachmentPreviewLink
+                    documentId={r.document_id}
+                    fileName={r.file_name}
+                    mimeType={r.mime_type}
+                  />
+                </td>
                 <td data-label="Alasan Diarsipkan">
                   {r.archive_reason === "superseded" ? (
                     <>

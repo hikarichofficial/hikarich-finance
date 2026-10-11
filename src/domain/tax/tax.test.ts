@@ -25,6 +25,8 @@ import {
   taxPaymentCash,
   taxPeriodLabel,
   taxPeriodStart,
+  relevantDifferences,
+  hasNoReturnToRecord,
 } from "./tax";
 import { vatTreatmentSchema, whtObjectSchema } from "@/schemas/tax";
 
@@ -284,5 +286,23 @@ describe("withholding quick choices (decision 359)", () => {
     expect(categorySettlesWithholding(null)).toBe(false);
     expect(categorySettlesWithholding(undefined)).toBe(false);
     expect(categorySettlesWithholding("vat_taxable")).toBe(false);
+  });
+});
+
+describe("relevantDifferences (decision 408)", () => {
+  const rows = [
+    { code: "filing_missing", text: "x", amount: null },
+    { code: "unpaid", text: "y", amount: "1" },
+  ];
+  it("hides the missing filing of PPh Final in every month but December", () => {
+    expect(relevantDifferences("final_umkm", "2026-09-01", rows).map((r) => r.code)).toEqual([
+      "unpaid",
+    ]);
+    expect(hasNoReturnToRecord("final_umkm", "2026-09-01")).toBe(true);
+  });
+  it("keeps it for the annual return in December and for every other tax", () => {
+    expect(relevantDifferences("final_umkm", "2026-12-01", rows)).toHaveLength(2);
+    expect(relevantDifferences("vat", "2026-09-01", rows)).toHaveLength(2);
+    expect(hasNoReturnToRecord("vat", "2026-09-01")).toBe(false);
   });
 });
