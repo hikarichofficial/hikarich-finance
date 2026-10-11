@@ -16,6 +16,8 @@ import {
   getDocumentDownloadGrant,
   linkDocument,
   registerDocument,
+  renameDocumentPurpose,
+  setDocumentPurposeActive,
   unlinkDocument,
 } from "@/services/documents/documents";
 import {
@@ -132,4 +134,43 @@ export async function createDocumentPurposeAction(
     if (error instanceof AuthzError) return { status: "error", message: describeAuthzError(error) };
     return { status: "error", message: "Jenis lampiran tidak dapat disimpan." };
   }
+}
+
+/**
+ * Renaming an attachment type and taking one out of use (decision 401). Both need `documents.upload`, the
+ * same right that adds one; the database re-checks it and owns the name rules, so these only tidy the input
+ * and turn a refusal into a sentence.
+ */
+export async function renameDocumentPurposeAction(
+  _previous: AttachmentActionState,
+  formData: FormData,
+): Promise<AttachmentActionState> {
+  const tidy = text(formData, "name").replace(/\s+/g, " ").trim();
+  if (tidy.length < 2 || tidy.length > 60) {
+    return { status: "error", message: "Nama jenis lampiran 2 sampai 60 karakter." };
+  }
+  try {
+    await renameDocumentPurpose({ purpose_id: text(formData, "purpose_id"), name: tidy });
+  } catch (error) {
+    return errorState(error, "Jenis lampiran tidak dapat diubah.");
+  }
+  revalidatePath(text(formData, "return_path") || "/documents");
+  return { status: "ok", message: "Nama jenis lampiran diubah." };
+}
+
+export async function setDocumentPurposeActiveAction(
+  _previous: AttachmentActionState,
+  formData: FormData,
+): Promise<AttachmentActionState> {
+  const active = text(formData, "active") === "true";
+  try {
+    await setDocumentPurposeActive({ purpose_id: text(formData, "purpose_id"), active });
+  } catch (error) {
+    return errorState(error, "Jenis lampiran tidak dapat diubah.");
+  }
+  revalidatePath(text(formData, "return_path") || "/documents");
+  return {
+    status: "ok",
+    message: active ? "Jenis lampiran dipakai lagi." : "Jenis lampiran tidak dipakai lagi.",
+  };
 }

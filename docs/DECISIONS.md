@@ -3661,3 +3661,23 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      company's own decision and the figure is the same either way. THR is taxable; the month's TER picks it up
      with the rest of the gross once the adjustment is on the line (PMK 168/2023), so no tax rule changed.
      `src/domain/payroll/thr.ts` with its own tests; no migration.
+401. **Attachment types can be renamed and taken out of use (finishing decision 340).** Decision 340 built
+     the per-Entity catalog of own attachment types and said plainly that "rename and deactivate are not
+     built yet", which left a typo in a type's name permanent and a type added by mistake in the dropdown for
+     good -- the only way out being a second, correctly named type sitting next to the wrong one.
+     `rename_document_purpose` and `set_document_purpose_active` close both (migration
+     `20261027100000_p59_document_purpose_manage.sql`). Both need `documents.upload`, the same right that
+     adds a type, on decision 340's own reasoning: a person who may attach a file may name what they are
+     attaching. The rename obeys the catalog's existing case-and-spacing-insensitive uniqueness, so a rename
+     onto another type's name is refused rather than silently merging two types that attachments already
+     point at separately.
+     Taking a type out of use deliberately does not touch the attachments already carrying it: a link stores
+     `custom:<id>`, `link_document` checks "active" only when the link is made, and the name still resolves
+     whatever the state -- so a past attachment keeps reading the way it was filed and only new attachments
+     stop being offered the type. Rewriting a document trail would be the wrong fix, which is also why a type
+     is never deleted. The manager sits under Pusat Dokumen and shows types out of use too, greyed, with a
+     way to put one back; the four built-in types are not listed, being the system's rather than the
+     Entity's. Test `99_p30_document_purposes.sql` section 4.
+     Also corrected in this slice: `docs/GO_LIVE.md` still said the Import Wizard and file attachments were
+     not built, which decision 275 had already done -- a stale line in the one document the OWNER follows at
+     cut-over.
