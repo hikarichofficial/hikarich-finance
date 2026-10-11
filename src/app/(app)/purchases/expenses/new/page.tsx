@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl } from "@/services/money/money";
 import { listContacts, listNonResidentContactIds } from "@/services/contacts/contacts";
@@ -43,6 +44,15 @@ export default async function NewExpensePage({
         <div>
           <p className="record-detail-eyebrow">Pengeluaran</p>
           <h1>Catat Pengeluaran</h1>
+          <p className="hint">
+            Untuk membayar pajak (PPh Final, PPN, dan sebagainya), jangan catat di sini. Gunakan{" "}
+            <Link
+              href={entity ? `/tax/filing?entity=${encodeURIComponent(entity)}` : "/tax/filing"}
+            >
+              Pajak &gt; Pelaporan &amp; Bukti &gt; Catat Pembayaran
+            </Link>
+            , supaya pajaknya melunasi kewajiban pajak dan bebannya tidak tercatat dua kali.
+          </p>
         </div>
       </header>
       <section className="dashboard-section">
