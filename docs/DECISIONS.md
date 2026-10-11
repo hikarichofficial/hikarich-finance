@@ -1,7 +1,7 @@
 # Implementation Decisions
 
 > **Status terkini — 11 Oktober 2026.** Keputusan terakhir yang sudah masuk `main` adalah **PR #213**
-> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen.
+> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR berikutnya.
 > Produksi (`hikarich-finance-prod`, 139 migration) sudah direset bersih pada tanggal itu dengan Cara 3
 > di `docs/RESET_PRODUKSI.md`: dua Entity (`pt` badan, `hikarich` pribadi), profil Entity, profil pajak,
 > mesin pajak dan rekening Mandiri Bisnis dipertahankan; seluruh transaksi, kontak, dokumen dan jejak
@@ -3798,3 +3798,27 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      The third attempt was dry-run against production first, inside a `do $$ ... end $$` block ending in
      `raise exception`, so the whole thing rolled back and the error message carried the verification
      counts. That is the way to run this script again: prove it, then run it.
+
+408. **The final tax follows every posting at once, PPh Final has no monthly return, and the tax screens agree
+     with each other (OWNER, 12 October 2026: "begitu ada postingan invoice atau pendapatan apapun, harus
+     langsung terbaca pajaknya").** The owner issued a September invoice at 23.29 WITA on 11 October; the
+     automatic run had stored September as 0 at 23.20, so Ringkasan Pajak, PPh Final and Pelaporan & Bukti all
+     showed 0 although the invoice existed, and a payment could not even be recorded (a payment is capped at what
+     is accrued). The next daily run repaired it at 00.20, but a month older than the previous one would never
+     have been looked at again. Fixed three ways. (1) Posting, changing or voiding an invoice, an income entry or
+     a marketplace settlement dated in an ended month queues that month in `app_private.tax_final_recheck_queue`;
+     a deferred constraint trigger on the queue computes it when the transaction commits, so the figures are
+     final and a failure never blocks the posting. The running month is not queued (it is the live estimate).
+     (2) A job every 15 minutes retries what is still queued (an empty queue is one index read; a row that failed
+     20 times keeps its last error). (3) The daily sweep now re-evaluates every one of the last 24 months. The
+     computation is repeatable, so a run that finds nothing new changes nothing. Screens: PPh Final UMKM shows no
+     "Catat Pelaporan" and no NTTE for January to November (paying with a billing code and NTPN is deemed the
+     monthly return, decision 341); the payment form asks for the NTPN and billing code; the SPT Tahunan receipt
+     is still recorded on the December masa. The "no filing" difference is hidden where there is nothing to
+     file, the English difference text on PPh Final and the position screen is translated, and Ringkasan Pajak
+     names the month of its estimate. Catat Pendapatan now adds the invoice revenue of the month under its own
+     total so the two sources are not mistaken for one. The Beban form points to Catat Pembayaran for tax, since a
+     tax paid as an expense and also accrued is counted twice. Every attached file opens in a popup (images and
+     PDFs shown, "Cetak / Simpan PDF", download), served from `/documents/view/<id>` with the same permission
+     re-check as the download. The owner's own September payment (EXP-2026-0002, 116.814 booked as an expense)
+     is a data correction decided with her, never a silent delete.
