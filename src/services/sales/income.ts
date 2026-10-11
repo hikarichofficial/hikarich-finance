@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { AuthzError, parseAuthzCode } from "@/domain/authz/errors";
 import { dedupeNames } from "@/domain/shared/typeahead";
+import { Decimal } from "@/domain/money/decimal";
 import { isoDateSchema, uuidResultSchema } from "@/schemas/accounting";
 
 /**
@@ -191,4 +192,41 @@ export async function reverseIncomeEntry(input: {
     },
     uuidResultSchema,
   );
+}
+
+/**
+ * Revenue from invoices issued in a range, before VAT and in the books' own currency: the same rule the final
+ * tax uses for its turnover (decision 408), so the Catat Pendapatan screen can show it next to the entries that
+ * have no invoice. `invoices.view` is the gate of the read policy.
+ */
+export async function sumInvoiceRevenue(
+  entityId: string,
+  baseCurrency: string,
+  range: { from: string; to: string },
+): Promise<{ total: string; count: number }> {
+  const supabase = await createSupabaseServerClient();
+  const { data, error } = await supabase
+    .from("invoices")
+    .select("base_total::text, tax_total::text, currency")
+    .eq("entity_id", uuid(entityId))
+    .eq("status", "issued")
+    .gte("issue_date", isoDateSchema.parse(range.from))
+    .lte("issue_date", isoDateSchema.parse(range.to))
+    .limit(5000);
+  if (error) throw new Error("Gagal memuat pendapatan invoice.");
+  const rows = (data ?? []) as unknown as Array<{
+    base_total: string;
+    tax_total: string;
+    currency: string;
+  }>;
+  const total = rows.reduce(
+    (sum, r) =>
+      sum.add(
+        Decimal.parse(r.base_total).sub(
+          r.currency === baseCurrency ? Decimal.parse(r.tax_total) : Decimal.zero(),
+        ),
+      ),
+    Decimal.zero(),
+  );
+  return { total: total.toString(), count: rows.length };
 }
