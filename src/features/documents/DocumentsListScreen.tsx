@@ -5,6 +5,7 @@ import {
   formatDocumentSize,
 } from "@/domain/documents/documents";
 import type { DocumentRow, DocumentTargetType } from "@/schemas/documents";
+import { AttachmentPreviewLink } from "./AttachmentPreviewLink";
 import { formatShortDate } from "./format";
 
 /**
@@ -143,7 +144,13 @@ export function DocumentsListScreen({
           <tbody>
             {rows.map((row) => (
               <tr key={row.document_id}>
-                <td>{row.file_name}</td>
+                <td>
+                  <AttachmentPreviewLink
+                    documentId={row.document_id}
+                    fileName={row.file_name}
+                    mimeType={row.mime_type}
+                  />
+                </td>
                 <td data-label="Terkait Dengan">{documentTargetTypesLabel(row.target_types)}</td>
                 <td className="num" data-label="Tautan">
                   {row.link_count}

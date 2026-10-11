@@ -2,6 +2,7 @@ import { documentPurposeLabel, formatDocumentSize } from "@/domain/documents/doc
 import type { GenericLinkableTargetType } from "@/schemas/documents";
 import { listDocumentLinks, listDocumentPurposes } from "@/services/documents/documents";
 import { documentStorageEnabled } from "@/services/documents/storage";
+import { AttachmentPreviewLink } from "./AttachmentPreviewLink";
 import { AttachmentRemoveForm, AttachmentUploadForm } from "./AttachmentForms";
 
 /**
@@ -70,13 +71,11 @@ export async function AttachmentsSection({
             {links.map((link) => (
               <tr key={link.link_id}>
                 <td data-label="Berkas">
-                  <a
-                    href={`/documents/download/${link.document_id}`}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    {link.file_name}
-                  </a>
+                  <AttachmentPreviewLink
+                    documentId={link.document_id}
+                    fileName={link.file_name}
+                    mimeType={link.mime_type}
+                  />
                 </td>
                 <td data-label="Jenis">{documentPurposeLabel(link.purpose, customNames)}</td>
                 <td className="num" data-label="Ukuran">
