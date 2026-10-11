@@ -17,6 +17,7 @@ import {
   upcomingTaxDeadlines,
   type AttentionItem,
   type DashboardPeriod,
+  type DashboardScope,
   type RecentActivityItem,
 } from "@/domain/dashboard/dashboard";
 import { pnlBreakdown, type BreakdownItem } from "@/domain/dashboard/chart";
@@ -152,9 +153,9 @@ async function getEntityBaseCurrency(entityId: string): Promise<string> {
 export async function getDashboardSnapshot(
   entityId: string,
   access: AccessSnapshot,
-  options: { month?: string } = {},
+  options: { month?: string; scope?: DashboardScope } = {},
 ): Promise<DashboardSnapshot> {
-  const period = resolveDashboardPeriod(options.month);
+  const period = resolveDashboardPeriod(options.month, new Date(), options.scope ?? "month");
 
   const canReports = can(access, entityId, "reports.view");
   const canMoney = can(access, entityId, "money.view");
