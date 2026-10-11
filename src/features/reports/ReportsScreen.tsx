@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Picker } from "@/features/shared/Picker";
 import { ReportExportButtons } from "./ReportExportButtons";
 import { formatMoney } from "@/domain/money/format";
 import type { Decimal } from "@/domain/money/decimal";
@@ -404,30 +405,28 @@ function RangeForm({ data, entity }: { data: ReportsData; entity: string | undef
       {entity ? <input type="hidden" name="entity" value={entity} /> : null}
       <input type="hidden" name="statement" value={data.statement} />
       {data.statement === "gl" ? (
-        <label>
-          Akun
-          <select name="account" defaultValue={data.accountId ?? ""}>
-            {data.accounts.length === 0 ? <option value="">Tidak ada akun</option> : null}
-            {data.accounts.map((account) => (
-              <option key={account.id} value={account.id}>
-                {account.code} · {account.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Picker
+          label="Akun"
+          name="account"
+          noun="akun buku besar"
+          items={data.accounts.map((account) => ({
+            id: account.id,
+            label: `${account.code} · ${account.name}`,
+          }))}
+          defaultValue={data.accountId ?? data.accounts[0]?.id ?? ""}
+        />
       ) : null}
       {data.statement === "custom" ? (
-        <label>
-          Dataset
-          <select name="dataset" defaultValue={data.datasetKey ?? ""}>
-            {data.datasets.length === 0 ? <option value="">Tidak ada dataset</option> : null}
-            {data.datasets.map((dataset) => (
-              <option key={dataset.dataset_key} value={dataset.dataset_key}>
-                {dataset.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Picker
+          label="Dataset"
+          name="dataset"
+          noun="dataset"
+          items={data.datasets.map((dataset) => ({
+            id: dataset.dataset_key,
+            label: dataset.name,
+          }))}
+          defaultValue={data.datasetKey ?? data.datasets[0]?.dataset_key ?? ""}
+        />
       ) : null}
       {data.statement === "consolidated" ? (
         <fieldset>
@@ -447,17 +446,16 @@ function RangeForm({ data, entity }: { data: ReportsData; entity: string | undef
         </fieldset>
       ) : null}
       {data.statement === "fiscal_schedule" ? (
-        <label>
-          Aset
-          <select name="asset" defaultValue={data.assetId ?? ""}>
-            {data.assets.length === 0 ? <option value="">Tidak ada aset</option> : null}
-            {data.assets.map((asset) => (
-              <option key={asset.asset_id} value={asset.asset_id}>
-                {asset.asset_code} · {asset.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Picker
+          label="Aset"
+          name="asset"
+          noun="aset"
+          items={data.assets.map((asset) => ({
+            id: asset.asset_id,
+            label: `${asset.asset_code} · ${asset.name}`,
+          }))}
+          defaultValue={data.assetId ?? data.assets[0]?.asset_id ?? ""}
+        />
       ) : null}
       {data.statement === "balance_sheet" ||
       data.statement === "consolidated" ||

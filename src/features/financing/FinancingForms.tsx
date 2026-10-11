@@ -3,6 +3,7 @@
 import { StepUpLink } from "@/features/feedback/StepUp";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { SuggestTextInput } from "@/features/shared/SuggestTextInput";
+import { Picker } from "@/features/shared/Picker";
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
 import {
@@ -144,21 +145,7 @@ function AccountField({
   label: string;
   accounts: readonly FinancingOption[];
 }) {
-  return (
-    <label>
-      {label}
-      <select name="account_id" required defaultValue="">
-        <option value="" disabled>
-          Pilih rekening kas/bank
-        </option>
-        {accounts.map((account) => (
-          <option key={account.id} value={account.id}>
-            {account.label}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
+  return <Picker label={label} name="account_id" noun="rekening kas/bank" items={accounts} />;
 }
 
 function DateField({ label, today }: { label: string; today: string }) {
@@ -201,29 +188,16 @@ function MoneyField({
 function PickField({
   name,
   label,
-  placeholder,
+  noun,
   options,
 }: {
   name: string;
   label: string;
-  placeholder: string;
+  /** What one entry is, for the Picker's own hints: "pembayaran", "pelunasan". */
+  noun: string;
   options: readonly FinancingOption[];
 }) {
-  return (
-    <label>
-      {label}
-      <select name={name} required defaultValue="">
-        <option value="" disabled>
-          {placeholder}
-        </option>
-        {options.map((option) => (
-          <option key={option.id} value={option.id}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
-  );
+  return <Picker label={label} name={name} noun={noun} items={options} />;
 }
 
 /** The counterparty of a loan, an obligation or an equity event: a name usually already on file (Contacts and
@@ -833,17 +807,14 @@ export function LoanActionsPanel({
           openLabel={currentAssetId ? "Ubah Tautan Aset" : "Tautkan ke Aset"}
           submitLabel="Simpan Tautan"
         >
-          <label>
-            Aset yang Dibiayai Pinjaman Ini
-            <select name="asset_id" defaultValue={currentAssetId ?? ""}>
-              <option value="">(tidak ditautkan)</option>
-              {assets.map((asset) => (
-                <option key={asset.id} value={asset.id}>
-                  {asset.label}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Picker
+            label="Aset yang Dibiayai Pinjaman Ini"
+            name="asset_id"
+            noun="aset"
+            items={assets}
+            defaultValue={currentAssetId ?? ""}
+            optional
+          />
           <p className="hint">Tautan saja -- tidak memengaruhi pencatatan pinjaman atau aset.</p>
         </CommandForm>
       ) : null}
@@ -854,12 +825,7 @@ export function LoanActionsPanel({
           openLabel="Batalkan Pembayaran"
           submitLabel="Batalkan Pembayaran"
         >
-          <PickField
-            name="payment_id"
-            label="Pembayaran"
-            placeholder="Pilih pembayaran"
-            options={payments}
-          />
+          <PickField name="payment_id" label="Pembayaran" noun="pembayaran" options={payments} />
           <DateField label="Tanggal Pembatalan" today={today} />
           <ReasonField />
         </CommandForm>
@@ -1017,7 +983,7 @@ export function ObligationActionsPanel({
           <PickField
             name="settlement_id"
             label="Pelunasan"
-            placeholder="Pilih pelunasan"
+            noun="pelunasan"
             options={settlements}
           />
           <DateField label="Tanggal Pembatalan" today={today} />
@@ -1124,12 +1090,7 @@ export function EquityActionsPanel({
           openLabel="Batalkan Pembayaran Dividen"
           submitLabel="Batalkan Pembayaran"
         >
-          <PickField
-            name="payment_id"
-            label="Pembayaran"
-            placeholder="Pilih pembayaran"
-            options={payments}
-          />
+          <PickField name="payment_id" label="Pembayaran" noun="pembayaran" options={payments} />
           <DateField label="Tanggal Pembatalan" today={today} />
           <ReasonField />
           <p className="hint">Perlu verifikasi ulang sebelum menyimpan.</p>

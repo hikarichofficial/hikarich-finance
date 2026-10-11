@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { Picker } from "@/features/shared/Picker";
 import {
   openingFormProblems,
   originProblem,
@@ -98,25 +99,17 @@ export function OpeningAssetForm({
           onChange={(event) => setName(event.target.value)}
         />
       </label>
-      <label className={invalidClass(problems.cost_account)}>
-        Akun Aset Tetap
-        <select
+      <div className={invalidClass(problems.cost_account)}>
+        <Picker
+          label="Akun Aset Tetap"
           name="cost_account"
-          required
+          noun="akun aset tetap"
+          items={accounts}
           value={accountId}
-          onChange={(event) => setAccountId(event.target.value)}
-        >
-          <option value="" disabled>
-            Pilih akun
-          </option>
-          {accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.label}
-            </option>
-          ))}
-        </select>
+          onChange={setAccountId}
+        />
         <FieldProblem message={problems.cost_account} />
-      </label>
+      </div>
       <label>
         Harga Perolehan
         <MoneyInput name="cost" required value={cost} onValueChange={setCost} />

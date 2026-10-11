@@ -11,6 +11,7 @@ import {
   reversePayrollPaymentAction,
 } from "./payrollActions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { Picker } from "@/features/shared/Picker";
 import { formatMoney } from "@/domain/money/format";
 
 export interface PayrollOption {
@@ -191,24 +192,14 @@ export function AdjustmentForm({
       submitLabel="Simpan Penyesuaian"
     >
       <input type="hidden" name="run_id" value={runId} />
-      <label>
-        Karyawan
-        <select
-          name="employee_id"
-          required
-          value={employeeId}
-          onChange={(event) => setEmployeeId(event.target.value)}
-        >
-          <option value="" disabled>
-            Pilih karyawan
-          </option>
-          {employees.map((employee) => (
-            <option key={employee.id} value={employee.id}>
-              {employee.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker
+        label="Karyawan"
+        name="employee_id"
+        noun="karyawan"
+        items={employees}
+        value={employeeId}
+        onChange={setEmployeeId}
+      />
 
       {/* Pro-rata for a part month, worked out from this run's own figures and filled into the fields below,
           so the amount is never typed by hand (OWNER, 9 October 2026; decision 388). */}
@@ -351,19 +342,7 @@ export function RemoveAdjustmentForm({
       submitLabel="Hapus"
     >
       <input type="hidden" name="run_id" value={runId} />
-      <label>
-        Penyesuaian
-        <select name="adjustment_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih penyesuaian
-          </option>
-          {adjustments.map((adjustment) => (
-            <option key={adjustment.id} value={adjustment.id}>
-              {adjustment.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker label="Penyesuaian" name="adjustment_id" noun="penyesuaian" items={adjustments} />
     </PayrollToggleForm>
   );
 }
@@ -409,19 +388,12 @@ export function PayrollPaymentForm({
           <MoneyInput name="amount" placeholder="seluruh sisa" />
         </label>
       ) : null}
-      <label>
-        Dibayar dari Rekening
-        <select name="account_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih rekening kas/bank
-          </option>
-          {accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker
+        label="Dibayar dari Rekening"
+        name="account_id"
+        noun="rekening kas/bank"
+        items={accounts}
+      />
       <label>
         Tanggal Bayar
         <input type="date" name="date" required defaultValue={today} max={today} />
@@ -456,19 +428,7 @@ export function ReversePayrollPaymentForm({
       submitLabel="Batalkan Pembayaran"
     >
       <input type="hidden" name="run_id" value={runId} />
-      <label>
-        Pembayaran
-        <select name="payment_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih pembayaran
-          </option>
-          {payments.map((payment) => (
-            <option key={payment.id} value={payment.id}>
-              {payment.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker label="Pembayaran" name="payment_id" noun="pembayaran" items={payments} />
       <label>
         Tanggal Pembatalan
         <input type="date" name="date" required defaultValue={today} max={today} />

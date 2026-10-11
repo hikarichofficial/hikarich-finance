@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Picker } from "@/features/shared/Picker";
 import { formatMoney } from "@/domain/money/format";
 import { monthLabel, yearOptions, yearTotals } from "@/domain/accounting/cashStatement";
 import type { CashAccountOption, CashStatement } from "@/schemas/cashStatement";
@@ -60,17 +61,14 @@ export function CashStatementYearScreen({
       <div className="list-screen-toolbar">
         <form method="get" className="list-search-form">
           {entity ? <input type="hidden" name="entity" value={entity} /> : null}
-          <label>
-            Rekening
-            <select name="account" defaultValue={accountId ?? ""}>
-              <option value="">Semua Kas &amp; Bank</option>
-              {accounts.map((account) => (
-                <option key={account.id} value={account.id}>
-                  {account.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Picker
+            label="Rekening"
+            name="account"
+            noun="rekening kas/bank"
+            items={accounts.map((account) => ({ id: account.id, label: account.name }))}
+            defaultValue={accountId ?? ""}
+            optional
+          />
           <label>
             Tahun
             <select name="year" defaultValue={String(year)}>

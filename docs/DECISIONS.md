@@ -3728,3 +3728,16 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      short. That reasoning was wrong in the OWNER's own terms: a person should not have to learn which
      fields type and which do not. Dropdowns remain only where the choice is a fixed set the app defines —
      direction, journal kind, status, document type — not a register that grows.
+     The sweep was finished the same day, so no screen is left behind: payroll (karyawan, penyesuaian,
+     rekening pembayar, pembayaran yang dibatalkan), pembiayaan (rekening, aset yang dibiayai, pembayaran,
+     pelunasan), aset (rekening penerimaan penjualan, bulan penyusutan, akun aset tetap pada Saldo Awal
+     Aset), pajak (akun pembayar), marketplace (toko dan rekening pencairan), klaim pembayaran (rekening
+     dan klaim duplikat), jenis lampiran -- which keeps "+ Tambah jenis lampiran" as the Picker's own add
+     row instead of a `__add__` option -- and the register filters on Aktivitas Kas & Bank, Rekening Koran,
+     Laporan (akun buku besar, dataset, aset), Perkiraan (anggaran) and Pendapatan Lain (jenis).
+     Three details worth recording. (a) A filter Picker is `optional`, so an empty field still means "all",
+     the way the blank first option did. (b) Laporan's account, dataset and asset fields had no blank option
+     and relied on the browser choosing the first row; they now name that first row as their own default, so
+     the report opens on the same thing it used to. (c) A Picker keeps its label beside the field rather than
+     wrapping it, so the red "field refused" state of Saldo Awal Aset had to reach one level further in --
+     `.record-form div.field-invalid` in `globals.css`. Display only: no RPC, schema or posting rule changed.
