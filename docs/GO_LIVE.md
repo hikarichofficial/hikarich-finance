@@ -36,14 +36,31 @@ Production has its own users; the account used on Preview lives in the non-produ
 
 Created once by a database administrator, with the chart of accounts provisioned for each:
 
-| Code       | Type    | Legal name                 | Brand               | Taxpayer kind (set in the app)  |
-| ---------- | ------- | -------------------------- | ------------------- | ------------------------------- |
-| `pt`       | company | PT Hikarich Kitana Digital | Kamar Kajian Market | PT Perorangan                   |
-| `hikarich` | company | Hikarich                   | —                   | Orang pribadi (dagang dan jasa) |
+| Code       | Type       | Legal name                 | Brand               | Taxpayer kind (set in the app)  |
+| ---------- | ---------- | -------------------------- | ------------------- | ------------------------------- |
+| `pt`       | company    | PT Hikarich Kitana Digital | Kamar Kajian Market | PT Perorangan                   |
+| `hikarich` | `personal` | Hikarich                   | —                   | Orang pribadi (dagang dan jasa) |
 
-Both are business-type ledgers (decision 270): every feature is the same and only the tax rules differ.
-Names, brand, address and contact details can be changed later in Settings (decision 272); the code and
-the type cannot.
+`hikarich` is a **personal** Entity, not a business one. Decision 270 planned it as business-type; decision
+365 then built Pajak Pribadi -- the personal book's PPh Final 0,5% **and** the progressive tax on service
+income -- behind `entity_type = 'personal'`, so a business-type Entity gets no progressive calculation at
+all (`personal_tax_summary` answers `applicable: false`). The type cannot be changed afterwards, so this is
+decided here. What it costs: payroll is company-only, so employees belong to the PT, which is where they
+are anyway. Names, brand, address and contact details can be changed later in Settings (decision 272); the
+code and the type cannot.
+
+Creating them, with the chart of accounts, categories and -- for the personal Entity -- the Pajak Pribadi
+category tags:
+
+```sql
+insert into public.entities (entity_type, code, legal_name, brand_name, timezone) values
+  ('company',  'pt',       'PT Hikarich Kitana Digital', 'Kamar Kajian Market', 'Asia/Makassar'),
+  ('personal', 'hikarich', 'Hikarich',                   null,                  'Asia/Makassar');
+
+select e.code, app_private.provision_default_coa(e.id) from public.entities e order by e.code;
+```
+
+The timezone decides where a tax period ends, so it follows the registered domicile of the business.
 
 ## 4. In the application, by the OWNER
 

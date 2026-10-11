@@ -952,7 +952,7 @@
         },
         {
           "title": "Tab Analisis Konsolidasi (OWNER)",
-          "text": "Centang **Entity** yang ingin dilihat dan isi **Per tanggal**. Kolom **Kode**, **Entity**, **Tipe** (Usaha atau Rumah Tangga), **Mata Uang**, **Saldo Kas**. Total hanya dijumlahkan bila semua Entity bermata uang sama; bila tidak, tampil tanda strip dengan keterangan “(mata uang berbeda)”. Buku PT dan Pribadi tidak digabung."
+          "text": "Centang **Entity** yang ingin dilihat dan isi **Per tanggal**. Kolom **Kode**, **Entity**, **Tipe** (Usaha atau Pribadi), **Mata Uang**, **Saldo Kas**. Total hanya dijumlahkan bila semua Entity bermata uang sama; bila tidak, tampil tanda strip dengan keterangan “(mata uang berbeda)”. Buku PT dan Pribadi tidak digabung."
         }
       ],
       "result": ["Baca saja; tidak ada jurnal."],

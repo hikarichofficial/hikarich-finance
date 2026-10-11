@@ -3681,3 +3681,27 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Also corrected in this slice: `docs/GO_LIVE.md` still said the Import Wizard and file attachments were
      not built, which decision 275 had already done -- a stale line in the one document the OWNER follows at
      cut-over.
+402. **A personal Entity is called "Pribadi" (OWNER, 11 October 2026, seen while setting production up).**
+     The Entity switch called the OWNER's own business **"Rumah Tangga"**. That label (decision 273) existed
+     to keep the household ledger of Step 03 from being mistaken for a personal business; the distinction
+     stopped holding when decision 365 put Pajak Pribadi -- the personal book's PPh Final 0,5% **and** the
+     progressive tax on service income -- behind `entity_type = 'personal'`. A person's business must now BE
+     a personal Entity, so the type no longer tells the two apart, and the label was calling a business a
+     household book. `entityLabel` and the consolidated-report type column now say "Pribadi"; a ledger whose
+     legal name starts with a legal form still shows that form ("PT", "CV"), which is what the OWNER asked
+     for in decision 273 ("ubah menjadi Pribadi & PT"). Display only, no migration.
+     Also corrected: `docs/GO_LIVE.md` listed `hikarich` as a business-type Entity, following decision 270
+     and never updated for decision 365 -- had it been followed as written, production would have gone live
+     with no progressive-tax calculation and no way to add one, since the type cannot be changed afterwards.
+     It now records the type, the reason, what it costs (payroll is company-only, and the employees belong
+     to the PT anyway), the exact SQL and the timezone decision.
+     **Wrong turn recorded, because it nearly shipped:** while writing this I also built a migration to make
+     `provision_default_coa` call `provision_personal_tax_categories`, believing a new personal Entity would
+     otherwise come up with no `personal_tax_role` on any category. It already calls it -- decision 365 wired
+     it in (`20261013100000` line 100); I had read only the backfill a few lines below and concluded it was
+     missing. The migration I wrote recreated `provision_default_coa` from the P15 body, which silently
+     dropped the `provision_income_categories` call decision 350 added in P37 -- a real regression for every
+     Entity created afterwards. `99_p15_5_default_categories.sql` failed on the company category count and
+     caught it. The migration was deleted, not patched. The lesson is the plain one: `create or replace` of a
+     function that several migrations have extended must start from the CURRENT definition, not from the
+     oldest one that happens to be easy to find.
