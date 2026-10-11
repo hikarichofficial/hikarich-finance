@@ -3778,8 +3778,8 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      (found while running the reset, 11 October 2026).** Cara 3 in `docs/RESET_PRODUKSI.md`
      copies the rows that must survive into `restore_tmp`, outside `public`, then drops `public` and
      restores afterwards. `entities.base_currency` and `financial_accounts.currency` are of the domain
-     `public.currency_code`; `create table as select *` inherits that domain, so `drop schema public
-     cascade` dropped the domain and with it those two columns **inside the backup**. The restore then ran
+     `public.currency_code`; `create table as select *` inherits that domain, so dropping `public` with
+     `cascade` dropped the domain and with it those two columns **inside the backup**. The restore then ran
      `insert into public.entities select *`, which matches columns by position, and the shifted row put
      `timezone` ("Asia/Makassar") into `fiscal_year_start_month` -- caught only because that one is a
      smallint. A shift between two text columns would have restored silently wrong data.
