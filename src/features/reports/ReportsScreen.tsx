@@ -980,7 +980,9 @@ function CustomReportTable({
 
 function consolidatedEntityTypeLabel(entityType: string): string {
   if (entityType === "company") return "Usaha";
-  if (entityType === "personal") return "Rumah Tangga";
+  // "Pribadi", not "Rumah Tangga": a personal Entity is where a person's own business lives since
+  // decision 365 (decision 402), not only the household ledger of Step 03.
+  if (entityType === "personal") return "Pribadi";
   return entityType;
 }
 

@@ -57,17 +57,22 @@ export function safeNextPath(candidate: unknown, fallback = "/"): string {
 }
 
 /**
- * Short label for the Entity switch (decision 273, OWNER: "ubah menjadi Pribadi & PT"). A business ledger
- * whose legal name carries a legal-form prefix shows that form ("PT", "CV"); a business ledger without
- * one is a person's own business and shows "Pribadi" (decision 270 keeps it as a business-type Entity).
- * The household ledger of Step 03 shows "Rumah Tangga", so it is never mistaken for a personal business.
- * The brand is not used here: it is only the name the business trades as.
+ * Short label for the Entity switch (decision 273, OWNER: "ubah menjadi Pribadi & PT"; corrected by
+ * decision 402). A ledger whose legal name carries a legal-form prefix shows that form ("PT", "CV");
+ * anything else is a person's own book and shows "Pribadi". The brand is not used here: it is only the
+ * name the business trades as.
+ *
+ * A `personal` Entity used to show "Rumah Tangga", to keep the household ledger of Step 03 from being
+ * mistaken for a personal business. That distinction stopped holding when decision 365 put Pajak Pribadi
+ * -- the personal business's own PPh Final and progressive-services calculation -- behind
+ * `entity_type = 'personal'`: a person's business must now BE a personal Entity, so the type no longer
+ * tells the two apart and the label called the OWNER's own business a household book.
  */
 export function entityLabel(membership: Pick<Membership, "entity_type" | "entity_name">): string {
   if (membership.entity_type === "company") {
     const form = /^(PT|CV)\b/i.exec(membership.entity_name.trim());
     return form?.[1] ? form[1].toUpperCase() : "Pribadi";
   }
-  if (membership.entity_type === "personal") return "Rumah Tangga";
+  if (membership.entity_type === "personal") return "Pribadi";
   return membership.entity_name;
 }
