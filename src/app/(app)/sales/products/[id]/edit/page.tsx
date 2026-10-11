@@ -6,6 +6,7 @@ import { listActiveCategories } from "@/services/accounting/categories";
 import { getEntityBaseCurrency } from "@/services/accounting/ledger";
 import { ProductForm } from "@/features/products/ProductForm";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Ubah Produk (task 95): the edit form on its own page, apart from the read-only detail. Gated
  * `products.edit` -- the permission the `products_update` RLS policy itself checks. Saving returns to the detail. */
@@ -38,6 +39,7 @@ export default async function EditProductPage({
         <div>
           <p className="record-detail-eyebrow">Produk &amp; Jasa</p>
           <h1>Ubah {product.name}</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

@@ -7,6 +7,7 @@ import {
 } from "@/services/settings/settings";
 import { InvoiceLayoutEditor } from "@/features/settings/InvoiceLayoutEditor";
 import { sampleInvoiceDocument } from "@/features/settings/sampleInvoiceDocument";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Tampilan Invoice (decision 310): arrange the invoice document by dragging its blocks. Viewing needs
  * `settings.view`; saving needs `system.entity_config` (the RPC re-checks it and a recent step-up). */
@@ -44,6 +45,7 @@ export default async function InvoiceLayoutPage({
       <header className="list-screen-header">
         <div>
           <h1>Tampilan Invoice</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             Atur letak logo, nama perusahaan, tabel, total, dan bagian lain pada invoice dengan
             menyeretnya. Berlaku untuk invoice yang diterbitkan setelah disimpan.

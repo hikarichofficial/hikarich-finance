@@ -7,6 +7,7 @@ import {
   type CoaStatusFilter,
 } from "@/domain/accounting/coaList";
 import type { LedgerAccountRow } from "@/schemas/accounting";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Chart of Accounts (P13 Part 3d, Step 09 §14: "COA uses hierarchical tree/list with search, account status
@@ -35,6 +36,7 @@ export function ChartOfAccountsScreen({
       <header className="list-screen-header">
         <div>
           <h1>Bagan Akun</h1>
+          <PageHelp />
           <p className="list-screen-summary">{tree.length} akun ditampilkan.</p>
         </div>
       </header>

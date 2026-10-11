@@ -8,6 +8,7 @@ import { InvoiceForm } from "@/features/sales/InvoiceForm";
 import { listPaymentLinks } from "@/services/sales/paymentLinks";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Create Invoice (Step 09 §11, decision 257), gated `invoices.create` -- the permission
  * `create_invoice_draft` itself checks. Only active customers and active accounts are offered. */
@@ -39,6 +40,7 @@ export default async function NewInvoicePage({
         <div>
           <p className="record-detail-eyebrow">Penjualan</p>
           <h1>Buat Invoice</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

@@ -6,6 +6,7 @@ import { obligationKindTitle } from "@/domain/financing/obligationList";
 import { ObligationCreateForm } from "@/features/financing/FinancingForms";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 const LIST_HREF: Readonly<Record<"receivable" | "payable", string>> = {
   receivable: "/assets/other-receivables",
@@ -42,6 +43,7 @@ export default async function NewObligationPage({
         <div>
           <p className="record-detail-eyebrow">{title}</p>
           <h1>Tambah {title}</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

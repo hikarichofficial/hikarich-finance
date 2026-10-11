@@ -2,6 +2,7 @@ import { requirePermission } from "@/services/identity/access";
 import { listBudgets } from "@/services/planning/planning";
 import { CreatePlanForm } from "@/features/planning/CreatePlanForm";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Budget create form (P13 Part 3h, fifth increment, Step 09 §13, §18). Gated on `planning.budget_edit`, the
  * exact permission `create_budget` itself checks (decision 184's own confirmed mapping) -- the same
@@ -37,6 +38,7 @@ export default async function NewBudgetPage({
         <div>
           <p className="record-detail-eyebrow">Anggaran</p>
           <h1>Buat Anggaran Baru</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { FLOWS, findFlow, flowNeighbours, flowNumber, flowPageUrl } from "@/domain/guide/flows";
 import { findGuide } from "@/domain/guide/guides";
 import { FlowDiagram } from "@/features/guide/FlowDiagram";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 export function generateStaticParams() {
   return FLOWS.map((flow) => ({ id: flow.id }));
@@ -36,6 +37,7 @@ export default async function FlowPage({ params }: { params: Promise<{ id: strin
           Diagram {flowNumber(flow.id)} dari {FLOWS.length}
         </p>
         <h1>{flow.title}</h1>
+        <PageHelp />
         <p className="list-screen-summary">{flow.summary}</p>
       </header>
 

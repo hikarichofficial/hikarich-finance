@@ -1,6 +1,7 @@
 import { requirePermission } from "@/services/identity/access";
 import { ImportWizardForm } from "@/features/imports/ImportWizardForm";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Import Wizard (Step 15 §15, decision 275): stage and validate a pasted or uploaded table. */
 export default async function NewImportPage({
@@ -21,6 +22,7 @@ export default async function NewImportPage({
       <header className="record-detail-header">
         <div>
           <h1>Impor Data</h1>
+          <PageHelp />
         </div>
       </header>
       <ImportWizardForm entity={entity} />

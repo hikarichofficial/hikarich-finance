@@ -12,6 +12,7 @@ import Link from "next/link";
 import type { AccountingPeriodRow, JournalEntryRow } from "@/schemas/accounting";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Journal List (P13 Part 3d, Step 09 §9, §14): "Accounting is a secondary/advanced work area, not the default
@@ -53,6 +54,7 @@ export function JournalsListScreen({
       <header className="list-screen-header">
         <div>
           <h1>Jurnal</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} jurnal ditampilkan.</p>
         </div>
         {canCreate ? (

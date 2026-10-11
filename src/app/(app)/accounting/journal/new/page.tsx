@@ -9,6 +9,7 @@ import { accountClassLabel } from "@/domain/accounting/coaList";
 import { JournalDraftForm } from "@/features/accounting/JournalDraftForm";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Order of the account groups in the picker: what a person records most often (income, costs) first, the
  * system-protected accounts last. */
@@ -73,6 +74,7 @@ export default async function NewJournalPage({
         <div>
           <p className="record-detail-eyebrow">Akuntansi</p>
           <h1>Jurnal Manual</h1>
+          <PageHelp />
           <p className="hint">
             Untuk pembukuan lanjutan. Pendapatan sehari-hari cukup dicatat lewat menu Invoice,
             Pembayaran Diterima, atau Catat Pendapatan (untuk yang tanpa invoice) di bagian

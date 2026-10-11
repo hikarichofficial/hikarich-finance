@@ -8,6 +8,7 @@ import {
   flowStages,
 } from "@/domain/guide/flows";
 import { findGuide } from "@/domain/guide/guides";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 export const metadata = { title: `${FLOW_PAGE_TITLE} · Panduan` };
 
@@ -26,6 +27,7 @@ export default function FlowOverviewPage() {
       </nav>
       <header>
         <h1>{FLOW_PAGE_TITLE}</h1>
+        <PageHelp />
         <p className="list-screen-summary">{FLOW_INTRO}</p>
       </header>
 

@@ -1,7 +1,7 @@
 # Implementation Decisions
 
 > **Status terkini — 11 Oktober 2026.** Keputusan terakhir yang sudah masuk `main` adalah **PR #213**
-> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR berikutnya.
+> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR #215; keputusan 409 dan 410 (bunga per jenis, Rekap Pajak, penjelasan fungsi halaman) di PR berikutnya.
 > Produksi (`hikarich-finance-prod`, 139 migration) sudah direset bersih pada tanggal itu dengan Cara 3
 > di `docs/RESET_PRODUKSI.md`: dua Entity (`pt` badan, `hikarich` pribadi), profil Entity, profil pajak,
 > mesin pajak dan rekening Mandiri Bisnis dipertahankan; seluruh transaksi, kontak, dokumen dan jejak
@@ -3822,3 +3822,27 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      PDFs shown, "Cetak / Simpan PDF", download), served from `/documents/view/<id>` with the same permission
      re-check as the download. The owner's own September payment (EXP-2026-0002, 116.814 booked as an expense)
      is a data correction decided with her, never a silent delete.
+
+409. **Interest income is kept apart by kind, the interest a bank already taxed is not taxed again, and Ringkasan
+     Pajak can be filtered (OWNER, 12 October 2026).** Three categories replace the single "Bunga Bank &
+     Deposito": Bunga Tabungan (account 7101) and Bunga Deposito (7102), on which the bank withholds PPh final
+     of 20% itself (PP 131/2000 as amended by PP 123/2015; interest on a deposit of up to Rp 7.500.000 is
+     exempt, PMK 212/PMK.03/2018 article 7), and Bunga Lainnya (7100: loans given and any other interest). The
+     old category is renamed Bunga Lainnya where that name is free, so earlier entries keep account 7100. The
+     amount recorded is what reached the account (net of the bank's tax). `tax_non_final_income` leaves accounts
+     7101 and 7102 out of the yearly estimate (they are shown, marked as already taxed), so the 22% estimate no
+     longer taxes them a second time. The owner pays nothing herself for this tax, monthly or yearly; the
+     interest is only reported in the annual return, with the bank's statement as the record. New read-only
+     `tax_scope_summary(entity, from, to)`: per tax type the tax counted (ledger accruals net of reversals), paid
+     (confirmed payments) and left, by tax period. Ringkasan Pajak gets a "Rekap Pajak" with Bulan, Tahun and
+     Seluruhnya chips (a plain GET form, view only). EXP-2026-0002 (the PPh Final paid as an expense) was
+     reversed with a reversing journal; the owner records the payment under Pelaporan & Bukti herself.
+
+410. **Every page says what it does and what it affects; the Dashboard says why a month is empty (OWNER, 12
+     October 2026).** One central file, `src/content/pageHelp.ts`, holds a one- or two-sentence description for
+     each page (small grey text under the title, a folded "Selengkapnya" for the longer part) and for the
+     sections of Pelaporan & Bukti; the `PageHelp` component sits under every page title and shows nothing for a
+     page that has no entry. The Dashboard in its month view, when the month has no revenue or expense but an
+     earlier month of the last six does, says so and links to that month: it opens on the running month, which
+     is empty at the start of a month, and a page of zeros read as "nothing was recorded". Sections of other
+     screens (fields, forms) are added to the same file in later changes.

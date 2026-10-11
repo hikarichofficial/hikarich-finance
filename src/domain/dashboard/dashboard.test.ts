@@ -17,6 +17,7 @@ import {
   resolveDashboardScope,
   trailingMonths,
   upcomingTaxDeadlines,
+  lastActiveMonth,
 } from "./dashboard";
 
 function equityRow(overrides: Partial<EquityChangeRow>): EquityChangeRow {
@@ -543,5 +544,22 @@ describe("buildAttentionItems pending payment claims (finding #92)", () => {
     expect(items).toHaveLength(1);
     expect(items[0]).toMatchObject({ kind: "payment_claim", id: "c1" });
     expect(items[0].title).toContain("INV-001");
+  });
+});
+
+describe("lastActiveMonth (decision 410)", () => {
+  const flow = [
+    { month: "2026-08", revenue: "0", expense: "0" },
+    { month: "2026-09", revenue: "23363318.8100", expense: "13000.0000" },
+    { month: "2026-10", revenue: "0.0000", expense: "0.0000" },
+  ];
+  it("points to the latest earlier month with activity when the month shown is empty", () => {
+    expect(lastActiveMonth(flow, "2026-10")).toBe("2026-09");
+  });
+  it("returns null when the month shown has activity", () => {
+    expect(lastActiveMonth(flow, "2026-09")).toBeNull();
+  });
+  it("returns null when nothing earlier has activity", () => {
+    expect(lastActiveMonth([flow[0], flow[2]], "2026-10")).toBeNull();
   });
 });

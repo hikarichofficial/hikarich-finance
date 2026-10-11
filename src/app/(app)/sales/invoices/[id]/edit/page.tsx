@@ -10,6 +10,7 @@ import { InvoiceForm } from "@/features/sales/InvoiceForm";
 import { listPaymentLinks } from "@/services/sales/paymentLinks";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Edit a DRAFT invoice (Step 09 §11, decision 261), gated `invoices.edit` -- the permission
  * `update_invoice_draft` checks. An issued invoice is "not found" here: it is corrected instead. */
@@ -48,6 +49,7 @@ export default async function EditInvoicePage({
         <div>
           <p className="record-detail-eyebrow">Penjualan</p>
           <h1>Ubah Draf Invoice</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

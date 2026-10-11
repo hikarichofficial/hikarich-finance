@@ -12,6 +12,7 @@ import {
 import { flowsForGuide } from "@/domain/guide/flows";
 import { FlowDiagram } from "@/features/guide/FlowDiagram";
 import { GuideText } from "@/features/guide/GuideText";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 export function generateStaticParams() {
   return ALL_GUIDES.map((guide) => ({ slug: guide.slug }));
@@ -43,6 +44,7 @@ export default async function GuidePage({ params }: { params: Promise<{ slug: st
       </nav>
       <header>
         <h1>{guide.title}</h1>
+        <PageHelp />
         <p className="list-screen-summary">{guide.summary}</p>
       </header>
 

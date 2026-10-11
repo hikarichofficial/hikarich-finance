@@ -8,6 +8,7 @@ import {
 } from "@/domain/accounting/cashStatement";
 import type { CashAccountOption, CashStatement } from "@/schemas/cashStatement";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * One month of the "Rekening Koran" (decisions 326-327), on its own page for focus: opening balance, money in,
@@ -59,6 +60,7 @@ export function CashStatementScreen({
             <Link href={yearHref}>‹ Rekening Koran {monthKey.slice(0, 4)}</Link>
           </p>
           <h1>Rekening Koran {monthLabel(statement.month_start)}</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {accountId
               ? (accounts.find((account) => account.id === accountId)?.name ?? "Satu rekening")

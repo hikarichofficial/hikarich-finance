@@ -1,4 +1,5 @@
 import { requireAccess } from "@/services/identity/access";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Catch-all placeholder for every sitemap destination (Step 09 §3) that has no screen yet. The Sidebar
@@ -24,6 +25,7 @@ export default async function ComingSoonPage({
     <section>
       <p className="status-badge status-badge-neutral">Segera hadir</p>
       <h1>{path}</h1>
+      <PageHelp />
       <p>
         Halaman ini belum dibangun. Navigasi sudah tersedia; tampilannya menyusul di fase
         berikutnya.

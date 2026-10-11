@@ -353,3 +353,24 @@ export function mergeRecentActivity(
   ];
   return items.sort((a, b) => b.date.localeCompare(a.date)).slice(0, limit);
 }
+
+/**
+ * The latest earlier month that has revenue or expense when the month shown has none (decision 410): the
+ * Dashboard opens on the running month, which is empty at the start of a month, and an empty page looks like
+ * "nothing was recorded". `flow` is the last months oldest first, ending with the month shown. Returns the
+ * month as "YYYY-MM", or null when the month shown has activity or nothing earlier does.
+ */
+export function lastActiveMonth(
+  flow: ReadonlyArray<{ month: string; revenue: string; expense: string }>,
+  shown: string,
+): string | null {
+  const isZero = (text: string) => /^-?0+(\.0+)?$/.test(text.trim());
+  const current = flow.find((point) => point.month === shown);
+  if (!current || !(isZero(current.revenue) && isZero(current.expense))) return null;
+  for (let i = flow.length - 1; i >= 0; i--) {
+    const point = flow[i];
+    if (point.month < shown && !(isZero(point.revenue) && isZero(point.expense)))
+      return point.month;
+  }
+  return null;
+}

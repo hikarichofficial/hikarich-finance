@@ -2,6 +2,7 @@ import { can } from "@/domain/authz/access";
 import { requirePermission } from "@/services/identity/access";
 import { listPaymentLinks } from "@/services/sales/paymentLinks";
 import { PaymentLinkCreateForm, PaymentLinkEditForm } from "@/features/sales/PaymentLinkForms";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Tautan Pembayaran (decision 307): the payment gateway pages an invoice can point its customer to. Viewing
  * needs `invoices.view` (the list itself is read with `money.view`, as the accounts of an invoice are);
@@ -21,6 +22,7 @@ export default async function PaymentLinksPage({
       <header className="list-screen-header">
         <div>
           <h1>Tautan Pembayaran</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {links.length} tautan. Tautan dipilih di form Buat Invoice dan tampil di invoice sebagai
             tombol “Bayar sekarang” yang bisa diklik pelanggan.

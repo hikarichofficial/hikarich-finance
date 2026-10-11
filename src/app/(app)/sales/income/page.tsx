@@ -16,6 +16,7 @@ import { Decimal } from "@/domain/money/decimal";
 import { formatShortDate } from "@/features/sales/format";
 import { ReportExportButtons } from "@/features/reports/ReportExportButtons";
 import { todayInBusinessZone } from "@/lib/time";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Catat Pendapatan (decision 350): income that has no invoice -- the month's entries with their totals. Viewing
  * needs `invoices.view`; recording `invoices.issue` and `invoices.confirm_payment`; cancelling `invoices.void`. */
@@ -55,6 +56,7 @@ export default async function IncomeListPage({
       <header className="list-screen-header">
         <div>
           <h1>Catat Pendapatan</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             Pendapatan yang tidak lewat invoice, misalnya penjualan tunai, jasa yang dibayar
             langsung, komisi, bunga, atau dividen. Cukup isi beberapa kolom; jurnalnya dibuat

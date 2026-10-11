@@ -9,6 +9,7 @@ import { resolveTaxYear, runningTaxPeriod } from "@/domain/tax/tax";
 import { GroupTurnoverCard } from "@/features/tax/GroupTurnoverCard";
 import { computeInstallment, computePersonalTax } from "@/domain/tax/personalTax";
 import { PersonalTaxScreen } from "@/features/tax/PersonalTaxScreen";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Pajak Pribadi (decision 365): the yearly PPh estimate of a Personal book. */
 export default async function PersonalTaxPage({
@@ -35,6 +36,7 @@ export default async function PersonalTaxPage({
           <div>
             <p className="record-detail-eyebrow">Pajak</p>
             <h1>Omzet Gabungan</h1>
+            <PageHelp />
             <p className="record-detail-dates">
               Omzet semua buku Anda dijumlahkan otomatis untuk batas PPh Final UMKM Rp 4,8 miliar.
               Pajak penghasilan pribadi ada di Buku Pribadi (pilih lewat pemilih buku di kiri atas).

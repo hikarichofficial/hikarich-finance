@@ -4,6 +4,7 @@ import { listInvoicePositions, listPayments } from "@/services/sales/sales";
 import { listVendorPayments } from "@/services/purchases/purchases";
 import { mergeRecentActivity } from "@/domain/dashboard/dashboard";
 import { RecentActivity } from "@/features/dashboard/RecentActivity";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 const ACTIVITY_LIMIT = 100;
 
@@ -40,6 +41,7 @@ export default async function ActivityPage({
       <header className="list-screen-header">
         <div>
           <h1>Aktivitas Terbaru</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             Kejadian penting terakhir: pembayaran terkonfirmasi dan invoice yang diterbitkan.
           </p>

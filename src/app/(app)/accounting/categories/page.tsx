@@ -13,6 +13,7 @@ import {
 import { CATEGORY_KIND_LABELS } from "@/features/categories/kindLabels";
 import { PERSONAL_ROLE_LABELS, isPersonalTaxRole } from "@/domain/tax/personalTaxRoles";
 import { todayInBusinessZone } from "@/lib/time";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Categories (Step 03 §6, decision 262): every member may read them; adding one or changing its tax
  * mapping needs `categories.manage` (the RLS policy of the table). The tax mapping is the fallback a line
@@ -46,6 +47,7 @@ export default async function CategoriesPage({
       <header className="list-screen-header">
         <div>
           <h1>Kategori</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {rows.length} kategori. Kategori adalah jenis pendapatan atau beban pada baris
             invoice/tagihan (misalnya Jasa Konsultasi atau Sewa Kantor), bukan daftar pelanggan atau

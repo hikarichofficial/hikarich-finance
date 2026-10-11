@@ -12,6 +12,7 @@ import { ReverseIncomeForm } from "@/features/sales/IncomeForms";
 import { formatShortDate } from "@/features/sales/format";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** One income entry (decision 350), gated `invoices.view`. Cancelling needs `invoices.void`; documents follow
  * the usual `documents.upload` rule. */
@@ -50,6 +51,7 @@ export default async function IncomeDetailPage({
         <div>
           <p className="record-detail-eyebrow">Pendapatan</p>
           <h1>{category?.name ?? "Pendapatan"}</h1>
+          <PageHelp />
           <span className={`status-badge status-badge-${reversed ? "neutral" : "success"}`}>
             {reversed ? "Dibatalkan" : "Sudah tersimpan"}
           </span>

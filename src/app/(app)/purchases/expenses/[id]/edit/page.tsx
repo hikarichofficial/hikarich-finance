@@ -12,6 +12,7 @@ import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { ExpenseForm } from "@/features/purchases/ExpenseForm";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Edit a DRAFT expense (Step 09 §12), gated `bills.edit` -- the permission `update_expense_draft` checks.
  * Anything that is no longer a draft is "not found" here: a confirmed expense is corrected instead. */
@@ -53,6 +54,7 @@ export default async function EditExpensePage({
         <div>
           <p className="record-detail-eyebrow">Pengeluaran</p>
           <h1>Ubah Draf Pengeluaran</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

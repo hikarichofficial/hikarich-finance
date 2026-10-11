@@ -8,6 +8,7 @@ import {
 } from "@/services/planning/planning";
 import { RecurringRuleForm } from "@/features/planning/RecurringRuleForm";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Recurring Rule create form (P13 Part 3h, sixth increment, Step 09 §13, §18). Gated on
  * `planning.recurring_edit`, the exact permission `create_recurring_rule` itself checks -- the same
@@ -52,6 +53,7 @@ export default async function NewRecurringRulePage({
         <div>
           <p className="record-detail-eyebrow">Transaksi Berulang</p>
           <h1>Buat Transaksi Berulang</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

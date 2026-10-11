@@ -4,6 +4,7 @@ import { listSavedReports } from "@/services/reports/reports";
 import { savedReportHref } from "@/domain/reports/salesPurchase";
 import { DeleteSavedReportForm } from "@/features/reports/SavedReportForms";
 import { formatShortDate } from "@/features/documents/format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Saved Reports (Step 09 §19 "Saved Reports preserve filters/layout", decision 252): the caller's own
  * named report views in the active Entity. Gated `reports.view`, as the table's RLS policy. */
@@ -21,6 +22,7 @@ export default async function SavedReportsPage({
       <header className="list-screen-header">
         <div>
           <h1>Laporan Tersimpan</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             Laporan dengan filter yang Anda simpan. Buka laporan mana pun lalu pilih &quot;Simpan
             laporan ini&quot; untuk menambahkannya.

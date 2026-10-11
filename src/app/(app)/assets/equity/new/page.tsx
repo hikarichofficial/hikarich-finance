@@ -5,6 +5,7 @@ import { EQUITY_KIND_LABELS } from "@/domain/financing/financing";
 import { EquityCreateForm } from "@/features/financing/FinancingForms";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 const COMPANY_KINDS = ["contribution", "capital_return", "dividend"] as const;
 const PERSONAL_KINDS = [
@@ -41,6 +42,7 @@ export default async function NewEquityEventPage({
         <div>
           <p className="record-detail-eyebrow">Modal & Ekuitas</p>
           <h1>Tambah Modal / Ekuitas</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

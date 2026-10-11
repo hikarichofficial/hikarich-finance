@@ -9,6 +9,7 @@ import {
 import { SkuFormatForm } from "@/features/products/SkuFormatForm";
 import { SkuMasterManager } from "@/features/products/SkuMasterManager";
 import { formatShortDate } from "@/features/sales/format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Konfigurasi SKU (decision 324): the Owner sets the SKU format, brands, product types, variants and numbering
  * here. Needs `products.sku_settings` (the Owner holds it; no other role is given it by default). */
@@ -57,6 +58,7 @@ export default async function SkuConfigurationPage({
       <header className="list-screen-header">
         <div>
           <h1>Konfigurasi SKU</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             Atur bagaimana SKU produk dibuat otomatis: format, brand, jenis produk, variant, dan
             nomor urut. Berlaku untuk SKU baru; dokumen dan transaksi lama tidak berubah.

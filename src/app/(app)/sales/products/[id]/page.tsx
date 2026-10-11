@@ -16,6 +16,7 @@ import {
 } from "@/services/products/sku";
 import { AddVariantForm, ChangeSkuForm } from "@/features/products/ProductSkuPanel";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Product Detail (decision 245, compact in task 95): a read-only summary for everyone with `products.view`;
  * the edit form is its own page (`./edit`, `products.edit`) so viewing and editing are never stacked. Archiving (`products.archive` maps to a hard delete policy) is deliberately not offered:
@@ -86,6 +87,7 @@ export default async function ProductDetailPage({
         <div>
           <p className="record-detail-eyebrow">{PRODUCT_KIND_LABELS[product.kind]}</p>
           <h1>{product.name}</h1>
+          <PageHelp />
         </div>
         <div className="record-detail-header-end">
           <span

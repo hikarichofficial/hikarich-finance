@@ -4,6 +4,7 @@ import { getContact } from "@/services/contacts/contacts";
 import { matchesContactRole } from "@/domain/contacts/contactsList";
 import { ContactEditForm } from "@/features/contacts/ContactEditForm";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Ubah Pelanggan (finding #90), gated `contacts.edit` -- the permission the update policy itself checks. */
 export default async function EditContactPage({
@@ -37,6 +38,7 @@ export default async function EditContactPage({
         <div>
           <p className="record-detail-eyebrow">Penjualan</p>
           <h1>Ubah Pelanggan</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { incomeTaxByMonth, totalOutstanding } from "./taxOverview";
+import { incomeTaxByMonth, resolveTaxScope, scopeTotals, totalOutstanding } from "./taxOverview";
 import type { TaxLedgerRow } from "@/schemas/tax";
 
 const row = (over: Partial<TaxLedgerRow>): TaxLedgerRow => ({
@@ -42,5 +42,58 @@ describe("totalOutstanding", () => {
   it("sums every tax type", () => {
     expect(Number(totalOutstanding({ wht_pph23: "250000.0000", vat: "100.5000" }))).toBe(250100.5);
     expect(totalOutstanding({})).toBe("0");
+  });
+});
+
+describe("resolveTaxScope (decision 409)", () => {
+  const today = "2026-10-12";
+  it("defaults to the whole current year", () => {
+    const s = resolveTaxScope({}, today);
+    expect(s).toMatchObject({ kind: "year", year: 2026, from: "2026-01-01", to: "2026-12-31" });
+  });
+  it("reads one month by its tax period", () => {
+    const s = resolveTaxScope({ scope: "month", month: "2026-09" }, today);
+    expect(s).toMatchObject({
+      kind: "month",
+      month: "2026-09",
+      year: 2026,
+      from: "2026-09-01",
+      to: "2026-09-01",
+    });
+    expect(s.label).toBe("September 2026");
+  });
+  it("falls back to the running month for a bad or future month", () => {
+    expect(resolveTaxScope({ scope: "month", month: "2027-01" }, today).month).toBe("2026-10");
+    expect(resolveTaxScope({ scope: "month", month: "abc" }, today).month).toBe("2026-10");
+  });
+  it("has no limits for everything since the start", () => {
+    expect(resolveTaxScope({ scope: "all" }, today)).toMatchObject({
+      kind: "all",
+      from: null,
+      to: null,
+    });
+  });
+  it("takes an earlier year and ignores a future one", () => {
+    expect(resolveTaxScope({ scope: "year", year: "2025" }, today).year).toBe(2025);
+    expect(resolveTaxScope({ scope: "year", year: "2031" }, today).year).toBe(2026);
+  });
+});
+
+describe("scopeTotals", () => {
+  it("adds counted and paid and subtracts them for what is left", () => {
+    const rows = [
+      {
+        tax_type: "final_umkm",
+        accrued: "116814.0000",
+        paid: "16814.0000",
+        outstanding: "100000.0000",
+      },
+      { tax_type: "wht_pph23", accrued: "50000.0000", paid: "0.0000", outstanding: "50000.0000" },
+    ] as never;
+    expect(scopeTotals(rows)).toEqual({
+      accrued: "166814.0000",
+      paid: "16814.0000",
+      outstanding: "150000.0000",
+    });
   });
 });

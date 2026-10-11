@@ -5,6 +5,7 @@ import { listActiveCategories } from "@/services/accounting/categories";
 import { getEntityBaseCurrency } from "@/services/accounting/ledger";
 import { ProductForm } from "@/features/products/ProductForm";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** New Product (decision 245), gated `products.create` -- the `products_insert` RLS permission. Only
  * revenue categories are offered as a product's default, since a product is what an invoice line sells. */
@@ -39,6 +40,7 @@ export default async function NewProductPage({
         <div>
           <p className="record-detail-eyebrow">Produk &amp; Jasa</p>
           <h1>Tambah Produk</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

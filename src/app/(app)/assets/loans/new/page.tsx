@@ -4,6 +4,7 @@ import { listPurposeSuggestions } from "@/services/financing/purposeSuggestions"
 import { LoanCreateForm } from "@/features/financing/FinancingForms";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Tambah Pinjaman, gated `loans.manage` -- the permission `loan_create` itself checks. The loan is saved as a
  * draft; money moves only when it is activated on Loan Detail. */
@@ -27,6 +28,7 @@ export default async function NewLoanPage({
         <div>
           <p className="record-detail-eyebrow">Pinjaman</p>
           <h1>Tambah Pinjaman</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

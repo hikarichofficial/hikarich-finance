@@ -5,6 +5,7 @@ import { newSessionDefaults } from "@/domain/money/reconciliationSession";
 import { NewSessionForm } from "@/features/money/ReconciliationForms";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Start a reconciliation session for one account (decision 251). Gated `money.reconcile`, the permission
  * `create_reconciliation_session` checks. The period and opening balance default to continuing from the
@@ -36,6 +37,7 @@ export default async function NewReconciliationPage({
         <div>
           <p className="record-detail-eyebrow">Kas &amp; Bank · Rekonsiliasi</p>
           <h1>Rekonsiliasi baru</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

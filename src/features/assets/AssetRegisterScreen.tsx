@@ -11,6 +11,7 @@ import type { AssetRow } from "@/schemas/assets";
 import type { AssetStatus } from "@/domain/assets/assets";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Asset Register (P13 Part 3f, first increment, Step 09 §9, §16: "Asset Register supports card/table views,
@@ -45,6 +46,7 @@ export function AssetRegisterScreen({
       <header className="list-screen-header">
         <div>
           <h1>Daftar Aset</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} aset ditampilkan.</p>
         </div>
         {newHref ? (

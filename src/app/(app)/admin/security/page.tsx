@@ -17,6 +17,7 @@ import {
 import { formatAuditTimestamp } from "@/features/audit/format";
 import { RevokeDeviceForm } from "@/features/admin/UserAccessForms";
 import { can } from "@/domain/authz/access";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Security Center (Step 09 §21 Security, decision 246), read-only, gated `security.view` -- the RLS
@@ -63,6 +64,7 @@ export default async function SecurityPage({
         <div>
           <p className="record-detail-eyebrow">Administrasi</p>
           <h1>Keamanan</h1>
+          <PageHelp />
         </div>
         <div className="record-detail-header-end">
           <span

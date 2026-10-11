@@ -4,6 +4,7 @@ import { activeCashBalance } from "@/domain/dashboard/dashboard";
 import { getEntityBaseCurrency } from "@/services/reports/reports";
 import { getMoneyControl, getReconciliationStatus } from "@/services/money/money";
 import { AccountSnapshot } from "@/features/dashboard/AccountSnapshot";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Saldo Kas & Bank (Step 09 §3 Overview "Cash & Bank Snapshot", decision 255): a read-only snapshot of
  * every active cash/bank balance and its reconciliation freshness -- the Dashboard's own Account Snapshot
@@ -29,6 +30,7 @@ export default async function CashSnapshotPage({
         <div>
           <p className="record-detail-eyebrow">Ringkasan</p>
           <h1>Saldo Kas &amp; Bank</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">
