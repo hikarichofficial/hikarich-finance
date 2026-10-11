@@ -119,7 +119,7 @@ Dua hal perlu dipetakan ulang saat dikembalikan, karena migration membuat id bar
 (lewat `role_key`) dan akun buku besar sebuah rekening (lewat kode akun). Entity sendiri dimasukkan
 dengan **id aslinya**, sehingga semua yang menunjuk ke Entity tetap cocok.
 
-**Satu jebakan, ditemukan saat dijalankan 11 Oktober 2026.** `entities.base_currency` dan
+**Tiga jebakan, semuanya ditemukan saat dijalankan 11 Oktober 2026.** `entities.base_currency` dan
 `financial_accounts.currency` bertipe domain `public.currency_code`. Saat `drop schema public cascade`,
 domain itu ikut terhapus -- dan PostgreSQL ikut menghapus kedua kolom itu dari salinan di `restore_tmp`,
 karena salinan `create table as` mewarisi tipe domainnya. Akibatnya `insert ... select *` bergeser satu
@@ -127,6 +127,19 @@ kolom dan gagal dengan pesan seperti `column "fiscal_year_start_month" is of typ
 expression is of type text`. Dua kolom itu karena itu dibuat lagi di langkah 4, dan **semua insert
 memakai daftar kolom yang eksplisit** -- bukan `select *` -- supaya pergeseran semacam itu tidak mungkin
 terjadi diam-diam.
+
+Dua lagi di tabel rekening. `financial_accounts.account_number_masked` adalah kolom *generated*, dihitung
+sendiri oleh database dari nomor rekening, jadi tidak boleh ikut diisi. Dan akun buku besar sebuah
+rekening (mis. `1121` untuk "Mandiri Bisnis") **bukan bagian dari COA bawaan**: `create_financial_account`
+membuatnya sendiri saat rekening ditambahkan, dengan kode pertama yang masih kosong dalam rentang
+jenisnya (kas 1111-1119, bank 1121-1189, e-wallet 1191-1199). `provision_default_coa` karena itu tidak
+membuatnya kembali, dan rekening yang dikembalikan akan kehilangan akun buku besarnya. Langkah 4
+membuatnya lagi, persis seperti cara aplikasi membuatnya.
+
+Seluruh langkah 4 sudah diuji di produksi dalam satu transaksi percobaan sebelum dijalankan sungguhan --
+cara yang layak diulang kalau skrip ini dipakai lagi: bungkus isinya dalam blok `do $$ ... end $$` yang
+diakhiri `raise exception`, sehingga semuanya dibatalkan otomatis dan pesan errornya membawa hasil
+pemeriksaannya.
 
 ### Langkah 1 — Simpan yang harus bertahan
 
@@ -185,13 +198,25 @@ from restore_tmp.memberships m join public.roles r on r.role_key = m.role_key;
 insert into public.entity_profiles select * from restore_tmp.entity_profiles;
 insert into public.entity_settings select * from restore_tmp.entity_settings;
 
+-- Akun buku besar milik rekening dibuat oleh aplikasi, bukan oleh COA bawaan: dibuat lagi di sini.
+insert into public.ledger_accounts
+  (entity_id, code, name, account_class, normal_balance, parent_id, is_control, allows_manual_posting)
+select a.entity_id, a.ledger_code, a.name, 'asset', 'debit',
+       (select c.parent_id from public.ledger_accounts c
+         where c.entity_id = a.entity_id and c.system_key = 'CASH'),
+       true, false
+from restore_tmp.financial_accounts a
+where a.ledger_code is not null
+  and not exists (select 1 from public.ledger_accounts la
+                   where la.entity_id = a.entity_id and la.code = a.ledger_code);
+
+-- account_number_masked tidak ikut: kolom generated.
 insert into public.financial_accounts
   (id, entity_id, kind, name, institution_name, account_number, account_holder, currency,
-   ledger_account_id, is_active, created_at, created_by, updated_at, updated_by, version,
-   deleted_at, account_number_masked)
+   ledger_account_id, is_active, created_at, created_by, updated_at, updated_by, version, deleted_at)
 select a.id, a.entity_id, a.kind, a.name, a.institution_name, a.account_number, a.account_holder,
        a.currency, la.id, a.is_active, a.created_at, a.created_by, a.updated_at, a.updated_by,
-       a.version, a.deleted_at, a.account_number_masked
+       a.version, a.deleted_at
 from restore_tmp.financial_accounts a
 left join public.ledger_accounts la on la.entity_id = a.entity_id and la.code = a.ledger_code;
 

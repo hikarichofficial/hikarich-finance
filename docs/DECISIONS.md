@@ -3780,3 +3780,13 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      unnoticed. The document also carries the query that lists which `public` columns use a `public`
      domain, to run before the backup rather than after the failure. Nothing was lost: the restore runs in
      one transaction, so the failure rolled the whole thing back.
+     Two more traps surfaced in the same restore, both in `financial_accounts`.
+     `account_number_masked` is a generated column, so it must not be listed at all. And a financial
+     account's ledger account is **not** part of the default chart: `create_financial_account` makes it
+     when the account is added, taking the first free code in that kind's range (cash 1111-1119, bank
+     1121-1189, e-wallet 1191-1199), so `provision_default_coa` does not bring it back and the restored
+     account would have no ledger account -- a not-null column, which is the only reason this one failed
+     loudly rather than quietly. The document now recreates it exactly the way the function does.
+     The third attempt was dry-run against production first, inside a `do $$ ... end $$` block ending in
+     `raise exception`, so the whole thing rolled back and the error message carried the verification
+     counts. That is the way to run this script again: prove it, then run it.
