@@ -119,6 +119,15 @@ Dua hal perlu dipetakan ulang saat dikembalikan, karena migration membuat id bar
 (lewat `role_key`) dan akun buku besar sebuah rekening (lewat kode akun). Entity sendiri dimasukkan
 dengan **id aslinya**, sehingga semua yang menunjuk ke Entity tetap cocok.
 
+**Satu jebakan, ditemukan saat dijalankan 11 Oktober 2026.** `entities.base_currency` dan
+`financial_accounts.currency` bertipe domain `public.currency_code`. Saat `drop schema public cascade`,
+domain itu ikut terhapus -- dan PostgreSQL ikut menghapus kedua kolom itu dari salinan di `restore_tmp`,
+karena salinan `create table as` mewarisi tipe domainnya. Akibatnya `insert ... select *` bergeser satu
+kolom dan gagal dengan pesan seperti `column "fiscal_year_start_month" is of type smallint but
+expression is of type text`. Dua kolom itu karena itu dibuat lagi di langkah 4, dan **semua insert
+memakai daftar kolom yang eksplisit** -- bukan `select *` -- supaya pergeseran semacam itu tidak mungkin
+terjadi diam-diam.
+
 ### Langkah 1 — Simpan yang harus bertahan
 
 ```sql
@@ -150,7 +159,20 @@ Sama dengan Cara 1 langkah 2: Actions → Production migrations → Run workflow
 ### Langkah 4 — Kembalikan
 
 ```sql
-insert into public.entities select * from restore_tmp.entities;
+-- Dua kolom yang ikut terhapus bersama domain public.currency_code.
+alter table restore_tmp.entities
+  add column if not exists base_currency text not null default 'IDR';
+alter table restore_tmp.financial_accounts
+  add column if not exists currency text not null default 'IDR';
+
+insert into public.entities
+  (id, entity_type, code, legal_name, brand_name, base_currency, timezone,
+   fiscal_year_start_month, status, disabled_at, created_at, created_by,
+   updated_at, updated_by, version)
+select id, entity_type, code, legal_name, brand_name, base_currency, timezone,
+       fiscal_year_start_month, status, disabled_at, created_at, created_by,
+       updated_at, updated_by, version
+from restore_tmp.entities;
 
 select e.code, app_private.provision_default_coa(e.id) from public.entities e order by e.code;
 
@@ -175,8 +197,35 @@ left join public.ledger_accounts la on la.entity_id = a.entity_id and la.code = 
 
 insert into public.tax_entity_profiles select * from restore_tmp.tax_entity_profiles;
 insert into public.tax_settings select * from restore_tmp.tax_settings;
+```
 
+### Langkah 5 — Periksa, baru bersihkan
+
+```sql
+select e.code, e.legal_name, e.base_currency,
+       (select count(*) from public.financial_accounts a where a.entity_id = e.id) as rekening,
+       (select count(*) from public.financial_accounts a
+         where a.entity_id = e.id and a.ledger_account_id is null) as rekening_tanpa_akun,
+       (select count(*) from public.ledger_accounts la where la.entity_id = e.id) as akun_coa,
+       (select count(*) from public.categories c where c.entity_id = e.id) as kategori,
+       (select count(*) from public.entity_memberships m where m.entity_id = e.id) as anggota
+from public.entities e order by e.code;
+```
+
+`rekening_tanpa_akun` harus 0 untuk setiap Entity. Kalau sudah benar:
+
+```sql
 drop schema restore_tmp cascade;
+```
+
+Sebelum langkah 1 dijalankan, ada gunanya memeriksa dulu kolom mana saja yang bertipe domain, supaya
+jebakan yang sama tidak muncul lagi kalau skema berubah:
+
+```sql
+select c.table_name, c.column_name, c.domain_name
+from information_schema.columns c
+where c.table_schema = 'public' and c.domain_schema = 'public'
+order by 1, 2;
 ```
 
 ### Yang tetap hilang
