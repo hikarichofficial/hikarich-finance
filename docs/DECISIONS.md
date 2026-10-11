@@ -3698,3 +3698,33 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      was never the better half of that trade.
      The cash/bank fields stay dropdowns: those list the Entity's own handful of accounts, not the chart.
      Display only — no RPC, schema or posting rule changes.
+404. **The Dashboard summarises a month, a year, or everything (OWNER, 11 October 2026).** It had one period
+     selector, a month, with arrows either side — so "how are we doing this year" and "what have we got
+     altogether" could not be asked at all, and a figure entered in September read as zero while the
+     Dashboard sat on October. `?scope=month|year|all` now chooses, `?month=` names which one ("YYYY-MM" for
+     a month, "YYYY" for a year, ignored for all), and three pills under the greeting switch between them.
+     The arrows disappear on "all", which has nothing before or after it rather than dead controls.
+     `resolveDashboardPeriod` grew a scope and every period now carries it; nothing else in the snapshot
+     changed, because every figure was already computed from `period.start`/`period.end` and those simply
+     widen. "All" runs from 1900 to the end of the current year: no book starts earlier, and the RPCs never
+     report a movement that has not happened, so a year-end bound shows nothing that is not there.
+405. **Penyesuaian Lanjutan lists what was recorded, and can undo one (OWNER, 11 October 2026: "harus punya
+     list apa saja yang telah di buat, dan harus punya hapus atau batalkan. karena bisa saja ada kesalahan
+     disitu").** The screen was a form and nothing else: an adjustment, once posted, could not be seen from
+     there again and could not be undone at all — on the one screen whose whole purpose is correcting
+     mistakes. Every other money command in P4 has a reversal; this was the one that did not.
+     Not a delete: `reverse_balance_adjustment` posts the opposite journal and the opposite movement and
+     keeps both, and the list shows the reversed row greyed rather than hiding it. **The reversal is dated
+     the original adjustment's own date**, not today — this is the point of the slice. Earlier the same day,
+     reversing a 23 September journal booked the reversal in October and put a cash outflow in a month where
+     nothing had moved; the Rekening Koran then showed money leaving in October that never left. If that
+     period is closed the posting engine refuses, which is the right answer, not a silent move into another
+     month. `balance_adjustment_list` needs only `money.view`; undoing needs `money.adjust`, the right that
+     makes one. Migration `20261029100000_p61_balance_adjustment_list_reverse.sql`.
+406. **Every field that chooses from a register is a Picker (OWNER, 11 October 2026: "semua yang model
+     begini harus dibuat picker").** Decision 403 did the chart of accounts; this extends the same treatment
+     to the cash/bank, contact, channel and document registers across the money, sales and purchase forms —
+     including the cash/bank fields 403 had deliberately left as dropdowns on the grounds that the list was
+     short. That reasoning was wrong in the OWNER's own terms: a person should not have to learn which
+     fields type and which do not. Dropdowns remain only where the choice is a fixed set the app defines —
+     direction, journal kind, status, document type — not a register that grows.

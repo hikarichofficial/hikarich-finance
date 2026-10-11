@@ -1,6 +1,7 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
+import { Picker } from "@/features/shared/Picker";
 import { useActionState } from "@/features/feedback/useActionState";
 import type { MoneyControlRow } from "@/schemas/money";
 import { createTransferAction } from "./transferActions";
@@ -43,33 +44,25 @@ export function TransferForm({
       <input type="hidden" name="entity_id" value={entityId} />
       {entity ? <input type="hidden" name="entity" value={entity} /> : null}
 
-      <label>
-        Dari Akun
-        <select name="from_account_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih akun sumber…
-          </option>
-          {active.map((a) => (
-            <option key={a.financial_account_id} value={a.financial_account_id}>
-              {a.name} ({a.currency})
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker
+        label="Dari Akun"
+        name="from_account_id"
+        noun="akun"
+        items={active.map((a) => ({
+          id: a.financial_account_id,
+          label: `${a.name} (${a.currency})`,
+        }))}
+      />
 
-      <label>
-        Ke Akun
-        <select name="to_account_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih akun tujuan…
-          </option>
-          {active.map((a) => (
-            <option key={a.financial_account_id} value={a.financial_account_id}>
-              {a.name} ({a.currency})
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker
+        label="Ke Akun"
+        name="to_account_id"
+        noun="akun"
+        items={active.map((a) => ({
+          id: a.financial_account_id,
+          label: `${a.name} (${a.currency})`,
+        }))}
+      />
 
       <label>
         Tanggal Transfer

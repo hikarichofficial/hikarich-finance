@@ -63,6 +63,34 @@ export const balanceAdjustmentInputSchema = z.object({
   reason: z.string().trim().min(10).max(500),
 });
 
+/** One recorded balance adjustment, as the list on Penyesuaian Lanjutan shows it (decision 405). */
+export const balanceAdjustmentRowSchema = z.object({
+  adjustment_id: z.uuid(),
+  movement_date: isoDateSchema,
+  account_id: z.uuid(),
+  account_name: z.string(),
+  direction: z.enum(["in", "out"]),
+  amount: signedDecimalTextSchema,
+  currency: z.string(),
+  base_amount: signedDecimalTextSchema,
+  counter_code: z.string().nullable(),
+  counter_name: z.string().nullable(),
+  reason: z.string().nullable(),
+  journal_id: z.uuid(),
+  journal_number: z.string(),
+  status: z.enum(["active", "reversed"]),
+  reversed_by_journal_id: z.uuid().nullable(),
+  created_at: z.string(),
+});
+export const balanceAdjustmentListSchema = z.array(balanceAdjustmentRowSchema);
+export type BalanceAdjustmentRow = z.infer<typeof balanceAdjustmentRowSchema>;
+
+export const reverseBalanceAdjustmentInputSchema = z.object({
+  adjustment_id: z.uuid(),
+  idempotency_key: idempotencyKeySchema,
+  reason: z.string().trim().min(5).max(500),
+});
+
 export const createTransferInputSchema = z.object({
   entity_id: z.uuid(),
   idempotency_key: idempotencyKeySchema,

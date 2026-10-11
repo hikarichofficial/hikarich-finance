@@ -15,6 +15,7 @@ import {
   type RecurringLineRow,
 } from "@/features/planning/RecurringLinesEditor";
 import { ContactPicker } from "@/features/contacts/ContactPicker";
+import { Picker } from "@/features/shared/Picker";
 import { QuickAddContactDrawer } from "@/features/contacts/QuickAddContactDrawer";
 import { QuickAddPaymentLinkDrawer } from "./QuickAddPaymentLinkDrawer";
 import { createInvoiceAction } from "./actions";
@@ -120,32 +121,26 @@ export function InvoiceForm({
           Jatuh Tempo
           <input type="date" name="due_date" required defaultValue={initial?.due_date ?? today} />
         </label>
-        <label>
-          Rekening Tujuan Pembayaran (opsional)
-          <select name="payment_account_id" defaultValue={initial?.payment_account_id ?? ""}>
-            <option value="">— Tidak dicantumkan —</option>
-            {accounts.map((account) => (
-              <option key={account.financial_account_id} value={account.financial_account_id}>
-                {account.name} ({account.currency})
-              </option>
-            ))}
-          </select>
-        </label>
-        <label>
-          Tautan Pembayaran (opsional)
-          <select
-            name="payment_channel_id"
-            value={linkId}
-            onChange={(event) => setLinkId(event.target.value)}
-          >
-            <option value="">— Tanpa tautan —</option>
-            {linkList.map((link) => (
-              <option key={link.id} value={link.id}>
-                {link.name}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Picker
+          label="Rekening Tujuan Pembayaran (opsional)"
+          name="payment_account_id"
+          noun="rekening"
+          optional
+          items={accounts.map((account) => ({
+            id: account.financial_account_id,
+            label: `${account.name} (${account.currency})`,
+          }))}
+          defaultValue={initial?.payment_account_id ?? ""}
+        />
+        <Picker
+          label="Tautan Pembayaran (opsional)"
+          name="payment_channel_id"
+          noun="tautan"
+          optional
+          items={linkList.map((link) => ({ id: link.id, label: link.name }))}
+          value={linkId}
+          onChange={setLinkId}
+        />
         <p className="hint">
           Pelanggan bisa menekan tombol “Bayar sekarang” di invoice untuk membuka halaman
           pembayaran.{" "}

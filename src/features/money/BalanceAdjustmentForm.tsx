@@ -45,19 +45,15 @@ export function BalanceAdjustmentForm({
       <input type="hidden" name="entity_id" value={entityId} />
       {entity ? <input type="hidden" name="entity" value={entity} /> : null}
 
-      <label>
-        Akun Kas/Bank
-        <select name="account_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih akun…
-          </option>
-          {activeAccounts.map((a) => (
-            <option key={a.financial_account_id} value={a.financial_account_id}>
-              {a.name} ({a.currency})
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker
+        label="Akun Kas/Bank"
+        name="account_id"
+        noun="akun"
+        items={activeAccounts.map((a) => ({
+          id: a.financial_account_id,
+          label: `${a.name} (${a.currency})`,
+        }))}
+      />
 
       <label>
         Arah
@@ -91,8 +87,8 @@ export function BalanceAdjustmentForm({
         <input type="text" inputMode="decimal" name="exchange_rate" />
       </label>
 
-      {/* The counter account comes from the chart of accounts, so it is a Picker (decision 403); the
-          cash/bank field above stays a dropdown, being a short list of the Entity's own accounts. */}
+      {/* Both are Pickers (decisions 403/406): the OWNER asked that every field choosing from a register
+          behave the same way, however short that register happens to be today. */}
       <Picker
         label="Akun Lawan"
         name="counter_account_id"

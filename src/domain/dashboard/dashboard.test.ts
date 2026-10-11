@@ -14,6 +14,7 @@ import {
   pnlTotals,
   reconciliationsNeedingAttention,
   resolveDashboardPeriod,
+  resolveDashboardScope,
   trailingMonths,
   upcomingTaxDeadlines,
 } from "./dashboard";
@@ -69,17 +70,63 @@ describe("netResultFromEquityRows", () => {
 describe("resolveDashboardPeriod", () => {
   it("defaults to the reference date's calendar month", () => {
     const period = resolveDashboardPeriod(undefined, new Date(Date.UTC(2026, 8, 23)));
-    expect(period).toEqual({ month: "2026-09", start: "2026-09-01", end: "2026-09-30" });
+    expect(period).toEqual({
+      scope: "month",
+      month: "2026-09",
+      start: "2026-09-01",
+      end: "2026-09-30",
+    });
   });
 
   it("uses a valid requested month, spanning the full calendar month including a leap February", () => {
     const period = resolveDashboardPeriod("2028-02", new Date(Date.UTC(2026, 8, 23)));
-    expect(period).toEqual({ month: "2028-02", start: "2028-02-01", end: "2028-02-29" });
+    expect(period).toEqual({
+      scope: "month",
+      month: "2028-02",
+      start: "2028-02-01",
+      end: "2028-02-29",
+    });
   });
 
   it("falls back to the reference month when the requested value is malformed", () => {
     const period = resolveDashboardPeriod("not-a-month", new Date(Date.UTC(2026, 8, 23)));
     expect(period.month).toBe("2026-09");
+  });
+
+  // Decision 404: the Dashboard also summarises a whole year, and everything ever recorded.
+  it("spans the whole of a requested year", () => {
+    const period = resolveDashboardPeriod("2025", new Date(Date.UTC(2026, 8, 23)), "year");
+    expect(period).toEqual({
+      scope: "year",
+      month: "2025-12",
+      start: "2025-01-01",
+      end: "2025-12-31",
+    });
+  });
+
+  it("uses the reference year when a yearly period names none", () => {
+    const period = resolveDashboardPeriod(undefined, new Date(Date.UTC(2026, 8, 23)), "year");
+    expect(period.start).toBe("2026-01-01");
+    expect(period.end).toBe("2026-12-31");
+  });
+
+  it("spans everything ever recorded, up to the end of the current year", () => {
+    const period = resolveDashboardPeriod(undefined, new Date(Date.UTC(2026, 8, 23)), "all");
+    expect(period).toEqual({
+      scope: "all",
+      month: "2026-12",
+      start: "1900-01-01",
+      end: "2026-12-31",
+    });
+  });
+});
+
+describe("resolveDashboardScope", () => {
+  it("reads the three scopes and falls back to the monthly view", () => {
+    expect(resolveDashboardScope("year")).toBe("year");
+    expect(resolveDashboardScope("all")).toBe("all");
+    expect(resolveDashboardScope(undefined)).toBe("month");
+    expect(resolveDashboardScope("sejak-awal")).toBe("month");
   });
 });
 
