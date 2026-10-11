@@ -30,6 +30,7 @@ import {
   type AssetActionState,
 } from "./assetActions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { Picker } from "@/features/shared/Picker";
 import { AssetOriginFields, FieldProblem, FormProblem, invalidClass } from "./AssetFormHelp";
 
 /**
@@ -951,19 +952,12 @@ export function DisposeAssetForm({
             </label>
           ) : null}
           {method === "cash" ? (
-            <label>
-              Diterima di Rekening
-              <select name="account_id" required defaultValue="">
-                <option value="" disabled>
-                  Pilih rekening kas/bank
-                </option>
-                {accounts.map((account) => (
-                  <option key={account.id} value={account.id}>
-                    {account.label}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <Picker
+              label="Diterima di Rekening"
+              name="account_id"
+              noun="rekening kas/bank"
+              items={accounts}
+            />
           ) : null}
           {method === "receivable" ? (
             <>
@@ -1060,19 +1054,7 @@ export function ReverseDepreciationForm({
       openLabel="Batalkan Penyusutan Terposting"
       submitLabel="Batalkan Penyusutan"
     >
-      <label>
-        Bulan Penyusutan
-        <select name="line_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih bulan
-          </option>
-          {lines.map((line) => (
-            <option key={line.id} value={line.id}>
-              {line.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker label="Bulan Penyusutan" name="line_id" noun="bulan penyusutan" items={lines} />
       <label>
         Tanggal Pembatalan
         <input type="date" name="date" required defaultValue={today} max={today} />

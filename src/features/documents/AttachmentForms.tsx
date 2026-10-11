@@ -11,6 +11,7 @@ import {
   type GenericLinkableTargetType,
 } from "@/schemas/documents";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
+import { Picker } from "@/features/shared/Picker";
 import {
   createDocumentPurposeAction,
   removeAttachmentAction,
@@ -50,6 +51,18 @@ export function AttachmentUploadForm({
     ...customPurposes,
     ...added.filter((a) => !customPurposes.some((c) => c.id === a.id)),
   ];
+  // The built-in types first, then the Entity's own -- the order the dropdown had, which the Picker keeps
+  // while nothing is typed (decision 406).
+  const purposeItems = [
+    ...builtinDocumentPurposeSchema.options.map((option) => ({
+      id: option,
+      label: DOCUMENT_PURPOSE_LABELS[option],
+    })),
+    ...allCustom.map((custom) => ({
+      id: `${CUSTOM_PURPOSE_PREFIX}${custom.id}`,
+      label: custom.name,
+    })),
+  ];
 
   async function saveType() {
     setSavingType(true);
@@ -76,32 +89,18 @@ export function AttachmentUploadForm({
         Berkas (PDF, JPG, PNG atau WebP, maksimal 4 MB)
         <input type="file" name="file" accept={ATTACHMENT_ACCEPT} required />
       </label>
-      <label>
-        Jenis lampiran
-        <select
-          name="purpose"
-          value={purpose}
-          onChange={(event) => {
-            if (event.target.value === "__add__") {
-              setAdding(true);
-              return;
-            }
-            setPurpose(event.target.value);
-          }}
-        >
-          {builtinDocumentPurposeSchema.options.map((option) => (
-            <option key={option} value={option}>
-              {DOCUMENT_PURPOSE_LABELS[option]}
-            </option>
-          ))}
-          {allCustom.map((custom) => (
-            <option key={custom.id} value={`${CUSTOM_PURPOSE_PREFIX}${custom.id}`}>
-              {custom.name}
-            </option>
-          ))}
-          <option value="__add__">+ Tambah jenis lampiran…</option>
-        </select>
-      </label>
+      <Picker
+        label="Jenis lampiran"
+        name="purpose"
+        noun="jenis lampiran"
+        items={purposeItems}
+        value={purpose}
+        onChange={setPurpose}
+        onAddNew={(typed) => {
+          setNewName(typed);
+          setAdding(true);
+        }}
+      />
       {adding ? (
         <div className="attachment-new-type">
           <label>

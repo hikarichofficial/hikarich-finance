@@ -1,6 +1,7 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
+import { Picker } from "@/features/shared/Picker";
 import { useState } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
 import { trimDecimalText } from "@/domain/money/format";
@@ -57,19 +58,12 @@ export function SettlementForm({
   return (
     <form {...formActionForm} className="record-form">
       <input type="hidden" name={idName} value={id} />
-      <label>
-        {accountLabel}
-        <select name="account_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih rekening kas/bank
-          </option>
-          {accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker
+        label={accountLabel}
+        name="account_id"
+        noun="rekening"
+        items={accounts.map((account) => ({ id: account.id, label: account.label }))}
+      />
       <label>
         Tanggal
         <input type="date" name="payment_date" required defaultValue={today} />

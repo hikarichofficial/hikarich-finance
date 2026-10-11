@@ -146,7 +146,7 @@ describe("entityLabel", () => {
     expect(entityLabel({ entity_type: "company", entity_name: "cv Maju" })).toBe("CV");
     expect(entityLabel({ entity_type: "company", entity_name: "Hikarich" })).toBe("Pribadi");
     expect(entityLabel({ entity_type: "company", entity_name: "Ptolemy Shop" })).toBe("Pribadi");
-    expect(entityLabel({ entity_type: "personal", entity_name: "X" })).toBe("Rumah Tangga");
+    expect(entityLabel({ entity_type: "personal", entity_name: "X" })).toBe("Pribadi");
     expect(entityLabel({ entity_type: "other", entity_name: "Foundation" })).toBe("Foundation");
   });
 });

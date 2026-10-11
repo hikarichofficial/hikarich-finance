@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { CATEGORY_KIND_LABELS } from "./kindLabels";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
+import { Picker } from "@/features/shared/Picker";
 import { useActionState } from "@/features/feedback/useActionState";
 import {
   PERSONAL_ROLE_LABELS,
@@ -211,14 +212,16 @@ export function CategoryAccountForm({
     <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
       <input type="hidden" name="category_id" value={categoryId} />
-      <select name="account_id" defaultValue={currentAccountId ?? ""} aria-label="Akun">
-        <option value="">Akun bawaan</option>
-        {accounts.map((account) => (
-          <option key={account.id} value={account.id}>
-            {account.label}
-          </option>
-        ))}
-      </select>
+      {/* A Picker over the chart of accounts (decision 403); empty means the default account of the
+          category's kind, which is what the blank row said before. */}
+      <Picker
+        label="Akun"
+        name="account_id"
+        noun="akun"
+        optional
+        items={accounts.map((account) => ({ id: account.id, label: account.label }))}
+        defaultValue={currentAccountId ?? ""}
+      />
       <input
         type="date"
         name="effective_from"

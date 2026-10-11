@@ -3681,3 +3681,87 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Also corrected in this slice: `docs/GO_LIVE.md` still said the Import Wizard and file attachments were
      not built, which decision 275 had already done -- a stale line in the one document the OWNER follows at
      cut-over.
+402. **A personal Entity is called "Pribadi" (OWNER, 11 October 2026, seen while setting production up).**
+     The Entity switch called the OWNER's own business **"Rumah Tangga"**. That label (decision 273) existed
+     to keep the household ledger of Step 03 from being mistaken for a personal business; the distinction
+     stopped holding when decision 365 put Pajak Pribadi -- the personal book's PPh Final 0,5% **and** the
+     progressive tax on service income -- behind `entity_type = 'personal'`. A person's business must now BE
+     a personal Entity, so the type no longer tells the two apart, and the label was calling a business a
+     household book. `entityLabel` and the consolidated-report type column now say "Pribadi"; a ledger whose
+     legal name starts with a legal form still shows that form ("PT", "CV"), which is what the OWNER asked
+     for in decision 273 ("ubah menjadi Pribadi & PT"). Display only, no migration.
+     Also corrected: `docs/GO_LIVE.md` listed `hikarich` as a business-type Entity, following decision 270
+     and never updated for decision 365 -- had it been followed as written, production would have gone live
+     with no progressive-tax calculation and no way to add one, since the type cannot be changed afterwards.
+     It now records the type, the reason, what it costs (payroll is company-only, and the employees belong
+     to the PT anyway), the exact SQL and the timezone decision.
+     **Wrong turn recorded, because it nearly shipped:** while writing this I also built a migration to make
+     `provision_default_coa` call `provision_personal_tax_categories`, believing a new personal Entity would
+     otherwise come up with no `personal_tax_role` on any category. It already calls it -- decision 365 wired
+     it in (`20261013100000` line 100); I had read only the backfill a few lines below and concluded it was
+     missing. The migration I wrote recreated `provision_default_coa` from the P15 body, which silently
+     dropped the `provision_income_categories` call decision 350 added in P37 -- a real regression for every
+     Entity created afterwards. `99_p15_5_default_categories.sql` failed on the company category count and
+     caught it. The migration was deleted, not patched. The lesson is the plain one: `create or replace` of a
+     function that several migrations have extended must start from the CURRENT definition, not from the
+     oldest one that happens to be easy to find.
+403. **The chart of accounts is picked, not scrolled (OWNER, 11 October 2026: "harusnya picker ya, bisa
+     diketik").** The account field was still a dropdown on every screen that reaches the chart of
+     accounts — the longest list in the app, 114 accounts for a company — so finding "3100 Modal Disetor"
+     meant scrolling past a hundred others. The Picker (decision 395) was already in use for customers,
+     vendors and categories; this extends it to accounts, on the four screens where the chart itself is
+     offered: Saldo Awal, Jurnal Manual, the counter account of Koreksi Saldo, and the category-to-account
+     mapping on Akuntansi → Kategori.
+     Two details worth recording, because they are losses, not just a swap. (a) Jurnal Manual's dropdown
+     grouped accounts under `optgroup` headings by kind; a Picker has no headings. The accounts keep the
+     order the page sorts them into (income, costs, …, system-protected last), so the open list reads the
+     same, and typing narrows it faster than scanning headings ever did — the page's own help line now
+     says that instead of describing the headings. (b) Saldo Awal's dropdown offered accounts it then
+     refused, greyed out with a hint saying why. A Picker cannot grey a row, so those accounts are left
+     out of the list entirely; the hint stays on the ones that remain. Offering something and refusing it
+     was never the better half of that trade.
+     The cash/bank fields stay dropdowns: those list the Entity's own handful of accounts, not the chart.
+     Display only — no RPC, schema or posting rule changes.
+404. **The Dashboard summarises a month, a year, or everything (OWNER, 11 October 2026).** It had one period
+     selector, a month, with arrows either side — so "how are we doing this year" and "what have we got
+     altogether" could not be asked at all, and a figure entered in September read as zero while the
+     Dashboard sat on October. `?scope=month|year|all` now chooses, `?month=` names which one ("YYYY-MM" for
+     a month, "YYYY" for a year, ignored for all), and three pills under the greeting switch between them.
+     The arrows disappear on "all", which has nothing before or after it rather than dead controls.
+     `resolveDashboardPeriod` grew a scope and every period now carries it; nothing else in the snapshot
+     changed, because every figure was already computed from `period.start`/`period.end` and those simply
+     widen. "All" runs from 1900 to the end of the current year: no book starts earlier, and the RPCs never
+     report a movement that has not happened, so a year-end bound shows nothing that is not there.
+405. **Penyesuaian Lanjutan lists what was recorded, and can undo one (OWNER, 11 October 2026: "harus punya
+     list apa saja yang telah di buat, dan harus punya hapus atau batalkan. karena bisa saja ada kesalahan
+     disitu").** The screen was a form and nothing else: an adjustment, once posted, could not be seen from
+     there again and could not be undone at all — on the one screen whose whole purpose is correcting
+     mistakes. Every other money command in P4 has a reversal; this was the one that did not.
+     Not a delete: `reverse_balance_adjustment` posts the opposite journal and the opposite movement and
+     keeps both, and the list shows the reversed row greyed rather than hiding it. **The reversal is dated
+     the original adjustment's own date**, not today — this is the point of the slice. Earlier the same day,
+     reversing a 23 September journal booked the reversal in October and put a cash outflow in a month where
+     nothing had moved; the Rekening Koran then showed money leaving in October that never left. If that
+     period is closed the posting engine refuses, which is the right answer, not a silent move into another
+     month. `balance_adjustment_list` needs only `money.view`; undoing needs `money.adjust`, the right that
+     makes one. Migration `20261029100000_p61_balance_adjustment_list_reverse.sql`.
+406. **Every field that chooses from a register is a Picker (OWNER, 11 October 2026: "semua yang model
+     begini harus dibuat picker").** Decision 403 did the chart of accounts; this extends the same treatment
+     to the cash/bank, contact, channel and document registers across the money, sales and purchase forms —
+     including the cash/bank fields 403 had deliberately left as dropdowns on the grounds that the list was
+     short. That reasoning was wrong in the OWNER's own terms: a person should not have to learn which
+     fields type and which do not. Dropdowns remain only where the choice is a fixed set the app defines —
+     direction, journal kind, status, document type — not a register that grows.
+     The sweep was finished the same day, so no screen is left behind: payroll (karyawan, penyesuaian,
+     rekening pembayar, pembayaran yang dibatalkan), pembiayaan (rekening, aset yang dibiayai, pembayaran,
+     pelunasan), aset (rekening penerimaan penjualan, bulan penyusutan, akun aset tetap pada Saldo Awal
+     Aset), pajak (akun pembayar), marketplace (toko dan rekening pencairan), klaim pembayaran (rekening
+     dan klaim duplikat), jenis lampiran -- which keeps "+ Tambah jenis lampiran" as the Picker's own add
+     row instead of a `__add__` option -- and the register filters on Aktivitas Kas & Bank, Rekening Koran,
+     Laporan (akun buku besar, dataset, aset), Perkiraan (anggaran) and Pendapatan Lain (jenis).
+     Three details worth recording. (a) A filter Picker is `optional`, so an empty field still means "all",
+     the way the blank first option did. (b) Laporan's account, dataset and asset fields had no blank option
+     and relied on the browser choosing the first row; they now name that first row as their own default, so
+     the report opens on the same thing it used to. (c) A Picker keeps its label beside the field rather than
+     wrapping it, so the red "field refused" state of Saldo Awal Aset had to reach one level further in --
+     `.record-form div.field-invalid` in `globals.css`. Display only: no RPC, schema or posting rule changed.

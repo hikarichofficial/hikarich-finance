@@ -21,20 +21,24 @@ export function DashboardScreen({
   snapshot,
   displayName,
   entityName,
-  monthHref,
+  periodHref,
+  scopeHref,
 }: {
   snapshot: DashboardSnapshot;
   displayName: string | null;
   entityName: string;
-  monthHref: { prev: string; next: string };
+  /** Previous/next of the same kind of period, or null for "all", which has neither (decision 404). */
+  periodHref: { prev: string; next: string } | null;
+  scopeHref: { month: string; year: string; all: string };
 }) {
   return (
     <div className="dashboard">
       <HeroSummary
         displayName={displayName}
         entityName={entityName}
-        month={snapshot.period.month}
-        monthHref={monthHref}
+        period={snapshot.period}
+        periodHref={periodHref}
+        scopeHref={scopeHref}
         currency={snapshot.currency}
         netResult={snapshot.finance?.netResult ?? null}
       />

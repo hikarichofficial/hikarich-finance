@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Picker } from "@/features/shared/Picker";
 import { formatMoney } from "@/domain/money/format";
 import { sourceTypeLabel } from "@/domain/money/accountsList";
 import type { CashActivityRow } from "@/domain/money/cashActivity";
@@ -45,17 +46,14 @@ export function CashActivityScreen({
       <div className="list-screen-toolbar">
         <form method="get" className="list-search-form">
           {entity ? <input type="hidden" name="entity" value={entity} /> : null}
-          <label>
-            Akun
-            <select name="account" defaultValue={accountId ?? ""}>
-              <option value="">Semua akun</option>
-              {accounts.map((a) => (
-                <option key={a.financial_account_id} value={a.financial_account_id}>
-                  {a.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Picker
+            label="Akun"
+            name="account"
+            noun="akun kas/bank"
+            items={accounts.map((a) => ({ id: a.financial_account_id, label: a.name }))}
+            defaultValue={accountId ?? ""}
+            optional
+          />
           <label>
             Dari
             <input type="date" name="from" defaultValue={range.from} />

@@ -4,7 +4,8 @@ import { randomUUID } from "node:crypto";
 import { redirect } from "next/navigation";
 import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
-import { recordBalanceAdjustment } from "@/services/money/money";
+import { recordBalanceAdjustment, reverseBalanceAdjustment } from "@/services/money/money";
+import { revalidatePath } from "next/cache";
 
 /**
  * Server action behind the Balance Adjustment form ("Advanced Adjustments", Step 09 §14, decision 232).
@@ -59,4 +60,34 @@ export async function recordBalanceAdjustmentAction(
       ? `/money/accounts/${accountId}?entity=${encodeURIComponent(entity)}`
       : `/money/accounts/${accountId}`,
   );
+}
+
+/**
+ * Undoing one adjustment (decision 405). The database posts the opposite journal and movement on the
+ * original's own date and keeps both, so there is nothing to delete and nothing to redirect to: the list
+ * on the same page simply shows the row as reversed.
+ */
+export async function reverseBalanceAdjustmentAction(
+  _previous: BalanceAdjustmentFormState,
+  formData: FormData,
+): Promise<BalanceAdjustmentFormState> {
+  const reason = text(formData, "reason");
+  if (reason.length < 5) {
+    return { status: "error", message: "Tulis alasan pembatalan, minimal 5 karakter." };
+  }
+  try {
+    await reverseBalanceAdjustment({
+      adjustment_id: text(formData, "adjustment_id"),
+      idempotency_key: randomUUID(),
+      reason,
+    });
+  } catch (error) {
+    if (error instanceof AuthzError) {
+      return { status: "error", message: describeAuthzError(error) };
+    }
+    return { status: "error", message: "Penyesuaian tidak dapat dibatalkan." };
+  }
+  const entity = text(formData, "entity");
+  revalidatePath(entity ? `/accounting/adjustments?entity=${entity}` : "/accounting/adjustments");
+  return { status: "idle" };
 }

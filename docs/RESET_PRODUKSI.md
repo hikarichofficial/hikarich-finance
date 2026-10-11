@@ -104,3 +104,82 @@ urutannya. Jangan menyusunnya sambil jalan di layar SQL produksi.
 Periksa di aplikasi: Dasbor kosong, daftar faktur kosong, Buku Besar kosong, dan Pengaturan sudah
 berisi nama Entity yang benar. Lalu ambil **Full backup** pertama dari sistem yang masih bersih,
 sebagai titik awal.
+
+## Cara 3 — bangun ulang, tetapi Entity dan pengaturannya kembali sendiri
+
+Dipakai setelah sistem sudah pernah disiapkan: transaksinya dibuang, tetapi Entity, profil Entity
+(alamat, kontak, logo), profil pajak, mesin pajak, rekening kas/bank dan keanggotaan OWNER tetap ada
+tanpa diisi ulang.
+
+Caranya: baris yang harus bertahan disalin ke schema `restore_tmp` lebih dulu. Schema itu di luar
+`public`, jadi selamat dari penghapusan, lalu dikembalikan setelah migration dipasang ulang. Logo dan
+nomor rekening ikut pindah apa adanya — tidak pernah dilihat, dibaca, atau diketik ulang siapa pun.
+
+Dua hal perlu dipetakan ulang saat dikembalikan, karena migration membuat id baru untuknya: peran
+(lewat `role_key`) dan akun buku besar sebuah rekening (lewat kode akun). Entity sendiri dimasukkan
+dengan **id aslinya**, sehingga semua yang menunjuk ke Entity tetap cocok.
+
+### Langkah 1 — Simpan yang harus bertahan
+
+```sql
+create schema if not exists restore_tmp;
+
+create table restore_tmp.entities as select * from public.entities;
+create table restore_tmp.profiles as select * from public.profiles;
+create table restore_tmp.memberships as
+  select m.entity_id, m.user_id, r.role_key, m.status
+  from public.entity_memberships m join public.roles r on r.id = m.role_id;
+create table restore_tmp.entity_profiles as select * from public.entity_profiles;
+create table restore_tmp.entity_settings as select * from public.entity_settings;
+create table restore_tmp.financial_accounts as
+  select a.*, la.code as ledger_code
+  from public.financial_accounts a
+  left join public.ledger_accounts la on la.id = a.ledger_account_id;
+create table restore_tmp.tax_entity_profiles as select * from public.tax_entity_profiles;
+create table restore_tmp.tax_settings as select * from public.tax_settings;
+```
+
+### Langkah 2 — Hapus skema dan riwayat migration
+
+Sama persis dengan Cara 1 langkah 1. `restore_tmp` tidak ikut terhapus.
+
+### Langkah 3 — Pasang ulang migration
+
+Sama dengan Cara 1 langkah 2: Actions → Production migrations → Run workflow.
+
+### Langkah 4 — Kembalikan
+
+```sql
+insert into public.entities select * from restore_tmp.entities;
+
+select e.code, app_private.provision_default_coa(e.id) from public.entities e order by e.code;
+
+insert into public.profiles select * from restore_tmp.profiles on conflict (id) do nothing;
+
+insert into public.entity_memberships (entity_id, user_id, role_id, status)
+select m.entity_id, m.user_id, r.id, m.status
+from restore_tmp.memberships m join public.roles r on r.role_key = m.role_key;
+
+insert into public.entity_profiles select * from restore_tmp.entity_profiles;
+insert into public.entity_settings select * from restore_tmp.entity_settings;
+
+insert into public.financial_accounts
+  (id, entity_id, kind, name, institution_name, account_number, account_holder, currency,
+   ledger_account_id, is_active, created_at, created_by, updated_at, updated_by, version,
+   deleted_at, account_number_masked)
+select a.id, a.entity_id, a.kind, a.name, a.institution_name, a.account_number, a.account_holder,
+       a.currency, la.id, a.is_active, a.created_at, a.created_by, a.updated_at, a.updated_by,
+       a.version, a.deleted_at, a.account_number_masked
+from restore_tmp.financial_accounts a
+left join public.ledger_accounts la on la.entity_id = a.entity_id and la.code = a.ledger_code;
+
+insert into public.tax_entity_profiles select * from restore_tmp.tax_entity_profiles;
+insert into public.tax_settings select * from restore_tmp.tax_settings;
+
+drop schema restore_tmp cascade;
+```
+
+### Yang tetap hilang
+
+Seluruh transaksi: jurnal dan barisnya, mutasi kas, faktur, pengeluaran, periode akuntansi, kontak,
+produk, dokumen beserta berkas di bucket `documents`, dan jejak audit. Itu memang yang dibuang.

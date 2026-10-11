@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Picker } from "@/features/shared/Picker";
 import { can } from "@/domain/authz/access";
 import { formatMoney } from "@/domain/money/format";
 import { monthRange, summarizeIncome } from "@/domain/sales/income";
@@ -66,17 +67,14 @@ export default async function IncomeListPage({
             Bulan
             <input type="month" name="month" defaultValue={month} />
           </label>
-          <label>
-            Jenis
-            <select name="category" defaultValue={categoryParam ?? ""}>
-              <option value="">Semua jenis</option>
-              {categories.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Picker
+            label="Jenis"
+            name="category"
+            noun="jenis pendapatan"
+            items={categories.map((c) => ({ id: c.id, label: c.name }))}
+            defaultValue={categoryParam ?? ""}
+            optional
+          />
           <button type="submit" className="btn-secondary">
             Tampilkan
           </button>

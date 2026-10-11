@@ -12,6 +12,7 @@ import {
   type MarketplaceActionState,
 } from "./marketplaceActions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { Picker } from "@/features/shared/Picker";
 
 const IDLE: MarketplaceActionState = { status: "idle" };
 
@@ -58,17 +59,13 @@ export function MarketplaceStoreForm({
           placeholder="mis. Hikarich Official"
         />
       </label>
-      <label>
-        Rekening Tujuan Pencairan (opsional)
-        <select name="account_id" defaultValue="">
-          <option value="">— Pilih saat mencatat pencairan —</option>
-          {accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker
+        label="Rekening Tujuan Pencairan (opsional)"
+        name="account_id"
+        noun="rekening kas/bank"
+        items={accounts}
+        optional
+      />
       <label className="checkbox-field">
         <input type="checkbox" name="pph22_exempt" /> Bebas pungutan PPh 22 (orang pribadi omzet
         sampai Rp500 juta yang sudah menyerahkan surat pernyataan)
@@ -102,21 +99,14 @@ export function MarketplaceSettlementForm({
   return (
     <form {...actionForm} className="record-form">
       <input type="hidden" name="entity" value={entity ?? ""} />
-      <label>
-        Toko
-        <select
-          name="store_id"
-          required
-          value={storeId}
-          onChange={(e) => setStoreId(e.target.value)}
-        >
-          {stores.map((store) => (
-            <option key={store.id} value={store.id}>
-              {store.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker
+        label="Toko"
+        name="store_id"
+        noun="toko"
+        items={stores}
+        value={storeId}
+        onChange={setStoreId}
+      />
       <label>
         Penjualan dari Tanggal
         <input type="date" name="period_start" required defaultValue={today} />
@@ -129,19 +119,15 @@ export function MarketplaceSettlementForm({
         Tanggal Dana Cair
         <input type="date" name="settlement_date" required defaultValue={today} />
       </label>
-      <label>
-        Masuk ke Rekening
-        <select name="account_id" required key={storeId} defaultValue={defaultAccount}>
-          <option value="" disabled>
-            Pilih rekening kas/bank
-          </option>
-          {accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      {/* `key` so that changing the store re-mounts the field on the new store's own account. */}
+      <Picker
+        key={storeId}
+        label="Masuk ke Rekening"
+        name="account_id"
+        noun="rekening kas/bank"
+        items={accounts}
+        defaultValue={defaultAccount}
+      />
       <label>
         Total Penjualan (omzet, sebelum PPN)
         <MoneyInput name="gross" required placeholder="mis. 2.500.000" />

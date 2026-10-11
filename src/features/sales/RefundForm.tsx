@@ -1,6 +1,7 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
+import { Picker } from "@/features/shared/Picker";
 import { useState } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
 import { trimDecimalText } from "@/domain/money/format";
@@ -67,19 +68,12 @@ export function RefundForm({
           <MoneyInput name={`amount_${index}`} placeholder="0" />
         </label>
       ))}
-      <label>
-        Dibayar dari Rekening
-        <select name="account_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih rekening kas/bank
-          </option>
-          {accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker
+        label="Dibayar dari Rekening"
+        name="account_id"
+        noun="rekening"
+        items={accounts.map((account) => ({ id: account.id, label: account.label }))}
+      />
       <label>
         Tanggal Refund
         <input type="date" name="refund_date" required defaultValue={today} />

@@ -9,6 +9,9 @@ import {
   addStatementLinesInputSchema,
   addStatementLinesResultSchema,
   balanceAdjustmentInputSchema,
+  balanceAdjustmentListSchema,
+  reverseBalanceAdjustmentInputSchema,
+  type BalanceAdjustmentRow,
   cancelTransferInputSchema,
   candidatesSchema,
   completeReconciliationInputSchema,
@@ -183,6 +186,27 @@ export async function recordBalanceAdjustment(
       p_counter_account: v.counter_account_id,
       p_reason: v.reason,
     },
+    uuidResultSchema,
+  );
+}
+
+/** Every balance adjustment of the Entity, newest first (decision 405): `money.view` is enough to read. */
+export async function listBalanceAdjustments(entityId: string): Promise<BalanceAdjustmentRow[]> {
+  return callRpc(
+    "balance_adjustment_list",
+    { p_entity: uuidResultSchema.parse(entityId), p_limit: 100 },
+    balanceAdjustmentListSchema,
+  );
+}
+
+/** Undoes one adjustment with the opposite journal and movement, on the original's own date. */
+export async function reverseBalanceAdjustment(
+  input: z.input<typeof reverseBalanceAdjustmentInputSchema>,
+): Promise<string> {
+  const v = reverseBalanceAdjustmentInputSchema.parse(input);
+  return callRpc(
+    "reverse_balance_adjustment",
+    { p_adjustment: v.adjustment_id, p_key: v.idempotency_key, p_reason: v.reason },
     uuidResultSchema,
   );
 }

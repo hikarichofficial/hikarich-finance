@@ -1,6 +1,7 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
+import { Picker } from "@/features/shared/Picker";
 import { useState } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
 import { ContactPicker } from "@/features/contacts/ContactPicker";
@@ -126,19 +127,16 @@ export function ExpenseForm({
           hint={FORM_FIELD_HINTS.account}
           serial={serial}
         >
-          <label>
-            Dibayar dari Rekening
-            <select name="account_id" required defaultValue={initial?.account_id ?? ""}>
-              <option value="" disabled>
-                Pilih rekening kas/bank
-              </option>
-              {accounts.map((account) => (
-                <option key={account.financial_account_id} value={account.financial_account_id}>
-                  {account.name} ({account.currency})
-                </option>
-              ))}
-            </select>
-          </label>
+          <Picker
+            label="Dibayar dari Rekening"
+            name="account_id"
+            noun="rekening"
+            items={accounts.map((account) => ({
+              id: account.financial_account_id,
+              label: `${account.name} (${account.currency})`,
+            }))}
+            defaultValue={initial?.account_id ?? ""}
+          />
         </ProblemField>
         <ProblemField active={formProblem("date")} hint={FORM_FIELD_HINTS.date} serial={serial}>
           <label>

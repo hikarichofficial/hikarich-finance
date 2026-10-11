@@ -1,6 +1,7 @@
 "use client";
 
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
+import { Picker } from "@/features/shared/Picker";
 import { useState } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
 import { formatMoney } from "@/domain/money/format";
@@ -472,21 +473,15 @@ function RecordPaymentForm({
           Denda (opsional)
           <MoneyInput name="penalty" placeholder="0" value={penalty} onValueChange={setPenalty} />
         </label>
-        <label>
-          Akun Pembayar
-          <select
-            name="account_id"
-            value={accountId}
-            onChange={(event) => setAccountId(event.target.value)}
-          >
-            <option value="">(tidak perlu -- dikompensasi penuh)</option>
-            {accounts.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.name} ({a.currency})
-              </option>
-            ))}
-          </select>
-        </label>
+        <Picker
+          label="Akun Pembayar (kosongkan bila dikompensasi penuh)"
+          name="account_id"
+          noun="akun pembayar"
+          items={accounts.map((a) => ({ id: a.id, label: `${a.name} (${a.currency})` }))}
+          value={accountId}
+          onChange={setAccountId}
+          optional
+        />
         <label>
           Referensi (opsional)
           <input type="text" name="reference" maxLength={200} />

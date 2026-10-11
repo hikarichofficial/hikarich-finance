@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Picker } from "@/features/shared/Picker";
 import { formatMoney } from "@/domain/money/format";
 import {
   FORECAST_MONTH_OPTIONS,
@@ -60,17 +61,14 @@ export function ForecastScreen({
               ))}
             </select>
           </label>
-          <label>
-            Sesuaikan dengan anggaran
-            <select name="budget" defaultValue={budgetId ?? ""}>
-              <option value="">Tanpa anggaran</option>
-              {budgets.map((b) => (
-                <option key={b.id} value={b.id}>
-                  {b.name}
-                </option>
-              ))}
-            </select>
-          </label>
+          <Picker
+            label="Sesuaikan dengan anggaran"
+            name="budget"
+            noun="anggaran"
+            items={budgets.map((b) => ({ id: b.id, label: b.name }))}
+            defaultValue={budgetId ?? ""}
+            optional
+          />
           <button type="submit" className="btn-secondary">
             Terapkan
           </button>

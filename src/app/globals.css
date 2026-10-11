@@ -3108,6 +3108,22 @@ a.kpi-card:hover {
   background: var(--danger-wash);
 }
 
+/* The Picker keeps its label beside the field instead of wrapping it, so a Picker that is wrong is marked
+   on a wrapper and the red state has to reach one level further in (decision 406). */
+.record-form div.field-invalid {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.record-form div.field-invalid .contact-picker-field > label {
+  color: var(--danger);
+}
+
+.record-form div.field-invalid .contact-picker input {
+  border-color: var(--danger);
+  background: var(--danger-wash);
+}
+
 .field-error {
   color: var(--danger);
   font-size: var(--text-sm);
@@ -6376,4 +6392,15 @@ a.pp-answer:hover {
 
 tr[data-muted="true"] td {
   color: var(--text-secondary);
+}
+
+/* ================================================================ Pilihan periode dasbor (decision 404)
+ * Bulanan / Tahunan / Sejak Awal, under the Hero's own period line. It reuses `.list-filter-tab`, the pill
+ * every List screen already filters with, so the Dashboard does not invent a second way to show the same
+ * kind of choice. */
+.dashboard-scope {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
 }

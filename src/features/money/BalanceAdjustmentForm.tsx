@@ -8,6 +8,7 @@ import { eligibleCounterAccounts } from "@/domain/money/balanceAdjustment";
 import { recordBalanceAdjustmentAction } from "./balanceAdjustmentActions";
 import { idleBalanceAdjustmentFormState } from "./balanceAdjustmentActionsState";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { Picker } from "@/features/shared/Picker";
 import { todayInBusinessZone } from "@/lib/time";
 
 /**
@@ -44,19 +45,15 @@ export function BalanceAdjustmentForm({
       <input type="hidden" name="entity_id" value={entityId} />
       {entity ? <input type="hidden" name="entity" value={entity} /> : null}
 
-      <label>
-        Akun Kas/Bank
-        <select name="account_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih akun…
-          </option>
-          {activeAccounts.map((a) => (
-            <option key={a.financial_account_id} value={a.financial_account_id}>
-              {a.name} ({a.currency})
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker
+        label="Akun Kas/Bank"
+        name="account_id"
+        noun="akun"
+        items={activeAccounts.map((a) => ({
+          id: a.financial_account_id,
+          label: `${a.name} (${a.currency})`,
+        }))}
+      />
 
       <label>
         Arah
@@ -90,19 +87,14 @@ export function BalanceAdjustmentForm({
         <input type="text" inputMode="decimal" name="exchange_rate" />
       </label>
 
-      <label>
-        Akun Lawan
-        <select name="counter_account_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih akun…
-          </option>
-          {counterAccounts.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.code} — {a.name}
-            </option>
-          ))}
-        </select>
-      </label>
+      {/* Both are Pickers (decisions 403/406): the OWNER asked that every field choosing from a register
+          behave the same way, however short that register happens to be today. */}
+      <Picker
+        label="Akun Lawan"
+        name="counter_account_id"
+        noun="akun"
+        items={counterAccounts.map((a) => ({ id: a.id, label: `${a.code} — ${a.name}` }))}
+      />
 
       <label>
         Alasan (minimal 10 karakter)

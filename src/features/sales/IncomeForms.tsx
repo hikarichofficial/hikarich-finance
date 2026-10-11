@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { ContactPicker } from "@/features/contacts/ContactPicker";
+import { Picker } from "@/features/shared/Picker";
 import { QuickAddContactDrawer } from "@/features/contacts/QuickAddContactDrawer";
 import { QuickAddCategoryDrawer } from "@/features/categories/QuickAddCategoryDrawer";
 import { MoneyInput } from "@/features/shared/MoneyInput";
@@ -141,24 +142,14 @@ export function IncomeForm({
             </p>
           </>
         ) : null}
-        <label>
-          Diterima di Rekening
-          <select
-            name="account_id"
-            required
-            value={accountId}
-            onChange={(event) => setAccountId(event.target.value)}
-          >
-            <option value="" disabled>
-              Pilih rekening kas/bank
-            </option>
-            {accounts.map((a) => (
-              <option key={a.id} value={a.id}>
-                {a.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Picker
+          label="Diterima di Rekening"
+          name="account_id"
+          noun="rekening"
+          items={accounts.map((a) => ({ id: a.id, label: a.label }))}
+          value={accountId}
+          onChange={setAccountId}
+        />
         <ContactPicker
           label="Dari Siapa (opsional)"
           name="contact_id"

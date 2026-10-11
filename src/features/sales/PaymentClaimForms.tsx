@@ -8,6 +8,7 @@ import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
 import { confirmClaimAction, markClaimDuplicateAction, rejectClaimAction } from "./actions";
 import { idleInvoiceActionState } from "./actionsState";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { Picker } from "@/features/shared/Picker";
 
 export interface DuplicateClaimOption {
   id: string;
@@ -74,19 +75,12 @@ export function PaymentClaimForms({
     return (
       <form {...duplicateActionForm} className="record-form">
         <input type="hidden" name="submission_id" value={submissionId} />
-        <label>
-          Klaim Ini Sama dengan
-          <select name="duplicate_of_id" required defaultValue="">
-            <option value="" disabled>
-              Pilih klaim lain dari invoice yang sama
-            </option>
-            {otherClaims.map((claim) => (
-              <option key={claim.id} value={claim.id}>
-                {claim.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <Picker
+          label="Klaim Ini Sama dengan"
+          name="duplicate_of_id"
+          noun="klaim lain dari invoice yang sama"
+          items={otherClaims}
+        />
         <label>
           Alasan (minimal 5 karakter)
           <input name="reason" required minLength={5} maxLength={500} />
@@ -126,19 +120,12 @@ export function PaymentClaimForms({
   return (
     <form {...confirmActionForm} className="record-form">
       <input type="hidden" name="submission_id" value={submissionId} />
-      <label>
-        Diterima di Rekening
-        <select name="account_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih rekening kas/bank
-          </option>
-          {accounts.map((account) => (
-            <option key={account.id} value={account.id}>
-              {account.label}
-            </option>
-          ))}
-        </select>
-      </label>
+      <Picker
+        label="Diterima di Rekening"
+        name="account_id"
+        noun="rekening kas/bank"
+        items={accounts}
+      />
       <label>
         Tanggal Uang Masuk
         <input type="date" name="payment_date" required defaultValue={paymentDate} />

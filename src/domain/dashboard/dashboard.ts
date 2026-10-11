@@ -32,16 +32,28 @@ export function netResultFromEquityRows(rows: readonly EquityChangeRow[]): Decim
 }
 
 const MONTH_PATTERN = /^(\d{4})-(\d{2})$/;
+const YEAR_PATTERN = /^(\d{4})$/;
+
+/** What the Dashboard is summarising (OWNER, 11 October 2026; decision 404). */
+export type DashboardScope = "month" | "year" | "all";
 
 export interface DashboardPeriod {
-  /** "YYYY-MM", the period actually resolved (the requested one when valid, otherwise the reference month). */
+  /** Which of the three ranges this is. */
+  scope: DashboardScope;
+  /** "YYYY-MM", the month this period ends in -- what the cashflow trend counts back from, and, for a
+   * monthly period, the period itself. */
   month: string;
-  /** First day of the period, "YYYY-MM-DD". */
+  /** First day of the period, "YYYY-MM-DD". For "all" this is the earliest date the app will ever hold. */
   start: string;
-  /** Last calendar day of the period, "YYYY-MM-DD" -- always the full month, even when it has not
-   * finished yet, so the P&L/equity call reflects "this month so far" without the Dashboard needing its
+  /** Last calendar day of the period, "YYYY-MM-DD" -- always the full month or year, even when it has not
+   * finished yet, so the P&L/equity call reflects "so far" without the Dashboard needing its
    * own notion of the Entity's local "today" (every RPC it calls already applies that server-side). */
   end: string;
+}
+
+/** The year a yearly or all-time period belongs to, for the label and the year links. */
+export function periodYear(period: DashboardPeriod): number {
+  return Number(period.month.slice(0, 4));
 }
 
 function daysInMonth(year: number, month: number): number {
@@ -59,17 +71,36 @@ function daysInMonth(year: number, month: number): number {
 export function resolveDashboardPeriod(
   requested?: string,
   reference: Date = new Date(),
+  scope: DashboardScope = "month",
 ): DashboardPeriod {
   const match = requested ? MONTH_PATTERN.exec(requested) : null;
+  const yearOnly = requested ? YEAR_PATTERN.exec(requested) : null;
   const local = businessClock(reference);
-  const year = match ? Number(match[1]) : local.getUTCFullYear();
-  const month = match ? Number(match[2]) : local.getUTCMonth() + 1;
+  const year = match ? Number(match[1]) : yearOnly ? Number(yearOnly[1]) : local.getUTCFullYear();
+  const month = match ? Number(match[2]) : scope === "month" ? local.getUTCMonth() + 1 : 12;
   const monthText = String(month).padStart(2, "0");
+
+  if (scope === "year") {
+    return { scope, month: `${year}-12`, start: `${year}-01-01`, end: `${year}-12-31` };
+  }
+  if (scope === "all") {
+    // Everything ever recorded. The start is far enough back that no book can begin before it, and the end
+    // runs to the close of the current year so a figure entered today is inside the range -- the RPCs
+    // themselves never report a future movement, so a year-end bound reports nothing that has not happened.
+    const thisYear = local.getUTCFullYear();
+    return { scope, month: `${thisYear}-12`, start: "1900-01-01", end: `${thisYear}-12-31` };
+  }
   return {
+    scope,
     month: `${year}-${monthText}`,
     start: `${year}-${monthText}-01`,
     end: `${year}-${monthText}-${String(daysInMonth(year, month)).padStart(2, "0")}`,
   };
+}
+
+/** Reads `?scope=`; anything unrecognised is the monthly view the Dashboard has always opened in. */
+export function resolveDashboardScope(requested?: string): DashboardScope {
+  return requested === "year" || requested === "all" ? requested : "month";
 }
 
 /** The trailing `count` months up to and including `period.month`, oldest first -- the range the Cashflow

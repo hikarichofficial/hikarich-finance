@@ -6,6 +6,7 @@ import { useActionState } from "@/features/feedback/useActionState";
 import { Decimal, sumDecimals } from "@/domain/money/decimal";
 import { createJournalDraftAction, type JournalDraftState } from "./journalDraftActions";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { Picker } from "@/features/shared/Picker";
 import { SuggestTextInput } from "@/features/shared/SuggestTextInput";
 import { LineDescriptionInput } from "@/features/planning/LineDescriptionInput";
 import type { LineSuggestion } from "@/domain/sales/lineSuggestions";
@@ -15,7 +16,11 @@ const IDLE: JournalDraftState = { status: "idle" };
 export interface JournalAccountOption {
   id: string;
   label: string;
-  /** The picker heading this account sits under (income, costs, ... , system-protected last). */
+  /**
+   * What kind of account this is (income, costs, ... , system-protected last). It was the dropdown's
+   * `optgroup` heading; since decision 403 made the cell a Picker it no longer shows, but the page still
+   * sorts by it, so the open list keeps the order people learned.
+   */
   group: string;
   /** A revenue or other-income account: income booked here by hand never reaches the PPh Final base (decision 350). */
   isIncome?: boolean;
@@ -155,24 +160,23 @@ export function JournalDraftForm({
               {rows.map((row) => (
                 <tr key={row.key}>
                   <td>
-                    <select
-                      aria-label="Akun"
+                    {/* A Picker, not a dropdown (OWNER, 11 October 2026; decision 403): the chart of
+                        accounts is the longest list in the app. The accounts keep the order the page
+                        sorted them into -- income, costs, ... , system-protected last -- so browsing the
+                        open list reads the same as the old grouped dropdown; the group headings
+                        themselves are gone, since typing narrows the list far faster than scanning them. */}
+                    <Picker
+                      label="Akun"
+                      name={`journal-account-${row.key}`}
+                      noun="akun"
+                      optional
+                      items={accounts.map((account) => ({
+                        id: account.id,
+                        label: account.label,
+                      }))}
                       value={row.account_id}
-                      onChange={(event) => updateRow(row.key, { account_id: event.target.value })}
-                    >
-                      <option value="">Pilih akun</option>
-                      {[...new Set(accounts.map((account) => account.group))].map((group) => (
-                        <optgroup key={group} label={group}>
-                          {accounts
-                            .filter((account) => account.group === group)
-                            .map((account) => (
-                              <option key={account.id} value={account.id}>
-                                {account.label}
-                              </option>
-                            ))}
-                        </optgroup>
-                      ))}
-                    </select>
+                      onChange={(id) => updateRow(row.key, { account_id: id })}
+                    />
                   </td>
                   <td className="num" data-label="Debit">
                     <MoneyInput
