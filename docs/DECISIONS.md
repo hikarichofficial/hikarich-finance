@@ -1,5 +1,13 @@
 # Implementation Decisions
 
+> **Status terkini — 11 Oktober 2026.** Keputusan terakhir yang sudah masuk `main` adalah **PR #213**
+> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen.
+> Produksi (`hikarich-finance-prod`, 139 migration) sudah direset bersih pada tanggal itu dengan Cara 3
+> di `docs/RESET_PRODUKSI.md`: dua Entity (`pt` badan, `hikarich` pribadi), profil Entity, profil pajak,
+> mesin pajak dan rekening Mandiri Bisnis dipertahankan; seluruh transaksi, kontak, dokumen dan jejak
+> audit dibuang. Nol jurnal, nol mutasi, nol faktur. Sistem siap dipakai sungguhan, dimulai dari setoran
+> modal. PR lama #159 dan #212 ditutup tanpa merge: isinya sudah tidak diperlukan (#212 sudah ikut #213).
+
 Decisions and deviations that do **not** rewrite a locked specification. Anything that would
 change a locked item requires explicit OWNER approval and is recorded under "OWNER decisions".
 
@@ -3765,3 +3773,28 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      the report opens on the same thing it used to. (c) A Picker keeps its label beside the field rather than
      wrapping it, so the red "field refused" state of Saldo Awal Aset had to reach one level further in --
      `.record-form div.field-invalid` in `globals.css`. Display only: no RPC, schema or posting rule changed.
+
+407. **A `create table as` backup loses any column whose type is a domain in the schema being dropped
+     (found while running the reset, 11 October 2026).** Cara 3 in `docs/RESET_PRODUKSI.md`
+     copies the rows that must survive into `restore_tmp`, outside `public`, then drops `public` and
+     restores afterwards. `entities.base_currency` and `financial_accounts.currency` are of the domain
+     `public.currency_code`; `create table as select *` inherits that domain, so dropping `public` with
+     `cascade` dropped the domain and with it those two columns **inside the backup**. The restore then ran
+     `insert into public.entities select *`, which matches columns by position, and the shifted row put
+     `timezone` ("Asia/Makassar") into `fiscal_year_start_month` -- caught only because that one is a
+     smallint. A shift between two text columns would have restored silently wrong data.
+     Both fixes are in the document now: the two columns are recreated before the restore, and every
+     insert names its columns instead of using `select *`, so a future schema change cannot shift a row
+     unnoticed. The document also carries the query that lists which `public` columns use a `public`
+     domain, to run before the backup rather than after the failure. Nothing was lost: the restore runs in
+     one transaction, so the failure rolled the whole thing back.
+     Two more traps surfaced in the same restore, both in `financial_accounts`.
+     `account_number_masked` is a generated column, so it must not be listed at all. And a financial
+     account's ledger account is **not** part of the default chart: `create_financial_account` makes it
+     when the account is added, taking the first free code in that kind's range (cash 1111-1119, bank
+     1121-1189, e-wallet 1191-1199), so `provision_default_coa` does not bring it back and the restored
+     account would have no ledger account -- a not-null column, which is the only reason this one failed
+     loudly rather than quietly. The document now recreates it exactly the way the function does.
+     The third attempt was dry-run against production first, inside a `do $$ ... end $$` block ending in
+     `raise exception`, so the whole thing rolled back and the error message carried the verification
+     counts. That is the way to run this script again: prove it, then run it.
