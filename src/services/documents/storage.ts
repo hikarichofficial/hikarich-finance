@@ -32,12 +32,16 @@ export async function storeDocumentBytes(
   return !error;
 }
 
-export async function signedDocumentUrl(path: string, fileName: string): Promise<string | null> {
+export async function signedDocumentUrl(
+  path: string,
+  fileName: string,
+  asDownload = true,
+): Promise<string | null> {
   const admin = createSupabaseAdminClient();
   if (!admin) return null;
   const { data, error } = await admin.storage
     .from(BUCKET)
-    .createSignedUrl(path, SIGNED_URL_SECONDS, { download: fileName });
+    .createSignedUrl(path, SIGNED_URL_SECONDS, asDownload ? { download: fileName } : undefined);
   if (error || !data) return null;
   return data.signedUrl;
 }
