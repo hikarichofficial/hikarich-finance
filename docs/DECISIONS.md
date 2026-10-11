@@ -1,5 +1,13 @@
 # Implementation Decisions
 
+> **Status terkini — 11 Oktober 2026.** Keputusan terakhir yang sudah masuk `main` adalah **PR #213**
+> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen.
+> Produksi (`hikarich-finance-prod`, 139 migration) sudah direset bersih pada tanggal itu dengan Cara 3
+> di `docs/RESET_PRODUKSI.md`: dua Entity (`pt` badan, `hikarich` pribadi), profil Entity, profil pajak,
+> mesin pajak dan rekening Mandiri Bisnis dipertahankan; seluruh transaksi, kontak, dokumen dan jejak
+> audit dibuang. Nol jurnal, nol mutasi, nol faktur. Sistem siap dipakai sungguhan, dimulai dari setoran
+> modal. PR lama #159 dan #212 ditutup tanpa merge: isinya sudah tidak diperlukan (#212 sudah ikut #213).
+
 Decisions and deviations that do **not** rewrite a locked specification. Anything that would
 change a locked item requires explicit OWNER approval and is recorded under "OWNER decisions".
 

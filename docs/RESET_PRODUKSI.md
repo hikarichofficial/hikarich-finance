@@ -128,7 +128,7 @@ expression is of type text`. Dua kolom itu karena itu dibuat lagi di langkah 4, 
 memakai daftar kolom yang eksplisit** -- bukan `select *` -- supaya pergeseran semacam itu tidak mungkin
 terjadi diam-diam.
 
-Dua lagi di tabel rekening. `financial_accounts.account_number_masked` adalah kolom *generated*, dihitung
+Dua lagi di tabel rekening. `financial_accounts.account_number_masked` adalah kolom _generated_, dihitung
 sendiri oleh database dari nomor rekening, jadi tidak boleh ikut diisi. Dan akun buku besar sebuah
 rekening (mis. `1121` untuk "Mandiri Bisnis") **bukan bagian dari COA bawaan**: `create_financial_account`
 membuatnya sendiri saat rekening ditambahkan, dengan kode pertama yang masih kosong dalam rentang
