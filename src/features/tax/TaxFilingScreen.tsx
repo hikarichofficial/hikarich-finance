@@ -1,5 +1,6 @@
 "use client";
 
+import { AttachmentPreviewLink } from "@/features/documents/AttachmentPreviewLink";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { Picker } from "@/features/shared/Picker";
 import { useState } from "react";
@@ -13,6 +14,8 @@ import {
   PAYMENT_ISSUE_LABELS,
   TAX_TYPE_LABELS,
   checkTaxPayment,
+  hasNoReturnToRecord,
+  relevantDifferences,
   taxPeriodLabel,
   type EvidencePurpose,
   type FilingTaxType,
@@ -115,7 +118,7 @@ export function TaxFilingScreen({
         </button>
       </form>
 
-      <PositionSummary position={position} currency={currency} />
+      <PositionSummary position={position} period={period} currency={currency} />
       <PaymentHistory
         payments={payments}
         currency={currency}
@@ -134,23 +137,27 @@ export function TaxFilingScreen({
         outstanding={position.outstanding_payable}
         assetAvailable={position.asset_available}
       />
-      <RecordFilingForm
-        taxType={taxType}
-        period={period}
-        entityId={entityId}
-        entity={entity}
-        alreadyFiled={position.filing_id !== null}
-        filedReference={position.filed_reference}
-        reportedBase={position.base}
-        reportedTax={position.accrued_payable}
-        reportedCredit={position.accrued_asset}
-      />
+      {hasNoReturnToRecord(taxType, period) ? (
+        <FinalNoMonthlyReturn />
+      ) : (
+        <RecordFilingForm
+          taxType={taxType}
+          period={period}
+          entityId={entityId}
+          entity={entity}
+          alreadyFiled={position.filing_id !== null}
+          filedReference={position.filed_reference}
+          reportedBase={position.base}
+          reportedTax={position.accrued_payable}
+          reportedCredit={position.accrued_asset}
+        />
+      )}
       <ReconcilePeriodForm
         taxType={taxType}
         period={period}
         entityId={entityId}
         entity={entity}
-        differenceCount={position.differences.length}
+        differenceCount={relevantDifferences(taxType, period, position.differences).length}
         reconciliation={position.reconciliation}
       />
       <EvidenceSection
@@ -171,9 +178,11 @@ export function TaxFilingScreen({
 
 function PositionSummary({
   position,
+  period,
   currency,
 }: {
   position: TaxPeriodPosition;
+  period: string;
   currency: string;
 }) {
   return (
@@ -205,7 +214,9 @@ function PositionSummary({
           <dd>
             {position.filed_reference
               ? `Dilaporkan (${position.filed_reference})`
-              : "Belum dilaporkan"}
+              : hasNoReturnToRecord(position.tax_type, period)
+                ? "Tidak ada laporan bulanan (SPT Tahunan)"
+                : "Belum dilaporkan"}
           </dd>
         </div>
         <div>
@@ -225,9 +236,9 @@ function PositionSummary({
           <dd>{formatShortDate(position.as_of)}</dd>
         </div>
       </dl>
-      {position.differences.length > 0 ? (
+      {relevantDifferences(position.tax_type, period, position.differences).length > 0 ? (
         <ul className="dashboard-list">
-          {position.differences.map((diff, i) => (
+          {relevantDifferences(position.tax_type, period, position.differences).map((diff, i) => (
             <li key={i} className="dashboard-list-item">
               <p className="dashboard-list-item-title">{DIFFERENCE_LABELS[diff.code]}</p>
               <p className="dashboard-list-item-detail">{differenceDetailText(diff, currency)}</p>
@@ -483,8 +494,19 @@ function RecordPaymentForm({
           optional
         />
         <label>
-          Referensi (opsional)
-          <input type="text" name="reference" maxLength={200} />
+          {taxType === "final_umkm" ? "NTPN dan Kode Billing (opsional)" : "Referensi (opsional)"}
+          <input
+            type="text"
+            name="reference"
+            maxLength={200}
+            placeholder={taxType === "final_umkm" ? "NTPN ... / Kode Billing ..." : undefined}
+          />
+          {taxType === "final_umkm" ? (
+            <span className="hint">
+              Bukti pembayaran PPh Final adalah NTPN pada Bukti Penerimaan Negara (BPN) setelah kode
+              billing dibayar. Tulis NTPN dan kode billing-nya di sini.
+            </span>
+          ) : null}
         </label>
         <label>
           Catatan{" "}
@@ -516,6 +538,28 @@ function RecordPaymentForm({
           {pending ? "Menyimpan…" : "Catat Pembayaran"}
         </button>
       </form>
+    </section>
+  );
+}
+
+/**
+ * PPh Final UMKM is not reported month by month: the monthly step is the payment by billing code (the proof is
+ * the NTPN on the Bukti Penerimaan Negara) and the return is the SPT Tahunan, so there is no "Catat Pelaporan"
+ * and no NTTE for it (decision 408).
+ */
+function FinalNoMonthlyReturn() {
+  return (
+    <section className="dashboard-section">
+      <div className="dashboard-section-header">
+        <h2 className="dashboard-section-title">Pelaporan</h2>
+      </div>
+      <p className="hint">
+        PPh Final UMKM tidak punya laporan bulanan, jadi tidak ada No. Tanda Terima (NTTE) untuk
+        masa ini. Langkah bulanannya hanya membayar lewat kode billing sebelum tanggal 15 bulan
+        berikutnya, lalu catat di Catat Pembayaran di atas (isi NTPN dan kode billing, lampirkan
+        bukti bayar). Pelaporannya setahun sekali lewat SPT Tahunan; nomor tanda terimanya dicatat
+        di masa Desember.
+      </p>
     </section>
   );
 }
@@ -791,7 +835,13 @@ function EvidenceSection({
             <ul className="dashboard-list">
               {documentResults.map((doc) => (
                 <li key={doc.document_id} className="dashboard-list-item">
-                  <p className="dashboard-list-item-title">{doc.file_name}</p>
+                  <p className="dashboard-list-item-title">
+                    <AttachmentPreviewLink
+                      documentId={doc.document_id}
+                      fileName={doc.file_name}
+                      mimeType={doc.mime_type}
+                    />
+                  </p>
                   <p className="dashboard-list-item-detail">{formatDocumentSize(doc.size_bytes)}</p>
                   <AttachEvidenceForm
                     documentId={doc.document_id}
@@ -826,7 +876,13 @@ function EvidenceList({ title, rows }: { title: string; rows: readonly TaxEviden
         <ul className="dashboard-list">
           {rows.map((e) => (
             <li key={e.link_id} className="dashboard-list-item">
-              <p className="dashboard-list-item-title">{e.file_name}</p>
+              <p className="dashboard-list-item-title">
+                <AttachmentPreviewLink
+                  documentId={e.document_id}
+                  fileName={e.file_name}
+                  mimeType={e.mime_type}
+                />
+              </p>
               <p className="dashboard-list-item-detail">
                 {EVIDENCE_PURPOSE_LABELS[e.purpose]} &middot; {formatDocumentSize(e.size_bytes)}{" "}
                 &middot; {formatShortDate(e.created_at.slice(0, 10))}

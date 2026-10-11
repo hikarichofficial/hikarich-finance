@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { differenceDetailText } from "@/domain/tax/differenceText";
 import { formatMoney } from "@/domain/money/format";
 import { DIFFERENCE_LABELS, taxPeriodLabel, type TaxType } from "@/domain/tax/tax";
 import type { TaxPeriodPosition } from "@/schemas/tax";
@@ -127,7 +128,7 @@ export function TaxPositionScreen({
             {position.differences.map((diff, i) => (
               <li key={i} className="dashboard-list-item">
                 <p className="dashboard-list-item-title">{DIFFERENCE_LABELS[diff.code]}</p>
-                <p className="dashboard-list-item-detail">{diff.text}</p>
+                <p className="dashboard-list-item-detail">{differenceDetailText(diff, currency)}</p>
                 {diff.amount !== null ? (
                   <span className="dashboard-list-item-value">
                     {formatMoney(diff.amount, currency)}

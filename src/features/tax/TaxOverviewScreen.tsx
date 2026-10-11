@@ -7,6 +7,7 @@ import {
   TAX_TYPE_LABELS,
   incomeRegimeLabel,
   monthNameId,
+  taxPeriodLabel,
   taxpayerKindLabel,
   vatStatusLabel,
   yesNoUnknownLabel,
@@ -174,12 +175,13 @@ export function TaxOverviewScreen({
 
         {finalAuto ? (
           <Link className="tax-kpi" data-tone="info" href={`/tax/pph${qs}`}>
-            <p className="tax-kpi-label">PPh Final bulan ini (perkiraan)</p>
+            <p className="tax-kpi-label">PPh Final {taxPeriodLabel(estimatePeriod)} (perkiraan)</p>
             <p className="tax-kpi-value">{formatMoney(estimate.tax, currency)}</p>
             <p className="tax-kpi-note">
               {estimate.turnover_month !== undefined
                 ? `Penjualan ${formatMoney(estimate.turnover_month, currency)}`
                 : "Dari invoice terbit bulan ini"}
+              {" · bulan yang sudah lewat ada di Total terutang"}
             </p>
           </Link>
         ) : null}
