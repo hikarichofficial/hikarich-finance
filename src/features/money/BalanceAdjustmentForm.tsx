@@ -8,6 +8,7 @@ import { eligibleCounterAccounts } from "@/domain/money/balanceAdjustment";
 import { recordBalanceAdjustmentAction } from "./balanceAdjustmentActions";
 import { idleBalanceAdjustmentFormState } from "./balanceAdjustmentActionsState";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { Picker } from "@/features/shared/Picker";
 import { todayInBusinessZone } from "@/lib/time";
 
 /**
@@ -90,19 +91,14 @@ export function BalanceAdjustmentForm({
         <input type="text" inputMode="decimal" name="exchange_rate" />
       </label>
 
-      <label>
-        Akun Lawan
-        <select name="counter_account_id" required defaultValue="">
-          <option value="" disabled>
-            Pilih akun…
-          </option>
-          {counterAccounts.map((a) => (
-            <option key={a.id} value={a.id}>
-              {a.code} — {a.name}
-            </option>
-          ))}
-        </select>
-      </label>
+      {/* The counter account comes from the chart of accounts, so it is a Picker (decision 403); the
+          cash/bank field above stays a dropdown, being a short list of the Entity's own accounts. */}
+      <Picker
+        label="Akun Lawan"
+        name="counter_account_id"
+        noun="akun"
+        items={counterAccounts.map((a) => ({ id: a.id, label: `${a.code} — ${a.name}` }))}
+      />
 
       <label>
         Alasan (minimal 10 karakter)

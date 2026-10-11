@@ -12,11 +12,18 @@ import { formatMoney } from "@/domain/money/format";
 import { postOpeningBalancesAction } from "./openingBalanceActions";
 import { idleOpeningActionState } from "./openingBalanceActionsState";
 import { MoneyInput } from "@/features/shared/MoneyInput";
+import { Picker } from "@/features/shared/Picker";
 
 /**
  * Post Opening Balances (Step 15 §24, decision 245): a cutover date plus a debit/credit grid over
  * balance-sheet accounts. The difference between total debit and credit is shown live: the database books
  * it to the opening-balance clearing account, which must later be reconciled before Completion.
+ *
+ * The account cell is a Picker, not a dropdown (OWNER, 11 October 2026; decision 403). The chart of
+ * accounts is the longest list in the app -- 114 accounts for a company -- so scrolling to find "Modal
+ * Disetor" was the slowest part of the slowest screen. An account that may not be posted to by hand is
+ * left out of the list rather than offered and refused, which the dropdown could do with `disabled` and a
+ * Picker cannot; the hint that explained why is kept on the ones that remain.
  */
 
 function emptyRow(n: number): OpeningLineDraft {
@@ -83,19 +90,20 @@ export function OpeningBalanceForm({
           {rows.map((row) => (
             <tr key={row.key}>
               <td>
-                <select
-                  aria-label="Akun"
+                <Picker
+                  label="Akun"
+                  name={`opening-account-${row.key}`}
+                  noun="akun"
+                  optional
+                  items={options
+                    .filter(({ disabled }) => !disabled)
+                    .map(({ account: a, hint }) => ({
+                      id: a.id,
+                      label: `${a.code} · ${a.name}${hint ? ` (${hint})` : ""}`,
+                    }))}
                   value={row.account_id}
-                  onChange={(e) => update(row.key, "account_id", e.target.value)}
-                >
-                  <option value="">Pilih akun</option>
-                  {options.map(({ account: a, hint, disabled }) => (
-                    <option key={a.id} value={a.id} disabled={disabled}>
-                      {a.code} · {a.name}
-                      {hint ? ` (${hint})` : ""}
-                    </option>
-                  ))}
-                </select>
+                  onChange={(id) => update(row.key, "account_id", id)}
+                />
               </td>
               <td className="num">
                 <MoneyInput

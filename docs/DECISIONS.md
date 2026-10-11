@@ -3681,3 +3681,20 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Also corrected in this slice: `docs/GO_LIVE.md` still said the Import Wizard and file attachments were
      not built, which decision 275 had already done -- a stale line in the one document the OWNER follows at
      cut-over.
+403. **The chart of accounts is picked, not scrolled (OWNER, 11 October 2026: "harusnya picker ya, bisa
+     diketik").** The account field was still a dropdown on every screen that reaches the chart of
+     accounts — the longest list in the app, 114 accounts for a company — so finding "3100 Modal Disetor"
+     meant scrolling past a hundred others. The Picker (decision 395) was already in use for customers,
+     vendors and categories; this extends it to accounts, on the four screens where the chart itself is
+     offered: Saldo Awal, Jurnal Manual, the counter account of Koreksi Saldo, and the category-to-account
+     mapping on Akuntansi → Kategori.
+     Two details worth recording, because they are losses, not just a swap. (a) Jurnal Manual's dropdown
+     grouped accounts under `optgroup` headings by kind; a Picker has no headings. The accounts keep the
+     order the page sorts them into (income, costs, …, system-protected last), so the open list reads the
+     same, and typing narrows it faster than scanning headings ever did — the page's own help line now
+     says that instead of describing the headings. (b) Saldo Awal's dropdown offered accounts it then
+     refused, greyed out with a hint saying why. A Picker cannot grey a row, so those accounts are left
+     out of the list entirely; the hint stays on the ones that remain. Offering something and refusing it
+     was never the better half of that trade.
+     The cash/bank fields stay dropdowns: those list the Entity's own handful of accounts, not the chart.
+     Display only — no RPC, schema or posting rule changes.

@@ -76,8 +76,9 @@ export default async function NewJournalPage({
           <p className="hint">
             Untuk pembukuan lanjutan. Pendapatan sehari-hari cukup dicatat lewat menu Invoice,
             Pembayaran Diterima, atau Catat Pendapatan (untuk yang tanpa invoice) di bagian
-            Penjualan; pengeluaran lewat menu Beban di bagian Pembelian. Akun dikelompokkan menurut
-            jenisnya; akun sistem ada di paling bawah.
+            Penjualan; pengeluaran lewat menu Beban di bagian Pembelian. Klik kolom Akun untuk
+            melihat seluruh daftar, atau ketik untuk menyaringnya; urutannya menurut jenis akun, dan
+            akun sistem ada di paling bawah.
           </p>
         </div>
       </header>
