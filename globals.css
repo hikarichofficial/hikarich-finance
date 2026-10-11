@@ -1,0 +1,6436 @@
+/*
+ * Design tokens — Step 10 (Quiet Luxury + Modern Glass + Precision Finance).
+ * The P2/P5 subset (ink/text-secondary/canvas/bronze/surface/line, --background/--foreground/--accent,
+ * --font-sans/--font-mono) is unchanged so those already-shipped pages keep rendering identically; P13
+ * Part 1 only ADDS the rest of the locked token set (Step 10 §2-§6, §26) plus the shell's own layout
+ * tokens. Colour-scheme switching is `prefers-color-scheme` only in Part 1 (Step 10 §3 also allows an
+ * explicit Light/Dark control; no such control is in scope yet). Exact production values may be tuned
+ * for contrast/accessibility per Step 10 §2's own allowance -- see DECISIONS (open items).
+ */
+:root {
+  /* Step 10 §2 core palette (unchanged from P2/P5) */
+  --ink: #191714;
+  --text-secondary: #777069;
+  --canvas: #f7f2ec;
+  --bronze: #b77a43;
+  --surface: rgba(255, 255, 255, 0.62);
+  --line: rgba(25, 23, 20, 0.1);
+
+  --background: var(--canvas);
+  --foreground: var(--ink);
+  --accent: var(--bronze);
+
+  /* Step 10 §2 additions: surfaces and semantic status colours */
+  --surface-solid: #ffffff;
+  --surface-sunken: #efe9e1;
+  --ink-tertiary: #a39c93;
+  --accent-strong: #a06736;
+  --accent-wash: color-mix(in srgb, var(--bronze) 12%, transparent);
+
+  --success: #2f6b4f;
+  --success-wash: color-mix(in srgb, var(--success) 12%, transparent);
+  --warning: #9a6b1f;
+  --warning-wash: color-mix(in srgb, var(--warning) 14%, transparent);
+  --danger: #a13b3b;
+  --danger-wash: color-mix(in srgb, var(--danger) 12%, transparent);
+  --info: #3c6e91;
+  --info-wash: color-mix(in srgb, var(--info) 12%, transparent);
+
+  /* Step 10 §4 typography */
+  --font-sans:
+    ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial,
+    "Noto Sans", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  --text-2xs: 0.6875rem;
+  --text-xs: 0.75rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.375rem;
+  --text-2xl: 1.75rem;
+  --text-3xl: 2.25rem;
+
+  /* Step 10 §5 spacing (8px-derived rhythm, with compact sub-steps) */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+
+  /* Step 10 §6 shape / shadow */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(25, 23, 20, 0.04);
+  --shadow-md: 0 12px 40px rgba(25, 23, 20, 0.06);
+  --shadow-lg: 0 24px 64px rgba(25, 23, 20, 0.1);
+
+  /* Step 10 §8 motion */
+  --motion-fast: 150ms;
+  --motion-base: 200ms;
+  --motion-slow: 250ms;
+  --motion-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  /* Application shell layout (Step 09 §2) */
+  --shell-sidebar-width: 264px;
+  --shell-sidebar-width-collapsed: 76px;
+  --shell-topbar-height: 64px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    /* Step 10 §3: charcoal/near-black, never pure black; elevated translucent surfaces */
+    --ink: #f2ede6;
+    --text-secondary: #b2a99d;
+    --ink-tertiary: #756c62;
+    --canvas: #17140f;
+    --surface: rgba(38, 34, 28, 0.66);
+    --surface-solid: #211d18;
+    --surface-sunken: #14110d;
+    --line: rgba(242, 237, 230, 0.1);
+
+    --bronze: #cf9a63;
+    --accent-strong: #e0ac78;
+    --accent-wash: color-mix(in srgb, var(--bronze) 16%, transparent);
+
+    --success: #6fbd97;
+    --success-wash: color-mix(in srgb, var(--success) 16%, transparent);
+    --warning: #d3a44f;
+    --warning-wash: color-mix(in srgb, var(--warning) 16%, transparent);
+    --danger: #d97c7c;
+    --danger-wash: color-mix(in srgb, var(--danger) 16%, transparent);
+    --info: #7fb0d6;
+    --info-wash: color-mix(in srgb, var(--info) 16%, transparent);
+
+    --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.24);
+    --shadow-md: 0 12px 40px rgba(0, 0, 0, 0.36);
+    --shadow-lg: 0 24px 64px rgba(0, 0, 0, 0.48);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --motion-fast: 0ms;
+    --motion-base: 0ms;
+    --motion-slow: 0ms;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* Step 09 §25-§27 / Step 10 §21-§25 (P13 Part 5, eleventh increment): a consistent, visible focus indicator
+ * for every interactive control (WCAG 2.4.7 Focus Visible), not just the handful of component classes that
+ * already defined their own -- `.form input:focus-visible`, `.app-nav-link:focus-visible`,
+ * `.icon-button:focus-visible`, and all four `.btn-primary/.btn-secondary/.btn-danger/.btn-ghost:focus-visible`
+ * variants already share this exact `outline: 2px solid var(--accent); outline-offset: 2px` declaration.
+ * Everything else was found to have no focus-visible override at all, falling back to the browser's own
+ * inconsistent default outline: every `.record-table` drill-down link (used by nearly every List/Detail
+ * screen's own row); every `.record-form`/`.record-form-wide`/`.plan-lines-table` input, select and textarea
+ * (the field shell shared by every Create/Edit form and editable grid in the app); `.list-search-form`'s and
+ * `.invoice-link-row`'s own inputs; `.invoice-action-form`'s textarea; and `.list-filter-tab` links. Rather
+ * than patch each of those component classes individually, one base-level rule keyed off the plain tag
+ * extends the app's own already-established pattern to cover them all -- it never overrides any of the
+ * existing, more specific rules above (identical declaration, so source order doesn't matter), and
+ * `.command-menu-input:focus { outline: none }` (its own deliberate visual focus treatment, a class
+ * selector) still wins over this tag-level rule on specificity regardless of position. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  max-width: 100vw;
+}
+
+/* `overflow-x: hidden` on <body> turns it into its own scroll container, which silently disables every
+ * `position: sticky` below it (the left menu and the top bar scrolled away with the page, decision 329).
+ * `clip` cuts off horizontal overflow without creating a scroll container, so sticky keeps working. */
+body {
+  overflow-x: clip;
+}
+
+body {
+  min-height: 100vh;
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+.shell {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 32px 16px;
+}
+
+.card {
+  width: min(100%, 480px);
+  padding: 40px 32px;
+  text-align: center;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 24px;
+  box-shadow: 0 12px 40px rgba(25, 23, 20, 0.06);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .card {
+    backdrop-filter: blur(18px);
+  }
+}
+
+.mark {
+  width: 96px;
+  height: 96px;
+  border-radius: 24px;
+  object-fit: cover;
+  margin: 0 auto 24px;
+  display: block;
+}
+
+.card h1 {
+  margin: 0 0 8px;
+  font-size: 1.5rem;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.card p {
+  margin: 0;
+  color: var(--text-secondary);
+  line-height: 1.55;
+}
+
+.badge {
+  display: inline-block;
+  margin-top: 24px;
+  padding: 6px 12px;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--accent);
+  border: 1px solid color-mix(in srgb, var(--accent) 40%, transparent);
+  border-radius: 999px;
+}
+
+/* P2 auth forms (final styling is completed in P13). */
+.form {
+  display: grid;
+  gap: 16px;
+  margin-top: 24px;
+  text-align: left;
+}
+
+.form label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.form input {
+  padding: 12px 14px;
+  font: inherit;
+  color: var(--foreground);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+
+.form input:focus-visible,
+.form button:focus-visible,
+.entities a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.form button,
+.logout button {
+  padding: 12px 16px;
+  font: inherit;
+  font-weight: 600;
+  color: #fff;
+  background: var(--ink);
+  border: 0;
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.form button:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.error {
+  margin: 0;
+  color: #9b2c2c;
+  font-size: 0.875rem;
+}
+
+.notice,
+.hint {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+.qr {
+  justify-self: center;
+  border-radius: 12px;
+  background: #fff;
+}
+
+.entities {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  margin-top: 16px;
+}
+
+.entities a {
+  padding: 6px 14px;
+  color: var(--foreground);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+}
+
+.entities a[aria-current="page"] {
+  color: #fff;
+  background: var(--ink);
+}
+
+.logout {
+  margin-top: 16px;
+}
+
+/* Customer documents: invoice, payment receipt and refund receipt (P13 Part 5, first increment -- Step 11
+ * Invoice/Receipt Visual Specification, FINAL/LOCKED). `.doc` itself defines its own fixed `--doc-*` custom
+ * properties instead of inheriting the app's own `--ink`/`--text-secondary`/`--line`/`--bronze` tokens: those
+ * are redefined under `@media (prefers-color-scheme: dark)` for the rest of the app (Step 10 §3), but Step 11
+ * §2 requires every customer document to render on a "white/warm-white canvas, near-black text" on screen or
+ * in print, regardless of the viewer's own OS/browser theme -- inheriting the app's dark-mode tokens here
+ * would put near-white text on this deliberately-white canvas. `.doc-page`/`.doc-actions`/`.print-button`
+ * stay on the app's own tokens: Step 11 §8 explicitly allows the *surrounding* web chrome (the print/download
+ * controls) to follow "Step 10 premium design language," it is only the document body itself that must stay
+ * fixed. */
+.doc-page {
+  width: min(100%, 860px);
+  margin: 0 auto;
+  padding: 24px 16px 64px;
+}
+
+.doc-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.doc-actions a {
+  color: var(--text-secondary);
+}
+
+.print-button {
+  padding: 10px 16px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--foreground);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  cursor: pointer;
+}
+
+.doc {
+  --doc-ink: #191714;
+  --doc-text-secondary: #777069;
+  --doc-line: rgba(25, 23, 20, 0.14);
+  --doc-bronze: #b77a43;
+  --doc-tone-neutral: #6b6459;
+  --doc-tone-progress: #a06736;
+  --doc-tone-attention: #9b6a1f;
+  --doc-tone-success: #1f6b3a;
+  --doc-tone-critical: #9b2c2c;
+  position: relative;
+  padding: 32px;
+  background: #fff;
+  color: var(--doc-ink);
+  border: 1px solid var(--doc-line);
+  border-radius: 16px;
+  box-shadow: 0 12px 40px rgba(25, 23, 20, 0.06);
+  line-height: 1.5;
+}
+
+/* Step 11 §12: "VOID watermark/badge; document remains readable for audit; cannot masquerade as active
+ * invoice." A faint, print-visible diagonal mark rather than a badge alone, so a printed/downloaded copy of
+ * a voided document is unmistakable even skimmed at a glance -- never only a small on-screen status pill
+ * that a quick PDF read could miss. */
+.doc[data-watermark="void"]::before {
+  content: "VOID";
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 8rem;
+  font-weight: 700;
+  letter-spacing: 0.3em;
+  color: var(--doc-tone-critical);
+  opacity: 0.12;
+  transform: rotate(-24deg);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.doc p {
+  margin: 0;
+}
+
+.doc h2 {
+  margin: 0 0 6px;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--doc-text-secondary);
+}
+
+.doc-head,
+.doc-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+.doc-head {
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--doc-line);
+}
+
+.doc-meta {
+  margin: 24px 0;
+}
+
+.doc-brand {
+  margin: 0 0 4px;
+  font-size: 1.5rem;
+  font-weight: 600;
+}
+
+.doc-title {
+  text-align: right;
+}
+
+.doc-kind {
+  letter-spacing: 0.14em;
+  color: var(--doc-text-secondary);
+}
+
+.doc-number {
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+}
+
+.doc-status {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  border: 1px solid var(--doc-line);
+  border-radius: 999px;
+}
+
+/* Tones match `InvoiceListTone` (`src/domain/sales/invoiceList.ts`) exactly -- the class name is the tone
+ * name itself, so a document view never needs its own ok/warn/muted translation layer on top of the domain
+ * helper's already-decided tone. */
+.doc-status-neutral {
+  color: var(--doc-tone-neutral);
+  border-color: var(--doc-tone-neutral);
+}
+
+.doc-status-progress {
+  color: var(--doc-tone-progress);
+  border-color: var(--doc-tone-progress);
+}
+
+.doc-status-attention {
+  color: var(--doc-tone-attention);
+  border-color: var(--doc-tone-attention);
+}
+
+.doc-status-success {
+  color: var(--doc-tone-success);
+  border-color: var(--doc-tone-success);
+}
+
+.doc-status-critical {
+  color: var(--doc-tone-critical);
+  border-color: var(--doc-tone-critical);
+}
+
+.doc dl {
+  display: grid;
+  grid-template-columns: auto auto;
+  gap: 4px 24px;
+  margin: 0;
+}
+
+.doc dd {
+  margin: 0;
+  text-align: right;
+}
+
+/* Compact item table (OWNER, 7 October 2026): smaller text and tighter rows so many products still fit one page. */
+.doc-lines {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.8125rem;
+  line-height: 1.35;
+}
+
+.doc-lines th,
+.doc-lines td {
+  padding: 5px 8px;
+  text-align: left;
+  border-bottom: 1px solid var(--doc-line);
+  vertical-align: top;
+}
+
+.doc-lines th {
+  padding-block: 6px;
+  font-size: 0.6875rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--doc-text-secondary);
+}
+
+.doc .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* The totals fill their lane (decision 319; the owner sets the lane's width): each row is a label on the left and an
+ * amount on the right. `.doc .doc-totals` outranks `.doc dl` (a plain two column grid with no margin). */
+.doc .doc-totals {
+  display: block;
+  width: 100%;
+  margin: 0;
+  padding-right: 8px;
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.doc-totals > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 2px 0;
+}
+
+.doc-totals dt,
+.doc-totals dd {
+  margin: 0;
+}
+
+.doc-totals .grand {
+  margin-top: 3px;
+  padding-top: 5px;
+  border-top: 1px solid var(--doc-line);
+  font-weight: 600;
+}
+
+.doc-totals .refund {
+  color: var(--doc-tone-attention);
+}
+
+/* A logo placed on its own as a block of the invoice (decision 321): it fills the width of its block, up to a
+ * reasonable height; the owner widens the block to make the logo bigger. */
+.doc-issuer .doc-logo {
+  display: block;
+  width: auto;
+  max-width: min(100%, 180px);
+  max-height: 72px;
+  margin-bottom: 12px;
+  object-fit: contain;
+}
+
+.doc-cell[data-block="logo"] .doc-logo {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 120px;
+  object-fit: contain;
+  object-position: left center;
+}
+
+.doc-cell[data-block="logo"][data-align="center"] .doc-logo {
+  object-position: center;
+}
+
+.doc-cell[data-block="logo"][data-align="right"] .doc-logo {
+  object-position: right center;
+}
+
+.doc-box[style*="--bh"] .doc-cell[data-block="logo"] .doc-logo {
+  height: var(--bh);
+  max-height: none;
+}
+
+/* The invoice page is free (decision 321): three zones from top to bottom (above the item table, the item table,
+ * below it). Inside a zone every block sits where its own numbers say: `--x` and `--w` (percent of the page width)
+ * and `--y` (pixels down). All blocks of a zone share one grid cell, so the zone is as tall as its lowest block and
+ * the item table can grow without anything underneath it overlapping. A block that follows another one is drawn
+ * inside that block's node, under its box, in a container that is as wide as the whole page again (so `--x` and
+ * `--w` keep their meaning). `--z` is the text size of the block. */
+.doc-canvas {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.doc-zone,
+.doc-children {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+
+.doc-zone > .doc-node,
+.doc-children > .doc-node {
+  grid-area: 1 / 1;
+}
+
+.doc-node {
+  min-width: 0;
+  width: calc(var(--w) * 1%);
+  margin-top: calc(var(--y) * 1px);
+  margin-left: calc(var(--x) * 1%);
+}
+
+.doc-children {
+  width: calc(100% * 100 / var(--w));
+  margin-left: calc(-100% * var(--x) / var(--w));
+}
+
+.doc-zone[data-zone="table"] {
+  display: block;
+}
+
+.doc-zone[data-zone="table"] > .doc-node {
+  width: 100%;
+  margin: 0;
+}
+
+.doc-zone[data-zone="head"]:not([data-empty]) {
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--doc-line);
+}
+
+.doc-box {
+  display: flex;
+  flex-direction: column;
+  min-height: var(--bh, 0px);
+}
+
+.doc-box[data-valign="middle"] {
+  justify-content: center;
+}
+
+.doc-box[data-valign="bottom"] {
+  justify-content: flex-end;
+}
+
+.doc-cell {
+  zoom: var(--z, 1);
+}
+
+.doc-cell[data-align="center"] {
+  text-align: center;
+}
+
+.doc-cell[data-align="right"] {
+  text-align: right;
+}
+
+.doc-cell .doc-dates {
+  width: fit-content;
+  gap: 2px 20px;
+}
+
+.doc-cell[data-align="center"] .doc-dates {
+  margin-inline: auto;
+}
+
+.doc-cell[data-align="right"] .doc-dates {
+  margin-left: auto;
+}
+
+.doc-cell .doc-block {
+  margin-top: 0;
+}
+
+.doc-cell[data-align="center"] .doc-block ul,
+.doc-cell[data-align="right"] .doc-block ul {
+  padding-left: 0;
+  list-style-position: inside;
+}
+
+.doc .doc-cell .doc-totals {
+  margin-top: 0;
+}
+
+/* The customer and the dates are set at the size of the rest of the document, and the date labels stay at the
+ * left of their column whatever the alignment of the block. */
+.doc-cell[data-block="customer"],
+.doc-cell[data-block="dates"] {
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.doc-cell .doc-dates dt {
+  text-align: left;
+}
+
+/* On a narrow screen the blocks run one under the other, whatever the owner's arrangement. */
+@media (max-width: 640px) {
+  .doc-zone,
+  .doc-children {
+    display: block;
+  }
+
+  .doc-node,
+  .doc-children {
+    width: 100% !important;
+    margin-left: 0 !important;
+  }
+
+  .doc-node {
+    margin-top: min(calc(var(--y) * 1px), 14px);
+  }
+
+  .doc-cell[data-block="logo"] .doc-logo {
+    width: auto;
+    max-width: 180px;
+    max-height: 72px;
+  }
+
+  .doc-cell .doc-dates {
+    margin-left: 0 !important;
+  }
+}
+
+/* Compact document text (OWNER, 6 October 2026): the company lines and the closing blocks (payments received,
+ * how to pay, notes, terms) are set smaller so the invoice stays short. */
+.doc-issuer p {
+  font-size: 0.8125rem;
+  line-height: 1.4;
+}
+
+.doc-issuer .doc-brand {
+  margin-bottom: 2px;
+  font-size: 1.375rem;
+  line-height: 1.25;
+}
+
+.doc-cell[data-block="payments"] .doc-block,
+.doc-cell[data-block="instructions"] .doc-block,
+.doc-cell[data-block="notes"] .doc-block,
+.doc-cell[data-block="terms"] .doc-block {
+  font-size: 0.75rem;
+  line-height: 1.4;
+}
+
+.doc-cell[data-block="payments"] .doc-block h2,
+.doc-cell[data-block="instructions"] .doc-block h2,
+.doc-cell[data-block="notes"] .doc-block h2,
+.doc-cell[data-block="terms"] .doc-block h2 {
+  margin-bottom: 2px;
+  font-size: 0.6875rem;
+}
+
+.doc .doc-cell[data-block="instructions"] .doc-pay-link {
+  padding: 5px 14px;
+  font-size: 0.75rem;
+}
+
+.doc-cell[data-block="instructions"] .doc-pay-url {
+  margin-top: 2px;
+  font-size: 0.6875rem;
+}
+
+.doc-cell[data-block="instructions"] .account-number {
+  font-size: 0.9375rem;
+}
+
+.doc-cell[data-block="payments"] .doc-block ul {
+  padding-left: 16px;
+}
+
+/* The layout editor (decision 310): the document with draggable blocks beside a settings panel. */
+.lay-editor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 24px;
+  align-items: start;
+}
+
+.lay-preview {
+  min-width: 0;
+}
+
+.lay-issuer {
+  margin-bottom: var(--space-4);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-solid);
+}
+
+.lay-issuer-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+}
+
+.lay-issuer-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+@media (max-width: 640px) {
+  .lay-issuer-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.lay-panel {
+  position: sticky;
+  top: 16px;
+}
+
+.lay-group {
+  margin: 12px 0 0;
+  padding: 0;
+  border: 0;
+}
+
+.lay-group legend {
+  padding: 0;
+  margin-bottom: 6px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.lay-segment {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.lay-segment button {
+  padding: 6px 12px;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.lay-segment button[aria-pressed="true"] {
+  color: #fff;
+  background: var(--foreground);
+  border-color: var(--foreground);
+}
+
+.lay-segment button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+}
+
+.lay-hidden-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 4px 0;
+}
+
+.lay-pick select {
+  width: 100%;
+}
+
+.lay-toggles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  margin-bottom: 8px;
+  font-size: 0.875rem;
+}
+
+.lay-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.lay-fields label {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+.lay-fields input {
+  width: 100%;
+  padding: 6px 8px;
+  font: inherit;
+  font-size: 0.875rem;
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+/* A block of the page in the editor: drag it, or pick it and pull its edges. */
+.lay-block {
+  position: relative;
+  min-width: 0;
+  cursor: grab;
+  outline: 1px dashed transparent;
+  outline-offset: 0;
+  user-select: none;
+  touch-action: none;
+}
+
+.lay-block:hover {
+  outline-color: #a8a195;
+}
+
+.lay-block[data-fixed="true"] {
+  cursor: default;
+}
+
+.lay-block[data-selected="true"] {
+  outline: 2px solid #2563eb;
+  background: rgba(37, 99, 235, 0.04);
+}
+
+.lay-block[data-dragging="true"] {
+  cursor: grabbing;
+}
+
+.doc-node[data-moving="true"] {
+  position: relative;
+  z-index: 8;
+  opacity: 0.88;
+  filter: drop-shadow(0 6px 14px rgba(25, 23, 20, 0.18));
+}
+
+.doc-zone[data-empty="true"] {
+  min-height: 36px;
+  outline: 1px dashed #c9c2b6;
+}
+
+.lay-area {
+  position: relative;
+}
+
+.lay-doc-wrap {
+  position: relative;
+}
+
+/* The ruler above the page: percentages across the width of the page (the document has a 1px border and 32px
+ * padding), with the selected block's span marked. */
+.lay-ruler {
+  padding: 0 33px 6px;
+  color: #6b6459;
+  font-size: 0.6875rem;
+}
+
+.lay-ruler-pct {
+  position: relative;
+  height: 18px;
+  border-bottom: 2px solid #c9c2b6;
+}
+
+.lay-ruler-pct span {
+  position: absolute;
+  bottom: 0;
+  height: 6px;
+  border-left: 1px solid #a8a195;
+  font-size: 0.625rem;
+  line-height: 1;
+}
+
+.lay-ruler-pct span[data-major="true"] {
+  height: 12px;
+  padding-left: 2px;
+}
+
+.lay-ruler-pct span:last-of-type {
+  border-left: 0;
+  border-right: 1px solid #a8a195;
+  transform: translateX(-1px);
+}
+
+.lay-ruler-band {
+  position: absolute;
+  bottom: -2px;
+  height: 2px;
+  background: #2563eb;
+}
+
+/* Guide lines over the page: the page edges and the page centre. */
+.lay-grid {
+  position: absolute;
+  inset: 33px;
+  pointer-events: none;
+}
+
+.lay-center {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  border-left: 1px dashed rgba(220, 38, 38, 0.55);
+}
+
+.lay-edge {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dashed rgba(37, 99, 235, 0.35);
+}
+
+.lay-edge[data-at="left"] {
+  left: 0;
+}
+
+.lay-edge[data-at="right"] {
+  right: 0;
+}
+
+/* Smart guides while a block is moved or resized (like Canva): a line where its edge or centre lines up with the
+ * page or with another block, with a label on it. */
+.lay-lines {
+  position: absolute;
+  inset: 0;
+  z-index: 9;
+  pointer-events: none;
+}
+
+.lay-guide {
+  position: absolute;
+  background: #e11d48;
+}
+
+.lay-guide[data-axis="x"] {
+  top: 0;
+  bottom: 0;
+  width: 1px;
+}
+
+.lay-guide[data-axis="y"] {
+  left: 0;
+  right: 0;
+  height: 1px;
+}
+
+.lay-guide > span {
+  position: absolute;
+  padding: 1px 6px;
+  font-size: 0.625rem;
+  line-height: 1.4;
+  color: #fff;
+  white-space: nowrap;
+  background: #e11d48;
+  border-radius: 999px;
+}
+
+.lay-guide[data-axis="x"] > span {
+  top: -9px;
+  left: 0;
+  transform: translateX(-50%);
+}
+
+.lay-guide[data-axis="y"] > span {
+  top: -8px;
+  right: 6px;
+}
+
+.lay-status {
+  min-height: 1.5em;
+  margin: 0 0 8px;
+  font-size: 0.8125rem;
+  color: #6b6459;
+}
+
+.lay-warn {
+  margin: 0 0 8px;
+  padding: 6px 10px;
+  font-size: 0.8125rem;
+  color: #9b2c2c;
+  background: #fdf1f1;
+  border: 1px solid #e8b9b9;
+  border-radius: 8px;
+}
+
+.lay-status[data-snapped="true"] {
+  color: #be123c;
+  font-weight: 600;
+}
+
+/* The grips of the selected block: left, right and bottom edges and the two lower corners. */
+.lay-handle {
+  position: absolute;
+  z-index: 3;
+  background: #2563eb;
+  border: 2px solid #fff;
+  border-radius: 4px;
+  box-shadow: 0 0 0 1px #2563eb;
+  touch-action: none;
+}
+
+.lay-handle[data-handle="left"],
+.lay-handle[data-handle="right"] {
+  top: 50%;
+  width: 10px;
+  height: 30px;
+  margin-top: -15px;
+  cursor: ew-resize;
+}
+
+.lay-handle[data-handle="left"] {
+  left: -6px;
+}
+
+.lay-handle[data-handle="right"] {
+  right: -6px;
+}
+
+.lay-handle[data-handle="bottom"] {
+  bottom: -6px;
+  left: 50%;
+  width: 30px;
+  height: 10px;
+  margin-left: -15px;
+  cursor: ns-resize;
+}
+
+.lay-handle[data-handle="bottom-left"],
+.lay-handle[data-handle="bottom-right"] {
+  bottom: -6px;
+  width: 12px;
+  height: 12px;
+}
+
+.lay-handle[data-handle="bottom-left"] {
+  left: -6px;
+  cursor: nesw-resize;
+}
+
+.lay-handle[data-handle="bottom-right"] {
+  right: -6px;
+  cursor: nwse-resize;
+}
+
+@media (max-width: 640px) {
+  .lay-ruler,
+  .lay-grid {
+    display: none;
+  }
+}
+
+.lay-tag {
+  position: absolute;
+  top: -10px;
+  left: 8px;
+  display: none;
+  padding: 1px 8px;
+  font-size: 0.6875rem;
+  line-height: 1.5;
+  color: #fff;
+  background: #2563eb;
+  border-radius: 999px;
+  white-space: nowrap;
+  z-index: 2;
+  pointer-events: none;
+}
+
+.lay-block:hover > .lay-tag,
+.lay-block[data-selected="true"] > .lay-tag {
+  display: block;
+}
+
+@media (max-width: 960px) {
+  .lay-editor {
+    grid-template-columns: 1fr;
+  }
+
+  .lay-panel {
+    position: static;
+  }
+}
+
+.settings-logo-preview {
+  max-width: 220px;
+  max-height: 96px;
+  object-fit: contain;
+  padding: 8px;
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+
+.doc-pay {
+  margin-top: 8px;
+}
+
+.doc .doc-pay-link {
+  display: inline-block;
+  padding: 10px 20px;
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+  background: var(--doc-ink);
+  border-radius: 999px;
+}
+
+.doc-pay-url {
+  display: block;
+  margin-top: 6px;
+  font-size: 0.75rem;
+  color: var(--doc-text-secondary);
+  word-break: break-all;
+}
+
+.doc-block {
+  margin-top: 24px;
+}
+
+.doc-block ul {
+  margin: 0;
+  padding-left: 18px;
+}
+
+.account-number {
+  font-family: var(--font-mono);
+  font-size: 1.125rem;
+}
+
+.doc-claim {
+  margin-top: 24px;
+}
+
+.doc-claim .form {
+  padding: 24px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+
+/* Step 11 §22 (Responsive Rules), read with §8's own note that "on mobile, Total/Outstanding and primary
+ * CTA remain easy to find without horizontal table scrolling." Desktop and Tablet already get §22's "single
+ * primary document column, actions remain visible" for free from `.doc-page`'s existing centred
+ * single-column width and `.doc-actions`'s top placement, so only a Mobile breakpoint is added here; it
+ * uses the app's own `max-width: 640px` convention (matches the shell's own mobile breakpoint above). Since
+ * `.doc-actions`/`.print-button` are the surrounding chrome, not the document body, they keep following the
+ * app's own theme-aware tokens exactly as they already did (Step 11 §8). */
+@media (max-width: 640px) {
+  .doc-page {
+    padding: 12px 12px 96px;
+  }
+
+  /* Print/download (and, on the receipt page, "back to invoice") stay reachable without scrolling back up
+   * through a long document -- §22's own "easy copy/download." */
+  .doc-actions {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    padding: 10px 0;
+    background: var(--background);
+  }
+
+  .doc {
+    padding: 20px 16px;
+  }
+
+  .doc-head,
+  .doc-meta {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .doc-title {
+    text-align: left;
+  }
+
+  .doc dl {
+    grid-template-columns: 1fr;
+    gap: 2px 0;
+  }
+
+  .doc dd {
+    margin-bottom: 8px;
+    text-align: left;
+  }
+
+  /* Line-item table becomes stacked cards, one per item: the description stays a full-width heading line,
+   * every other cell reads its column header back via `data-label` (set in `InvoiceDocumentView.tsx`) so
+   * nothing is ever cut off or needs horizontal scrolling to read (§8, §22 Mobile: "stacked item rows"). */
+  .doc-lines thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .doc-lines,
+  .doc-lines tbody,
+  .doc-lines tr,
+  .doc-lines td {
+    display: block;
+    width: 100%;
+  }
+
+  .doc-lines tr {
+    padding: 10px 0;
+    border-bottom: 1px solid var(--doc-line);
+  }
+
+  .doc-lines td {
+    padding: 2px 0;
+    border-bottom: 0;
+    text-align: left;
+  }
+
+  .doc-lines td:first-child {
+    padding-top: 0;
+    font-weight: 600;
+  }
+
+  .doc-lines td[data-label] {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .doc-lines td[data-label]::before {
+    content: attr(data-label);
+    font-weight: 400;
+    font-size: 0.75rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--doc-text-secondary);
+  }
+
+  .doc .doc-totals {
+    width: 100%;
+    padding-right: 0;
+  }
+
+  .doc .doc-totals dd {
+    margin-bottom: 0;
+    text-align: right;
+  }
+
+  /* Sticky, full-width, unmissable payment CTA (§22 Mobile: "sticky/obvious payment CTA") -- reachable
+   * without hunting back down through a long invoice once the claim form has scrolled into view. */
+  .doc-claim .form button[type="submit"] {
+    position: sticky;
+    bottom: 12px;
+    width: 100%;
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* Report sections reached from a dashboard card (#pnl-expense ...) must not hide under the sticky top bar. */
+tbody[id^="pnl-"] {
+  scroll-margin-top: calc(var(--shell-topbar-height) + var(--space-4));
+}
+
+/*
+ * Application shell — Step 09 §2 (Global Application Shell), §4 (Sidebar Behavior), §6-§7
+ * (Global Search / Command Menu), Step 10 §7 (glass is selective: navigation/command surfaces
+ * yes, table rows/form fields no), §17-§19 (navigation, search and command-menu visuals).
+ */
+.app-shell {
+  display: grid;
+  grid-template-columns: var(--shell-sidebar-width) 1fr;
+  min-height: 100vh;
+  background: var(--background);
+  transition: grid-template-columns var(--motion-base) var(--motion-ease);
+}
+
+.app-shell[data-sidebar="collapsed"] {
+  grid-template-columns: var(--shell-sidebar-width-collapsed) 1fr;
+}
+
+.app-sidebar {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  position: sticky;
+  top: 0;
+  padding: var(--space-4) var(--space-3);
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .app-sidebar {
+    backdrop-filter: blur(20px);
+  }
+}
+
+.app-sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2);
+  margin-bottom: var(--space-4);
+}
+
+.app-sidebar-brand img {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+}
+
+.app-sidebar-brand span {
+  font-weight: 600;
+  font-size: var(--text-sm);
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.app-shell[data-sidebar="collapsed"] .app-sidebar-brand span,
+.app-shell[data-sidebar="collapsed"] .app-nav-label,
+.app-shell[data-sidebar="collapsed"] .app-nav-group-title {
+  display: none;
+}
+
+.app-nav {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.app-nav-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-nav-group-title {
+  padding: var(--space-3) var(--space-2) var(--space-1);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-tertiary);
+}
+
+/* Menu rows that reveal their submenu (decision 254). */
+.app-nav-group-toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-align: left;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition:
+    background var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.app-nav-group-toggle:hover,
+.app-nav-group-toggle[data-active="true"],
+.app-nav-group-toggle[aria-expanded="true"] {
+  color: var(--foreground);
+}
+
+.app-nav-group-toggle:hover {
+  background: var(--surface-sunken);
+}
+
+.app-nav-group-toggle:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.app-nav-group-toggle .app-nav-label {
+  flex: 1;
+}
+
+.app-nav-chevron {
+  flex: none;
+  transition: transform var(--motion-fast) var(--motion-ease);
+}
+
+.app-nav-group-toggle[aria-expanded="true"] .app-nav-chevron {
+  transform: rotate(180deg);
+}
+
+.app-nav-panel {
+  display: flex;
+  flex-direction: column;
+  margin: 2px 0 var(--space-1) 22px;
+  padding-left: var(--space-3);
+  border-left: 1px solid var(--line);
+  animation: app-nav-reveal var(--motion-fast) var(--motion-ease);
+}
+
+.app-nav-panel[hidden] {
+  display: none;
+}
+
+@keyframes app-nav-reveal {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .app-nav-panel {
+    animation: none;
+  }
+  .app-nav-chevron {
+    transition: none;
+  }
+}
+
+.app-shell[data-sidebar="collapsed"] .app-nav-chevron {
+  display: none;
+}
+
+.app-shell[data-sidebar="collapsed"] .app-nav-group-toggle {
+  justify-content: center;
+}
+
+.app-nav-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 500;
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  transition:
+    background var(--motion-fast) var(--motion-ease),
+    color var(--motion-fast) var(--motion-ease);
+}
+
+.app-nav-link:hover {
+  color: var(--foreground);
+  background: var(--surface-sunken);
+}
+
+.app-nav-link[aria-current="page"] {
+  color: var(--foreground);
+  background: var(--accent-wash);
+  font-weight: 600;
+}
+
+.app-nav-link:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.app-nav-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.app-sidebar-footer {
+  margin-top: var(--space-4);
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
+.app-sidebar-collapse-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: var(--space-2);
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.app-sidebar-collapse-toggle:hover {
+  color: var(--foreground);
+  background: var(--surface-sunken);
+}
+
+.app-main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.app-topbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  height: var(--shell-topbar-height);
+  padding: 0 var(--space-5);
+  background: var(--surface);
+  border-bottom: 1px solid var(--line);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .app-topbar {
+    backdrop-filter: blur(20px);
+  }
+}
+
+.app-topbar-title {
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.app-topbar-search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex: 1;
+  max-width: 420px;
+  padding: var(--space-2) var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.app-topbar-search:hover {
+  color: var(--foreground);
+  border-color: color-mix(in srgb, var(--line) 60%, var(--foreground) 40%);
+}
+
+.app-topbar-search kbd {
+  margin-left: auto;
+  padding: 2px 6px;
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  color: var(--ink-tertiary);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+}
+
+.app-topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  margin-left: auto;
+}
+
+.app-topbar-menu-button {
+  display: none;
+}
+
+.app-shell-scrim {
+  display: none;
+  padding: 0;
+  border: 0;
+  cursor: default;
+}
+
+.icon-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.icon-button:hover {
+  color: var(--foreground);
+  background: var(--surface-sunken);
+  border-color: var(--line);
+}
+
+.icon-button:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.app-content {
+  flex: 1;
+  padding: var(--space-5);
+}
+
+/* Entity switcher — Step 09 §5 */
+.entity-switcher {
+  position: relative;
+}
+
+.entity-switcher-trigger {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-1) var(--space-3) var(--space-1) var(--space-1);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.entity-switcher-mark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  font-size: var(--text-2xs);
+  font-weight: 700;
+  color: #fff;
+  background: var(--ink);
+  border-radius: var(--radius-pill);
+}
+
+.entity-switcher-menu {
+  position: absolute;
+  top: calc(100% + var(--space-2));
+  left: 0;
+  z-index: 20;
+  min-width: 220px;
+  padding: var(--space-2);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.entity-switcher-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  color: var(--foreground);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.entity-switcher-item:hover {
+  background: var(--surface-sunken);
+}
+
+.entity-switcher-item[aria-current="true"] {
+  background: var(--accent-wash);
+}
+
+.entity-switcher-item strong {
+  font-size: var(--text-sm);
+}
+
+.entity-switcher-item span {
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+/* Command Menu — Step 09 §7, Step 10 §18 (structural shell only; wired to search/quick-create in P13 Part 4) */
+.command-menu-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 12vh;
+  background: rgba(25, 23, 20, 0.32);
+}
+
+.command-menu-panel {
+  width: min(100%, 560px);
+  margin: 0 var(--space-4);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .command-menu-panel {
+    background: color-mix(in srgb, var(--surface-solid) 90%, transparent);
+    backdrop-filter: blur(24px);
+  }
+}
+
+.command-menu-input {
+  width: 100%;
+  padding: var(--space-4);
+  font: inherit;
+  font-size: var(--text-base);
+  color: var(--foreground);
+  background: transparent;
+  border: 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.command-menu-input:focus {
+  outline: none;
+}
+
+.command-menu-list {
+  max-height: 320px;
+  padding: var(--space-2);
+  overflow-y: auto;
+}
+
+.command-menu-item {
+  display: block;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  text-align: left;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  text-decoration: none;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.command-menu-item:hover,
+.command-menu-item[data-active="true"] {
+  background: var(--surface-sunken);
+}
+
+.command-menu-empty {
+  padding: var(--space-4);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  text-align: center;
+}
+
+/* Global Search results inside Command Menu (P13 Part 6, Step 09 §6, Step 13 §17) -- a separately
+   labelled section below navigation/quick-create, per §17's own "Command Menu navigation/action search
+   remains separate from financial content search." */
+.command-menu-section-label {
+  padding: var(--space-2) var(--space-3) var(--space-1);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.command-menu-item-disabled {
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  cursor: default;
+}
+
+/* Drawer (P13 Part 6, Step 09 §2/§9/§27, Step 10 §8/§19/§26) -- the Context Panel / Drawer region of the
+   Global Application Shell. `RecordPreviewLink`'s List-row Quick Preview is the first consumer; the
+   primitive itself (`Drawer.tsx`) holds no record-specific knowledge, so it can carry filters or
+   lightweight create/edit later without changing. Right-aligned, per Step 10 §19 ("Right-side drawer is
+   default for quick preview, filters and lightweight edit"). */
+.drawer-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  justify-content: flex-end;
+  background: rgba(25, 23, 20, 0.32);
+}
+
+.drawer-panel {
+  width: min(420px, 92vw);
+  height: 100%;
+  overflow-y: auto;
+  background: var(--surface-solid);
+  border-left: 1px solid var(--line);
+  box-shadow: var(--shadow-lg);
+  animation: drawer-slide-in var(--motion-base) var(--motion-ease);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .drawer-panel {
+    background: color-mix(in srgb, var(--surface-solid) 92%, transparent);
+    backdrop-filter: blur(20px);
+  }
+}
+
+.drawer-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  background: inherit;
+}
+
+.drawer-header h2 {
+  font-size: var(--text-lg);
+  margin: 0;
+}
+
+.drawer-body {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4);
+}
+
+.drawer-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.drawer-full-link {
+  align-self: flex-start;
+}
+
+@keyframes drawer-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer-panel {
+    animation: none;
+  }
+}
+
+/* Status badges — Step 10 §16 (colour is never the sole indicator; text is always present) */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 10px;
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border-radius: var(--radius-pill);
+  white-space: nowrap;
+}
+
+.status-badge-neutral {
+  color: var(--text-secondary);
+  background: var(--surface-sunken);
+}
+
+.status-badge-progress {
+  color: var(--info);
+  background: var(--info-wash);
+}
+
+.status-badge-attention {
+  color: var(--warning);
+  background: var(--warning-wash);
+}
+
+.status-badge-success {
+  color: var(--success);
+  background: var(--success-wash);
+}
+
+.status-badge-critical {
+  color: var(--danger);
+  background: var(--danger-wash);
+}
+
+@media (max-width: 1023px) {
+  .app-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .app-sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 30;
+    width: var(--shell-sidebar-width);
+    transform: translateX(-100%);
+    transition: transform var(--motion-base) var(--motion-ease);
+    box-shadow: var(--shadow-lg);
+  }
+
+  .app-shell[data-sidebar="open"] .app-sidebar {
+    transform: translateX(0);
+  }
+
+  .app-sidebar-collapse-toggle {
+    display: none;
+  }
+
+  .app-topbar-menu-button {
+    display: inline-flex;
+  }
+
+  .app-shell[data-sidebar="open"] .app-shell-scrim {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: rgba(25, 23, 20, 0.32);
+  }
+
+  .app-topbar-search {
+    max-width: none;
+  }
+
+  .app-topbar-search span {
+    display: none;
+  }
+}
+
+/* Step 11 §13 PDF/Print Rules: A4 portrait, no application chrome, pagination that never orphans a total or
+ * cuts a line item mid-row, and a repeated line-item table header on every continuation page. A running
+ * invoice-identity header/footer on every page beyond that repeated table header is not achievable with
+ * CSS-only browser print -- @page margin-box content (the one CSS mechanism for it) has no reliable Chrome
+ * support, so this is a documented limitation of the "browser print-to-PDF" approach this codebase already
+ * uses (`PrintButton`, decision -- P5), not silently claimed done. */
+@page {
+  size: A4;
+  margin: 16mm;
+
+  /* A long invoice runs onto further pages: each says which page it is (decision 319). Browsers that do not draw
+   * page margin boxes simply leave it out. */
+  @bottom-right {
+    content: "Halaman " counter(page) " dari " counter(pages);
+    font-size: 8pt;
+    color: #6b6459;
+  }
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+
+  body {
+    background: #fff;
+  }
+
+  .doc-page {
+    padding: 0;
+    width: 100%;
+  }
+
+  .doc {
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .doc[data-watermark="void"]::before {
+    /* Faded further under print so it reads as a mark, not a full-page alarm (Step 11 §12: "no alarming
+     * full-page red" applies to VOID's treatment the same as OVERDUE's). */
+    opacity: 0.08;
+  }
+
+  .doc-lines thead {
+    display: table-header-group;
+  }
+
+  /* A button's background does not print by default: the link prints as underlined text above its address. */
+  .doc .doc-pay-link {
+    padding: 0;
+    color: var(--doc-ink);
+    text-decoration: underline;
+    background: none;
+  }
+
+  /* A block is never cut in two; the item table (a zone of its own, not a grid) breaks between items and its header
+   * repeats on every page. */
+  .doc-lines tr,
+  .doc-head,
+  .doc-meta,
+  .doc-box,
+  .doc-totals,
+  .doc-block {
+    break-inside: avoid;
+  }
+
+  .doc-zone,
+  .doc-children {
+    break-inside: auto;
+  }
+
+  .doc-zone[data-zone="head"],
+  .doc-zone[data-zone="foot"] {
+    break-inside: avoid;
+  }
+
+  /* The block that holds the item table is the one that may run over the page. */
+  .doc-zone[data-zone="table"] .doc-node,
+  .doc-zone[data-zone="table"] .doc-box,
+  .doc-zone[data-zone="table"] .doc-cell {
+    break-inside: auto;
+  }
+
+  .doc-cell {
+    zoom: var(--z, 1);
+  }
+}
+
+/* Dashboard — P13 Part 2 (Step 09 §8, Step 10 §10-13). Reuses the same surface/line/shadow tokens every
+ * other screen uses; nothing here introduces a new visual language. */
+
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  max-width: 1400px;
+  margin-inline: auto;
+}
+
+.dashboard-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.dashboard-hero-title {
+  margin: 0 0 4px;
+  font-size: var(--text-2xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.dashboard-hero-subtitle {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.dashboard-hero-net {
+  text-align: right;
+}
+
+.dashboard-hero-net-label {
+  display: block;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.dashboard-hero-net-value {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-2xl);
+  font-weight: 600;
+}
+
+/* Semantic color is reserved for the one figure whose sign is inherently meaningful (Step 10 §11) --
+ * a profit/loss result, never applied automatically to every debit/credit figure on the screen. */
+.dashboard-hero-net-value[data-tone="positive"] {
+  color: var(--success);
+}
+
+.dashboard-hero-net-value[data-tone="negative"] {
+  color: var(--danger);
+}
+
+.period-nav {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.period-nav-label {
+  min-width: 132px;
+  text-align: center;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.period-nav-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  text-decoration: none;
+  font-size: var(--text-sm);
+}
+
+.period-nav-link:hover {
+  background: var(--surface-sunken);
+}
+
+.kpi-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: var(--space-4);
+}
+
+.kpi-card {
+  display: block;
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  text-decoration: none;
+  color: inherit;
+  transition: box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+a.kpi-card:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.kpi-card-label {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--text-secondary);
+}
+
+.kpi-card-value {
+  margin: 0;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-lg);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.kpi-card-context {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.dashboard-column {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.dashboard-section {
+  padding: var(--space-5);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.dashboard-section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.dashboard-section-title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 600;
+}
+
+.dashboard-section-link {
+  font-size: var(--text-xs);
+  color: var(--accent);
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.dashboard-section-link:hover {
+  text-decoration: underline;
+}
+
+.dashboard-empty {
+  padding: var(--space-3) 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.dashboard-note {
+  margin-top: var(--space-3);
+}
+
+.dashboard-subsection {
+  margin-top: var(--space-5);
+}
+
+/* Cashflow / Trend (Step 10 §12: a restrained line chart, bronze/neutral, exact tooltips, always backed
+ * by a table/drill-down source -- the trend section's own numeric legend beneath it). */
+.trend-chart {
+  display: block;
+  width: 100%;
+  height: 160px;
+}
+
+.trend-chart-area {
+  fill: var(--accent-wash);
+  stroke: none;
+}
+
+.trend-chart-line {
+  fill: none;
+  stroke: var(--bronze);
+  stroke-width: 2;
+}
+
+.trend-chart-dot {
+  fill: var(--surface-solid);
+  stroke: var(--bronze);
+  stroke-width: 2;
+}
+
+.trend-chart-axis {
+  stroke: var(--line);
+  stroke-width: 1;
+}
+
+.trend-legend {
+  display: flex;
+  justify-content: space-between;
+  margin-top: var(--space-2);
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+/* Receivables / Payables aging distribution */
+.aging-summary {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: var(--space-3);
+}
+
+.aging-summary-figure {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-lg);
+  font-weight: 600;
+}
+
+.aging-bar {
+  display: flex;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  overflow: hidden;
+  background: var(--surface-sunken);
+  margin-bottom: var(--space-2);
+}
+
+.aging-bar-segment {
+  height: 100%;
+}
+
+.aging-bar-segment[data-bucket="not_due"] {
+  background: var(--info);
+}
+
+.aging-bar-segment[data-bucket="overdue"] {
+  background: var(--danger);
+}
+
+/* Lists shared by Tasks & Attention, Recent Activity and the Tax Snapshot's deadline list */
+.dashboard-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dashboard-list-item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.dashboard-list-item:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.dashboard-list-item-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.dashboard-list-item-detail {
+  margin: 2px 0 0;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.dashboard-list-item-end {
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.dashboard-list-item-value {
+  display: block;
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.dashboard-list-item-date {
+  display: block;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Account Snapshot */
+.account-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.account-row:last-child {
+  border-bottom: none;
+  padding-bottom: 0;
+}
+
+.account-row-name {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.account-row-meta {
+  margin-top: 2px;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.account-row-balance {
+  font-variant-numeric: tabular-nums;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+@media (max-width: 1023px) {
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .kpi-strip {
+    grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  }
+}
+
+/* ------------------------------------------------------------------------------------------------------
+ * Standard List / Detail screens (P13 Part 3a, Step 09 §9-§10). Shared across every module (Sales first;
+ * Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll and Planning reuse these same classes as
+ * their own list/detail screens ship) rather than each module styling its own table and buttons.
+ * ------------------------------------------------------------------------------------------------------ */
+
+.btn-primary,
+.btn-secondary,
+.btn-danger,
+.btn-ghost {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 10px 18px;
+  font: inherit;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background var(--motion-fast) var(--motion-ease);
+}
+
+.btn-primary {
+  color: #fff;
+  background: var(--ink);
+  border: 1px solid var(--ink);
+}
+
+.btn-secondary {
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+}
+
+.btn-danger {
+  color: var(--danger);
+  background: var(--danger-wash);
+  border: 1px solid transparent;
+}
+
+.btn-ghost {
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid transparent;
+}
+
+.btn-primary:disabled,
+.btn-secondary:disabled,
+.btn-danger:disabled,
+.btn-ghost:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.btn-primary:focus-visible,
+.btn-secondary:focus-visible,
+.btn-danger:focus-visible,
+.btn-ghost:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.list-screen,
+.record-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  max-width: 1100px;
+  /* Centred in the content area: with only a max-width the page hugged the left edge and the right side
+   * looked far wider (finding #114). */
+  margin-inline: auto;
+}
+
+.list-screen-header,
+.record-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.list-screen-header h1 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-2xl);
+}
+
+.list-screen-summary {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.list-screen-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.list-filter-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.list-filter-tab {
+  padding: 6px 14px;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+}
+
+.list-filter-tab-active {
+  color: #fff;
+  background: var(--ink);
+  border-color: var(--ink);
+}
+
+.list-search-form {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.list-search-form input {
+  padding: 8px 14px;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  min-width: 220px;
+}
+
+.list-screen-hint {
+  margin: 0 0 var(--space-4);
+  max-width: 68ch;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  line-height: 1.5;
+}
+.list-screen-hint a {
+  text-decoration: underline;
+}
+
+.list-empty {
+  padding: var(--space-6);
+  text-align: center;
+  color: var(--text-secondary);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+}
+
+.list-empty p {
+  margin: 0;
+}
+
+/* Step 09 §25/§9, Step 10 §24: empty states are "action-oriented" and carry "one clear CTA" -- this is that
+   CTA slot, a `.btn-primary`/`.btn-secondary` placed below the `.list-empty` message (decision 218). */
+.list-empty-action {
+  display: inline-block;
+  margin-top: var(--space-4);
+}
+
+/* Skeleton loading (Step 09 §25 "Use skeleton loading for primary workspace content rather than disruptive
+ * full-screen spinners"; Step 10 §23 "Skeletons match final geometry to minimize layout shift"; Step 10 §24
+ * "Skeleton loading uses neutral shimmer or subtle pulse compatible with reduced-motion") -- P13 Part 5,
+ * decision 213: this replaces the plain-text "Memuat…" panel decisions 211/212 shipped before the actual
+ * Step 09/Step 10 spec text was read (see decision 213's own note on that correction). `.skeleton-panel`
+ * lays out a stack of pulsing placeholder blocks; `.skeleton-header`/`.skeleton-row` size two shapes reused
+ * by both `(app)/loading.tsx` (a list-screen-shaped stack, since List/Detail screens are this segment's
+ * majority shape) and the root `loading.tsx` (a shorter stack sized to the `.card` panel `/login`,
+ * `/auth/*` and `/i/[token]`'s own `not-found.tsx` already use) -- an approximation of each route's own
+ * geometry, not literally page-specific, since a shared segment-level `loading.tsx` cannot know which
+ * route triggered it; true per-route skeletons would need one `loading.tsx` per route, a materially larger
+ * increment recorded as still open rather than attempted here. The pulse uses a duration deliberately
+ * outside the `--motion-fast/base/slow` scale (those are interaction-timing tokens, 150-250ms, far too
+ * quick for a resting ambient loop) but reuses `--motion-ease`; `prefers-reduced-motion: reduce` disables
+ * the animation outright rather than merely shortening it, satisfying §24's "compatible with reduced-motion"
+ * the same explicit way decision 156's own token-level override already established for this codebase. */
+.skeleton-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.skeleton-block {
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  animation: skeleton-pulse 1.4s var(--motion-ease) infinite;
+}
+
+.skeleton-header {
+  height: 32px;
+  width: min(320px, 60%);
+}
+
+.skeleton-row {
+  height: 56px;
+  width: 100%;
+}
+
+.skeleton-line {
+  height: 16px;
+  width: 100%;
+}
+
+.skeleton-line:last-child {
+  width: 70%;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-block {
+    animation: none;
+    opacity: 0.75;
+  }
+}
+
+.record-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  font-size: var(--text-sm);
+}
+
+.record-table th,
+.record-table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  border-bottom: 1px solid var(--line);
+}
+
+.record-table th {
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+}
+
+.record-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.record-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* Backup & Restore Center (P14, Step 01 #36, decision 224). */
+.backup-export-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.backup-export-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.backup-export-card h3 {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.backup-validation-ok,
+.backup-validation-fail {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+}
+
+.backup-validation-ok {
+  color: var(--success);
+  background: var(--success-wash);
+}
+
+.backup-validation-fail {
+  color: var(--danger);
+  background: var(--danger-wash);
+}
+
+.record-table a {
+  color: var(--foreground);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+/* A button-styled link keeps its own colour (the Quick Preview drawer sits inside a table cell, and the
+   plain-link rule above made its white label dark-on-dark, so the button looked empty). */
+.record-table a.btn-primary {
+  color: #fff;
+}
+
+.record-table a.btn-secondary,
+.record-table a.btn-ghost {
+  color: var(--foreground);
+}
+
+.record-table a.btn-danger {
+  color: var(--danger);
+}
+
+.account-danger {
+  margin-top: var(--space-4);
+}
+
+.account-danger > summary {
+  display: inline-flex;
+  cursor: pointer;
+  list-style: none;
+}
+
+.account-danger[open] > .record-form {
+  margin-top: var(--space-3);
+}
+
+.record-table a:hover {
+  text-decoration: underline;
+}
+
+/* Reports statement viewer (P13 Part 4, Step 12 §3-§5): a canonical statement (Profit & Loss, Balance
+   Sheet, Statement of Changes in Equity, Cash Flow) is one `.record-table` with a section-header row per
+   `account_class`, a subtotal row closing each section, and a `<tfoot>` grand-total row -- these three
+   share the table's own styling and only need a distinguishing weight/background to read as a boundary. */
+.record-table .statement-section-row th {
+  background: var(--surface-sunken);
+  font-size: var(--text-sm);
+  text-transform: none;
+  letter-spacing: normal;
+}
+
+.record-table .statement-subtotal-row td,
+.record-table .statement-subtotal-row th {
+  font-weight: 600;
+  border-top: 1px solid var(--line);
+}
+
+.record-table tfoot th,
+.record-table tfoot td {
+  font-weight: 700;
+  border-top: 2px solid var(--line);
+}
+
+.record-detail-back {
+  margin: 0;
+  font-size: var(--text-sm);
+}
+
+.record-detail-back a {
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.record-detail-back a:hover {
+  text-decoration: underline;
+}
+
+.record-detail-eyebrow {
+  margin: 0 0 var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.record-detail-header h1 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-2xl);
+}
+
+.record-detail-counterparty {
+  margin: 0;
+  color: var(--text-secondary);
+}
+
+.record-detail-header-end {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+  text-align: right;
+}
+
+.record-detail-amount {
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.record-detail-dates {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}
+
+.record-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: var(--space-4);
+  margin: 0;
+}
+
+.record-summary-grid dt {
+  margin: 0 0 4px;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}
+
+.record-summary-grid dd {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.record-raw-block {
+  margin: 0;
+  padding: var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.record-activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.record-activity-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.record-activity-date {
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  white-space: nowrap;
+}
+
+.invoice-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+
+.invoice-action-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 260px;
+}
+
+.invoice-action-form label {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.invoice-action-form textarea {
+  padding: var(--space-3);
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  min-height: 72px;
+  resize: vertical;
+}
+
+.invoice-action-buttons {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.invoice-link-row {
+  display: flex;
+  gap: var(--space-2);
+}
+
+.invoice-link-row input {
+  flex: 1;
+  padding: 8px 14px;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+/* Generic single-record create form (P13 Part 3c's Transfer form; reusable by a future Part 3 create/edit
+   builder needing the same plain, no-JS-required field layout), sharing `.list-search-form input`'s exact
+   input styling so a field looks identical whether it sits in a toolbar or a form. */
+.record-form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  max-width: 480px;
+}
+
+.record-form label {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.record-form input,
+.record-form select,
+.record-form textarea {
+  padding: 8px 14px;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.record-form textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.checkbox-field,
+.record-form label.checkbox-field {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.record-form label.checkbox-field input {
+  width: auto;
+  flex: none;
+}
+
+/* A field the form refused (or that is plainly wrong): red border and wash, with the way out written under it. */
+.record-form label.field-invalid {
+  color: var(--danger);
+}
+
+.record-form label.field-invalid input,
+.record-form label.field-invalid select,
+.record-form label.field-invalid textarea {
+  border-color: var(--danger);
+  background: var(--danger-wash);
+}
+
+/* The Picker keeps its label beside the field instead of wrapping it, so a Picker that is wrong is marked
+   on a wrapper and the red state has to reach one level further in (decision 406). */
+.record-form div.field-invalid {
+  display: grid;
+  gap: var(--space-2);
+}
+
+.record-form div.field-invalid .contact-picker-field > label {
+  color: var(--danger);
+}
+
+.record-form div.field-invalid .contact-picker input {
+  border-color: var(--danger);
+  background: var(--danger-wash);
+}
+
+.field-error {
+  color: var(--danger);
+  font-size: var(--text-sm);
+  line-height: 1.4;
+}
+
+.form-problem {
+  display: grid;
+  gap: var(--space-2);
+  padding: 10px 14px;
+  color: var(--danger);
+  background: var(--danger-wash);
+  border: 1px solid var(--danger);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
+.form-problem p {
+  margin: 0;
+}
+
+.form-problem .form-problem-title {
+  font-weight: 600;
+}
+
+.depreciation-summary {
+  display: grid;
+  gap: var(--space-2);
+  padding: 10px 14px;
+  color: var(--text-secondary);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  font-size: var(--text-sm);
+}
+
+.depreciation-summary p {
+  margin: 0;
+}
+
+.record-form details.form-explain {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.record-form details.form-explain p {
+  margin: var(--space-2) 0 0;
+}
+
+/* Budget/Revenue Target "set lines" editable grid (P13 Part 3h, fifth increment): a month x category grid
+   for Budgets, a fixed month list for Revenue Targets, sharing this same table-with-inputs shell. */
+.plan-lines-editor {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.plan-lines-table-wrap {
+  overflow-x: auto;
+}
+
+.plan-lines-table input,
+.plan-lines-table select {
+  width: 100%;
+  min-width: 96px;
+  padding: 6px 10px;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.plan-lines-table select {
+  min-width: 160px;
+}
+
+.plan-lines-tax-row td {
+  border-top: 0;
+  padding-top: 0;
+}
+
+/* Popup of names already used, above a line's description field (OWNER, 5 October 2026). Drawn on the page
+   itself so the scrolling table around the field can never clip it. */
+.line-suggest {
+  position: fixed;
+  z-index: 60;
+  padding: var(--space-2);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+.line-suggest ul {
+  max-height: min(260px, 40vh);
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+.line-suggest-saved {
+  display: block;
+  margin-top: var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.line-suggest-title {
+  margin: 0 0 var(--space-1);
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.line-suggest-item {
+  display: flex;
+  gap: var(--space-3);
+  align-items: baseline;
+  justify-content: space-between;
+  padding: 8px var(--space-2);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  border-radius: var(--radius-sm, 6px);
+}
+
+.line-suggest-item:hover,
+.line-suggest-item.is-active {
+  background: var(--surface-sunken);
+}
+
+.line-suggest-price {
+  flex: none;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.plan-lines-discount {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.plan-lines-editor-actions {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+/* Recurring Rule create/edit builder (P13 Part 3h, sixth increment): the same field styling `.record-form`
+   gives Transfer/CreatePlanForm's plain field-only forms, but not squeezed into a 480px column -- this form
+   also embeds the wide `.plan-lines-editor` table. Each individual label still caps at 480px so a header
+   field reads no wider than any other form's, only the table itself may use the full section width. */
+.record-form-wide {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+/* A form carrying both classes embeds a line table (invoice, bill, expense, journal, opening balance): the
+   480px cap of `.record-form` must not apply to the form itself, only to its labels. */
+.record-form.record-form-wide {
+  max-width: none;
+}
+
+.record-form-wide label {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 480px;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.record-form-wide input,
+.record-form-wide select,
+.record-form-wide textarea {
+  padding: 8px 14px;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.record-form-wide textarea {
+  min-height: 72px;
+  resize: vertical;
+}
+
+.record-form-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-4) 0 0;
+  margin: 0;
+  border: none;
+  border-top: 1px solid var(--line);
+}
+
+.record-form-section > legend {
+  padding: 0 0 var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 640px) {
+  .record-table {
+    display: block;
+    overflow-x: auto;
+  }
+
+  .list-screen-toolbar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .list-search-form {
+    flex-direction: column;
+  }
+
+  .list-search-form input {
+    min-width: 0;
+  }
+
+  /* Opt-in per-screen mobile stacked-card treatment (Step 09 §23: "Dense tables convert to
+   * cards/stacked rows with key fields and drill-down"; Step 10 §22 Mobile row: "card lists"). This is
+   * deliberately a separate class from plain `.record-table`, not a blanket change to it: the Reports
+   * statement viewer (P&L/Balance Sheet/Equity/Cash Flow, decision 189) and other genuinely columnar
+   * `.record-table` usages (Chart of Accounts, the Journal debit/credit grid) need to stay real,
+   * horizontally-scrollable tables to remain readable -- stacking would break their column alignment,
+   * and Step 09 §23's own carve-out already says "advanced report building" stays desktop-optimized but
+   * "safely viewable," not converted to cards. `.record-table`'s 38 consumers (`grep -rl "record-table"
+   * src/features`) are being rolled onto `record-table-stacked` module by module rather than all at
+   * once, since each needs its own `data-label` attributes added to its `<td>`s; `InvoicesListScreen` is
+   * first, since §23 explicitly names invoice viewing as a mobile-priority flow. */
+  .record-table-stacked {
+    display: block;
+    overflow-x: visible;
+  }
+
+  .record-table-stacked thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+
+  .record-table-stacked tbody,
+  .record-table-stacked tr,
+  .record-table-stacked td {
+    display: block;
+    width: 100%;
+  }
+
+  .record-table-stacked tr {
+    padding: var(--space-3) var(--space-4);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .record-table-stacked tbody tr:last-child {
+    border-bottom: none;
+  }
+
+  .record-table-stacked td {
+    padding: 2px 0;
+    border-bottom: 0;
+  }
+
+  .record-table-stacked td:first-child {
+    padding-top: 0;
+    font-weight: 600;
+  }
+
+  .record-table-stacked td[data-label] {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--space-3);
+  }
+
+  .record-table-stacked td[data-label]::before {
+    content: attr(data-label);
+    font-weight: 400;
+    font-size: var(--text-xs);
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    color: var(--text-secondary);
+  }
+}
+
+/* Tax rule parameters editor (decision 249). */
+.code-input {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+/* ---------------------------------------------------------------------------------------------------
+ * Click and page-loading feedback (decision 274). `NavigationProgress` sets `data-active` on the bar and
+ * `data-nav-pending` on the pressed link from the click until the new page has arrived.
+ * ------------------------------------------------------------------------------------------------- */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+.nav-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 1000;
+  height: 3px;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 200ms ease;
+}
+
+.nav-progress[data-active="true"] {
+  opacity: 1;
+}
+
+.nav-progress-bar {
+  display: block;
+  width: 40%;
+  height: 100%;
+  background: var(--accent);
+  border-radius: 0 3px 3px 0;
+}
+
+.nav-progress[data-active="true"] .nav-progress-bar {
+  animation: nav-progress-slide 1.1s ease-in-out infinite;
+}
+
+@keyframes nav-progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+/* The whole page says "working" while the next one loads. */
+body:has(.nav-progress[data-active="true"]) {
+  cursor: progress;
+}
+
+body:has(.nav-progress[data-active="true"]) .app-content {
+  opacity: 0.6;
+  transition: opacity 200ms ease 120ms;
+}
+
+/* Pressed: every link and button gives way a little under the finger or pointer. */
+a:active,
+button:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+.app-nav-link:active,
+.app-nav-group-toggle:active {
+  background: var(--accent-wash);
+}
+
+/* Waiting: the pressed link keeps its highlight and shows a small spinner until the page arrives. */
+a[data-nav-pending="true"] {
+  color: var(--foreground);
+  cursor: progress;
+}
+
+.app-nav-link[data-nav-pending="true"] {
+  background: var(--accent-wash);
+  font-weight: 600;
+}
+
+a[data-nav-pending="true"]::after {
+  content: "";
+  flex: none;
+  display: inline-block;
+  width: 0.8em;
+  height: 0.8em;
+  margin-left: auto;
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: 50%;
+  vertical-align: -0.1em;
+  animation: nav-pending-spin 0.7s linear infinite;
+}
+
+a[data-nav-pending="true"]:not(.app-nav-link)::after {
+  margin-left: 0.4em;
+}
+
+@keyframes nav-pending-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nav-progress[data-active="true"] .nav-progress-bar {
+    width: 100%;
+    animation: none;
+  }
+
+  a[data-nav-pending="true"]::after {
+    animation-duration: 2s;
+  }
+
+  a:active,
+  button:active:not(:disabled) {
+    transform: none;
+  }
+}
+
+/* Customer / vendor field you can type in, with the matching names listed under it (OWNER, 5 October 2026). */
+.contact-picker {
+  position: relative;
+}
+
+.contact-picker-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  left: 0;
+  z-index: 60;
+  padding: var(--space-2);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+}
+
+/* A long reference list scrolls inside the popup (OWNER, 8 October 2026) while the "+ Tambah baru" row below it
+ * stays in view. */
+/* Drawn on the page itself (a portal) so a scrolling table or a form can never cut it off. */
+.contact-picker-list.is-floating {
+  position: fixed;
+  top: auto;
+  right: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.contact-picker-list.is-floating ul {
+  flex: 1 1 auto;
+  min-height: 0;
+  max-height: none;
+}
+
+.contact-picker-list ul {
+  max-height: 260px;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  list-style: none;
+}
+
+.contact-picker-add {
+  display: block;
+  width: 100%;
+  padding: 8px var(--space-2);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--foreground);
+  text-align: left;
+  cursor: pointer;
+  background: none;
+  border: 0;
+  border-top: 1px solid var(--line);
+  border-radius: var(--radius-sm, 6px);
+}
+
+.contact-picker-add:hover,
+.contact-picker-add.is-active {
+  background: var(--surface-sunken);
+}
+
+.contact-picker-field {
+  display: grid;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* Panduan (decision 299): the step-by-step guide pages. */
+.guide-screen {
+  max-width: 900px;
+  margin-inline: auto;
+}
+
+.guide-search {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.guide-search-label {
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.guide-search input {
+  padding: 10px 14px;
+  font: inherit;
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.guide-search-results {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-solid);
+}
+
+.guide-search-results li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: 10px 14px;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-sm);
+}
+
+.guide-search-results li:last-child {
+  border-bottom: 0;
+}
+
+.guide-search-results li span,
+.guide-search-empty {
+  color: var(--text-secondary);
+}
+
+.guide-hint {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.guide-group h2 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-xl);
+}
+
+.guide-group-description {
+  margin: 0 0 var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.guide-card-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guide-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  height: 100%;
+  padding: var(--space-4);
+  color: var(--foreground);
+  text-decoration: none;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.guide-card:hover {
+  border-color: var(--accent);
+}
+
+.guide-card-title {
+  font-weight: 600;
+}
+
+.guide-card-summary {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.guide-card-path {
+  margin-top: auto;
+  padding-top: var(--space-2);
+  color: var(--accent-strong);
+  font-size: var(--text-xs);
+}
+
+.guide-breadcrumb {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.guide-page h1 {
+  margin: 0 0 var(--space-1);
+  font-size: var(--text-2xl);
+}
+
+.guide-page h2 {
+  margin: var(--space-3) 0 var(--space-2);
+  font-size: var(--text-xl);
+}
+
+.guide-meta {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.guide-meta dt {
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.guide-meta dd {
+  margin: 2px 0 0;
+  font-size: var(--text-sm);
+}
+
+.guide-quick {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  background: var(--accent-wash);
+  border-radius: var(--radius-md);
+}
+
+.guide-steps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guide-step h3 {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+}
+
+.guide-step p {
+  margin: 0 0 var(--space-2);
+  padding-left: 44px;
+  line-height: 1.6;
+  white-space: pre-line;
+}
+
+.guide-step-number {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: #fff;
+  font-size: var(--text-sm);
+  background: var(--ink);
+  border-radius: var(--radius-pill);
+}
+
+.guide-figure {
+  margin: var(--space-3) 0 var(--space-3) 44px;
+}
+
+.guide-figure img {
+  display: block;
+  width: 100%;
+  height: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.guide-figure figcaption {
+  margin-top: var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+}
+
+.guide-step .guide-callout {
+  margin-left: 44px;
+  padding: var(--space-2) var(--space-3);
+  font-size: var(--text-sm);
+  border-radius: var(--radius-sm);
+}
+
+.guide-callout-tip {
+  background: var(--info-wash);
+}
+
+.guide-callout-warning {
+  background: var(--warning-wash);
+}
+
+.guide-list {
+  margin: 0;
+  padding-left: 20px;
+  line-height: 1.6;
+}
+
+.guide-table-scroll {
+  overflow-x: auto;
+}
+
+.guide-pager {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  font-size: var(--text-sm);
+}
+
+@media (max-width: 640px) {
+  .guide-step p,
+  .guide-figure,
+  .guide-step .guide-callout {
+    padding-left: 0;
+    margin-left: 0;
+  }
+}
+
+/* Flow diagrams of the user guide (decision 300) */
+.guide-flow {
+  margin: var(--space-4) 0;
+}
+
+.guide-flow h2,
+.guide-flow h3 {
+  margin-bottom: var(--space-1);
+}
+
+.guide-flow-summary {
+  margin: 0 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.guide-flow-image {
+  display: block;
+  width: 100%;
+  max-width: 720px;
+  height: auto;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-sm);
+}
+
+.guide-flow-text {
+  margin-top: var(--space-2);
+  font-size: var(--text-sm);
+}
+
+.guide-flow-text summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.guide-flow-text ul {
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.guide-flow-text li {
+  padding: 2px 0;
+}
+
+.guide-flow-question {
+  margin-top: var(--space-1);
+  font-weight: 600;
+}
+
+.guide-flow-toc {
+  margin: var(--space-3) 0;
+}
+
+/* Compact product screens and the "Selengkapnya" reveal (task 95) */
+.expandable-text {
+  position: relative;
+}
+
+.expandable-text-body {
+  margin: 0;
+  overflow: hidden;
+  white-space: pre-line;
+  line-height: 1.4;
+  transition: max-height 0.28s ease;
+}
+
+.expandable-text-cut .expandable-text-body {
+  max-height: 2.8em;
+  -webkit-mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+  mask-image: linear-gradient(to bottom, #000 70%, transparent 100%);
+}
+
+.expandable-text-open .expandable-text-body {
+  max-height: 60em;
+}
+
+.expandable-text-toggle {
+  margin-top: 2px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--accent-strong);
+  font: inherit;
+  font-size: var(--text-xs);
+  cursor: pointer;
+}
+
+.expandable-text-toggle:hover {
+  text-decoration: underline;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .expandable-text-body {
+    transition: none;
+  }
+}
+
+.product-row-description {
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 400;
+  max-width: 46ch;
+}
+
+.record-table-compact th,
+.record-table-compact td {
+  padding-block: 8px;
+}
+
+.record-summary-compact {
+  gap: var(--space-2) var(--space-4);
+}
+
+.record-summary-compact dd {
+  font-size: var(--text-sm);
+  font-weight: 500;
+}
+
+.record-summary-compact .record-summary-wide {
+  grid-column: 1 / -1;
+}
+
+.record-summary-compact .record-summary-wide dd {
+  font-weight: 400;
+  color: var(--ink);
+}
+
+.record-detail-compact .record-detail-header h1 {
+  font-size: var(--text-xl);
+}
+
+.record-detail-compact .record-detail-amount {
+  font-size: var(--text-lg);
+}
+
+.record-detail-compact .dashboard-section {
+  padding: var(--space-3) var(--space-4);
+}
+
+.record-detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+}
+
+/* Notices (toasts) and the re-verification popup (decision 308). */
+.toast-region {
+  position: fixed;
+  right: var(--space-4);
+  bottom: var(--space-4);
+  z-index: 80;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  width: min(380px, calc(100vw - 2 * var(--space-4)));
+  pointer-events: none;
+}
+
+.toast {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-left-width: 4px;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-lg);
+  pointer-events: auto;
+  animation: toast-in var(--motion-base, 200ms) ease-out;
+}
+
+.toast-success {
+  border-left-color: var(--success);
+}
+
+.toast-error {
+  border-left-color: var(--danger);
+}
+
+.toast-info {
+  border-left-color: var(--info);
+}
+
+.toast-message {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.toast-close {
+  display: inline-flex;
+  padding: 2px;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toast {
+    animation: none;
+  }
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-4);
+  background: rgba(25, 23, 20, 0.4);
+}
+
+.modal-panel {
+  width: min(420px, 100%);
+  padding: var(--space-5);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-panel h2 {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-lg);
+}
+
+.modal-panel .record-form {
+  margin-top: var(--space-4);
+}
+
+.modal-actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+/* SKU generator (decision 324) */
+.sku-preview {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+}
+.sku-components {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 8px;
+}
+.sku-component {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 14px;
+  border: 1px solid var(--border, rgba(0, 0, 0, 0.08));
+  border-radius: 12px;
+  background: var(--surface, rgba(255, 255, 255, 0.6));
+}
+.sku-component-move {
+  display: inline-flex;
+  gap: 6px;
+}
+.sku-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+}
+.sku-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  align-items: flex-start;
+}
+.sku-state-form {
+  display: inline-flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.sku-search {
+  max-width: 320px;
+}
+.sku-master {
+  display: grid;
+  gap: 12px;
+}
+@media (max-width: 640px) {
+  .sku-component {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* Rekening Koran (decision 326): monthly cash/bank statement. */
+.stmt-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+  gap: var(--space-4);
+  margin: var(--space-4) 0;
+}
+.stmt-card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: var(--space-4);
+  border: 1px solid var(--color-border, #e6e1d8);
+  border-radius: 14px;
+  background: var(--color-surface, #fff);
+}
+.stmt-card-label {
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+.stmt-card strong {
+  font-size: 1.15rem;
+  font-variant-numeric: tabular-nums;
+}
+.stmt-in,
+.amt-in {
+  color: var(--success);
+}
+.stmt-out,
+.amt-out {
+  color: var(--danger);
+}
+.stmt-current-month td {
+  font-weight: 600;
+}
+.stmt-pager {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin: var(--space-4) 0;
+}
+.stmt-page {
+  min-width: 38px;
+  padding: 7px 12px;
+  text-align: center;
+  border: 1px solid var(--color-border, #e6e1d8);
+  border-radius: 10px;
+  background: var(--color-surface, #fff);
+  text-decoration: none;
+}
+.stmt-page-current {
+  background: #1a1815;
+  color: #fff;
+  border-color: #1a1815;
+}
+.stmt-page-gap {
+  padding: 0 4px;
+}
+.stmt-page-info {
+  margin-left: auto;
+  font-size: 0.85rem;
+  opacity: 0.7;
+}
+
+/* Flow diagrams: one page per diagram, listed by stage (decision 328) */
+.guide-flow-image-wide {
+  max-width: 960px;
+}
+.guide-flow-position {
+  margin: 0 0 var(--space-1);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.guide-flow-stage {
+  margin: var(--space-4) 0;
+}
+.guide-flow-cards {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-2) 0 0;
+  padding: 0;
+  list-style: none;
+}
+.guide-flow-card {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  background: var(--surface, #fff);
+  text-decoration: none;
+  color: inherit;
+}
+.guide-flow-card:hover {
+  border-color: var(--accent-strong);
+}
+.guide-flow-card-number {
+  flex: none;
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--accent-strong);
+  color: #fff;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+.guide-flow-card-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.guide-flow-card-body span {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.guide-flow-nav {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-3);
+  margin: var(--space-5, 32px) 0 var(--space-3);
+}
+.guide-flow-nav-link {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-sm);
+  text-decoration: none;
+  color: inherit;
+}
+.guide-flow-nav-link span {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+.guide-flow-nav-next {
+  text-align: right;
+  grid-column: 2;
+}
+@media (max-width: 640px) {
+  .guide-flow-nav {
+    grid-template-columns: 1fr;
+  }
+  .guide-flow-nav-next {
+    grid-column: 1;
+  }
+}
+
+/* "Lampiran" shown inside a record's Dokumen section (decision 332). */
+.attachments-embedded {
+  margin-top: var(--space-5);
+}
+
+.attachments-embedded-title {
+  margin: 0 0 var(--space-2);
+  font-size: var(--text-md, 1rem);
+  font-weight: 600;
+}
+
+.report-export {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* Printing a page of the application (a report, for "Cetak / simpan PDF"): only the page content, no menu. */
+@media print {
+  .app-sidebar,
+  .app-topbar,
+  .app-shell-scrim {
+    display: none !important;
+  }
+
+  .app-shell {
+    display: block;
+  }
+
+  .list-screen,
+  .record-detail {
+    max-width: none;
+  }
+}
+
+/* Category field inside a line row: the picker's own label is redundant with the column heading (decision 340). */
+.category-picker-cell .contact-picker-field > label {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* "Tambah jenis lampiran" inline in the upload form (decision 340). */
+.attachment-new-type {
+  display: grid;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  border: 1px solid var(--border, #e5e0d8);
+  border-radius: 8px;
+}
+.attachment-new-type-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+/* A refused save/submit marks the exact column or field to change (OWNER, 8 October 2026). */
+.field-wrap {
+  display: contents;
+}
+
+.field-problem input,
+.field-problem select,
+.field-problem textarea,
+.cell-problem input,
+.cell-problem select,
+.cell-problem textarea {
+  border-color: var(--danger);
+  background: var(--danger-wash);
+  box-shadow: 0 0 0 1px var(--danger);
+}
+
+.field-problem,
+.field-problem > label,
+.cell-problem > label {
+  color: var(--danger);
+}
+
+.field-problem {
+  display: grid;
+  gap: 0.25rem;
+}
+
+.field-problem-hint {
+  margin: 0.25rem 0 0;
+  color: var(--danger);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.problem-notice {
+  display: grid;
+  gap: 0.375rem;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.problem-notice p {
+  margin: 0;
+}
+
+.problem-notice-where {
+  font-weight: 600;
+}
+
+/* "Kena potongan PPh?" is the one answer that matters on a purchase line: it stands out (OWNER, 8 October 2026). */
+
+/* The tax row under a purchase line: equal cards side by side (title, control, one-line hint), so the amount column
+ * stays narrow and nothing in the line above is squeezed (OWNER, 8 October 2026). */
+.plan-lines-tax-fields {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  align-items: stretch;
+  gap: var(--space-3);
+}
+
+.plan-lines-tax-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: 0.625rem 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  background: var(--surface-solid);
+  font-size: var(--text-sm);
+  color: var(--foreground);
+}
+
+.plan-lines-tax-card strong {
+  font-size: var(--text-sm);
+}
+
+.plan-lines-tax-card .hint {
+  font-size: var(--text-xs);
+}
+
+.plan-lines-wht {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+}
+
+.plan-lines-wht select {
+  font-weight: 600;
+}
+
+.plan-lines-check {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  cursor: pointer;
+}
+
+.plan-lines-tax-fields .plan-lines-check input[type="checkbox"] {
+  flex: none;
+  width: 1.125rem;
+  min-width: 0;
+  height: 1.125rem;
+  padding: 0;
+}
+
+.record-summary-grid .record-summary-note {
+  margin: 2px 0 0;
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  font-weight: 400;
+}
+
+.line-tax-summary {
+  display: grid;
+  gap: var(--space-3);
+  margin-top: var(--space-4);
+}
+
+.tax-tiles {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-3);
+}
+
+.tax-tile {
+  display: grid;
+  gap: var(--space-1);
+  align-content: start;
+  padding: var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-solid);
+}
+
+.tax-tile-total {
+  border-color: color-mix(in srgb, var(--bronze) 40%, transparent);
+  background: var(--accent-wash);
+}
+
+.tax-tile-label {
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.tax-tile-value {
+  font-size: var(--text-xl);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.tax-tile-note {
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.tax-tile-foot {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+@media (max-width: 720px) {
+  .tax-tiles {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ---------------------------------------------------------------------------------------------------------
+ * Interactive charts (Dashboard + Tax): hover shows the exact figure, click opens the report behind it.
+ * The plot is plain HTML in percentages so dots and bars are never stretched.
+ * ------------------------------------------------------------------------------------------------------- */
+.chart {
+  --chart-color: var(--bronze);
+  --chart-wash: var(--accent-wash);
+  --chart-soft: color-mix(in srgb, var(--chart-color) 38%, transparent);
+}
+
+.chart[data-tone="success"] {
+  --chart-color: var(--success);
+  --chart-wash: var(--success-wash);
+}
+
+.chart[data-tone="danger"] {
+  --chart-color: var(--danger);
+  --chart-wash: var(--danger-wash);
+}
+
+.chart[data-tone="info"] {
+  --chart-color: var(--info);
+  --chart-wash: var(--info-wash);
+}
+
+.chart-body {
+  display: grid;
+  grid-template-columns: 52px 1fr;
+  gap: var(--space-2);
+}
+
+.chart-axis,
+.chart-plot {
+  position: relative;
+  height: 176px;
+}
+
+.chart-axis span {
+  position: absolute;
+  right: 0;
+  transform: translateY(-50%);
+  font-size: var(--text-2xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--ink-tertiary);
+  white-space: nowrap;
+}
+
+.chart-grid {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px dashed var(--line);
+  pointer-events: none;
+}
+
+.chart-plot svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.chart-area {
+  fill: var(--chart-wash);
+  stroke: none;
+}
+
+.chart-line {
+  fill: none;
+  stroke: var(--chart-color);
+  stroke-width: 2.5;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.chart-hit,
+.chart-column {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  display: block;
+  border-radius: var(--radius-sm);
+  outline-offset: -2px;
+  cursor: pointer;
+}
+
+.chart-hit:hover,
+.chart-column:hover {
+  background: var(--chart-wash);
+}
+
+.chart-dot {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  margin: -5px 0 0 -5px;
+  border-radius: 50%;
+  background: var(--surface-solid);
+  border: 2px solid var(--chart-color);
+  pointer-events: none;
+  transition: transform var(--motion-fast) var(--motion-ease);
+}
+
+.chart-dot[data-active="true"] {
+  background: var(--chart-color);
+}
+
+.chart-dot[data-hover="true"] {
+  transform: scale(1.5);
+  background: var(--chart-color);
+}
+
+.chart-bar {
+  position: absolute;
+  left: 22%;
+  right: 22%;
+  bottom: 6%;
+  min-height: 0;
+  border-radius: 6px 6px 2px 2px;
+  background: var(--chart-soft);
+  transition:
+    background var(--motion-fast) var(--motion-ease),
+    transform var(--motion-fast) var(--motion-ease);
+  transform-origin: bottom;
+}
+
+.chart-bar[data-active="true"] {
+  background: var(--chart-color);
+}
+
+.chart-bar[data-hover="true"] {
+  background: var(--chart-color);
+  transform: scaleY(1.02);
+}
+
+.chart-labels {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+  margin: var(--space-2) 0 0 calc(52px + var(--space-2));
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+  text-align: center;
+}
+
+.chart-labels span[data-active="true"] {
+  color: var(--ink);
+  font-weight: 600;
+}
+
+.chart-tooltip {
+  position: absolute;
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 150px;
+  padding: var(--space-2) var(--space-3);
+  background: var(--ink);
+  color: #fff;
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  transform: translate(-50%, calc(-100% - 12px));
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.chart-tooltip[data-side="start"] {
+  transform: translate(-20%, calc(-100% - 12px));
+}
+
+.chart-tooltip[data-side="end"] {
+  transform: translate(-80%, calc(-100% - 12px));
+}
+
+.chart-tooltip-label {
+  font-size: var(--text-2xs);
+  opacity: 0.7;
+}
+
+.chart-tooltip-value {
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.chart-tooltip-note {
+  font-size: var(--text-2xs);
+  opacity: 0.85;
+}
+
+.chart-tooltip-hint {
+  margin-top: 2px;
+  font-size: var(--text-2xs);
+  color: #e9c9a6;
+}
+
+/* A dashboard card that leads with one big figure, a change chip, a chart and a breakdown. */
+.flow-card-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.flow-card-figure {
+  margin: 0;
+  white-space: nowrap;
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.flow-card-sub {
+  margin: 2px 0 0;
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.delta-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+  font-size: var(--text-2xs);
+  font-weight: 600;
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+a.delta-chip {
+  text-decoration: none;
+}
+
+.delta-chip[data-tone="good"] {
+  background: var(--success-wash);
+  color: var(--success);
+}
+
+.delta-chip[data-tone="bad"] {
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.share-bars {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: var(--space-5) 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.share-bar-top {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  font-size: var(--text-xs);
+}
+
+.share-bar-name {
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.share-bar-value {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.share-bar-track {
+  height: 6px;
+  margin-top: 4px;
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.share-bar-fill {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--bar-color, var(--bronze));
+}
+
+.share-bar-fill[data-tone="success"] {
+  --bar-color: var(--success);
+}
+
+.share-bar-fill[data-tone="danger"] {
+  --bar-color: var(--danger);
+}
+
+.share-bar-fill[data-tone="info"] {
+  --bar-color: var(--info);
+}
+
+.dashboard-charts-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--space-5);
+}
+
+/* ---- Ringkasan Pajak ------------------------------------------------------------------------------- */
+.tax-page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
+
+.tax-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.tax-hero h1 {
+  margin: 0;
+}
+
+.tax-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-3);
+}
+
+.tax-chip {
+  display: inline-flex;
+  gap: 6px;
+  align-items: baseline;
+  padding: 4px var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  background: var(--surface-solid);
+  font-size: var(--text-xs);
+}
+
+.tax-chip span {
+  color: var(--text-secondary);
+}
+
+.tax-chip strong {
+  font-weight: 600;
+}
+
+a.tax-chip,
+.share-bar-top,
+.chart-hit,
+.chart-column {
+  color: inherit;
+  text-decoration: none;
+}
+
+a.tax-chip:hover {
+  background: var(--surface-sunken);
+}
+
+a.share-bar-top:hover .share-bar-name {
+  text-decoration: underline;
+}
+
+.tax-kpis {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: var(--space-4);
+}
+
+.tax-kpi {
+  position: relative;
+  display: block;
+  padding: var(--space-4) var(--space-5);
+  overflow: hidden;
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  color: inherit;
+  text-decoration: none;
+  transition: box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+a.tax-kpi:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.tax-kpi::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 4px;
+  background: var(--kpi-color, var(--bronze));
+}
+
+.tax-kpi[data-tone="danger"] {
+  --kpi-color: var(--danger);
+}
+
+.tax-kpi[data-tone="warning"] {
+  --kpi-color: var(--warning);
+}
+
+.tax-kpi[data-tone="success"] {
+  --kpi-color: var(--success);
+}
+
+.tax-kpi[data-tone="info"] {
+  --kpi-color: var(--info);
+}
+
+.tax-kpi-label {
+  margin: 0;
+  font-size: var(--text-2xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.tax-kpi-value {
+  margin: var(--space-2) 0 var(--space-1);
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.tax-kpi-note {
+  margin: 0;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.tax-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  gap: var(--space-5);
+  align-items: start;
+}
+
+.tax-owed {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tax-deadlines {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.tax-deadline {
+  display: grid;
+  grid-template-columns: 56px 1fr;
+  gap: var(--space-1) var(--space-3);
+  align-items: center;
+  padding: var(--space-3);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  color: inherit;
+  text-decoration: none;
+}
+
+a.tax-deadline:hover {
+  background: var(--surface-sunken);
+}
+
+.tax-deadline-date {
+  grid-row: 1 / span 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: var(--space-1) 0;
+  border-radius: var(--radius-sm);
+  background: var(--surface-sunken);
+  line-height: 1.1;
+}
+
+.tax-deadline-date strong {
+  font-size: var(--text-lg);
+}
+
+.tax-deadline-date span {
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.tax-deadline-date[data-state="overdue"] {
+  background: var(--danger-wash);
+  color: var(--danger);
+}
+
+.tax-deadline-date[data-state="due"] {
+  background: var(--warning-wash);
+  color: var(--warning);
+}
+
+.tax-deadline-title {
+  margin: 0;
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.tax-deadline-sub {
+  margin: 2px 0 0;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.tax-deadline-amount {
+  grid-column: 2;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.tax-split {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: var(--space-3);
+}
+
+.tax-split-item {
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.tax-split-item span {
+  display: block;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.tax-split-item strong {
+  display: block;
+  margin-top: 2px;
+  white-space: nowrap;
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+@media (max-width: 900px) {
+  .dashboard-charts-row,
+  .tax-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .chart-body {
+    grid-template-columns: 40px 1fr;
+  }
+
+  .chart-labels {
+    margin-left: calc(40px + var(--space-2));
+  }
+
+  .tax-deadline {
+    grid-template-columns: 48px 1fr;
+  }
+}
+
+.tax-fold {
+  margin-top: var(--space-4);
+  font-size: var(--text-sm);
+}
+
+.tax-fold summary {
+  cursor: pointer;
+  color: var(--accent-strong);
+  font-size: var(--text-xs);
+  font-weight: 600;
+}
+
+/* ---- Pajak Pribadi (decision 365) ---- */
+
+.pp-answer {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-6);
+  border-radius: var(--radius-lg);
+  border: 1px solid var(--line);
+  background: linear-gradient(135deg, var(--accent-wash), var(--surface-solid) 70%);
+  box-shadow: var(--shadow-sm);
+  color: inherit;
+  text-decoration: none;
+}
+
+.pp-answer[data-tone="clear"] {
+  background: linear-gradient(135deg, var(--success-wash), var(--surface-solid) 70%);
+}
+
+a.pp-answer:hover {
+  box-shadow: var(--shadow-md);
+}
+
+.pp-answer-label {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.pp-answer-value {
+  margin: var(--space-1) 0;
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+
+.pp-answer-note {
+  margin: 0;
+  max-width: 46ch;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+}
+
+.pp-answer-cta {
+  font-size: var(--text-sm);
+  font-weight: 600;
+  color: var(--accent-strong);
+}
+
+.pp-equation {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pp-equation li {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  min-width: 140px;
+  border-radius: var(--radius-md);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+}
+
+.pp-equation li i {
+  display: none;
+}
+
+.pp-equation span {
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.pp-equation strong {
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pp-callout {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  background: var(--warning-wash);
+  color: var(--warning);
+  font-size: var(--text-sm);
+}
+
+.pp-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
+  gap: var(--space-4);
+  align-items: start;
+}
+
+.pp-ladder {
+  margin: 0 0 var(--space-3);
+  padding: 0;
+  list-style: none;
+}
+
+.pp-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+  font-size: var(--text-sm);
+}
+
+.pp-row:last-child {
+  border-bottom: 0;
+}
+
+.pp-row-label {
+  display: flex;
+  align-items: baseline;
+  color: var(--text-secondary);
+}
+
+.pp-row-label i {
+  flex: 0 0 1.4em;
+  font-style: normal;
+  font-weight: 700;
+  color: var(--ink-tertiary);
+}
+
+.pp-row-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.pp-row-label small {
+  font-size: var(--text-2xs);
+  color: var(--ink-tertiary);
+}
+
+.pp-row-value {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.pp-row[data-strong="true"] {
+  padding: var(--space-3);
+  margin-top: var(--space-2);
+  border: 0;
+  border-radius: var(--radius-md);
+  background: var(--accent-wash);
+}
+
+.pp-row[data-strong="true"] .pp-row-label,
+.pp-row[data-strong="true"] .pp-row-value {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.pp-layers {
+  width: 100%;
+  margin: 0 0 var(--space-3);
+  border-collapse: collapse;
+  font-size: var(--text-xs);
+}
+
+.pp-layers th,
+.pp-layers td {
+  padding: var(--space-2);
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  font-weight: 500;
+}
+
+.pp-layers thead th {
+  color: var(--text-secondary);
+  font-size: var(--text-2xs);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.pp-layers .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pp-meter {
+  height: 8px;
+  margin: var(--space-3) 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--surface-sunken);
+  overflow: hidden;
+}
+
+.pp-meter span {
+  display: block;
+  height: 100%;
+  border-radius: var(--radius-pill);
+  background: var(--accent);
+}
+
+.pp-meter[data-tone="bad"] span {
+  background: var(--danger);
+}
+
+.pp-parts {
+  margin: var(--space-3) 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--text-sm);
+}
+
+.pp-parts li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-2) 0;
+  border-bottom: 1px solid var(--line);
+  color: var(--text-secondary);
+}
+
+.pp-parts li strong {
+  color: var(--ink);
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.pp-parts li[data-total="true"] {
+  border-bottom: 0;
+  font-weight: 700;
+}
+
+.pp-linked {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: var(--space-2);
+}
+
+.pp-linked li {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+}
+
+.pp-linked-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--text-sm);
+}
+
+.pp-linked-sub {
+  margin: 0;
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.pp-linked-amount {
+  display: grid;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.pp-linked-amount span {
+  font-size: var(--text-2xs);
+  color: var(--text-secondary);
+}
+
+.pp-ptkp-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: end;
+  gap: var(--space-3);
+}
+
+.pp-ptkp-form label {
+  flex: 1 1 260px;
+  display: grid;
+  gap: var(--space-1);
+  font-size: var(--text-xs);
+  color: var(--text-secondary);
+}
+
+.pp-notes {
+  display: grid;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+  padding-left: var(--space-5);
+  color: var(--text-secondary);
+}
+
+@media (max-width: 560px) {
+  .pp-answer {
+    padding: var(--space-4);
+  }
+
+  .pp-answer-value {
+    font-size: var(--text-2xl);
+  }
+
+  .pp-cards {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.pp-layers-wrap {
+  overflow-x: auto;
+}
+
+.pp-ptkp-form select {
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Payroll: salary component editor and BPJS package choice (OWNER, 9 October 2026). Tokens only, so it follows
+   the light and dark themes; the rows stack on a phone. */
+.comp-date {
+  max-width: 220px;
+}
+
+.comp-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.comp-row {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  border-radius: var(--radius-md);
+  max-width: 760px;
+}
+
+.comp-row[data-kind="deduction"] {
+  border-left-color: var(--danger);
+}
+
+.comp-row-main {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.record-form .comp-row .comp-name {
+  flex: 1 1 260px;
+  min-width: 0;
+}
+
+.comp-amount {
+  display: flex;
+  align-items: center;
+  flex: 0 1 220px;
+  gap: var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.record-form .comp-row .comp-amount input {
+  width: 100%;
+  min-width: 0;
+  text-align: right;
+}
+
+.comp-remove {
+  flex: none;
+  width: 32px;
+  height: 32px;
+  font-size: 18px;
+  line-height: 1;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.comp-remove:hover:not(:disabled) {
+  color: var(--danger);
+  border-color: var(--danger);
+  background: var(--danger-wash);
+}
+
+.comp-remove:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.comp-row-opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.comp-kind {
+  display: inline-flex;
+  padding: 2px;
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+}
+
+.comp-kind button {
+  padding: 4px 12px;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--text-secondary);
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.comp-kind button[aria-pressed="true"] {
+  color: var(--foreground);
+  background: var(--surface-solid);
+  box-shadow: var(--shadow-sm);
+  font-weight: 600;
+}
+
+.record-form label.comp-chip {
+  display: inline-flex;
+  flex-direction: row;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 3px 10px;
+  color: var(--text-secondary);
+  background: var(--surface-sunken);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.record-form label.comp-chip input {
+  width: auto;
+  padding: 0;
+  flex: none;
+}
+
+.comp-code {
+  margin-left: auto;
+  color: var(--ink-tertiary);
+  font-family: var(--font-mono);
+  font-size: var(--text-sm);
+}
+
+/* The presets are grouped by what they do to pay, so a wall of a dozen chips reads as two short, ordinary
+ * lists -- and the grouping itself is the shortest way to teach the distinction decision 381 rests on. */
+.comp-suggest {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.comp-suggest-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.comp-suggest-title {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.comp-suggest-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+}
+
+.comp-suggest-chip {
+  padding: 4px 12px;
+  font: inherit;
+  font-size: var(--text-sm);
+  color: var(--foreground);
+  background: var(--accent-wash);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+}
+
+.comp-suggest-chip[data-kind="deduction"] {
+  background: var(--danger-wash);
+}
+
+.comp-suggest-chip:hover {
+  border-color: var(--accent);
+}
+
+/* Typing a name is one more way to add a component, so it sits with the presets rather than as its own
+ * full-width button below them; the dashed edge is what marks it as the open-ended one. */
+.comp-suggest-chip.comp-suggest-own {
+  border-style: dashed;
+  background: transparent;
+}
+
+.comp-total {
+  display: grid;
+  gap: var(--space-2);
+  max-width: 760px;
+  margin: 0;
+  padding: var(--space-4);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.comp-total > div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-4);
+}
+
+.comp-total dt {
+  color: var(--text-secondary);
+}
+
+.comp-total dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.comp-total-net {
+  align-items: baseline;
+  padding-top: var(--space-3);
+  border-top: 1px solid var(--line);
+}
+
+.comp-total-net dt {
+  color: var(--foreground);
+  font-weight: 600;
+}
+
+.comp-total-net dd {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.choice-cards {
+  display: grid;
+  gap: var(--space-3);
+  max-width: 560px;
+}
+
+.choice-card {
+  display: grid;
+  gap: 2px;
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font: inherit;
+  color: var(--foreground);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+}
+
+.choice-card span {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.choice-card[aria-checked="true"] {
+  border-color: var(--accent);
+  background: var(--accent-wash);
+  box-shadow: 0 0 0 1px var(--accent);
+}
+
+.comp-optional {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.comp-optional summary {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .comp-amount {
+    flex: 1 1 100%;
+  }
+
+  .comp-code {
+    margin-left: 0;
+  }
+}
+
+/* Employee pages: profile tabs, section subtitles and the "what is still missing" cards (OWNER, 9 October 2026). */
+.emp-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  padding-bottom: var(--space-3);
+  border-bottom: 1px solid var(--line);
+}
+
+.emp-tab {
+  padding: 8px 16px;
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  text-decoration: none;
+  border-radius: var(--radius-pill);
+}
+
+.emp-tab:hover {
+  color: var(--foreground);
+  background: var(--surface-sunken);
+}
+
+.emp-tab-active,
+.emp-tab-active:hover {
+  color: #fff;
+  background: var(--ink);
+  font-weight: 600;
+}
+
+/* A section's opening line needs air under it: `.dashboard-section` spaces nothing between its children and
+ * `.hint` carries no margin, so the first field of the form below it sat right against the sentence
+ * explaining the page (OWNER, 9 October 2026). */
+.emp-lead {
+  margin-bottom: var(--space-5);
+}
+
+.emp-subtitle {
+  margin: var(--space-6) 0 var(--space-3);
+  padding-top: var(--space-5);
+  border-top: 1px solid var(--line);
+  font-size: var(--text-base);
+}
+
+.emp-checklist {
+  display: grid;
+  gap: var(--space-3);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-width: 720px;
+}
+
+.emp-check {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  color: var(--foreground);
+  text-decoration: none;
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+}
+
+.emp-check:hover {
+  border-color: var(--accent);
+}
+
+.emp-check-mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 28px;
+  height: 28px;
+  font-weight: 700;
+  color: var(--warning);
+  background: var(--warning-wash);
+  border-radius: var(--radius-pill);
+}
+
+.emp-check[data-done="true"] .emp-check-mark {
+  color: var(--success);
+  background: var(--success-wash);
+}
+
+.emp-check-body {
+  display: grid;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.emp-check-body span {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.emp-check-go {
+  flex: none;
+  color: var(--accent-strong);
+  font-size: var(--text-sm);
+}
+
+/* ================================================================ Slip gaji (decision 382)
+ * The payslip sheet an employee is handed or emailed. It shares the document canvas the invoice and receipt
+ * already use (`.doc-page`, `.no-print`, the print stylesheet) and, like them, is deliberately fixed-ink on
+ * white rather than themed: it is printed as often as it is read on screen, and a dark-mode sheet would come
+ * out of the printer wrong. The layout follows the one line the sheet has to make obvious --
+ * penghasilan bruto - potongan = gaji dibawa pulang -- with the potongan column split into the part that
+ * lowers the PPh 21 base and the part that only lowers take-home pay (decision 381). */
+.slip {
+  --slip-ink: #191714;
+  --slip-muted: #777069;
+  --slip-line: rgba(25, 23, 20, 0.14);
+  --slip-accent: #b77a43;
+  position: relative;
+  padding: 36px 36px 28px;
+  background: #fff;
+  color: var(--slip-ink);
+  border: 1px solid var(--slip-line);
+  border-radius: 16px;
+  box-shadow: 0 18px 40px rgba(25, 23, 20, 0.08);
+}
+
+.slip[data-void="true"]::before {
+  content: "DIBATALKAN";
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: clamp(48px, 12vw, 120px);
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: #9b2c2c;
+  opacity: 0.1;
+  pointer-events: none;
+}
+
+.slip-head {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid var(--slip-ink);
+}
+
+.slip-issuer {
+  display: flex;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.slip-logo {
+  width: 52px;
+  height: 52px;
+  object-fit: contain;
+}
+
+.slip-issuer-name {
+  margin: 0 0 2px;
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.slip-issuer-brand {
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--slip-muted);
+}
+
+.slip-issuer-line {
+  margin: 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--slip-muted);
+}
+
+.slip-title {
+  text-align: right;
+}
+
+.slip-kicker {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--slip-accent);
+}
+
+.slip-period {
+  margin: 2px 0 0;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.slip-number {
+  margin: 0;
+  font-size: 12px;
+  color: var(--slip-muted);
+}
+
+.slip-who {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  padding: 18px 0;
+  border-bottom: 1px solid var(--slip-line);
+}
+
+.slip-who span {
+  display: block;
+  font-size: 11px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--slip-muted);
+}
+
+.slip-who strong {
+  display: block;
+  margin-top: 3px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.slip-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 32px;
+  padding: 22px 0;
+}
+
+.slip-col h3,
+.slip-tax h3,
+.slip-employer h3 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--slip-accent);
+}
+
+.slip-group {
+  margin: 14px 0 6px;
+  font-size: 11px;
+  line-height: 1.45;
+  color: var(--slip-muted);
+}
+
+.slip-group:first-of-type {
+  margin-top: 0;
+}
+
+.slip-line {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 16px;
+  padding: 5px 0;
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.slip-line[data-muted="true"] {
+  color: var(--slip-muted);
+}
+
+.slip-num {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.slip-line-total {
+  margin-top: 8px;
+  padding-top: 10px;
+  border-top: 1px solid var(--slip-line);
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.slip-takehome {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 22px;
+  background: #faf7f3;
+  border: 1px solid var(--slip-line);
+  border-radius: 12px;
+}
+
+.slip-takehome-sub {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--slip-muted);
+}
+
+.slip-takehome-amount {
+  margin: 0;
+  font-size: clamp(22px, 4vw, 30px);
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.slip-tax,
+.slip-employer {
+  padding-top: 22px;
+  margin-top: 22px;
+  border-top: 1px solid var(--slip-line);
+}
+
+.slip-note {
+  margin: 16px 0 0;
+  font-size: 12px;
+  line-height: 1.5;
+  color: var(--slip-muted);
+}
+
+.slip-note-void {
+  padding: 10px 14px;
+  color: #9b2c2c;
+  background: rgba(155, 44, 44, 0.07);
+  border-radius: 10px;
+}
+
+.slip-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 26px;
+  padding-top: 14px;
+  border-top: 1px solid var(--slip-line);
+  font-size: 11px;
+  color: var(--slip-muted);
+}
+
+.doc-actions-end {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+@media (max-width: 720px) {
+  .slip {
+    padding: 22px 18px 20px;
+  }
+
+  .slip-who {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  .slip-columns {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+}
+
+@media print {
+  .slip {
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+    padding: 0;
+  }
+
+  .slip[data-void="true"]::before {
+    opacity: 0.08;
+  }
+
+  .slip-takehome {
+    background: transparent;
+  }
+
+  /* Keep a section and its heading together rather than let a page break land inside one. */
+  .slip-col,
+  .slip-tax,
+  .slip-employer,
+  .slip-takehome {
+    break-inside: avoid;
+  }
+}
+
+/* ================================================================ Proses Payroll (decisions 387-389)
+ * The run summary used to be one flat grid of sixteen equal items, so the three figures a person actually
+ * opens the page for sat among the dates, the headcount and the journal links, and the two BPJS rows wrapped
+ * onto three lines each. It now reads in three tiers: the month's three totals, then what each party owes,
+ * then one quiet line of context. */
+.run-headline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+  padding: var(--space-4) var(--space-5);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.run-headline > div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.run-headline span {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.run-headline strong {
+  font-size: var(--text-xl);
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-headline > div[data-paid="true"] strong {
+  color: var(--success);
+}
+
+.run-groups {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-5);
+  margin-top: var(--space-5);
+}
+
+.run-groups h3 {
+  margin: 0 0 var(--space-2);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+}
+
+.run-groups dl {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.run-groups dl > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.run-groups dt {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.run-groups dd {
+  margin: 0;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.run-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2) var(--space-4);
+  margin: var(--space-5) 0 0;
+  padding-top: var(--space-4);
+  border-top: 1px solid var(--line);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* One employee per row of the run, read top to bottom instead of as a paragraph. */
+.run-who {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.run-who-code {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+  font-variant-numeric: tabular-nums;
+}
+
+.run-who-name {
+  font-weight: 600;
+}
+
+.run-who-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: 2px;
+}
+
+.run-who-note {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* The pro-rata offer inside Tambah Penyesuaian: the figures first, then one button that fills the form. */
+.prorata-card {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  padding: var(--space-4);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-md);
+}
+
+.prorata-lead {
+  margin: 0;
+  font-weight: 600;
+}
+
+.prorata-figures {
+  display: grid;
+  gap: var(--space-2);
+  margin: 0;
+}
+
+.prorata-figures > div {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--space-3);
+}
+
+.prorata-figures dt {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+.prorata-figures dd {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+
+.prorata-cut {
+  padding-top: var(--space-2);
+  border-top: 1px solid var(--line);
+  font-weight: 600;
+}
+
+@media (max-width: 860px) {
+  .run-headline,
+  .run-groups {
+    grid-template-columns: 1fr;
+  }
+
+  .run-groups {
+    gap: var(--space-4);
+  }
+}
+
+/* What each document-name choice would actually print, inside its radio card (decision 391). */
+.doc-name-preview {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  margin-top: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  background: var(--surface-sunken);
+  border-radius: var(--radius-sm);
+}
+
+.doc-name-primary {
+  font-weight: 600;
+}
+
+.doc-name-secondary {
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* ================================================================ Jenis lampiran (decision 401)
+ * The two inline bits of the attachment-type manager: the rename field with its buttons on one line, and
+ * the row's own actions beside each other. Both wrap on a narrow screen rather than overflowing, and both
+ * sit inside a `.record-table-stacked` cell, so they inherit that table's own stacked behaviour. */
+.purpose-edit-form,
+.purpose-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.purpose-edit-form input[type="text"] {
+  flex: 1 1 12rem;
+  min-width: 0;
+}
+
+tr[data-muted="true"] td {
+  color: var(--text-secondary);
+}
+
+/* ================================================================ Pilihan periode dasbor (decision 404)
+ * Bulanan / Tahunan / Sejak Awal, under the Hero's own period line. It reuses `.list-filter-tab`, the pill
+ * every List screen already filters with, so the Dashboard does not invent a second way to show the same
+ * kind of choice. */
+.dashboard-scope {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin: var(--space-3) 0 0;
+}
+
+/* Attachment preview popup (decision 408) */
+.modal-panel.attachment-preview {
+  width: min(960px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: calc(100vh - var(--space-6));
+}
+.attachment-preview-title {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.attachment-preview-frame {
+  width: 100%;
+  height: min(70vh, 720px);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: #fff;
+}
+.link-button {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--accent, inherit);
+  font: inherit;
+  text-align: left;
+  text-decoration: underline;
+  cursor: pointer;
+}

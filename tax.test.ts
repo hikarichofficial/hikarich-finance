@@ -1,0 +1,308 @@
+import { describe, expect, it } from "vitest";
+import {
+  WHT_QUICK_CHOICES,
+  categorySettlesWithholding,
+  CALENDAR_STATE_LABELS,
+  CALENDAR_STEP_LABELS,
+  DETERMINATION_STATUS_LABELS,
+  DIFFERENCE_LABELS,
+  EVIDENCE_PURPOSE_LABELS,
+  TAX_KIND_LABELS,
+  TAX_TYPE_LABELS,
+  blocksRecognition,
+  checkTaxPayment,
+  eligibleTaxPaymentAccounts,
+  isTaxPeriodStart,
+  monthNameId,
+  resolveTaxYear,
+  outstandingTax,
+  resolveFilingTaxType,
+  resolveWithholdingTaxType,
+  VAT_TREATMENT_LABELS,
+  WHT_OBJECT_LABELS,
+  resolveTaxPeriod,
+  runningTaxPeriod,
+  taxPaymentCash,
+  taxPeriodLabel,
+  taxPeriodStart,
+  relevantDifferences,
+  hasNoReturnToRecord,
+} from "./tax";
+import { vatTreatmentSchema, whtObjectSchema } from "@/schemas/tax";
+
+describe("tax periods", () => {
+  it("a period is identified by the first day of its month", () => {
+    expect(taxPeriodStart("2026-09-21")).toBe("2026-09-01");
+    expect(taxPeriodStart("2026-12-31")).toBe("2026-12-01");
+    expect(isTaxPeriodStart("2026-09-01")).toBe(true);
+    expect(isTaxPeriodStart("2026-09-02")).toBe(false);
+    expect(isTaxPeriodStart("September")).toBe(false);
+  });
+
+  it("labels a period in Indonesian", () => {
+    expect(taxPeriodLabel("2026-01-01")).toBe("Januari 2026");
+    expect(taxPeriodLabel("2026-12-01")).toBe("Desember 2026");
+  });
+
+  it("refuses text that is not a date", () => {
+    expect(() => taxPeriodStart("2026-9-1")).toThrow(RangeError);
+    expect(() => taxPeriodLabel("2026-13-01")).toThrow(RangeError);
+    expect(() => taxPeriodLabel("nope")).toThrow(RangeError);
+  });
+});
+
+describe("runningTaxPeriod", () => {
+  it("is the first day of the month in progress", () => {
+    expect(runningTaxPeriod(new Date("2026-10-07T12:00:00Z"))).toBe("2026-10-01");
+  });
+
+  it("follows the business clock across a month end", () => {
+    expect(runningTaxPeriod(new Date("2026-09-30T20:00:00Z"))).toBe("2026-10-01");
+  });
+});
+
+describe("resolveTaxPeriod", () => {
+  const reference = new Date("2026-09-23T12:00:00Z");
+
+  it('accepts a native month-input value ("YYYY-MM") and appends the day', () => {
+    expect(resolveTaxPeriod("2026-07", reference)).toBe("2026-07-01");
+  });
+
+  it('accepts a full period ("YYYY-MM-01") as given', () => {
+    expect(resolveTaxPeriod("2026-07-01", reference)).toBe("2026-07-01");
+  });
+
+  it("falls back to the most recently completed month when absent", () => {
+    expect(resolveTaxPeriod(undefined, reference)).toBe("2026-08-01");
+  });
+
+  it("falls back when the month input is malformed", () => {
+    expect(resolveTaxPeriod("2026-13", reference)).toBe("2026-08-01");
+    expect(resolveTaxPeriod("not-a-period", reference)).toBe("2026-08-01");
+  });
+
+  it("falls back when a full date is not the 1st of its month", () => {
+    expect(resolveTaxPeriod("2026-07-15", reference)).toBe("2026-08-01");
+  });
+
+  it("crosses a year boundary correctly", () => {
+    const jan = new Date("2026-01-10T00:00:00Z");
+    expect(resolveTaxPeriod(undefined, jan)).toBe("2025-12-01");
+  });
+});
+
+describe("resolveFilingTaxType", () => {
+  it("accepts any of the three types the write RPCs accept", () => {
+    expect(resolveFilingTaxType("vat")).toBe("vat");
+    expect(resolveFilingTaxType("wht_pph23")).toBe("wht_pph23");
+    expect(resolveFilingTaxType("final_umkm")).toBe("final_umkm");
+  });
+
+  it("offers PPh 4(2) and PPh 26 for filing (decision 256)", () => {
+    expect(resolveFilingTaxType("wht_pph4_2")).toBe("wht_pph4_2");
+    expect(resolveFilingTaxType("wht_pph26")).toBe("wht_pph26");
+  });
+
+  it("offers PPh 21 for payment and filing (decision 303)", () => {
+    expect(resolveFilingTaxType("wht_pph21")).toBe("wht_pph21");
+  });
+
+  it("resolves the withholding screen's tax type, defaulting to PPh 23", () => {
+    expect(resolveWithholdingTaxType("wht_pph4_2")).toBe("wht_pph4_2");
+    expect(resolveWithholdingTaxType("wht_pph26")).toBe("wht_pph26");
+    expect(resolveWithholdingTaxType("vat")).toBe("wht_pph23");
+    expect(resolveWithholdingTaxType(undefined)).toBe("wht_pph23");
+  });
+
+  it("words every withholding object and VAT treatment of the database catalog", () => {
+    expect(Object.keys(WHT_OBJECT_LABELS).sort()).toEqual([...whtObjectSchema.options].sort());
+    expect(Object.keys(VAT_TREATMENT_LABELS).sort()).toEqual(
+      [...vatTreatmentSchema.options].sort(),
+    );
+  });
+
+  it("falls back to vat for anything absent or unrecognised", () => {
+    expect(resolveFilingTaxType(undefined)).toBe("vat");
+    expect(resolveFilingTaxType("not-a-type")).toBe("vat");
+  });
+});
+
+describe("eligibleTaxPaymentAccounts", () => {
+  const accounts = [
+    { id: "a", currency: "IDR" },
+    { id: "b", currency: "USD" },
+    { id: "c", currency: "IDR" },
+  ];
+
+  it("keeps only accounts in the Entity's own base currency", () => {
+    expect(eligibleTaxPaymentAccounts(accounts, "IDR").map((a) => a.id)).toEqual(["a", "c"]);
+  });
+
+  it("is empty when no account matches", () => {
+    expect(eligibleTaxPaymentAccounts(accounts, "EUR")).toEqual([]);
+  });
+});
+
+describe("tax payment arithmetic", () => {
+  it("cash is the tax paid, less the input VAT offset, plus any penalty", () => {
+    expect(taxPaymentCash({ payable: "220000" }).toString()).toBe("220000");
+    expect(taxPaymentCash({ payable: "220000", assetOffset: "100000" }).toString()).toBe("120000");
+    expect(taxPaymentCash({ payable: "40000", assetOffset: "0", penalty: "5000" }).toString()).toBe(
+      "45000",
+    );
+    expect(taxPaymentCash({ payable: "110000", assetOffset: "110000" }).isZero()).toBe(true);
+  });
+
+  it("stays exact with decimals", () => {
+    expect(
+      taxPaymentCash({ payable: "0.1", assetOffset: "0.05", penalty: "0.02" }).toString(),
+    ).toBe("0.07");
+  });
+
+  it("refuses text that is not an amount", () => {
+    expect(() => taxPaymentCash({ payable: "abc" })).toThrow(RangeError);
+  });
+
+  it("flags what the database would refuse", () => {
+    const base = { taxType: "wht_pph23" as const, hasAccount: true, payable: "100000" };
+    expect(checkTaxPayment(base)).toEqual([]);
+    expect(checkTaxPayment({ ...base, payable: "0" })).toContain("payable_not_positive");
+    expect(checkTaxPayment({ ...base, assetOffset: "10000" })).toContain("offset_only_vat");
+    expect(checkTaxPayment({ ...base, taxType: "vat", assetOffset: "100001" })).toContain(
+      "offset_exceeds_payable",
+    );
+    expect(checkTaxPayment({ ...base, penalty: "5000" })).toContain("penalty_needs_note");
+    expect(checkTaxPayment({ ...base, penalty: "5000", note: "STP 123" })).toEqual([]);
+    expect(checkTaxPayment({ ...base, hasAccount: false })).toContain("account_required");
+    expect(checkTaxPayment({ ...base, taxType: "vat", assetOffset: "100000" })).toContain(
+      "account_not_needed",
+    );
+    expect(
+      checkTaxPayment({
+        ...base,
+        taxType: "vat",
+        assetOffset: "100000",
+        hasAccount: false,
+      }),
+    ).toEqual([]);
+    expect(checkTaxPayment({ ...base, payable: "-1" })).toContain("negative_amount");
+  });
+
+  it("shows an overpayment as a negative figure, never clamped", () => {
+    expect(outstandingTax("10000.0000", "30000").toString()).toBe("-20000.0000");
+    expect(outstandingTax("300000", "100000").toFixed(0)).toBe("200000");
+    expect(outstandingTax("0", "0").isZero()).toBe(true);
+  });
+});
+
+describe("tax vocabulary", () => {
+  it("only a result that needs review blocks recognition", () => {
+    expect(blocksRecognition("needs_review")).toBe(true);
+    expect(blocksRecognition("auto_determined")).toBe(false);
+    expect(blocksRecognition("overridden")).toBe(false);
+    expect(blocksRecognition("owner_confirmed")).toBe(false);
+  });
+
+  it("has a label for every code the database can return", () => {
+    expect(Object.keys(TAX_TYPE_LABELS).sort()).toEqual([
+      "final_umkm",
+      "vat",
+      "wht_pph21",
+      "wht_pph23",
+      "wht_pph26",
+      "wht_pph4_2",
+    ]);
+    expect(Object.keys(TAX_KIND_LABELS).sort()).toEqual([
+      "final_umkm",
+      "vat_input",
+      "vat_output",
+      "wht_pph21",
+      "wht_pph23",
+      "wht_pph26",
+      "wht_pph4_2",
+    ]);
+    expect(Object.keys(CALENDAR_STEP_LABELS).sort()).toEqual([
+      "calculate",
+      "evidence",
+      "file",
+      "pay",
+    ]);
+    expect(Object.keys(CALENDAR_STATE_LABELS).sort()).toEqual([
+      "done",
+      "due",
+      "no_rule",
+      "not_applicable",
+      "overdue",
+      "upcoming",
+    ]);
+    expect(Object.keys(DIFFERENCE_LABELS).sort()).toEqual([
+      "filed_base_differs",
+      "filed_credit_differs",
+      "filed_tax_differs",
+      "filing_missing",
+      "overpaid",
+      "unpaid",
+    ]);
+    expect(Object.keys(EVIDENCE_PURPOSE_LABELS).sort()).toEqual([
+      "filing_receipt",
+      "other",
+      "payment_proof",
+      "tax_invoice",
+      "withholding_slip",
+    ]);
+    expect(DETERMINATION_STATUS_LABELS.needs_review).toBe("Perlu ditinjau");
+  });
+});
+
+describe("resolveTaxYear / monthNameId (decision 352)", () => {
+  it("uses the asked year when it is valid and not in the future", () => {
+    expect(resolveTaxYear("2025", 2026)).toBe(2025);
+    expect(resolveTaxYear("2026", 2026)).toBe(2026);
+  });
+  it("falls back to the current year for anything else", () => {
+    expect(resolveTaxYear(undefined, 2026)).toBe(2026);
+    expect(resolveTaxYear("2027", 2026)).toBe(2026);
+    expect(resolveTaxYear("1999", 2026)).toBe(2026);
+    expect(resolveTaxYear("abc", 2026)).toBe(2026);
+    expect(resolveTaxYear("20250", 2026)).toBe(2026);
+  });
+  it("names the months in Indonesian", () => {
+    expect(monthNameId(1)).toBe("Januari");
+    expect(monthNameId(12)).toBe("Desember");
+    expect(() => monthNameId(13)).toThrow(RangeError);
+  });
+});
+
+describe("withholding quick choices (decision 359)", () => {
+  it("offers only objects the engine knows and always includes the review answer", () => {
+    for (const choice of WHT_QUICK_CHOICES) expect(WHT_OBJECT_LABELS[choice.value]).toBeDefined();
+    expect(WHT_QUICK_CHOICES.map((c) => c.value)).toContain("wht_none");
+    expect(WHT_QUICK_CHOICES.map((c) => c.value)).toContain("wht_review");
+  });
+
+  it("treats only a withholding classification as settling the line", () => {
+    expect(categorySettlesWithholding("wht_none")).toBe(true);
+    expect(categorySettlesWithholding("wht_rent_land_building")).toBe(true);
+    expect(categorySettlesWithholding(null)).toBe(false);
+    expect(categorySettlesWithholding(undefined)).toBe(false);
+    expect(categorySettlesWithholding("vat_taxable")).toBe(false);
+  });
+});
+
+describe("relevantDifferences (decision 408)", () => {
+  const rows = [
+    { code: "filing_missing", text: "x", amount: null },
+    { code: "unpaid", text: "y", amount: "1" },
+  ];
+  it("hides the missing filing of PPh Final in every month but December", () => {
+    expect(relevantDifferences("final_umkm", "2026-09-01", rows).map((r) => r.code)).toEqual([
+      "unpaid",
+    ]);
+    expect(hasNoReturnToRecord("final_umkm", "2026-09-01")).toBe(true);
+  });
+  it("keeps it for the annual return in December and for every other tax", () => {
+    expect(relevantDifferences("final_umkm", "2026-12-01", rows)).toHaveLength(2);
+    expect(relevantDifferences("vat", "2026-09-01", rows)).toHaveLength(2);
+    expect(hasNoReturnToRecord("vat", "2026-09-01")).toBe(false);
+  });
+});
