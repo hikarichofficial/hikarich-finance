@@ -13,6 +13,7 @@ import {
   ToggleAccountActiveForm,
 } from "./AccountManageForms";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Account Detail (P13 Part 3c, Step 09 §10, §13: "Account detail resembles a clean bank ledger with filters,
@@ -71,6 +72,7 @@ export function AccountDetailScreen({
         <div>
           <p className="record-detail-eyebrow">Akun Kas &amp; Bank · {account.kind}</p>
           <h1>{account.name}</h1>
+          <PageHelp />
           {account.account_masked ? (
             <p className="record-detail-eyebrow">No. Rekening {account.account_masked}</p>
           ) : null}

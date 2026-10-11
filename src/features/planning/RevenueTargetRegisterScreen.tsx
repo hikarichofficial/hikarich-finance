@@ -9,6 +9,7 @@ import type { RevenueTargetRow } from "@/schemas/planning";
 import type { PlanStatus } from "@/domain/planning/planning";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Revenue Target Register (P13 Part 3h, third increment, Step 09 §9, §18). Follows the same Standard List
@@ -50,6 +51,7 @@ export function RevenueTargetRegisterScreen({
       <header className="list-screen-header">
         <div>
           <h1>Target Pendapatan</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} target pendapatan ditampilkan.</p>
         </div>
         {canCreate ? (

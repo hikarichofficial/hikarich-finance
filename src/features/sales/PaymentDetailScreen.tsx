@@ -6,6 +6,7 @@ import { PaymentActions, type PaymentActionPermissions } from "./PaymentActions"
 import { ReceiptDocumentView } from "./ReceiptDocumentView";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Payment Detail (P13 unbuilt-screens backlog, Step 09 §10/§11), reachable from either Payments Received or
@@ -51,6 +52,7 @@ export function PaymentDetailScreen({
         <div>
           <p className="record-detail-eyebrow">Pembayaran Diterima</p>
           <h1>{row.payment_number}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">{row.customer_name}</p>
         </div>
         <div className="record-detail-header-end">

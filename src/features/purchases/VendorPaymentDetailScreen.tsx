@@ -4,6 +4,7 @@ import type { VendorPaymentRow } from "@/schemas/purchases";
 import { VendorPaymentActions, type VendorPaymentActionPermissions } from "./VendorPaymentActions";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Payment Made Detail (P13 unbuilt-screens backlog, Step 09 §10): Header/Actions/Ringkasan only, the same
@@ -36,6 +37,7 @@ export function VendorPaymentDetailScreen({
         <div>
           <p className="record-detail-eyebrow">Pembayaran ke Vendor</p>
           <h1>{row.payment_number}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">{row.vendor_name}</p>
         </div>
         <div className="record-detail-header-end">

@@ -82,7 +82,11 @@ export function TaxNonFinalCard({
                 <tr key={row.code}>
                   <td>
                     {row.name}
-                    {row.counted ? "" : " (belum direalisasi, tidak dihitung)"}
+                    {row.counted
+                      ? ""
+                      : row.withheld
+                        ? " (PPh final sudah dipotong bank, tidak dihitung lagi)"
+                        : " (belum direalisasi, tidak dihitung)"}
                   </td>
                   <td className="num" data-label="Hasil bersih">
                     {formatMoney(row.total, data.currency)}

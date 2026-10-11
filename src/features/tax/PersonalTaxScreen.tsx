@@ -12,6 +12,7 @@ import { monthNameId } from "@/domain/tax/tax";
 import { BarChart, type ChartPoint } from "@/features/charts/InteractiveCharts";
 import { PTKP_STATUSES, type PersonalTaxSummary } from "@/schemas/personalTax";
 import { PtkpForm } from "./PtkpForm";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** "0.005" -> "0,5%"; "0.35" -> "35%". */
 function ratePercent(rate: string): string {
@@ -110,6 +111,7 @@ export function PersonalTaxScreen({
         <div>
           <p className="record-detail-eyebrow">Pajak</p>
           <h1>Pajak Pribadi</h1>
+          <PageHelp />
           <p className="record-detail-dates">
             Tahun {summary.year} · {settled ? "sudah ditetapkan" : "perkiraan berjalan"} · dihitung
             otomatis dari catatan Anda

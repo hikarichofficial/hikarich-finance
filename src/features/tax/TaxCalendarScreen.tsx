@@ -11,6 +11,7 @@ import type { FinalPreview, TaxCalendarRow } from "@/schemas/tax";
 import { TaxEstimateCard } from "./TaxEstimateCard";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Tax Calendar (P13 unbuilt-screens backlog, "Tax Calendar" nav item, Step 09 §15, decision 233): every step
@@ -41,6 +42,7 @@ export function TaxCalendarScreen({
       <header className="list-screen-header">
         <div>
           <h1>Kalender Pajak</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} langkah pada rentang ini.</p>
         </div>
       </header>

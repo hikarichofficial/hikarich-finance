@@ -3,6 +3,7 @@ import Link from "next/link";
 import { documentTargetTypesLabel, formatDocumentSize } from "@/domain/documents/documents";
 import type { DocumentArchiveRow } from "@/schemas/documents";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Documents Archive (Step 09 §20 "Archive is accessible but visually separated from active evidence",
@@ -37,6 +38,7 @@ export function DocumentArchiveScreen({
       <header className="list-screen-header">
         <div>
           <h1>Arsip Dokumen</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             Dokumen yang sudah diganti versi baru atau dilepas dari transaksinya. Bukan bukti aktif.
           </p>

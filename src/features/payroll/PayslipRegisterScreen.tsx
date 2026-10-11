@@ -8,6 +8,7 @@ import {
 import type { PayslipRow } from "@/schemas/payroll";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Payslip Register (P13 Part 3g, third increment, Step 09 §17). `payroll_payslip_list` takes no status
@@ -41,6 +42,7 @@ export function PayslipRegisterScreen({
       <header className="list-screen-header">
         <div>
           <h1>Slip Gaji</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {rows.length} slip gaji ditampilkan
             {rows.length >= 100 ? " (batas 100 data terbaru; persempit dengan saringan)" : ""}.

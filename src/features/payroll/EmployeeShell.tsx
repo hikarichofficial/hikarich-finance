@@ -4,6 +4,7 @@ import { employeeStatusBadge } from "@/domain/payroll/employeeList";
 import type { EmployeeRow } from "@/schemas/payroll";
 import { BackLink } from "@/features/shell/BackLink";
 import { payrollHref } from "./employeeContext";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 export type EmployeeTab = "ringkasan" | "gaji" | "pajak" | "bpjs" | "pekerjaan";
 
@@ -57,6 +58,7 @@ export function EmployeeShell({
         <div>
           <p className="record-detail-eyebrow">Karyawan · {employee.employee_code}</p>
           <h1>{employee.full_name}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">{employee.position_title}</p>
         </div>
         <div className="record-detail-header-end">

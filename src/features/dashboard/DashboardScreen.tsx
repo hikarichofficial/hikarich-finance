@@ -8,6 +8,8 @@ import { TaxSnapshot } from "./TaxSnapshot";
 import { TasksAttention } from "./TasksAttention";
 import { AccountSnapshot } from "./AccountSnapshot";
 import { RecentActivity } from "./RecentActivity";
+import Link from "next/link";
+import { taxPeriodLabel } from "@/domain/tax/tax";
 import { GroupTurnoverCard } from "@/features/tax/GroupTurnoverCard";
 
 /**
@@ -23,6 +25,7 @@ export function DashboardScreen({
   entityName,
   periodHref,
   scopeHref,
+  emptyMonthHint,
 }: {
   snapshot: DashboardSnapshot;
   displayName: string | null;
@@ -30,6 +33,8 @@ export function DashboardScreen({
   /** Previous/next of the same kind of period, or null for "all", which has neither (decision 404). */
   periodHref: { prev: string; next: string } | null;
   scopeHref: { month: string; year: string; all: string };
+  /** The month shown has no revenue or expense but an earlier one does (decision 410). */
+  emptyMonthHint?: { month: string; href: string } | null;
 }) {
   return (
     <div className="dashboard">
@@ -42,6 +47,14 @@ export function DashboardScreen({
         currency={snapshot.currency}
         netResult={snapshot.finance?.netResult ?? null}
       />
+
+      {emptyMonthHint ? (
+        <p className="dashboard-empty-hint" role="note">
+          Bulan ini belum ada pendapatan atau beban. Transaksi terakhir ada di{" "}
+          <Link href={emptyMonthHint.href}>{taxPeriodLabel(`${emptyMonthHint.month}-01`)}</Link>;
+          pilih Tahunan atau Sejak Awal untuk melihat semuanya.
+        </p>
+      ) : null}
 
       <KpiStrip
         currency={snapshot.currency}

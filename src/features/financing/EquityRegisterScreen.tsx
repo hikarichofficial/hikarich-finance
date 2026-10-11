@@ -16,6 +16,7 @@ import {
 import type { EquityRow } from "@/schemas/financing";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Capital & Equity (P13 Part 3f, fourth increment, Step 09 §9, §16: "Capital & Equity screen clearly separates
@@ -53,6 +54,7 @@ export function EquityRegisterScreen({
       <header className="list-screen-header">
         <div>
           <h1>Modal & Ekuitas</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} peristiwa ditampilkan.</p>
         </div>
         {createHref ? (

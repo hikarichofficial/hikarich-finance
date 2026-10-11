@@ -10,6 +10,7 @@ import {
 import type { ObligationRow } from "@/schemas/financing";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Other Receivables / Other Payables (P13 Part 3f, third increment, Step 09 §9, §16: "Other AR/AP uses
@@ -48,6 +49,7 @@ export function ObligationRegisterScreen({
       <header className="list-screen-header">
         <div>
           <h1>Daftar {title}</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} pos ditampilkan.</p>
         </div>
         {createHref ? (

@@ -10,6 +10,7 @@ import {
   type ReconciliationListRow,
 } from "@/domain/money/reconciliationList";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Reconciliation List (P13 unbuilt-screens backlog, Step 09 §13, decision 231): one row per financial
@@ -48,6 +49,7 @@ export function ReconciliationListScreen({
       <header className="list-screen-header">
         <div>
           <h1>Rekonsiliasi Bank</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} akun ditampilkan.</p>
         </div>
       </header>

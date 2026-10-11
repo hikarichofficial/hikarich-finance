@@ -7,6 +7,7 @@ import {
 } from "@/domain/imports/imports";
 import type { ImportBatchRow, ImportDomain } from "@/schemas/imports";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Import history List (P13 unbuilt-screens backlog, decision 241): every import batch of the active Entity,
@@ -35,6 +36,7 @@ export function ImportBatchesListScreen({
       <header className="list-screen-header">
         <div>
           <h1>Riwayat Impor</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {rows.length} batch impor{" "}
             {activeDomain ? `untuk "${IMPORT_DOMAIN_LABELS[activeDomain]}"` : "ditampilkan"}.

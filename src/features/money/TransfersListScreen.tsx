@@ -8,6 +8,7 @@ import {
 } from "@/domain/money/transferList";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Transfers List (P13 Part 3c, Step 09 §9, §13), the exact structure `InvoicesListScreen`/`BillsListScreen`
@@ -53,6 +54,7 @@ export function TransfersListScreen({
       <header className="list-screen-header">
         <div>
           <h1>Transfer Antar Akun</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {rows.length} transfer{" "}
             {activeFilter ? `pada tampilan "${filterLabel(activeFilter)}"` : "ditampilkan"}.

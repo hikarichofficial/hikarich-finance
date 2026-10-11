@@ -11,6 +11,7 @@ import { RevenueTargetActions, type RevenueTargetActionPermissions } from "./Rev
 import { RevenueTargetLinesEditor } from "./RevenueTargetLinesEditor";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Revenue Target Detail (P13 Part 3h, third increment, Step 09 §10, §18: "period-based editable planning
@@ -62,6 +63,7 @@ export function RevenueTargetDetailScreen({
             Target Pendapatan · {PLAN_PERIOD_TYPE_LABELS[target.period_type]}
           </p>
           <h1>{target.name}</h1>
+          <PageHelp />
         </div>
         <div className="record-detail-header-end">
           <span className={`status-badge status-badge-${statusBadge.tone}`}>

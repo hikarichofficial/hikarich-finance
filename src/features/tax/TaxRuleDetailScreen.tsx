@@ -6,6 +6,7 @@ import type { TaxRuleVersionRow } from "@/schemas/tax";
 import { TaxRuleDraftActions } from "./TaxRuleDraftActions";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Tax Rule Detail (decision 239, Step 05 §13): one version of one rule code, read-only -- its parameters,
@@ -47,6 +48,7 @@ export function TaxRuleDetailScreen({
             {rule.code} · v{rule.rule_version}
             {rule.is_repeal ? " (pencabutan)" : ""}
           </h1>
+          <PageHelp />
         </div>
         <span className={`status-badge status-badge-${RULE_STATUS_TONE[rule.status]}`}>
           {RULE_STATUS_LABELS[rule.status]}

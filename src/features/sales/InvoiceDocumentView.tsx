@@ -12,6 +12,7 @@ import {
 } from "@/domain/sales/invoiceLayout";
 import type { InvoiceDocument } from "@/schemas/sales";
 import type { CSSProperties, ReactNode } from "react";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * The invoice as a customer reads it (P13 Part 5, first increment; Step 11 -- Invoice/Receipt Visual
@@ -129,6 +130,7 @@ export function InvoiceDocumentView({
     issuer: (
       <div className="doc-issuer">
         <h1 className="doc-brand">{names.primary}</h1>
+        <PageHelp />
         {names.secondary ? <p>{names.secondary}</p> : null}
         {addressLines(issuer).map((line) => (
           <p key={line}>{line}</p>

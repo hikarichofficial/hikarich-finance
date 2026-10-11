@@ -4,6 +4,7 @@ import { vendorPaymentRowStatus } from "@/domain/purchases/vendorPaymentsList";
 import type { VendorPaymentRow } from "@/schemas/purchases";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Payments Made List (P13 unbuilt-screens backlog, Step 09 primary sitemap). No Create toolbar:
@@ -35,6 +36,7 @@ export function VendorPaymentsListScreen({
       <header className="list-screen-header">
         <div>
           <h1>Pembayaran ke Vendor</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} pembayaran ditampilkan.</p>
         </div>
       </header>

@@ -11,6 +11,7 @@ import {
   timezoneLabel,
 } from "@/domain/settings/settings";
 import type { EntitySettingsOverview } from "@/services/settings/settings";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Settings (P13 unbuilt-screens backlog, decision 243): the active Entity's profile, document numbering,
@@ -78,6 +79,7 @@ export function SettingsScreen({
         <div>
           <p className="record-detail-eyebrow">Pengaturan Entitas</p>
           <h1>{entity.brand_name ?? entity.legal_name}</h1>
+          <PageHelp />
         </div>
         <div className="record-detail-header-end">
           <span className={`status-badge status-badge-${activeTone(entity.status === "active")}`}>

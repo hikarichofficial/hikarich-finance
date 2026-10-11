@@ -20,6 +20,7 @@ import {
 import type { LoanDetail, LoanScheduleRow } from "@/schemas/financing";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 const SOURCE_TYPE_LABELS: Readonly<Record<LoanDetail["source_type"], string>> = {
   proceeds: "Pencairan",
@@ -77,6 +78,7 @@ export function LoanDetailScreen({
             Pinjaman · {LOAN_DIRECTION_LABELS[detail.direction]}
           </p>
           <h1>{detail.number}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">{detail.counterparty}</p>
         </div>
         <div className="record-detail-header-end">

@@ -2,6 +2,7 @@ import Link from "next/link";
 import { formatMoney } from "@/domain/money/format";
 import { formatMonthLabel } from "./format";
 import { periodYear, type DashboardPeriod } from "@/domain/dashboard/dashboard";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Hero Finance Summary (Step 09 §8, Step 10 §10): Entity + greeting/context + period, and one dominant
@@ -39,6 +40,7 @@ export function HeroSummary({
     <div className="dashboard-hero">
       <div>
         <h1 className="dashboard-hero-title">Selamat datang, {displayName ?? "Pengguna"}</h1>
+        <PageHelp />
         <p className="dashboard-hero-subtitle">
           Ringkasan keuangan <strong>{entityName}</strong> untuk{" "}
           <span className="period-nav">

@@ -16,6 +16,7 @@ import type { SettlementAccountOption } from "@/features/shared/SettlementForm";
 import { PayBillForm } from "./PayBillForm";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Bill Detail (P13 Part 3b, Step 09 §10, §12): Header / Summary / Line Items / Activity / Accounting / Tax /
@@ -81,6 +82,7 @@ export function BillDetailScreen({
         <div>
           <p className="record-detail-eyebrow">Tagihan Pembelian</p>
           <h1>{bill.bill_number ?? "Draf"}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">{bill.vendor_name}</p>
         </div>
         <div className="record-detail-header-end">

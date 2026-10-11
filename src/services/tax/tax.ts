@@ -44,6 +44,8 @@ import {
   taxEvidenceSchema,
   taxLedgerInputSchema,
   taxLedgerSchema,
+  taxScopeInputSchema,
+  taxScopeSchema,
   taxOverviewSchema,
   taxPaymentListSchema,
   taxPreviewSchema,
@@ -59,6 +61,7 @@ import {
   type TaxDeterminationRow,
   type TaxEvidenceRow,
   type TaxLedgerRow,
+  type TaxScopeRow,
   type TaxOverview,
   type TaxPaymentRow,
   type TaxPeriodPosition,
@@ -510,6 +513,18 @@ export async function listTaxLedger(
       p_limit: v.limit ?? 200,
     },
     taxLedgerSchema,
+  );
+}
+
+/** Per tax type, the tax counted, paid and left for the tax periods inside a range (decision 409); no range = all. */
+export async function getTaxScopeSummary(
+  input: z.input<typeof taxScopeInputSchema>,
+): Promise<TaxScopeRow[]> {
+  const v = taxScopeInputSchema.parse(input);
+  return callRpc(
+    "tax_scope_summary",
+    { p_entity: v.entity_id, p_from: v.from ?? null, p_to: v.to ?? null },
+    taxScopeSchema,
   );
 }
 

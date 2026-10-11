@@ -11,6 +11,7 @@ import {
 import type { EquityDetail } from "@/schemas/financing";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Capital & Equity Detail (P13 Part 3f, fourth increment, Step 09 §10, §16). Follows the same narrower "Standard
@@ -51,6 +52,7 @@ export function EquityDetailScreen({
         <div>
           <p className="record-detail-eyebrow">{EQUITY_KIND_LABELS[detail.kind]}</p>
           <h1>{detail.number}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">{detail.counterparty}</p>
         </div>
         <div className="record-detail-header-end">

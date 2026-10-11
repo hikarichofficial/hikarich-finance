@@ -6,6 +6,7 @@ import { formatTaxRate, taxKindLabel, taxSourceDocumentHref } from "@/domain/tax
 import type { TaxDeterminationRow } from "@/schemas/tax";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 const SOURCE_TYPE_LABELS: Readonly<Record<string, string>> = {
   invoice: "Invoice Penjualan",
@@ -58,6 +59,7 @@ export function TaxDeterminationDetailScreen({
         <div>
           <p className="record-detail-eyebrow">Pajak · Penentuan</p>
           <h1>{SOURCE_TYPE_LABELS[sourceType] ?? sourceType}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">
             {documentHref ? (
               <Link href={documentHref}>Lihat dokumen sumber →</Link>

@@ -11,6 +11,7 @@ import {
 } from "@/domain/audit/audit";
 import type { AuditEventRow } from "@/schemas/audit";
 import { formatAuditTimestamp } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Audit Log (P13 unbuilt-screens backlog, decision 242): the active Entity's audit trail, newest first,
@@ -60,6 +61,7 @@ export function AuditLogScreen({
       <header className="list-screen-header">
         <div>
           <h1>Log Audit</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {rows.length === 0
               ? "Tidak ada kejadian pada halaman ini."
