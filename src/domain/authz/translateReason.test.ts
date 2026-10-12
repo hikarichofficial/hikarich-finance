@@ -15,6 +15,15 @@ describe("translateReason", () => {
     expect(text).not.toMatch(/periods|fiscal year/);
   });
 
+  it("translates the difference named inside a reconciliation refusal (decision 412)", () => {
+    const text = translateReason(
+      "the period has 1 difference(s) (first: No filing is recorded for this period); a note of at least 10 characters explains them",
+    );
+    expect(text).toMatch(/Periode ini memiliki 1 selisih/);
+    expect(text).toMatch(/belum ada pelaporan/i);
+    expect(text).not.toMatch(/filing|recorded/);
+  });
+
   it("returns null for a reason it does not know", () => {
     expect(translateReason("something nobody wrote a template for")).toBeNull();
   });

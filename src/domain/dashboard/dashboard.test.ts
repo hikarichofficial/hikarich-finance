@@ -203,10 +203,22 @@ describe("pnlTotals", () => {
     expect(totals.expense.toString()).toBe("300000");
   });
 
+  it("counts income tax (class tax) apart from Beban, so revenue - expense - tax is the profit (decision 412)", () => {
+    const rows = [
+      plRow({ account_class: "revenue", debit: "0", credit: "23362894" }),
+      plRow({ account_class: "expense", debit: "13000", credit: "0" }),
+      plRow({ account_class: "tax", debit: "116814", credit: "0" }),
+    ];
+    const totals = pnlTotals(rows);
+    expect(totals.expense.toString()).toBe("13000");
+    expect(totals.tax.toString()).toBe("116814");
+  });
+
   it("returns zero totals for an empty period", () => {
     const totals = pnlTotals([]);
     expect(totals.revenue.isZero()).toBe(true);
     expect(totals.expense.isZero()).toBe(true);
+    expect(totals.tax.isZero()).toBe(true);
   });
 });
 

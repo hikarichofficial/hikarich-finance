@@ -13,6 +13,7 @@ describe("KpiStrip destinations", () => {
         revenue: "875000",
         discounts: "125000",
         expense: "300000",
+        tax: "0",
         netResult: "575000",
         flow: [],
         revenueBreakdown: [],
@@ -32,6 +33,14 @@ describe("KpiStrip destinations", () => {
       "/reports?statement=pnl&amp;from=2026-10-01&amp;to=2026-10-31#pnl-expense",
     );
     expect(html).toContain('/reports?statement=pnl&amp;from=2026-10-01&amp;to=2026-10-31"');
+  });
+
+  it("shows income tax as its own card, after Beban and before the result (decision 412)", () => {
+    expect(html).toContain("Pajak Penghasilan");
+    expect(html).toContain("/reports?statement=pnl&amp;from=2026-10-01&amp;to=2026-10-31#pnl-tax");
+    expect(html.indexOf("Beban")).toBeLessThan(html.indexOf("Pajak Penghasilan"));
+    expect(html.indexOf("Pajak Penghasilan")).toBeLessThan(html.indexOf("Laba Berjalan"));
+    expect(html).toContain("Setelah beban dan pajak");
   });
 
   it("says revenue is already net of discounts", () => {
