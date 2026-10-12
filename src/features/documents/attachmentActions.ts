@@ -1,31 +1,18 @@
 "use server";
 
-import { createHash, randomUUID } from "node:crypto";
 import { revalidatePath } from "next/cache";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
-import {
-  ATTACHMENT_MAX_BYTES,
-  safeFileName,
-  sniffAttachmentType,
-} from "@/domain/documents/fileSignature";
 import { documentPurposeSchema, genericLinkableTargetTypeSchema } from "@/schemas/documents";
 import { requirePermission } from "@/services/identity/access";
 import {
   createDocumentPurpose,
-  finalizeDocumentUpload,
-  getDocumentDownloadGrant,
   linkDocument,
-  registerDocument,
   renameDocumentPurpose,
   setDocumentPurposeActive,
   unlinkDocument,
 } from "@/services/documents/documents";
-import {
-  documentObjectPath,
-  documentStorageEnabled,
-  storeDocumentBytes,
-} from "@/services/documents/storage";
 import type { AttachmentActionState } from "./attachmentActionsState";
+import { storeUploadedFile } from "./storeUploadedFile";
 
 /**
  * Attach a file to a record and remove an attachment (Step 08 §21, Step 13 §16, decisions 141-142, 275).
@@ -53,42 +40,14 @@ export async function uploadAttachmentAction(
   const target = genericLinkableTargetTypeSchema.safeParse(text(formData, "target_type"));
   const purpose = documentPurposeSchema.safeParse(text(formData, "purpose"));
   const targetId = text(formData, "target_id");
-  const file = formData.get("file");
-  if (!target.success || !(file instanceof File) || file.size === 0) {
+  if (!target.success) {
     return { status: "error", message: "Pilih berkas yang akan dilampirkan." };
   }
-  if (file.size > ATTACHMENT_MAX_BYTES) {
-    return { status: "error", message: "Berkas terlalu besar. Ukuran maksimal 4 MB." };
-  }
-  if (!documentStorageEnabled()) {
-    return { status: "error", message: "Penyimpanan berkas belum diaktifkan untuk situs ini." };
-  }
-  const buffer = await file.arrayBuffer();
-  const mimeType = sniffAttachmentType(new Uint8Array(buffer.slice(0, 16)));
-  if (!mimeType) {
-    return { status: "error", message: "Jenis berkas harus PDF, JPG, PNG atau WebP." };
-  }
   try {
-    const { membership } = await requirePermission("documents.upload", { entityCode: entity });
-    const documentId = await registerDocument({
-      entity_id: membership.entity_id,
-      idempotency_key: randomUUID(),
-      file_name: safeFileName(file.name),
-      mime_type: mimeType,
-      size_bytes: file.size,
-      sha256: createHash("sha256").update(Buffer.from(buffer)).digest("hex"),
-    });
-    // The same content registered before is the same document; its bytes are stored once.
-    const grant = await getDocumentDownloadGrant({ document_id: documentId });
-    if (!grant.storage_path) {
-      const path = documentObjectPath(membership.entity_id, documentId);
-      if (!(await storeDocumentBytes(path, buffer, mimeType))) {
-        return { status: "error", message: "Berkas tidak dapat disimpan. Coba lagi." };
-      }
-      await finalizeDocumentUpload({ document_id: documentId, storage_path: path });
-    }
+    const stored = await storeUploadedFile(formData.get("file"), entity);
+    if (!stored.ok) return { status: "error", message: stored.message };
     await linkDocument({
-      document_id: documentId,
+      document_id: stored.documentId,
       target_type: target.data,
       target_id: targetId,
       purpose: purpose.success ? purpose.data : "other",
