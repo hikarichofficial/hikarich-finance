@@ -6504,3 +6504,23 @@ tr[data-muted="true"] td {
   display: block;
   margin-bottom: 2px;
 }
+
+/* Rincian dan bukti satu pembayaran pajak (decision 411): opens under the payment history. */
+.payment-detail {
+  margin-top: 0.75rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-solid);
+  padding: 0.5rem 0.9rem;
+}
+
+.payment-detail summary {
+  cursor: pointer;
+  font-size: var(--text-sm);
+  font-weight: 600;
+  padding: 0.35rem 0;
+}
+
+.payment-detail[open] summary {
+  margin-bottom: 0.6rem;
+}

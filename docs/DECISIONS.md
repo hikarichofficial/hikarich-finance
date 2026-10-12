@@ -1,7 +1,7 @@
 # Implementation Decisions
 
 > **Status terkini — 11 Oktober 2026.** Keputusan terakhir yang sudah masuk `main` adalah **PR #213**
-> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR #215; keputusan 409 dan 410 (bunga per jenis, Rekap Pajak, penjelasan fungsi halaman) di PR berikutnya.
+> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR #215; keputusan 409 dan 410 (bunga per jenis, Rekap Pajak, penjelasan fungsi halaman) di PR #216. Keputusan 411 (bukti pajak diunggah langsung, rincian pembayaran, satu pratinjau) di PR berikutnya.
 > Produksi (`hikarich-finance-prod`, 139 migration) sudah direset bersih pada tanggal itu dengan Cara 3
 > di `docs/RESET_PRODUKSI.md`: dua Entity (`pt` badan, `hikarich` pribadi), profil Entity, profil pajak,
 > mesin pajak dan rekening Mandiri Bisnis dipertahankan; seluruh transaksi, kontak, dokumen dan jejak
@@ -3846,3 +3846,16 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      earlier month of the last six does, says so and links to that month: it opens on the running month, which
      is empty at the start of a month, and a page of zeros read as "nothing was recorded". Sections of other
      screens (fields, forms) are added to the same file in later changes.
+
+411. **Tax proofs are uploaded where they belong, every payment has its own detail, one preview for all
+     attachments (OWNER, 12 October 2026).** In Pelaporan & Bukti, "Bukti Pendukung" only offered to search
+     files already in Dokumen, so a person with a Bukti Penerimaan Negara in hand found no way to attach it, and a
+     recorded payment could not be opened. Now each payment has "Rincian dan bukti" (date, masa, tax paid, penalty,
+     the account it was paid from, NTPN and billing code, the journal and the reversal journal, and its proofs),
+     and both there and in Bukti Pendukung a file is uploaded straight onto the payment or the filing at any time
+     after it is recorded (`uploadTaxEvidenceAction`: the same check and storage as every other attachment, then
+     `tax_link_evidence`). The storing of a file is now one function, `storeUploadedFile`, used by the record
+     attachments and the tax proofs alike. The preview of decision 408 stays the only way to open an attached
+     file: a test fails if a screen outside Dokumen links to the view or download route itself. For PPh Final
+     UMKM the "Pelaporan" box in a month other than December now links to the December masa, where the SPT
+     Tahunan receipt is recorded. No database change.

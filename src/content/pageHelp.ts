@@ -304,7 +304,7 @@ export const SECTION_HELP: Readonly<Record<string, HelpEntry>> = {
   },
   "tax.filing.evidence": {
     summary:
-      "Bukti setoran, bukti potong, dan dokumen pendukung masa ini. Klik berkas untuk pratinjau.",
+      "Bukti setoran, bukti potong, dan dokumen pendukung masa ini. Unggah berkas langsung ke pembayaran atau pelaporan kapan saja setelah dicatat, dan klik berkas untuk pratinjau.",
   },
 };
 

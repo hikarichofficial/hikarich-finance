@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { setFlash } from "@/lib/flash";
 import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import type { EvidencePurpose, FilingTaxType } from "@/domain/tax/tax";
+import { storeUploadedFile } from "@/features/documents/storeUploadedFile";
 import {
   linkTaxEvidence,
   recordTaxFiling,
@@ -171,4 +172,32 @@ export async function linkTaxEvidenceAction(
     return errorState(error, "Dokumen tidak dapat dilampirkan.");
   }
   return backToFiling(entity, taxType, period, "Bukti pajak ditautkan.");
+}
+
+/**
+ * Uploads a file straight onto a payment or a filing (decision 411): the proof can be added at any time after
+ * the payment or filing is recorded, without first putting the file in Dokumen and searching for it. The file
+ * is checked and stored like every other attachment, then linked with the tax linker (the evidence belongs
+ * to the record and stays).
+ */
+export async function uploadTaxEvidenceAction(
+  _previous: TaxFilingActionState,
+  formData: FormData,
+): Promise<TaxFilingActionState> {
+  const entity = text(formData, "entity");
+  const taxType = text(formData, "tax_type");
+  const period = text(formData, "period");
+  try {
+    const stored = await storeUploadedFile(formData.get("file"), entity);
+    if (!stored.ok) return { status: "error", message: stored.message };
+    await linkTaxEvidence({
+      document_id: stored.documentId,
+      target_type: text(formData, "target_type") === "tax_payment" ? "tax_payment" : "tax_filing",
+      target_id: text(formData, "target_id"),
+      purpose: optionalText(formData, "purpose") as EvidencePurpose | undefined,
+    });
+  } catch (error) {
+    return errorState(error, "Bukti tidak dapat diunggah.");
+  }
+  return backToFiling(entity, taxType, period, "Bukti pajak diunggah.");
 }
