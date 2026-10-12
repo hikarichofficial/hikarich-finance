@@ -39,6 +39,12 @@ describe("activeNavItem", () => {
       href: "/assets/other-payables",
     });
   });
+  it("marks Pelaporan & Bukti for the detail of one tax payment (decision 414)", () => {
+    expect(activeNavItem(NAVIGATION, "/tax/payments/abc")).toEqual({
+      groupKey: "tax",
+      href: "/tax/filing",
+    });
+  });
   it("matches the page itself", () => {
     expect(activeNavItem(NAVIGATION, "/planning/forecasts")).toEqual({
       groupKey: "planning",

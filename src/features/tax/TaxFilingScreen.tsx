@@ -9,7 +9,6 @@ import { useState } from "react";
 import { useActionState } from "@/features/feedback/useActionState";
 import { formatMoney } from "@/domain/money/format";
 import { formatDocumentSize } from "@/domain/documents/documents";
-import { ATTACHMENT_ACCEPT } from "@/domain/documents/fileSignature";
 import {
   DIFFERENCE_LABELS,
   EVIDENCE_PURPOSE_LABELS,
@@ -32,9 +31,9 @@ import {
   reconcileTaxPeriodAction,
   recordTaxFilingAction,
   recordTaxPaymentAction,
-  reverseTaxPaymentAction,
-  uploadTaxEvidenceAction,
 } from "./taxFilingActions";
+import { EvidenceList } from "./TaxEvidenceList";
+import { TaxEvidenceUploadForm, type EvidenceTarget } from "./TaxPaymentForms";
 import { idleTaxFilingActionState } from "./taxFilingActionsState";
 import { formatShortDate } from "./format";
 import { MoneyInput } from "@/features/shared/MoneyInput";
@@ -127,11 +126,7 @@ export function TaxFilingScreen({
       <PaymentHistory
         payments={payments}
         currency={currency}
-        taxType={taxType}
-        period={period}
-        entityId={entityId}
         entity={entity}
-        accounts={paymentAccounts}
         paymentEvidence={paymentEvidence}
       />
       <RecordPaymentForm
@@ -266,26 +261,19 @@ function PositionSummary({
 function PaymentHistory({
   payments,
   currency,
-  taxType,
-  period,
-  entityId,
   entity,
-  accounts,
   paymentEvidence,
 }: {
   payments: readonly TaxPaymentRow[];
   currency: string;
-  taxType: FilingTaxType;
-  period: string;
-  entityId: string;
   entity: string | undefined;
-  accounts: readonly FinancialAccountPickerRow[];
   paymentEvidence: ReadonlyArray<{
     paymentId: string;
     paymentNumber: string;
     rows: readonly TaxEvidenceRow[];
   }>;
 }) {
+  const suffix = entity ? `?entity=${encodeURIComponent(entity)}` : "";
   return (
     <section className="dashboard-section">
       <div className="dashboard-section-header">
@@ -304,129 +292,44 @@ function PaymentHistory({
               <th>Kompensasi</th>
               <th>Denda</th>
               <th>Tunai</th>
+              <th>Bukti</th>
               <th>Status</th>
-              <th></th>
             </tr>
           </thead>
           <tbody>
-            {payments.map((p) => (
-              <tr key={p.payment_id}>
-                <td data-label="No. Pembayaran">{p.payment_number}</td>
-                <td data-label="Tanggal">{formatShortDate(p.payment_date)}</td>
-                <td data-label="Pajak Dibayar">{formatMoney(p.payable_applied, currency)}</td>
-                <td data-label="Kompensasi">{formatMoney(p.asset_applied, currency)}</td>
-                <td data-label="Denda">{formatMoney(p.penalty_amount, currency)}</td>
-                <td data-label="Tunai">{formatMoney(p.cash_amount, currency)}</td>
-                <td data-label="Status">
-                  <span
-                    className={`status-badge ${p.status === "confirmed" ? "status-badge-success" : "status-badge-neutral"}`}
-                  >
-                    {p.status === "confirmed" ? "Terkonfirmasi" : "Dibalik"}
-                  </span>
-                </td>
-                <td data-label="">
-                  {p.status === "confirmed" ? (
-                    <ReversePaymentForm
-                      paymentId={p.payment_id}
-                      taxType={taxType}
-                      period={period}
-                      entityId={entityId}
-                      entity={entity}
-                    />
-                  ) : null}
-                </td>
-              </tr>
-            ))}
+            {payments.map((p) => {
+              const proofs = paymentEvidence.find((e) => e.paymentId === p.payment_id)?.rows;
+              return (
+                <tr key={p.payment_id}>
+                  <td data-label="No. Pembayaran">
+                    <Link href={`/tax/payments/${p.payment_id}${suffix}`}>{p.payment_number}</Link>
+                  </td>
+                  <td data-label="Tanggal">{formatShortDate(p.payment_date)}</td>
+                  <td data-label="Pajak Dibayar">{formatMoney(p.payable_applied, currency)}</td>
+                  <td data-label="Kompensasi">{formatMoney(p.asset_applied, currency)}</td>
+                  <td data-label="Denda">{formatMoney(p.penalty_amount, currency)}</td>
+                  <td data-label="Tunai">{formatMoney(p.cash_amount, currency)}</td>
+                  <td data-label="Bukti">
+                    {proofs === undefined
+                      ? "-"
+                      : proofs.length > 0
+                        ? `${proofs.length} berkas`
+                        : "Belum ada"}
+                  </td>
+                  <td data-label="Status">
+                    <span
+                      className={`status-badge ${p.status === "confirmed" ? "status-badge-success" : "status-badge-neutral"}`}
+                    >
+                      {p.status === "confirmed" ? "Terkonfirmasi" : "Dibalik"}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       )}
-      {payments.map((p) => (
-        <PaymentDetails
-          key={p.payment_id}
-          payment={p}
-          currency={currency}
-          taxType={taxType}
-          period={period}
-          entity={entity}
-          accountName={accounts.find((a) => a.id === p.financial_account_id)?.name ?? null}
-          evidence={paymentEvidence.find((e) => e.paymentId === p.payment_id)?.rows ?? []}
-        />
-      ))}
     </section>
-  );
-}
-
-function ReversePaymentForm({
-  paymentId,
-  taxType,
-  period,
-  entityId,
-  entity,
-}: {
-  paymentId: string;
-  taxType: FilingTaxType;
-  period: string;
-  entityId: string;
-  entity: string | undefined;
-}) {
-  const [state, action, pending] = useActionState(
-    reverseTaxPaymentAction,
-    idleTaxFilingActionState,
-  );
-  const actionForm = usePreservingForm(action, state);
-  const [open, setOpen] = useState(false);
-  const [reason, setReason] = useState("");
-  const today = todayInBusinessZone();
-
-  if (!open) {
-    return (
-      <button type="button" className="btn-ghost" onClick={() => setOpen(true)}>
-        Balik
-      </button>
-    );
-  }
-
-  return (
-    <form {...actionForm} className="invoice-action-form">
-      <input type="hidden" name="payment_id" value={paymentId} />
-      <input type="hidden" name="entity_id" value={entityId} />
-      <input type="hidden" name="tax_type" value={taxType} />
-      <input type="hidden" name="period" value={period} />
-      {entity ? <input type="hidden" name="entity" value={entity} /> : null}
-      <label>
-        Tanggal Pembalikan
-        <input type="date" name="date" required defaultValue={today} max={today} />
-      </label>
-      <label>
-        Alasan (minimal 5 karakter)
-        <textarea
-          name="reason"
-          required
-          minLength={5}
-          maxLength={500}
-          value={reason}
-          onChange={(event) => setReason(event.target.value)}
-        />
-      </label>
-      {state.status === "error" ? (
-        <p role="alert" className="error">
-          {state.message}
-        </p>
-      ) : null}
-      <div className="invoice-action-buttons">
-        <button type="submit" className="btn-danger" disabled={pending || reason.trim().length < 5}>
-          {pending ? "Membalik…" : "Balik Pembayaran"}
-        </button>
-        <button
-          type="button"
-          className="btn-ghost"
-          onClick={() => setOpen(false)}
-          disabled={pending}
-        >
-          Batal
-        </button>
-      </div>
-    </form>
   );
 }
 
@@ -905,213 +808,6 @@ function EvidenceSection({
         </>
       )}
     </section>
-  );
-}
-
-/**
- * The full record of one payment (decision 411): what the table row only hints at -- the account it was paid
- * from, the NTPN and billing code, the journal, the note -- together with its proofs (each opens in the
- * preview) and the form to add another proof at any time, also long after the payment was recorded.
- */
-function PaymentDetails({
-  payment,
-  currency,
-  taxType,
-  period,
-  entity,
-  accountName,
-  evidence,
-}: {
-  payment: TaxPaymentRow;
-  currency: string;
-  taxType: FilingTaxType;
-  period: string;
-  entity: string | undefined;
-  accountName: string | null;
-  evidence: readonly TaxEvidenceRow[];
-}) {
-  const suffix = entity ? `?entity=${encodeURIComponent(entity)}` : "";
-  return (
-    <details className="payment-detail">
-      <summary>
-        Rincian dan bukti {payment.payment_number}
-        {evidence.length > 0 ? ` (${evidence.length} berkas)` : " (belum ada bukti)"}
-      </summary>
-      <dl className="record-summary-grid">
-        <div>
-          <dt>Tanggal Bayar</dt>
-          <dd>{formatShortDate(payment.payment_date)}</dd>
-        </div>
-        <div>
-          <dt>Masa Pajak</dt>
-          <dd>{taxPeriodLabel(payment.tax_period)}</dd>
-        </div>
-        <div>
-          <dt>Pajak Dibayar</dt>
-          <dd>{formatMoney(payment.payable_applied, currency)}</dd>
-        </div>
-        <div>
-          <dt>Denda</dt>
-          <dd>{formatMoney(payment.penalty_amount, currency)}</dd>
-        </div>
-        <div>
-          <dt>Dibayar dari Akun</dt>
-          <dd>{accountName ?? "Dikompensasi penuh (tanpa akun)"}</dd>
-        </div>
-        <div>
-          <dt>NTPN dan Kode Billing</dt>
-          <dd>{payment.reference ?? "Belum diisi"}</dd>
-        </div>
-        {payment.journal_id ? (
-          <div>
-            <dt>Jurnal</dt>
-            <dd>
-              <Link href={`/accounting/journal/${payment.journal_id}${suffix}`}>Lihat jurnal</Link>
-            </dd>
-          </div>
-        ) : null}
-        {payment.reversal_journal_id ? (
-          <div>
-            <dt>Jurnal Pembalikan</dt>
-            <dd>
-              <Link href={`/accounting/journal/${payment.reversal_journal_id}${suffix}`}>
-                Lihat jurnal pembalikan
-              </Link>
-            </dd>
-          </div>
-        ) : null}
-      </dl>
-      <EvidenceList title={`Pembayaran ${payment.payment_number}`} rows={evidence} />
-      <TaxEvidenceUploadForm
-        targets={[
-          {
-            type: "tax_payment",
-            id: payment.payment_id,
-            label: `Pembayaran ${payment.payment_number}`,
-          },
-        ]}
-        taxType={taxType}
-        period={period}
-        entity={entity}
-      />
-    </details>
-  );
-}
-
-/** Uploads a proof straight onto the payment or the filing (decision 411); the type of proof follows the target. */
-function TaxEvidenceUploadForm({
-  targets,
-  taxType,
-  period,
-  entity,
-}: {
-  targets: readonly EvidenceTarget[];
-  taxType: FilingTaxType;
-  period: string;
-  entity: string | undefined;
-}) {
-  const [state, action, pending] = useActionState(
-    uploadTaxEvidenceAction,
-    idleTaxFilingActionState,
-  );
-  const actionForm = usePreservingForm(action, state);
-  const [targetKey, setTargetKey] = useState(0);
-  const target = targets[targetKey] ?? targets[0];
-  const [purpose, setPurpose] = useState<EvidencePurpose>(
-    target?.type === "tax_payment" ? "payment_proof" : "filing_receipt",
-  );
-  if (!target) return null;
-
-  return (
-    <form {...actionForm} className="record-form">
-      <input type="hidden" name="target_type" value={target.type} />
-      <input type="hidden" name="target_id" value={target.id} />
-      <input type="hidden" name="tax_type" value={taxType} />
-      <input type="hidden" name="period" value={period} />
-      {entity ? <input type="hidden" name="entity" value={entity} /> : null}
-      {targets.length > 1 ? (
-        <label>
-          Unggah untuk
-          <select
-            value={targetKey}
-            onChange={(event) => {
-              const index = Number(event.target.value);
-              setTargetKey(index);
-              setPurpose(
-                targets[index]?.type === "tax_payment" ? "payment_proof" : "filing_receipt",
-              );
-            }}
-          >
-            {targets.map((t, i) => (
-              <option key={t.id} value={i}>
-                {t.label}
-              </option>
-            ))}
-          </select>
-        </label>
-      ) : null}
-      <label>
-        Berkas bukti (PDF, JPG, PNG atau WebP, maksimal 4 MB)
-        <input type="file" name="file" accept={ATTACHMENT_ACCEPT} required />
-      </label>
-      <label>
-        Jenis bukti
-        <select
-          name="purpose"
-          value={purpose}
-          onChange={(event) => setPurpose(event.target.value as EvidencePurpose)}
-        >
-          {Object.entries(EVIDENCE_PURPOSE_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
-        </select>
-      </label>
-      {state.status === "error" ? (
-        <p role="alert" className="error">
-          {state.message}
-        </p>
-      ) : null}
-      <button type="submit" className="btn-secondary" disabled={pending}>
-        {pending ? "Mengunggah…" : "Unggah Bukti"}
-      </button>
-    </form>
-  );
-}
-
-interface EvidenceTarget {
-  type: "tax_filing" | "tax_payment";
-  id: string;
-  label: string;
-}
-
-function EvidenceList({ title, rows }: { title: string; rows: readonly TaxEvidenceRow[] }) {
-  return (
-    <>
-      <p className="hint">Bukti untuk {title}.</p>
-      {rows.length === 0 ? (
-        <p className="hint">Belum ada bukti terlampir.</p>
-      ) : (
-        <ul className="dashboard-list">
-          {rows.map((e) => (
-            <li key={e.link_id} className="dashboard-list-item">
-              <p className="dashboard-list-item-title">
-                <AttachmentPreviewLink
-                  documentId={e.document_id}
-                  fileName={e.file_name}
-                  mimeType={e.mime_type}
-                />
-              </p>
-              <p className="dashboard-list-item-detail">
-                {EVIDENCE_PURPOSE_LABELS[e.purpose]} &middot; {formatDocumentSize(e.size_bytes)}{" "}
-                &middot; {formatShortDate(e.created_at.slice(0, 10))}
-              </p>
-            </li>
-          ))}
-        </ul>
-      )}
-    </>
   );
 }
 

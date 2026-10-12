@@ -439,12 +439,13 @@ export function outstandingTax(accrued: string, paid: string): Decimal {
 export type FilingTaxType =
   "vat" | "wht_pph23" | "wht_pph4_2" | "wht_pph26" | "wht_pph21" | "final_umkm";
 export const FILING_TAX_TYPES: readonly FilingTaxType[] = [
+  // PPh Final UMKM first: it is the tax this business pays every month, and the screen opens on it (decision 414).
+  "final_umkm",
   "vat",
   "wht_pph23",
   "wht_pph4_2",
   "wht_pph26",
   "wht_pph21",
-  "final_umkm",
 ];
 
 /** The withholding taxes the Entity deducts from what it pays to vendors (Step 05 §10), in the order the
@@ -467,9 +468,9 @@ function isFilingTaxType(value: string): value is FilingTaxType {
   return (FILING_TAX_TYPES as readonly string[]).includes(value);
 }
 
-/** Falls back to `vat` for anything absent or outside the types this screen offers. */
+/** Falls back to PPh Final UMKM for anything absent or outside the types this screen offers (decision 414). */
 export function resolveFilingTaxType(requested: string | undefined): FilingTaxType {
-  return requested && isFilingTaxType(requested) ? requested : "vat";
+  return requested && isFilingTaxType(requested) ? requested : "final_umkm";
 }
 
 /** A payment's paying account must hold the Entity's own base currency (`tax_record_payment`'s own check). */

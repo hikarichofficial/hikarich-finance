@@ -121,9 +121,9 @@ describe("resolveFilingTaxType", () => {
     );
   });
 
-  it("falls back to vat for anything absent or unrecognised", () => {
-    expect(resolveFilingTaxType(undefined)).toBe("vat");
-    expect(resolveFilingTaxType("not-a-type")).toBe("vat");
+  it("falls back to PPh Final UMKM for anything absent or unrecognised (decision 414)", () => {
+    expect(resolveFilingTaxType(undefined)).toBe("final_umkm");
+    expect(resolveFilingTaxType("not-a-type")).toBe("final_umkm");
   });
 });
 

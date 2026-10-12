@@ -47,12 +47,25 @@ function errorState(error: unknown, fallback: string): TaxFilingActionState {
   return { status: "error", message: fallback };
 }
 
+const UUID_PATTERN = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
+/**
+ * Where the person lands after an action: the page of the payment it was done on (decision 414, a valid
+ * `back_to_payment` id), otherwise the filing screen for the same tax type and period.
+ */
 async function backToFiling(
   entity: string,
   taxType: string,
   period: string,
   notice: string,
+  backToPayment?: string,
 ): Promise<never> {
+  if (backToPayment && UUID_PATTERN.test(backToPayment)) {
+    await setFlash(notice);
+    redirect(
+      `/tax/payments/${backToPayment}${entity ? `?entity=${encodeURIComponent(entity)}` : ""}`,
+    );
+  }
   const qs = new URLSearchParams({ type: taxType, period: period.slice(0, 7) });
   if (entity) qs.set("entity", entity);
   await setFlash(notice);
@@ -103,7 +116,13 @@ export async function reverseTaxPaymentAction(
   } catch (error) {
     return errorState(error, "Pembayaran pajak tidak dapat dibatalkan.");
   }
-  return backToFiling(entity, taxType, period, "Pembayaran pajak dibalik.");
+  return backToFiling(
+    entity,
+    taxType,
+    period,
+    "Pembayaran pajak dibalik.",
+    text(formData, "back_to_payment"),
+  );
 }
 
 export async function recordTaxFilingAction(
@@ -199,5 +218,11 @@ export async function uploadTaxEvidenceAction(
   } catch (error) {
     return errorState(error, "Bukti tidak dapat diunggah.");
   }
-  return backToFiling(entity, taxType, period, "Bukti pajak diunggah.");
+  return backToFiling(
+    entity,
+    taxType,
+    period,
+    "Bukti pajak diunggah.",
+    text(formData, "back_to_payment"),
+  );
 }
