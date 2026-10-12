@@ -336,6 +336,8 @@ export function activeNavItem(
   pathname: string,
   kind?: string | null,
 ): { groupKey: string; href: string } | null {
+  // The detail of one tax payment (decision 414) belongs to "Pelaporan & Bukti", where it is opened from.
+  if (pathname.startsWith("/tax/payments/")) pathname = "/tax/filing";
   // Other receivables and payables share one form/detail path (`/assets/obligations/...`); the `kind` in the
   // address says which of the two menus (Piutang Lain / Utang Lain) the person came from.
   if (pathname === "/assets/obligations" || pathname.startsWith("/assets/obligations/")) {

@@ -1,7 +1,7 @@
 # Implementation Decisions
 
 > **Status terkini — 11 Oktober 2026.** Keputusan terakhir yang sudah masuk `main` adalah **PR #213**
-> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR #215; keputusan 409 dan 410 (bunga per jenis, Rekap Pajak, penjelasan fungsi halaman) di PR #216. Keputusan 411 (bukti pajak diunggah langsung, rincian pembayaran, satu pratinjau) di PR #217. Keputusan 412 (rekonsiliasi pajak final tanpa SPT bulanan) dan 413 (kartu Pajak Penghasilan di Dashboard) di PR berikutnya.
+> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR #215; keputusan 409 dan 410 (bunga per jenis, Rekap Pajak, penjelasan fungsi halaman) di PR #216. Keputusan 411 (bukti pajak diunggah langsung, rincian pembayaran, satu pratinjau) di PR #217. Keputusan 412 (rekonsiliasi pajak final tanpa SPT bulanan) dan 413 (kartu Pajak Penghasilan di Dashboard) di PR #218. Keputusan 414 (halaman rincian pembayaran pajak, PPh Final UMKM jadi pilihan awal) di PR berikutnya.
 > Produksi (`hikarich-finance-prod`, 139 migration) sudah direset bersih pada tanggal itu dengan Cara 3
 > di `docs/RESET_PRODUKSI.md`: dua Entity (`pt` badan, `hikarich` pribadi), profil Entity, profil pajak,
 > mesin pajak dan rekening Mandiri Bisnis dipertahankan; seluruh transaksi, kontak, dokumen dan jejak
@@ -3879,3 +3879,15 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      card "Pajak Penghasilan" sits between Beban and the result, opens the Pajak section of the Laba Rugi
      report of the same period, and "Laba Berjalan" says "Setelah beban dan pajak". It follows the Bulanan,
      Tahunan and Sejak Awal views like the other cards. `pnlTotals` gets a `tax` total. No database change.
+
+414. **A tax payment has its own page, and PPh Final UMKM is the first choice (OWNER, 12 October 2026).** The
+     detail and the proofs of a payment used to open as an expandable block under Riwayat Pembayaran, unlike
+     every other record in the system (invoice, Pembayaran Diterima), which opens on a page of its own. The
+     owner asked for the same concept. Decision: the payment number in Riwayat Pembayaran is a link to
+     `/tax/payments/<id>`, laid out like the other detail pages (back link, title with status and amount,
+     Ringkasan, Jurnal, Lampiran). The proofs open in the preview and a proof can be uploaded there at any time;
+     "Balik Pembayaran" (a counter-journal, never a delete) moves to that page too. After uploading or reversing
+     the person stays on the payment's page. The table keeps a "Bukti" column with the number of files. The
+     inline block and its styles are removed. "Pelaporan & Bukti" stays highlighted in the menu while on a
+     payment page. Also, the list of tax types on this screen now starts with PPh Final UMKM, the main tax of
+     the company, and it is the default when none is chosen (it was PPN). No database change.

@@ -192,6 +192,11 @@ export const PAGE_HELP: Readonly<Record<string, HelpEntry>> = {
       "Tempat mencatat setoran pajak ke negara, laporan (SPT), dan bukti pendukung untuk satu jenis pajak dan masa.",
     more: "Pembayaran pajak harus dicatat di sini, bukan lewat Beban: sistem menutup utang pajaknya dan menghindari beban ganda. PPh Final UMKM tidak punya laporan bulanan; bukti setoran (NTPN) dianggap SPT Masa, dan laporan tahunan dicatat pada masa Desember.",
   },
+  "/tax/payments/:id": {
+    summary:
+      "Rincian satu pembayaran pajak: jumlah, rekening, NTPN, jurnal, dan bukti setornya (lampiran).",
+    more: "Unggah bukti bayar (BPN atau bukti NTPN) di bagian Lampiran kapan saja, juga setelah pembayaran dicatat. Pembayaran yang salah dibalik dari sini dengan jurnal pembalik; datanya tidak dihapus.",
+  },
   "/tax/personal": {
     summary:
       "Perkiraan pajak pribadi tahunan: PPh final UMKM dan PPh progresif setelah pajak yang sudah dipotong.",
