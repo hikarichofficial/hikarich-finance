@@ -131,6 +131,8 @@ export interface PnlTotals {
   /** The discounts and refund adjustments taken off revenue (contra revenue), a positive magnitude. */
   discounts: Decimal;
   expense: Decimal;
+  /** Income-tax expense (account class "tax", e.g. PPh Final): a result line of its own, after Beban (decision 412). */
+  tax: Decimal;
 }
 
 /** Revenue/Income and Expense KPI totals from a `profit_and_loss` result, each a positive magnitude in its
@@ -155,7 +157,12 @@ export function pnlTotals(rows: readonly ProfitAndLossRow[]): PnlTotals {
       .filter((r) => EXPENSE_CLASSES.includes(r.account_class))
       .map((r) => naturalAmount(r.debit, r.credit, r.account_class)),
   );
-  return { revenue, discounts, expense };
+  const tax = sumDecimals(
+    rows
+      .filter((r) => r.account_class === "tax")
+      .map((r) => naturalAmount(r.debit, r.credit, r.account_class)),
+  );
+  return { revenue, discounts, expense, tax };
 }
 
 interface AgingLike {

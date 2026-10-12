@@ -1164,6 +1164,12 @@ begin
   v_id := public.tax_reconcile_period(pf, 'key-p7f-rc-01', 'final_umkm', date '2026-05-01');
   perform test_helpers.assert((select outcome from public.tax_reconciliations where id = v_id) = 'reconciled',
     '9.15 the final-tax month reconciles: ledger, payment and filing agree');
+  -- 9.15b a month without a return is not a difference for PPh Final (the payment is the return, decision 412),
+  -- while the same month of a tax that does have a return still shows it
+  perform test_helpers.assert(public.tax_period_position(pf, 'final_umkm', date '2026-06-01') -> 'differences' = '[]'::jsonb,
+    '9.15b PPh Final: no monthly filing is no difference');
+  perform test_helpers.assert(public.tax_period_position(pf, 'vat', date '2026-06-01') -> 'differences' -> 0 ->> 'code' = 'filing_missing',
+    '9.15c VAT: a month without a filing still shows the difference');
   -- a recomputation below what was paid leaves a visible credit rather than a hidden change
   perform test_helpers.logout();
 

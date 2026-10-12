@@ -3290,5 +3290,26 @@
   [
     "no instalment is left to carry the remaining principal",
     "Tidak ada cicilan tersisa untuk menampung sisa pokok"
+  ],
+  [
+    "No filing is recorded for this period",
+    "Belum ada pelaporan yang dicatat untuk masa pajak ini"
+  ],
+  [
+    "The filing reports tax of %; the tax ledger holds %",
+    "Pelaporan mencatat pajak {1}, sedangkan buku pajak mencatat {2}"
+  ],
+  [
+    "The filing credits input VAT of %; the tax ledger holds %",
+    "Pelaporan mengkreditkan PPN Masukan {1}, sedangkan buku pajak mencatat {2}"
+  ],
+  [
+    "The filing reports a base of %; the determinations hold %",
+    "Pelaporan mencatat dasar pengenaan {1}, sedangkan penentuan pajak mencatat {2}"
+  ],
+  ["% of the tax for this period is not paid yet", "{1} dari pajak masa ini belum dibayar"],
+  [
+    "% more was paid than the tax ledger holds",
+    "Pembayaran lebih besar {1} daripada yang tercatat di buku pajak"
   ]
 ]

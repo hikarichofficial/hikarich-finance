@@ -1,7 +1,7 @@
 # Implementation Decisions
 
 > **Status terkini — 11 Oktober 2026.** Keputusan terakhir yang sudah masuk `main` adalah **PR #213**
-> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR #215; keputusan 409 dan 410 (bunga per jenis, Rekap Pajak, penjelasan fungsi halaman) di PR #216. Keputusan 411 (bukti pajak diunggah langsung, rincian pembayaran, satu pratinjau) di PR berikutnya.
+> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR #215; keputusan 409 dan 410 (bunga per jenis, Rekap Pajak, penjelasan fungsi halaman) di PR #216. Keputusan 411 (bukti pajak diunggah langsung, rincian pembayaran, satu pratinjau) di PR #217. Keputusan 412 (rekonsiliasi pajak final tanpa SPT bulanan) dan 413 (kartu Pajak Penghasilan di Dashboard) di PR berikutnya.
 > Produksi (`hikarich-finance-prod`, 139 migration) sudah direset bersih pada tanggal itu dengan Cara 3
 > di `docs/RESET_PRODUKSI.md`: dua Entity (`pt` badan, `hikarich` pribadi), profil Entity, profil pajak,
 > mesin pajak dan rekening Mandiri Bisnis dipertahankan; seluruh transaksi, kontak, dokumen dan jejak
@@ -3859,3 +3859,23 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      file: a test fails if a screen outside Dokumen links to the view or download route itself. For PPh Final
      UMKM the "Pelaporan" box in a month other than December now links to the December masa, where the SPT
      Tahunan receipt is recorded. No database change.
+
+412. **A PPh Final UMKM month without a filing is not a reconciliation difference (OWNER, 12 October 2026).**
+     Reconciling September 2026 for the owner failed with "Periode ini memiliki 1 selisih (pertama: No filing is
+     recorded for this period)" and asked for a note, although the month was in order: PPh Final UMKM has no
+     monthly return (the payment with its NTPN is the return, decision 341; the only return is the SPT Tahunan in
+     the December masa). `app_private.tax_period_differences` no longer reports `filing_missing` for
+     `final_umkm`; VAT and PPh 23 still do. A filing that is recorded (the December SPT Tahunan receipt) is still
+     compared with the ledger, and unpaid or overpaid tax still shows. The English sentences the database puts in
+     a refusal ("first: ...") are now translated like every other reason. No data is changed.
+
+413. **The Dashboard shows income tax as its own card, so Pendapatan − Beban − Pajak = Laba (OWNER, 12 October
+     2026).** The company's PPh Final is booked to Beban Pajak Penghasilan (account 8100, class `tax`). The
+     "Beban" card counted only the classes `expense` and `other_expense`, while "Laba Berjalan" (from the equity
+     statement) already had the tax taken off: for September 2026 the cards did not add up by exactly the tax
+     (Rp 116.814) and the tax was nowhere on the Dashboard except Ringkasan Pajak. The owner asked for a
+     complete, clear picture of money in, money out and profit. Decision: the tax is NOT folded into Beban
+     (it is not an operating cost and the Laba Rugi report already keeps it as its own "Pajak" section); a new
+     card "Pajak Penghasilan" sits between Beban and the result, opens the Pajak section of the Laba Rugi
+     report of the same period, and "Laba Berjalan" says "Setelah beban dan pajak". It follows the Bulanan,
+     Tahunan and Sejak Awal views like the other cards. `pnlTotals` gets a `tax` total. No database change.

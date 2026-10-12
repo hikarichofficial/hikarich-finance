@@ -92,10 +92,19 @@ export function KpiStrip({
       context: "Dicatat saat tagihan atau beban diposting",
       href: profitLossHref(period, "pnl-expense"),
     });
+    // Income tax (PPh Final and the like) is an expense of the company but not an operating one: a card of its
+    // own between Beban and the result, so Pendapatan - Beban - Pajak = Laba (decision 412).
+    cards.push({
+      label: "Pajak Penghasilan",
+      value: formatMoney(finance.tax, currency),
+      context: "Beban pajak (PPh Final dan sejenisnya), di luar Beban",
+      href: profitLossHref(period, "pnl-tax"),
+    });
     if (finance.netResult !== null) {
       cards.push({
         label: finance.netResult.startsWith("-") ? "Rugi Berjalan" : "Laba Berjalan",
         value: formatMoney(finance.netResult, currency),
+        context: "Setelah beban dan pajak",
         href: profitLossHref(period),
       });
     }

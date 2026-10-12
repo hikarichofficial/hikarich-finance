@@ -62,6 +62,8 @@ export interface DashboardFinanceSection {
   /** Discounts and refund adjustments already taken off `revenue`. */
   discounts: string;
   expense: string;
+  /** Income-tax expense of the period (class "tax"), shown beside Beban, not inside it (decision 412). */
+  tax: string;
   netResult: string | null;
   /** Revenue and expense of the last months, oldest first, ending with the month shown. */
   flow: DashboardFlowPoint[];
@@ -264,6 +266,7 @@ export async function getDashboardSnapshot(
           revenue: totals.revenue.toString(),
           discounts: totals.discounts.toString(),
           expense: totals.expense.toString(),
+          tax: totals.tax.toString(),
           netResult: net ? net.toString() : null,
           flow,
           revenueBreakdown: pnlBreakdown(pnlRows, "revenue"),
