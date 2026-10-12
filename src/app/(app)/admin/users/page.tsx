@@ -2,6 +2,7 @@ import Link from "next/link";
 import { requirePermission } from "@/services/identity/access";
 import { listMemberships, listProfiles, listRoles } from "@/services/admin/users";
 import { MEMBERSHIP_STATUS_LABELS } from "@/domain/admin/users";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Users & Roles (Step 09 §21, decision 246), gated `users.view` -- the RLS permission on
  * `entity_memberships`/`profiles` and the nav item's own gate since decision 244. Adding a brand-new user
@@ -24,6 +25,7 @@ export default async function UsersPage({
       <header className="list-screen-header">
         <div>
           <h1>Pengguna &amp; Peran</h1>
+          <PageHelp />
           <p className="list-screen-summary">{members.length} anggota entitas ini.</p>
         </div>
       </header>

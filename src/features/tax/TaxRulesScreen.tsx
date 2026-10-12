@@ -8,6 +8,7 @@ import {
 import type { RuleFamily, RuleStatus } from "@/domain/tax/tax";
 import type { TaxRuleVersionRow } from "@/schemas/tax";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Tax Rules / Configuration List (decision 239, Step 05 §13, P13 unbuilt-screens backlog): every version of
@@ -42,6 +43,7 @@ export function TaxRulesScreen({
       <header className="list-screen-header">
         <div>
           <h1>Aturan Pajak / Konfigurasi</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} versi aturan ditampilkan.</p>
         </div>
         {canManage ? (

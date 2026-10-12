@@ -3,6 +3,7 @@ import { Picker } from "@/features/shared/Picker";
 import { formatMoney } from "@/domain/money/format";
 import { monthLabel, yearOptions, yearTotals } from "@/domain/accounting/cashStatement";
 import type { CashAccountOption, CashStatement } from "@/schemas/cashStatement";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * "Rekening Koran" main page (decisions 326-327): the twelve months of one year, with money in, money out and
@@ -51,6 +52,7 @@ export function CashStatementYearScreen({
       <header className="list-screen-header">
         <div>
           <h1>Rekening Koran</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             Ringkasan uang masuk dan keluar kas &amp; bank per bulan, dari jurnal yang sudah
             diposting. Klik nama bulan untuk melihat rinciannya.

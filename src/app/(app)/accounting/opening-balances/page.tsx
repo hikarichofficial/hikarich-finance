@@ -12,6 +12,7 @@ import { listFinancialAccountLinks } from "@/services/money/money";
 import { formatMoney } from "@/domain/money/format";
 import { OpeningBalanceForm } from "@/features/accounting/OpeningBalanceForm";
 import { CompleteOpeningForm } from "@/features/accounting/CompleteOpeningForm";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Opening Balances (Step 09 §3 Accounting, Step 15 §24, decision 245). Viewing is gated `accounting.view`
@@ -48,6 +49,7 @@ export default async function OpeningBalancesPage({
         <div>
           <p className="record-detail-eyebrow">Akuntansi</p>
           <h1>Saldo Awal</h1>
+          <PageHelp />
         </div>
         <div className="record-detail-header-end">
           <span className={`status-badge status-badge-${completed ? "success" : "progress"}`}>

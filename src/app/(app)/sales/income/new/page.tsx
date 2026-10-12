@@ -6,6 +6,7 @@ import { listIncomeCategories, listIncomeTextSuggestions } from "@/services/sale
 import { IncomeForm } from "@/features/sales/IncomeForms";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Catat Pendapatan, new entry (decision 350). Gated `invoices.issue`, the permission the RPC asks for first;
  * the RPC also needs `invoices.confirm_payment`, and says so in words when it is missing. */
@@ -35,6 +36,7 @@ export default async function NewIncomePage({
         <div>
           <p className="record-detail-eyebrow">Penjualan</p>
           <h1>Catat Pendapatan</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

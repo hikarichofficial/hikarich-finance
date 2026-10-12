@@ -1,6 +1,7 @@
 import { requirePermission } from "@/services/identity/access";
 import { ContactForm } from "@/features/contacts/ContactForm";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Tambah Pelanggan (decision 258), gated `contacts.create` -- the permission `create_contact` itself checks. */
 export default async function NewContactPage({
@@ -23,6 +24,7 @@ export default async function NewContactPage({
         <div>
           <p className="record-detail-eyebrow">Penjualan</p>
           <h1>Tambah Pelanggan</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

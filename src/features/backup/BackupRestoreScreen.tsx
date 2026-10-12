@@ -1,4 +1,5 @@
 "use client";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 import { StepUpLink } from "@/features/feedback/StepUp";
 import { useToast } from "@/features/feedback/Toast";
@@ -440,6 +441,7 @@ export function BackupRestoreScreen({
         <div>
           <p className="record-detail-eyebrow">Administrasi</p>
           <h1>Backup &amp; Restore Center</h1>
+          <PageHelp />
         </div>
       </header>
       {reminder ? (

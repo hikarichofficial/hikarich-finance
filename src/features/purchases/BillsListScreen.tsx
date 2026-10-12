@@ -8,6 +8,7 @@ import {
 } from "@/domain/purchases/billList";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Bills List (P13 Part 3b, Step 09 §9, §12): header, filter-tab toolbar, table and empty state -- the exact
@@ -55,6 +56,7 @@ export function BillsListScreen({
       <header className="list-screen-header">
         <div>
           <h1>Tagihan Pembelian</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {rows.length} tagihan{" "}
             {activeFilter ? `pada tampilan "${filterLabel(activeFilter)}"` : "ditampilkan"}.

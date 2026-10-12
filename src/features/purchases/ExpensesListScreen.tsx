@@ -8,6 +8,7 @@ import {
 } from "@/domain/purchases/expenseList";
 import type { ExpenseRow, ExpenseStatus } from "@/schemas/expenses";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Direct Expenses List (Step 09 §3 Purchases, §12; decision 245). */
 
@@ -48,6 +49,7 @@ export function ExpensesListScreen({
       <header className="list-screen-header">
         <div>
           <h1>Pengeluaran</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} pengeluaran ditampilkan.</p>
           <p className="hint">
             Halaman ini hanya untuk belanja yang langsung dibayar. Beban dari tagihan vendor yang

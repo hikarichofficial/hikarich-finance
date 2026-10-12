@@ -4,6 +4,7 @@ import { getTaxOverview } from "@/services/tax/tax";
 import { formatShortDate } from "@/features/tax/format";
 import { TaxEngineForm, TaxProfileForm } from "@/features/tax/TaxSetupForms";
 import { todayInBusinessZone } from "@/lib/time";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Tax Setup (decision 258, Step 05 §3-§4): the Entity's tax profile and the engine switch. Viewing needs
  * `tax.view`; the forms appear with `tax.confirm_facts` (the profile RPC's own check). The engine switch is
@@ -27,6 +28,7 @@ export default async function TaxSetupPage({
         <div>
           <p className="record-detail-eyebrow">Pajak</p>
           <h1>Pengaturan Pajak</h1>
+          <PageHelp />
         </div>
       </header>
 

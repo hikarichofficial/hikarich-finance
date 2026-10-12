@@ -2,6 +2,7 @@ import { requirePermission } from "@/services/identity/access";
 import { listRevenueTargets } from "@/services/planning/planning";
 import { CreatePlanForm } from "@/features/planning/CreatePlanForm";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Revenue Target create form (P13 Part 3h, fifth increment, Step 09 §13, §18). Gated on
  * `planning.budget_edit`, the exact permission `create_revenue_target` itself checks (decision 185's own
@@ -37,6 +38,7 @@ export default async function NewRevenueTargetPage({
         <div>
           <p className="record-detail-eyebrow">Target Pendapatan</p>
           <h1>Buat Target Pendapatan Baru</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

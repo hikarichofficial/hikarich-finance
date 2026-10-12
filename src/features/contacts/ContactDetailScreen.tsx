@@ -5,6 +5,7 @@ import { formatShortDate } from "./format";
 import { ContactStatusButton } from "./ContactStatusButton";
 import { ContactTaxFactsForm, type ContactTaxFacts } from "./ContactTaxFactsForm";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Contact Detail, shared by Customer Detail (`/sales/customers/[id]`) and Vendor Detail
@@ -44,6 +45,7 @@ export function ContactDetailScreen({
         <div>
           <p className="record-detail-eyebrow">{CONTACT_KIND_LABELS[contact.kind]}</p>
           <h1>{contact.display_name}</h1>
+          <PageHelp />
         </div>
         <div className="record-detail-header-end">
           <span className={`status-badge status-badge-${statusTone}`}>{statusText}</span>

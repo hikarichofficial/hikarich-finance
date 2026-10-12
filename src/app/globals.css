@@ -6434,3 +6434,73 @@ tr[data-muted="true"] td {
   text-decoration: underline;
   cursor: pointer;
 }
+
+/* Ringkasan Pajak: Rekap Pajak filter (decision 409). */
+.tax-recap {
+  display: grid;
+  gap: var(--space-3);
+}
+
+.tax-recap-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.tax-recap-filter .tax-chips {
+  margin-top: 0;
+}
+
+.tax-chip[data-active] {
+  border-color: var(--accent, currentColor);
+  background: var(--surface-sunken);
+}
+
+.tax-recap-form {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.dashboard-empty-hint {
+  margin: 0;
+  padding: var(--space-3) var(--space-4);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-md);
+  background: var(--surface-sunken);
+  color: var(--text-secondary);
+  font-size: var(--text-sm);
+}
+
+/* Penjelasan fungsi halaman dan bagian (decision 410): kecil, abu-abu, tidak mengganggu. */
+.page-help {
+  max-width: 68ch;
+  margin: 2px 0 var(--space-3);
+  color: var(--text-secondary);
+  font-size: var(--text-xs);
+  line-height: 1.5;
+}
+
+.page-help p {
+  margin: 0;
+}
+
+.page-help details {
+  margin-top: 2px;
+}
+
+.page-help summary {
+  display: inline;
+  cursor: pointer;
+  color: var(--text-tertiary, var(--text-secondary));
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 2px;
+}
+
+.page-help details[open] summary {
+  display: block;
+  margin-bottom: 2px;
+}

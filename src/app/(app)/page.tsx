@@ -4,7 +4,7 @@ import { autoPostDepreciation } from "@/services/assets/assets";
 import { getDashboardSnapshot } from "@/services/dashboard/dashboard";
 import { DashboardScreen } from "@/features/dashboard/DashboardScreen";
 import { nextMonth, previousMonth } from "@/features/dashboard/format";
-import { periodYear, resolveDashboardScope } from "@/domain/dashboard/dashboard";
+import { lastActiveMonth, periodYear, resolveDashboardScope } from "@/domain/dashboard/dashboard";
 
 /**
  * The Dashboard / Overview screen (P13 Part 2, Step 09 §8, Step 10 §10-13). `?scope=` chooses what is
@@ -49,6 +49,14 @@ export default async function DashboardPage({
     all: `/?${entityQuery}scope=all`,
   };
 
+  const activeMonth =
+    scope === "month" && snapshot.finance
+      ? lastActiveMonth(snapshot.finance.flow, snapshot.period.month)
+      : null;
+  const emptyMonthHint = activeMonth
+    ? { month: activeMonth, href: `/?${entityQuery}month=${activeMonth}` }
+    : null;
+
   return (
     <DashboardScreen
       snapshot={snapshot}
@@ -56,6 +64,7 @@ export default async function DashboardPage({
       entityName={membership.entity_name}
       periodHref={periodHref}
       scopeHref={scopeHref}
+      emptyMonthHint={emptyMonthHint}
     />
   );
 }

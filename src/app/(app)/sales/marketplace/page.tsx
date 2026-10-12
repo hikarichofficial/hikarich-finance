@@ -11,6 +11,7 @@ import {
 } from "@/features/sales/MarketplaceForms";
 import { MARKETPLACE_PLATFORM_LABELS } from "@/features/sales/marketplaceLabels";
 import { todayInBusinessZone } from "@/lib/time";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Marketplace (decision 260): the Entity's stores and their settlements (payouts). Viewing needs
  * `invoices.view`; adding a store `invoices.create`; recording a settlement `invoices.issue` and
@@ -49,6 +50,7 @@ export default async function MarketplacePage({
       <header className="list-screen-header">
         <div>
           <h1>Marketplace</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {stores.length} toko · {settlements.length} pencairan terakhir. Penjualan marketplace
             dicatat per pencairan dana.

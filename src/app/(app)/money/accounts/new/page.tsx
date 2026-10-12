@@ -2,6 +2,7 @@ import { requirePermission } from "@/services/identity/access";
 import { getEntityBaseCurrency } from "@/services/tax/tax";
 import { AccountForm } from "@/features/money/AccountForm";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Add Account (Step 09 §13, decision 258), gated `money.edit` -- the permission
  * `create_financial_account` itself checks. */
@@ -26,6 +27,7 @@ export default async function NewAccountPage({
         <div>
           <p className="record-detail-eyebrow">Kas & Bank</p>
           <h1>Tambah Rekening</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

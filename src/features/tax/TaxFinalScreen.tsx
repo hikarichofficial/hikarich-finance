@@ -14,6 +14,7 @@ import {
 import type { FinalPreview, TaxPeriodPosition } from "@/schemas/tax";
 import { formatShortDate } from "./format";
 import { TaxEstimateCard } from "./TaxEstimateCard";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * PPh Final UMKM (P13 unbuilt-screens backlog, "PPh Final / Income Tax" nav item, Step 05 §9, decision 234):
@@ -52,6 +53,7 @@ export function TaxFinalScreen({
         <div>
           <p className="record-detail-eyebrow">Pajak</p>
           <h1>PPh Final UMKM</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">Masa Pajak {taxPeriodLabel(period)}</p>
         </div>
       </header>

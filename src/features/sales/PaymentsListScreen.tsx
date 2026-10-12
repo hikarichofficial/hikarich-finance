@@ -8,6 +8,7 @@ import {
 import type { PaymentListRow } from "@/schemas/sales";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Shared List screen behind both `/sales/payments` (Payments Received) and `/sales/refunds` (Refunds) --
@@ -51,6 +52,7 @@ export function PaymentsListScreen({
       <header className="list-screen-header">
         <div>
           <h1>{title}</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} pembayaran ditampilkan.</p>
         </div>
       </header>

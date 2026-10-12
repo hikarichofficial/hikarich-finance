@@ -6,9 +6,11 @@ import {
   getPersonalTaxSummary,
   getTaxGroupTurnover,
   getTaxOverview,
+  getTaxScopeSummary,
   listTaxLedger,
 } from "@/services/tax/tax";
-import { resolveTaxYear, runningTaxPeriod } from "@/domain/tax/tax";
+import { runningTaxPeriod } from "@/domain/tax/tax";
+import { resolveTaxScope } from "@/domain/tax/taxOverview";
 import { computePersonalTax } from "@/domain/tax/personalTax";
 import { TaxOverviewScreen } from "@/features/tax/TaxOverviewScreen";
 
@@ -16,29 +18,36 @@ import { TaxOverviewScreen } from "@/features/tax/TaxOverviewScreen";
 export default async function TaxOverviewPage({
   searchParams,
 }: {
-  searchParams: Promise<{ entity?: string; year?: string }>;
+  searchParams: Promise<{ entity?: string; year?: string; scope?: string; month?: string }>;
 }) {
-  const { entity, year } = await searchParams;
+  const { entity, year, scope: scopeParam, month } = await searchParams;
   const { membership } = await requirePermission("tax.view", { entityCode: entity });
 
   const period = runningTaxPeriod();
   const currentYear = Number(period.slice(0, 4));
-  const shownYear = resolveTaxYear(year, currentYear);
+  const scope = resolveTaxScope({ scope: scopeParam, month, year }, period);
+  const shownYear = scope.year;
   const isPersonal = membership.entity_type === "personal";
-  const [overview, currency, estimate, nonFinal, ledger, group, personal] = await Promise.all([
-    getTaxOverview(membership.entity_id),
-    getEntityBaseCurrency(membership.entity_id),
-    estimateFinalTax({ entity_id: membership.entity_id, period }),
-    getNonFinalIncome(membership.entity_id, shownYear),
-    listTaxLedger({
-      entity_id: membership.entity_id,
-      from: `${shownYear}-01-01`,
-      to: `${shownYear}-12-31`,
-      limit: 1000,
-    }),
-    getTaxGroupTurnover(membership.entity_id, shownYear),
-    isPersonal ? getPersonalTaxSummary(membership.entity_id, shownYear) : Promise.resolve(null),
-  ]);
+  const [overview, currency, estimate, nonFinal, ledger, group, personal, scopeSummary] =
+    await Promise.all([
+      getTaxOverview(membership.entity_id),
+      getEntityBaseCurrency(membership.entity_id),
+      estimateFinalTax({ entity_id: membership.entity_id, period }),
+      getNonFinalIncome(membership.entity_id, shownYear),
+      listTaxLedger({
+        entity_id: membership.entity_id,
+        from: `${shownYear}-01-01`,
+        to: `${shownYear}-12-31`,
+        limit: 1000,
+      }),
+      getTaxGroupTurnover(membership.entity_id, shownYear),
+      isPersonal ? getPersonalTaxSummary(membership.entity_id, shownYear) : Promise.resolve(null),
+      getTaxScopeSummary({
+        entity_id: membership.entity_id,
+        from: scope.from ?? undefined,
+        to: scope.to ?? undefined,
+      }),
+    ]);
   const personalTax = personal ? computePersonalTax(personal) : null;
 
   return (
@@ -55,6 +64,8 @@ export default async function TaxOverviewPage({
       group={group}
       ownName={membership.entity_name}
       personalTax={personalTax}
+      scope={scope}
+      scopeSummary={scopeSummary}
     />
   );
 }

@@ -4,6 +4,7 @@ import { listLedgerAccounts } from "@/services/accounting/ledger";
 import { BalanceAdjustmentForm } from "@/features/money/BalanceAdjustmentForm";
 import { BalanceAdjustmentList } from "@/features/money/BalanceAdjustmentList";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Advanced Adjustments (P13 unbuilt-screens backlog, Step 09 §14, Step 01 §28, decision 232). Gated
  * `money.adjust`, the exact permission `record_balance_adjustment` itself checks -- `navigation.ts` nests
@@ -42,6 +43,7 @@ export default async function BalanceAdjustmentPage({
         <div>
           <p className="record-detail-eyebrow">Penyesuaian Saldo</p>
           <h1>Penyesuaian Lanjutan</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

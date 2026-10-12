@@ -12,14 +12,22 @@ import {
   vatStatusLabel,
   yesNoUnknownLabel,
 } from "@/domain/tax/tax";
-import { incomeTaxByMonth, totalOutstanding } from "@/domain/tax/taxOverview";
+import { incomeTaxByMonth, totalOutstanding, type TaxScope } from "@/domain/tax/taxOverview";
 import { BarChart, type ChartPoint } from "@/features/charts/InteractiveCharts";
 import type { PersonalTaxResult } from "@/domain/tax/personalTax";
 import type { TaxGroupTurnover } from "@/schemas/personalTax";
-import type { FinalPreview, NonFinalIncome, TaxLedgerRow, TaxOverview } from "@/schemas/tax";
+import type {
+  FinalPreview,
+  NonFinalIncome,
+  TaxLedgerRow,
+  TaxOverview,
+  TaxScopeRow,
+} from "@/schemas/tax";
 import { GroupTurnoverCard } from "./GroupTurnoverCard";
 import { TaxNonFinalCard } from "./TaxNonFinalCard";
+import { TaxScopeRecap } from "./TaxScopeRecap";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 const DAY_FORMAT = new Intl.DateTimeFormat("id-ID", { day: "numeric", timeZone: "UTC" });
 const MONTH_FORMAT = new Intl.DateTimeFormat("id-ID", { month: "short", timeZone: "UTC" });
@@ -43,6 +51,8 @@ export function TaxOverviewScreen({
   group,
   ownName,
   personalTax,
+  scope,
+  scopeSummary,
 }: {
   overview: TaxOverview;
   currency: string;
@@ -58,6 +68,9 @@ export function TaxOverviewScreen({
   ownName: string;
   /** Only for a Personal book: the yearly personal income-tax estimate. */
   personalTax: PersonalTaxResult | null;
+  /** The month, year or whole history the recap shows. */
+  scope: TaxScope;
+  scopeSummary: TaxScopeRow[];
 }) {
   const entityParam = entity ? `entity=${encodeURIComponent(entity)}` : "";
   const qs = entityParam ? `?${entityParam}` : "";
@@ -101,6 +114,7 @@ export function TaxOverviewScreen({
         <div>
           <p className="record-detail-eyebrow">Pajak</p>
           <h1>Ringkasan Pajak</h1>
+          <PageHelp />
           <p className="record-detail-dates">
             Per {formatShortDate(overview.as_of)}
             {overview.engine_active_from
@@ -212,6 +226,14 @@ export function TaxOverviewScreen({
           </p>
         </Link>
       </div>
+
+      <TaxScopeRecap
+        scope={scope}
+        rows={scopeSummary}
+        currency={currency}
+        entity={entity}
+        currentMonth={estimatePeriod.slice(0, 7)}
+      />
 
       <div className="tax-grid">
         <div className="dashboard-column">

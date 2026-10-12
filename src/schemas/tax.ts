@@ -640,6 +640,8 @@ export const nonFinalIncomeSchema = z.object({
       name: z.string(),
       account_class: z.string(),
       counted: z.boolean(),
+      /** Interest the bank already taxed (PPh final, decision 409): shown, but not counted again. */
+      withheld: z.boolean().default(false),
       months: z.array(signedDecimalTextSchema).length(12),
       total: signedDecimalTextSchema,
     }),
@@ -649,3 +651,19 @@ export const nonFinalIncomeSchema = z.object({
   estimated_tax: signedDecimalTextSchema.nullable(),
 });
 export type NonFinalIncome = z.infer<typeof nonFinalIncomeSchema>;
+
+/** `tax_scope_summary` (decision 409): per tax type, the tax counted, the tax paid and what is left. */
+export const taxScopeRowSchema = z.object({
+  tax_type: taxTypeSchema,
+  accrued: signedDecimalTextSchema,
+  paid: signedDecimalTextSchema,
+  outstanding: signedDecimalTextSchema,
+});
+export const taxScopeSchema = z.array(taxScopeRowSchema);
+export type TaxScopeRow = z.infer<typeof taxScopeRowSchema>;
+
+export const taxScopeInputSchema = z.object({
+  entity_id: z.uuid(),
+  from: isoDateSchema.optional(),
+  to: isoDateSchema.optional(),
+});

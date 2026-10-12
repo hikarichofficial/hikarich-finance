@@ -8,6 +8,7 @@ import {
 } from "@/domain/planning/forecast";
 import type { BudgetRow } from "@/schemas/planning";
 import { formatMonthLabel } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Forecasts (Step 09 §18, decision 250). Clearly labelled as a planning estimate, never an actual. Each
@@ -41,6 +42,7 @@ export function ForecastScreen({
       <header className="list-screen-header">
         <div>
           <h1>Perkiraan</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             Estimasi perencanaan, bukan angka aktual. Dasar: rata-rata aktual 3 bulan terakhir per
             kategori{chosen ? `, disesuaikan dengan anggaran "${chosen.name}"` : ""}.

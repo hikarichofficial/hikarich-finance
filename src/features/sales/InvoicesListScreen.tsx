@@ -8,6 +8,7 @@ import {
 import type { InvoicePosition } from "@/schemas/sales";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Invoices List (P13 Part 3a, Step 09 §9, §11): header, filter-tab toolbar, table and empty state. Search
@@ -65,6 +66,7 @@ export function InvoicesListScreen({
       <header className="list-screen-header">
         <div>
           <h1>Invoice Penjualan</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {rows.length} invoice{" "}
             {activeFilter ? `pada tampilan "${filterLabel(activeFilter)}"` : "ditampilkan"}.

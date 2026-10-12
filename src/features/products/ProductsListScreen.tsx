@@ -7,6 +7,7 @@ import {
 } from "@/domain/products/productsList";
 import type { ProductRow } from "@/schemas/products";
 import { ExpandableText } from "@/features/shared/ExpandableText";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Products & Services List (Step 09 §3 Sales, decision 245). */
 
@@ -55,6 +56,7 @@ export function ProductsListScreen({
       <header className="list-screen-header">
         <div>
           <h1>Produk &amp; Jasa</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} item ditampilkan.</p>
         </div>
         {canConfigureSku ? (

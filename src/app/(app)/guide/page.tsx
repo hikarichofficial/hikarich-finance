@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { GUIDE_GROUPS } from "@/domain/guide/guides";
 import { GuideSearch } from "@/features/guide/GuideSearch";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 export const metadata = { title: "Panduan · Hikarich Finance" };
 
@@ -22,6 +23,7 @@ export default function GuideIndexPage() {
       <header className="list-screen-header">
         <div>
           <h1>Panduan</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             Cara memakai Hikarich Finance, langkah demi langkah. Setiap panduan menjelaskan menu
             yang dibuka, isian yang harus diisi, apa yang terjadi di pembukuan, dan kesalahan yang

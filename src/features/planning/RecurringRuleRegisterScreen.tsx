@@ -10,6 +10,7 @@ import type { RecurringStatus } from "@/domain/planning/planning";
 import { RunDueRecurringOccurrencesButton } from "./RecurringRuleActions";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Recurring Rules Register (P13 Part 3h, first increment, Step 09 §9, §18: "Recurring Rules list shows next
@@ -58,6 +59,7 @@ export function RecurringRuleRegisterScreen({
       <header className="list-screen-header">
         <div>
           <h1>Transaksi Berulang</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} transaksi berulang ditampilkan.</p>
           <p className="list-screen-summary">
             Draf dibuat otomatis setiap hari pada tanggalnya. Setelah itu, terbitkan atau setujui

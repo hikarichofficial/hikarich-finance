@@ -25,9 +25,9 @@ begin
   perform app_private.provision_default_coa(e_pe);
 
   -- 1. the standard set exists, revenue and expense, with the account each one posts to
-  perform test_helpers.assert((select count(*) from public.categories where entity_id = e_co and kind = 'revenue') = 14
+  perform test_helpers.assert((select count(*) from public.categories where entity_id = e_co and kind = 'revenue') = 16
     and (select count(*) from public.categories where entity_id = e_co and kind = 'expense') = 27,
-    '1.1 company: 14 revenue (5 standard + 9 for income without an invoice, decision 350) and 27 expense categories (14 + 13 added in decision 360) (her own Penjualan Produk counts as one of the revenue ones)');
+    '1.1 company: 16 revenue (5 standard + 11 for income without an invoice, decision 350) and 27 expense categories (14 + 13 added in decision 360) (her own Penjualan Produk counts as one of the revenue ones)');
   perform test_helpers.assert(app_private.resolve_revenue_account(e_co,
       (select id from public.categories where entity_id = e_co and name = 'Penjualan E-book'), current_date)
     = (select id from public.ledger_accounts where entity_id = e_co and system_key = 'EBOOK_REVENUE'),

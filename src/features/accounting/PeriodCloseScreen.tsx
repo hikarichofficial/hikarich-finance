@@ -4,6 +4,7 @@ import type { AccountingPeriodRow, PeriodCheck } from "@/schemas/accounting";
 import { PeriodActions, type PeriodActionPermissions } from "./PeriodActions";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Accounting Period Close Detail (P13, Step 09 §14: "Period Close screen presents a checklist of
@@ -41,6 +42,7 @@ export function PeriodCloseScreen({
           <h1>
             {formatShortDate(period.period_start)} – {formatShortDate(period.period_end)}
           </h1>
+          <PageHelp />
         </div>
         <div className="record-detail-header-end">
           <span className={`status-badge status-badge-${status.tone}`}>{status.text}</span>

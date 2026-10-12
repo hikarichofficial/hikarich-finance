@@ -3,6 +3,7 @@ import { requirePermission } from "@/services/identity/access";
 import { getMoneyControl, listTransferDescriptionSuggestions } from "@/services/money/money";
 import { TransferForm } from "@/features/money/TransferForm";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Transfer create form (P13 Part 3c, Step 09 §13). Gated on `money.transfer_create`, the exact permission
  * `create_transfer` itself checks (decision 162's precedent); every role template that grants
@@ -37,6 +38,7 @@ export default async function NewTransferPage({
         <div>
           <p className="record-detail-eyebrow">Transfer Antar Akun</p>
           <h1>Buat Transfer Baru</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

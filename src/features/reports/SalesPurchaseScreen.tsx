@@ -12,6 +12,7 @@ import type {
 } from "@/schemas/reports";
 import { formatShortDate } from "./format";
 import { ReportExportButtons } from "./ReportExportButtons";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Sales/Purchase report (Step 09 §19, decision 252): issued invoices (sales) or approved bills and
@@ -43,6 +44,7 @@ export function SalesPurchaseScreen({
       <header className="list-screen-header">
         <div>
           <h1>Laporan Penjualan &amp; Pembelian</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {SIDE_LABELS[side]} per {DIMENSION_LABELS[dimension].toLowerCase()},{" "}
             {formatShortDate(from)} – {formatShortDate(to)}. Penjualan: invoice terbit. Pembelian:

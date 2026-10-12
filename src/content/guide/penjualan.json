@@ -805,7 +805,7 @@
         },
         {
           "title": "Ketik dan pilih jenis pendapatan",
-          "text": "Pada **Jenis Pendapatan** ketik beberapa huruf, lalu pilih dari daftar yang muncul, misalnya Penjualan Produk, Penjualan Jasa, Komisi & Afiliasi, Bunga Bank & Deposito, atau Dividen. Di bawah kolom ini tertulis apakah jenis itu ikut dasar PPh Final 0,5%."
+          "text": "Pada **Jenis Pendapatan** ketik beberapa huruf, lalu pilih dari daftar yang muncul, misalnya Penjualan Produk, Penjualan Jasa, Komisi & Afiliasi, Bunga Tabungan, Bunga Deposito, Bunga Lainnya, atau Dividen. Di bawah kolom ini tertulis apakah jenis itu ikut dasar PPh Final 0,5%."
         },
         {
           "title": "Belum ada jenis yang cocok? Tambah di tempat",

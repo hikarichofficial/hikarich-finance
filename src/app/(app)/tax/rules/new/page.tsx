@@ -5,6 +5,7 @@ import { ruleFormDefaults } from "@/domain/tax/ruleAuthoring";
 import { TaxRuleForm } from "@/features/tax/TaxRuleForm";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** New tax rule draft, or a new version of an existing rule, or editing a draft (decision 249). Gated on
  * `tax.manage_rules`, which `tax_rule_draft_save` itself checks. `?from=<id>` copies a published rule into
@@ -48,6 +49,7 @@ export default async function NewTaxRulePage({
         <div>
           <p className="record-detail-eyebrow">Pajak · Aturan</p>
           <h1>{title}</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

@@ -16,6 +16,7 @@ import type {
 } from "@/schemas/payroll";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 function money(value: string | null, currency: string): string {
   return value === null ? "—" : formatMoney(value, currency);
@@ -83,6 +84,7 @@ export function PayrollRunDetailScreen({
         <div>
           <p className="record-detail-eyebrow">{payrollPeriodName(run.period_start)}</p>
           <h1>{run.run_number}</h1>
+          <PageHelp />
         </div>
         <div className="record-detail-header-end">
           <span className={`status-badge status-badge-${statusBadge.tone}`}>

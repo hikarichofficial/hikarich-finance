@@ -27,6 +27,7 @@ import {
   ReopenSessionForm,
 } from "@/features/money/ReconciliationForms";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Reconciliation session workspace (Step 09 §13, decision 251). The session header is a direct read of
@@ -87,6 +88,7 @@ export default async function ReconciliationSessionPage({
             {account?.name ?? "Akun"} · {formatShortDate(session.period_start)} –{" "}
             {formatShortDate(session.period_end)}
           </h1>
+          <PageHelp />
         </div>
         <span className={`status-badge status-badge-${RECON_SESSION_STATUS_TONES[session.status]}`}>
           {RECON_SESSION_STATUS_LABELS[session.status]}

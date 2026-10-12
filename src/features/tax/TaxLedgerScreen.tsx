@@ -14,6 +14,7 @@ import { taxPeriodLabel } from "@/domain/tax/tax";
 import type { TaxLedgerRow } from "@/schemas/tax";
 import type { TaxType } from "@/domain/tax/tax";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Tax Ledger (P13 Part 3e, Step 09 §15): "filterable by tax family, period, source, status and Entity".
@@ -55,6 +56,7 @@ export function TaxLedgerScreen({
       <header className="list-screen-header">
         <div>
           <h1>Buku Besar Pajak</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} entri ditampilkan.</p>
         </div>
       </header>

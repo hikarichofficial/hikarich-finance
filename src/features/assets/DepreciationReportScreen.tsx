@@ -5,6 +5,7 @@ import { depreciationLineStatusBadge } from "@/domain/assets/assetList";
 import type { DepreciationRange } from "@/domain/assets/depreciationReport";
 import type { DepreciationDueRow, DepreciationLineRow } from "@/schemas/assets";
 import { formatMonth, formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Depreciation report (P13 Part 3f, fifth and final increment, Step 09 §9, §16; Step 12's report catalogue:
@@ -46,6 +47,7 @@ export function DepreciationReportScreen({
       <header className="list-screen-header">
         <div>
           <h1>Laporan Penyusutan</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} baris jadwal ditampilkan.</p>
         </div>
       </header>

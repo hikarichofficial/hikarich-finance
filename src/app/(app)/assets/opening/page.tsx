@@ -4,6 +4,7 @@ import { getEntityBaseCurrency } from "@/services/assets/assets";
 import { OpeningAssetForm } from "@/features/assets/OpeningAssetForm";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 const FIXED_ASSET_KEYS = new Set([
   "FIXED_ASSET_EQUIPMENT",
@@ -49,6 +50,7 @@ export default async function OpeningAssetPage({
         <div>
           <p className="record-detail-eyebrow">Aset</p>
           <h1>Aset yang Sudah Dimiliki</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

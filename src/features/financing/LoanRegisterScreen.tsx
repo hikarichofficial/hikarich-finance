@@ -13,6 +13,7 @@ import { LOAN_DIRECTION_LABELS } from "@/domain/financing/financing";
 import type { LoanRow } from "@/schemas/financing";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Loan Register (P13 Part 3f, second increment, Step 09 §9, §16: "Loan dashboard shows principal outstanding,
@@ -49,6 +50,7 @@ export function LoanRegisterScreen({
       <header className="list-screen-header">
         <div>
           <h1>Daftar Pinjaman</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} pinjaman ditampilkan.</p>
         </div>
         {createHref ? (

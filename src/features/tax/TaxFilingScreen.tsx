@@ -1,4 +1,5 @@
 "use client";
+import { PageHelp, SectionHelp } from "@/features/shared/PageHelp";
 
 import { AttachmentPreviewLink } from "@/features/documents/AttachmentPreviewLink";
 import { usePreservingForm } from "@/features/shared/usePreservingForm";
@@ -91,6 +92,7 @@ export function TaxFilingScreen({
         <div>
           <p className="record-detail-eyebrow">Pajak</p>
           <h1>Pelaporan &amp; Bukti</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">
             {TAX_TYPE_LABELS[taxType]} &middot; Masa Pajak {taxPeriodLabel(period)}
           </p>
@@ -190,6 +192,7 @@ function PositionSummary({
       <div className="dashboard-section-header">
         <h2 className="dashboard-section-title">Posisi Tercatat</h2>
       </div>
+      <SectionHelp id="tax.filing.position" />
       <dl className="record-summary-grid">
         <div>
           <dt>Terutang (Diakui)</dt>
@@ -275,6 +278,7 @@ function PaymentHistory({
       <div className="dashboard-section-header">
         <h2 className="dashboard-section-title">Riwayat Pembayaran</h2>
       </div>
+      <SectionHelp id="tax.filing.payments" />
       {payments.length === 0 ? (
         <p className="hint">Belum ada pembayaran untuk masa ini.</p>
       ) : (
@@ -443,6 +447,7 @@ function RecordPaymentForm({
       <div className="dashboard-section-header">
         <h2 className="dashboard-section-title">Catat Pembayaran</h2>
       </div>
+      <SectionHelp id="tax.filing.record-payment" />
       <p className="hint">
         Sisa kekurangan saat ini: {formatMoney(outstanding, currency)}
         {taxType === "vat"
@@ -553,6 +558,7 @@ function FinalNoMonthlyReturn() {
       <div className="dashboard-section-header">
         <h2 className="dashboard-section-title">Pelaporan</h2>
       </div>
+      <SectionHelp id="tax.filing.filings" />
       <p className="hint">
         PPh Final UMKM tidak punya laporan bulanan, jadi tidak ada No. Tanda Terima (NTTE) untuk
         masa ini. Langkah bulanannya hanya membayar lewat kode billing sebelum tanggal 15 bulan
@@ -608,6 +614,7 @@ function RecordFilingForm({
       <div className="dashboard-section-header">
         <h2 className="dashboard-section-title">Catat Pelaporan</h2>
       </div>
+      <SectionHelp id="tax.filing.record-filing" />
       {alreadyFiled ? (
         <p className="hint">
           Masa ini sudah dilaporkan ({filedReference}). Mengirim form ini akan dicatat sebagai
@@ -709,6 +716,7 @@ function ReconcilePeriodForm({
       <div className="dashboard-section-header">
         <h2 className="dashboard-section-title">Rekonsiliasi Periode</h2>
       </div>
+      <SectionHelp id="tax.filing.reconcile" />
       <p className="hint">
         {reconciliation
           ? `Terakhir direkonsiliasi ${formatShortDate(reconciliation.at.slice(0, 10))}${reconciliation.stale ? " -- catatan buku sudah berubah sejak itu" : ""}.`
@@ -792,6 +800,7 @@ function EvidenceSection({
       <div className="dashboard-section-header">
         <h2 className="dashboard-section-title">Bukti Pendukung</h2>
       </div>
+      <SectionHelp id="tax.filing.evidence" />
       {!filingId && paymentEvidence.length === 0 ? (
         <p className="hint">
           Lampirkan bukti setelah pembayaran atau pelaporan periode ini dicatat.

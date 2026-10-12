@@ -4,6 +4,7 @@ import { formatMoney } from "@/domain/money/format";
 import { DIFFERENCE_LABELS, taxPeriodLabel, type TaxType } from "@/domain/tax/tax";
 import type { TaxPeriodPosition } from "@/schemas/tax";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Shared position report for the Withholding (`wht_pph23`) and PPN (`vat`) nav items (P13 unbuilt-screens
@@ -42,6 +43,7 @@ export function TaxPositionScreen({
         <div>
           <p className="record-detail-eyebrow">Pajak</p>
           <h1>{title}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">Masa Pajak {taxPeriodLabel(period)}</p>
         </div>
       </header>

@@ -21,6 +21,7 @@ import { RecurringRuleActions, type RecurringRuleActionPermissions } from "./Rec
 import { RecurringRuleForm } from "./RecurringRuleForm";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Only "invoices" and "bills" have a Detail route to link to yet -- "expenses" has no Detail screen built
  * in this repository so far (Part 3b shipped only Bills List/Detail, decisions 167-168), so a generated
@@ -99,6 +100,7 @@ export function RecurringRuleDetailScreen({
             Transaksi Berulang · {RECURRING_KIND_LABELS[rule.kind]}
           </p>
           <h1>{rule.label}</h1>
+          <PageHelp />
         </div>
         <div className="record-detail-header-end">
           <span className={`status-badge status-badge-${statusBadge.tone}`}>

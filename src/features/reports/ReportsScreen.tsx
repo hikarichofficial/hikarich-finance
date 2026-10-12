@@ -66,6 +66,7 @@ import type {
 import type { LedgerAccountRow } from "@/schemas/accounting";
 import type { Membership } from "@/schemas/access";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 export type ReportStatement =
   | "pnl"
@@ -282,6 +283,7 @@ export function ReportsScreen({
       <header className="list-screen-header">
         <div>
           <h1>Laporan Keuangan</h1>
+          <PageHelp />
           <p className="list-screen-summary">Laporan resmi dari data yang telah diposting.</p>
         </div>
         <ReportExportButtons fileName={`laporan-${data.statement}`} />

@@ -6,6 +6,7 @@ import { listPendingPaymentClaims } from "@/services/sales/sales";
 import { formatMoney } from "@/domain/money/format";
 import { formatShortDate } from "@/features/sales/format";
 import { PaymentClaimForms } from "@/features/sales/PaymentClaimForms";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Payment Confirmation queue (Step 09 §11, Step 07 §4, decision 259): the pending "Saya Sudah Bayar"
  * claims of the Entity. Viewing needs `invoices.view`; confirming, rejecting or marking a duplicate needs
@@ -32,6 +33,7 @@ export default async function PaymentClaimsPage({
       <header className="list-screen-header">
         <div>
           <h1>Klaim Pembayaran</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {claims.length} klaim menunggu konfirmasi. Klaim belum dihitung sebagai pembayaran
             sampai dikonfirmasi.

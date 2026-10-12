@@ -2,6 +2,7 @@ import { requirePermission } from "@/services/identity/access";
 import { EmployeeForm } from "@/features/payroll/EmployeeForm";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Tambah Karyawan, gated `payroll.employee_edit` -- the permission `employee_create` itself checks. */
 export default async function NewEmployeePage({
@@ -24,6 +25,7 @@ export default async function NewEmployeePage({
         <div>
           <p className="record-detail-eyebrow">Payroll</p>
           <h1>Tambah Karyawan</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

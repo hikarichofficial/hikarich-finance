@@ -7,6 +7,7 @@ import {
 import type { DocumentRow, DocumentTargetType } from "@/schemas/documents";
 import { AttachmentPreviewLink } from "./AttachmentPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Documents Center listing (P13 Part 4, sixth increment; Step 01 #35, Step 15 §15): header, filter-tab
@@ -77,6 +78,7 @@ export function DocumentsListScreen({
       <header className="list-screen-header">
         <div>
           <h1>{title}</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {rows.length} dokumen{" "}
             {activeFilter ? `pada tampilan "${filterLabel(activeFilter)}"` : "ditampilkan"}.

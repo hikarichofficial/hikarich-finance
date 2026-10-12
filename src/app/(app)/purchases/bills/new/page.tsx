@@ -7,6 +7,7 @@ import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { BillForm } from "@/features/purchases/BillForm";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Record Bill (Step 09 §12, decision 257), gated `bills.create` -- the permission `create_bill_draft`
  * itself checks. Only active vendors are offered. */
@@ -38,6 +39,7 @@ export default async function NewBillPage({
         <div>
           <p className="record-detail-eyebrow">Tagihan Pembelian</p>
           <h1>Catat Tagihan</h1>
+          <PageHelp />
         </div>
       </header>
       <section className="dashboard-section">

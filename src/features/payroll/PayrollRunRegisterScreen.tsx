@@ -9,6 +9,7 @@ import {
 import type { PayrollRunRow } from "@/schemas/payroll";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Payroll Run Register (P13 Part 3g, second increment, Step 09 §17's own period -> employees -> calculation ->
@@ -44,6 +45,7 @@ export function PayrollRunRegisterScreen({
       <header className="list-screen-header">
         <div>
           <h1>Proses Payroll</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {rows.length} proses ditampilkan
             {rows.length >= 100 ? " (batas 100 data terbaru; persempit dengan saringan)" : ""}.

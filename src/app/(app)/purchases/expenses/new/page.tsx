@@ -10,6 +10,7 @@ import { listContactsByRole } from "@/domain/contacts/contactsList";
 import { ExpenseForm } from "@/features/purchases/ExpenseForm";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Record Expense (Step 09 §12/§22, decision 245), gated `bills.create` -- the permission
  * `create_expense_draft` itself checks. Only active accounts and active vendors are offered. */
@@ -44,6 +45,7 @@ export default async function NewExpensePage({
         <div>
           <p className="record-detail-eyebrow">Pengeluaran</p>
           <h1>Catat Pengeluaran</h1>
+          <PageHelp />
           <p className="hint">
             Untuk membayar pajak (PPh Final, PPN, dan sebagainya), jangan catat di sini. Gunakan{" "}
             <Link

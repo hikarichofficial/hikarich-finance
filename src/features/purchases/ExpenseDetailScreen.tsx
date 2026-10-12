@@ -12,6 +12,7 @@ import type { LineTaxSummary } from "@/domain/tax/lineTaxSummary";
 import { ExpenseActions } from "./ExpenseActions";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Direct Expense Detail (Step 09 §10/§12, decision 245): Header, Actions, Ringkasan, Baris, and links to
  * its journal(s) and to the expense it replaces or is replaced by. */
@@ -62,6 +63,7 @@ export function ExpenseDetailScreen({
         <div>
           <p className="record-detail-eyebrow">Pengeluaran</p>
           <h1>{expense.expense_number ?? "Draf Pengeluaran"}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">{payeeLabel}</p>
         </div>
         <div className="record-detail-header-end">

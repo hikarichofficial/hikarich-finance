@@ -13,6 +13,7 @@ import type { ImportBatchRow, ImportRowRow, ImportRowStatus } from "@/schemas/im
 import { formatShortDate } from "./format";
 import { ImportBatchActions } from "./ImportBatchActions";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Import batch Detail (P13 unbuilt-screens backlog, decision 241): the batch header plus its rows, filterable
@@ -63,6 +64,7 @@ export function ImportBatchDetailScreen({
             Batch Impor · {IMPORT_DOMAIN_LABELS[batch.domain]}
           </p>
           <h1>{batch.source_file_name ?? "(tanpa nama berkas)"}</h1>
+          <PageHelp />
         </div>
         <div className="record-detail-header-end">
           <span className={`status-badge status-badge-${IMPORT_BATCH_STATUS_TONE[batch.status]}`}>

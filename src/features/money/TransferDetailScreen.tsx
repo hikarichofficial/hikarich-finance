@@ -7,6 +7,7 @@ import {
 import { TransferActions, type TransferActionPermissions } from "./TransferActions";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Transfer Detail (P13 Part 3c, Step 09 §10, §13): Header/Summary/Activity, the same Standard Record Detail
@@ -38,6 +39,7 @@ export function TransferDetailScreen({
         <div>
           <p className="record-detail-eyebrow">Transfer Antar Akun</p>
           <h1>{transfer.transfer_number ?? "Draf"}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">
             {transfer.from_account_name} → {transfer.to_account_name}
           </p>

@@ -7,6 +7,7 @@ import { BudgetActions, type BudgetActionPermissions } from "./BudgetActions";
 import { BudgetLinesEditor } from "./BudgetLinesEditor";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Budget Detail (P13 Part 3h, second increment, Step 09 §10, §18: "period-based editable planning tables
@@ -60,6 +61,7 @@ export function BudgetDetailScreen({
             Anggaran · {PLAN_PERIOD_TYPE_LABELS[budget.period_type]}
           </p>
           <h1>{budget.name}</h1>
+          <PageHelp />
         </div>
         <div className="record-detail-header-end">
           <span className={`status-badge status-badge-${statusBadge.tone}`}>

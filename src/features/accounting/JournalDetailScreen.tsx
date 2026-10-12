@@ -13,6 +13,7 @@ import type { JournalEntryRow, JournalLineRow, LedgerAccountRow } from "@/schema
 import { JournalActions, type JournalActionPermissions } from "./JournalActions";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Journal Detail (P13 Part 3d, Step 09 §10, §14). Step 09 §14 only names the Journal List's own requirements
@@ -61,6 +62,7 @@ export function JournalDetailScreen({
         <div>
           <p className="record-detail-eyebrow">Jurnal · {entryTypeLabel(journal.entry_type)}</p>
           <h1>{journal.journal_number ?? "Draf"}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">{journal.description}</p>
         </div>
         <div className="record-detail-header-end">

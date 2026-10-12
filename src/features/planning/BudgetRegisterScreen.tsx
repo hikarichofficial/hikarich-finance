@@ -9,6 +9,7 @@ import type { BudgetRow } from "@/schemas/planning";
 import type { PlanStatus } from "@/domain/planning/planning";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Budget Register (P13 Part 3h, second increment, Step 09 §9, §18). Follows the same Standard List Screen
@@ -46,6 +47,7 @@ export function BudgetRegisterScreen({
       <header className="list-screen-header">
         <div>
           <h1>Anggaran</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} anggaran ditampilkan.</p>
         </div>
         {canCreate ? (

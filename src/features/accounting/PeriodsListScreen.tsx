@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { periodStatusDisplay } from "@/domain/accounting/periodsList";
 import type { AccountingPeriodRow } from "@/schemas/accounting";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Accounting Periods List (P13, Step 09 §14). No Create action -- periods come from the calendar/fiscal-year
@@ -25,6 +26,7 @@ export function PeriodsListScreen({
       <header className="list-screen-header">
         <div>
           <h1>Periode Akuntansi</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} periode ditampilkan.</p>
         </div>
       </header>

@@ -14,6 +14,7 @@ import {
 import type { EmployeeRow } from "@/schemas/payroll";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Employee Register (P13 Part 3g, first increment, Step 09 §9-§10, §17: "Payroll is isolated as a sensitive
@@ -50,6 +51,7 @@ export function EmployeeRegisterScreen({
       <header className="list-screen-header">
         <div>
           <h1>Karyawan</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} karyawan ditampilkan.</p>
         </div>
         {newHref ? (

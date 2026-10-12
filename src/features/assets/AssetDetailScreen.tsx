@@ -13,6 +13,7 @@ import { fiscalClassLabel } from "@/domain/assets/fiscalClasses";
 import type { AssetDetail } from "@/schemas/assets";
 import { formatMonth, formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Asset Detail (P13 Part 3f, first increment, Step 09 §10, §16: "asset detail, acquisition source,
@@ -56,6 +57,7 @@ export function AssetDetailScreen({
         <div>
           <p className="record-detail-eyebrow">Aset · {ASSET_SOURCE_LABELS[asset.source_type]}</p>
           <h1>{asset.name}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">{asset.code}</p>
         </div>
         <div className="record-detail-header-end">

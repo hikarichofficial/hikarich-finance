@@ -16,6 +16,7 @@ import {
 import type { ObligationDetail } from "@/schemas/financing";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Other Receivable / Other Payable Detail (P13 Part 3f, third increment, Step 09 §10, §16). Follows the same
@@ -58,6 +59,7 @@ export function ObligationDetailScreen({
         <div>
           <p className="record-detail-eyebrow">{OBLIGATION_KIND_LABELS[detail.kind]}</p>
           <h1>{detail.number}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">{detail.counterparty}</p>
         </div>
         <div className="record-detail-header-end">

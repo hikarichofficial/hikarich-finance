@@ -2,6 +2,7 @@ import { formatMoney } from "@/domain/money/format";
 import { paymentReceiptStatus } from "@/domain/sales/receiptDocument";
 import type { ReceiptDocument } from "@/schemas/sales";
 import { DocumentLogo, formatDocumentDate, issuerNames } from "./InvoiceDocumentView";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * A payment receipt as the payer reads it (P13 Part 5, first increment; Step 11 §10, FINAL/LOCKED): what was
@@ -34,6 +35,7 @@ export function ReceiptDocumentView({
         <div className="doc-issuer">
           <DocumentLogo logo={logo} />
           <h1 className="doc-brand">{names.primary}</h1>
+          <PageHelp />
           {names.secondary ? <p>{names.secondary}</p> : null}
         </div>
         <div className="doc-title">

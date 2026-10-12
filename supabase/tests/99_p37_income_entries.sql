@@ -56,7 +56,7 @@ begin
 
   select id into v_cat_prod from public.categories where entity_id = pf and name = 'Penjualan Produk';
   select id into v_cat_serv from public.categories where entity_id = pf and name = 'Penjualan Jasa';
-  select id into v_cat_bunga from public.categories where entity_id = pf and name = 'Bunga Bank & Deposito';
+  select id into v_cat_bunga from public.categories where entity_id = pf and name = 'Bunga Lainnya';
   select id into v_cat_other from public.categories where entity_id = other and name = 'Penjualan Jasa';
 
   -- 1. the categories the form shows: the same revenue categories an invoice line uses
@@ -68,8 +68,8 @@ begin
     '1.1 the ready revenue categories are listed, each with its account available');
   perform test_helpers.assert(
     (select (t ->> 'in_turnover')::boolean from jsonb_array_elements(v_types) t where t ->> 'name' = 'Penjualan Produk')
-    and not (select (t ->> 'in_turnover')::boolean from jsonb_array_elements(v_types) t where t ->> 'name' = 'Bunga Bank & Deposito')
-    and (select t ->> 'account_code' from jsonb_array_elements(v_types) t where t ->> 'name' = 'Bunga Bank & Deposito') = '7100',
+    and not (select (t ->> 'in_turnover')::boolean from jsonb_array_elements(v_types) t where t ->> 'name' = 'Bunga Lainnya')
+    and (select t ->> 'account_code' from jsonb_array_elements(v_types) t where t ->> 'name' = 'Bunga Lainnya') = '7100',
     '1.2 a revenue account counts as turnover; interest (other income) does not');
   -- a category the person adds on the spot posts to the default revenue account and counts as turnover
   insert into public.categories (entity_id, name, kind) values (pf, 'Penjualan Kelas Offline', 'revenue') returning id into v_cat_new;

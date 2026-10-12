@@ -12,6 +12,7 @@ import type { InvoiceLayout } from "@/domain/sales/invoiceLayout";
 import { InvoiceDocumentView, formatDocumentDate } from "./InvoiceDocumentView";
 import { formatShortDate } from "./format";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Invoice Detail (P13 Part 3a, Step 09 §10, §11): Header / Summary / Activity / Documents, in the Standard
@@ -76,6 +77,7 @@ export function InvoiceDetailScreen({
         <div>
           <p className="record-detail-eyebrow">Invoice Penjualan</p>
           <h1>{doc.invoice_number ?? "Draf"}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">{customerName}</p>
         </div>
         <div className="record-detail-header-end">

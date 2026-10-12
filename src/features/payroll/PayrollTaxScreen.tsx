@@ -14,6 +14,7 @@ import type {
   WithholdingCertificateRow,
 } from "@/schemas/payroll";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 function money(value: string | null, currency: string): string {
   return value === null ? "—" : formatMoney(value, currency);
@@ -62,6 +63,7 @@ export function PayrollTaxScreen({
       <header className="list-screen-header">
         <div>
           <h1>Pajak & Kewajiban Payroll</h1>
+          <PageHelp />
         </div>
       </header>
 

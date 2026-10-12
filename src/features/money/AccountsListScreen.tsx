@@ -6,6 +6,7 @@ import {
   type AccountListFilter,
   type AccountListRow,
 } from "@/domain/money/accountsList";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Accounts List (P13 Part 3c, Step 09 §9, §13: "Accounts screen shows each real bank/cash/e-wallet account,
@@ -58,6 +59,7 @@ export function AccountsListScreen({
       <header className="list-screen-header">
         <div>
           <h1>Akun Kas &amp; Bank</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {rows.length} akun{" "}
             {activeFilter ? `pada tampilan "${filterLabel(activeFilter)}"` : "ditampilkan"}.

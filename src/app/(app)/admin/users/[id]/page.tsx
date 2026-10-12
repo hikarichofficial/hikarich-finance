@@ -21,6 +21,7 @@ import {
   PermissionOverrideForm,
 } from "@/features/admin/UserAccessForms";
 import { BackLink } from "@/features/shell/BackLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /** Member Detail (decision 246): role, status, overrides and the resulting permission read-out, plus the
  * access-change forms the viewer may use. The membership is looked up within the active Entity only. */
@@ -71,6 +72,7 @@ export default async function MemberDetailPage({
         <div>
           <p className="record-detail-eyebrow">Anggota Entitas</p>
           <h1>{profiles[0]?.display_name ?? "Pengguna"}</h1>
+          <PageHelp />
           <p className="record-detail-counterparty">{role?.name ?? "—"}</p>
         </div>
         <div className="record-detail-header-end">

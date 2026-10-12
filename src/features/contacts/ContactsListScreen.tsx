@@ -6,6 +6,7 @@ import {
 } from "@/domain/contacts/contactsList";
 import type { ContactRow } from "@/schemas/contacts";
 import { RecordPreviewLink } from "@/features/shell/RecordPreviewLink";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Contacts List, shared by Customers (`/sales/customers`, Step 09 §11's own sitemap entry, "Sales:
@@ -64,6 +65,7 @@ export function ContactsListScreen({
       <header className="list-screen-header">
         <div>
           <h1>{title}</h1>
+          <PageHelp />
           <p className="list-screen-summary">
             {rows.length} kontak{" "}
             {activeFilter ? `pada tampilan "${filterLabel(activeFilter)}"` : "ditampilkan"}.

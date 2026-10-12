@@ -5,6 +5,7 @@ import { sourceTypeLabel } from "@/domain/money/accountsList";
 import type { CashActivityRow } from "@/domain/money/cashActivity";
 import type { MoneyControlRow } from "@/schemas/money";
 import { formatShortDate } from "./format";
+import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
  * Cash/Bank Activity (P13 Part 3c, Step 09 §13's fourth Money nav item): an Entity-wide, chronological feed
@@ -39,6 +40,7 @@ export function CashActivityScreen({
       <header className="list-screen-header">
         <div>
           <h1>Aktivitas Kas &amp; Bank</h1>
+          <PageHelp />
           <p className="list-screen-summary">{rows.length} pergerakan ditampilkan.</p>
         </div>
       </header>
