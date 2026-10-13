@@ -10,13 +10,7 @@ import { businessClock } from "@/lib/time";
 
 // ---- vocabulary
 export type TaxType =
-  | "vat"
-  | "wht_pph23"
-  | "wht_pph4_2"
-  | "wht_pph26"
-  | "wht_pph21"
-  | "final_umkm"
-  | "pph25";
+  "vat" | "wht_pph23" | "wht_pph4_2" | "wht_pph26" | "wht_pph21" | "final_umkm" | "pph25";
 export type TaxKind =
   | "vat_output"
   | "vat_input"
