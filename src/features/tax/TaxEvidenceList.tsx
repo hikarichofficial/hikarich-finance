@@ -36,7 +36,9 @@ export function EvidenceList({
                 {EVIDENCE_PURPOSE_LABELS[e.purpose]} &middot; {formatDocumentSize(e.size_bytes)}{" "}
                 &middot; {formatShortDate(e.created_at.slice(0, 10))}
               </p>
-              {returnPath ? <AttachmentDeleteForm linkId={e.link_id} returnPath={returnPath} /> : null}
+              {returnPath ? (
+                <AttachmentDeleteForm linkId={e.link_id} returnPath={returnPath} />
+              ) : null}
             </li>
           ))}
         </ul>

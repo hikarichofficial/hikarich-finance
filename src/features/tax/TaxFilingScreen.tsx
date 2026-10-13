@@ -466,13 +466,16 @@ function RecordPaymentForm({
             name="reference"
             maxLength={200}
             placeholder={
-              taxType === "final_umkm" || taxType === "pph25" ? "NTPN ... / Kode Billing ..." : undefined
+              taxType === "final_umkm" || taxType === "pph25"
+                ? "NTPN ... / Kode Billing ..."
+                : undefined
             }
           />
           {taxType === "final_umkm" || taxType === "pph25" ? (
             <span className="hint">
-              Bukti pembayaran {taxType === "pph25" ? "PPh 25" : "PPh Final"} adalah NTPN pada Bukti Penerimaan Negara (BPN) setelah kode
-              billing dibayar. Tulis NTPN dan kode billing-nya di sini.
+              Bukti pembayaran {taxType === "pph25" ? "PPh 25" : "PPh Final"} adalah NTPN pada Bukti
+              Penerimaan Negara (BPN) setelah kode billing dibayar. Tulis NTPN dan kode billing-nya
+              di sini.
             </span>
           ) : null}
         </label>
