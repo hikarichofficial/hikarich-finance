@@ -15,6 +15,10 @@ import {
   registerDocumentInputSchema,
   replaceDocumentLinkInputSchema,
   unlinkDocumentInputSchema,
+  deleteAttachmentInputSchema,
+  deleteDocumentInputSchema,
+  deletedDocumentResultSchema,
+  type DeletedDocumentResult,
   documentPurposeRowSchema,
   managedDocumentPurposeRowSchema,
   type DocumentPurposeRow,
@@ -119,6 +123,36 @@ export async function unlinkDocument(
 ): Promise<string> {
   const v = unlinkDocumentInputSchema.parse(input);
   return callRpc("unlink_document", { p_link: v.link_id, p_reason: v.reason }, textResult);
+}
+
+/** Deletes one attachment, whatever the status of its record (decision 418). When no other record uses the file it
+ * is marked deleted and its storage path comes back for the caller to remove the bytes. */
+export async function deleteAttachment(
+  input: z.input<typeof deleteAttachmentInputSchema>,
+): Promise<DeletedDocumentResult> {
+  const v = deleteAttachmentInputSchema.parse(input);
+  return callRpc(
+    "delete_attachment",
+    { p_link: v.link_id, p_reason: v.reason },
+    deletedDocumentResultSchema,
+  );
+}
+
+/** Deletes a file with every link it still has (the Documents screens). */
+export async function deleteDocument(
+  input: z.input<typeof deleteDocumentInputSchema>,
+): Promise<DeletedDocumentResult> {
+  const v = deleteDocumentInputSchema.parse(input);
+  return callRpc(
+    "delete_document",
+    { p_document: v.document_id, p_reason: v.reason },
+    deletedDocumentResultSchema,
+  );
+}
+
+/** Tells the database the bytes of a deleted file are gone from the storage. */
+export async function confirmDocumentPurge(documentId: string): Promise<void> {
+  await callRpc("confirm_document_purge", { p_document: documentId }, z.null());
 }
 
 /** Atomically swaps a link to a newer version of the same evidence (Step 08 §21): links the new document,

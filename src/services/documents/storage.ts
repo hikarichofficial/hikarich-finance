@@ -32,6 +32,14 @@ export async function storeDocumentBytes(
   return !error;
 }
 
+/** Removes the bytes of a deleted file from the private bucket (decision 418). A file that is already gone counts as removed. */
+export async function removeDocumentBytes(path: string): Promise<boolean> {
+  const admin = createSupabaseAdminClient();
+  if (!admin) return false;
+  const { error } = await admin.storage.from(BUCKET).remove([path]);
+  return !error;
+}
+
 export async function signedDocumentUrl(
   path: string,
   fileName: string,
