@@ -13,8 +13,8 @@
       "steps": [
         {
           "title": "Buka Akuntansi > Kategori",
-          "text": "Halaman **Kategori** menampilkan jumlah kategori dan tabel dengan kolom **Nama**, **Jenis**, **Perlakuan Pajak**, dan **Akun & Berlaku Sejak**. Entity baru sudah berisi kategori standar (misalnya “Penjualan Produk”, “Pemasaran & Iklan”, “Sewa & Ruang Kerja”) yang sudah terhubung ke akun yang tepat. Termasuk 35 kategori jenis **Aset** untuk PT (peralatan, kendaraan, bangunan, tanah, serta biaya dibayar di muka dan deposit) dan 8 untuk Buku Pribadi, yang muncul di baris pengeluaran berperlakuan “Aset” atau “Dibayar di muka”. Kategori yang dinonaktifkan tampil dengan tambahan “(tidak aktif)” di belakang namanya. Bila kosong tampil “Belum ada kategori.”",
-          "tip": "Kategori bukan daftar pelanggan atau vendor. Pelanggan ada di Penjualan > Pelanggan dan vendor di Pembelian > Vendor.",
+          "text": "Halaman **Kategori** menampilkan jumlah kategori dan tabel dengan kolom **Nama**, **Jenis**, **Perlakuan Pajak**, dan **Akun & Berlaku Sejak**. Entity baru sudah berisi kategori standar (misalnya “Penjualan Produk”, “Pemasaran & Iklan”, “Sewa & Ruang Kerja”) yang sudah terhubung ke akun yang tepat. Termasuk 35 kategori jenis **Aset** untuk PT (peralatan, kendaraan, bangunan, tanah, serta biaya dibayar di muka dan deposit) dan 8 untuk Buku Pribadi, yang muncul di baris pengeluaran berperlakuan “Aset” atau “Dibayar di muka”. Untuk PT, kategori pendapatan standar juga mencakup pendapatan di luar usaha, di antaranya **Bunga Tabungan**, **Bunga Deposito**, **Bunga Lainnya**, dan **Dividen**. Kategori yang dinonaktifkan tampil dengan tambahan “(tidak aktif)” di belakang namanya. Bila kosong tampil “Belum ada kategori.”",
+          "tip": "Kategori bukan daftar pelanggan atau vendor. Pelanggan ada di Penjualan > Pelanggan dan vendor di Pembelian > Vendor. Bunga Tabungan dan Bunga Deposito terhubung ke akun yang menandakan PPh final sudah dipotong bank, sehingga tidak dikenai pajak lagi di perkiraan Penghasilan di Luar PPh Final; bunga dari sumber lain pakai Bunga Lainnya.",
           "image": {
             "file": "kategori-daftar-v2.jpg",
             "caption": "Daftar kategori pendapatan dan beban."
@@ -41,7 +41,7 @@
         },
         {
           "title": "Pilih akun pembukuan kategori (khusus yang berhak)",
-          "text": "Untuk kategori Pendapatan dan Beban, kolom **Akun & Berlaku Sejak** berisi pilihan akun (bentuknya “6800 · Beban Sewa & Ruang Kerja”), tanggal **Berlaku sejak** (bawaan hari ini), dan tombol **Simpan**. Kategori Pendapatan hanya menawarkan akun pendapatan, kategori Beban hanya akun beban. Pilihan **Akun bawaan** mengakhiri pemetaan sehingga kategori memakai akun bawaan Entity. Bagi yang tidak berhak, kolom ini hanya menulis “Dipetakan” atau “Akun bawaan”.",
+          "text": "Untuk kategori Pendapatan dan Beban, kolom **Akun & Berlaku Sejak** berisi isian **Akun** berbentuk Picker (klik untuk melihat seluruh daftar, ketik kode atau nama akun untuk mempersempit, lalu pilih dengan klik atau Enter; bentuknya “6800 · Beban Sewa & Ruang Kerja”), tanggal **Berlaku sejak** (bawaan hari ini), dan tombol **Simpan**. Kategori Pendapatan hanya menawarkan akun pendapatan, kategori Beban hanya akun beban. Mengosongkan kolom Akun mengakhiri pemetaan sehingga kategori memakai akun bawaan Entity. Bagi yang tidak berhak, kolom ini hanya menulis “Dipetakan” atau “Akun bawaan”.",
           "warning": "Pemetaan baru dipakai oleh dokumen mulai tanggal Berlaku sejak. Dokumen yang sudah diposting tidak berpindah akun dan tidak ada jurnal yang dibuat ulang."
         },
         {
@@ -133,7 +133,7 @@
         },
         {
           "title": "Pakai kode akun di tempat lain",
-          "text": "Kode dan nama akun yang sama muncul di pilihan **Akun** pada [Cara Membuat Jurnal Manual](jurnal-manual), pada pemetaan kategori di [Cara Mengelola Kategori](kategori-pendapatan-beban), dan pada tab Buku Besar di [Memahami Laporan Keuangan](laporan-keuangan-utama). Akun kas atau bank dibuat otomatis oleh [Cara Menambah Rekening](tambah-rekening)."
+          "text": "Kode dan nama akun yang sama muncul di isian **Akun** (berbentuk Picker: klik untuk melihat daftar, ketik kode atau nama untuk mempersempit) pada [Cara Membuat Jurnal Manual](jurnal-manual), pada pemetaan kategori di [Cara Mengelola Kategori](kategori-pendapatan-beban), dan pada tab Buku Besar di [Memahami Laporan Keuangan](laporan-keuangan-utama). Akun kas atau bank dibuat otomatis oleh [Cara Menambah Rekening](tambah-rekening)."
         }
       ],
       "result": ["Baca saja; tidak ada jurnal dan tidak ada data yang berubah."],
@@ -192,9 +192,9 @@
         },
         {
           "title": "Isi baris jurnal",
-          "text": "Tabel dimulai dengan dua baris. Tiap baris: **Akun** (dikelompokkan menurut Pendapatan, Beban, Aset, Liabilitas, Ekuitas, Lainnya; bentuknya “6200 · Beban Software & Langganan”), **Debit** atau **Kredit**, dan **Keterangan Baris** (opsional). Isi satu sisi saja per baris. **+ Tambah Baris** menambah baris dan **Hapus** membuang baris. Baris tanpa akun atau tanpa jumlah tidak disimpan.\n\nDi bawah tabel tampil “Total debit: … · Total kredit: … ·” disusul “Seimbang.” atau “Belum seimbang (selisih …).”.",
+          "text": "Tabel dimulai dengan dua baris. Tiap baris: **Akun** (berbentuk Picker: klik untuk melihat seluruh daftar, ketik kode atau nama untuk mempersempit, lalu pilih dengan klik atau Enter; bentuknya “6200 · Beban Software & Langganan”, urutannya Pendapatan, Beban, Aset, Liabilitas, Ekuitas, Lainnya), **Debit** atau **Kredit**, dan **Keterangan Baris** (opsional). Isi satu sisi saja per baris. **+ Tambah Baris** menambah baris dan **Hapus** membuang baris. Baris tanpa akun atau tanpa jumlah tidak disimpan.\n\nDi bawah tabel tampil “Total debit: … · Total kredit: … ·” disusul “Seimbang.” atau “Belum seimbang (selisih …).”.\n\nBila Anda memilih akun pendapatan, muncul catatan bahwa pendapatan lewat jurnal manual tidak ikut dasar PPh Final 0,5% dan batas omzet; untuk pendapatan tanpa invoice pakai **Penjualan > Catat Pendapatan**.",
           "tip": "Pemisah ribuan terisi otomatis saat Anda mengetik; koma dipakai untuk desimal.",
-          "warning": "Akun sistem (kas dan bank, piutang, utang, pajak, aset tetap, pinjaman, payroll, ekuitas penutup) ada di kelompok “Akun sistem (dilindungi, hindari)” dan hanya tampil bagi OWNER, bersama kolom “Alasan memakai akun yang dilindungi”. Hindari; mengubahnya lewat jurnal manual membuat saldo di buku besar berbeda dari modul asalnya dan menahan penutupan periode."
+          "warning": "Akun sistem (kas dan bank, piutang, utang, pajak, aset tetap, pinjaman, payroll, ekuitas penutup) hanya tampil di daftar bagi OWNER, di urutan paling akhir, bersama kolom “Alasan memakai akun yang dilindungi”. Hindari; mengubahnya lewat jurnal manual membuat saldo di buku besar berbeda dari modul asalnya dan menahan penutupan periode."
         },
         {
           "title": "Tekan Simpan sebagai Draf",
@@ -319,11 +319,11 @@
       "steps": [
         {
           "title": "Buka Akuntansi > Rekening Koran",
-          "text": "Halaman utama menampilkan ringkasan 12 bulan (Januari sampai Desember) tahun berjalan untuk semua kas dan bank. Empat kartu di atas memuat **Saldo Awal**, **Uang Masuk**, **Uang Keluar**, dan **Saldo Akhir** tahun itu; tabelnya memuat uang masuk, uang keluar, dan saldo akhir tiap bulan."
+          "text": "Halaman utama menampilkan ringkasan 12 bulan (Januari sampai Desember) tahun berjalan untuk semua kas dan bank. Empat kartu di atas memuat **Saldo Awal**, **Uang Masuk**, **Uang Keluar**, dan **Saldo Akhir** tahun itu; tabelnya memuat uang masuk, uang keluar, dan saldo akhir tiap bulan. Di bawah judul ada penjelasan singkat fungsi halaman."
         },
         {
           "title": "Pilih rekening dan bulan",
-          "text": "Pilih **Rekening** (satu rekening, atau **Semua Kas & Bank**) dan **Tahun**, lalu tekan **Terapkan**. Tombol **‹ tahun sebelumnya** dan **tahun berikutnya ›** juga tersedia."
+          "text": "Isian **Rekening** berbentuk Picker: klik untuk melihat daftar rekening kas dan bank, ketik untuk mempersempit, lalu pilih satu rekening. Kosongkan isian itu untuk melihat **Semua Kas & Bank** sekaligus. Pilih **Tahun**, lalu tekan **Terapkan**. Tautan tahun sebelumnya (misalnya ‹ 2025) dan tahun berikutnya (misalnya 2027 ›) juga tersedia."
         },
         {
           "title": "Klik nama bulan untuk rincian",
@@ -361,10 +361,10 @@
     {
       "slug": "penyesuaian-saldo-lanjutan",
       "title": "Cara Mencatat Penyesuaian Saldo Kas dan Bank (Penyesuaian Lanjutan)",
-      "summary": "Mengoreksi saldo rekening kas atau bank dengan satu pencatatan resmi berisi alasan, bukan dengan mengetik ulang saldo.",
+      "summary": "Mengoreksi saldo rekening kas atau bank dengan satu pencatatan resmi berisi alasan, bukan dengan mengetik ulang saldo, dan melihat serta membatalkan penyesuaian yang sudah dicatat.",
       "path": "Akuntansi > Penyesuaian Lanjutan",
-      "who": "Izin money.adjust (OWNER, Accountant). Peran lain yang punya akses Akuntansi, misalnya Finance Admin, tetap melihat menunya, tetapi halamannya hanya menampilkan “Terjadi masalah saat memuat halaman ini.” tanpa izin ini.",
-      "quick": "Penyesuaian langsung diposting tanpa draf: saldo rekening naik atau turun sebesar jumlah yang Anda isi, lawannya dicatat ke **Akun Lawan** pilihan Anda, dan tidak ada tombol batal.",
+      "who": "Mencatat dan membatalkan: izin money.adjust (OWNER, Accountant). Peran lain yang punya akses Akuntansi, misalnya Finance Admin, tetap melihat menunya, tetapi halamannya hanya menampilkan “Terjadi masalah saat memuat halaman ini.” tanpa izin ini.",
+      "quick": "Penyesuaian langsung diposting tanpa draf: saldo rekening naik atau turun sebesar jumlah yang Anda isi dan lawannya dicatat ke **Akun Lawan** pilihan Anda. Penyesuaian yang sudah dicatat tampil di daftar di bawah form dan bisa dibatalkan dengan **Batalkan** (jurnal kebalikan, tidak ada yang dihapus).",
       "steps": [
         {
           "title": "Pastikan memang perlu penyesuaian",
@@ -376,7 +376,7 @@
         },
         {
           "title": "Pilih rekening, arah, tanggal, dan jumlah",
-          "text": "**Akun Kas/Bank**: rekening aktif, tampil seperti “BCA Operasional (IDR)”. **Arah**: “Masuk (menambah saldo akun)” atau “Keluar (mengurangi saldo akun)”. **Tanggal** bawaan hari ini. **Jumlah**: lebih dari nol.\n\n**Kurs (opsional)** diisi hanya bila mata uang rekening berbeda dari mata uang dasar Entity. Untuk rekening rupiah biarkan kosong; untuk rekening bermata uang asing wajib diisi.",
+          "text": "**Akun Kas/Bank** (berbentuk Picker: klik untuk melihat daftar, ketik untuk mempersempit, lalu pilih): rekening aktif, tampil seperti “BCA Operasional (IDR)”. **Arah**: “Masuk (menambah saldo akun)” atau “Keluar (mengurangi saldo akun)”. **Tanggal** bawaan hari ini. **Jumlah**: lebih dari nol.\n\n**Kurs (opsional)** diisi hanya bila mata uang rekening berbeda dari mata uang dasar Entity. Untuk rekening rupiah biarkan kosong; untuk rekening bermata uang asing wajib diisi.",
           "image": {
             "file": "penyesuaian-form.jpg",
             "caption": "Form Penyesuaian Lanjutan."
@@ -384,7 +384,7 @@
         },
         {
           "title": "Pilih Akun Lawan",
-          "text": "**Akun Lawan** (tampil berupa kode akun diikuti nama, misalnya 6300 lalu Beban Administrasi Bank) adalah akun yang menampung sisi lain, biasanya beban untuk biaya (misalnya Beban Administrasi Bank). Akun pendapatan, potongan pendapatan, dan pendapatan lain tidak ditawarkan. Akun grup, akun tidak aktif, akun kontrol (kas dan bank, piutang, utang, pajak, aset tetap, dan sejenisnya), dan penampung saldo awal tidak ditawarkan.",
+          "text": "**Akun Lawan** (juga berbentuk Picker, tampil berupa kode akun diikuti nama, misalnya 6300 lalu Beban Administrasi Bank; ketik kode atau nama untuk mencarinya) adalah akun yang menampung sisi lain, biasanya beban untuk biaya (misalnya Beban Administrasi Bank). Akun pendapatan, potongan pendapatan, dan pendapatan lain tidak ditawarkan. Akun grup, akun tidak aktif, akun kontrol (kas dan bank, piutang, utang, pajak, aset tetap, dan sejenisnya), dan penampung saldo awal tidak ditawarkan.",
           "tip": "Ragu memilih akun lawan? Tanyakan akuntan Anda dulu. Salah pilih akun lawan mengubah laba atau neraca."
         },
         {
@@ -394,6 +394,11 @@
         {
           "title": "Periksa jurnalnya",
           "text": "Buka Akuntansi > Jurnal dan cari tanggalnya. Jurnalnya bertipe Sistem, sudah berstatus Terposting, dan deskripsinya berbentuk “Balance adjustment - <nama rekening>: <alasan>” (awalannya masih bahasa Inggris dari sistem)."
+        },
+        {
+          "title": "Lihat dan batalkan penyesuaian yang sudah dicatat",
+          "text": "Di bawah form ada bagian **Penyesuaian yang Sudah Dicatat**, urut dari yang terbaru. Kolomnya **Tanggal**, **Akun**, **Akun Lawan**, **Jumlah** (diawali + untuk masuk dan − untuk keluar), **Alasan**, **Status** (**Berlaku** atau **Dibatalkan**), dan **Tindakan**. Bila belum ada, tertulis “Belum ada penyesuaian saldo yang dicatat untuk Entity ini.” Untuk membatalkan penyesuaian yang salah, tekan **Batalkan** pada barisnya, isi **Alasan pembatalan** (minimal 5 karakter), lalu tekan **Batalkan** sekali lagi (atau **Tutup** untuk mundur). Sistem memposting jurnal kebalikannya dan gerakan saldo yang berlawanan pada **tanggal penyesuaian aslinya**, bukan tanggal hari ini. Baris yang dibatalkan tetap tampil dengan status Dibatalkan, dan keduanya tetap terlihat di pembukuan.",
+          "warning": "Pembatalan memakai tanggal penyesuaian asli, jadi periode akuntansi pada tanggal itu harus masih terbuka. Bila periodenya sudah ditutup, sistem menolak pembatalan; buka kembali periodenya atau koreksi dengan penyesuaian baru berarah sebaliknya di tanggal yang masih terbuka."
         }
       ],
       "tables": [
@@ -404,14 +409,6 @@
             ["6300 Beban Administrasi Bank", "15.000", ""],
             ["Akun kas/bank milik rekening yang dipilih", "", "15.000"]
           ]
-        },
-        {
-          "title": "Contoh: bunga bank Rp 20.000 belum tercatat (Arah Masuk, Akun Lawan 7100)",
-          "columns": ["Akun", "Debit", "Kredit"],
-          "rows": [
-            ["Akun kas/bank milik rekening yang dipilih", "20.000", ""],
-            ["7100 Pendapatan Bunga", "", "20.000"]
-          ]
         }
       ],
       "result": [
@@ -419,17 +416,20 @@
         "Satu jurnal bertipe Sistem terbentuk dan langsung terposting."
       ],
       "rules": [
-        "Penyesuaian langsung diposting. Tidak ada draf, persetujuan, tombol ubah, atau tombol batal.",
+        "Penyesuaian langsung diposting. Tidak ada draf, persetujuan, atau tombol ubah; satu-satunya jalan mundur adalah tombol Batalkan di daftar, yang membuat jurnal kebalikan.",
+        "Akun pendapatan, kontra pendapatan, dan pendapatan lain tidak bisa dipakai di halaman ini, baik sebagai Akun Lawan maupun dalam arah mana pun. Bunga dan pendapatan lain dicatat lewat Penjualan > Catat Pendapatan agar ikut terhitung di pajak.",
         "Periode akuntansi pada Tanggal harus Terbuka atau Dibuka Kembali, dan tanggal antara 1 Januari 2000 dan satu tahun ke depan.",
         "Rekening nonaktif ditolak. Arah Keluar ditolak bila membuat saldo di bawah nol pada jenis rekening yang diblokir oleh kebijakan Entity (bawaan: rekening Bank).",
-        "Koreksi penyesuaian yang salah dengan penyesuaian baru berarah sebaliknya dan alasan yang jelas.",
+        "Penyesuaian yang salah dibatalkan lewat Batalkan di daftar (alasan minimal 5 karakter). Satu penyesuaian hanya bisa dibatalkan sekali, dan membatalkan tidak menghapus apa pun.",
         "Berbeda dengan “Jurnal penyesuaian” di [Cara Membuat Jurnal Manual](jurnal-manual): jurnal manual tidak boleh menyentuh akun kas atau bank dan tidak mengubah saldo rekening, sedangkan halaman ini justru mengubah saldo rekening."
       ],
       "mistakes": [
         "Memakai halaman ini untuk transaksi biasa sehingga tidak ada dokumen pendukungnya.",
         "Salah memilih Arah, sehingga saldo berubah ke arah yang berlawanan.",
         "Mengisi Kurs untuk rekening rupiah, atau lupa mengisi Kurs untuk rekening valas.",
-        "Menulis alasan sekadarnya sehingga sulit ditelusuri saat diaudit."
+        "Menulis alasan sekadarnya sehingga sulit ditelusuri saat diaudit.",
+        "Mencatat bunga bank atau pendapatan lain di halaman ini. Akun pendapatan tidak ditawarkan; pakai Penjualan > Catat Pendapatan.",
+        "Membatalkan penyesuaian dengan membuat penyesuaian baru berlawanan padahal tombol Batalkan tersedia; pembatalan membuat jejaknya lebih jelas."
       ],
       "errors": [
         {
@@ -471,6 +471,14 @@
         {
           "message": "Terjadi masalah saat memuat halaman ini.",
           "meaning": "Akun Anda tidak punya izin money.adjust."
+        },
+        {
+          "message": "Tulis alasan pembatalan, minimal 5 karakter.",
+          "meaning": "Isi Alasan pembatalan dengan jelas, lalu tekan Batalkan."
+        },
+        {
+          "message": "Penyesuaian tidak dapat dibatalkan.",
+          "meaning": "Pesan umum saat pembatalan gagal, misalnya periode pada tanggal penyesuaian sudah ditutup atau penyesuaian itu sudah dibatalkan."
         }
       ],
       "related": ["saldo-awal", "lihat-saldo-mutasi", "jurnal-manual", "periode-dan-tutup-buku"]
@@ -755,7 +763,8 @@
         },
         {
           "title": "Baca tab Laba Rugi",
-          "text": "Kolom **Kode**, **Akun**, **Jumlah**, dikelompokkan menurut Pendapatan, Kontra Pendapatan, Pendapatan Lain-lain, Beban, Beban Lain-lain, Lainnya, dan Pajak, masing-masing dengan “Total …”. Baris paling bawah **Laba Bersih** atau **Rugi Bersih**. Bila Anda mengisi pembanding, muncul kolom **Periode Pembanding** dan **Selisih** (periode utama dikurangi pembanding). Hanya akun yang bergerak di periode itu yang tampil. Bila kosong: “Tidak ada transaksi terposting pada periode ini.”."
+          "text": "Kolom **Kode**, **Akun**, **Jumlah**, dikelompokkan menurut Pendapatan, Kontra Pendapatan, Pendapatan Lain-lain, Beban, Beban Lain-lain, Lainnya, dan Pajak, masing-masing dengan “Total …”. Bagian **Pajak** memuat beban pajak penghasilan (misalnya PPh Final UMKM) dan terpisah dari Beban. Baris paling bawah **Laba Bersih** atau **Rugi Bersih** sudah memperhitungkan bagian Pajak. Bila Anda mengisi pembanding, muncul kolom **Periode Pembanding** dan **Selisih** (periode utama dikurangi pembanding). Hanya akun yang bergerak di periode itu yang tampil. Bila kosong: “Tidak ada transaksi terposting pada periode ini.”.",
+          "tip": "Kartu Pendapatan, Beban, Pajak Penghasilan, dan Laba Berjalan di Dashboard membuka tab ini untuk periode yang sama, langsung ke bagian Pendapatan, Beban, atau Pajak. Lihat [Cara Membaca Dashboard](membaca-dashboard)."
         },
         {
           "title": "Baca tab Neraca",
@@ -776,7 +785,7 @@
         },
         {
           "title": "Baca tab Buku Besar",
-          "text": "Pilih **Akun** (bentuknya “6800 · Beban Sewa & Ruang Kerja”; akun grup tidak ditawarkan) lalu **Terapkan**. Kolom: **Tanggal**, **No. Jurnal** (tautan ke jurnal), **Tipe**, **Deskripsi**, **Debit**, **Kredit**, **Saldo Berjalan**, dengan baris **Total Periode**. Bila kosong: “Tidak ada transaksi terposting untuk akun ini pada periode ini.”."
+          "text": "Pilih **Akun** (isian berbentuk Picker: klik untuk melihat daftar, ketik kode atau nama untuk mempersempit; bentuknya “6800 · Beban Sewa & Ruang Kerja”; akun grup tidak ditawarkan) lalu **Terapkan**. Kolom: **Tanggal**, **No. Jurnal** (tautan ke jurnal), **Tipe**, **Deskripsi**, **Debit**, **Kredit**, **Saldo Berjalan**, dengan baris **Total Periode**. Bila kosong: “Tidak ada transaksi terposting untuk akun ini pada periode ini.”."
         },
         {
           "title": "Telusuri angka sampai ke dokumennya",
@@ -936,7 +945,7 @@
       "steps": [
         {
           "title": "Laporan > Pajak membuka Buku Besar Pajak",
-          "text": "Menu **Pajak** di Laporan membawa Anda ke halaman **Buku Besar Pajak** (sama dengan Pajak > Buku Pajak), berisi daftar entri pajak dengan saringan. Ini bukan laporan baru. Ringkasan pajak, PPN, dan pelaporan ada di menu Pajak; lihat [Cara Membayar Pajak](bayar-pajak) dan [Cara Mengatur Pajak Awal](pengaturan-pajak-awal)."
+          "text": "Menu **Pajak** di Laporan membawa Anda ke halaman **Buku Besar Pajak** (sama dengan Pajak > Buku Pajak), berisi daftar entri pajak dengan saringan. Ini bukan laporan baru. Ringkasan pajak, PPN, dan pelaporan ada di menu Pajak; lihat [Memahami Ringkasan Pajak, PPN, dan PPh Vendor](posisi-ppn-pph), [Cara Mencatat Pembayaran Pajak dan Pelaporan](bayar-pajak), dan [Cara Mengisi Pengaturan Pajak Awal](pengaturan-pajak-awal)."
         },
         {
           "title": "Laporan > Payroll membuka Ringkasan Payroll",
@@ -944,11 +953,11 @@
         },
         {
           "title": "Laporan > Aset Tetap membuka Kontrol Aset Tetap",
-          "text": "Menu ini membuka tab **Kontrol Aset Tetap** (**Per tanggal**) dengan dua baris, Biaya Perolehan Aset Tetap dan Akumulasi Penyusutan, dan kolom **Sub-Ledger**, **Ledger (Alur Kerja Aset)**, **Ledger (Lainnya)**, **Ledger (Total)**, **Selisih**, **Status**. Seimbang berarti daftar aset sama dengan buku besar.\n\nTab aset lain: **Jadwal Penyusutan Fiskal** (pilih **Aset**; kolom **Tahun Fiskal**, **Nilai Awal**, **Penyusutan**, **Nilai Akhir**, dan baris **Total Penyusutan Fiskal**) serta **Mutasi/Pelepasan Aset** (**Dari**, **Sampai**; kolom **Tanggal**, **Aset**, **Peristiwa**, **Hasil Pelepasan**, **Laba/Rugi**, **Jurnal**, **Status**)."
+          "text": "Menu ini membuka tab **Kontrol Aset Tetap** (**Per tanggal**) dengan dua baris, Biaya Perolehan Aset Tetap dan Akumulasi Penyusutan, dan kolom **Sub-Ledger**, **Ledger (Alur Kerja Aset)**, **Ledger (Lainnya)**, **Ledger (Total)**, **Selisih**, **Status**. Seimbang berarti daftar aset sama dengan buku besar.\n\nTab aset lain: **Jadwal Penyusutan Fiskal** (pilih **Aset** lewat Picker: klik untuk melihat daftar, ketik untuk mempersempit; kolom **Tahun Fiskal**, **Nilai Awal**, **Penyusutan**, **Nilai Akhir**, dan baris **Total Penyusutan Fiskal**) serta **Mutasi/Pelepasan Aset** (**Dari**, **Sampai**; kolom **Tanggal**, **Aset**, **Peristiwa**, **Hasil Pelepasan**, **Laba/Rugi**, **Jurnal**, **Status**)."
         },
         {
           "title": "Tab pinjaman",
-          "text": "Menu **Pinjaman** membuka tab **Ringkasan Pinjaman** (**Dari**, **Sampai**; kolom **Pokok Awal**, **Pencairan**, **Pokok Dibayar**, **Pokok Dihapusbukukan**, **Pokok Akhir**, **Bunga Dibayar**, **Biaya Dibayar**). Untuk jatuh tempo, buka Laporan > Laporan Keuangan lalu pilih tab **Pinjaman Jatuh Tempo** (**Sampai Tanggal**; kolom **No. Pinjaman**, **Arah**, **Pihak**, **Cicilan Ke**, **Jatuh Tempo** dengan “(N hari)” bila terlambat, **Pokok Tertunggak**, **Bunga Tertunggak**, **Biaya Tertunggak**, **Status**, dan baris “Total (N terlambat)”) atau **Ringkasan Pinjaman** (**Dari**, **Sampai**; kolom **Pokok Awal**, **Pencairan**, **Pokok Dibayar**, **Pokok Dihapusbukukan**, **Pokok Akhir**, **Bunga Dibayar**, **Biaya Dibayar**). Nomor pinjaman menautkan ke detail pinjaman."
+          "text": "Menu **Pinjaman** membuka tab **Ringkasan Pinjaman** (**Dari**, **Sampai**; kolom **No. Pinjaman**, **Arah**, **Pihak**, **Pokok Awal**, **Pencairan**, **Pokok Dibayar**, **Pokok Dihapusbukukan**, **Pokok Akhir**, **Bunga Dibayar**, **Biaya Dibayar**). Untuk jatuh tempo, buka Laporan > Laporan Keuangan lalu pilih tab **Pinjaman Jatuh Tempo** (**Sampai Tanggal**; kolom **No. Pinjaman**, **Arah**, **Pihak**, **Cicilan Ke**, **Jatuh Tempo** dengan “(N hari)” bila terlambat, **Pokok Tertunggak**, **Bunga Tertunggak**, **Biaya Tertunggak**, **Status**, dan baris “Total (N terlambat)”). Nomor pinjaman menautkan ke detail pinjaman."
         },
         {
           "title": "Tab Analisis Konsolidasi (OWNER)",
@@ -964,7 +973,7 @@
       ],
       "mistakes": [
         "Mencari laporan pajak lengkap di Laporan > Pajak; menu itu hanya Buku Besar Pajak.",
-        "Mengira Laporan > Aset & Pinjaman memuat pinjaman.",
+        "Mengira Laporan > Aset Tetap memuat pinjaman. Pinjaman punya menu sendiri, Laporan > Pinjaman.",
         "Mengira tanda strip pada kolom PPh 21 berarti nol; artinya Anda tidak berhak melihatnya."
       ],
       "errors": [
@@ -1019,7 +1028,7 @@
       "steps": [
         {
           "title": "Buka Laporan > Laporan Kustom",
-          "text": "Menu ini membuka tab **Laporan Kustom** di halaman Laporan Keuangan. Pilih **Dataset**. Tiga dataset yang ada: “Penjualan per Pelanggan” (invoice terbit per pelanggan), “Pengeluaran per Vendor” (tagihan per vendor), dan “Pengeluaran Langsung per Penerima” (pengeluaran langsung yang dikonfirmasi per penerima). Hanya dataset yang Anda berhak yang tampil. Bila tidak ada: “Tidak ada dataset laporan yang dapat Anda akses.”.",
+          "text": "Menu ini membuka tab **Laporan Kustom** di halaman Laporan Keuangan. Pilih **Dataset** (isian berbentuk Picker: klik untuk melihat daftar, ketik untuk mempersempit). Tiga dataset yang ada: “Penjualan per Pelanggan” (invoice terbit per pelanggan), “Pengeluaran per Vendor” (tagihan per vendor), dan “Pengeluaran Langsung per Penerima” (pengeluaran langsung yang dikonfirmasi per penerima). Hanya dataset yang Anda berhak yang tampil. Bila tidak ada: “Tidak ada dataset laporan yang dapat Anda akses.”.",
           "image": {
             "file": "laporan-kustom-v2.jpg",
             "caption": "Laporan Kustom dengan pilihan Dataset."
@@ -1088,22 +1097,32 @@
     {
       "slug": "membaca-dashboard",
       "title": "Cara Membaca Dashboard",
-      "summary": "Ringkasan keuangan satu halaman: kartu angka, tren arus kas, pendapatan, beban, utang, piutang, pajak, dan hal yang perlu ditindaklanjuti.",
+      "summary": "Ringkasan keuangan satu halaman untuk satu bulan, satu tahun, atau sejak awal: kartu angka (pendapatan, beban, pajak penghasilan, laba), tren arus kas, utang, piutang, pajak, dan hal yang perlu ditindaklanjuti.",
       "path": "Ringkasan > Dashboard",
       "who": "Melihat: setiap bagian muncul bila Anda punya izin untuknya (laporan, kas, invoice, tagihan, pajak). Dashboard hanya membaca.",
-      "quick": "Pilih bulan di kiri atas. Arahkan kursor ke titik atau batang pada grafik untuk melihat angka pastinya, lalu klik untuk membuka laporan bulan itu.",
+      "quick": "Pilih **Bulanan**, **Tahunan**, atau **Sejak Awal** di bawah judul, lalu pindahkan periodenya dengan panah di samping nama periode. Pendapatan dikurangi Beban dan Pajak Penghasilan adalah Laba Berjalan. Arahkan kursor ke titik atau batang pada grafik untuk melihat angka pastinya, lalu klik untuk membuka laporan bulan itu.",
       "steps": [
         {
-          "title": "Pilih bulan",
-          "text": "Panah di samping nama bulan memindahkan seluruh Dashboard ke bulan lain. Laba atau rugi bulan itu tampil besar di kanan atas."
+          "title": "Pilih Bulanan, Tahunan, atau Sejak Awal",
+          "text": "Di bawah judul ada penjelasan singkat fungsi halaman; **Selengkapnya** membuka penjelasan yang lebih panjang. Di bawah kalimat “Ringkasan keuangan (nama Entity) untuk …” ada tiga tombol. **Bulanan** (tampilan awal) meringkas satu bulan, dan saat dibuka yang tampil adalah bulan berjalan. **Tahunan** meringkas satu tahun penuh. **Sejak Awal** meringkas seluruh pembukuan, dari catatan pertama sampai sekarang. Panah ‹ dan › di samping nama periode memindahkan seluruh Dashboard ke bulan atau tahun sebelumnya dan berikutnya; pada Sejak Awal tidak ada panah karena tidak ada periode sebelum atau sesudahnya. Laba atau rugi periode itu tampil besar di kanan atas, berlabel **Laba Periode Berjalan** atau **Rugi Periode Berjalan**.",
+          "tip": "Dashboard dibuka di bulan berjalan. Di awal bulan angkanya masih Rp 0, dan itu bukan berarti tidak ada transaksi: pilih bulan sebelumnya atau Tahunan."
+        },
+        {
+          "title": "Bila bulan yang tampil kosong",
+          "text": "Pada tampilan Bulanan, bila bulan yang dipilih belum punya pendapatan maupun beban, tetapi salah satu dari enam bulan terakhir punya, muncul catatan “Bulan ini belum ada pendapatan atau beban. Transaksi terakhir ada di (bulan)”. Klik nama bulannya untuk pindah ke sana, atau pilih Tahunan atau Sejak Awal untuk melihat semuanya."
         },
         {
           "title": "Baca kartu angka",
-          "text": "Enam kartu: **Kas & Bank**, **Pendapatan**, **Beban**, **Laba Berjalan** (atau Rugi Berjalan), **Piutang Usaha**, dan **Utang Usaha** (hanya tagihan vendor). Bila ada pinjaman bank yang berjalan, kartu ketujuh **Pinjaman** menampilkan sisa pokoknya; pinjaman tidak masuk Utang Usaha. Klik kartu untuk membuka halaman atau laporan di baliknya."
+          "text": "Deretan kartu di bawah judul: **Kas & Bank**, **Pendapatan**, **Beban**, **Pajak Penghasilan**, **Laba Berjalan** (atau Rugi Berjalan), **Piutang Usaha**, dan **Utang Usaha** (hanya tagihan vendor). Bila ada pinjaman bank yang berjalan, kartu **Pinjaman** menampilkan sisa pokoknya; pinjaman tidak masuk Utang Usaha. Pendapatan, Beban, Pajak Penghasilan, dan Laba Berjalan meringkas seluruh periode yang dipilih (satu bulan, satu tahun, atau sejak awal). Kas & Bank, Piutang Usaha, dan Utang Usaha adalah posisi pada akhir periode itu. Klik kartu untuk membuka halaman atau laporan di baliknya: Pendapatan, Beban, dan Pajak Penghasilan membuka bagian yang sama di Laporan Laba Rugi periode itu, dan Laba Berjalan membuka Laporan Laba Rugi periodenya."
+        },
+        {
+          "title": "Pahami hubungan Pendapatan, Beban, Pajak, dan Laba",
+          "text": "**Pajak Penghasilan** adalah kartu tersendiri antara Beban dan Laba, berisi beban pajak penghasilan perusahaan (misalnya PPh Final UMKM, akun Beban Pajak Penghasilan), dengan keterangan “di luar Beban”. Pajak ini sengaja tidak dimasukkan ke Beban karena bukan biaya operasional; Laporan Laba Rugi juga memisahkannya dalam bagian **Pajak**. Karena itu angkanya berhubungan begini: **Pendapatan − Beban − Pajak Penghasilan = Laba Berjalan**, dan kartu Laba Berjalan bertuliskan “Setelah beban dan pajak”. Kartu Pajak Penghasilan tetap tampil dengan Rp 0 bila belum ada pajak yang dibukukan pada periode itu.",
+          "tip": "Pendapatan di kartu sudah dikurangi diskon dan penyesuaian pengembalian dana; bila ada, jumlahnya tertulis di bawah angka sebagai “Sudah dikurangi diskon …”. Jadi tidak perlu mengurangkannya lagi."
         },
         {
           "title": "Baca Tren Arus Kas",
-          "text": "Garis menunjukkan saldo kas akhir enam bulan terakhir. Angka besar di atasnya adalah saldo bulan terakhir, dengan label perubahan dari bulan sebelumnya.\n\nArahkan kursor ke sebuah titik: tampil kotak berisi bulan, saldo pastinya, dan perubahannya. **Klik titik** untuk membuka laporan Arus Kas bulan itu.",
+          "text": "Garis menunjukkan saldo kas akhir enam bulan terakhir sampai bulan yang dipilih (pada Tahunan dan Sejak Awal, sampai Desember tahun itu). Angka besar di atasnya adalah saldo bulan terakhir, dengan label perubahan dari bulan sebelumnya.\n\nArahkan kursor ke sebuah titik: tampil kotak berisi bulan, saldo pastinya, dan perubahannya. **Klik titik** untuk membuka laporan Arus Kas bulan itu.",
           "image": {
             "file": "dashboard-v2.jpg",
             "caption": "Dashboard dengan grafik interaktif (angka contoh)."
@@ -1111,11 +1130,11 @@
         },
         {
           "title": "Baca Pendapatan dan Beban",
-          "text": "Dua kartu berdampingan. Tiap kartu menampilkan angka bulan yang dipilih, perubahan dari bulan sebelumnya (pendapatan naik berwarna hijau, beban naik berwarna merah), enam batang bulanan, dan di bawahnya batang sumber pendapatan atau akun beban terbesar. Arahkan kursor ke batang untuk angka pastinya; **klik batang** untuk membuka Laba Rugi bulan itu."
+          "text": "Dua kartu berdampingan. Tiap kartu menampilkan angka periode yang dipilih, perubahan dari bulan sebelumnya (pendapatan naik berwarna hijau, beban naik berwarna merah), enam batang bulanan, dan di bawahnya batang sumber pendapatan atau akun beban terbesar. Arahkan kursor ke batang untuk angka pastinya; **klik batang** untuk membuka Laba Rugi bulan itu. Perbandingan dengan bulan sebelumnya dan enam batang bulanan paling berguna pada tampilan **Bulanan**."
         },
         {
-          "title": "Baca Piutang, Utang, dan Pajak",
-          "text": "Kartu **Piutang Usaha** dan **Utang Usaha** menunjukkan total dan bagian yang jatuh tempo (batang merah). Kartu **Ringkasan Pajak** menunjukkan total terutang per jenis dan tenggat terdekat; **Buka Pajak** membawa Anda ke Ringkasan Pajak. Kartu **Perlu Perhatian** mengumpulkan hal yang perlu ditindaklanjuti.\n\nBila Anda punya lebih dari satu Entity (PT dan Buku Pribadi), kartu **Omzet gabungan** di bawahnya menjumlahkan omzet semuanya terhadap batas Rp 4,8 miliar PPh Final UMKM. Angkanya dibaca otomatis, tanpa input."
+          "title": "Baca Piutang, Utang, Pajak, dan Perlu Perhatian",
+          "text": "Kartu **Piutang Usaha** dan **Utang Usaha** menunjukkan total dan bagian yang jatuh tempo (batang merah). Kartu **Ringkasan Pajak** menunjukkan total terutang per jenis dan tenggat terdekat; **Buka Pajak** membawa Anda ke Ringkasan Pajak. Kartu **Perlu Perhatian** mengumpulkan hal yang perlu ditindaklanjuti. Kartu **Saldo Akun** menampilkan saldo tiap rekening kas dan bank beserta status rekonsiliasinya, dan **Aktivitas Terbaru** mendaftar pembayaran dan invoice terbaru.\n\nBila Anda punya lebih dari satu Entity (PT dan Buku Pribadi), kartu **Omzet gabungan** di bawahnya menjumlahkan omzet semuanya terhadap batas Rp 4,8 miliar PPh Final UMKM. Angkanya dibaca otomatis, tanpa input."
         }
       ],
       "result": [
@@ -1123,14 +1142,23 @@
       ],
       "rules": [
         "Semua angka berasal dari jurnal yang sudah diposting; Dashboard tidak menghitung sendiri.",
-        "Grafik hanya menampilkan enam bulan terakhir sampai bulan yang dipilih.",
+        "Pendapatan, Beban, Pajak Penghasilan, dan Laba Berjalan mengikuti periode yang dipilih; grafik tren dan batang bulanan memakai enam bulan terakhir sampai periode itu.",
+        "Pajak Penghasilan tidak termasuk dalam Beban. Pendapatan − Beban − Pajak Penghasilan = Laba Berjalan.",
         "Bagian yang tidak Anda punya izinnya tidak tampil sama sekali."
       ],
       "mistakes": [
         "Membaca grafik tanpa mengarahkan kursor. Angka pastinya ada di kotak yang muncul, bukan di sumbu.",
-        "Mengira Beban sama dengan uang keluar. Beban dicatat saat tagihan atau beban diposting, bukan saat dibayar."
+        "Mengira Beban sama dengan uang keluar. Beban dicatat saat tagihan atau beban diposting, bukan saat dibayar.",
+        "Mengira Dashboard kosong karena tidak ada transaksi. Dashboard dibuka di bulan berjalan; pilih bulan sebelumnya, Tahunan, atau Sejak Awal.",
+        "Menjumlahkan Beban dan Pajak Penghasilan sebagai satu angka beban. Keduanya kartu terpisah; Laba Berjalan sudah memperhitungkan keduanya."
       ],
-      "related": ["lihat-piutang", "lihat-utang", "laporan-keuangan-utama", "posisi-ppn-pph"]
+      "related": [
+        "lihat-piutang",
+        "lihat-utang",
+        "laporan-keuangan-utama",
+        "posisi-ppn-pph",
+        "bayar-pajak"
+      ]
     }
   ]
 }

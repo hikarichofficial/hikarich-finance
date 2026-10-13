@@ -1,7 +1,7 @@
 # Implementation Decisions
 
 > **Status terkini — 11 Oktober 2026.** Keputusan terakhir yang sudah masuk `main` adalah **PR #213**
-> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR #215; keputusan 409 dan 410 (bunga per jenis, Rekap Pajak, penjelasan fungsi halaman) di PR #216. Keputusan 411 (bukti pajak diunggah langsung, rincian pembayaran, satu pratinjau) di PR #217. Keputusan 412 (rekonsiliasi pajak final tanpa SPT bulanan) dan 413 (kartu Pajak Penghasilan di Dashboard) di PR #218. Keputusan 414 (halaman rincian pembayaran pajak, PPh Final UMKM jadi pilihan awal) di PR berikutnya.
+> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR #215; keputusan 409 dan 410 (bunga per jenis, Rekap Pajak, penjelasan fungsi halaman) di PR #216. Keputusan 411 (bukti pajak diunggah langsung, rincian pembayaran, satu pratinjau) di PR #217. Keputusan 412 (rekonsiliasi pajak final tanpa SPT bulanan) dan 413 (kartu Pajak Penghasilan di Dashboard) di PR #218. Keputusan 414 (halaman rincian pembayaran pajak, PPh Final UMKM jadi pilihan awal) di PR #219. Keputusan 415 (panduan, diagram, dan PDF disesuaikan dengan fitur terbaru) di PR #220.
 > Produksi (`hikarich-finance-prod`, 139 migration) sudah direset bersih pada tanggal itu dengan Cara 3
 > di `docs/RESET_PRODUKSI.md`: dua Entity (`pt` badan, `hikarich` pribadi), profil Entity, profil pajak,
 > mesin pajak dan rekening Mandiri Bisnis dipertahankan; seluruh transaksi, kontak, dokumen dan jejak
@@ -3891,3 +3891,19 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      inline block and its styles are removed. "Pelaporan & Bukti" stays highlighted in the menu while on a
      payment page. Also, the list of tax types on this screen now starts with PPh Final UMKM, the main tax of
      the company, and it is the default when none is chosen (it was PPN). No database change.
+
+415. **The guide, the flow diagrams and the PDF follow the application up to decision 414 (OWNER, 13 October
+     2026).** The owner asked whether the guide and diagrams on the website and in the PDF match the newest
+     features. They did not: the tax guide still described a monthly PPh Final return and an expandable payment
+     block, the Dashboard guide lacked the Pajak Penghasilan card, the picker guide predated the new Picker,
+     and many guides and 18 of the 33 flow diagrams (plus 5 new rows in "Saya mau ... buka menu apa?") were
+     out of date after decisions 400–414. Decision: all 74 guides and the diagrams are updated to the screens as
+     they are now; the "Catatan" label on a loan payment says it is required only when there is a fee (the screen
+     and the guide now agree); the description of "Tambah Akun" says the opening balance is recorded separately
+     under Akuntansi > Saldo Awal. The PDF no longer keeps its own hand-written copy of the menu: Bagian II is
+     generated from `src/domain/shell/navigation.ts` and `src/content/pageHelp.ts` through
+     `scripts/guide/export_menu.mts`, Bagian I takes its seven steps from the guide "Urutan Langkah Pertama
+     Kali", the old hand-written flow chapter is removed (the Alur Kerja chapter inside Bagian V already draws
+     the same diagrams as the website), and the PDF now has five parts instead of six. Screenshots are not
+     changed (they still need a re-capture with sample data, never with production data in this public repo).
+     No database change.

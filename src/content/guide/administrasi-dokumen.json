@@ -17,7 +17,7 @@
         },
         {
           "title": "Buka Administrasi > Pengguna & Peran",
-          "text": "Halaman berjudul **Pengguna & Peran** dengan ringkasan “N anggota entitas ini.” Tabel memuat **Nama**, **Peran**, dan **Status** (Aktif atau Nonaktif). Akun Anda ditandai “(Anda)”. Klik nama untuk membuka detail anggota.",
+          "text": "Halaman berjudul **Pengguna & Peran**, dengan satu kalimat singkat di bawah judul yang menjelaskan fungsinya, lalu ringkasan “N anggota entitas ini.” Tabel memuat **Nama**, **Peran**, dan **Status** (Aktif atau Nonaktif). Akun Anda ditandai “(Anda)”. Klik nama untuk membuka detail anggota.",
           "image": {
             "file": "pengguna-peran-v2.jpg",
             "caption": "Halaman Pengguna & Peran."
@@ -239,7 +239,7 @@
       "steps": [
         {
           "title": "Buka Administrasi > Pengaturan",
-          "text": "Halaman berjudul “Pengaturan Entitas” dengan nama merek (atau nama resmi) Entity aktif dan lencana Aktif atau Nonaktif. Pastikan pemilih Entity di kiri atas benar sebelum mengubah apa pun."
+          "text": "Halaman bertuliskan “Pengaturan Entitas” di atas nama merek (atau nama resmi) Entity aktif, dengan lencana Aktif atau Nonaktif. Di bawah judul ada satu kalimat singkat yang menjelaskan fungsi halaman. Pastikan pemilih Entity di kiri atas benar sebelum mengubah apa pun."
         },
         {
           "title": "Periksa Profil Entitas",
@@ -282,7 +282,7 @@
         },
         {
           "title": "Tambah Entity baru (OWNER)",
-          "text": "Di bagian **Tambah Entity**, pilih **Jenis** (Buku usaha atau Buku rumah tangga), isi **Nama Resmi**, **Nama Merek (opsional)**, dan **Kode (dipakai di alamat halaman; tidak bisa diubah)**, lalu tekan **Tambah Entity**. Entity baru langsung mendapat daftar akun standar, Anda menjadi OWNER-nya, dan Anda dibawa ke Pengaturan Entity itu untuk mengisi alamat dan data pajak."
+          "text": "Di bagian **Tambah Entity**, pilih **Jenis** (Buku usaha (PT, CV, atau usaha pribadi) atau Buku rumah tangga), isi **Nama Resmi**, **Nama Merek (opsional)**, dan **Kode (dipakai di alamat halaman; tidak bisa diubah)**, lalu tekan **Tambah Entity**. Entity baru langsung mendapat daftar akun standar, Anda menjadi OWNER-nya, dan Anda dibawa ke Pengaturan Entity itu untuk mengisi alamat dan data pajak."
         }
       ],
       "result": [
@@ -352,7 +352,7 @@
         },
         {
           "title": "Buka Administrasi > Jejak Audit",
-          "text": "Halaman berjudul **Log Audit** dengan ringkasan “Kejadian 1–50, terbaru lebih dulu.” Jejak Audit memuat semua perubahan data pada Entity aktif, bukan hanya yang penting.",
+          "text": "Halaman berjudul **Log Audit**, dengan satu kalimat singkat di bawah judul yang menjelaskan fungsinya, lalu ringkasan “Kejadian 1–50, terbaru lebih dulu.” Jejak Audit memuat semua perubahan data pada Entity aktif, bukan hanya yang penting.",
           "image": {
             "file": "jejak-audit-v2.jpg",
             "caption": "Halaman Log Audit dengan tab Semua, Dibuat, Diubah, Dihapus."
@@ -603,36 +603,41 @@
     {
       "slug": "dokumen-lampiran",
       "title": "Cara Melampirkan Bukti dan Mencari Dokumen",
-      "summary": "Mengunggah bukti (PDF atau foto) pada invoice, tagihan, atau beban, lalu mencarinya kembali di Pusat Dokumen, Bukti Terkait, dan Arsip.",
-      "path": "Dokumen > Pusat Dokumen, Unggahan, Bukti Terkait, Arsip. Unggah dari bagian Lampiran di Penjualan > Invoice, Pembelian > Tagihan, atau Pembelian > Beban",
-      "who": "Melihat Pusat Dokumen, Unggahan, Bukti Terkait, dan Arsip: izin lihat dokumen (documents.view). Melampirkan dan melepas lampiran: izin unggah dokumen (documents.upload) ditambah izin mengubah catatannya (invoice: izin buat atau ubah invoice; tagihan dan beban: izin buat atau ubah tagihan). Peran bawaan: OWNER, Finance Admin, dan Finance Staff. Accountant, Tax, Payroll, dan Viewer / Auditor hanya melihat.",
-      "quick": "Unggah dilakukan di bagian **Lampiran** pada detail invoice, tagihan, atau beban. Menu **Dokumen** dipakai untuk mencari dan memeriksa, bukan untuk mengunggah.",
+      "summary": "Mengunggah bukti (PDF atau foto) pada invoice, tagihan, beban, atau pendapatan, membukanya di jendela pratinjau, mengelola jenis lampiran sendiri, dan mencari kembali di Pusat Dokumen, Bukti Terkait, dan Arsip.",
+      "path": "Dokumen > Pusat Dokumen, Unggahan, Bukti Terkait, Arsip. Unggah dari bagian Lampiran di Penjualan > Invoice, Penjualan > Catat Pendapatan, Pembelian > Tagihan, atau Pembelian > Beban; bukti pajak dari Pajak > Pelaporan & Bukti",
+      "who": "Melihat Pusat Dokumen, Unggahan, Bukti Terkait, dan Arsip: izin lihat dokumen (documents.view). Melampirkan dan melepas lampiran: izin unggah dokumen (documents.upload) ditambah izin mengubah catatannya (invoice: izin buat atau ubah invoice; pendapatan: izin menerbitkan invoice atau mengonfirmasi pembayaran; tagihan dan beban: izin buat atau ubah tagihan). Peran bawaan: OWNER, Finance Admin, dan Finance Staff. Accountant, Tax, Payroll, dan Viewer / Auditor hanya melihat. Mengelola jenis lampiran sendiri (ubah nama, tidak dipakai lagi) juga butuh documents.upload. Bukti pajak punya izin sendiri (tax.mark_filed); lihat [Cara Mencatat Pembayaran Pajak dan Pelaporan](bayar-pajak).",
+      "quick": "Unggah dilakukan di bagian **Lampiran** pada detail invoice, tagihan, beban, atau pendapatan (bukti pajak di Pajak > Pelaporan & Bukti). Klik nama berkas di mana pun untuk membukanya di jendela pratinjau. Menu **Dokumen** dipakai untuk mencari dan memeriksa, bukan untuk mengunggah.",
       "steps": [
         {
           "title": "Buka detail catatan yang akan dilampiri",
-          "text": "Buka **Penjualan > Invoice**, **Pembelian > Tagihan**, atau **Pembelian > Beban**, lalu klik catatannya. Gulir ke bagian **Dokumen**; **Lampiran** ada tepat di bawah tampilan dokumennya. Tabelnya memuat **Berkas**, **Jenis**, **Ukuran**, dan **Tindakan**; bila belum ada tertulis “Belum ada lampiran.”"
+          "text": "Buka **Penjualan > Invoice**, **Penjualan > Catat Pendapatan**, **Pembelian > Tagihan**, atau **Pembelian > Beban**, lalu klik catatannya. Gulir ke bagian **Dokumen**; **Lampiran** ada tepat di bawah tampilan dokumennya. Tabelnya memuat **Berkas**, **Jenis**, **Ukuran**, dan **Tindakan**; bila belum ada tertulis “Belum ada lampiran.”"
         },
         {
           "title": "Pilih berkas dan jenisnya",
-          "text": "Pada **Berkas (PDF, JPG, PNG atau WebP, maksimal 4 MB)** pilih berkas. Pilih **Jenis lampiran**: Invoice vendor, Kuitansi, Kontrak, Lainnya, atau jenis yang Anda tambahkan sendiri. Bila jenisnya belum ada, pilih **+ Tambah jenis lampiran…**, ketik namanya (mis. Surat Jalan), lalu tekan **Simpan Jenis**; jenis baru langsung terpilih dan bisa dipakai di semua catatan Entity ini. Pilihan awalnya Invoice vendor di Tagihan, Kuitansi di Beban, dan Lainnya di Invoice. Tekan **Lampirkan**. Bila berhasil tampil “Lampiran tersimpan.”",
+          "text": "Pada **Berkas (PDF, JPG, PNG atau WebP, maksimal 4 MB)** pilih berkas. Isian **Jenis lampiran** berbentuk Picker: klik untuk melihat daftar, ketik untuk mempersempit, lalu pilih. Jenis bawaan: Invoice vendor, Kuitansi, Kontrak, dan Lainnya, ditambah jenis yang Anda tambahkan sendiri. Bila jenisnya belum ada, ketik namanya (mis. Surat Jalan) lalu pilih baris **+ Tambah … sebagai jenis lampiran baru** di akhir daftar. Kolom **Nama jenis lampiran baru** muncul; tekan **Simpan Jenis** dan jenis baru langsung terpilih serta bisa dipakai di semua catatan Entity ini (**Batal** untuk mundur). Pilihan awalnya Invoice vendor di Tagihan, Kuitansi di Beban dan Pendapatan, dan Lainnya di Invoice. Tekan **Lampirkan**. Bila berhasil tampil “Lampiran tersimpan.”",
           "tip": "Berkas dengan isi yang sama di Entity yang sama dianggap satu dokumen dan hanya disimpan sekali."
         },
         {
-          "title": "Unduh atau buka lampiran",
-          "text": "Klik nama berkas di kolom **Berkas**. Berkas terbuka di tab baru lewat tautan sementara yang berlaku sekitar 1 menit, dan izin Anda dicek tiap kali."
+          "title": "Buka lampiran di pratinjau atau unduh",
+          "text": "Klik nama berkas. Berkas terbuka di jendela pratinjau di atas halaman, tanpa meninggalkan halaman. Gambar dan PDF langsung tampil; tekan **Cetak / Simpan PDF** untuk mencetaknya (pilihan Simpan sebagai PDF ada di jendela cetak peramban), **Unduh** untuk mengunduhnya lewat tautan sementara yang berlaku singkat, atau **Tutup** (atau tombol Esc) untuk menutup jendela. Jenis berkas yang tidak bisa ditampilkan hanya menawarkan Unduh. Izin Anda dicek tiap kali berkas dibuka. Cara yang sama berlaku di semua tempat yang menampilkan nama berkas: Lampiran pada catatan, Pusat Dokumen, Unggahan, Bukti Terkait, Arsip, dan bukti di Pelaporan & Bukti."
         },
         {
           "title": "Lepas lampiran yang salah",
           "text": "Di kolom **Tindakan**, tekan **Lepas**, isi **Alasan** (minimal 3 karakter), lalu tekan **Lepas Lampiran**. Bila berhasil tampil “Lampiran dilepas.” Berkas yang dilepas pindah ke Arsip.",
-          "warning": "Lampiran hanya bisa dilepas selagi catatannya belum final: invoice yang masih draft, atau tagihan dan beban yang masih draft atau diajukan. Setelah itu lampiran menjadi bagian dari catatan."
+          "warning": "Lampiran hanya bisa dilepas selagi catatannya belum final: invoice yang masih draft, atau tagihan dan beban yang masih draft atau diajukan. Setelah itu lampiran menjadi bagian dari catatan. Lampiran pada catatan Pendapatan (Catat Pendapatan) tidak bisa dilepas."
         },
         {
           "title": "Cari di Pusat Dokumen",
-          "text": "Buka **Dokumen > Pusat Dokumen**. Ringkasan menulis “N dokumen ditampilkan.” Pakai tab jenis (Semua, Tagihan, Pengeluaran, Invoice, Aset Tetap, Pinjaman, Piutang/Utang Lain-lain, Transaksi Ekuitas, Kontak, Jurnal, Pelaporan Pajak, Pembayaran Pajak, Batch Impor) atau ketik di **Cari nama berkas…** lalu tekan **Cari**. Kolomnya **Nama Berkas**, **Terkait Dengan**, **Tautan**, **Ukuran**, dan **Diunggah**.",
+          "text": "Buka **Dokumen > Pusat Dokumen**. Ringkasan menulis “N dokumen ditampilkan.” Pakai tab jenis (Semua, Tagihan, Pengeluaran, Pendapatan, Invoice, Aset Tetap, Pinjaman, Piutang/Utang Lain-lain, Transaksi Ekuitas, Kontak, Jurnal, Pelaporan Pajak, Pembayaran Pajak, Batch Impor) atau ketik di **Cari nama berkas…** lalu tekan **Cari**. Kolomnya **Nama Berkas** (klik untuk pratinjau), **Terkait Dengan**, **Tautan**, **Ukuran**, dan **Diunggah**.",
           "image": {
             "file": "dokumen-pusat.jpg",
             "caption": "Pusat Dokumen."
           }
+        },
+        {
+          "title": "Kelola jenis lampiran sendiri",
+          "text": "Di bawah daftar Pusat Dokumen, bagi yang berhak (documents.upload) tampil bagian **Jenis Lampiran Sendiri**: jenis yang Anda tambahkan sendiri saat mengunggah, dengan kolom **Nama**, **Status** (**Dipakai** atau **Tidak dipakai**), dan **Tindakan**. Tekan **Ubah nama**, ketik nama baru (2 sampai 60 karakter), lalu **Simpan** (atau **Batal**). Tekan **Tidak dipakai lagi** untuk menyembunyikan jenis dari pilihan unggah; jenis itu tetap ada di daftar dengan warna pudar dan tombol **Pakai lagi** untuk mengaktifkannya kembali. Jenis tidak pernah dihapus, dan lampiran lama tetap tercatat dengan jenisnya semula. Bila belum ada, tertulis “Belum ada jenis lampiran sendiri. Tambahkan dari form unggah lampiran.”",
+          "tip": "Empat jenis bawaan (Invoice vendor, Kuitansi, Kontrak, Lainnya) milik sistem dan tidak tampil di daftar ini."
         },
         {
           "title": "Bedakan Unggahan, Bukti Terkait, dan Arsip",
@@ -640,7 +645,7 @@
         },
         {
           "title": "Bukti untuk pajak",
-          "text": "Bukti bayar dan bukti lapor pajak dilampirkan dari Pajak > Pelaporan & Bukti dengan memilih dokumen yang sudah ada. Lihat [Cara Mencatat Pembayaran Pajak dan Pelaporan](bayar-pajak)."
+          "text": "Bukti pajak (bukti bayar, NTPN, bukti lapor, bukti potong, faktur pajak) tidak diunggah dari bagian Lampiran di atas, tetapi di **Pajak > Pelaporan & Bukti**. Di halaman rincian satu pembayaran pajak atau di bagian **Bukti Pendukung**, pilih berkas lalu tekan **Unggah Bukti**; berkasnya langsung menempel ke pembayaran atau pelaporan itu, kapan saja setelah dicatat. Dokumen yang sudah ada di Pusat Dokumen juga bisa dilampirkan lewat **Cari Dokumen**. Lihat [Cara Mencatat Pembayaran Pajak dan Pelaporan](bayar-pajak)."
         }
       ],
       "result": [
@@ -651,16 +656,19 @@
         "Jenis berkas yang diterima PDF, JPG, PNG, atau WebP, dan jenisnya diperiksa dari isi berkas, bukan dari namanya.",
         "Ukuran maksimal 4 MB per berkas, karena layanan hosting membatasi ukuran kiriman.",
         "Penyimpanan berkas bergantung pada pengaturan situs. Bila belum aktif, bagian Lampiran menulis “Penyimpanan berkas belum diaktifkan untuk situs ini.”",
-        "Tombol unggah hanya ada di detail Invoice, Tagihan, dan Beban. Menu Dokumen sendiri tidak punya tombol unggah, dan nama berkas di Pusat Dokumen, Unggahan, Bukti Terkait, dan Arsip bukan tautan unduhan.",
-        "Invoice berstatus void, serta tagihan atau beban yang sudah dibatalkan, tidak bisa ditambah lampiran.",
+        "Di menu Dokumen tidak ada tombol unggah. Unggah dilakukan dari detail Invoice, Pendapatan, Tagihan, dan Beban, atau (untuk bukti pajak) dari Pajak > Pelaporan & Bukti. Nama berkas di semua daftar membuka jendela pratinjau, bukan unduhan langsung.",
+        "Invoice berstatus void, pendapatan yang dibatalkan, serta tagihan atau beban yang sudah dibatalkan, tidak bisa ditambah lampiran. Pembayaran pajak yang sudah dibalik juga tidak bisa diberi lampiran baru.",
         "Bukti pajak yang sudah dilampirkan tidak bisa dihapus.",
-        "Belum ada tombol ekspor dokumen massal."
+        "Belum ada tombol ekspor dokumen massal.",
+        "Pratinjau hanya menampilkan berkas sampai 12 MB; berkas lebih besar tetap bisa diunduh. Jenis berkas yang tidak bisa ditampilkan hanya menawarkan Unduh."
       ],
       "mistakes": [
         "Mencari tombol Unggah di menu Dokumen. Unggah dilakukan dari detail catatan.",
         "Melampirkan setelah catatan final lalu mencoba melepasnya. Setelah itu ia tidak bisa dilepas.",
         "Mengunggah berkas lebih dari 4 MB atau bertipe selain PDF dan gambar.",
-        "Mengharapkan dokumen yang sudah dilepas masih tampil sebagai bukti aktif. Ia pindah ke Arsip."
+        "Mengharapkan dokumen yang sudah dilepas masih tampil sebagai bukti aktif. Ia pindah ke Arsip.",
+        "Mencari bukti bayar pajak di bagian Lampiran invoice atau tagihan. Bukti pajak ada di Pajak > Pelaporan & Bukti.",
+        "Membuat jenis lampiran baru dengan nama hampir sama karena salah ketik. Pakai **Ubah nama** di Jenis Lampiran Sendiri; jenis tidak pernah dihapus, hanya dinonaktifkan."
       ],
       "errors": [
         {
@@ -690,6 +698,14 @@
         {
           "message": "Berkas tidak ditemukan atau Anda tidak berhak membukanya.",
           "meaning": "Tautan unduhan tidak valid atau akun Anda tidak boleh melihat catatan yang terkait."
+        },
+        {
+          "message": "Jenis berkas ini tidak bisa ditampilkan di sini. Gunakan Unduh untuk membukanya.",
+          "meaning": "Jendela pratinjau hanya menampilkan gambar dan PDF; gunakan tombol Unduh."
+        },
+        {
+          "message": "Berkas terlalu besar untuk ditampilkan; gunakan Unduh.",
+          "meaning": "Berkas lebih dari 12 MB tidak ditampilkan di pratinjau."
         }
       ],
       "related": ["catat-tagihan-vendor", "buat-biaya", "buat-terbitkan-invoice", "bayar-pajak"]
@@ -734,7 +750,7 @@
           "rows": [
             [
               "Hitung",
-              "Khusus PPh Final UMKM: pajak bulan itu dihitung final setelah bulan berakhir. Selama bulannya berjalan, hanya ada perkiraan di kartu Perkiraan Pajak Bulan Berjalan.",
+              "Khusus PPh Final UMKM: pajak bulan itu dihitung final setelah bulan berakhir. Selama bulannya berjalan, hanya ada perkiraan di kartu Perkiraan PPh Final di bagian atas halaman.",
               "Pajak > PPh Final"
             ],
             [
@@ -781,7 +797,7 @@
       ],
       "mistakes": [
         "Menunggu kalender menandai Selesai padahal pembayaran atau pelaporan belum dicatat di Pelaporan & Bukti.",
-        "Mengira PPh 21 karyawan muncul di kalender.",
+        "Mengira PPh 21 karyawan selalu ada di kalender. Barisnya baru muncul setelah ada PPh 21 yang diakui (dari payroll), dibayar, atau dilaporkan untuk masa itu.",
         "Memilih rentang lebih dari 36 bulan sehingga halaman gagal dimuat."
       ],
       "errors": [
@@ -799,18 +815,23 @@
     {
       "slug": "posisi-ppn-pph",
       "title": "Memahami Ringkasan Pajak, PPN, dan PPh Vendor",
-      "summary": "Membaca posisi pajak per masa: berapa yang diakui, sudah dibayar, dan masih kurang, untuk PPN dan PPh Vendor.",
-      "path": "Pajak > Ringkasan Pajak, Pajak > PPN, Pajak > PPh Vendor",
+      "summary": "Membaca posisi pajak per masa dan rekap pajak per bulan, tahun, atau sejak awal: berapa yang diakui, sudah dibayar, dan masih kurang.",
+      "path": "Pajak > Ringkasan Pajak (termasuk Rekap Pajak), Pajak > PPN, Pajak > PPh Vendor",
       "who": "Melihat: izin lihat pajak (tax.view), yaitu OWNER, Finance Admin, Accountant, Tax, dan Viewer / Auditor. Halaman-halaman ini hanya membaca.",
       "quick": "Angka yang harus dibayar adalah **Sisa Kekurangan**, bukan Terutang (Diakui). Pajak dihitung otomatis dari invoice, tagihan, dan beban; halaman ini hanya menampilkannya per masa.",
       "steps": [
         {
           "title": "Mulai dari Pajak > Ringkasan Pajak",
-          "text": "Halaman ini berisi angka, bukan kalimat. Di bagian atas ada label singkat **Wajib pajak**, **Rezim**, **PPN**, dan **Pemotong pajak**, serta tautan ke Buku Besar Pajak dan Kalender. Empat kartu angka: **Total terutang** (klik untuk membuka Buku Besar Pajak), **PPh Final bulan ini (perkiraan)**, **Perkiraan PPh** tahun berjalan atas penghasilan di luar PPh Final, dan **Perlu ditinjau** (jumlah transaksi yang menunggu penentuan pajak).\n\nDi bawahnya: grafik **PPh per bulan** (arahkan kursor ke batang untuk melihat jumlahnya, klik untuk membuka entri bulan itu di Buku Besar Pajak; tautan tahun untuk berpindah tahun), kartu **Penghasilan di Luar PPh Final**, batang **Terutang per jenis** (klik untuk menyaring Buku Besar Pajak), dan kartu **Tenggat terdekat**: tanggal berwarna merah bila terlambat dan kuning bila perlu dikerjakan.",
+          "text": "Halaman ini berisi angka, bukan kalimat; di bawah judul ada penjelasan singkat fungsinya, dan **Selengkapnya** membuka penjelasan yang lebih panjang. Di bagian atas ada label singkat **Wajib pajak**, **Rezim**, **PPN**, dan **Pemotong pajak**, serta tautan ke Buku Besar Pajak dan Kalender. Empat kartu angka: **Total terutang** (klik untuk membuka Buku Besar Pajak), **PPh Final <bulan> (perkiraan)** (nama bulan berjalan tertulis di judul kartu; tampil hanya bila Entity memakai PPh Final UMKM), **Perkiraan PPh <tahun>** atas penghasilan di luar PPh Final, dan **Perlu ditinjau** (jumlah transaksi yang menunggu penentuan pajak).\n\nDi bawah kartu angka ada **Rekap Pajak** (langkah berikut). Di bawahnya: grafik **PPh per bulan** (arahkan kursor ke batang untuk melihat jumlahnya, klik untuk membuka entri bulan itu di Buku Besar Pajak; tautan tahun untuk berpindah tahun), kartu **Penghasilan di Luar PPh Final**, batang **Terutang per jenis** (klik untuk menyaring Buku Besar Pajak), dan kartu **Tenggat terdekat**: tanggal berwarna merah bila terlambat dan kuning bila perlu dikerjakan.",
           "image": {
             "file": "pajak-ringkasan-v3.jpg",
             "caption": "Ringkasan Pajak (angka contoh)."
           }
+        },
+        {
+          "title": "Saring Rekap Pajak per bulan, tahun, atau seluruhnya",
+          "text": "**Rekap Pajak** menjumlahkan pajak per jenis untuk satu rentang waktu. Pilih salah satu: **Bulan** (pilih bulannya lewat kolom bulan lalu tekan **Terapkan**), **Tahun** (pilih tahun dari daftar, enam tahun terakhir, lalu **Terapkan**), atau **Seluruhnya** (sejak awal). Tanpa pilihan, yang tampil adalah seluruh tahun berjalan. Tiga angka di atas tabel: **Pajak dihitung**, **Sudah dibayar**, dan **Belum dibayar** (berubah menjadi **Lebih bayar** bila pembayaran melebihi yang dihitung). Tabel di bawahnya memuat **Jenis pajak**, **Dihitung**, **Dibayar**, dan **Sisa**; jenis yang semua angkanya nol tidak ditampilkan. Pilihan **Tahun** dan **Bulan** juga mengubah tahun pada grafik PPh per bulan dan kartu Penghasilan di Luar PPh Final di bawahnya.",
+          "tip": "Rekap Pajak hanya untuk dilihat. Pajak dihitung menurut masa pajaknya (bulan pajak itu berlaku), bukan menurut tanggal pencatatan. Untuk membayar atau melapor, pakai Pajak > Pelaporan & Bukti."
         },
         {
           "title": "Buka posisi PPN",
@@ -823,7 +844,7 @@
         },
         {
           "title": "Periksa Pelaporan dan selisih",
-          "text": "Baris **Pelaporan** menulis “Belum dilaporkan” atau “Dilaporkan (nomor tanda terima)”. Bila buku dan pelaporan berbeda, daftar selisih tampil dengan judul seperti “Belum ada pelaporan”, “Pajak yang dilaporkan berbeda dari buku”, “Belum dibayar”, atau “Kelebihan bayar”."
+          "text": "Baris **Pelaporan** menulis “Belum dilaporkan” atau “Dilaporkan (nomor tanda terima)”. Untuk PPh Final UMKM (di Pajak > PPh Final) bulan Januari sampai November menulis “Tidak ada laporan bulanan (SPT Tahunan)”, dan selisih “Belum ada pelaporan” tidak ditampilkan untuk jenis itu. Bila buku dan pelaporan berbeda, daftar selisih tampil dengan judul seperti “Belum ada pelaporan”, “Pajak yang dilaporkan berbeda dari buku”, “Belum dibayar”, atau “Kelebihan bayar”."
         },
         {
           "title": "Telusuri sumbernya",
@@ -863,7 +884,8 @@
         "Mesin pajak harus aktif, kalau tidak, tidak ada pajak yang diakui.",
         "PPN keluaran berasal dari invoice, sedangkan PPN masukan dan PPh Vendor berasal dari tagihan dan beban. Semuanya otomatis, tidak diketik di halaman ini.",
         "Masa Pajak selalu satu bulan kalender. Angka tampil dalam mata uang dasar Entity.",
-        "Kolom Per Tanggal menunjukkan posisi sampai tanggal itu."
+        "Kolom Per Tanggal menunjukkan posisi sampai tanggal itu.",
+        "Rekap Pajak dapat disaring per bulan, per tahun, atau seluruhnya sejak awal; pilihan itu hanya mengubah tampilan, tidak mengubah data pajak."
       ],
       "mistakes": [
         "Membaca Terutang (Diakui) sebagai angka yang harus dibayar. Yang harus dibayar adalah Sisa Kekurangan.",

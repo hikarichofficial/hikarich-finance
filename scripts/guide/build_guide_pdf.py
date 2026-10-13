@@ -26,7 +26,7 @@ from reportlab.platypus.flowables import Flowable
 from reportlab.platypus import Image as RLImage
 
 OUT_PATH = os.environ.get("GUIDE_PDF_OUT", "/mnt/user-data/outputs/Panduan_Penggunaan_Hikarich_Finance.pdf")
-# The step-by-step guides (Bagian VI) are read from the SAME JSON files the website's "Panduan" menu uses, so
+# The step-by-step guides (Bagian V) are read from the SAME JSON files the website's "Panduan" menu uses, so
 # the PDF and the website can never disagree. Screenshots live in <GUIDE_DIR>/images.
 GUIDE_DIR = os.environ.get(
     "GUIDE_DIR",
@@ -244,48 +244,6 @@ START_INTRO = (
     "<font face=\"Courier\" size=\"8.5\">?entity=hikarich</font> sehingga PT dan Pribadi tidak tercampur."
 )
 
-START_STEPS = [
-    ("Pilih Entity yang akan dikerjakan (PT Hikarich Kitana Digital atau Pribadi) lewat pemilih Entity di bagian "
-     "atas. Semua langkah di bawah dilakukan di Entity yang sedang dipilih.", "normal"),
-    ("<b>Pengaturan Pajak</b> (menu Pajak &rarr; Pengaturan Pajak): isi profil pajak Entity dan tanggal mulai "
-     "mesin pajak. Pajak pada invoice dan pengeluaran dihitung otomatis dari profil ini.", "normal"),
-    ("<b>Rekening Kas &amp; Bank</b> (menu Kas &amp; Bank &rarr; Rekening &rarr; Tambah Akun): buat setiap rekening "
-     "bank, kas tunai, dan e-wallet yang dipakai, beserta mata uangnya. Rekening inilah yang nanti dipilih saat "
-     "invoice dibayar dan saat pengeluaran dibayar. Salah buat? Rekening yang belum punya transaksi bisa dihapus "
-     "dari halaman detailnya (tombol Hapus Rekening).", "normal"),
-    ("<b>Saldo Awal</b> (menu Akuntansi &rarr; Saldo Awal): jika rekening sudah berisi uang sebelum memakai website, "
-     "catat saldo pembukaannya di sini, bukan dengan mengetik saldo di rekening.", "normal"),
-    ("<b>Kategori</b> (menu Akuntansi &rarr; Kategori): Entity sudah memiliki kategori standar (misalnya Penjualan "
-     "Produk dan beban umum). Periksa daftarnya, tambah kategori yang kurang, dan pastikan kolom Akun tiap kategori "
-     "sudah sesuai. Kolom Perlakuan Pajak biarkan &quot;Otomatis&quot; kecuali kategori itu selalu punya perlakuan pajak "
-     "tertentu.", "normal"),
-    ("<b>Pelanggan</b> (menu Penjualan &rarr; Pelanggan &rarr; tambah): masukkan nama pelanggan tetap, plus email/"
-     "telepon bila ada. Sistem menolak data kembar. Pelanggan baru juga bisa ditambah langsung saat membuat invoice "
-     "lewat tombol &quot;+ Tambah pelanggan baru&quot;.", "normal"),
-    ("<b>Vendor</b> (menu Pembelian &rarr; Vendor &rarr; tambah): masukkan penyedia barang/jasa yang sering dibayar, "
-     "supaya tinggal dipilih saat mencatat tagihan.", "normal"),
-    ("<b>Produk &amp; Jasa</b> (menu Penjualan &rarr; Produk &amp; Jasa &rarr; tambah): isi Nama, Satuan, <b>Harga "
-     "Satuan Bawaan</b>, dan Kategori Pendapatan Bawaan. Inilah yang membuat baris invoice terisi otomatis: "
-     "produk yang sudah terdaftar muncul sebagai pilihan dengan harganya.", "normal"),
-    ("<b>Buat invoice</b> (menu Penjualan &rarr; Invoice &rarr; Buat Invoice): pilih Pelanggan dari daftar, atur "
-     "tanggal dan jatuh tempo, pilih Rekening Tujuan Pembayaran. Pada kolom <b>Deskripsi</b> baris, klik kolomnya: "
-     "daftar nama yang sudah ada (produk dan baris invoice sebelumnya) muncul di atas kolom. Klik salah satu, maka "
-     "deskripsi, harga satuan, dan kategori terisi otomatis. Harga tetap bisa diubah, dan Anda boleh mengetik nama "
-     "yang berbeda. Isi Diskon bila perlu (persen atau nominal). Isian uang otomatis diberi pemisah ribuan saat diketik (misalnya 100.000.000); gunakan <b>koma</b> untuk desimal.", "normal"),
-    ("<b>Terbitkan</b> invoice, lalu bagikan tautan pembayaran atau kirim ke email pelanggan. Saat pelanggan membayar, "
-     "catat di Pembayaran Diterima atau konfirmasi Klaim Pembayaran, dan pilih rekening yang menerima uangnya: "
-     "saldo rekening bertambah dan terlihat di halaman detail rekening.", "end"),
-    ("<b>Pengeluaran</b> (menu Pembelian &rarr; Beban &rarr; buat): pilih kategori beban, isi deskripsi (saran nama "
-     "muncul seperti pada invoice), <b>satu nominal (harga total di struk, bukan banyaknya barang)</b> (tidak perlu kuantitas dan harga satuan; centang "
-     "&ldquo;Rinci per barang&rdquo; bila memang perlu), dan <b>rekening yang membayar</b>. Setelah Konfirmasi, saldo "
-     "rekening berkurang dan jurnal tercatat otomatis. Pembelian dari vendor yang dibayar nanti dicatat sebagai Tagihan: "
-     "setelah disetujui menjadi utang usaha, lalu dibayar dengan tombol <b>Bayar Tagihan</b> di halaman tagihan itu "
-     "(Pembayaran Keluar hanya daftar riwayatnya).", "end"),
-    ("<b>Pembayaran pajak</b> (menu Pajak &rarr; Pelaporan &amp; Bukti): cek dulu posisi terutang di PPN, "
-     "PPh Vendor, atau PPh Final, lalu rekam pembayaran dari rekening kas/bank, rekam laporan SPT, dan "
-     "lampirkan bukti.", "end"),
-]
-
 EMAIL_STEPS = [
     ("Alamat website resmi: <font face=\"Courier\" size=\"8.5\">https://finance.hikarichgroup.com</font>. "
      "Masuk lewat halaman <font face=\"Courier\" size=\"8.5\">/login</font>. Alamat ini sudah terpasang di Vercel "
@@ -312,7 +270,7 @@ EMAIL_STEPS = [
 START_TIPS = [
     "Mulai dari Pelanggan, Produk &amp; Jasa, dan Rekening. Tiga hal ini yang paling sering dipilih saat membuat invoice.",
     "Nama produk dan baris invoice yang pernah dipakai akan muncul sebagai saran, jadi nama tetap seragam di semua invoice.",
-    "Jika salah memasukkan data awal (misalnya rekening), perbaiki atau hapus lewat halaman detailnya selama belum ada transaksi.",
+    "Jika salah memasukkan data awal (misalnya rekening), perbaiki lewat halaman detailnya selama belum ada transaksi.",
     "Angka dan tanggal yang sudah diposting tidak diubah langsung. Koreksi dilakukan lewat pembatalan atau pembalikan, "
     "sehingga riwayat tetap utuh.",
     "Tautan &quot;&larr; Kembali ke ...&quot; di halaman data membawa Anda ke halaman yang dibuka sebelumnya (misalnya Aktivitas "
@@ -331,498 +289,66 @@ START_TIPS = [
 ]
 
 # ----------------------------------------------------------------------------
-# CONTENT: 12 modul navigasi (fungsi menu & sub-menu)
+# CONTENT: menu & sub-menu. Read from the REAL menu (src/domain/shell/navigation.ts) and from the description
+# under each page title (src/content/pageHelp.ts) by scripts/guide/export_menu.mts, so this chapter follows the
+# application and cannot drift from it.
 # ----------------------------------------------------------------------------
-# Each section: (num, module_title_id, intro, items)
-# Each item: (name, href, description, refs)
+GROUP_INTRO = {
+    "overview": "Halaman pertama setelah masuk: ikhtisar posisi keuangan Entity yang sedang aktif, saldo kas dan bank, dan aktivitas terbaru. Hanya membaca, tidak mengubah data.",
+    "sales": "Semua yang berhubungan dengan menjual ke pelanggan: invoice, pembayaran, klaim pembayaran, pendapatan tanpa invoice, marketplace, refund, serta data pelanggan dan produk.",
+    "purchases": "Semua yang berhubungan dengan membeli dari vendor: tagihan, pengeluaran langsung (beban), pembayaran ke vendor, dan data vendor.",
+    "money": "Rekening kas, bank, dan e-wallet milik Entity: saldo, perpindahan uang antar rekening, rekonsiliasi dengan rekening koran, dan satu daftar gabungan seluruh mutasi.",
+    "accounting": "Jantung pembukuan: jurnal, rekening koran, daftar akun, kategori, status periode (tutup buku), saldo awal, dan penyesuaian saldo.",
+    "tax": "Pusat kepatuhan pajak: posisi PPN, PPh vendor, PPh Final UMKM, kalender jatuh tempo, pencatatan pembayaran, pelaporan dan bukti, serta aturan tarif.",
+    "assets-financing": "Aset tetap dan penyusutannya, pinjaman, piutang dan utang di luar invoice atau tagihan biasa, serta modal dan ekuitas.",
+    "payroll": "Data karyawan, proses penggajian bulanan, slip gaji, serta kewajiban pajak dan BPJS yang timbul dari payroll.",
+    "planning": "Anggaran, target pendapatan, perkiraan otomatis, dan transaksi berulang untuk invoice atau tagihan yang rutin terjadi.",
+    "reports": "Laporan keuangan baku (Laba Rugi, Neraca, Arus Kas, Perubahan Ekuitas), ringkasan penjualan dan pembelian, laporan pajak, payroll, pinjaman, aset, laporan kustom, dan laporan tersimpan.",
+    "documents": "Pencarian dokumen, lampiran bukti transaksi, dan arsip dokumen yang sudah diganti versinya.",
+    "administration": "Pengaturan Entity dan organisasi: impor data, jejak audit, pengguna dan peran, pengaturan umum, tampilan invoice, SKU, keamanan, serta backup dan pemulihan.",
+    "guide": "Panduan langkah demi langkah di dalam aplikasi, dan diagram alur kerja dari sebuah kejadian ke menu yang harus dibuka.",
+}
 
-SECTIONS = [
-("1", "Ringkasan (Dashboard)",
- "Halaman pertama yang tampil setelah masuk ke sebuah Entity. Memberi ikhtisar cepat "
- "posisi keuangan Entity yang sedang aktif sebelum pengguna masuk ke modul lain.",
- [("Ringkasan", "/",
-   "Ikhtisar satu layar: kartu angka (kas &amp; bank, pendapatan, beban, laba, piutang, utang), <b>Tren Arus Kas</b> "
-   "dan kartu <b>Pendapatan</b> serta <b>Beban</b> berupa grafik enam bulan. Arahkan kursor ke titik atau batang "
-   "untuk melihat angka pastinya, klik untuk membuka laporan bulan itu. Ada juga ringkasan pajak, tenggat terdekat, "
-   "dan daftar Perlu Perhatian. Tidak mengubah data apa pun — murni tampilan baca.", "")]
-),
+GUIDE_MENU_HELP = {
+    "/guide": "Daftar semua panduan langkah demi langkah, dikelompokkan menurut pekerjaan.",
+    "/guide/alur-kerja": "Diagram alur dari sebuah kejadian (misalnya ada pelanggan yang mau membayar) sampai menu yang harus dibuka.",
+}
 
-("2", "Penjualan (Sales)",
- "Semua yang berhubungan dengan menjual ke pelanggan: membuat invoice, menerima pembayaran, "
- "menangani klaim pembayaran dari halaman publik, penjualan marketplace, dan refund.",
- [
-  ("Invoice", "/sales/invoices",
-   "Membuat, menerbitkan, dan memantau invoice ke pelanggan. Status: Draf &rarr; Diterbitkan &rarr; (Dibatalkan/Void). "
-   "Invoice yang sudah diterbitkan punya nomor resmi dan tautan pembayaran publik yang bisa dibagikan ke pelanggan. "
-   "Invoice juga bisa dikirim atau dikirim ulang ke email pelanggan (termasuk setelah lunas), dengan Riwayat Pengiriman Email. Pada baris invoice: mengeklik atau mengetik di kolom deskripsi memunculkan daftar produk dan baris yang pernah dibuat (harga satuan ikut terisi, "
-   "tetap bisa diubah), ada kolom Diskon (persen atau nominal), dan angka uang otomatis diberi pemisah ribuan.",
-   "64–66,71,165,257"),
-  ("Catat Pendapatan", "/sales/income",
-   "Mencatat uang masuk yang tidak punya invoice: penjualan tunai, jasa yang dibayar langsung, komisi, bunga, "
-   "dividen, hasil trading. Cukup isi tanggal, jenis pendapatan (ketik untuk mencari atau tambah baru), jumlah, dan "
-   "rekening penerima; jurnal dan saldo rekening diurus otomatis. Pendapatan usaha ikut dasar PPh Final 0,5%; bunga, "
-   "dividen, hasil forex, dan sejenisnya tercatat tetapi tidak ikut dan tampil di Ringkasan Pajak. Salah catat "
-   "dibatalkan dengan alasan, bukan diedit.", "350,352"),
-  ("Pembayaran Diterima", "/sales/payments",
-   "Daftar seluruh pembayaran masuk dari pelanggan terhadap invoice. Pembayaran yang salah catat bisa dibatalkan "
-   "(dibalik/reverse) tanpa menghapus jejaknya. Di halaman detail pembayaran ada tombol Kirim Bukti Pembayaran "
-   "ke email pelanggan beserta Riwayat Pengiriman Email.", "68,229"),
-  ("Klaim Pembayaran", "/sales/claims",
-   "Antrian klaim “Saya Sudah Bayar” yang dikirim pelanggan dari halaman invoice publik. Staf meninjau lalu "
-   "Konfirmasi, Tolak, atau menandainya sebagai duplikat. Klaim yang masih menunggu tinjauan belum mengubah kas atau buku besar.",
-   "70,259"),
-  ("Marketplace", "/sales/marketplace",
-   "Mencatat penjualan dari toko online per pencairan dana (payout) dari marketplace, termasuk PPh 22 yang sudah "
-   "dipotong duluan oleh marketplace. Koreksi dilakukan lewat pembalikan (reversal), bukan edit langsung.", "260"),
-  ("Pengembalian Dana", "/sales/refunds",
-   "Mengembalikan dana ke pelanggan, sebagian atau penuh, baik dari alokasi pembayaran yang sudah ada maupun dari "
-   "saldo lebih bayar (advance) pelanggan. Halaman ini hanya daftar pembayaran yang sudah punya refund dan tidak punya "
-   "tombol tambah: refund baru dibuat dari detail pembayaran (Pembayaran Diterima > klik pembayaran > Refund ke Pelanggan).", "73,229,263,356"),
-  ("Pelanggan", "/sales/customers",
-   "Data induk pelanggan. Sistem mendeteksi duplikasi: email/telepon/NPWP yang sama persis akan ditolak, nama yang "
-   "mirip akan meminta konfirmasi sebelum disimpan.", "67,445"),
-  ("Produk & Jasa", "/sales/products",
-   "Katalog produk/jasa untuk mengisi baris invoice secara cepat dan konsisten. Setiap produk mendapat SKU otomatis "
-   "(mis. KEA-EA-001) dari Brand dan Jenis Produk yang dipilih; produk bisa punya variant (mis. KEA-EA-001-1B) dengan "
-   "SKU, harga, dan status sendiri. Brand, Jenis Produk, Variant, dan Kategori bisa diketik dan ditambah langsung di "
-   "form produk (bagi yang berizin SKU). Item di katalog tidak pernah dihapus permanen, hanya dinonaktifkan.", "245,324,351"),
- ]
-),
 
-("3", "Pembelian (Purchases)",
- "Semua yang berhubungan dengan membeli dari vendor: tagihan vendor, pembelian tunai langsung (beban), "
- "pembayaran ke vendor, dan data vendor.",
- [
-  ("Tagihan", "/purchases/bills",
-   "Tagihan dari vendor untuk barang/jasa/aset/beban dibayar di muka, dibayar nanti. Status: Draf &rarr; Diajukan &rarr; "
-   "Disetujui (atau Ditolak/Dibatalkan/Void). Setelah disetujui, biaya tercatat dan utang usaha bertambah, dan data "
-   "vendor dibekukan agar riwayat tidak berubah. Pembayaran dilakukan dengan tombol Bayar Tagihan di halaman tagihan: "
-   "utang usaha dan saldo rekening berkurang, biaya tidak bertambah lagi. Satu jumlah per baris cukup (kuantitas dan "
-   "harga satuan hanya bila &ldquo;Rinci per barang&rdquo; dicentang).",
-   "78,167"),
-  ("Beban", "/purchases/expenses",
-   "Pembelian yang dibayar tunai langsung saat terjadi (bukan utang). Cukup isi satu nominal, yaitu harga total di struk, tanpa "
-   "kuantitas dan harga satuan. Konfirmasi pada status Draf langsung membukukan beban sekaligus mencatat "
-   "pembayarannya &mdash; tidak ada tahap utang usaha terpisah.", "82,245,353"),
-  ("Pembayaran Keluar", "/purchases/payments",
-   "Daftar pembayaran ke vendor. Pembayaran baru dimulai dari detail tagihan (tombol Bayar Tagihan), bukan dari "
-   "halaman ini. Hanya memuat pembayaran Tagihan; Beban yang langsung dibayar tidak tampil di sini. Pembayaran yang salah "
-   "catat bisa dibatalkan (dibalik) dari halaman detail pembayaran.", "77,230,356"),
-  ("Vendor", "/purchases/vendors",
-   "Data induk vendor, dengan deteksi duplikasi yang sama seperti pada data Pelanggan.", "445"),
- ]
-),
+def load_menu():
+    """The menu tree and the page descriptions, from the application's own source files."""
+    import subprocess
+    repo = os.path.normpath(os.path.join(os.path.dirname(os.path.abspath(__file__)), "..", ".."))
+    out = subprocess.run(
+        ["node", "--experimental-strip-types", "--no-warnings", os.path.join("scripts", "guide", "export_menu.mts")],
+        cwd=repo, capture_output=True, check=True,
+    ).stdout.decode("utf-8")
+    data = json.loads(out)
+    return data["nav"], {**data["help"], **{k: {"summary": v} for k, v in GUIDE_MENU_HELP.items()}}
 
-("4", "Kas & Bank (Money)",
- "Mengelola rekening kas, bank, dan QRIS milik Entity: saldo, perpindahan uang antar rekening, "
- "rekonsiliasi dengan rekening koran, dan satu feed gabungan seluruh mutasi.",
- [
-  ("Rekening", "/money/accounts",
-   "Daftar seluruh rekening kas/bank/QRIS milik Entity, lengkap dengan saldo buku saat ini dan status rekonsiliasi "
-   "masing-masing. Klik nama rekening untuk membuka detail: saldo sistem &amp; buku besar, total masuk/keluar pada rentang "
-   "tanggal, dan daftar aktivitas dari invoice, pengeluaran, serta pajak. Rekening yang belum punya transaksi bisa "
-   "dihapus (tombol Hapus Rekening); yang sudah punya transaksi hanya bisa dinonaktifkan.", "169,295"),
-  ("Transfer", "/money/transfers",
-   "Memindahkan uang antar rekening yang dimiliki Entity yang sama (bukan ke pihak luar). Transfer perlu "
-   "dikonfirmasi oleh pihak yang berwenang sebelum dianggap final.", "56–58,170"),
-  ("Rekonsiliasi Bank", "/money/reconciliation",
-   "Mencocokkan mutasi pada rekening koran dengan mutasi yang tercatat di sistem, per rekening per periode. "
-   "Lihat alur lengkapnya di bagian Alur Diagram.", "59–60,251"),
-  ("Mutasi Kas & Bank", "/money/activity",
-   "Satu daftar gabungan dari seluruh pemasukan dan pengeluaran di semua rekening, diurutkan berdasarkan tanggal "
-   "&mdash; berguna untuk melihat aktivitas kas secara keseluruhan tanpa harus buka tiap rekening satu-satu.", "171"),
- ]
-),
 
-("5", "Akuntansi (Accounting)",
- "Jantung pembukuan: jurnal, daftar akun, kategori transaksi, status periode akuntansi (tutup buku), "
- "dan saldo awal saat migrasi/cutover.",
- [
-  ("Jurnal", "/accounting/journals",
-   "Daftar seluruh jurnal, baik yang dibuat otomatis dari transaksi (invoice, tagihan, pembayaran, dst.) maupun "
-   "jurnal manual. Dari sini bisa dilihat detail, dibuat jurnal manual baru, diposting dari draf, atau dibalik "
-   "(reverse) jika jurnal yang sudah posting ternyata salah.", "20,38,40,172"),
-  ("Rekening Koran", "/accounting/statement",
-   "Tampilan seperti rekening koran bank untuk kas dan bank: saldo awal, uang masuk, uang keluar, dan saldo akhir "
-   "per bulan, dengan saldo berjalan di setiap baris, dibagi menjadi beberapa halaman bila panjang, plus ringkasan "
-   "12 bulan. Angkanya dari jurnal yang sudah diposting.", "326"),
-  ("Daftar Akun", "/accounting/accounts",
-   "Peta/struktur akun (chart of accounts) milik Entity. Saat ini bersifat baca-saja dari aplikasi (belum ada "
-   "fitur tambah/ubah akun sendiri). Sebagian akun ditandai sebagai Akun Kontrol atau Dilindungi karena perannya "
-   "penting dalam integritas pembukuan.", "58,172"),
-  ("Kategori", "/accounting/categories",
-   "Mengatur kategori penjualan/pembelian: ke akun apa suatu kategori dibukukan, dan perlakuan pajak khususnya "
-   "(opsional; pajak tetap dihitung otomatis dari profil pajak). Setiap Entity sudah memiliki kategori standar "
-   "(misalnya Penjualan Produk), termasuk kategori Aset siap pakai (laptop, smartphone, peralatan kantor, kendaraan, "
-   "bangunan, tanah) dan biaya dibayar di muka untuk baris pengeluaran berperlakuan Aset; akun dapat dipetakan sendiri "
-   "lewat formulir di baris kategori.", "262,371"),
-  ("Periode Akuntansi", "/accounting/periods",
-   "Status tiap bulan pembukuan: Terbuka / Dalam Tinjauan Penutupan / Ditutup / Dibuka Kembali. Dari sini memulai "
-   "proses tutup bulan, melihat checklist pemblokirnya, atau membuka kembali periode yang sudah ditutup (dengan "
-   "alasan tertulis). Lihat alur lengkapnya di bagian Alur Diagram.", "22,42,226"),
-  ("Saldo Awal", "/accounting/opening-balances",
-   "Merekam saldo pembukaan akun-akun saat migrasi/cutover ke sistem ini. Satu batch saldo awal hanya diposting "
-   "satu kali; selisih yang tidak terjelaskan otomatis masuk ke akun “Selisih Migrasi”.", "43,44,245"),
-  ("Penyesuaian Lanjutan", "/accounting/advanced-adjustments",
-   "Untuk koreksi saldo kas/bank di luar jalur normal (misalnya biaya administrasi bank yang dipotong otomatis "
-   "oleh bank). Selalu membutuhkan alasan tertulis. Tidak bisa dipakai untuk mencatat pendapatan: pendapatan "
-   "(termasuk bunga bank) dicatat lewat Penjualan &gt; Catat Pendapatan agar pajaknya ikut terhitung.", "54,232,370"),
- ]
-),
+def menu_sections():
+    nav, help_ = load_menu()
+    sections = []
+    for number, group in enumerate(nav, 1):
+        items = group.get("items") or [{"label": group["label"], "href": group["href"]}]
+        rows, seen = [], set()
+        for item in items:
+            if item["href"] in seen and item["label"] == group["label"]:
+                continue
+            seen.add(item["href"])
+            entry = help_.get(item["href"], {})
+            name = item["label"]
+            alt = (item.get("labelByEntityType") or {}).get("personal")
+            if alt:
+                name += " (di Buku Pribadi: %s)" % alt
+            desc = entry.get("summary", "")
+            if entry.get("more"):
+                desc += " " + entry["more"]
+            rows.append((name, item["href"], desc))
+        sections.append((str(number), group["label"], GROUP_INTRO.get(group["key"], ""), rows))
+    return sections
 
-("6", "Pajak (Tax)",
- "Pusat kepatuhan pajak Entity: posisi PPN, PPh Vendor, PPh Final UMKM, kalender jatuh tempo, "
- "pencatatan pelaporan & pembayaran, serta aturan tarif resmi.",
- [
-  ("Ringkasan Pajak", "/tax",
-   "Halaman utama modul Pajak, berisi angka lebih dulu daripada kalimat. Empat kartu: <b>Total terutang</b>, "
-   "<b>PPh Final bulan ini</b> (perkiraan), <b>Perkiraan PPh</b> tahun berjalan, dan <b>Perlu ditinjau</b>. Di "
-   "bawahnya grafik <b>PPh per bulan</b> (arahkan kursor untuk jumlah, klik untuk membuka Buku Pajak bulan "
-   "itu), kartu <b>Penghasilan di Luar PPh Final</b> (hasil bersih forex, bunga, dividen, kripto sejak 1 Januari "
-   "dengan perkiraan pajak 22% berlabel asumsi; ditetapkan 1 Januari tahun berikutnya, SPT Tahunan 30 April), batang "
-   "<b>Terutang per jenis</b>, dan kartu <b>Tenggat terdekat</b>. Profil pajak Entity tampil sebagai label singkat "
-   "di bagian atas.", "173,352"),
-  ("Buku Pajak", "/tax/ledger",
-   "Daftar seluruh transaksi berpajak (PPN, PPh Vendor, PPh Final), bisa disaring per jenis pajak, periode, "
-   "sumber dokumen, dan status.", "91,173"),
-  ("PPh Final", "/tax/pph-final",
-   "Perhitungan PPh Final UMKM 0,5% dari omzet bulanan. Pilih bulan, lihat pratinjau, lalu hitung resmi. Jika "
-   "dihitung ulang, sistem hanya membukukan selisihnya, tidak dobel.", "97,234"),
-  ("PPh Vendor", "/tax/withholding",
-   "Posisi PPh 23 (jasa dan sewa), PPh 4 ayat (2) (sewa tanah/bangunan), dan PPh 26 (ke luar negeri) atas pembelian "
-   "dari vendor. PPh diambil dari bayaran vendor dan disetor PT ke negara, jadi biaya PT tetap sebesar jumlah di dokumen. "
-   "Dihitung otomatis dari tagihan/beban yang relevan, tidak perlu hitung manual.", "91,93,235,256,364"),
-  ("PPN", "/tax/ppn",
-   "Posisi PPN keluaran (dari penjualan) dan PPN masukan (dari pembelian, yang bisa dikreditkan) untuk tiap "
-   "periode pajak.", "91,92,235"),
-  ("Kalender Pajak", "/tax/calendar",
-   "Jadwal hitung/bayar/lapor/lampirkan bukti untuk setiap periode dan jenis pajak, dengan status: selesai, "
-   "jatuh tempo, terlambat, atau belum waktunya.", "98,233"),
-  ("Pelaporan & Bukti", "/tax/filing",
-   "Mencatat pembayaran pajak, merekam SPT yang sudah dilaporkan (termasuk pembetulan tanpa menghapus yang lama), "
-   "merekonsiliasi periode pajak, dan melampirkan bukti lapor/bayar.", "93,95,96,238"),
-  ("Aturan Pajak", "/tax/rules",
-   "Daftar tarif pajak resmi (PPN, PPh 23, dst.) beserta tanggal mulai berlaku dan dasar hukumnya. OWNER dapat "
-   "membuat versi aturan baru. Catatan teknis: entri aturan masih berupa data JSON mentah, bukan formulir "
-   "terpandu &mdash; sebaiknya ditangani oleh OWNER atau staf teknis.", "239,249"),
-  ("Pengaturan Pajak", "/tax/settings",
-   "Profil pajak Entity, serta “menyalakan” mesin penghitung pajak sejak tanggal tertentu. Dokumen sebelum "
-   "tanggal itu tidak akan dihitung ulang pajaknya.", "90,258"),
- ]
-),
-
-("7", "Aset & Pendanaan (Assets & Financing)",
- "Aset tetap perusahaan, jadwal penyusutan, pinjaman (utang maupun piutang ke pihak lain), "
- "piutang/utang lain di luar invoice/tagihan biasa, dan modal & ekuitas.",
- [
-  ("Aset Tetap", "/assets",
-   "Barang bernilai besar yang dipakai dalam jangka panjang. Muncul otomatis saat tagihan/beban yang baris-nya "
-   "ditandai “Aset” disetujui. Dari sini dilakukan aktivasi (tentukan tanggal mulai pakai, metode & umur "
-   "penyusutan, nilai sisa), lihat riwayat, pindahkan lokasi, atau lepas aset.", "103,113,174"),
-  ("Penyusutan", "/assets/depreciation",
-   "Jadwal penyusutan bulanan seluruh aset beserta status posting-nya. Sistem otomatis memposting bulan yang "
-   "sudah lewat saat layar ini (atau layar Aset/Dashboard) dibuka.", "104,178,269"),
-  ("Pinjaman", "/assets/loans",
-   "Mencatat utang ke pihak lain atau piutang pinjaman ke pihak lain: sisa pokok, jadwal cicilan, dan tunggakan. "
-   "Lihat alur lengkapnya di bagian Alur Diagram.", "109,175"),
-  ("Piutang Lain", "/assets/other-receivables",
-   "Piutang di luar invoice biasa &mdash; misalnya pinjaman ke karyawan atau dana titipan. Bisa dicatat, "
-   "dilunasi, atau dihapuskan.", "176"),
-  ("Utang Lain", "/assets/other-payables",
-   "Kebalikan dari Piutang Lain. Bisa dicatat, dibayar, atau dibatalkan.", "176"),
-  ("Modal & Ekuitas", "/assets/equity",
-   "Mencatat setoran modal, penarikan modal, dan dividen. Penarikan modal dan dividen hanya dapat disetujui "
-   "oleh OWNER.", "107,112,177"),
- ]
-),
-
-("8", "Payroll",
- "Data karyawan, menjalankan proses penggajian bulanan, slip gaji, serta kewajiban pajak & BPJS "
- "yang timbul dari payroll.",
- [
-  ("Karyawan", "/payroll/employees",
-   "Profil karyawan: jabatan, komponen gaji, kepesertaan BPJS, dan data pajak. Informasi gaji & pajak hanya "
-   "terlihat oleh pemegang peran Payroll atau OWNER.", "119,120,179"),
-  ("Proses Payroll", "/payroll/runs",
-   "Menjalankan penggajian bulanan melalui tahapan: Draf &rarr; Hitung &rarr; Ajukan &rarr; Setujui &rarr; "
-   "Posting &rarr; Bayar &rarr; Tutup. Hanya satu proses payroll yang boleh aktif per bulan. Lihat alur lengkapnya "
-   "di bagian Alur Diagram.", "122,125,180"),
-  ("Slip Gaji", "/payroll/payslips",
-   "Terbit otomatis saat sebuah proses payroll diposting. Slip gaji adalah “potret” angka pada saat itu dan "
-   "tidak berubah lagi setelah itu, meskipun data karyawan kemudian diubah.", "129,181"),
-  ("Pajak & Kewajiban Payroll", "/payroll/tax",
-   "Kewajiban yang terutang dari payroll (gaji, BPJS, PPh 21), buku pajak per karyawan, dan rekonsiliasi tahunan "
-   "PPh 21. Bagian buku pajak & rekonsiliasi tahunan hanya bisa diakses oleh pemegang izin pajak.", "131,182"),
- ]
-),
-
-("9", "Perencanaan (Planning)",
- "Anggaran per kategori, target pendapatan keseluruhan, perkiraan otomatis, dan transaksi "
- "berulang (recurring) untuk invoice/tagihan/beban yang rutin terjadi.",
- [
-  ("Anggaran", "/planning/budgets",
-   "Anggaran per kategori per bulan, dibandingkan dengan Realisasi (yang sudah benar-benar terjadi), Committed "
-   "(invoice draf/tagihan yang masih menunggu), dan Perkiraan (hanya informasi, tidak pernah mengubah pembukuan).",
-   "134,136,138,139,184,186"),
-  ("Target Pendapatan", "/planning/targets",
-   "Seperti Anggaran, tetapi untuk pendapatan keseluruhan per bulan tanpa rincian per kategori. Dibandingkan "
-   "dengan invoice yang sudah terbit dan piutang (AR) yang masih outstanding.", "138,185,186"),
-  ("Perkiraan", "/planning/forecasts",
-   "Proyeksi otomatis per kategori per bulan, dihitung dari rata-rata realisasi 3 bulan terakhir. Bisa ditautkan "
-   "ke Anggaran, dan bisa dilihat untuk 3/6/12 bulan ke depan.", "139,250"),
-  ("Transaksi Berulang", "/planning/recurring",
-   "Templat invoice/tagihan/beban yang berjadwal. Setiap kali jatuh waktunya, sistem membuat draf baru (tidak "
-   "otomatis diterbitkan/disetujui). Bisa dijeda, dilanjutkan, diakhiri, atau dipicu secara manual.",
-   "135–137,183,186"),
- ]
-),
-
-("10", "Laporan (Reports)",
- "Pusat laporan keuangan baku, beberapa ringkasan khusus (penjualan/pembelian, arus kas, pajak, payroll, "
- "aset & pinjaman), laporan kustom berbasis dataset siap pakai, dan laporan tersimpan pribadi.",
- [
-  ("Laporan Keuangan", "/reports",
-   "Pusat empat laporan baku: Laba Rugi, Neraca, Perubahan Ekuitas, dan Arus Kas, ditambah Buku Besar dan kolom "
-   "pembanding antar periode. Semuanya dihitung dari transaksi yang sudah posting, sehingga selalu konsisten "
-   "dengan Jurnal.", "148–150,189–191"),
-  ("Penjualan & Pembelian", "/reports/sales-purchase",
-   "Ringkasan invoice yang terbit dan tagihan yang disetujui/beban yang dikonfirmasi, dikelompokkan per "
-   "pelanggan, vendor, kategori, produk, atau bulan.", ""),
-  ("Arus Kas", "/reports/cashflow",
-   "Pintasan langsung ke tab Laporan Arus Kas pada Laporan Keuangan.", "240"),
-  ("Pajak", "/reports/tax",
-   "Pintasan langsung ke Buku Pajak pada modul Pajak.", ""),
-  ("Payroll", "/reports/payroll",
-   "Pintasan ke tab Ringkasan Payroll dan Kontrol Payroll.", "196,240"),
-  ("Aset & Pinjaman", "/reports/assets-loans",
-   "Pintasan ke tab Kontrol Aset Tetap. Tab lainnya (Pinjaman Jatuh Tempo, Ringkasan Pinjaman, Jadwal Penyusutan "
-   "Fiskal) berada pada kelompok Laporan Keuangan yang sama.", "195,197"),
-  ("Laporan Kustom", "/reports/custom",
-   "Bukan laporan bebas/custom sepenuhnya &mdash; berisi tiga dataset siap pakai: Invoice per Pelanggan, Tagihan "
-   "per Vendor, dan Beban per Penerima.", "152,192"),
-  ("Laporan Tersimpan", "/reports/saved",
-   "Pintasan pribadi ke kombinasi laporan + filter yang sering dipakai, maksimal 100 per orang.", ""),
- ]
-),
-
-("11", "Dokumen (Documents)",
- "Pusat pencarian dokumen, lampiran bukti transaksi, dan arsip dokumen yang sudah diganti versi barunya.",
- [
-  ("Pusat Dokumen", "/documents",
-   "Mencari dan mendaftar seluruh dokumen, bisa disaring per jenis target, dan hanya menampilkan dokumen yang "
-   "izinnya dimiliki pengguna.", "141,194"),
-  ("Unggahan", "/documents/uploads",
-   "Mengunggah file dilakukan langsung dari halaman detail Invoice/Tagihan/Beban, pada bagian “Lampiran” "
-   "(format PDF/JPG/PNG/WebP, maksimal 4&nbsp;MB).",
-   "141–142"),
-  ("Bukti Terkait", "/documents/evidence",
-   "<i>Belum menjadi halaman tersendiri.</i> Satu dokumen bisa menjadi bukti untuk lebih dari satu catatan "
-   "transaksi. Jika diganti versi baru, versi lama tetap tersimpan sebagai riwayat.", "141–142"),
-  ("Arsip", "/documents/archive",
-   "Dokumen yang sudah diganti versi baru atau tidak ditautkan lagi, dipisahkan dari bukti yang masih aktif, "
-   "selalu dengan alasan, pengganti, dan waktu pengarsipan.", ""),
- ]
-),
-
-("12", "Administrasi (Administration)",
- "Pengaturan tingkat Entity dan organisasi: impor data, jejak audit, pengguna & peran, pengaturan umum, "
- "keamanan, serta cadangan (backup) & pulihkan (restore).",
- [
-  ("Impor Data", "/admin/imports",
-   "Wizard untuk mengimpor data Kontak, Piutang Terbuka, atau Utang Terbuka secara massal. Lihat alur lengkapnya "
-   "di bagian Alur Diagram.", "143–144"),
-  ("Jejak Audit", "/admin/audit",
-   "Riwayat seluruh perubahan data (tambah/ubah/hapus), yang terbaru di paling atas, bisa disaring per jenis "
-   "operasi. Hanya menampilkan nama kolom yang berubah, bukan nilai lama/barunya.", "242"),
-  ("Pengguna & Peran", "/admin/users",
-   "Daftar anggota beserta peran, status, dan izin efektifnya. Mengubah peran, menonaktifkan akun, atau memberi "
-   "izin khusus selalu membutuhkan alasan tertulis dan verifikasi tambahan (step-up). Menambah orang baru harus "
-   "melalui Supabase Auth terlebih dahulu.", ""),
-  ("Pengaturan", "/admin/settings",
-   "Profil Entity, format penomoran dokumen, aturan persetujuan (approval), berbagai pengaturan tersimpan "
-   "(misalnya blokir saldo negatif, toleransi tanggal rekonsiliasi, wajib MFA), zona waktu & tahun buku, serta "
-   "formulir “Tambah Entity” baru (khusus OWNER).", "243,248,276"),
-  ("Konfigurasi SKU", "/admin/sku",
-   "Khusus OWNER. Mengatur format kode produk (urutan Brand, Jenis, Nomor, Variant, pemisah, awalan/akhiran, digit, "
-   "cakupan nomor), mengelola daftar Brand, Jenis Produk, dan Variant, serta melihat riwayat perubahan SKU. Nomor "
-   "dibuat atomik oleh database dan tidak pernah dipakai ulang.", "324"),
-  ("Keamanan", "/admin/security",
-   "Halaman baca-saja: syarat MFA Entity, kejadian keamanan, dan perangkat terpercaya tiap anggota (dengan opsi "
-   "mencabut akses perangkat tersebut).", ""),
-  ("Backup & Restore", "/admin/backup",
-   "Mengekspor backup (Full, Data-only, atau Arsip Dokumen) dan melihat riwayatnya. Memulihkan dari berkas backup "
-   "hanya bisa ke Entity yang masih kosong, membutuhkan verifikasi tambahan (step-up), dan harus mengetikkan "
-   "kode Entity untuk konfirmasi.", "224,247"),
- ]
-),
-]
-
-# ----------------------------------------------------------------------------
-# CONTENT: Alur Diagram (flow diagrams) utama
-# kind: "normal" (langkah utama), "alt" (jalur alternatif/koreksi), "end" (status akhir)
-# ----------------------------------------------------------------------------
-
-FLOWS = [
-("Alur Diagram Penjualan", [
-    ("Buat invoice (status: <b>Draf</b>) &mdash; pilih pelanggan, isi baris produk/jasa, jumlah, harga, diskon.", "normal"),
-    ("(Opsional) Sunting draf sebelum diterbitkan.", "normal"),
-    ("Terbitkan invoice &mdash; mendapat nomor resmi, jurnal piutang &amp; pendapatan tercatat, dan tautan "
-     "pembayaran publik dibuat. Invoice dengan tanggal di masa depan akan tetap berstatus Draf.", "normal"),
-    ("Bagikan tautan pembayaran publik ke pelanggan (tombol “Salin Tautan” &mdash; hanya tersedia setelah terbit).", "normal"),
-    ("Pelanggan mengeklik “Saya Sudah Bayar” di halaman publik &rarr; tercipta <b>Klaim Pembayaran</b> berstatus "
-     "menunggu. Kas dan buku besar belum berubah pada tahap ini.", "normal"),
-    ("Staf meninjau klaim &rarr; <b>Konfirmasi</b> atau <b>Tolak</b> (dengan alasan).", "normal"),
-    ("Pembayaran tercatat &amp; dialokasikan ke invoice; kelebihan bayar bisa disimpan sebagai saldo advance pelanggan.", "normal"),
-    ("Status invoice otomatis berubah: Belum Dibayar &rarr; Dibayar Sebagian &rarr; <b>Lunas</b> (status ini "
-     "dihitung otomatis, tidak pernah diisi manual).", "end"),
-    ("Bila perlu, buat Pengembalian Dana dari halaman Pembayaran.", "alt"),
-    ("Bila salah: invoice yang masih Draf dibatalkan tanpa efek akuntansi; invoice yang sudah terbit dibatalkan "
-     "lewat jurnal pembalik (hanya jika belum ada pembayaran aktif) atau dikoreksi (void + draf pengganti).", "alt"),
-], "Invoice bisa dibagikan lewat salin tautan pembayaran publik, atau (bila Resend sudah dikonfigurasi "
-   "OWNER) langsung dikirim ke email pelanggan dari halaman Invoice."),
-
-("Alur Diagram Pembelian", [
-    ("Buat tagihan (status: <b>Draf</b>) dari vendor &mdash; baris barang/jasa/aset/beban dibayar di muka.", "normal"),
-    ("Ajukan untuk disetujui (atau tarik kembali/Recall bila sudah diajukan).", "normal"),
-    ("<b>Disetujui</b> &mdash; mendapat nomor resmi, data vendor dibekukan, jurnal tercatat (beban/aset/dibayar "
-     "di muka di debit, utang usaha di kredit). Atau <b>Ditolak</b> dengan alasan, kembali ke status Draf.", "normal"),
-    ("Bayar vendor dengan tombol <b>Bayar Tagihan</b> di halaman tagihan yang sudah disetujui &mdash; utang usaha dan "
-     "saldo rekening berkurang, biaya tidak bertambah lagi (sudah tercatat saat disetujui). Riwayatnya ada di "
-     "Pembayaran Keluar.", "normal"),
-    ("Status tagihan otomatis: Menunggu Persetujuan &rarr; Terbuka &rarr; (Jatuh Tempo bila lewat tanggal) &rarr; "
-     "<b>Lunas</b>.", "end"),
-    ("Bila salah: tagihan Draf/Diajukan dibatalkan langsung; tagihan Disetujui yang belum ada pembayaran aktif "
-     "dibatalkan lewat jurnal pembalik, atau dikoreksi.", "alt"),
-    ("Jalur Beban (pembelian tunai): Draf &rarr; Ajukan &rarr; Konfirmasi &mdash; konfirmasi langsung membukukan "
-     "<i>dan</i> membayar sekaligus, tanpa tahap utang terpisah.", "alt"),
-]),
-
-("Alur Diagram Rekonsiliasi Bank", [
-    ("Mulai sesi rekonsiliasi untuk satu rekening + satu periode; saldo awal otomatis lanjut dari sesi terakhir "
-     "yang sudah selesai (sesi harus dikerjakan berurutan).", "normal"),
-    ("Tambahkan mutasi rekening koran &mdash; tempel langsung atau impor.", "normal"),
-    ("<b>Cocokkan (Match)</b> setiap baris rekening koran dengan mutasi sistem yang jumlahnya sama persis; "
-     "sistem menyarankan kandidat pasangannya.", "normal"),
-    ("Bila tidak ada yang cocok &rarr; <b>Exclude</b> dengan alasan; atau <b>Unmatch</b> untuk mencoba pasangan lain.", "alt"),
-    ("Semua baris harus berstatus Matched atau Excluded sebelum sesi bisa diselesaikan.", "normal"),
-    ("<b>Selesaikan sesi (Complete)</b> &mdash; bila ada selisih dengan saldo akhir rekening koran, wajib diberi "
-     "alasan tertulis (minimal 10 karakter).", "end"),
-    ("Bila perlu dikoreksi lagi: <b>Reopen</b> dengan alasan, lalu <b>Discard</b> (hanya untuk sesi yang belum "
-     "completed). Untuk bulan lama setelah bulan yang lebih baru sudah selesai: buka &amp; batalkan dulu sesi "
-     "yang baru, baru kemudian buka sesi yang lama.", "alt"),
-]),
-
-("Alur Diagram Jurnal Manual", [
-    ("Buat draf jurnal: tentukan akun debit &amp; kredit, jumlah, tanggal, dan keterangan.", "normal"),
-    ("Jika menyentuh akun Dilindungi/Kontrol: wajib isi alasan override dan butuh izin khusus.", "alt"),
-    ("Validasi otomatis oleh sistem: minimal 2 baris, total debit = total kredit, periode berstatus Terbuka atau "
-     "Dibuka Kembali, akun aktif (bukan akun grup).", "normal"),
-    ("<b>Posting</b> &mdash; mendapat nomor jurnal otomatis, status menjadi Posted, tidak bisa diubah atau "
-     "dihapus lagi.", "end"),
-    ("Alternatif sebelum posting: draf bisa di-<b>Discard</b> tanpa bekas.", "alt"),
-    ("Jika ternyata salah <i>setelah</i> posting &rarr; buat <b>Reversal</b>: jurnal pembalik (mirror), bertanggal "
-     "sama atau setelah jurnal aslinya. Hanya bisa dilakukan sekali per jurnal; jurnal asli tidak pernah diubah.", "alt"),
-]),
-
-("Alur Diagram Tutup Periode Akuntansi", [
-    ("Periode akuntansi tercipta otomatis saat pertama kali dipakai, status awal: <b>Terbuka</b>.", "normal"),
-    ("Mulai Tinjauan Penutupan &rarr; status menjadi <b>Dalam Tinjauan Penutupan</b>; tidak ada jurnal baru yang "
-     "bisa diposting ke periode ini selama status tersebut.", "normal"),
-    ("Sistem memeriksa checklist pemblokir: draf jurnal yang belum diposting, jurnal yang tidak seimbang, saldo "
-     "awal migrasi yang belum selesai, selisih kas/bank vs buku besar, selisih buku pajak vs buku besar.", "normal"),
-    ("Jika masih ada pemblokir &rarr; selesaikan dulu, atau <b>Batalkan Penutupan</b> untuk kembali ke status Terbuka.", "alt"),
-    ("Jika semua bersih &rarr; <b>Tutup Periode (Close)</b> &mdash; periode terkunci penuh.", "end"),
-    ("Jika perlu dibuka lagi: <b>Reopen</b> &mdash; wajib alasan tertulis (minimal 10 karakter) dan verifikasi "
-     "tambahan (step-up); status menjadi Dibuka Kembali.", "alt"),
-]),
-
-("Alur Diagram Pelaporan & Pembayaran Pajak", [
-    ("Transaksi (invoice/tagihan/beban) dibuat dengan data pajak di setiap baris.", "normal"),
-    ("Dokumen diposting &rarr; mesin pajak otomatis menentukan PPN keluaran/masukan atau PPh (beban pajak PT) yang relevan.", "normal"),
-    ("Jika data belum lengkap &rarr; status “Perlu Ditinjau”; belum diakui dalam posisi pajak sampai ditinjau "
-     "atau di-override manual (dengan alasan &amp; bukti).", "alt"),
-    ("Hasil tercatat permanen di Buku Pajak dan tidak pernah diubah langsung &mdash; koreksi hanya lewat pembatalan "
-     "atau pembalikan dokumen sumbernya. (PPh Final UMKM dihitung terpisah tiap bulan lewat menu PPh Final, "
-     "bukan otomatis per dokumen.)", "normal"),
-    ("Di akhir periode: cek posisi terutang pada PPh Vendor / PPN / PPh Final.", "normal"),
-    ("<b>Lapor</b>: rekam di Pelaporan &amp; Bukti &mdash; tanggal, nomor bukti terima, DPP, jumlah (bisa dibetulkan "
-     "tanpa menghapus data lama).", "normal"),
-    ("<b>Bayar</b>: rekam pembayaran dari rekening kas/bank; PPN otomatis dikompensasi dengan kredit PPN masukan.", "normal"),
-    ("Lampirkan bukti lapor/bayar.", "normal"),
-    ("Rekonsiliasi periode pajak: membandingkan buku besar vs pembayaran vs pelaporan; selisih wajib diberi "
-     "catatan tertulis &mdash; ini juga menjadi salah satu pemblokir tutup periode akuntansi.", "end"),
-]),
-
-("Alur Diagram Aset Tetap", [
-    ("Beli barang &rarr; buat Tagihan/Beban dengan baris yang ditandai “Aset”.", "normal"),
-    ("Setelah disetujui &rarr; aset otomatis terdaftar sebagai draf aset.", "normal"),
-    ("<b>Aktivasi</b>: tentukan tanggal mulai pakai, kelompok fiskal (disarankan otomatis oleh sistem), metode "
-     "penyusutan, umur manfaat, dan nilai sisa.", "normal"),
-    ("Akhir bulan: penyusutan diposting (otomatis saat layar Aset/Penyusutan/Dashboard dibuka, atau manual).", "normal"),
-    ("(Opsional) kondisi/lokasi aset diperbarui, atau rencana penyusutan diubah untuk bulan-bulan mendatang.", "alt"),
-    ("<b>Pelepasan</b>: dijual, rusak, hilang, atau disumbangkan &mdash; nilai buku dan akumulasi penyusutan "
-     "dikeluarkan dari pembukuan, selisihnya menjadi laba/rugi pelepasan.", "end"),
-    ("Pelepasan dapat dibatalkan (dibalik), yang akan mengaktifkan kembali aset tersebut.", "alt"),
-]),
-
-("Alur Diagram Pinjaman", [
-    ("Pinjaman dibuat (pemberi, penerima, jumlah pokok, jadwal cicilan) &mdash; status: <b>Draf</b>.", "normal"),
-    ("Diaktifkan &mdash; pokok pinjaman dicairkan.", "normal"),
-    ("Cicilan dibayar &mdash; alokasi otomatis ke tunggakan tertua dulu (pokok, bunga, biaya); bunga/biaya diakui "
-     "pada saat dibayar, bukan saat jatuh tempo.", "normal"),
-    ("Jika perlu: <b>Restrukturisasi</b> &mdash; dibuat jadwal baru, jadwal lama tersimpan sebagai riwayat.", "alt"),
-    ("<b>Pelunasan penuh</b>, atau <b>write-off</b> (perlu alasan &amp; verifikasi tambahan, dibukukan sebagai "
-     "Beban/Pendapatan Non-Usaha, dan ditandai untuk ditinjau pajaknya).", "end"),
-    ("Pinjaman ditutup.", "end"),
-]),
-
-("Alur Diagram Proses Payroll", [
-    ("Draf dibuat untuk satu periode &amp; satu entitas.", "normal"),
-    ("<b>Hitung Payroll</b> &rarr; <b>Sudah dihitung</b>: gaji, PPh 21 (metode TER bulanan, atau TER tahunan di "
-     "bulan terakhir tahun), dan BPJS dihitung dari data karyawan yang tersimpan.", "normal"),
-    ("Bila perlu: tambahkan penyesuaian, lalu hitung ulang &mdash; tidak bisa lanjut bila masih ada tanda "
-     "“perlu ditinjau”.", "alt"),
-    ("<b>Ajukan untuk Disetujui</b> &rarr; <b>Diajukan</b>.", "normal"),
-    ("<b>Setujui</b> &rarr; <b>Disetujui</b> (penyetuju harus berbeda dari pengaju, kecuali untuk OWNER atau "
-     "pengaturan maker-checker khusus).", "normal"),
-    ("<b>Posting ke Pembukuan</b> &rarr; <b>Terposting</b>: satu aksi ini membuat jurnal, mencatat posisi PPh 21, "
-     "dan menerbitkan seluruh slip gaji sekaligus.", "normal"),
-    ("Bayar gaji bersih &mdash; per karyawan, bisa sebagian atau penuh, hingga status Dibayar Sebagian &rarr; "
-     "<b>Dibayar Penuh</b>.", "normal"),
-    ("Bayar BPJS Kesehatan secara terpisah &mdash; ke akun <b>2221</b>, tidak boleh melebihi yang terutang.", "normal"),
-    ("Bayar BPJS Ketenagakerjaan (JHT/JP/JKK/JKM) secara terpisah &mdash; ke akun <b>2220</b>, tidak boleh "
-     "melebihi yang terutang. (PPh 21 <i>tidak</i> dibayar dari sini, melainkan lewat menu Pajak.)", "normal"),
-    ("<b>Tutup Payroll</b> &rarr; <b>Ditutup</b>, setelah semua pembayaran selesai.", "end"),
-    ("Jalur Koreksi (dari Terposting/Dibayar Sebagian/Dibayar Penuh): <b>Koreksi Payroll</b> &mdash; jurnal &amp; "
-     "catatan pajak dibalik, slip lama dibatalkan (tetap terlihat sebagai riwayat), revisi baru dibuka sebagai "
-     "Draf baru. Semua pembayaran yang ada harus dibalik dulu, dan hanya bulan pajak terposting yang paling baru "
-     "yang boleh dikoreksi.", "alt"),
-    ("Jalur lain: <b>Batalkan Proses</b> (dari Draf &rarr; Dibuang), <b>Kembalikan ke Draf</b> (dari Diajukan), "
-     "<b>Buka Kembali</b> (dari Ditutup &mdash; perlu otorisasi &amp; alasan).", "alt"),
-], "Pemisahan BPJS Kesehatan/Ketenagakerjaan menjadi dua akun terpisah (2220 &amp; 2221) adalah hasil "
-        "keputusan 277–278 dan sudah diverifikasi berjalan benar."),
-
-("Alur Diagram Impor Data", [
-    ("Administrasi &rarr; Impor Data &rarr; Impor Baru.", "normal"),
-    ("Pilih jenis data: Kontak / Piutang Terbuka / Utang Terbuka.", "normal"),
-    ("Tempelkan tabel dari spreadsheet, atau unggah berkas CSV.", "normal"),
-    ("Periksa pemetaan kolom otomatis yang disarankan sistem.", "normal"),
-    ("<b>Periksa Data</b> &mdash; sistem memvalidasi setiap baris.", "normal"),
-    ("Jika ada baris bermasalah: perbaiki di sumber data, lalu <b>Periksa Ulang</b>.", "alt"),
-    ("<b>Terapkan ke Pembukuan</b> &mdash; mengunci dan mencatat semua baris yang valid.", "end"),
-    ("Jika perlu, impor ini bisa <b>Dibatalkan</b> sebelum diterapkan.", "alt"),
-]),
-
-("Alur Diagram Anggaran / Target Pendapatan", [
-    ("Perencanaan &rarr; Anggaran (atau Target Pendapatan) &rarr; Buat Baru.", "normal"),
-    ("Tentukan periode, dan untuk Anggaran: kategori yang ingin direncanakan.", "normal"),
-    ("Isi nominal per bulan (dan per kategori untuk Anggaran).", "normal"),
-    ("<b>Aktifkan</b> rencana (Draft &rarr; Aktif).", "normal"),
-    ("Sistem otomatis membandingkan dengan Realisasi dan Committed (transaksi yang masih berjalan).", "normal"),
-    ("Lihat Perkiraan sebagai pembanding tambahan, dan tautkan ke Anggaran bila diperlukan.", "alt"),
-    ("Tutup rencana di akhir periode &mdash; status <b>Ditutup</b>, tidak bisa dibuka lagi.", "end"),
-]),
-]
 
 # ----------------------------------------------------------------------------
 # CONTENT: Peran & Izin (role templates)
@@ -847,27 +373,27 @@ ROLES = [
 
 # Catatan umum / keterbatasan yang perlu diketahui pembaca
 GENERAL_NOTES = [
-    "Menu <b>Unggahan</b> dan <b>Bukti Terkait</b> (dalam modul Dokumen) belum menjadi halaman tersendiri; "
-    "unggah lampiran dijalankan dari halaman detail transaksi (Invoice/Tagihan/Beban).",
-    "Beberapa submenu pada modul <b>Laporan</b> (Arus Kas, Pajak, Payroll, Aset &amp; Pinjaman) adalah pintasan "
-    "(shortcut) ke tab yang sudah ada di halaman lain, bukan halaman laporan yang berdiri sendiri.",
-    "Halaman <b>Aturan Pajak</b> masih menggunakan entri data JSON mentah, bukan formulir terpandu &mdash; "
-    "disarankan hanya ditangani oleh OWNER atau staf teknis.",
-    "Proses Payroll belum mendukung proration otomatis untuk karyawan yang masuk/keluar di tengah bulan.",
-    "Pinjaman dan aset tetap bisa dicatat dalam mata uang asing: pinjaman lewat revaluasi kurs bulanan manual "
-    "(selisih kurs diposting otomatis ke laba/rugi), aset tetap lewat catatan mata uang &amp; kurs saat "
-    "perolehan (tidak direvaluasi ulang). Akrual bunga pinjaman otomatis belum didukung &mdash; bunga masih "
-    "dicatat saat dibayar, bukan saat terutang.",
-    "Dasar fiskal penyusutan aset dan aturan pajak payroll masih menunggu verifikasi konsultan pajak OWNER "
-    "sebelum benar-benar digunakan untuk pelaporan resmi (go-live).",
-    "PPh 21 dari payroll secara sengaja <i>tidak</i> ditangani lewat modul Pajak, melainkan lewat menu "
-    "“Pajak &amp; Kewajiban Payroll” di dalam modul Payroll.",
     "<b>Invoice yang sudah diterbitkan tetapi belum dibayar otomatis menjadi Piutang Usaha</b> (akun 1200) dan "
     "pendapatan langsung diakui saat invoice terbit. Saat pelanggan membayar, pakai <b>Catat Pembayaran</b> pada "
     "hari uang masuk ke rekening PT: piutang berkurang, kas bertambah, pendapatan tidak bertambah lagi. "
-    "Penjelasan lengkap ada di Bagian VI, panduan “Memahami Piutang dan Pendapatan”.",
-    "Fitur khusus untuk uang yang lebih dulu diterima di rekening pribadi atau rekening direktur belum ada "
-    "(menunggu keputusan OWNER); sementara itu catat pembayaran hanya saat uang benar-benar masuk ke rekening PT.",
+    "Penjelasan lengkap ada di Bagian V, panduan &ldquo;Memahami Piutang dan Pendapatan&rdquo;.",
+    "Uang dari pelanggan yang lebih dulu masuk ke rekening pribadi atau rekening direktur: catat pembayaran hanya "
+    "saat uang benar-benar masuk ke rekening PT, supaya pendapatan tidak ganda. Caranya ada di panduan "
+    "pembayaran lewat rekening pribadi (Bagian V, kelompok Penjualan).",
+    "Pembayaran <b>PPh Final UMKM</b> dicatat sebagai pembayaran sekaligus pelaporannya: tidak ada pelaporan "
+    "bulanan terpisah. Bukti bayar diunggah langsung dari halaman pembayarannya (nomor TAXPAY).",
+    "Pinjaman dan aset tetap bisa dicatat dalam mata uang asing: pinjaman lewat <b>Catat Revaluasi Kurs</b> tiap "
+    "akhir bulan (selisih kurs diposting ke akun Laba/Rugi Selisih Kurs), aset tetap lewat catatan mata uang "
+    "asal. Akrual bunga pinjaman otomatis belum didukung &mdash; bunga dicatat saat dibayar, bukan saat terutang.",
+    "Dasar fiskal penyusutan aset dan aturan pajak payroll masih menunggu verifikasi konsultan pajak OWNER "
+    "sebelum benar-benar digunakan untuk pelaporan resmi (go-live).",
+    "Halaman <b>Aturan Pajak</b> menampilkan aturan yang dipakai mesin pajak. Ubah hanya dengan dasar hukum "
+    "tertulis dan sebaiknya setelah berkonsultasi dengan konsultan pajak; disarankan hanya ditangani OWNER.",
+    "PPh 21 dari payroll ditangani lewat menu &ldquo;Pajak &amp; Kewajiban Payroll&rdquo; di dalam modul "
+    "Payroll, bukan lewat modul Pajak.",
+    "Peran <b>Tax</b>, <b>Accountant</b>, <b>Payroll</b>, dan <b>Viewer / Auditor</b> hanya melihat dokumen; "
+    "melampirkan dokumen hanya untuk OWNER, Finance Admin, dan Finance Staff. Bukti pembayaran dan pelaporan "
+    "pajak memakai izin pajak tersendiri (<font face=\"Courier\" size=\"8.5\">tax.mark_filed</font>).",
 ]
 
 # ----------------------------------------------------------------------------
@@ -880,7 +406,7 @@ MARGIN = 20 * mm
 
 
 # ----------------------------------------------------------------------------
-# Bagian VI: step-by-step guides rendered from the website's JSON content
+# Bagian V: step-by-step guides rendered from the website's JSON content
 # ----------------------------------------------------------------------------
 _INLINE = re.compile(r"\*\*([^*]+)\*\*|\[([^\]]+)\]\(([a-z0-9-]+)\)")
 
@@ -1123,12 +649,12 @@ def guide_section_story():
     groups = load_guides()
     load_flows()
     titles = {g["slug"]: g["title"] for grp in groups for g in grp["guides"]}
-    story = [Paragraph("Bagian VI &mdash; Panduan Langkah demi Langkah", styles["ModuleHeading"])]
+    story = [Paragraph("Bagian V &mdash; Panduan Langkah demi Langkah", styles["ModuleHeading"])]
     story += paras(
-        "Bagian ini sama persis dengan menu <b>Panduan</b> di website (isinya diambil dari sumber yang sama). "
+        "Bagian ini sama persis dengan menu **Panduan** di website (isinya diambil dari sumber yang sama). "
         "Tiap panduan menjelaskan satu pekerjaan dari awal sampai selesai: di mana menunya, siapa yang boleh, "
         "langkah demi langkah dengan gambar layar asli, hasil yang benar, aturan penting, kesalahan yang sering "
-        "terjadi, dan arti pesan kesalahan. Bab pertama, <b>Alur Kerja (Diagram)</b>, menggambar alur dari sebuah "
+        "terjadi, dan arti pesan kesalahan. Bab pertama, **Alur Kerja (Diagram)**, menggambar alur dari sebuah "
         "kejadian (misalnya ada pelanggan yang mau membayar) sampai menu yang harus dibuka. Tulisan bergaris bawah "
         "biru adalah tautan ke panduan atau diagram lain.", "Intro")
     story.append(Spacer(1, 4))
@@ -1197,6 +723,22 @@ def cover_page(canvas, doc):
     canvas.restoreState()
 
 
+def start_steps():
+    """Bagian I's numbered boxes, from the guide 'Urutan Langkah Pertama Kali' (same text as the website)."""
+    for name in GUIDE_FILES:
+        with open(os.path.join(GUIDE_DIR, name), encoding="utf-8") as f:
+            for g in json.load(f)["guides"]:
+                if g["slug"] == "urutan-langkah-awal":
+                    out = []
+                    for st in g["steps"]:
+                        sent = re.split(r"(?<=[.!?])\s", st["text"].strip())
+                        first = sent[0] if len(sent[0]) > 70 or len(sent) < 2 else sent[0] + " " + sent[1]
+                        out.append(("<b>%s.</b> %s" % (_plain(st["title"]), inline(first)), "normal"))
+                    out[-1] = (out[-1][0], "end")
+                    return out
+    raise SystemExit("guide urutan-langkah-awal not found")
+
+
 def build():
     doc = GuideDocTemplate(OUT_PATH, pagesize=A4,
                             leftMargin=MARGIN, rightMargin=MARGIN,
@@ -1225,8 +767,8 @@ def build():
     story.append(Paragraph("Untuk Owner dan Setiap Pengguna yang Memiliki Akun", styles["CoverSubtitle"]))
     story.append(Spacer(1, 10))
     story.append(Paragraph(
-        "Mencakup fungsi setiap menu &amp; sub-menu, serta alur diagram langkah-demi-langkah untuk "
-        "proses bisnis utama di aplikasi.", styles["CoverMeta"]))
+        "Mencakup langkah awal, fungsi setiap menu &amp; sub-menu, peran, panduan langkah demi langkah, "
+        "dan diagram alur kerja.", styles["CoverMeta"]))
     story.append(Spacer(1, 40))
     story.append(Paragraph("PT Hikarich Kitana Digital &nbsp;&bull;&nbsp; Hikarich", styles["CoverMeta"]))
     story.append(Paragraph("Oktober 2026", styles["CoverMeta"]))
@@ -1243,28 +785,24 @@ def build():
     story.append(Paragraph("Pendahuluan", styles["ModuleHeading"]))
     story.append(Paragraph(
         "Dokumen ini adalah panduan penggunaan aplikasi <b>Hikarich Finance</b>, ditujukan untuk OWNER dan "
-        "setiap orang yang memiliki akun pada aplikasi ini. Panduan ini terdiri dari enam bagian:",
+        "setiap orang yang memiliki akun pada aplikasi ini. Panduan ini terdiri dari lima bagian:",
         styles["Intro"]))
     story.append(Paragraph(
         "<b>Bagian I &mdash; Langkah Awal:</b> apa yang harus disiapkan pertama kali (rekening, kategori, pelanggan, "
         "produk &amp; jasa) supaya pembuatan invoice dan pengeluaran tinggal klik, lengkap dengan urutannya.", styles["Intro"]))
     story.append(Paragraph(
         "<b>Bagian II &mdash; Fungsi Menu &amp; Sub-Menu:</b> penjelasan singkat setiap menu dan sub-menu yang "
-        "tersedia, dikelompokkan menurut 12 modul navigasi aplikasi.", styles["Intro"]))
+        "tersedia, mengikuti menu di bilah samping aplikasi (dibaca langsung dari menunya, jadi selalu sama).", styles["Intro"]))
     story.append(Paragraph(
-        "<b>Bagian III &mdash; Alur Diagram Penggunaan:</b> langkah-demi-langkah untuk proses bisnis utama "
-        "(misalnya: Penjualan, Pembelian, Payroll, dan lainnya), disajikan sebagai diagram alur bernomor.",
-        styles["Intro"]))
-    story.append(Paragraph(
-        "<b>Bagian IV &mdash; Peran &amp; Izin:</b> ringkasan delapan templat peran (role) yang tersedia dan "
+        "<b>Bagian III &mdash; Peran &amp; Izin:</b> ringkasan delapan templat peran (role) yang tersedia dan "
         "apa yang dapat dilakukan masing-masing.", styles["Intro"]))
     story.append(Paragraph(
-        "<b>Bagian V &mdash; Catatan &amp; Keterbatasan:</b> hal-hal yang perlu diketahui pengguna karena "
+        "<b>Bagian IV &mdash; Catatan &amp; Keterbatasan:</b> hal-hal yang perlu diketahui pengguna karena "
         "masih dalam tahap penyempurnaan.", styles["Intro"]))
     story.append(Paragraph(
-        "<b>Bagian VI &mdash; Panduan Langkah demi Langkah:</b> cara mengerjakan setiap pekerjaan dari awal "
-        "sampai selesai (menerima pembayaran, membuat biaya, menambah rekening, dan lainnya), lengkap dengan "
-        "gambar layar asli. Isinya sama dengan menu <b>Panduan</b> di website.", styles["Intro"]))
+        "<b>Bagian V &mdash; Panduan Langkah demi Langkah:</b> cara mengerjakan setiap pekerjaan dari awal "
+        "sampai selesai, lengkap dengan gambar layar, ditambah bab <b>Alur Kerja (Diagram)</b> yang menggambar "
+        "alur dari sebuah kejadian ke menu yang harus dibuka. Isinya sama dengan menu <b>Panduan</b> di website.", styles["Intro"]))
     story.append(Spacer(1, 6))
     story.append(HRFlowable(width="100%", color=colors.HexColor("#dddddd")))
     story.append(PageBreak())
@@ -1273,8 +811,8 @@ def build():
     story.append(Paragraph("Bagian I &mdash; Langkah Awal Memakai Website", styles["ModuleHeading"]))
     story.append(Paragraph(START_INTRO, styles["Intro"]))
     story.append(Spacer(1, 8))
-    story.extend(flow_diagram("Urutan Persiapan Pertama Kali", START_STEPS))
-    story.extend(flow_diagram("Alamat Website &amp; Pengiriman Email (Resend)", EMAIL_STEPS,
+    story.extend(flow_diagram("Urutan Persiapan Pertama Kali", start_steps()))
+    story.extend(flow_diagram("Alamat Website & Pengiriman Email (Resend)", EMAIL_STEPS,
         "Jika email gagal terkirim, tautan pembayaran tetap bisa dibagikan lewat tombol Salin Tautan Publik."))
     story.append(Paragraph("Tips", styles["SubHeading"]))
     for tip in START_TIPS:
@@ -1286,19 +824,17 @@ def build():
     story.append(Paragraph("Bagian II &mdash; Fungsi Menu &amp; Sub-Menu", styles["ModuleHeading"]))
     story.append(Spacer(1, 4))
 
-    for num, title, intro, items in SECTIONS:
+    for num, title, intro, items in menu_sections():
         section_flow = []
         section_flow.append(Paragraph("%s. %s" % (num, esc(title)), styles["SubHeading"]))
         if intro:
             section_flow.append(Paragraph(intro, styles["Intro"]))
-        for name, href, desc, refs in items:
+        for name, href, desc in items:
             row_html = "<b>%s</b>" % esc(name)
             if href:
                 row_html += '  <font face="Courier" size="8.3" color="#8a6d00">%s</font>' % esc(href)
             section_flow.append(Paragraph(row_html, styles["ItemName"]))
-            desc_html = desc
-            if refs:
-                desc_html += ref(refs)
+            desc_html = esc(desc)
             section_flow.append(Paragraph(desc_html, styles["ItemDesc"]))
             section_flow.append(Spacer(1, 5))
         story.extend(section_flow)
@@ -1306,28 +842,15 @@ def build():
 
     story.append(PageBreak())
 
-    # ---- Bagian II: Alur Diagram ----
-    story.append(Paragraph("Bagian III &mdash; Alur Diagram Penggunaan", styles["ModuleHeading"]))
-    story.append(Paragraph(
-        "Kotak biru bernomor menunjukkan langkah utama secara berurutan. Kotak oranye bertanda seru (!) "
-        "menunjukkan jalur alternatif (koreksi, pembatalan, atau kondisi khusus). Kotak hijau menandai status "
-        "akhir dari proses tersebut.", styles["Intro"]))
-    story.append(Spacer(1, 10))
-
-    for i, (title, steps) in enumerate([(f[0], f[1]) for f in FLOWS]):
-        note = FLOWS[i][2] if len(FLOWS[i]) > 2 else None
-        story.extend(flow_diagram(title, steps, note))
-        story.append(PageBreak())
-
     # remove trailing page break duplication by just continuing to next section
     # ---- Bagian III: Peran & Izin ----
-    story.append(Paragraph("Bagian IV &mdash; Peran &amp; Izin (Role)", styles["ModuleHeading"]))
+    story.append(Paragraph("Bagian III &mdash; Peran &amp; Izin (Role)", styles["ModuleHeading"]))
     story.append(Paragraph(
         "Aplikasi menyediakan delapan templat peran yang dapat diberikan ke setiap anggota per Entity. "
         "Satu orang bisa memiliki peran berbeda di Entity yang berbeda.", styles["Intro"]))
     story.append(Spacer(1, 8))
 
-    role_rows = [[Paragraph("<b>Peran</b>", styles["ItemDesc"]), Paragraph("<b>Cakupan Akses</b>", styles["ItemDesc"])]]
+    role_rows = [[Paragraph('<font color="#ffffff"><b>Peran</b></font>', styles["ItemDesc"]), Paragraph('<font color="#ffffff"><b>Cakupan Akses</b></font>', styles["ItemDesc"])]]
     for name, desc in ROLES:
         role_rows.append([Paragraph("<b>%s</b>" % esc(name), styles["ItemDesc"]), Paragraph(desc, styles["ItemDesc"])])
     role_table = Table(role_rows, colWidths=[110, 350])
@@ -1345,7 +868,7 @@ def build():
     story.append(PageBreak())
 
     # ---- Bagian IV: Catatan & Keterbatasan ----
-    story.append(Paragraph("Bagian V &mdash; Catatan &amp; Keterbatasan", styles["ModuleHeading"]))
+    story.append(Paragraph("Bagian IV &mdash; Catatan &amp; Keterbatasan", styles["ModuleHeading"]))
     story.append(Paragraph(
         "Aplikasi ini terus disempurnakan. Berikut hal-hal yang perlu diketahui pengguna saat ini:",
         styles["Intro"]))

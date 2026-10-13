@@ -115,7 +115,8 @@ export const PAGE_HELP: Readonly<Record<string, HelpEntry>> = {
       "Rekening kas dan bank beserta saldonya. Saldo dihitung dari transaksi, bukan diketik manual.",
   },
   "/money/accounts/new": {
-    summary: "Menambah rekening kas atau bank baru, termasuk saldo awalnya.",
+    summary:
+      "Menambah rekening kas atau bank baru. Uang yang sudah ada di dalamnya dicatat terpisah di Akuntansi > Saldo Awal.",
   },
   "/money/activity": {
     summary: "Semua uang masuk dan keluar di semua rekening, dalam satu daftar.",

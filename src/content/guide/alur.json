@@ -14,7 +14,7 @@
     },
     {
       "want": "Melihat perkiraan pajak tahun ini untuk Buku Pribadi (PPh Final UMKM dan PPh Progresif)",
-      "menu": "Pajak > Pajak Pribadi",
+      "menu": "Pajak > Pajak Pribadi (di Entity PT: Pajak > Omzet Gabungan)",
       "guide": "pajak-pribadi"
     },
     {
@@ -73,8 +73,23 @@
       "guide": "lihat-saldo-mutasi"
     },
     {
-      "want": "Membayar atau melaporkan pajak",
-      "menu": "Pajak > Pelaporan & Bukti",
+      "want": "Menyesuaikan saldo rekening (mis. biaya admin bank) atau membatalkan penyesuaian",
+      "menu": "Akuntansi > Penyesuaian Lanjutan",
+      "guide": "penyesuaian-saldo-lanjutan"
+    },
+    {
+      "want": "Membayar atau melaporkan pajak (PPh Final UMKM tanpa laporan bulanan)",
+      "menu": "Pajak > Pelaporan & Bukti (Jenis Pajak mulai dari PPh Final UMKM) > Catat Pembayaran",
+      "guide": "bayar-pajak"
+    },
+    {
+      "want": "Mengunggah bukti bayar pajak (BPN atau NTPN)",
+      "menu": "Pajak > Pelaporan & Bukti > Riwayat Pembayaran > (klik nomor TAXPAY) > Lampiran > Unggah Bukti",
+      "guide": "bayar-pajak"
+    },
+    {
+      "want": "Membalik pembayaran pajak yang salah dicatat",
+      "menu": "Pajak > Pelaporan & Bukti > Riwayat Pembayaran > (klik nomor TAXPAY) > Balik Pembayaran",
       "guide": "bayar-pajak"
     },
     {
@@ -143,6 +158,16 @@
       "guide": "jalankan-payroll-bulanan"
     },
     {
+      "want": "Menghitung gaji karyawan yang masuk atau berhenti di tengah bulan, atau THR",
+      "menu": "Payroll > Proses Payroll > (klik proses) > Tambah Penyesuaian",
+      "guide": "jalankan-payroll-bulanan"
+    },
+    {
+      "want": "Mencetak bukti potong tahunan (1721-A1) karyawan",
+      "menu": "Payroll > Pajak & Kewajiban Payroll > Bukti Potong Tahunan",
+      "guide": "memahami-pajak-payroll"
+    },
+    {
       "want": "Menyusun anggaran",
       "menu": "Perencanaan > Anggaran",
       "guide": "buat-anggaran"
@@ -154,7 +179,7 @@
     },
     {
       "want": "Menyimpan nota atau bukti transaksi",
-      "menu": "Dokumen > Pusat Dokumen",
+      "menu": "Buka invoice, tagihan, beban, atau catatan pendapatan > Lampiran; mencari: Dokumen > Pusat Dokumen",
       "guide": "dokumen-lampiran"
     },
     {
@@ -163,8 +188,8 @@
       "guide": "backup-restore"
     },
     {
-      "want": "Melihat kondisi keuangan sekilas: kas, pendapatan, beban, utang, dan piutang",
-      "menu": "Ringkasan > Dashboard",
+      "want": "Melihat kondisi keuangan sekilas: kas, pendapatan, beban, pajak penghasilan, laba, utang, dan piutang",
+      "menu": "Ringkasan > Dashboard (pilih Bulanan, Tahunan, atau Sejak Awal)",
       "guide": "membaca-dashboard"
     }
   ],
@@ -545,9 +570,9 @@
                 {
                   "kind": "step",
                   "actor": "anda",
-                  "title": "Isi Tanggal Cutover dan Debit di akun rekening, tekan Posting",
+                  "title": "Isi Tanggal Cutover dan Debit di akun rekening, tekan Posting Saldo Awal",
                   "menu": "Akuntansi > Saldo Awal > Posting Saldo Awal",
-                  "note": "Pilih akun \"(rekening kas/bank)\". Mata uang asing: pakai Penyesuaian Lanjutan"
+                  "note": "Ketik nama rekening di kolom Akun lalu pilih yang bertanda (rekening kas/bank). Mata uang asing: pakai Penyesuaian Lanjutan"
                 },
                 {
                   "kind": "step",
@@ -909,7 +934,7 @@
           "actor": "anda",
           "title": "Buat Invoice",
           "menu": "Penjualan > Invoice > Buat Invoice",
-          "note": "Pilih pelanggan, tanggal, jatuh tempo, rekening tujuan, lalu isi baris"
+          "note": "Ketik atau pilih pelanggan (bisa ditambah di tempat), lalu isi tanggal, jatuh tempo, rekening tujuan, dan baris"
         },
         {
           "kind": "step",
@@ -1141,20 +1166,20 @@
         {
           "kind": "step",
           "actor": "anda",
-          "title": "Isi tanggal uang diterima dan ketik jenis pendapatan",
-          "note": "Pilih dari daftar, atau ketik nama baru lalu + Tambah sebagai jenis pendapatan baru"
+          "title": "Isi Tanggal Uang Diterima dan ketik Jenis Pendapatan",
+          "note": "Pilih dari daftar, atau ketik nama baru lalu pilih + Tambah ... sebagai jenis pendapatan baru. Di Buku Pribadi, jenis jasa & pekerjaan bebas menampilkan kolom Pajak yang Dipotong Klien"
         },
         {
           "kind": "step",
           "actor": "anda",
-          "title": "Isi jumlah dan rekening yang menerima uang",
-          "note": "Dari siapa, nomor bukti, dan keterangan boleh dikosongkan. Pelanggan baru bisa ditambah di tempat"
+          "title": "Isi Jumlah dan Diterima di Rekening",
+          "note": "Dari Siapa, nomor bukti, dan keterangan boleh dikosongkan. Pelanggan baru bisa ditambah di tempat. Kolom yang berupa daftar bisa diketik untuk mencari"
         },
         {
           "kind": "step",
           "actor": "sistem",
           "title": "Jurnal dibuat otomatis dan saldo rekening bertambah",
-          "note": "Pendapatan usaha ikut dasar PPh Final 0,5%. Bunga, dividen, hasil forex, dan sejenisnya tercatat tetapi tidak ikut; hasilnya tampil di Pajak > Ringkasan Pajak > Penghasilan di Luar PPh Final"
+          "note": "Pendapatan usaha ikut dasar PPh Final 0,5%. Bunga, dividen, hasil forex, dan sejenisnya tercatat tetapi tidak ikut; hasilnya tampil di Pajak > Ringkasan Pajak > Penghasilan di Luar PPh Final. Bunga Tabungan dan Bunga Deposito: isi jumlah yang masuk ke rekening, pajaknya sudah dipotong bank"
         },
         {
           "kind": "choice",
@@ -1179,8 +1204,8 @@
                   "kind": "step",
                   "actor": "anda",
                   "title": "Batalkan lalu catat ulang yang benar",
-                  "menu": "Penjualan > Catat Pendapatan > (klik catatan) > Batalkan Pendapatan",
-                  "note": "Isi alasan; saldo dan pajak kembali seperti semula"
+                  "menu": "Penjualan > Catat Pendapatan > (klik catatan) > Salah catat? Batalkan",
+                  "note": "Isi alasan lalu tekan Ya, Batalkan; saldo dan pajak kembali seperti semula dan catatannya tetap tersimpan sebagai riwayat"
                 }
               ]
             }
@@ -1439,7 +1464,7 @@
                   "actor": "anda",
                   "title": "Catat Pengeluaran",
                   "menu": "Pembelian > Beban > Catat Pengeluaran",
-                  "note": "Pilih rekening pembayar, vendor atau nama penerima, isi satu Jumlah sesuai struk. Struk memuat PPN: centang Sudah termasuk PPN (harga sebelum PPN dihitung otomatis). Kena PPh? sudah terisi dari kategori dan vendor, ubah bila perlu. Vendor menerima total dikurangi PPh; PPh disetor PT ke negara. Lampirkan struk, simpan sebagai Draf"
+                  "note": "Pilih rekening pembayar, vendor atau nama penerima, lalu isi satu angka di kolom Nominal (Rp) sesuai total di struk. Untuk mengisi banyaknya barang, centang Rinci per barang. Struk memuat PPN: centang Jumlah sudah termasuk PPN 11% (harga sebelum PPN dihitung otomatis). Kena PPh? sudah terisi dari kategori dan vendor, ubah bila perlu. Vendor menerima total dikurangi PPh; PPh disetor PT ke negara. Lampirkan struk, simpan sebagai Draf"
                 },
                 {
                   "kind": "choice",
@@ -1484,7 +1509,7 @@
                   "actor": "anda",
                   "title": "Catat Tagihan",
                   "menu": "Pembelian > Tagihan > Catat Tagihan",
-                  "note": "Isi vendor, tanggal, jatuh tempo, dan satu Jumlah sesuai invoice per baris. Invoice memuat PPN: centang Sudah termasuk PPN. Kena PPh? sudah terisi dari kategori dan vendor, ubah bila perlu. Vendor menerima total dikurangi PPh; PPh disetor PT ke negara"
+                  "note": "Isi vendor, tanggal, jatuh tempo, dan satu angka di kolom Nominal (Rp) sesuai total di invoice per baris (Rinci per barang bila perlu kuantitas). Invoice memuat PPN: centang Jumlah sudah termasuk PPN 11%. Kena PPh? sudah terisi dari kategori dan vendor, ubah bila perlu. Vendor menerima total dikurangi PPh; PPh disetor PT ke negara"
                 },
                 {
                   "kind": "choice",
@@ -1928,13 +1953,20 @@
                   "actor": "anda",
                   "title": "Owner atau Accountant mencatat penyesuaian",
                   "menu": "Akuntansi > Penyesuaian Lanjutan",
-                  "note": "Isi rekening, Arah, Jumlah, Akun Lawan (bukan akun pendapatan), dan Alasan minimal 10 karakter"
+                  "note": "Isi Akun Kas/Bank, Arah, Tanggal, Jumlah, Akun Lawan (ketik untuk mencari; bukan akun pendapatan), dan Alasan minimal 10 karakter, lalu tekan Catat Penyesuaian"
                 },
                 {
                   "kind": "step",
                   "actor": "sistem",
                   "title": "Jurnal Sistem langsung Terposting",
-                  "note": "Saldo berubah sebesar jumlahnya. Tidak ada tombol batal; koreksi dengan arah sebaliknya"
+                  "note": "Saldo berubah sebesar jumlahnya. Penyesuaian yang sudah dicatat tampil di daftar bawahnya"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Salah catat? Batalkan dari daftar",
+                  "menu": "Akuntansi > Penyesuaian Lanjutan > Penyesuaian yang Sudah Dicatat > Batalkan",
+                  "note": "Isi alasan pembatalan. Jurnal pembalik memakai tanggal penyesuaian aslinya, jadi tidak menggeser bulan; periode yang sudah Ditutup menolak. Barisnya tetap tampil sebagai Dibatalkan"
                 }
               ]
             }
@@ -2018,7 +2050,7 @@
                   "actor": "anda",
                   "title": "Biaya admin bank belum tercatat: Penyesuaian Lanjutan",
                   "menu": "Akuntansi > Penyesuaian Lanjutan",
-                  "note": "Langsung diposting tanpa draf dan tanpa tombol batal. Bunga bank dan pendapatan lain lewat Penjualan > Catat Pendapatan, bukan di sini"
+                  "note": "Langsung diposting tanpa draf; salah catat dibatalkan dari daftar di halaman yang sama. Bunga bank dan pendapatan lain lewat Penjualan > Catat Pendapatan, bukan di sini"
                 },
                 {
                   "kind": "end",
@@ -2040,7 +2072,7 @@
                   "kind": "step",
                   "actor": "anda",
                   "title": "Isi Jenis Jurnal, Tanggal, Penjelasan, dan baris jurnal",
-                  "note": "Satu sisi per baris; total debit harus sama dengan total kredit"
+                  "note": "Akun dipilih dengan mengetik nomor atau nama akun. Satu sisi per baris; total debit harus sama dengan total kredit"
                 },
                 {
                   "kind": "step",
@@ -2331,18 +2363,18 @@
           "actor": "anda",
           "title": "Buka Ringkasan Pajak",
           "menu": "Pajak > Ringkasan Pajak",
-          "note": "Lihat Total terutang, PPh Final bulan ini, Perlu ditinjau, grafik PPh per bulan, dan Tenggat terdekat. Arahkan kursor ke batang untuk jumlahnya; klik untuk membuka Buku Pajak bulan itu. Kartu Omzet gabungan menjumlahkan PT dan Buku Pribadi terhadap batas Rp 4,8 miliar"
+          "note": "Lihat Total terutang, PPh Final bulan ini, Perkiraan PPh tahun ini, Perlu ditinjau, grafik PPh per bulan, dan Tenggat terdekat. Arahkan kursor ke batang untuk jumlahnya; klik untuk membuka Buku Pajak bulan itu. Rekap Pajak di bawahnya memperlihatkan pajak yang dihitung, dibayar, dan sisanya per jenis; pilih Bulan, Tahun, atau Seluruhnya (hanya untuk dilihat). Kartu Omzet gabungan menjumlahkan PT dan Buku Pribadi terhadap batas Rp 4,8 miliar"
         },
         {
           "kind": "step",
           "actor": "anda",
           "title": "Lihat Penghasilan di Luar PPh Final",
           "menu": "Pajak > Ringkasan Pajak > Penghasilan di Luar PPh Final",
-          "note": "Hasil bersih forex, bunga, dividen sejak 1 Januari dan perkiraan pajak 22% (asumsi, bukan final). Ditetapkan 1 Januari tahun berikutnya; SPT Tahunan 30 April"
+          "note": "Hasil bersih forex, bunga, dividen sejak 1 Januari dan perkiraan pajak 22% (asumsi, bukan final). Bunga tabungan dan deposito yang pajaknya sudah dipotong bank ditandai dan tidak dihitung lagi. Ditetapkan 1 Januari tahun berikutnya; SPT Tahunan 30 April"
         },
         {
           "kind": "choice",
-          "question": "Tertulis \"Mesin pajak aktif sejak ...\"?",
+          "question": "Tertulis \"mesin pajak aktif sejak ...\" di bawah judul?",
           "branches": [
             {
               "label": "Ya",
@@ -2367,7 +2399,7 @@
           "actor": "anda",
           "title": "Lihat tenggat di Kalender Pajak",
           "menu": "Pajak > Kalender Pajak",
-          "note": "Langkah Hitung, Bayar, Lapor, Bukti dengan Jatuh Tempo dan Status. PPh Final UMKM tidak punya Lapor bulanan: setor tanggal 15, lapor lewat SPT Tahunan"
+          "note": "Langkah Hitung, Bayar, Lapor, Bukti dengan Jatuh Tempo dan Status. PPh Final UMKM tidak punya Lapor bulanan: bayar paling lambat tanggal 15, lapor lewat SPT Tahunan (tampil di bulan Maret atau April)"
         },
         {
           "kind": "choice",
@@ -2388,7 +2420,7 @@
                   "actor": "anda",
                   "title": "Kerjakan langkahnya",
                   "menu": "Pajak > Pelaporan & Bukti",
-                  "note": "PPh Final: Hitung dulu di Pajak > PPh Final. Lihat diagram Membayar dan Melaporkan Pajak"
+                  "note": "PPh Final: bayar, lampirkan bukti bayar di rincian pembayaran, lalu Rekonsiliasi, tanpa Lapor bulanan. Lihat diagram Membayar dan Melaporkan Pajak"
                 }
               ]
             },
@@ -2435,7 +2467,7 @@
         {
           "kind": "end",
           "title": "Selesai",
-          "note": "PPh dari bayaran vendor disetor ke negara paling lambat tanggal 15 bulan berikutnya; cek Tenggat terdekat berkala"
+          "note": "PPh Final UMKM dan PPh dari bayaran vendor disetor ke negara paling lambat tanggal 15 bulan berikutnya; cek Tenggat terdekat berkala"
         }
       ]
     },
@@ -2531,7 +2563,7 @@
           "actor": "anda",
           "title": "Baca hasilnya",
           "menu": "Pajak > Pajak Pribadi",
-          "note": "Angka besar = perkiraan yang masih harus dibayar; kartu Angsuran PPh 25 menunjukkan angsuran per bulan. Omzet gabungan dengan PT terhadap batas Rp 4,8 miliar tampil di bawahnya"
+          "note": "Angka besar = perkiraan yang masih harus dibayar; kartu Angsuran PPh 25 menunjukkan angsuran per bulan. Omzet gabungan dengan PT terhadap batas Rp 4,8 miliar tampil di bawahnya. Di Entity PT halaman yang sama bernama Pajak > Omzet Gabungan dan hanya berisi omzet gabungan"
         },
         {
           "kind": "end",
@@ -2544,50 +2576,123 @@
       "id": "pajak",
       "stage": "Tahap 6 · Pajak",
       "title": "Membayar dan Melaporkan Pajak (Tiap Masa Pajak)",
-      "summary": "Lihat posisi pajak, bayar sebesar yang sudah diakui, catat pelaporan, lalu lampirkan bukti. Mesin pajak harus aktif lebih dulu.",
+      "summary": "Lihat posisi pajak, bayar sebesar yang sudah diakui, lampirkan bukti bayar di halaman rincian pembayaran, catat pelaporan bila jenis pajaknya punya laporan bulanan, lalu rekonsiliasi. PPh Final UMKM tidak punya laporan bulanan. Mesin pajak harus aktif lebih dulu.",
       "guides": ["bayar-pajak", "pengaturan-pajak-awal"],
       "items": [
         {
           "kind": "start",
           "actor": "anda",
-          "title": "Masa pajak berakhir, saatnya bayar dan lapor"
+          "title": "Masa pajak berakhir, saatnya membayar pajaknya"
         },
         {
           "kind": "step",
           "actor": "anda",
           "title": "Lihat posisi pajak",
-          "menu": "Pajak > PPN, PPh Vendor, atau PPh Final",
+          "menu": "Pajak > PPh Final, PPN, atau PPh Vendor",
           "note": "Pilih Masa Pajak, lihat Posisi Tercatat dan Sisa Kekurangan"
         },
         {
           "kind": "step",
           "actor": "sistem",
           "title": "PPh Final bulan lalu dicatat otomatis",
-          "note": "Setiap tanggal 1 bulan berikutnya; bulan berjalan tampil sebagai perkiraan"
+          "note": "Mulai tanggal 1 bulan berikutnya, dan dihitung ulang sendiri bila ada invoice atau pendapatan usaha baru di bulan itu. Bulan berjalan tampil sebagai perkiraan"
         },
         {
           "kind": "step",
           "actor": "anda",
           "title": "Catat Pembayaran",
-          "menu": "Pajak > Pelaporan & Bukti",
-          "note": "Isi tanggal bayar, jumlah, dan akun pembayar"
+          "menu": "Pajak > Pelaporan & Bukti > Catat Pembayaran",
+          "note": "Pilih Jenis Pajak (bawaannya PPh Final UMKM) dan Masa Pajak, tekan Terapkan. Isi Tanggal Bayar, Pajak Dibayar, dan Akun Pembayar. PPh Final: tulis NTPN dan Kode Billing. Bayar paling lambat tanggal 15 bulan berikutnya; jangan dicatat lewat menu Beban"
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Pembayaran tercatat dengan nomor TAXPAY",
+          "note": "Saldo rekening berkurang dan sisa kekurangan pajak masa itu turun. Nomor TAXPAY di Riwayat Pembayaran adalah tautan ke halaman rincian pembayaran"
         },
         {
           "kind": "step",
           "actor": "anda",
-          "title": "Catat Pelaporan (SPT)",
-          "note": "Isi tanggal lapor dan nomor tanda terima"
+          "title": "Unggah bukti bayar di rincian pembayaran",
+          "menu": "Riwayat Pembayaran > (klik nomor TAXPAY) > Lampiran > Unggah Bukti",
+          "note": "Halaman rincian berisi Ringkasan, Jurnal, dan Lampiran. Pilih berkas Bukti Penerimaan Negara (BPN, memuat NTPN) dan Jenis bukti Bukti bayar. Boleh kapan saja, juga bukti yang baru ada belakangan"
+        },
+        {
+          "kind": "choice",
+          "question": "Jenis pajaknya?",
+          "branches": [
+            {
+              "label": "PPh Final UMKM",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "sistem",
+                  "title": "Tidak ada langkah Lapor bulanan",
+                  "note": "Bukti setor NTPN dianggap SPT Masa, jadi kotak Pelaporan hanya berisi penjelasan"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Setahun sekali: catat SPT Tahunan di masa Desember",
+                  "menu": "Pajak > Pelaporan & Bukti > PPh Final UMKM, Masa Pajak Desember > Catat Pelaporan",
+                  "note": "Isi Tanggal Lapor dan No. Tanda Terima (NTTE) dari Bukti Penerimaan Elektronik DJP Online. Tenggat 31 Maret (orang pribadi) atau 30 April (badan)"
+                }
+              ]
+            },
+            {
+              "label": "PPN atau PPh Vendor",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Catat Pelaporan (SPT)",
+                  "menu": "Pajak > Pelaporan & Bukti > Catat Pelaporan",
+                  "note": "Isi Tanggal Lapor dan No. Tanda Terima (NTTE) dari Bukti Penerimaan Elektronik DJP Online. Tiga angka sudah terisi dari pembukuan; ubah hanya bila SPT-nya berbeda"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Lampirkan bukti lapor",
+                  "menu": "Pelaporan & Bukti > Bukti Pendukung > Unggah Bukti",
+                  "note": "Pilih Unggah untuk Pelaporan periode ini dan Jenis bukti Bukti lapor. Dokumen yang sudah ada bisa dicari di Cari Dokumen lalu Lampirkan"
+                }
+              ]
+            }
+          ]
         },
         {
           "kind": "step",
           "actor": "anda",
-          "title": "Rekonsiliasi dan lampirkan bukti",
-          "note": "Rekonsiliasi Sekarang, lalu Lampirkan bukti bayar dan bukti lapor"
+          "title": "Rekonsiliasi Sekarang",
+          "menu": "Pajak > Pelaporan & Bukti > Rekonsiliasi Periode",
+          "note": "Membandingkan angka pembukuan dengan setoran dan laporan. Bila ada selisih, catatan wajib minimal 10 karakter. PPh Final UMKM Januari sampai November tidak dianggap selisih meski tanpa laporan"
+        },
+        {
+          "kind": "choice",
+          "question": "Pembayaran salah dicatat?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Balik Pembayaran",
+                  "menu": "Riwayat Pembayaran > (klik nomor TAXPAY) > Balik Pembayaran",
+                  "note": "Isi Tanggal Pembalikan dan Alasan (minimal 5 karakter). Dibuat jurnal pembalik, datanya tidak dihapus; pembayaran berstatus Dibalik. Catat ulang yang benar"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": []
+            }
+          ]
         },
         {
           "kind": "end",
           "title": "Selesai",
-          "note": "Pantau jadwal di Pajak > Kalender Pajak"
+          "note": "Pantau jadwal di Pajak > Kalender Pajak. PPh Final UMKM: Bayar, lampirkan bukti, lalu Rekonsiliasi"
         }
       ]
     },
@@ -2635,7 +2740,7 @@
                   "actor": "anda",
                   "title": "Catat pembelian dengan Perlakuan \"Aset\"",
                   "menu": "Pembelian > Beban > Catat Pengeluaran (atau Pembelian > Tagihan > Catat Tagihan)",
-                  "note": "Barang kecil yang habis sebulan tetap Beban"
+                  "note": "Pilih kategori aset (mis. Laptop, Komputer & Tablet atau Smartphone & Gadget). Barang kecil yang habis sebulan tetap Beban"
                 },
                 {
                   "kind": "step",
@@ -2758,7 +2863,7 @@
                   "actor": "anda",
                   "title": "Tambah Pinjaman",
                   "menu": "Aset & Pendanaan > Pinjaman > Tambah Pinjaman",
-                  "note": "Isi Jenis Pinjaman, pokok, bunga, jumlah cicilan, dan tahun mulai bunga baru bila bunganya berubah (Bunga Berjenjang). Hanya Owner dan Finance Admin"
+                  "note": "Isi Jenis Pinjaman, pokok, bunga, dan jumlah cicilan. Bunga berubah di tengah jalan? Tekan + Tambah tahap bunga dan isi Mulai tahun ke- dan Bunga per tahun (Bunga Berjenjang). Hanya Owner dan Finance Admin"
                 },
                 {
                   "kind": "step",
@@ -2813,7 +2918,7 @@
                   "actor": "anda",
                   "title": "Catat tiap cicilan",
                   "menu": "Pinjaman > (klik pinjaman) > Bayar Cicilan atau Catat Cicilan Diterima",
-                  "note": "Pilih Cicilan sesuai jadwal dan jumlah cicilan; pokok dan bunga terisi otomatis. Atau Pelunasan dipercepat untuk bayar sebagian pokok"
+                  "note": "Pilih Cicilan sesuai jadwal dan jumlah cicilan (yang terlambat lebih dulu); pokok dan bunga terisi otomatis, bunga biasa tanpa catatan. Bayar sebagian pokok? Pilih Pelunasan dipercepat lalu Persingkat jangka waktu atau Perkecil cicilan. Jumlah lain (isi sendiri) hanya untuk yang di luar jadwal; biaya atau denda butuh catatan"
                 },
                 {
                   "kind": "step",
@@ -2889,7 +2994,7 @@
         {
           "kind": "end",
           "title": "Selesai",
-          "note": "Cicilan salah: Batalkan Pembayaran. Bunga berubah: Ubah Bunga. Sulit dibayar: Restrukturisasi Jadwal. Sisa dihapus: Hapus Sisa"
+          "note": "Cicilan salah: Batalkan Pembayaran (tidak bisa bila jadwalnya sudah berubah). Bunga berubah: Ubah Bunga (berlaku mulai tanggal yang dipilih). Sulit dibayar: Restrukturisasi Jadwal. Sisa dihapus: Hapus Sisa Pinjaman"
         }
       ]
     },
@@ -2952,7 +3057,7 @@
                 {
                   "kind": "step",
                   "actor": "anda",
-                  "title": "Pilih Pengembalian modal, isi Nomor RUPS",
+                  "title": "Pilih Pengembalian modal, isi Nomor Keputusan (RUPS)",
                   "note": "Nomor Keputusan wajib. Pilih Golongan Modal, Simpan sebagai Draf"
                 },
                 {
@@ -2976,7 +3081,7 @@
                 {
                   "kind": "step",
                   "actor": "anda",
-                  "title": "Pilih Dividen, isi Nomor RUPS",
+                  "title": "Pilih Dividen, isi Nomor Keputusan (RUPS)",
                   "note": "Nomor Keputusan Pemegang Saham wajib. Simpan sebagai Draf"
                 },
                 {
@@ -3027,21 +3132,28 @@
           "actor": "anda",
           "title": "Tambah Karyawan",
           "menu": "Payroll > Karyawan > Tambah Karyawan",
-          "note": "Hanya OWNER dan peran Payroll. Isi nama, tanggal masuk, jabatan"
+          "note": "Hanya OWNER dan peran Payroll. Isi Nama Lengkap, Tanggal Masuk, Jenis Karyawan, dan Jabatan, lalu Simpan. NIK dan NPWP boleh dikosongkan dulu. Anda dibawa ke halaman karyawan dengan tab Ringkasan, Gaji & Komponen, Pajak, BPJS, dan Pekerjaan"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Cek yang masih kurang",
+          "menu": "Payroll > Karyawan > (klik karyawan) > tab Ringkasan",
+          "note": "Ringkasan menampilkan area yang belum lengkap (gaji, pajak, BPJS); klik kartunya untuk langsung ke tabnya"
         },
         {
           "kind": "step",
           "actor": "anda",
           "title": "Isi Gaji & Komponen",
           "menu": "Payroll > Karyawan > (klik karyawan) > tab Gaji & Komponen",
-          "note": "Pilih nama komponen dari daftar atau ketik sendiri; kode terisi otomatis"
+          "note": "Pilih nama komponen dari chip Tambah penghasilan atau Tambah potongan, atau Ketik nama sendiri; kode terisi otomatis. Potongan yang benar-benar mengurangi penghasilan (Potongan Absensi) dicentang Mengurangi dasar PPh 21; cicilan pinjaman dan kasbon tidak. Tekan Simpan Gaji & Komponen"
         },
         {
           "kind": "step",
           "actor": "anda",
           "title": "Isi Data Pajak",
           "menu": "Payroll > Karyawan > (klik karyawan) > tab Pajak",
-          "note": "Isi Status NPWP/NIK, Status PTKP, Metode Pajak. Jangan Belum diketahui"
+          "note": "Isi Status NPWP/NIK, Status PTKP (huruf = status kawin, angka = tanggungan, dinilai per 1 Januari), dan Metode Pajak, lalu Simpan Data Pajak. Jangan Belum diketahui"
         },
         {
           "kind": "choice",
@@ -3055,7 +3167,7 @@
                   "actor": "anda",
                   "title": "Pilih paket BPJS",
                   "menu": "Payroll > Karyawan > (klik karyawan) > tab BPJS",
-                  "note": "Pilih satu paket (Lengkap bila ikut semua) dan Tingkat Risiko JKK"
+                  "note": "Pilih satu paket (Lengkap bila ikut semua; Lengkap sudah terpilih bila belum ada data) dan Tingkat risiko JKK, lalu Simpan BPJS"
                 }
               ]
             },
@@ -3077,7 +3189,7 @@
                   "actor": "anda",
                   "title": "Isi Saldo Awal Pajak",
                   "menu": "Payroll > Karyawan > (klik karyawan) > tab Pajak > Saldo awal pajak",
-                  "note": "Isi penghasilan bruto dan PPh 21 yang sudah dipotong"
+                  "note": "Isi penghasilan bruto dan PPh 21 yang sudah dipotong sampai bulan terakhir sebelum memakai aplikasi (Sampai Bulan), lalu Simpan Saldo Awal Pajak"
                 }
               ]
             },
@@ -3124,7 +3236,35 @@
           "actor": "anda",
           "title": "Hitung Payroll",
           "menu": "(klik proses) > Hitung Payroll",
-          "note": "Gaji, BPJS, PPh 21 dihitung otomatis. Bonus: Tambah Penyesuaian dulu"
+          "note": "Gaji, BPJS, PPh 21 dihitung otomatis; tekan Hitung Sekarang"
+        },
+        {
+          "kind": "choice",
+          "question": "Ada bonus, potongan, gaji sebagian bulan, atau THR?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Tambah Penyesuaian, lalu hitung ulang",
+                  "menu": "(klik proses) > Tambah Penyesuaian",
+                  "note": "Pilih Karyawan. Masuk atau berhenti di tengah bulan: tekan Isi potongan prorata. Bulan THR: tekan Isi THR (satu bulan upah bila masa kerja 12 bulan atau lebih, kurang dari itu proporsional). Jumlah boleh diubah. Simpan Penyesuaian, lalu Hitung Payroll lagi"
+                }
+              ]
+            },
+            {
+              "label": "Tidak",
+              "items": []
+            }
+          ]
+        },
+        {
+          "kind": "step",
+          "actor": "sistem",
+          "title": "Desember: PPh 21 setahun dihitung ulang",
+          "note": "Bila PPh 21 yang terpotong sepanjang tahun lebih besar dari pajak setahun, kelebihannya dikembalikan otomatis lewat gaji Desember (Dikembalikan ke karyawan)"
         },
         {
           "kind": "choice",
@@ -3195,7 +3335,7 @@
           "actor": "sistem",
           "title": "Jurnal dibuat dan slip gaji terbit",
           "menu": "Payroll > Slip Gaji",
-          "note": "Satu slip tiap karyawan. Saldo belum berkurang"
+          "note": "Satu slip tiap karyawan, berupa lembar yang bisa dicetak: Penghasilan Bruto dikurangi Potongan sama dengan Gaji Dibawa Pulang. Saldo belum berkurang"
         },
         {
           "kind": "step",
@@ -3217,6 +3357,28 @@
           "title": "Tutup Payroll",
           "menu": "(klik proses) > Tutup Payroll",
           "note": "Setelah gaji bersih Dibayar penuh"
+        },
+        {
+          "kind": "choice",
+          "question": "Sudah akhir tahun (gaji Desember sudah dibayar)?",
+          "branches": [
+            {
+              "label": "Ya",
+              "items": [
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Cetak Bukti Potong 1721-A1 tiap karyawan",
+                  "menu": "Payroll > Pajak & Kewajiban Payroll > Bukti Potong Tahunan > Bukti potong →",
+                  "note": "Karyawan memakainya untuk SPT Tahunannya, paling lambat 31 Maret. Karyawan tanpa status PTKP atau NPWP/NIK berstatus belum lengkap. Perlu izin melihat pajak payroll"
+                }
+              ]
+            },
+            {
+              "label": "Belum",
+              "items": []
+            }
+          ]
         },
         {
           "kind": "end",
@@ -3257,14 +3419,14 @@
                           "actor": "anda",
                           "title": "Buat Anggaran Baru",
                           "menu": "Perencanaan > Anggaran > Buat Anggaran Baru",
-                          "note": "Isi nama, jenis periode, tanggal mulai dan akhir"
+                          "note": "Isi nama (bisa memilih saran nama), jenis periode, tanggal mulai dan akhir"
                         },
                         {
                           "kind": "step",
                           "actor": "anda",
                           "title": "Isi baris anggaran",
                           "menu": "Anggaran > (klik anggaran) > Atur Baris Anggaran",
-                          "note": "Tambah Kategori, isi jumlah per bulan, Simpan Baris Anggaran"
+                          "note": "Tekan + Tambah Kategori lalu ketik atau pilih kategori (yang sudah dipakai di baris lain tidak muncul), isi jumlah per bulan, Simpan Baris Anggaran"
                         }
                       ]
                     },
@@ -3276,14 +3438,14 @@
                           "actor": "anda",
                           "title": "Buat Target Baru",
                           "menu": "Perencanaan > Target Pendapatan > Buat Target Baru",
-                          "note": "Isi nama, jenis periode, tanggal mulai dan akhir"
+                          "note": "Isi nama (bisa memilih saran nama), jenis periode, tanggal mulai dan akhir"
                         },
                         {
                           "kind": "step",
                           "actor": "anda",
                           "title": "Isi target tiap bulan",
                           "menu": "Target Pendapatan > (klik target) > Atur Baris Target Pendapatan",
-                          "note": "Satu angka per bulan, tanpa kategori"
+                          "note": "Baris Seluruh Entitas selalu ada. Boleh + Tambah Kategori Pendapatan untuk target per kategori; keduanya tidak dijumlahkan. Simpan Baris Target Pendapatan"
                         }
                       ]
                     }
@@ -3314,7 +3476,7 @@
           "kind": "step",
           "actor": "sistem",
           "title": "Kolom Aktual terisi sendiri dari dokumen yang tercatat",
-          "note": "Beban: tagihan Disetujui, pengeluaran Dikonfirmasi. Pendapatan: invoice Diterbitkan"
+          "note": "Beban: tagihan Disetujui, pengeluaran Dikonfirmasi. Pendapatan: invoice Diterbitkan (target per kategori: baris invoice berkategori itu; Catat Pendapatan tidak ikut)"
         },
         {
           "kind": "step",
@@ -3520,7 +3682,7 @@
       "id": "baca-dashboard",
       "stage": "Tahap 10 · Laporan",
       "title": "Melihat Kondisi Keuangan Sekilas: Membaca Dashboard",
-      "summary": "Dashboard menjawab: berapa uang kas, berapa pendapatan dan beban bulan ini, apa yang perlu ditindaklanjuti. Grafiknya bisa diarahkan kursor untuk angka pastinya dan diklik untuk membuka laporannya.",
+      "summary": "Dashboard menjawab: berapa uang kas, berapa pendapatan, beban, pajak, dan laba pada bulan, tahun, atau sejak awal pembukuan, dan apa yang perlu ditindaklanjuti. Grafiknya bisa diarahkan kursor untuk angka pastinya dan diklik untuk membuka laporannya.",
       "guides": ["membaca-dashboard", "lihat-piutang", "lihat-utang", "posisi-ppn-pph"],
       "items": [
         {
@@ -3531,9 +3693,15 @@
         {
           "kind": "step",
           "actor": "anda",
-          "title": "Buka Dashboard dan pilih bulan",
+          "title": "Buka Dashboard dan pilih tampilan",
           "menu": "Ringkasan > Dashboard",
-          "note": "Panah di samping nama bulan berpindah bulan. Kartu angka: Kas & Bank, Pendapatan, Beban, Laba Berjalan, Piutang Usaha, Utang Usaha"
+          "note": "Di bawah sapaan ada pilihan Bulanan, Tahunan, dan Sejak Awal. Bulanan dan Tahunan punya panah di samping nama periode untuk berpindah; Sejak Awal tidak. Bulan ini masih kosong? Dashboard menautkan ke bulan terakhir yang ada isinya"
+        },
+        {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Baca kartu angka",
+          "note": "Kas & Bank, Pendapatan, Beban, Pajak Penghasilan, Laba Berjalan (atau Rugi Berjalan), Piutang Usaha, Utang Usaha, dan Pinjaman bila ada. Pendapatan dikurangi Beban dan Pajak sama dengan Laba. Pajak Penghasilan (mis. PPh Final UMKM) berdiri sendiri di antara Beban dan Laba; klik untuk membuka bagian Pajak di Laba Rugi"
         },
         {
           "kind": "step",
@@ -3559,7 +3727,7 @@
                   "actor": "anda",
                   "title": "Selesaikan item satu per satu",
                   "menu": "Dashboard > Perlu Perhatian",
-                  "note": "Setiap item menautkan ke halaman yang menyelesaikannya"
+                  "note": "Isinya Klaim Pembayaran, Tinjau Pajak, Bukti Belum Lengkap, dan Rekonsiliasi. Setiap item menautkan ke halaman yang menyelesaikannya"
                 }
               ]
             },
@@ -3571,7 +3739,7 @@
                   "actor": "anda",
                   "title": "Buka Ringkasan Pajak",
                   "menu": "Dashboard > Ringkasan Pajak > Buka Pajak",
-                  "note": "Total terutang, tenggat terdekat, dan transaksi yang perlu ditinjau"
+                  "note": "Total terutang, tenggat terdekat, dan transaksi yang perlu ditinjau. Bila ada kartu Omzet gabungan, PT dan Buku Pribadi dijumlahkan terhadap batas Rp 4,8 miliar"
                 }
               ]
             },
@@ -3584,7 +3752,7 @@
         {
           "kind": "end",
           "title": "Selesai",
-          "note": "Dashboard hanya membaca; angkanya berasal dari jurnal yang sudah diposting"
+          "note": "Dashboard hanya membaca; angkanya berasal dari jurnal yang sudah diposting. Pajak Penghasilan muncul setelah PPh Final bulan itu dicatat"
         }
       ]
     },
@@ -3620,7 +3788,7 @@
                   "actor": "anda",
                   "title": "Untung atau rugi: Laba Rugi",
                   "menu": "Laporan > Laporan Keuangan > tab Laba Rugi",
-                  "note": "Baris bawah: Laba Bersih atau Rugi Bersih. Isi Pembanding untuk dua periode"
+                  "note": "Baris bawah: Laba Bersih atau Rugi Bersih; pajak penghasilan punya bagian Pajak sendiri. Isi Pembanding untuk dua periode"
                 },
                 {
                   "kind": "step",
@@ -3677,9 +3845,16 @@
                 {
                   "kind": "step",
                   "actor": "anda",
-                  "title": "Pajak, payroll, aset, pinjaman",
-                  "menu": "Laporan > Pajak, Payroll, atau Aset & Pinjaman",
-                  "note": "Pinjaman: tab Pinjaman Jatuh Tempo di Laporan Keuangan"
+                  "title": "Pajak, payroll, pinjaman, aset tetap",
+                  "menu": "Laporan > Pajak, Payroll, Pinjaman, atau Aset Tetap",
+                  "note": "Pajak membuka Buku Pajak, Payroll membuka Ringkasan Payroll, Pinjaman membuka Ringkasan Pinjaman, Aset Tetap membuka Kontrol Aset Tetap. Pinjaman Jatuh Tempo: tab di Laporan Keuangan"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Pajak yang dihitung, dibayar, dan sisanya",
+                  "menu": "Pajak > Ringkasan Pajak > Rekap Pajak",
+                  "note": "Pilih Bulan, Tahun, atau Seluruhnya. Hanya untuk dilihat; membayar dan melapor di Pelaporan & Bukti"
                 },
                 {
                   "kind": "step",
@@ -3731,7 +3906,7 @@
       "id": "lampiran-dokumen",
       "stage": "Tahap 11 · Dokumen & Administrasi",
       "title": "Menyimpan Nota atau Kuitansi sebagai Bukti, lalu Mencarinya Lagi",
-      "summary": "Dari ada bukti (nota, kuitansi, kontrak) sampai terlampir pada invoice, tagihan, atau beban dan bisa dicari di menu Dokumen.",
+      "summary": "Dari ada bukti (nota, kuitansi, kontrak, bukti bayar pajak) sampai terlampir pada invoice, tagihan, beban, catatan pendapatan, atau pembayaran pajak dan bisa dicari di menu Dokumen.",
       "guides": ["dokumen-lampiran"],
       "width": 160,
       "items": [
@@ -3744,8 +3919,8 @@
           "kind": "step",
           "actor": "anda",
           "title": "Buka catatan yang akan dilampiri",
-          "menu": "Penjualan > Invoice, Pembelian > Tagihan, atau Pembelian > Beban > (klik catatan)",
-          "note": "Menu Dokumen tidak punya tombol unggah"
+          "menu": "Penjualan > Invoice atau Catat Pendapatan; Pembelian > Tagihan atau Beban; Pajak > Pelaporan & Bukti > (klik nomor TAXPAY) > (klik catatan)",
+          "note": "Bukti bayar pajak (BPN atau NTPN) dilampirkan di rincian pembayaran pajak. Menu Dokumen tidak punya tombol unggah"
         },
         {
           "kind": "choice",
@@ -3758,8 +3933,8 @@
                   "kind": "step",
                   "actor": "anda",
                   "title": "Pilih berkas dan Jenis lampiran, tekan Lampirkan",
-                  "menu": "(detail catatan) > Lampiran > Lampirkan",
-                  "note": "PDF, JPG, PNG, atau WebP, maksimal 4 MB"
+                  "menu": "(detail catatan) > Lampiran > Lampirkan (bukti pajak: Unggah Bukti)",
+                  "note": "PDF, JPG, PNG, atau WebP, maksimal 4 MB. Jenis lampiran bisa diketik; jenis baru ditambah lewat + Tambah ... jenis lampiran baru, lalu Simpan Jenis. Bukti pajak boleh diunggah kapan saja"
                 },
                 {
                   "kind": "step",
@@ -3767,6 +3942,13 @@
                   "title": "Lampiran tersimpan dan tertaut ke catatan",
                   "menu": "Dokumen > Bukti Terkait",
                   "note": "Isi berkas yang sama di Entity yang sama disimpan sekali"
+                },
+                {
+                  "kind": "step",
+                  "actor": "anda",
+                  "title": "Buka berkas untuk melihatnya",
+                  "menu": "(detail catatan) > Lampiran > (klik nama berkas)",
+                  "note": "Gambar dan PDF tampil di jendela pratinjau dengan Cetak / Simpan PDF, Unduh, dan Tutup. Berlaku untuk semua lampiran, termasuk bukti pajak"
                 },
                 {
                   "kind": "choice",
@@ -3848,9 +4030,16 @@
           ]
         },
         {
+          "kind": "step",
+          "actor": "anda",
+          "title": "Salah ketik nama jenis lampiran?",
+          "menu": "Dokumen > Pusat Dokumen > Jenis Lampiran Sendiri > Ubah nama atau Tidak dipakai lagi",
+          "note": "Jenis yang tidak dipakai lagi hilang dari pilihan unggah, tetapi lampiran lama tetap memakai nama jenisnya. Jenis tidak pernah dihapus. Perlu izin mengunggah"
+        },
+        {
           "kind": "end",
           "title": "Selesai",
-          "note": "Bukti pajak diunggah dari Pajak > Pelaporan & Bukti, dan tidak bisa dihapus"
+          "note": "Bukti pajak diunggah dari rincian pembayaran atau Bukti Pendukung di Pajak > Pelaporan & Bukti, dan tidak bisa dihapus"
         }
       ]
     },

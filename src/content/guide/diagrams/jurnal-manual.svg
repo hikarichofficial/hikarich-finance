@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 478 1466.5" width="478" height="1466.5" role="img" aria-label="Perlu Mengoreksi Pembukuan: Kapan Memakai Jurnal Manual?" font-family="Helvetica, Arial, sans-serif">
-<!-- source: alur.json sha256:e1c1506bcc5c008f (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<!-- source: alur.json sha256:a5ce59429e1a4226 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
 <title>Perlu Mengoreksi Pembukuan: Kapan Memakai Jurnal Manual?</title>
 <rect width="100%" height="100%" fill="#ffffff"/>
 <rect x="134" y="18" width="210" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
@@ -28,10 +28,10 @@
 <text x="28" y="362" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Biaya admin bank belum tercatat:</text>
 <text x="28" y="375.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Penyesuaian Lanjutan</text>
 <text x="28" y="390.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Akuntansi &gt; Penyesuaian Lanjutan</text>
-<text x="28" y="405.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Langsung diposting tanpa draf dan tanpa</text>
-<text x="28" y="417" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">tombol batal. Bunga bank dan pendapatan lain</text>
-<text x="28" y="428.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">lewat Penjualan &gt; Catat Pendapatan, bukan di</text>
-<text x="28" y="440" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">sini</text>
+<text x="28" y="405.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Langsung diposting tanpa draf; salah catat</text>
+<text x="28" y="417" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dibatalkan dari daftar di halaman yang sama.</text>
+<text x="28" y="428.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Bunga bank dan pendapatan lain lewat</text>
+<text x="28" y="440" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Penjualan &gt; Catat Pendapatan, bukan di sini</text>
 <polyline points="123,450.5 123,473.5" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polygon points="123,478.5 118.5,470.5 127.5,470.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
 <rect x="18" y="478.5" width="210" height="29.5" rx="14.75" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
@@ -48,23 +48,24 @@
 <text x="260" y="280" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">membuat draf</text>
 <polyline points="355,290.5 355,313.5" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polygon points="355,318.5 350.5,310.5 359.5,310.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="250" y="318.5" width="210" height="80" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<rect x="250" y="318.5" width="210" height="91.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
 <text x="260" y="331.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
 <text x="260" y="348" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Isi Jenis Jurnal, Tanggal,</text>
 <text x="260" y="361.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Penjelasan, dan baris jurnal</text>
-<text x="260" y="376.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Satu sisi per baris; total debit harus sama</text>
-<text x="260" y="388" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dengan total kredit</text>
-<polyline points="355,398.5 355,421.5" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polygon points="355,426.5 350.5,418.5 359.5,418.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
-<rect x="250" y="426.5" width="210" height="66.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
-<text x="260" y="439.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
-<text x="260" y="456" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Simpan sebagai Draf</text>
-<text x="260" y="471" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Draf belum mengubah laporan dan belum</text>
-<text x="260" y="482.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">bernomor</text>
+<text x="260" y="376.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Akun dipilih dengan mengetik nomor atau nama</text>
+<text x="260" y="388" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">akun. Satu sisi per baris; total debit harus sama</text>
+<text x="260" y="399.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dengan total kredit</text>
+<polyline points="355,410 355,433" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,438 350.5,430 359.5,430" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="438" width="210" height="66.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="451" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="467.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Simpan sebagai Draf</text>
+<text x="260" y="482.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Draf belum mengubah laporan dan belum</text>
+<text x="260" y="494" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">bernomor</text>
 <rect x="301.29" y="184" width="107.42" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
 <text x="355" y="195" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Bukan, koreksi lanjutan</text>
 <polyline points="123,508 123,528" fill="none" stroke="#444444" stroke-width="1.4"/>
-<polyline points="355,493 355,528" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,504.5 355,528" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polyline points="123,528 355,528" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polyline points="239,528 239,551" fill="none" stroke="#444444" stroke-width="1.4"/>
 <polygon points="239,556 234.5,548 243.5,548" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
