@@ -945,7 +945,7 @@ export function ObligationActionsPanel({
             <MoneyField name="interest" label="Bunga (jika ada)" defaultValue="0" />
             <MoneyField name="fee" label="Biaya (jika ada)" defaultValue="0" />
             <label>
-              Catatan (wajib jika ada bunga atau biaya)
+              Catatan (wajib jika ada biaya)
               <input name="note" maxLength={1000} />
             </label>
           </CommandForm>
