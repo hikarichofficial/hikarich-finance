@@ -2542,8 +2542,8 @@
           "kind": "step",
           "actor": "anda",
           "title": "Catat setoran pajak yang Anda bayar ke negara",
-          "menu": "Pembelian > Beban (kategori Setoran PPh Final UMKM atau Setoran PPh 25)",
-          "note": "Paling lambat tanggal 15 bulan berikutnya. Setoran mengurangi kurang bayar, bukan penghasilan neto"
+          "menu": "Pajak > Pelaporan & Bukti (jenis PPh Final UMKM atau PPh 25)",
+          "note": "Paling lambat tanggal 15 bulan berikutnya. Isi NTPN dan unggah bukti bayar. Setoran mengurangi kurang bayar, bukan penghasilan neto"
         },
         {
           "kind": "step",
@@ -3963,6 +3963,13 @@
                           "title": "Lepas lampiran",
                           "menu": "(detail catatan) > Lampiran > Lepas",
                           "note": "Isi Alasan. Hanya selagi catatan belum final. Berkas pindah ke Arsip"
+                        },
+                        {
+                          "kind": "step",
+                          "actor": "anda",
+                          "title": "Atau hapus lampiran permanen",
+                          "menu": "(detail catatan) > Lampiran > Hapus",
+                          "note": "Isi Alasan, centang pernyataan. Berlaku juga untuk catatan final dan bukti pajak. Berkas ikut terhapus dari penyimpanan"
                         }
                       ]
                     },

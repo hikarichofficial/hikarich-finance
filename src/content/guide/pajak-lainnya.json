@@ -145,7 +145,7 @@
       "steps": [
         {
           "title": "Beri tanda pada kategori (sekali saja)",
-          "text": "Buka **Akuntansi > Kategori** di Buku Pribadi. Kolom **Pajak Pribadi** menawarkan enam tanda. Pendapatan: **Penjualan usaha · PPh Final 0,5%**, **Jasa & pekerjaan bebas · PPh progresif**, dan **Honor dari PT saya · otomatis dari PT**. Pengeluaran: **Biaya usaha & jasa · mengurangi penghasilan neto**, **Setoran PPh Final UMKM** dan **Setoran PPh 25 (angsuran)** (pajak yang sudah Anda bayar sendiri ke negara, bukan biaya usaha). Tanpa tanda berarti pribadi: tercatat di laporan tetapi tidak masuk hitungan pajak. Buku Pribadi baru sudah berisi kategori bawaan yang bertanda.",
+          "text": "Buka **Akuntansi > Kategori** di Buku Pribadi. Kolom **Pajak Pribadi** menawarkan empat tanda. Pendapatan: **Penjualan usaha · PPh Final 0,5%**, **Jasa & pekerjaan bebas · PPh progresif**, dan **Honor dari PT saya · otomatis dari PT**. Pengeluaran: **Biaya usaha & jasa · mengurangi penghasilan neto**. Pajak yang Anda setor sendiri ke negara tidak ditandai di kategori; ia dicatat di Pajak > Pelaporan & Bukti (langkah di bawah). Tanpa tanda berarti pribadi: tercatat di laporan tetapi tidak masuk hitungan pajak. Buku Pribadi baru sudah berisi kategori bawaan yang bertanda.",
           "tip": "Inilah “mesin pemilah” biaya: hanya pengeluaran berkategori Biaya usaha & jasa yang mengurangi penghasilan jasa. Belanja rumah tangga tidak."
         },
         {
@@ -162,8 +162,8 @@
         },
         {
           "title": "Catat pajak yang sudah Anda setor",
-          "text": "Setiap kali menyetor pajak sendiri ke negara, catat di **Pembelian > Beban** dengan kategori **Setoran PPh Final UMKM** (PPh Final 0,5% bulanan, disetor paling lambat tanggal 15 bulan berikutnya) atau **Setoran PPh 25 (Angsuran)** (angsuran bulanan untuk PPh Progresif). Setoran ini tidak mengurangi penghasilan neto; ia mengurangi **kurang bayar** di halaman Pajak Pribadi.",
-          "tip": "Kategori ini sudah ada di Buku Pribadi baru dan di Buku Pribadi lama yang sudah ada. Setoran PPh Final tidak ikut mengurangi PPh Progresif, dan sebaliknya."
+          "text": "Setiap kali menyetor pajak sendiri ke negara, catat di **Pajak > Pelaporan & Bukti**, sama seperti PT. Pilih **Jenis Pajak** dan **Masa Pajak**, lalu isi **Catat Pembayaran** dengan jumlah, akun pembayar, serta NTPN dan kode billing. Jenis **PPh Final UMKM** melunasi pajak final bulanan yang sudah diakui sistem (disetor paling lambat tanggal 15 bulan berikutnya); jenis **PPh 25 (angsuran bulanan)** dipakai untuk angsuran PPh Progresif dan tidak punya tagihan yang dilunasi. Unggah bukti bayar (BPN) di halaman rincian pembayaran. Setoran ini tidak mengurangi penghasilan neto; ia mengurangi **kurang bayar** di halaman Pajak Pribadi.",
+          "tip": "Setoran yang dulu dicatat di Pembelian > Beban dengan kategori Setoran PPh Final UMKM atau Setoran PPh 25 tetap terbaca di Pajak Pribadi. Catatan baru cukup lewat Pelaporan & Bukti. Setoran PPh Final tidak ikut mengurangi PPh Progresif, dan sebaliknya."
         },
         {
           "title": "Pilih status PTKP",

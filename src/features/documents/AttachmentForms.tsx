@@ -14,6 +14,8 @@ import { usePreservingForm } from "@/features/shared/usePreservingForm";
 import { Picker } from "@/features/shared/Picker";
 import {
   createDocumentPurposeAction,
+  deleteAttachmentAction,
+  deleteDocumentAction,
   removeAttachmentAction,
   uploadAttachmentAction,
 } from "./attachmentActions";
@@ -184,6 +186,64 @@ export function AttachmentRemoveForm({
         ) : null}
         <button type="submit" className="btn-danger" disabled={pending}>
           {pending ? "Melepas…" : "Lepas Lampiran"}
+        </button>
+      </form>
+    </details>
+  );
+}
+
+/**
+ * Delete an attachment for good, in every menu (decision 418). Two steps: the "Hapus" button opens a short form with a
+ * reason and a tick that says the file is deleted for good; only then the delete button works. The database records who
+ * deleted it, when and why.
+ */
+export function AttachmentDeleteForm({
+  linkId,
+  documentId,
+  returnPath,
+}: {
+  /** Delete the attachment of one record (the link). */
+  linkId?: string;
+  /** Or delete a whole file with every link it has (the Documents screens). */
+  documentId?: string;
+  returnPath: string;
+}) {
+  const [state, action, pending] = useActionState(
+    linkId ? deleteAttachmentAction : deleteDocumentAction,
+    idleAttachmentActionState,
+  );
+  const actionForm = usePreservingForm(action, state);
+  const [sure, setSure] = useState(false);
+  return (
+    <details>
+      <summary className="danger-link">Hapus</summary>
+      <form {...actionForm} className="record-form">
+        {linkId ? <input type="hidden" name="link_id" value={linkId} /> : null}
+        {documentId ? <input type="hidden" name="document_id" value={documentId} /> : null}
+        <input type="hidden" name="return_path" value={returnPath} />
+        <input type="hidden" name="confirm" value={sure ? "yes" : "no"} />
+        <label>
+          Alasan
+          <input name="reason" required minLength={3} maxLength={1000} />
+        </label>
+        <label className="check-line">
+          <input
+            type="checkbox"
+            checked={sure}
+            onChange={(event) => setSure(event.target.checked)}
+          />
+          Saya paham berkas ini dihapus permanen dan tidak bisa dikembalikan.
+        </label>
+        <p className="hint">
+          Catatan siapa yang menghapus, kapan, dan alasannya tetap tersimpan di jejak audit.
+        </p>
+        {state.status === "error" ? (
+          <p role="alert" className="error">
+            {state.message}
+          </p>
+        ) : null}
+        <button type="submit" className="btn-danger" disabled={pending || !sure}>
+          {pending ? "Menghapus…" : "Hapus Permanen"}
         </button>
       </form>
     </details>

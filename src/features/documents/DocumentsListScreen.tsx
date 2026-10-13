@@ -5,6 +5,7 @@ import {
   formatDocumentSize,
 } from "@/domain/documents/documents";
 import type { DocumentRow, DocumentTargetType } from "@/schemas/documents";
+import { AttachmentDeleteForm } from "./AttachmentForms";
 import { AttachmentPreviewLink } from "./AttachmentPreviewLink";
 import { formatShortDate } from "./format";
 import { PageHelp } from "@/features/shared/PageHelp";
@@ -141,6 +142,7 @@ export function DocumentsListScreen({
                 Ukuran
               </th>
               <th scope="col">Diunggah</th>
+              <th scope="col">Tindakan</th>
             </tr>
           </thead>
           <tbody>
@@ -161,6 +163,9 @@ export function DocumentsListScreen({
                   {formatDocumentSize(row.size_bytes)}
                 </td>
                 <td data-label="Diunggah">{formatShortDate(row.created_at)}</td>
+                <td data-label="Tindakan">
+                  <AttachmentDeleteForm documentId={row.document_id} returnPath={basePath} />
+                </td>
               </tr>
             ))}
           </tbody>

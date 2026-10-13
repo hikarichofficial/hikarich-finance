@@ -17,14 +17,15 @@ export const PERSONAL_ROLE_LABELS: Readonly<Record<PersonalTaxRole, string>> = {
   freelance: "Jasa & pekerjaan bebas · PPh progresif",
   company_payout: "Honor dari PT saya · otomatis dari PT",
   business_cost: "Biaya usaha & jasa · mengurangi penghasilan neto",
-  tax_paid_final: "Setoran PPh Final UMKM · pajak yang sudah Anda bayar",
-  tax_paid_installment: "Setoran PPh 25 (angsuran) · pajak yang sudah Anda bayar",
+  tax_paid_final: "Setoran PPh Final UMKM · pencatatan lama (kini lewat Pajak > Pelaporan & Bukti)",
+  tax_paid_installment: "Setoran PPh 25 · pencatatan lama (kini lewat Pajak > Pelaporan & Bukti)",
 };
 
-/** Which roles a category of this kind may carry; the database enforces the same pairing. */
+/** Which roles a category of this kind may carry; the database enforces the same pairing. The two tax-paid tags are
+ * no longer offered (decision 417: tax paid goes through the tax module); an old category keeps its tag and is still read. */
 export function personalRolesForKind(kind: string): PersonalTaxRole[] {
   if (kind === "revenue") return ["umkm_business", "freelance", "company_payout"];
-  if (kind === "expense") return ["business_cost", "tax_paid_final", "tax_paid_installment"];
+  if (kind === "expense") return ["business_cost"];
   return [];
 }
 

@@ -5,13 +5,17 @@ import { AuthzError, describeAuthzError } from "@/domain/authz/errors";
 import { documentPurposeSchema, genericLinkableTargetTypeSchema } from "@/schemas/documents";
 import { requirePermission } from "@/services/identity/access";
 import {
+  confirmDocumentPurge,
   createDocumentPurpose,
+  deleteAttachment,
+  deleteDocument,
   linkDocument,
   renameDocumentPurpose,
   setDocumentPurposeActive,
   unlinkDocument,
 } from "@/services/documents/documents";
 import type { AttachmentActionState } from "./attachmentActionsState";
+import { removeDocumentBytes } from "@/services/documents/storage";
 import { storeUploadedFile } from "./storeUploadedFile";
 
 /**
@@ -72,6 +76,78 @@ export async function removeAttachmentAction(
   }
   revalidatePath(text(formData, "return_path") || "/documents");
   return { status: "ok", message: "Lampiran dilepas." };
+}
+
+/**
+ * Deleting an attachment for good (decision 418). The database decides who may and marks the link removed; when no
+ * other record uses the file it also says where the bytes are, and they are removed from the storage here before
+ * the database is told they are gone. The record of who deleted what, when and why stays.
+ */
+async function finishDelete(result: {
+  document_id: string;
+  purged: boolean;
+  storage_path: string | null;
+}): Promise<AttachmentActionState> {
+  if (!result.purged) {
+    return {
+      status: "ok",
+      message:
+        "Lampiran dihapus dari catatan ini. Berkasnya masih dipakai catatan lain, jadi tetap disimpan.",
+    };
+  }
+  if (result.storage_path) {
+    if (!(await removeDocumentBytes(result.storage_path))) {
+      return {
+        status: "error",
+        message:
+          "Lampiran sudah dihapus dari catatan, tetapi berkasnya belum terhapus dari penyimpanan. Coba hapus lagi dari menu Dokumen.",
+      };
+    }
+  }
+  await confirmDocumentPurge(result.document_id);
+  return { status: "ok", message: "Lampiran dihapus permanen, termasuk berkasnya." };
+}
+
+export async function deleteAttachmentAction(
+  _previous: AttachmentActionState,
+  formData: FormData,
+): Promise<AttachmentActionState> {
+  const reason = text(formData, "reason");
+  if (reason.length < 3) return { status: "error", message: "Tulis alasan menghapus lampiran." };
+  if (text(formData, "confirm") !== "yes") {
+    return { status: "error", message: "Centang pernyataan bahwa berkas dihapus permanen." };
+  }
+  let state: AttachmentActionState;
+  try {
+    state = await finishDelete(
+      await deleteAttachment({ link_id: text(formData, "link_id"), reason }),
+    );
+  } catch (error) {
+    return errorState(error, "Lampiran tidak dapat dihapus.");
+  }
+  revalidatePath(text(formData, "return_path") || "/documents");
+  return state;
+}
+
+export async function deleteDocumentAction(
+  _previous: AttachmentActionState,
+  formData: FormData,
+): Promise<AttachmentActionState> {
+  const reason = text(formData, "reason");
+  if (reason.length < 3) return { status: "error", message: "Tulis alasan menghapus berkas." };
+  if (text(formData, "confirm") !== "yes") {
+    return { status: "error", message: "Centang pernyataan bahwa berkas dihapus permanen." };
+  }
+  let state: AttachmentActionState;
+  try {
+    state = await finishDelete(
+      await deleteDocument({ document_id: text(formData, "document_id"), reason }),
+    );
+  } catch (error) {
+    return errorState(error, "Berkas tidak dapat dihapus.");
+  }
+  revalidatePath(text(formData, "return_path") || "/documents");
+  return state;
 }
 
 /** Adds an attachment type from inside the upload form and hands it back, so it can be chosen at once. */

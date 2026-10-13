@@ -1,7 +1,7 @@
 # Implementation Decisions
 
 > **Status terkini — 11 Oktober 2026.** Keputusan terakhir yang sudah masuk `main` adalah **PR #213**
-> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR #215; keputusan 409 dan 410 (bunga per jenis, Rekap Pajak, penjelasan fungsi halaman) di PR #216. Keputusan 411 (bukti pajak diunggah langsung, rincian pembayaran, satu pratinjau) di PR #217. Keputusan 412 (rekonsiliasi pajak final tanpa SPT bulanan) dan 413 (kartu Pajak Penghasilan di Dashboard) di PR #218. Keputusan 414 (halaman rincian pembayaran pajak, PPh Final UMKM jadi pilihan awal) di PR #219. Keputusan 415 (panduan, diagram, dan PDF disesuaikan dengan fitur terbaru) di PR #220.
+> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR #215; keputusan 409 dan 410 (bunga per jenis, Rekap Pajak, penjelasan fungsi halaman) di PR #216. Keputusan 411 (bukti pajak diunggah langsung, rincian pembayaran, satu pratinjau) di PR #217. Keputusan 412 (rekonsiliasi pajak final tanpa SPT bulanan) dan 413 (kartu Pajak Penghasilan di Dashboard) di PR #218. Keputusan 414 (halaman rincian pembayaran pajak, PPh Final UMKM jadi pilihan awal) di PR #219. Keputusan 415 (panduan, diagram, dan PDF disesuaikan dengan fitur terbaru) di PR #221. Keputusan 416 (kartu lampiran dipisah dari kartu unggah), 417 (pajak yang disetor pribadi lewat modul pajak, PPh 25) dan 418 (tombol Hapus lampiran, berkas ikut terhapus dari penyimpanan) di PR berikutnya.
 > Produksi (`hikarich-finance-prod`, 139 migration) sudah direset bersih pada tanggal itu dengan Cara 3
 > di `docs/RESET_PRODUKSI.md`: dua Entity (`pt` badan, `hikarich` pribadi), profil Entity, profil pajak,
 > mesin pajak dan rekening Mandiri Bisnis dipertahankan; seluruh transaksi, kontak, dokumen dan jejak
@@ -3907,3 +3907,45 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      the same diagrams as the website), and the PDF now has five parts instead of six. Screenshots are not
      changed (they still need a re-capture with sample data, never with production data in this public repo).
      No database change.
+
+416. **The list of uploaded attachments and the form to upload a new one are two separate cards, in every menu
+     (OWNER, 13 October 2026).** On the payment page the owner saw one card holding both the files already
+     uploaded and the upload form. Decision: wherever attachments are shown they are two cards: "Lampiran" (the
+     files already uploaded; "Belum ada lampiran." when none) and "Unggah Lampiran Baru" (the form, or the
+     hint that storage is not enabled). This applies to the shared attachments section (invoice, income, bill
+     and expense detail pages, including the embedded variant inside "Dokumen"), to the tax payment page, and
+     to "Pelaporan & Bukti" ("Bukti Pendukung" and "Unggah Bukti Baru"). The embedded variant is now drawn as a
+     card of its own. No database change.
+
+417. **The tax a person pays in themselves goes through the tax module, the same as the PT (OWNER, 13 October
+     2026).** A Personal book had two ways to record tax it paid: Pajak > Pelaporan & Bukti (NTPN, proof,
+     detail page) and, for the Pajak Pribadi estimate, two expense categories in Pembelian > Beban ("Setoran PPh
+     Final UMKM", "Setoran PPh 25 (Angsuran)"). The second way booked the payment as a cost although the monthly
+     final-tax accrual had already recognised it, so the cost was counted twice, and it had no NTPN or proof.
+     The owner asked for one way, like the PT. Decision: the tax module is the only way. PPh Final UMKM of a
+     Personal book keeps its engine (accrual, payment settles the liability) and Pajak Pribadi now reads "sudah
+     disetor" from those payments. PPh 25 (the monthly instalment) is a new payment type `pph25` of the same
+     module, Personal books only: it is paid in advance of the yearly tax, so there is no liability to settle; it
+     debits the "Setoran Pajak Penghasilan" account (6060) and credits the bank, has no monthly return and no
+     period reconciliation, and is left out of the tax control against the tax payable account. The screen
+     offers PPh Final UMKM and PPh 25 for a Personal book, the other types for a company. The two Beban
+     categories are no longer created for a new Personal book and the tag is no longer offered on a category;
+     an old expense booked in them is still read by Pajak Pribadi, so nothing recorded before is lost. The
+     guide, the diagram and the help texts follow. Migration p66 (patches the live functions in place) and test
+     `99_p66_personal_tax_module.sql`; `99_p44` and `99_p15_5` were adjusted.
+
+418. **Every attachment has a "Hapus" button and the file really leaves the storage (OWNER, 13 October 2026).** An
+     attachment could only be released ("Lepas"): the file went to the archive, and the evidence of a record that was
+     no longer a draft could not be released at all (decision 95). The owner asked for a delete button on each
+     attachment, in every menu, and for the file to be deleted from Supabase too. Decision: "Hapus" sits beside "Lepas"
+     on the attachments of the invoice, income, bill and expense pages, under each proof on Pelaporan & Bukti and on the
+     tax payment page, and on each row of Pusat Dokumen and Arsip. It asks for a reason (3 to 1000 characters) and a tick
+     that the file is deleted for good. It works whatever the status of the record, so the evidence of a final record
+     and tax evidence can be deleted too; it needs the same rights as attaching a file there (`documents.upload` and the
+     record's own edit right). The database (`delete_attachment`, `delete_document`, `confirm_document_purge`) marks the
+     link removed with "Dihapus: <reason>"; when no other record uses the file it marks the document deleted, the
+     application removes the bytes from the private bucket and the database is told they are gone. A file still used
+     by another record is only taken off the one record. The document row stays as a tombstone (it is referenced and its
+     table forbids deletes) with who, when and why, and the audit trail records it; the file itself cannot be restored.
+     A deleted file is never listed or served; uploading the same content again revives the same document. Guide,
+     diagram and test `99_p67_delete_attachment.sql`. Migration p67.

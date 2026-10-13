@@ -4355,6 +4355,10 @@ a[data-nav-pending="true"]:not(.app-nav-link)::after {
 /* "Lampiran" shown inside a record's Dokumen section (decision 332). */
 .attachments-embedded {
   margin-top: var(--space-5);
+  padding: var(--space-4);
+  background: var(--surface-solid);
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
 }
 
 .attachments-embedded-title {
@@ -6503,4 +6507,26 @@ tr[data-muted="true"] td {
 .page-help details[open] summary {
   display: block;
   margin-bottom: 2px;
+}
+
+/* Delete an attachment for good (decision 418): the small "Hapus" link beside "Lepas" and the tick line of its form. */
+.row-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-3);
+  align-items: flex-start;
+}
+.danger-link {
+  color: var(--danger, #b3261e);
+  cursor: pointer;
+}
+.check-line {
+  display: flex;
+  gap: var(--space-2);
+  align-items: flex-start;
+  font-size: 0.875rem;
+}
+.check-line input[type="checkbox"] {
+  width: auto;
+  margin-top: 0.2rem;
 }

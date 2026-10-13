@@ -191,7 +191,7 @@ export const PAGE_HELP: Readonly<Record<string, HelpEntry>> = {
   "/tax/filing": {
     summary:
       "Tempat mencatat setoran pajak ke negara, laporan (SPT), dan bukti pendukung untuk satu jenis pajak dan masa.",
-    more: "Pembayaran pajak harus dicatat di sini, bukan lewat Beban: sistem menutup utang pajaknya dan menghindari beban ganda. PPh Final UMKM tidak punya laporan bulanan; bukti setoran (NTPN) dianggap SPT Masa, dan laporan tahunan dicatat pada masa Desember.",
+    more: "Pembayaran pajak harus dicatat di sini, bukan lewat Beban: sistem menutup utang pajaknya dan menghindari beban ganda. PPh Final UMKM tidak punya laporan bulanan; bukti setoran (NTPN) dianggap SPT Masa, dan laporan tahunan dicatat pada masa Desember. Di Buku Pribadi pilihannya PPh Final UMKM dan PPh 25 (angsuran bulanan); keduanya dicatat di sini, sama seperti PT.",
   },
   "/tax/payments/:id": {
     summary:
@@ -200,7 +200,7 @@ export const PAGE_HELP: Readonly<Record<string, HelpEntry>> = {
   },
   "/tax/personal": {
     summary:
-      "Perkiraan pajak pribadi tahunan: PPh final UMKM dan PPh progresif setelah pajak yang sudah dipotong.",
+      "Perkiraan pajak pribadi tahunan: PPh final UMKM dan PPh progresif setelah pajak yang sudah dipotong dan disetor (setoran dicatat di Pajak > Pelaporan & Bukti).",
   },
   "/tax/rules": {
     summary: "Aturan pajak yang dipakai mesin pajak (tarif, batas, tanggal berlaku).",
@@ -295,7 +295,7 @@ export const SECTION_HELP: Readonly<Record<string, HelpEntry>> = {
   "tax.filing.record-payment": {
     summary:
       "Mencatat setoran pajak ke negara (NTPN dan kode billing). Mengurangi saldo rekening dan menutup utang pajak masa ini.",
-    more: "Jumlah dibayar tidak boleh melebihi pajak yang terutang. Jangan mencatat setoran pajak sebagai Beban: pajaknya akan terhitung dua kali.",
+    more: "Jumlah dibayar tidak boleh melebihi pajak yang terutang (kecuali angsuran PPh 25 di Buku Pribadi, yang dibayar di muka). Jangan mencatat setoran pajak sebagai Beban: pajaknya akan terhitung dua kali.",
   },
   "tax.filing.filings": {
     summary: "Laporan pajak (SPT) yang sudah dicatat untuk masa ini beserta nomor tanda terimanya.",

@@ -3,7 +3,11 @@ import type { GenericLinkableTargetType } from "@/schemas/documents";
 import { listDocumentLinks, listDocumentPurposes } from "@/services/documents/documents";
 import { documentStorageEnabled } from "@/services/documents/storage";
 import { AttachmentPreviewLink } from "./AttachmentPreviewLink";
-import { AttachmentRemoveForm, AttachmentUploadForm } from "./AttachmentForms";
+import {
+  AttachmentDeleteForm,
+  AttachmentRemoveForm,
+  AttachmentUploadForm,
+} from "./AttachmentForms";
 
 /**
  * "Lampiran" on a record's detail page (Step 08 §21, decision 275): the files linked to this record, a
@@ -44,67 +48,80 @@ export async function AttachmentsSection({
   const storageOn = documentStorageEnabled();
 
   const Wrapper = embedded ? "div" : "section";
+  const wrapperClass = embedded ? "attachments-embedded" : "dashboard-section";
+  const heading = (text: string) =>
+    embedded ? (
+      <h3 className="attachments-embedded-title">{text}</h3>
+    ) : (
+      <div className="dashboard-section-header">
+        <h2 className="dashboard-section-title">{text}</h2>
+      </div>
+    );
   return (
-    <Wrapper className={embedded ? "attachments-embedded" : "dashboard-section"}>
-      {embedded ? (
-        <h3 className="attachments-embedded-title">Lampiran</h3>
-      ) : (
-        <div className="dashboard-section-header">
-          <h2 className="dashboard-section-title">Lampiran</h2>
-        </div>
-      )}
-      {links.length === 0 ? (
-        <p className="hint">Belum ada lampiran.</p>
-      ) : (
-        <table className="record-table record-table-stacked">
-          <thead>
-            <tr>
-              <th scope="col">Berkas</th>
-              <th scope="col">Jenis</th>
-              <th scope="col" className="num">
-                Ukuran
-              </th>
-              <th scope="col">Tindakan</th>
-            </tr>
-          </thead>
-          <tbody>
-            {links.map((link) => (
-              <tr key={link.link_id}>
-                <td data-label="Berkas">
-                  <AttachmentPreviewLink
-                    documentId={link.document_id}
-                    fileName={link.file_name}
-                    mimeType={link.mime_type}
-                  />
-                </td>
-                <td data-label="Jenis">{documentPurposeLabel(link.purpose, customNames)}</td>
-                <td className="num" data-label="Ukuran">
-                  {formatDocumentSize(link.size_bytes)}
-                </td>
-                <td data-label="Tindakan">
-                  {canUpload ? (
-                    <AttachmentRemoveForm linkId={link.link_id} returnPath={returnPath} />
-                  ) : (
-                    "—"
-                  )}
-                </td>
+    <>
+      <Wrapper className={wrapperClass}>
+        {heading("Lampiran")}
+        {links.length === 0 ? (
+          <p className="hint">Belum ada lampiran.</p>
+        ) : (
+          <table className="record-table record-table-stacked">
+            <thead>
+              <tr>
+                <th scope="col">Berkas</th>
+                <th scope="col">Jenis</th>
+                <th scope="col" className="num">
+                  Ukuran
+                </th>
+                <th scope="col">Tindakan</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {links.map((link) => (
+                <tr key={link.link_id}>
+                  <td data-label="Berkas">
+                    <AttachmentPreviewLink
+                      documentId={link.document_id}
+                      fileName={link.file_name}
+                      mimeType={link.mime_type}
+                    />
+                  </td>
+                  <td data-label="Jenis">{documentPurposeLabel(link.purpose, customNames)}</td>
+                  <td className="num" data-label="Ukuran">
+                    {formatDocumentSize(link.size_bytes)}
+                  </td>
+                  <td data-label="Tindakan">
+                    {canUpload ? (
+                      <div className="row-actions">
+                        <AttachmentRemoveForm linkId={link.link_id} returnPath={returnPath} />
+                        <AttachmentDeleteForm linkId={link.link_id} returnPath={returnPath} />
+                      </div>
+                    ) : (
+                      "—"
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </Wrapper>
+      {!canUpload ? null : (
+        <Wrapper className={wrapperClass}>
+          {heading("Unggah Lampiran Baru")}
+          {storageOn ? (
+            <AttachmentUploadForm
+              entity={entity}
+              targetType={targetType}
+              targetId={targetId}
+              returnPath={returnPath}
+              defaultPurpose={defaultPurpose}
+              customPurposes={customPurposes}
+            />
+          ) : (
+            <p className="hint">Penyimpanan berkas belum diaktifkan untuk situs ini.</p>
+          )}
+        </Wrapper>
       )}
-      {!canUpload ? null : storageOn ? (
-        <AttachmentUploadForm
-          entity={entity}
-          targetType={targetType}
-          targetId={targetId}
-          returnPath={returnPath}
-          defaultPurpose={defaultPurpose}
-          customPurposes={customPurposes}
-        />
-      ) : (
-        <p className="hint">Penyimpanan berkas belum diaktifkan untuk situs ini.</p>
-      )}
-    </Wrapper>
+    </>
   );
 }

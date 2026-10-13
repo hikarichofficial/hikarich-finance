@@ -36,7 +36,7 @@ export default async function TaxFilingPage({
 }) {
   const { entity, type: typeParam, period: periodParam, doc_q: docQuery } = await searchParams;
   const { membership } = await requirePermission("tax.view", { entityCode: entity });
-  const taxType = resolveFilingTaxType(typeParam);
+  const taxType = resolveFilingTaxType(typeParam, membership.entity_type);
   const period = resolveTaxPeriod(periodParam);
   const entityId = membership.entity_id;
 
@@ -91,6 +91,7 @@ export default async function TaxFilingPage({
       currency={currency}
       entityId={entityId}
       entity={entity}
+      entityType={membership.entity_type}
       paymentAccounts={eligibleTaxPaymentAccounts(accounts, currency)}
       evidence={evidence}
       paymentEvidence={paymentEvidence}

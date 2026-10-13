@@ -1,3 +1,4 @@
+import { AttachmentDeleteForm } from "./AttachmentForms";
 import { AttachmentPreviewLink } from "./AttachmentPreviewLink";
 import Link from "next/link";
 import { documentTargetTypesLabel, formatDocumentSize } from "@/domain/documents/documents";
@@ -76,6 +77,7 @@ export function DocumentArchiveScreen({
               <th scope="col" className="num">
                 Ukuran
               </th>
+              <th scope="col">Tindakan</th>
             </tr>
           </thead>
           <tbody>
@@ -107,6 +109,12 @@ export function DocumentArchiveScreen({
                 </td>
                 <td className="num" data-label="Ukuran">
                   {formatDocumentSize(r.size_bytes)}
+                </td>
+                <td data-label="Tindakan">
+                  <AttachmentDeleteForm
+                    documentId={r.document_id}
+                    returnPath="/documents/archive"
+                  />
                 </td>
               </tr>
             ))}
