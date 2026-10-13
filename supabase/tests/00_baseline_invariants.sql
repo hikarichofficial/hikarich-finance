@@ -117,7 +117,7 @@ declare
                                          'update_expense_draft', 'submit_expense', 'recall_expense',
                                          'reject_expense', 'confirm_expense', 'cancel_expense', 'reverse_expense',
                                          'correct_expense', 'register_document', 'link_document', 'unlink_document',
-                                         'list_document_links', 'list_missing_evidence',
+                                         'list_document_links', 'delete_attachment', 'delete_document', 'confirm_document_purge', 'list_missing_evidence',
                                          -- P7 tax facts, rules, determination, payments, filings and the calendar
                                          'tax_rule_draft_save', 'tax_rule_publish', 'tax_rule_discard',
                                          'tax_rule_in_force', 'tax_record_entity_profile', 'tax_profile_identifier',

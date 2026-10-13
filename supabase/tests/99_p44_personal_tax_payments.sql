@@ -28,19 +28,21 @@ begin
   v_year := extract(year from v_today)::integer;
   v_cur := date_trunc('month', v_today)::date;
 
-  -- 1. the two categories and their account exist, tagged, on an expense account
-  select id into v_cat_final from public.categories where entity_id = me and name = 'Setoran PPh Final UMKM';
-  select id into v_cat_inst from public.categories where entity_id = me and name = 'Setoran PPh 25 (Angsuran)';
-  select id into v_cat_cost from public.categories where entity_id = me and personal_tax_role = 'business_cost';
-  select id into v_cat_rev from public.categories where entity_id = me and personal_tax_role = 'freelance';
-  perform test_helpers.assert(v_cat_final is not null and v_cat_inst is not null
-    and (select personal_tax_role from public.categories where id = v_cat_final) = 'tax_paid_final'
-    and (select personal_tax_role from public.categories where id = v_cat_inst) = 'tax_paid_installment'
-    and (select kind from public.categories where id = v_cat_final) = 'expense',
-    '1.1 a new Personal book starts with both payment categories, tagged');
+  -- 1. since decision 417 a new Personal book no longer gets the two categories; an old book may still hold them, and the
+  -- summary keeps reading them. Create them the way the old provisioning did, to test that legacy read.
+  perform test_helpers.assert(not exists (select 1 from public.categories where entity_id = me and personal_tax_role in ('tax_paid_final', 'tax_paid_installment')),
+    '1.1 a new Personal book starts without the tax-payment categories');
   perform test_helpers.assert(exists (select 1 from public.ledger_accounts where entity_id = me and system_key = 'PERSONAL_INCOME_TAX_PAID' and account_class = 'expense'),
     '1.2 the account for tax paid exists');
   perform test_helpers.assert(app_private.provision_personal_tax_categories(me) = 0, '1.3 provisioning again adds nothing');
+  insert into public.categories (entity_id, name, kind, sort_order, personal_tax_role)
+  values (me, 'Setoran PPh Final UMKM', 'expense', 106, 'tax_paid_final') returning id into v_cat_final;
+  insert into public.categories (entity_id, name, kind, sort_order, personal_tax_role)
+  values (me, 'Setoran PPh 25 (Angsuran)', 'expense', 107, 'tax_paid_installment') returning id into v_cat_inst;
+  insert into public.category_account_mappings (entity_id, category_id, context, debit_ledger_account_id, effective_from)
+  select me, c, 'purchases', test_helpers.acct(me, 'PERSONAL_INCOME_TAX_PAID'), date '2000-01-01' from unnest(array[v_cat_final, v_cat_inst]) c;
+  select id into v_cat_cost from public.categories where entity_id = me and personal_tax_role = 'business_cost';
+  select id into v_cat_rev from public.categories where entity_id = me and personal_tax_role = 'freelance';
 
   -- 2. a payment tag only fits an expense category
   begin
