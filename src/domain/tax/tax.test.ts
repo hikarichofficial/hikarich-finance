@@ -17,6 +17,7 @@ import {
   resolveTaxYear,
   outstandingTax,
   resolveFilingTaxType,
+  filingTaxTypesFor,
   resolveWithholdingTaxType,
   VAT_TREATMENT_LABELS,
   WHT_OBJECT_LABELS,
@@ -123,6 +124,13 @@ describe("resolveFilingTaxType", () => {
 
   it("falls back to PPh Final UMKM for anything absent or unrecognised (decision 414)", () => {
     expect(resolveFilingTaxType(undefined)).toBe("final_umkm");
+    // decision 417: PPh 25 is a Personal book's tax; the other types belong to a company
+    expect(resolveFilingTaxType("pph25", "personal")).toBe("pph25");
+    expect(resolveFilingTaxType("pph25", "company")).toBe("final_umkm");
+    expect(resolveFilingTaxType("vat", "personal")).toBe("final_umkm");
+    expect(resolveFilingTaxType("vat", "company")).toBe("vat");
+    expect(filingTaxTypesFor("personal")).toEqual(["final_umkm", "pph25"]);
+    expect(filingTaxTypesFor("company")).not.toContain("pph25");
     expect(resolveFilingTaxType("not-a-type")).toBe("final_umkm");
   });
 });
@@ -206,6 +214,7 @@ describe("tax vocabulary", () => {
   it("has a label for every code the database can return", () => {
     expect(Object.keys(TAX_TYPE_LABELS).sort()).toEqual([
       "final_umkm",
+      "pph25",
       "vat",
       "wht_pph21",
       "wht_pph23",

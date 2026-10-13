@@ -9,7 +9,14 @@ import { businessClock } from "@/lib/time";
  */
 
 // ---- vocabulary
-export type TaxType = "vat" | "wht_pph23" | "wht_pph4_2" | "wht_pph26" | "wht_pph21" | "final_umkm";
+export type TaxType =
+  | "vat"
+  | "wht_pph23"
+  | "wht_pph4_2"
+  | "wht_pph26"
+  | "wht_pph21"
+  | "final_umkm"
+  | "pph25";
 export type TaxKind =
   | "vat_output"
   | "vat_input"
@@ -27,6 +34,7 @@ export const TAX_TYPE_LABELS: Readonly<Record<TaxType, string>> = {
   wht_pph26: "PPh 26 (luar negeri)",
   wht_pph21: "PPh 21 (karyawan)",
   final_umkm: "PPh Final UMKM",
+  pph25: "PPh 25 (angsuran bulanan)",
 };
 
 export const TAX_KIND_LABELS: Readonly<Record<TaxKind, string>> = {
@@ -261,7 +269,7 @@ export const DIFFERENCE_LABELS: Readonly<Record<DifferenceCode, string>> = {
  * December, there is no filing to record and none to miss.
  */
 export function hasNoReturnToRecord(taxType: string, period: string): boolean {
-  return taxType === "final_umkm" && period.slice(5, 7) !== "12";
+  return taxType === "pph25" || (taxType === "final_umkm" && period.slice(5, 7) !== "12");
 }
 
 export function relevantDifferences<T extends { code: string }>(
@@ -437,7 +445,7 @@ export function outstandingTax(accrued: string, paid: string): Decimal {
  * joined in decision 303, since its payment, filing and reconciliation already ran through the same RPCs (P9)
  * but no screen offered them. */
 export type FilingTaxType =
-  "vat" | "wht_pph23" | "wht_pph4_2" | "wht_pph26" | "wht_pph21" | "final_umkm";
+  "vat" | "wht_pph23" | "wht_pph4_2" | "wht_pph26" | "wht_pph21" | "final_umkm" | "pph25";
 export const FILING_TAX_TYPES: readonly FilingTaxType[] = [
   // PPh Final UMKM first: it is the tax this business pays every month, and the screen opens on it (decision 414).
   "final_umkm",
@@ -447,6 +455,15 @@ export const FILING_TAX_TYPES: readonly FilingTaxType[] = [
   "wht_pph26",
   "wht_pph21",
 ];
+
+/** The taxes of a Personal book (decision 417): the same screen as the company's, with the two payments a person
+ * makes in themselves. PPh 25 is the monthly instalment of the yearly tax; it has no accrual and no monthly return. */
+export const PERSONAL_FILING_TAX_TYPES: readonly FilingTaxType[] = ["final_umkm", "pph25"];
+
+/** The tax types the screen offers for a kind of Entity: a Personal book gets its own two, a company the rest. */
+export function filingTaxTypesFor(entityType: string | null | undefined): readonly FilingTaxType[] {
+  return entityType === "personal" ? PERSONAL_FILING_TAX_TYPES : FILING_TAX_TYPES;
+}
 
 /** The withholding taxes the Entity deducts from what it pays to vendors (Step 05 §10), in the order the
  * Withholding screen offers them. */
@@ -465,12 +482,18 @@ export function resolveWithholdingTaxType(requested: string | undefined): Withho
 }
 
 function isFilingTaxType(value: string): value is FilingTaxType {
-  return (FILING_TAX_TYPES as readonly string[]).includes(value);
+  return (FILING_TAX_TYPES as readonly string[]).includes(value) || value === "pph25";
 }
 
 /** Falls back to PPh Final UMKM for anything absent or outside the types this screen offers (decision 414). */
-export function resolveFilingTaxType(requested: string | undefined): FilingTaxType {
-  return requested && isFilingTaxType(requested) ? requested : "final_umkm";
+export function resolveFilingTaxType(
+  requested: string | undefined,
+  entityType?: string | null,
+): FilingTaxType {
+  if (!requested || !isFilingTaxType(requested)) return "final_umkm";
+  // The Entity decides: PPh 25 is a Personal book's tax, the other types belong to a company.
+  if (entityType === undefined) return requested;
+  return filingTaxTypesFor(entityType).includes(requested) ? requested : "final_umkm";
 }
 
 /** A payment's paying account must hold the Entity's own base currency (`tax_record_payment`'s own check). */
