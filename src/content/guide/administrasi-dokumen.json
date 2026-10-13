@@ -627,8 +627,14 @@
           "warning": "Lampiran hanya bisa dilepas selagi catatannya belum final: invoice yang masih draft, atau tagihan dan beban yang masih draft atau diajukan. Setelah itu lampiran menjadi bagian dari catatan. Lampiran pada catatan Pendapatan (Catat Pendapatan) tidak bisa dilepas."
         },
         {
+          "title": "Hapus lampiran permanen",
+          "text": "Di kolom **Tindakan** (atau di bawah setiap bukti di Pelaporan & Bukti dan halaman rincian pembayaran pajak), tekan **Hapus**, isi **Alasan** (minimal 3 karakter), centang pernyataan bahwa berkas dihapus permanen, lalu tekan **Hapus Permanen**. Bila berhasil tampil “Lampiran dihapus permanen, termasuk berkasnya.” Berkasnya ikut terhapus dari penyimpanan dan tidak bisa dikembalikan. Tombol yang sama ada di Pusat Dokumen dan Arsip untuk menghapus satu berkas beserta semua tautannya.",
+          "warning": "Beda dengan Lepas, Hapus bisa dipakai juga untuk lampiran catatan yang sudah final, termasuk bukti pajak. Bila berkas yang sama masih dipakai catatan lain, hanya lampiran di catatan ini yang dihapus dan berkasnya tetap disimpan. Siapa yang menghapus, kapan, dan alasannya tetap tersimpan di jejak audit.",
+          "tip": "Mengunggah ulang berkas yang sama setelah dihapus tetap bisa; berkasnya dianggap dokumen yang sama dan aktif lagi."
+        },
+        {
           "title": "Cari di Pusat Dokumen",
-          "text": "Buka **Dokumen > Pusat Dokumen**. Ringkasan menulis “N dokumen ditampilkan.” Pakai tab jenis (Semua, Tagihan, Pengeluaran, Pendapatan, Invoice, Aset Tetap, Pinjaman, Piutang/Utang Lain-lain, Transaksi Ekuitas, Kontak, Jurnal, Pelaporan Pajak, Pembayaran Pajak, Batch Impor) atau ketik di **Cari nama berkas…** lalu tekan **Cari**. Kolomnya **Nama Berkas** (klik untuk pratinjau), **Terkait Dengan**, **Tautan**, **Ukuran**, dan **Diunggah**.",
+          "text": "Buka **Dokumen > Pusat Dokumen**. Ringkasan menulis “N dokumen ditampilkan.” Pakai tab jenis (Semua, Tagihan, Pengeluaran, Pendapatan, Invoice, Aset Tetap, Pinjaman, Piutang/Utang Lain-lain, Transaksi Ekuitas, Kontak, Jurnal, Pelaporan Pajak, Pembayaran Pajak, Batch Impor) atau ketik di **Cari nama berkas…** lalu tekan **Cari**. Kolomnya **Nama Berkas** (klik untuk pratinjau), **Terkait Dengan**, **Tautan**, **Ukuran**, **Diunggah**, dan **Tindakan** (Hapus).",
           "image": {
             "file": "dokumen-pusat.jpg",
             "caption": "Pusat Dokumen."
