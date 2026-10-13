@@ -27,6 +27,7 @@ export const taxTypeSchema = z.enum([
   "wht_pph26",
   "wht_pph21",
   "final_umkm",
+  "pph25",
 ]);
 export const taxKindSchema = z.enum([
   "vat_output",

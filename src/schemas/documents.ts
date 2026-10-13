@@ -135,6 +135,24 @@ export const unlinkDocumentInputSchema = z.object({
   reason: z.string().trim().min(3).max(1000),
 });
 
+export const deleteAttachmentInputSchema = z.object({
+  link_id: z.uuid(),
+  reason: z.string().trim().min(3).max(1000),
+});
+
+export const deleteDocumentInputSchema = z.object({
+  document_id: z.uuid(),
+  reason: z.string().trim().min(3).max(1000),
+});
+
+/** What a delete hands back: whether the file itself is now deleted and, if so, where its bytes are to be removed. */
+export const deletedDocumentResultSchema = z.object({
+  document_id: z.uuid(),
+  purged: z.boolean(),
+  storage_path: z.string().nullable(),
+});
+export type DeletedDocumentResult = z.infer<typeof deletedDocumentResultSchema>;
+
 export const replaceDocumentLinkInputSchema = z.object({
   link_id: z.uuid(),
   new_document_id: z.uuid(),
