@@ -3,7 +3,11 @@ import type { GenericLinkableTargetType } from "@/schemas/documents";
 import { listDocumentLinks, listDocumentPurposes } from "@/services/documents/documents";
 import { documentStorageEnabled } from "@/services/documents/storage";
 import { AttachmentPreviewLink } from "./AttachmentPreviewLink";
-import { AttachmentDeleteForm, AttachmentRemoveForm, AttachmentUploadForm } from "./AttachmentForms";
+import {
+  AttachmentDeleteForm,
+  AttachmentRemoveForm,
+  AttachmentUploadForm,
+} from "./AttachmentForms";
 
 /**
  * "Lampiran" on a record's detail page (Step 08 §21, decision 275): the files linked to this record, a

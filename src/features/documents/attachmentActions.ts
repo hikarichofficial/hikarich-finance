@@ -91,7 +91,8 @@ async function finishDelete(result: {
   if (!result.purged) {
     return {
       status: "ok",
-      message: "Lampiran dihapus dari catatan ini. Berkasnya masih dipakai catatan lain, jadi tetap disimpan.",
+      message:
+        "Lampiran dihapus dari catatan ini. Berkasnya masih dipakai catatan lain, jadi tetap disimpan.",
     };
   }
   if (result.storage_path) {
@@ -118,7 +119,9 @@ export async function deleteAttachmentAction(
   }
   let state: AttachmentActionState;
   try {
-    state = await finishDelete(await deleteAttachment({ link_id: text(formData, "link_id"), reason }));
+    state = await finishDelete(
+      await deleteAttachment({ link_id: text(formData, "link_id"), reason }),
+    );
   } catch (error) {
     return errorState(error, "Lampiran tidak dapat dihapus.");
   }

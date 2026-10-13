@@ -111,7 +111,10 @@ export function DocumentArchiveScreen({
                   {formatDocumentSize(r.size_bytes)}
                 </td>
                 <td data-label="Tindakan">
-                  <AttachmentDeleteForm documentId={r.document_id} returnPath="/documents/archive" />
+                  <AttachmentDeleteForm
+                    documentId={r.document_id}
+                    returnPath="/documents/archive"
+                  />
                 </td>
               </tr>
             ))}

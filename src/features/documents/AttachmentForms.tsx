@@ -227,7 +227,11 @@ export function AttachmentDeleteForm({
           <input name="reason" required minLength={3} maxLength={1000} />
         </label>
         <label className="check-line">
-          <input type="checkbox" checked={sure} onChange={(event) => setSure(event.target.checked)} />
+          <input
+            type="checkbox"
+            checked={sure}
+            onChange={(event) => setSure(event.target.checked)}
+          />
           Saya paham berkas ini dihapus permanen dan tidak bisa dikembalikan.
         </label>
         <p className="hint">
