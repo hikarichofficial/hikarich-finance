@@ -3949,3 +3949,22 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      table forbids deletes) with who, when and why, and the audit trail records it; the file itself cannot be restored.
      A deleted file is never listed or served; uploading the same content again revives the same document. Guide,
      diagram and test `99_p67_delete_attachment.sql`. Migration p67.
+
+419. **The loading bar no longer comes back after the Back button (OWNER, 13 October 2026).** Report: after pressing
+     Back the page showed but the bar at the top kept loading, while any other menu opened at once. Cause: the
+     navigation feedback remembered the address a click started from and never forgot it; pressing a menu link and
+     then Back returned to that same address, so the bar was shown again, and the 8-second give-up timer had
+     already been cleared. Decision: as soon as the address changes the remembered click is dropped for good.
+     Nothing else changes (decision 274's bar and decision 339's recovery of a really stuck page stay as they are).
+
+420. **Cancelling an income entry or a marketplace payout shows a date, and an entry's own date is the default
+     (OWNER, 13 October 2026).** Report: Dashboard October showed income -Rp 427,81 after the bank interest was
+     cancelled and recorded again. The cancel buttons always dated the reversal today, so the reversal landed in
+     October while the original entry (and the new one) were 30 September: September showed the interest twice and
+     October minus once, although the form promised the reports return "as before it was recorded". Decision: the
+     "Salah catat? Batalkan" form of Catat Pendapatan shows a "Tanggal pembatalan" field, pre-filled with the entry's
+     own date while the period of that date is open (otherwise today; when the periods cannot be read it offers the
+     entry's date and the database refuses a closed month), never before the entry or after today; the marketplace
+     payout cancel form shows the same field, pre-filled with today as before. The hint says in which month the
+     reversal lands. The two September/October journals already booked for the 427,81 interest are left as they are
+     (OWNER: the total is right; nothing is added to the books). The guide follows.
