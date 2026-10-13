@@ -130,7 +130,11 @@ export default async function MarketplacePage({
                     {row.status === "reversed" ? (
                       "Dibatalkan"
                     ) : canReverse ? (
-                      <ReverseSettlementForm settlementId={row.id} today={today} />
+                      <ReverseSettlementForm
+                        settlementId={row.id}
+                        settlementDate={row.settlement_date}
+                        today={today}
+                      />
                     ) : (
                       "Tercatat"
                     )}
