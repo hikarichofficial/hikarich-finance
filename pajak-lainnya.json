@@ -1,0 +1,349 @@
+{
+  "key": "pajak-lainnya",
+  "title": "Pajak dan Piutang Lain",
+  "description": "Mencatat pembayaran pajak dan pelaporan, serta piutang atau utang di luar invoice dan tagihan.",
+  "guides": [
+    {
+      "slug": "bayar-pajak",
+      "title": "Cara Mencatat Pembayaran Pajak dan Pelaporan",
+      "summary": "Melihat posisi pajak per masa, mencatat pembayaran, membuka rincian pembayaran, mencatat pelaporan (SPT), dan mengunggah atau melampirkan bukti.",
+      "path": "Pajak > Pelaporan & Bukti (posisi di Pajak > PPh Final, PPN, PPh Vendor); rincian satu pembayaran di halaman yang dibuka dari nomor pembayaran",
+      "who": "Melihat: tax.view. Mencatat pembayaran, membalik pembayaran, pelaporan, rekonsiliasi, dan melampirkan bukti: izin tandai lapor (tax.mark_filed), yaitu peran Pajak dan OWNER. Mengunggah berkas bukti langsung juga butuh izin unggah dokumen (documents.upload): peran Pajak bawaan belum memilikinya, sedangkan OWNER punya; tanpa izin itu bukti tetap bisa dilampirkan dari dokumen yang sudah ada lewat Cari Dokumen. Finance Admin tidak punya izin tandai lapor. PPh Final bulan yang berakhir dicatat otomatis oleh sistem.",
+      "quick": "Mesin pajak harus aktif dulu. Pajak yang bisa dibayar hanya yang sudah diakui dari invoice, tagihan, atau pengeluaran. Pelaporan dan bukti hanya catatan referensi dan tidak mengubah buku besar. Setiap pembayaran punya halaman rincian sendiri (klik nomor pembayarannya) untuk melihat jurnal, mengunggah bukti, dan membalik pembayaran.",
+      "steps": [
+        {
+          "title": "Pastikan mesin pajak aktif",
+          "text": "Tanpa mesin pajak aktif tidak ada pajak yang diakui, jadi tidak ada sisa untuk dibayar. Lihat [Cara Mengisi Pengaturan Pajak Awal](pengaturan-pajak-awal)."
+        },
+        {
+          "title": "Lihat posisi pajak masa berjalan",
+          "text": "Buka **Pajak > PPh Final**, **Pajak > PPN**, atau **Pajak > PPh Vendor**. Pilih **Masa Pajak** (bulan; bawaan bulan lalu) lalu **Terapkan**. Bagian **Posisi Tercatat** menampilkan Terutang (Diakui), Sudah Dibayar, dan Sisa Kekurangan. PPN juga menampilkan PPN Masukan Diakui, Terpakai, dan Tersedia."
+        },
+        {
+          "title": "Khusus PPh Final: dicatat otomatis",
+          "text": "PPh Final dihitung dari invoice yang diterbitkan dalam bulan itu. Selama bulan masih berjalan, yang tampil di kartu **Perkiraan PPh Final** (kartu angka di Ringkasan Pajak, serta Kalender Pajak dan PPh Final) hanyalah perkiraan: angkanya otomatis ikut bertambah setiap ada invoice terbit dan belum tercatat sebagai kewajiban. Mulai tanggal 1 bulan berikutnya sistem sendiri menghitung dan mencatat PPh Final bulan yang berakhir sebagai terutang, tanpa tombol; bila ada invoice, pendapatan, atau settlement marketplace yang diposting belakangan dengan tanggal di bulan yang sudah berakhir, sistem langsung menghitung ulang saat itu juga dan mencatat selisihnya (bila gagal, dicoba ulang tiap 15 menit). Di **Pajak > PPh Final**, **Pratinjau** dan **Posisi Tercatat** menunjukkan hasilnya. Pembayaran dibatasi sebesar yang sudah diakui, jadi bayar setelah angkanya muncul di Posisi Tercatat. Tidak ada laporan bulanan untuk PPh Final: setor sebelum tanggal 15 bulan berikutnya lewat kode billing, bukti setornya adalah NTPN pada Bukti Penerimaan Negara (dianggap SPT Masa), lalu laporkan setahun sekali lewat SPT Tahunan yang nomor tanda terimanya dicatat di masa Desember."
+        },
+        {
+          "title": "Penghasilan di luar PPh Final (forex, bunga, dividen, kripto)",
+          "text": "Penghasilan yang dicatat lewat **Penjualan > Catat Pendapatan** dengan jenis di luar usaha (bunga, dividen, hasil trading forex, kripto, bonus, dan sejenisnya) tidak ikut dasar PPh Final 0,5%. Hasilnya tampil di kartu **Penghasilan di Luar PPh Final** pada **Pajak > Ringkasan Pajak**: hasil bersih per jenis sejak 1 Januari (untung dikurangi rugi dan biaya trading), rincian **Rincian per jenis dan per bulan** (dilipat), dan **perkiraan pajak 22%** untuk badan. Angka ini hanya perkiraan dan tidak dicatat sebagai kewajiban. Hasil satu tahun ditetapkan otomatis pada 1 Januari tahun berikutnya; SPT Tahunan tetap jatuh tempo 30 April. Pilih tahun lain lewat tautan di bawah kartu. Penilaian ulang investasi yang belum direalisasi ditampilkan tetapi tidak dihitung.",
+          "tip": "Perkiraan belum memperhitungkan fasilitas, kompensasi rugi, atau pajak yang sudah dipotong pihak lain (misalnya bunga bank). Konfirmasikan dengan konsultan pajak sebelum SPT."
+        },
+        {
+          "title": "Buka Pajak > Pelaporan & Bukti",
+          "text": "Pilih **Jenis Pajak** dan **Masa Pajak**, lalu **Terapkan**. Urutan jenisnya: PPh Final UMKM, PPN, PPh 23 (jasa dan sewa), PPh 4(2) sewa tanah/bangunan, PPh 26 (luar negeri), PPh 21 (karyawan). Bila halaman dibuka tanpa memilih jenis, yang tampil adalah **PPh Final UMKM**. Di bawah judul ada penjelasan singkat fungsi halaman; tekan **Selengkapnya** untuk penjelasan yang lebih panjang. Untuk PPh 21 Anda juga bisa sampai ke sini dari Payroll > Pajak & Kewajiban Payroll dengan menekan **Setor →** pada baris PPh 21.",
+          "image": {
+            "file": "pajak-pelaporan.jpg",
+            "caption": "Halaman Pelaporan & Bukti."
+          }
+        },
+        {
+          "title": "Catat Pembayaran",
+          "text": "Di bagian **Catat Pembayaran**, perhatikan petunjuk “Sisa kekurangan saat ini”. Isi **Tanggal Bayar**, **Pajak Dibayar**, **Kompensasi PPN Masukan (opsional, khusus PPN)**, **Denda (opsional)**, **Akun Pembayar** (kosongkan bila dikompensasi penuh), kolom referensi, dan **Catatan** (wajib bila ada denda, misalnya nomor surat tagihan). Kolom referensi bernama **Referensi (opsional)**; untuk PPh Final UMKM namanya **NTPN dan Kode Billing (opsional)**, isi NTPN dari Bukti Penerimaan Negara dan kode billing yang dibayar. Tekan **Catat Pembayaran**. Pembayaran muncul di **Riwayat Pembayaran**."
+        },
+        {
+          "title": "Buka rincian pembayaran, unggah bukti, atau balik pembayaran",
+          "text": "Di **Riwayat Pembayaran**, tabel menampilkan **No. Pembayaran**, **Tanggal**, **Pajak Dibayar**, **Kompensasi**, **Denda**, **Tunai**, **Bukti** (jumlah berkas, atau “Belum ada”), dan **Status** (Terkonfirmasi atau Dibalik). Klik nomor pembayaran (berawalan TAXPAY) untuk membuka halaman rincian pembayaran itu. Halaman ini punya bagian **Ringkasan** (tanggal bayar, jenis dan masa pajak, jumlah, uang keluar, akun pembayar, NTPN dan kode billing), **Jurnal** (tautan ke jurnal pembayaran dan, bila sudah dibalik, jurnal pembalikan), dan **Lampiran**. Di **Lampiran**, pilih berkas (PDF, JPG, PNG, atau WebP, maksimal 4 MB), pilih **Jenis bukti** (Bukti lapor, Bukti bayar, Bukti potong, Faktur pajak, atau Lainnya; untuk pembayaran bawaannya Bukti bayar), lalu tekan **Unggah Bukti**. Bukti bisa diunggah kapan saja setelah pembayaran dicatat, juga berhari-hari kemudian. Klik nama berkas untuk membukanya di jendela pratinjau. Setelah mengunggah, Anda tetap berada di halaman pembayaran itu. Bila pembayaran salah, tekan **Balik Pembayaran** di bagian atas halaman rincian, isi **Tanggal Pembalikan** dan **Alasan** (minimal 5 karakter), lalu tekan **Balik Pembayaran** sekali lagi.",
+          "tip": "Untuk kembali ke daftar, pakai tautan “← Kembali ke pelaporan & bukti” di bagian atas halaman rincian. Menu Pajak > Pelaporan & Bukti tetap menyala selama Anda berada di halaman pembayaran.",
+          "warning": "Pembayaran yang sudah dibalik tidak bisa diberi lampiran baru, dan pembalikan tidak menghapus apa pun: sistem membuat jurnal pembalik dan pembayaran asli tetap terlihat dengan status Dibalik."
+        },
+        {
+          "title": "Catat Pelaporan (SPT)",
+          "text": "**PPh Final UMKM tidak punya laporan bulanan**, jadi tidak ada No. Tanda Terima (NTTE) untuk bulan Januari sampai November: untuk jenis itu bagian ini diganti penjelasan, dan yang dicatat hanya pembayarannya (isi NTPN dan kode billing di kolom **NTPN dan Kode Billing**, lalu lampirkan bukti bayar di halaman rincian pembayaran). Nomor tanda terima SPT Tahunan dicatat pada masa Desember; di bulan lain bagian Pelaporan memuat tautan ke masa Desember tahun itu. Jangan mencatat pembayaran pajak lewat menu Beban, karena bebannya sudah dicatat otomatis oleh sistem. Untuk jenis pajak lain (dan PPh Final masa Desember), di bagian **Catat Pelaporan** isi **Tanggal Lapor**, **No. Tanda Terima** (nomor NTTE pada Bukti Penerimaan Elektronik yang diterbitkan DJP Online begitu SPT dikirim; salin dari sana), **Dasar Pengenaan yang Dilaporkan**, **Pajak yang Dilaporkan**, dan **Kredit PPN yang Dilaporkan (opsional, khusus PPN)**. Angka-angkanya sudah terisi dari pembukuan masa itu; ubah hanya bila angka pada SPT berbeda, karena selisihnya yang dicari saat rekonsiliasi. Tekan **Catat Pelaporan**. Bila periode sudah pernah dilaporkan, tombol menjadi **Catat Amendemen** dan catatan wajib (minimal 5 karakter, tulis apa yang berubah)."
+        },
+        {
+          "title": "Rekonsiliasi periode",
+          "text": "Tekan **Rekonsiliasi Sekarang** di bagian **Rekonsiliasi Periode** untuk membandingkan buku dengan pelaporan. Bila ada selisih, isi catatan minimal 10 karakter. Selisih yang bisa muncul: Belum ada pelaporan, Pajak (atau dasar pengenaan, atau kredit PPN) yang dilaporkan berbeda dari buku, Belum dibayar, dan Kelebihan bayar. PPh Final UMKM tidak punya laporan bulanan, jadi di bulan Januari sampai November selisih “Belum ada pelaporan” tidak muncul dan bulan yang pajaknya sudah dibayar penuh bisa direkonsiliasi tanpa catatan. Selisih yang tersisa dan pesan penolakan ditampilkan dalam bahasa Indonesia."
+        },
+        {
+          "title": "Unggah atau lampirkan bukti pendukung",
+          "text": "Bagian **Bukti Pendukung** tampil setelah ada pembayaran atau pelaporan untuk masa itu. Bagian ini mendaftar bukti tiap pelaporan dan pembayaran (klik nama berkas untuk membukanya di pratinjau). Ada dua cara menambah bukti. (1) Unggah langsung: di bawah daftar, pilih target di **Unggah untuk** (Pelaporan periode ini atau salah satu pembayaran; muncul bila ada lebih dari satu), pilih **Berkas bukti** (PDF, JPG, PNG, atau WebP, maksimal 4 MB), pilih **Jenis bukti** (Bukti lapor, Bukti bayar, Bukti potong, Faktur pajak, Lainnya), lalu tekan **Unggah Bukti**. (2) Pakai dokumen yang sudah ada: ketik kata kunci di **Cari Dokumen**, tekan **Cari**, pilih **Lampirkan ke** dan **Tujuan** pada hasil yang cocok, lalu **Lampirkan**. Bukti tidak bisa dihapus setelah dilampirkan.",
+          "tip": "Bukti satu pembayaran paling enak diunggah dari halaman rincian pembayarannya (klik nomor pembayaran di Riwayat Pembayaran)."
+        },
+        {
+          "title": "Pantau Kalender Pajak",
+          "text": "**Pajak > Kalender Pajak** menampilkan langkah Hitung, Bayar, Lapor, Bukti per masa dengan status Selesai, Perlu dikerjakan, Terlambat, atau Akan datang. PPh yang diambil dari bayaran vendor disetor ke negara paling lambat tanggal 15 bulan berikutnya."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal pembayaran pajak",
+          "columns": ["Akun", "Debit", "Kredit"],
+          "rows": [
+            ["Utang Pajak", "pajak dibayar", ""],
+            ["Beban Denda Pajak", "denda (bila ada)", ""],
+            ["Aset Pajak (PPN masukan)", "", "kompensasi (bila ada)"],
+            ["Kas/Bank (akun pembayar)", "", "pajak dibayar dikurangi kompensasi ditambah denda"]
+          ]
+        }
+      ],
+      "result": [
+        "Saldo rekening pembayar berkurang dan Sisa Kekurangan mengecil. Pelaporan dan bukti hanya catatan referensi tanpa jurnal."
+      ],
+      "rules": [
+        "Tanggal bayar tidak boleh di masa depan atau sebelum awal masa pajak.",
+        "Jumlah dibayar tidak boleh melebihi sisa. Kompensasi PPN masukan dibatasi PPN masukan yang tersedia.",
+        "Pembayaran yang sepenuhnya dikompensasi tidak memakai akun pembayar.",
+        "Satu pelaporan per masa; perubahan lewat amendemen.",
+        "Pembayaran dibatalkan lewat tombol Balik Pembayaran di halaman rincian pembayaran (Tanggal Pembalikan dan alasan minimal 5 karakter). Yang terjadi adalah jurnal pembalik; tidak ada yang dihapus.",
+        "Bukti hanya bisa diunggah ke pembayaran yang masih terkonfirmasi atau ke pelaporan yang sudah dicatat. Berkas harus PDF, JPG, PNG, atau WebP dan paling besar 4 MB.",
+        "Belum ada menu Bayar pajak mandiri di luar halaman ini."
+      ],
+      "mistakes": [
+        "Membayar sebelum mesin pajak diaktifkan atau tanpa ada pajak yang diakui.",
+        "Membayar PPh Final sebelum tanggal 1 bulan berikutnya: pajaknya belum tercatat otomatis, jadi belum ada yang bisa dibayar.",
+        "Menunggu laporan bulanan PPh Final UMKM. Tidak ada: setor sebelum tanggal 15, simpan NTPN, dan laporkan di SPT Tahunan.",
+        "Salah memilih Masa Pajak.",
+        "Mengisi denda tanpa catatan.",
+        "Mengira Catat Pelaporan membayar atau mengubah buku.",
+        "Finance Admin mengharapkan bisa mencatat pembayaran pajak. Izin ini hanya milik peran Pajak dan OWNER.",
+        "Mencari tombol Balik di tabel Riwayat Pembayaran. Tombolnya ada di halaman rincian pembayaran (klik nomor pembayarannya).",
+        "Mengunggah bukti bayar PPh Final tanpa mengisi NTPN dan kode billing di pembayarannya. Isi keduanya di kolom **NTPN dan Kode Billing** saat mencatat pembayaran."
+      ],
+      "errors": [
+        {
+          "message": "Pajak yang dibayar harus lebih dari nol",
+          "meaning": "Isi jumlah pajak dibayar."
+        },
+        {
+          "message": "Denda perlu catatan yang menjelaskannya (misalnya nomor surat tagihan)",
+          "meaning": "Isi kolom Catatan."
+        },
+        {
+          "message": "Pilih akun pembayaran",
+          "meaning": "Ada uang yang harus keluar tetapi Akun Pembayar belum dipilih."
+        },
+        {
+          "message": "Pembayaran pajak tidak dapat dicatat.",
+          "meaning": "Pesan umum, termasuk saldo tidak cukup atau melebihi sisa."
+        },
+        {
+          "message": "Anda tidak memiliki izin untuk tindakan ini.",
+          "meaning": "Akun tidak punya izin tandai lapor."
+        },
+        {
+          "message": "Berkas terlalu besar. Ukuran maksimal 4 MB.",
+          "meaning": "Kecilkan atau pindai ulang berkas bukti."
+        },
+        {
+          "message": "Jenis berkas harus PDF, JPG, PNG atau WebP.",
+          "meaning": "Berkas bukti dalam format lain tidak diterima."
+        },
+        {
+          "message": "Pembayaran pajak tidak dapat dibatalkan.",
+          "meaning": "Pesan umum saat pembalikan gagal. Periksa Tanggal Pembalikan dan alasannya, lalu coba lagi."
+        }
+      ],
+      "related": ["pengaturan-pajak-awal", "catat-tagihan-vendor", "buat-biaya"]
+    },
+    {
+      "slug": "pajak-pribadi",
+      "title": "Cara Membaca Pajak Pribadi (Buku Pribadi)",
+      "summary": "Perkiraan pajak tahunan Buku Pribadi: PPh Final UMKM 0,5% untuk penjualan dan PPh Progresif untuk penghasilan neto dari jasa, dihitung otomatis dari catatan Anda dan dari PT Anda.",
+      "path": "Pajak > Pajak Pribadi (Buku Pribadi). Di Buku PT menunya bernama Pajak > Omzet Gabungan",
+      "who": "Melihat: tax.view. Memilih status PTKP: tax.confirm_facts (OWNER, Finance Admin, Tax). Halaman hanya membaca pembukuan dan tidak membuat jurnal.",
+      "quick": "Beri tanda pada kategori, catat pendapatan seperti biasa, lalu pilih status PTKP sekali setahun. Pajak final, pajak progresif, kredit pajak yang sudah dipotong, dan omzet gabungan dengan PT dihitung otomatis.",
+      "steps": [
+        {
+          "title": "Beri tanda pada kategori (sekali saja)",
+          "text": "Buka **Akuntansi > Kategori** di Buku Pribadi. Kolom **Pajak Pribadi** menawarkan enam tanda. Pendapatan: **Penjualan usaha · PPh Final 0,5%**, **Jasa & pekerjaan bebas · PPh progresif**, dan **Honor dari PT saya · otomatis dari PT**. Pengeluaran: **Biaya usaha & jasa · mengurangi penghasilan neto**, **Setoran PPh Final UMKM** dan **Setoran PPh 25 (angsuran)** (pajak yang sudah Anda bayar sendiri ke negara, bukan biaya usaha). Tanpa tanda berarti pribadi: tercatat di laporan tetapi tidak masuk hitungan pajak. Buku Pribadi baru sudah berisi kategori bawaan yang bertanda.",
+          "tip": "Inilah “mesin pemilah” biaya: hanya pengeluaran berkategori Biaya usaha & jasa yang mengurangi penghasilan jasa. Belanja rumah tangga tidak."
+        },
+        {
+          "title": "Catat pendapatan seperti biasa",
+          "text": "Di **Penjualan > Catat Pendapatan** pilih jenis pendapatan. Untuk jenis jasa muncul kolom opsional **Pajak yang Dipotong Klien**. Isi **Jumlah yang Masuk ke Rekening** apa adanya; bila klien memotong pajak, isi juga jumlah pajaknya. Pendapatan bruto dihitung otomatis dan pajak itu menjadi kredit. Kosongkan bila tidak ada pemotongan."
+        },
+        {
+          "title": "Honor dari PT Anda: tidak perlu diisi",
+          "text": "Bila PT Anda membayar honor atau jasa kepada Anda, penghasilan dan pajak yang dipotong dibaca otomatis dari dokumen PT (dikenali dari NPWP atau nama Anda di kontak PT). Di Buku Pribadi cukup catat uang masuknya dengan jenis **Honor dari PT Saya**. Tidak ada integrasi yang perlu diisi."
+        },
+        {
+          "title": "Buka Pajak > Pajak Pribadi",
+          "text": "Di atas tampil satu angka: **Perkiraan pajak yang masih harus dibayar**, beserta rumusnya (PPh Final + PPh Progresif − Sudah dipotong & disetor). Di bawahnya dua kartu hitungan. **PPh Final UMKM**: penjualan usaha, dikurangi Rp 500 juta bebas pajak untuk orang pribadi, dikali 0,5%. **PPh Progresif**: pendapatan jasa bruto dikurangi biaya usaha menjadi penghasilan neto, dikurangi PTKP menjadi PKP (dibulatkan ke bawah ribuan), lalu dikenai tarif 5%, 15%, 25%, 30%, dan 35% per lapisan, dikurangi pajak yang sudah dipotong dan angsuran yang sudah disetor. Kartu **Angsuran PPh 25 bulanan** menampilkan angsuran per bulan untuk tahun ini: pajak progresif tahun lalu dikurangi kreditnya, dibagi 12, dibayar paling lambat tanggal 15 bulan berikutnya. Tahun pertama atau tahun lalu tanpa pajak: Nihil."
+        },
+        {
+          "title": "Catat pajak yang sudah Anda setor",
+          "text": "Setiap kali menyetor pajak sendiri ke negara, catat di **Pembelian > Beban** dengan kategori **Setoran PPh Final UMKM** (PPh Final 0,5% bulanan, disetor paling lambat tanggal 15 bulan berikutnya) atau **Setoran PPh 25 (Angsuran)** (angsuran bulanan untuk PPh Progresif). Setoran ini tidak mengurangi penghasilan neto; ia mengurangi **kurang bayar** di halaman Pajak Pribadi.",
+          "tip": "Kategori ini sudah ada di Buku Pribadi baru dan di Buku Pribadi lama yang sudah ada. Setoran PPh Final tidak ikut mengurangi PPh Progresif, dan sebaliknya."
+        },
+        {
+          "title": "Pilih status PTKP",
+          "text": "Di kartu **Status PTKP** pilih status Anda (misalnya TK/0 atau K/1) lalu **Simpan**. Jumlah PTKP tiap status tertera di pilihan. Sebelum dipilih, perkiraan memakai TK/0 dan tampil peringatan kuning."
+        },
+        {
+          "title": "Baca Dari PT Anda dan Omzet gabungan",
+          "text": "Kartu **Dari PT Anda (otomatis)** menunjukkan honor yang terbaca dari PT beserta pajak yang dipotong. Kartu **Omzet gabungan** menjumlahkan omzet Buku Pribadi dan PT Anda terhadap batas **Rp 4,8 miliar** untuk PPh Final UMKM. Kartu yang sama ada di Ringkasan Pajak dan Dashboard, baik di PT maupun di Buku Pribadi."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Contoh: jasa Rp 420 juta, biaya Rp 36 juta, PTKP TK/0",
+          "columns": ["Langkah", "Jumlah"],
+          "rows": [
+            ["Pendapatan jasa (bruto)", "Rp 420.000.000"],
+            ["Biaya usaha & jasa", "− Rp 36.000.000"],
+            ["Penghasilan neto", "Rp 384.000.000"],
+            ["PTKP TK/0", "− Rp 54.000.000"],
+            ["PKP", "Rp 330.000.000"],
+            ["Pajak: 5% × 60 jt + 15% × 190 jt + 25% × 80 jt", "Rp 51.500.000"]
+          ]
+        }
+      ],
+      "result": [
+        "Anda melihat perkiraan pajak tahun ini tanpa menghitung manual, termasuk berapa yang sudah dipotong klien dan PT Anda dan berapa yang masih harus dibayar.",
+        "Tidak ada jurnal atau kewajiban pajak yang dicatat dari halaman ini."
+      ],
+      "rules": [
+        "Penghasilan jasa sebagai pekerja bebas tidak bisa memakai PPh Final 0,5% dan tidak memakai jatah Rp 500 juta; dihitung dari penghasilan neto dengan tarif progresif (Pasal 17 UU PPh; PMK 164/2023 Pasal 3). Ia tetap dihitung dalam batas omzet Rp 4,8 miliar.",
+        "PPh Final UMKM orang pribadi berlaku tanpa batas waktu. Rp 500 juta pertama setahun tidak dikenai pajak, tetapi jatah ini hanya untuk penjualan usaha (UU PPh Pasal 7 ayat 2a; PP 55/2022 Pasal 60; PP 20/2026).",
+        "PKP dibulatkan ke bawah ke ribuan penuh (Pasal 17 ayat 4 UU PPh) sebelum tarif dikenakan.",
+        "Penghasilan neto dihitung dari pembukuan: pendapatan jasa dikurangi biaya berkategori Biaya usaha & jasa. Bila biaya melebihi pendapatan tidak ada pajak.",
+        "Di Buku PT menu yang sama bernama Omzet Gabungan dan hanya menampilkan kartu omzet semua buku terhadap batas Rp 4,8 miliar; hitungan pajak pribadi hanya ada di Buku Pribadi.",
+        "Omzet gabungan menjumlahkan semua Entity yang Anda miliki (OWNER). Omzet pasangan dan anak di bawah umur tidak terbaca sistem; pertanyaannya tetap ada di Pengaturan Pajak.",
+        "Angsuran PPh 25 mengikuti PMK 215/PMK.03/2018 (pajak tahun lalu dikurangi kredit, dibagi 12). PPh Final tidak punya angsuran PPh 25. Hitungan ulang angsuran bila pajak tahun ini diperkirakan jauh beda (di atas 150% atau di bawah 75%), Pengusaha Tertentu 0,75%, dan penyusutan aset belum dihitung.",
+        "Ini perkiraan. Setoran yang Anda catat memakai kategori Setoran mengurangi kurang bayar dan tidak dicatat sebagai biaya usaha. Tahun ditetapkan otomatis 1 Januari tahun berikutnya; SPT Tahunan orang pribadi jatuh tempo 31 Maret."
+      ],
+      "mistakes": [
+        "Lupa memberi tanda pada kategori. Pendapatan atau biaya tanpa tanda dianggap pribadi dan tidak masuk hitungan.",
+        "Mencatat honor PT sebagai jenis jasa biasa sehingga terhitung dua kali. Pakai jenis Honor dari PT Saya.",
+        "Mencatat setoran pajak sebagai Biaya usaha & jasa. Itu mengurangi penghasilan neto padahal setoran adalah pembayaran pajak; pakai kategori Setoran.",
+        "Menganggap angka ini final. Konfirmasikan dengan konsultan pajak sebelum SPT."
+      ],
+      "related": [
+        "catat-pendapatan",
+        "kategori-pendapatan-beban",
+        "penghasilan-di-luar-pph-final",
+        "pengaturan-pajak-awal"
+      ]
+    },
+    {
+      "slug": "penghasilan-di-luar-pph-final",
+      "title": "Melihat Penghasilan di Luar PPh Final (Forex, Bunga, Dividen, Kripto)",
+      "summary": "Kartu di Ringkasan Pajak yang menunjukkan hasil bersih penghasilan di luar usaha sejak 1 Januari dan perkiraan pajaknya.",
+      "path": "Pajak > Ringkasan Pajak > Penghasilan di Luar PPh Final",
+      "who": "Melihat: tax.view. Kartu hanya membaca pembukuan dan tidak mengubah apa pun.",
+      "quick": "Pendapatan dari trading forex, bunga, dividen, kripto, dan sejenisnya dicatat lewat **Penjualan > Catat Pendapatan**, tidak ikut dasar PPh Final 0,5%, dan hasil bersihnya tampil di kartu ini dengan **perkiraan pajak 22%** yang berlabel asumsi.",
+      "steps": [
+        {
+          "title": "Catat penghasilannya dulu",
+          "text": "Untung trading, bunga, atau dividen dicatat di **Penjualan > Catat Pendapatan** dengan jenis di luar usaha, misalnya “Pendapatan Investasi Lainnya”. Bunga dipisah menurut jenisnya: **Bunga Tabungan**, **Bunga Deposito**, dan **Bunga Lainnya** (pinjaman yang Anda berikan dan bunga jenis lain). Untuk tabungan dan deposito, catat jumlah yang benar-benar masuk ke rekening, yaitu setelah dipotong pajak oleh bank. Rugi trading dan biaya broker belum punya menu khusus: catat lewat **Akuntansi > Jurnal > Jurnal Manual** dengan debit akun Laba/Rugi Trading Forex (rugi) atau Beban Komisi, Spread & Biaya Transaksi Broker (biaya), dan kredit rekening yang berkurang, supaya hasil bersihnya benar.",
+          "tip": "Bunga Tabungan dan Bunga Deposito dianggap sudah dipotong PPh final oleh bank, jadi tidak dihitung lagi di perkiraan pajak kartu ini. Pilih jenis bunga dengan tepat; bunga yang bukan dari tabungan atau deposito bank dicatat sebagai Bunga Lainnya dan ikut dihitung."
+        },
+        {
+          "title": "Buka Pajak > Ringkasan Pajak",
+          "text": "Kartu **Penghasilan di Luar PPh Final · (tahun)** menampilkan empat angka ringkas: **Hasil bersih** (untung dikurangi rugi dan biaya sejak 1 Januari), **Perkiraan pajak (22%)**, tanggal penetapan otomatis, dan tanggal **SPT Tahunan**. Buka **Rincian per jenis dan per bulan** untuk tabel hasil bersih per jenis penghasilan dan per bulan. Jenis yang tidak ikut dihitung diberi keterangan di sebelah namanya: “PPh final sudah dipotong bank, tidak dihitung lagi” (Bunga Tabungan dan Bunga Deposito) dan “belum direalisasi, tidak dihitung” (penilaian ulang investasi). Buka **Catatan perhitungan** untuk batasan perkiraan. Tahun yang ditampilkan mengikuti pilihan di Rekap Pajak (lihat [Memahami Ringkasan Pajak, PPN, dan PPh Vendor](posisi-ppn-pph))."
+        },
+        {
+          "title": "Memahami status Berjalan dan Ditetapkan",
+          "text": "Selama tahun berjalan, kartu berstatus **Berjalan** dan angkanya ikut bertambah setiap ada pencatatan. Hasil satu tahun ditetapkan otomatis pada **1 Januari tahun berikutnya** dan berstatus **Ditetapkan**. SPT Tahunan tetap jatuh tempo **30 April**. Tautan di bawah kartu membuka tahun lain: **Lihat tahun lalu →** selama tahun berjalan, atau **Lihat tahun berjalan →** bila yang tampil tahun yang sudah ditetapkan."
+        }
+      ],
+      "result": [
+        "Anda melihat hasil bersih dan perkiraan pajak penghasilan di luar usaha tanpa menghitung manual. Tidak ada jurnal atau kewajiban pajak yang dicatat dari kartu ini."
+      ],
+      "rules": [
+        "Perkiraan memakai tarif 22% untuk badan (PT, koperasi, PT perorangan). Untuk jenis wajib pajak lain, tarif tidak diasumsikan.",
+        "Perkiraan belum memperhitungkan fasilitas, kompensasi rugi, pajak yang sudah dipotong pihak lain (misalnya bunga bank), maupun biaya usaha.",
+        "Bunga Tabungan dan Bunga Deposito tampil di rincian tetapi tidak dihitung ke hasil bersih dan perkiraan pajak, karena bank sudah memotong PPh final. Bunganya tetap dilaporkan di SPT Tahunan, dengan rekening koran bank sebagai buktinya.",
+        "Penilaian ulang investasi yang belum direalisasi ditampilkan tetapi tidak dihitung.",
+        "Pembalikan atau pembatalan pencatatan otomatis mengubah hasilnya."
+      ],
+      "mistakes": [
+        "Menganggap perkiraan 22% sebagai angka final. Konfirmasikan dengan konsultan pajak sebelum SPT.",
+        "Mencatat rugi trading sebagai pendapatan negatif. Rugi dicatat lewat Jurnal Manual, bukan lewat Catat Pendapatan.",
+        "Mencatat bunga tabungan atau deposito sebelum dipotong pajak bank. Catat jumlah yang masuk ke rekening, dan pilih jenis Bunga Tabungan atau Bunga Deposito supaya tidak dikenai pajak dua kali di perkiraan.",
+        "Mencatat bunga pinjaman yang Anda berikan sebagai Bunga Tabungan. Pakai Bunga Lainnya agar ikut dihitung di perkiraan."
+      ],
+      "related": ["catat-pendapatan", "bayar-pajak", "kalender-pajak"]
+    },
+    {
+      "slug": "piutang-lain",
+      "title": "Cara Mencatat Piutang Lain (Pinjaman ke Pihak Lain)",
+      "summary": "Mencatat uang yang Anda pinjamkan ke pihak lain di luar invoice penjualan, lalu mencatat penerimaan kembali.",
+      "path": "Aset & Pendanaan > Piutang Lain > Tambah Piutang lain-lain",
+      "who": "Melihat: loans.view. Membuat, melunasi, menghapus sisa, membatalkan: loans.manage (OWNER dan Finance Admin). Hapus Sisa juga perlu verifikasi ulang kode autentikator.",
+      "quick": "Piutang Lain BUKAN untuk tagihan pelanggan. Tagihan pelanggan selalu lewat Penjualan > Invoice supaya pendapatan tidak ganda dan muncul di Umur Piutang.",
+      "steps": [
+        {
+          "title": "Pastikan memang bukan invoice",
+          "text": "Gunakan ini hanya untuk uang yang keluar sebagai pinjaman atau talangan (misalnya pinjaman sederhana ke pihak lain). Untuk pinjaman berjadwal dengan cicilan dan bunga, gunakan Aset & Pendanaan > Pinjaman dengan jenis “Pinjaman diberikan”."
+        },
+        {
+          "title": "Buka Aset & Pendanaan > Piutang Lain",
+          "text": "Halaman menampilkan **Nomor**, **Pihak**, **Tujuan**, **Jatuh Tempo**, **Pokok**, **Outstanding**, dan **Status** (Berjalan, Lunas, Dibatalkan, Terlambat). Tekan **Tambah Piutang lain-lain**.",
+          "image": {
+            "file": "piutang-lain-daftar.jpg",
+            "caption": "Daftar Piutang Lain."
+          }
+        },
+        {
+          "title": "Isi form",
+          "text": "**Siapa yang Berutang ke Kita** (nama pihak, wajib; ada saran dari daftar kontak). **Keterangan** (wajib, 3-500 karakter; ada saran dari keterangan yang pernah Anda tulis). **Jumlah**. **Tanggal** (bawaan hari ini, tidak boleh di masa depan). **Jatuh Tempo (opsional)**. **Uang Keluar dari Rekening** (rekening aktif; klik kolomnya untuk melihat daftar, ketik untuk mempersempit, lalu pilih).",
+          "image": {
+            "file": "piutang-lain-form.jpg",
+            "caption": "Form Tambah Piutang lain-lain."
+          }
+        },
+        {
+          "title": "Tekan Simpan",
+          "text": "Anda dibawa ke halaman detail. Nomor berawalan ORC, saldo rekening berkurang sebesar jumlah, dan status Berjalan."
+        },
+        {
+          "title": "Catat penerimaan kembali",
+          "text": "Di detail, bagian **Tindakan**, tekan **Catat Penerimaan**. Isi **Tanggal**, **Uang Masuk ke Rekening**, **Jumlah Pokok** (bawaan sisa), **Bunga (jika ada)**, **Biaya (jika ada)**, dan **Catatan** (wajib hanya bila ada biaya; bunga biasa tidak perlu catatan). Tekan **Simpan Pelunasan**. Bila pokok sama dengan sisa, status menjadi Lunas.",
+          "tip": "Bunga yang diterima dicatat sebagai Pendapatan Bunga (akun 7100, kategori Bunga Lainnya). Bunga ini belum dipotong pajak final, jadi ikut dihitung di perkiraan pajak di luar PPh Final. Lihat [Melihat Penghasilan di Luar PPh Final (Forex, Bunga, Dividen, Kripto)](penghasilan-di-luar-pph-final)."
+        },
+        {
+          "title": "Hapus sisa, batalkan, atau batalkan pelunasan",
+          "text": "**Hapus Sisa** (hapus buku piutang tak tertagih) butuh alasan 5-1000 karakter dan verifikasi ulang. **Batalkan (Salah Catat)** hanya untuk yang belum ada pelunasan aktif. **Batalkan Pelunasan** membalik satu pelunasan."
+        }
+      ],
+      "tables": [
+        {
+          "title": "Jurnal saat piutang lain dicatat dan saat diterima kembali",
+          "columns": ["Kejadian", "Debit", "Kredit"],
+          "rows": [
+            ["Dicatat", "Piutang Lain-lain", "Kas/Bank (uang keluar)"],
+            [
+              "Diterima kembali",
+              "Kas/Bank (pokok + bunga + biaya)",
+              "Piutang Lain (pokok), Pendapatan Bunga, Pendapatan Lain"
+            ],
+            ["Hapus Sisa", "Beban Piutang Tak Tertagih", "Piutang Lain"]
+          ]
+        }
+      ],
+      "result": ["Piutang lain tercatat di aset dan tidak masuk Umur Piutang penjualan."],
+      "rules": [
+        "Tanggal tidak boleh di masa depan; jatuh tempo tidak boleh sebelum tanggal.",
+        "Pelunasan pokok tidak boleh melebihi sisa; periode akuntansi harus terbuka.",
+        "Rekening yang dipakai harus rekening dalam mata uang dasar Entity.",
+        "Belum ada kolom “dasar hubungan” untuk menandai pinjaman ke direktur atau pihak berelasi, dan data tidak bisa diedit setelah dibuat."
+      ],
+      "mistakes": [
+        "Memakai Piutang Lain untuk tagihan invoice pelanggan. Pendapatan bisa tercatat ganda.",
+        "Mencatat pinjaman berjadwal (cicilan dan bunga) di sini, bukan di Pinjaman.",
+        "Mengisi bunga atau biaya tanpa catatan.",
+        "Memakai Hapus Sisa tanpa verifikasi ulang."
+      ],
+      "errors": [
+        {
+          "message": "Data tidak dapat disimpan. Periksa jumlah, tanggal dan rekening.",
+          "meaning": "Pesan umum saat membuat."
+        },
+        {
+          "message": "Biaya atau denda memerlukan catatan yang menjelaskannya.",
+          "meaning": "Isi kolom Catatan."
+        },
+        {
+          "message": "Tindakan ini memerlukan verifikasi ulang. Masukkan kode autentikator Anda.",
+          "meaning": "Tekan Verifikasi ulang →, lalu ulangi."
+        },
+        {
+          "message": "Kewajiban yang sudah memiliki pelunasan tidak bisa dibatalkan (void); balik dulu pelunasannya.",
+          "meaning": "Gunakan Batalkan Pelunasan lebih dulu."
+        }
+      ],
+      "related": ["memahami-piutang-pendapatan", "transfer-antar-rekening"]
+    }
+  ]
+}

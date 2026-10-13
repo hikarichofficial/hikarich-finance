@@ -1,0 +1,3909 @@
+# Implementation Decisions
+
+> **Status terkini — 11 Oktober 2026.** Keputusan terakhir yang sudah masuk `main` adalah **PR #213**
+> (keputusan 402–406). **PR #214** membawa keputusan 407 dan hanya mengubah dokumen. Keputusan 408 (pajak final langsung terbaca) ada di PR #215; keputusan 409 dan 410 (bunga per jenis, Rekap Pajak, penjelasan fungsi halaman) di PR #216. Keputusan 411 (bukti pajak diunggah langsung, rincian pembayaran, satu pratinjau) di PR #217. Keputusan 412 (rekonsiliasi pajak final tanpa SPT bulanan) dan 413 (kartu Pajak Penghasilan di Dashboard) di PR #218. Keputusan 414 (halaman rincian pembayaran pajak, PPh Final UMKM jadi pilihan awal) di PR #219. Keputusan 415 (panduan, diagram, dan PDF disesuaikan dengan fitur terbaru) di PR #220.
+> Produksi (`hikarich-finance-prod`, 139 migration) sudah direset bersih pada tanggal itu dengan Cara 3
+> di `docs/RESET_PRODUKSI.md`: dua Entity (`pt` badan, `hikarich` pribadi), profil Entity, profil pajak,
+> mesin pajak dan rekening Mandiri Bisnis dipertahankan; seluruh transaksi, kontak, dokumen dan jejak
+> audit dibuang. Nol jurnal, nol mutasi, nol faktur. Sistem siap dipakai sungguhan, dimulai dari setoran
+> modal. PR lama #159 dan #212 ditutup tanpa merge: isinya sudah tidak diperlukan (#212 sudah ikut #213).
+
+Decisions and deviations that do **not** rewrite a locked specification. Anything that would
+change a locked item requires explicit OWNER approval and is recorded under "OWNER decisions".
+
+## OWNER decisions
+
+| Date       | Decision                                                                                                                                                                                                                                                                                                                                                  |
+| ---------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-09-19 | No paid Supabase upgrade for managed backups. Recovery relies on the in-app Backup & Restore Center (Step 01 #36) with export to external storage, plus a restore drill before real data (Step 16 §34).                                                                                                                                                   |
+| 2026-09-19 | Hosting stays on **Vercel Hobby**. Vercel's fair-use terms describe Hobby as non-commercial and list processing payments from visitors as commercial use; OWNER accepts the risk knowingly. Netlify was evaluated and not chosen. Nothing about the app's purpose is hidden or misrepresented. The app stays portable (standard Next.js + Supabase).      |
+| 2026-09-19 | Working rule (first version): do not improvise beyond the specs; ask the OWNER first.                                                                                                                                                                                                                                                                     |
+| 2026-09-19 | Working rule (updated): improvising is acceptable when it is the best option. Decide and act without asking, except for crucial decisions only the OWNER can make (cost, exposure of data or code, changes to a locked specification). The OWNER clicks confirmations and types passwords personally.                                                     |
+| 2026-09-19 | The GitHub repository `hikarichofficial/hikarich-finance` is **public**, chosen over paying for a plan that enforces rulesets on private repositories. Consequence: never commit secrets, real data, real invoices or receipts, real business figures, or the full Step specification files. The secret scan stays mandatory and Actions logs are public. |
+| 2026-10-01 | Backup restore is allowed only into an **empty** Entity (decision 247). No merge or overwrite of existing data.                                                                                                                                                                                                                                           |
+| 2026-10-01 | Tax periods follow the Entity's own timezone and fiscal year (Indonesian defaults WIB, January); OWNER can change both in Settings (decision 248, answers decision 237).                                                                                                                                                                                  |
+| 2026-10-02 | Menu names are in simple Indonesian, and each menu reveals its submenu when pressed so the sidebar stays short (decision 254).                                                                                                                                                                                                                            |
+
+## Resolved by authority (no OWNER decision needed)
+
+1. **Navigation** follows Step 09 over Step 01 §7.
+2. **Dashboard composition** follows Step 10; full personalization is delivered in P13.
+3. **Column-level schema** is authored in P1 from Step 02 (which fixes entities and rules, not every column).
+4. **COA seed** adds accounts the postings need but Step 03 does not list by number (rounding, dividend/distribution payable, bad debt, PPN/PPh child accounts, disposal gain/loss). Numbers follow Step 03's ranges.
+5. **Capabilities Step 15 does not name** are mapped to the nearest valid phase. Proposed mapping, to be confirmed when each phase starts: Custom Report Builder (P12), Backup & Restore Center and Storage Monitor (P14), Notification Center UI (P13), Security/Users/Audit UI (P2 foundations, P14 hardening).
+6. **Sales discount** default: contra-revenue account 4200 with AR recorded at net; kept configurable.
+7. **Tax baseline** in Step 05 is the documented baseline. It is web-verified again at P7 and before P15; unverifiable facts become NEEDS_REVIEW, not guesses.
+
+## Engineering decisions made in P0
+
+| #   | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Reason / authority                                                                                                           |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| 1   | Next.js (App Router) + TypeScript `strict`, pnpm, Node 22, Vitest, ESLint (Next config), Prettier.                                                                                                                                                                                                                                                                                                                                                                                                                   | Step 13 §24, Step 14 §12.                                                                                                    |
+| 2   | Env contract enforced with zod at dev start/build (`next.config.ts`) and server start (`instrumentation.ts`). Errors list variable names only.                                                                                                                                                                                                                                                                                                                                                                       | Step 14 §15 "fail safely".                                                                                                   |
+| 3   | The production Supabase project ref (`yvuakaxwgwfjyvjmvpbn`, an identifier, not a secret) is a constant in `src/lib/env/constants.ts`. A non-production `APP_ENV` pointing at it, or production pointing elsewhere, aborts the build.                                                                                                                                                                                                                                                                                | Step 14 §3 LOCKED DECISION, §18.                                                                                             |
+| 4   | `SUPABASE_SERVICE_ROLE_KEY` is optional in P0 (no privileged operation exists yet) and can never use a `NEXT_PUBLIC_` name.                                                                                                                                                                                                                                                                                                                                                                                          | Step 13 (credentials/privileged operations), Step 14 §14.                                                                    |
+| 5   | Local `supabase/config.toml`: `auto_expose_new_tables = false` and open sign-up disabled (default-deny). Auth policy is finalized in P2.                                                                                                                                                                                                                                                                                                                                                                             | Step 06 default-deny; matches the cloud projects' settings.                                                                  |
+| 6   | The two hosted Supabase projects: `hikarich-finance-prod` (production only) and `hikarich-finance-dev` (Development and Preview backend).                                                                                                                                                                                                                                                                                                                                                                            | Step 14 §3–4: separate non-production project when Branching is unavailable.                                                 |
+| 7   | Migration tests run on plain PostgreSQL plus small Supabase stubs (`supabase/tests/stubs`). Local tool availability: PostgreSQL 16 in the development sandbox; CI uses `postgres:17` (matches Supabase major 17). Two clean rebuilds must yield an identical schema.                                                                                                                                                                                                                                                 | The sandbox has no Docker, so `supabase start` is not available there. Re-run on the real Supabase CLI stack when available. |
+| 8   | Baseline invariants tested after every migration: RLS enabled on all `public` tables; no direct INSERT/UPDATE/DELETE/TRUNCATE grants to `anon`/`authenticated` on `public` tables (an allowlist may be added only by a reviewed migration).                                                                                                                                                                                                                                                                          | Step 14 (Supabase security), Step 13 (command boundary).                                                                     |
+| 9   | P0 shell uses a system font stack and only the confirmed tokens (ink `#191714`, secondary text `#777069`, canvas `#F7F2EC`, bronze `#B77A43`). Typography and the full token set are finalized against Step 10 in P13.                                                                                                                                                                                                                                                                                               | Avoids guessing typography before it is needed.                                                                              |
+| 10  | Logo mark cropped from `HIKARICH_logo_4K.png` to a 512 px square for the shell and app icon. A transparent/vector logo for invoices and receipts is a P11 input from the OWNER.                                                                                                                                                                                                                                                                                                                                      | The supplied file is a photographic render with a beige background.                                                          |
+| 11  | `pnpm audit --prod` at high severity and a repository secret scan run in CI.                                                                                                                                                                                                                                                                                                                                                                                                                                         | Step 14 §12, §22.                                                                                                            |
+| 12  | The CI database job installs PostgreSQL 17 client tools from the official PostgreSQL apt repository, so `pg_dump` matches the `postgres:17` service.                                                                                                                                                                                                                                                                                                                                                                 | The first CI runs failed: `pg_dump` 16 against a 17 server, then `postgresql-client-17` not found on the runner.             |
+| 13  | `main` is protected by the ruleset "main protection": no deletion, no force push, changes only through pull requests (0 approvals, squash merge only), required checks "Typecheck, lint, tests, build" and "Migration clean-rebuild and invariants", bypass only for the repository admin inside pull requests. Merged branches are deleted automatically.                                                                                                                                                           | Step 14 §11 (solo OWNER: no mandatory human review). Enforceable because the repository is public.                           |
+| 14  | Vercel project `hikarich-finance` (team "Hikarich", Hobby) is linked to the repository through the Vercel GitHub App, installed for this one repository only. Production branch is `main`; pull requests get Preview deployments. Production uses `APP_ENV=production` with the production Supabase project; Preview uses `APP_ENV=preview` with `hikarich-finance-dev`. Only publishable, non-secret values are set (no service-role key). They are stored as non-sensitive variables so they can be checked later. | Step 14 §3–4, §14, §18. Resolves the open item on the Preview backend. The env guard fails the build if these disagree.      |
+| 15  | Deployment Protection: Vercel Authentication (Standard Protection) is on, so Preview deployments require a Vercel login. The production `*.vercel.app` address is public and serves only the P0 shell; real access control arrives with Auth in P2. Password Protection is a paid feature and is not used.                                                                                                                                                                                                           | Step 14 §11 (Preview protection where practical).                                                                            |
+
+## Engineering decisions made in P1
+
+| #   | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Reason / authority                                                                   |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| 16  | Money is `numeric(20,4)` (domain `money_amount`, finite values only); FX rates `numeric(20,10)` and positive; currency codes `^[A-Z]{3}$`. No floating point anywhere (tested). Enumerations are `text` with CHECK constraints, not PostgreSQL enums, so later phases can extend them with a plain migration.                                                                                                                                                                                                                    | Step 02 §8, Step 08 §5, Step 13 §22.                                                 |
+| 17  | Every Entity-scoped table carries `entity_id`, exposes `UNIQUE (entity_id, id)` and references other Entity tables only with composite foreign keys; `entity_id` cannot change after insert. A catalog test enforces this for every current and future table.                                                                                                                                                                                                                                                                    | Step 02 §1/§6, Step 08 §4.                                                           |
+| 18  | Mutable tables carry created/updated at+by and an integer `version`. A generic trigger writes before/after snapshots to the append-only `audit_events`; sensitive columns (tax identifiers, account numbers, device fingerprints) are redacted. Reason and correlation id come from session settings.                                                                                                                                                                                                                            | Step 08 §3/§18, Step 06 §13.                                                         |
+| 19  | Internal functions live in schema `app_private`, unreachable by browser roles. Every table has RLS enabled and no browser privileges; policies and grants arrive with P2 (default deny).                                                                                                                                                                                                                                                                                                                                         | Step 06, Step 14 (Supabase security).                                                |
+| 20  | Posting is the draft to posted transition and is validated in the database: at least two lines, debit equals credit, period exists, contains the date and is Open/Reopened, accounts active and not group, protected accounts need an override reason for manual journals, reversals must exactly mirror a posted journal of the same Entity and occur at most once, source linkage is mandatory except for manual/adjusting journals, posting key is unique per Entity. Posted journals and lines cannot be updated or deleted. | Step 04 §1/§11, Step 08 §6/§14, Step 17 §13.                                         |
+| 21  | The default COA (PT and Personal) is stored as template tables and copied per Entity by an idempotent function. Accounts the Step 04 posting matrix needs but Step 03 does not list were added: 2120 Dividend Payable, 6950 Bad Debt Expense, 7310 Rounding Differences, 7400 Gain/Loss on Asset Disposal. Bank/cash, AR/AP, tax, fixed-asset, loan, payroll and equity closing accounts are control (protected) accounts.                                                                                                       | Step 03 §3-§5; the Step 04 matrix decides where Step 03 is silent (authority order). |
+| 22  | Accounting periods are calendar months created on demand; fiscal year is labelled by the year in which it starts. Status: open, closing review, closed, reopened (reason required). Boundaries freeze once journals exist.                                                                                                                                                                                                                                                                                                       | Step 07 §17, Step 08 §14.                                                            |
+| 23  | Document numbers are allocated inside the issuing transaction from a row-locked counter (`allocate_document_number`), recorded in an immutable `issued_document_numbers` (never deleted or reused; only issued to voided), reset yearly by default; changing the format affects future numbers only. Numbers are not keys.                                                                                                                                                                                                       | Step 08 §16-§17, Step 02 §4.                                                         |
+| 24  | A financial account maps one-to-one to a non-group asset ledger account of the same Entity; the mapping and currency freeze after postings. Payment channels (QRIS etc.) point to a settlement account and hold no balance. Category to COA mappings are effective-dated and non-overlapping per context; tax treatment is not derived from them.                                                                                                                                                                                | Step 03 §6-§7.                                                                       |
+| 25  | `supabase/seed.sql` holds synthetic non-production data only (two DEMO Entities). `db:test` also runs concurrent numbering with four sessions.                                                                                                                                                                                                                                                                                                                                                                                   | Step 15 §5, Step 14 §6.                                                              |
+| 26  | Hosted dev/prod databases are not modified in P1. Migrations reach them in a controlled step: dev when P2 first needs the schema, production at release. The Supabase dev project already provides `btree_gist`, `extensions` and the standard roles.                                                                                                                                                                                                                                                                            | Step 14 §6/§18; keeps production untouched until it has a release gate.              |
+
+## Engineering decisions made in P2
+
+| #   | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Reason / authority                                                   |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| 27  | Authorization is decided in the database from the verified JWT (`auth.uid()`), never from a role, Entity or permission sent by the client. Helper functions live in schema `app_authz` (callable by `authenticated` only, `SECURITY DEFINER`, pinned `search_path`). A capability is (role permission OR explicit grant) AND NOT explicit deny; OWNER holds every catalogued permission and cannot be denied. Nothing is cached, so disabling a user or removing a membership takes effect on the next statement. | Step 06 §1, §5, §9; Step 14 (database functions).                    |
+| 28  | MFA (aal2) is always required for OWNER and, for other roles, when the Entity setting `security.require_mfa` is true; until it is satisfied the membership grants no capabilities. Step-up means the newest authentication event in the JWT `amr` claim is at most 10 minutes old; the database enforces it on sensitive functions and the application mirrors it only to choose the redirect.                                                                                                                    | Step 01 #38, Step 06 §8.                                             |
+| 29  | The permission catalog (100 keys) and the eight role templates are seeded by migration as reference data from the Step 06 §3 matrix; anything a template does not list is withheld and can only be added per membership as an audited grant. Role templates stay editable; system roles keep their key and cannot be deleted.                                                                                                                                                                                     | Step 06 §2-§4.                                                       |
+| 30  | Browser roles get INSERT/UPDATE/DELETE only on categories, contacts, products and product aliases, through column-level privileges that exclude system, generated and identity columns and `entity_id`. Every financial, identity, configuration and audit table is read-only for browser roles; writes happen in trusted server code or database functions. A reviewed allowlist in the baseline invariant test fails the build if any other table gains a browser write.                                        | Step 06 §11-§12, Step 13 §5/§12.                                     |
+| 31  | Sensitive fields (contact tax identifiers, contact and financial account numbers) are withheld by column privileges. They are revealed only through `public.reveal_sensitive(kind, id)`, which needs the matching permission, returns the same error for "missing" and "not allowed", and writes a `sensitive_reveal` security event.                                                                                                                                                                             | Step 06 §6, §13.                                                     |
+| 32  | Administration guards: nobody can create, change, disable or delete their own membership or permission overrides through a user session; an Entity always keeps at least one active OWNER; disabling a user deletes their Supabase sessions and records a security event. Membership and override changes go through `assign_membership`, `set_membership_status`, `set_user_active` and `set_permission_override`.                                                                                               | Step 06 §1, §7-§9.                                                   |
+| 33  | The first OWNER is created by `app_private.bootstrap_owner(user_id, display_name)`, callable only by a database administrator (no API role holds it) and only while no OWNER exists. It gives the OWNER a membership in every active Entity. The auth user is created in Supabase Auth first; the OWNER types their own password.                                                                                                                                                                                 | Step 06 §15; keeps credentials out of code and chat.                 |
+| 34  | The application uses only the publishable key plus the signed-in person\'s cookies (`@supabase/ssr`); the service-role key is not used in P2. `proxy.ts` refreshes the session and redirects signed-out visitors, but it is an optimistic check only: every page and action calls `requireAccess`, and RLS is the final barrier. `my_access()` returns Entities and permissions in one call and is not cached.                                                                                                    | Step 13 (credentials/privileged operations); Next.js proxy guidance. |
+| 35  | Deferred from P2 to later phases: trusted devices, idle lock, progressive login throttling and the Security Center screens (P14); user-management screens (with the modules that need them). Their tables and RLS exist already.                                                                                                                                                                                                                                                                                  | Step 15 §6 scope, Step 06 §6-§7.                                     |
+| 36  | The hosted dev database receives the migrations and demo seed (never production); production receives them at release. The dev OWNER user is created by the OWNER in the Supabase dashboard.                                                                                                                                                                                                                                                                                                                      | Step 14 §6/§18; extends decision 26.                                 |
+
+## Engineering decisions made in P3
+
+| #   | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Reason / authority                                                       |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------ |
+| 37  | Money is decimal-safe end to end. PostgreSQL `numeric` is authoritative; rounding lives in one function (`app_private.round_amount`: half_up default for documents and tax lines, half_even, down, up) with the scale taken from the currency table (IDR 2, JPY 0). Conversion rounds once with the target currency's minor unit and keeps original amount and rate; allocation uses largest remainder (ties to the earliest line) so parts always add up. The application mirrors these semantics with an exact BigInt `Decimal` (no new dependency) and the same test vectors. Money crosses the API as text, never as a JSON number.                                                                                                     | Step 04 §14, Step 13 §25.                                                |
+| 38  | Journals are created by one engine. Lines name an account by id or by its stable system key. `normalise_lines` validates before anything is written (two or more lines, exactly one positive side per line, decimals within the base currency, original amount x rate equals the base amount, balanced). System events post through `app_private.post_system_journal` with posting key `source_type:source_id:rule_key`: a retry returns the existing journal, a retry with different content is refused with CONFLICT, and a failed posting leaves nothing behind. The journal number (prefix JV, yearly reset) is allocated at posting inside the same transaction.                                                                       | Step 04 §1-§2, §16; Step 08 §6, §16-§17.                                 |
+| 39  | Idempotency keys are per operation (`journal.create`, `journal.post`, `journal.reverse`, `opening.post`), 8-200 characters, stored with a fingerprint of the request in the same transaction as the effect. Same key and same request replays the recorded result; same key and a different request is refused; a concurrent duplicate waits on the unique index and then replays. Verified with four parallel sessions posting the same ten events.                                                                                                                                                                                                                                                                                        | Step 13 §9; Step 15 P3 gate.                                             |
+| 40  | Manual and adjusting journals go through `create_journal_draft`, `post_journal`, `discard_journal_draft` and `reverse_journal`. Permissions are per Entity (`accounting.journal_create` / `journal_post`); using a protected account needs a written override reason and `accounting.protected_manage`, checked again at posting; adjusting journals need an explanation of at least 10 characters. Source-driven (system) journals cannot be posted or reversed by hand: they are corrected through their source module. A reversal is a linked posted mirror dated on or after the original, allowed once; the original is never changed.                                                                                                 | Step 04 §11, Step 06 §3.                                                 |
+| 41  | The approval workflow for manual journals (`accounting.journal_approve`, OWNER auto-approve, staff per configured rule) is not built in P3. Until the approval-rule engine exists, `accounting.journal_post` is the gate and only OWNER and the accountant template hold it. Recorded as an open item, not a silent simplification.                                                                                                                                                                                                                                                                                                                                                                                                         | Step 04 §11; scope of Step 15 P3.                                        |
+| 42  | Period commands: `begin_period_close`, `cancel_period_close`, `close_period`, `reopen_period`, plus `period_close_checks`. Entering review already stops postings; Close is refused while blockers exist (draft journals, unbalanced posted journals, an incomplete opening migration in the period). Later phases add reconciliation, sub-ledger and tax blockers inside `app_private.period_blockers` without changing the commands. Reopen needs `periods.reopen` (OWNER only in the templates), a recent step-up and a reason of at least 10 characters, and is audited with that reason. Close locks the period row and posting share-locks it, so they serialise. State changes are not idempotency-keyed: a repeat answers CONFLICT. | Step 04 §12, Step 06 §8, Step 08 §14, Step 16 (concurrent period close). |
+| 43  | Opening balances enter as one controlled `opening` journal per batch on the cutover date, by `post_opening_balances` (permission `system.import`). Lines may use balance-sheet accounts only (asset, contra asset, liability, equity), so opening balances never appear as income or expense. Whatever the lines do not balance is posted against 8900 Opening Balance / Migration Clearing. `complete_opening_balances` requires that account to be zero, or a written migration adjustment note (at least 10 characters) which is stored with the residual; completion is per Entity and ends the opening window (later corrections use adjusting journals). The cutover period cannot be closed before completion.                       | Step 03 §9, Step 15 §24.                                                 |
+| 44  | Opening balances on control accounts (bank, AR, AP and similar) are accepted only through this workflow. Their sub-ledger detail (open invoices and bills, financial account balances, loans, assets) is loaded by the modules of P4-P8, and reconciling it to the control account becomes a period-close blocker there. Until then the control-account opening balance is not backed by sub-ledger detail.                                                                                                                                                                                                                                                                                                                                 | Step 15 §24 (open items migrated with source detail).                    |
+| 45  | Year-end closing entries (transfer of the year's result to retained earnings / accumulated surplus) are not in the Step 15 P3 scope and are built with financial statements and report snapshots in P12. Periods already carry the fiscal-year label they need.                                                                                                                                                                                                                                                                                                                                                                                                                                                                             | Step 03 §9, Step 04 §12; Step 15 §7 vs §P12.                             |
+| 46  | The database error contract gains `CONFLICT` (stale draft, wrong period or journal state, duplicate in progress, clearing not reconcilable). The application maps it like the other prefixes and shows generic copy. New RPCs are added explicitly to the baseline allowlist, so a function that is callable by browser roles without review fails the build.                                                                                                                                                                                                                                                                                                                                                                               | Step 06 §12; extends decision 30.                                        |
+| 47  | Closing a period seals everything before it: a month that has no period row cannot be created behind a closed period (CONFLICT), for user, system and opening postings alike. Existing periods follow their own status. There is no path in P3 for late entries into such a month; if the OWNER needs one, a controlled command is added later (reopening an existing period remains available).                                                                                                                                                                                                                                                                                                                                            | Step 04 §12 (closed periods block backdating); found in the P3 review.   |
+| 48  | The database itself numbers every journal when it leaves the draft state (`tg_number`), whichever path posts it. Creation of a period is serialised per Entity and month, so concurrent first use replays cleanly instead of failing on the overlap constraint; Close and journal creation serialise through a share lock on the period row. The concurrency test runs four rounds of six sessions posting the same ten events into months without periods, and fails on any error in any session.                                                                                                                                                                                                                                          | Step 08 §16-§17, Step 13 §9; found in the P3 review.                     |
+| 49  | Input is refused with a readable `INVALID` message instead of a raw database error: dates before 2000 or more than a year ahead, NaN/Infinity, amounts of 10^16 or more, malformed identifiers, and a foreign-currency snapshot finer than what is stored (4 decimals for the amount, 10 for the rate, so the stored snapshot always reproduces the base amount). Guard failures during posting surface as `CONFLICT` with the guard's message.                                                                                                                                                                                                                                                                                             | Step 13 §25, Step 06 §12; found in the P3 review.                        |
+| 50  | Reversing a journal that needed a protected-account override needs `accounting.protected_manage`, exactly like posting it. Row locks are taken only after the caller is known to be entitled to the object. Retrying the key of a discarded draft answers CONFLICT with a clear message instead of returning a dead identifier.                                                                                                                                                                                                                                                                                                                                                                                                             | Step 04 §11, Step 06 §9; found in the P3 review.                         |
+
+## Engineering decisions made in P4
+
+| #   | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Reason / authority                                  |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------- |
+| 51  | Money movements are the cash layer. Every cash, bank or e-wallet movement is one append-only row (`money_movements`) in the account's own currency with its base-currency value, tied to a posted journal of the same Entity and date that booked exactly that on the account's mapped ledger account (a database trigger checks this for every writer). Balances are derived from movements, never stored. `money_control` compares each account's movement balance with the General Ledger balance of its control account; a difference is a period-close blocker.                                                                                                                                                                                                                               | Step 04 §13, Step 08 §9.                            |
+| 52  | Financial accounts are created by `create_financial_account`. Without a ledger account the system creates a protected child under the cash group (11xx for cash and bank, 1191+ for e-wallets; control, no manual posting). An existing ledger account may be mapped only if it is an active cash/bank account with no postings yet, because earlier postings cannot be explained by movements. Kind, currency and mapping are fixed at creation; deactivation needs a zero balance and a reason; the account number is stored but never copied into the audit trail.                                                                                                                                                                                                                              | Step 03 §7, Step 08 §9.                             |
+| 53  | Opening balances on cash and bank accounts create their opening movements in the same transaction (a foreign-currency line must state its original amount and rate), so migrated balances are part of the derived balance from day one. This replaces the P3 command with the same signature.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Step 15 §24; extends decision 43.                   |
+| 54  | Balance corrections go through `record_balance_adjustment` (permission `money.adjust`: OWNER and the accountant template). The person names a counter account (active, not a control account) and a reason of at least 10 characters; one journal and one movement are created. A bank fee found on a statement, interest credited by the bank or an opening difference is therefore a visible, audited booking chosen by a person, never a silent plug.                                                                                                                                                                                                                                                                                                                                           | Step 01 §28, Step 08 §20.                           |
+| 55  | Negative balances are allowed with a warning by default. An Entity can list the account kinds that may never go negative (`money.block_negative_balance`); the check runs under the account lock and covers every outflow including the mirror of a reversal. Which kinds to block is the OWNER's setting; nothing is blocked until it is set.                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Step 08 §9.                                         |
+| 56  | Internal transfers (`create_transfer`, `confirm_transfer`, `cancel_transfer`, `reverse_transfer`): a draft moves no money and needs `money.transfer_create`; confirming needs `money.transfer_approve` (approver and OWNER templates) and honours a configured approval rule (a creator cannot confirm their own transfer above the threshold unless OWNER). Confirmation posts one journal, the paired movements and a gapless number TRF-YYYY-NNNN. The fee is borne by the source account and booked to Bank Fee Expense (a Personal Entity uses Other Personal Expenses); the only other profit-and-loss effect is an FX difference booked to 7300 FX Gain/Loss. A transfer never creates revenue.                                                                                             | Step 15 §8, Step 04 §13, Step 08 §9.                |
+| 57  | Transfer figures follow one rule set in the database and in the application pre-check: the amount received is required across currencies; each foreign account carries the rate used; conversion rounds once with the base currency's minor unit; the base difference between sent and received (FX difference) may not exceed 20% of the amount (a mistyped rate, not FX); two accounts of the same foreign currency use one rate, so a transfer cannot invent an exchange gain. Rates are entered per transfer; looking one up from the reference table is a later convenience.                                                                                                                                                                                                                  | Step 04 §14, Step 13 §25; found in the P4 review.   |
+| 58  | A confirmed transfer is corrected only by reversal: a linked mirror journal and mirror movements, once, dated on or after the original, with a reason, keeping the transfer number. A reversal is refused while any of its movements is matched to a bank statement line (unmatch first) and follows the negative-balance setting. A reversed movement and its mirror are corrections inside the books: they can never be matched and never count as outstanding.                                                                                                                                                                                                                                                                                                                                  | Step 04 §11, Step 08 §20; found in the P4 review.   |
+| 59  | Bank reconciliation compares and never rewrites. A session covers one account and one statement period; periods of one account never overlap, only one session is in progress, and a session opens at the previous completed session's closing balance. Statement lines are staged (typed or imported), immutable, and uploading the same statement twice adds nothing. A line is matched to one or more movements whose signed sum equals the line exactly; movements more than the tolerance (default 5 days, Entity setting `money.match_date_tolerance_days`, at most 31) from the line date need a written manual reason. A line can be excluded with a reason. Possible matches are derived, not stored. Matching changes no movement and no journal; a matched movement cannot be reversed. | Step 01 §28, Step 07 §10, Step 08 §20, Step 09 §13. |
+| 60  | Completing a session needs every line matched or excluded and the staged lines to explain the statement's own movement. The cleared balance is the movements matched to lines dated within the statement plus opening movements; a non-zero difference against the statement closing balance is refused unless accepted with a reason of at least 10 characters, which is stored with the difference, the book balance, the outstanding balance and item counts. Reopening needs `money.reconcile` and a reason of at least 10 characters. A session in progress (open or reopened) can be discarded; a completed one cannot. To fix an earlier month after a later one was completed: reopen the later one, discard it, reopen the earlier one.                                                   | Step 08 §20; found in the P4 review.                |
+| 61  | Period close gains one blocker and five warnings: `money_ledger_mismatch` (blocker); `negative_cash_balance`, `unresolved_statement_lines`, `account_not_reconciled`, `reconciliation_stale` (a completed reconciliation whose book balance changed afterwards) and `unmapped_cash_account` (cash ledger account with postings but no financial account). Warnings appear in the closing review without stopping Close.                                                                                                                                                                                                                                                                                                                                                                            | Step 04 §12.                                        |
+| 62  | P4 delivers the database, the application contracts (`src/schemas/money.ts`, `src/services/money`, `src/domain/money/transfer.ts`) and the tests. The screens (accounts, transfers, reconciliation workspace, statement file import) are built with the application shell, in the same way as the P2 and P3 screens (decision 35). No real bank data, statement or account number is ever stored in Git.                                                                                                                                                                                                                                                                                                                                                                                           | Step 15 §8 scope; decision 35 pattern.              |
+| 63  | Accepted limitations recorded by the P4 review. Two genuinely identical statement lines uploaded in separate calls collapse to one (upload them in one call; completion refuses a shortfall). New movements dated inside a completed reconciliation's period are allowed and flagged as stale rather than blocked, unless the accounting period is closed. A cash ledger account outside the money layer is warned about, not blocked, so P3-era data keeps closing.                                                                                                                                                                                                                                                                                                                               | P4 independent review.                              |
+
+## Engineering decisions made in P5
+
+| #   | Decision                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           | Source                                                         |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| 64  | Invoice arithmetic is server-authoritative. The caller sends lines (product or description, quantity, unit price, discount type and value) and never a total. Quantity x unit price rounds once per line, half-up, to the invoice currency's minor unit; a percentage discount rounds once, half-up; a fixed discount must already fit the currency and can never exceed the line. Quantity has at most 4 decimals, up to 200 lines per invoice. The application mirrors these rules in `src/domain/sales/invoice.ts` for early feedback only.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Step 08 §5, Step 04 §14, Step 13 §25.                          |
+| 65  | Tax is a separate engine (P7). Invoice and line tax fields exist and are always zero until then; issuing an invoice that already carries tax is refused instead of guessed. Credit notes for tax arrive with P7. A zero-value invoice cannot be issued.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Step 05, Step 15 P7.                                           |
+| 66  | Issuing an invoice is one transaction: it takes the next gapless number of the Entity's invoice family (PT default prefix HKD, changeable by the OWNER), freezes the issuer, customer and payment-instruction snapshots (the customer's tax identifier is never part of the snapshot), posts Dr Accounts Receivable / Dr Sales Returns and Discounts (contra revenue, only when there is a discount and the Entity has that account; otherwise revenue is booked net of the discount) / Cr revenue per line through the one posting engine, and creates the public link. Revenue accounts come from the line's category mapping (context `sales`), else the default revenue account; the discount is split across revenue accounts with the largest-remainder rule so the journal balances to the cent. A future-dated invoice stays a draft (no journal in a future date). Numbers are never reused: cancelled and void invoices keep theirs.                                                                                                                                                                                                                                                                                                                                                                                                     | Step 07 §3, Step 04 §3, Step 08 §16-§17.                       |
+| 67  | Customers are duplicate-aware: exact identifiers (email, phone, tax identifier) refuse creation; the same name is reported as `suspected` and is refused unless the person confirms it is a different party. Phone numbers are compared in canonical form (a leading 0 equals the country code 62; spaces and punctuation ignored). A tax identifier can be set or seen only with `contacts.view_sensitive`. A draft can only use an active customer of its own Entity; an inactive contact cannot be used for a new invoice.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      | Step 02 §4, Step 08 §15, Step 06 §6.                           |
+| 68  | One writer books every payment (`confirm_payment_core`), used by staff entry and by confirming a customer's claim. The receiving account must be in the invoices' currency. Allocations are per invoice and never exceed what is outstanding now (checked under the invoice lock and again by a database trigger). Each allocation books its accounts-receivable part at the base value the invoice still carries: a partial payment takes a proportional share (half-up), the payment that clears the invoice takes exactly what is left, so the gain or loss is booked to FX Gain/Loss (7300) per part and rounding never leaves a residue; a difference above 20% of the cash is refused as a probable mistyped rate. An excess over the allocations is refused unless the person explicitly keeps it as a customer advance; the Personal Entity has no customer-advance account, so an overpayment there is refused. Settlement and refund status are DERIVED from allocations, never stored, and positions can be read as of any past date.                                                                                                                                                                                                                                                                                                   | Step 07 §5-§7, Step 08 §9, Step 04 §14.                        |
+| 69  | A customer advance (the unallocated part of a payment) can be applied to an invoice later (`apply_payment_credit`, Dr customer advance / Cr Accounts Receivable, with its own journal and allocation of kind `credit`), and such an application can be reversed on its own (`reverse_credit_application`). Applications cannot exceed the advance still unapplied or unrefunded.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Step 07 §7.                                                    |
+| 70  | Customer payment claims and the public token surface. "Saya Sudah Bayar" records a PENDING claim only; it changes no cash and no ledger until a person with `invoices.confirm_payment` confirms it (maker-checker rule applies; the OWNER may confirm their own entry) or rejects it with a reason, or marks it a duplicate. The `anon` role can execute exactly three functions (`public_invoice_view`, `public_submit_payment_claim`, `public_receipt_view`) and reads no table. An unknown, revoked, expired, cancelled or malformed token gives the same "unavailable" answer. Claim limits: 8 per requester per hour, 20 per invoice per day, 5 pending per invoice, counted under an advisory lock per invoice so concurrent requests cannot slip past a limit; they are best-effort abuse limiting, not a security boundary (whoever holds the link can fill the 5-pending queue, and staff then reject the extra claims). An identical pending claim returns the existing one; control characters are stripped. The public receipt lists only the allocation to the invoice behind the link. The requester is a salted HMAC (`PUBLIC_CLAIM_SALT`, optional in Preview where a fixed fallback salt is used, to be set in Production) that is never audited or shown. The customer page sends no referrer, is not indexed and is not cached. | Step 07 §4, Step 11 §8-§11, Step 06 §11.                       |
+| 71  | Cancel, void and correct. A draft is cancelled with no accounting effect. An issued invoice is cancelled or voided by a linked reversal journal (`invoices.void`, OWNER only), its public link is revoked and pending claims are rejected; the number stays used. It is refused while any payment allocation is active: the payments must be reversed first, so no cash is ever orphaned. Correcting voids the invoice and creates a replacement draft with the same content and a reference to the original. The only commercial term that changes after issue is the due date, with a reason, never before the issue date, audited.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              | Step 07 §3, Step 08 §14.                                       |
+| 72  | Reversing a payment (`reverse_payment`, `invoices.confirm_payment`): a linked mirror journal and mirror money movement, dated on or after the payment and not in the future, with a reason of at least 5 characters, once. Credit applications made from the payment are reversed first (newest first). Receivable is restored at the base value the allocation originally took, so the invoice's outstanding returns exactly. It is refused while the payment has confirmed refunds (reverse those first) and follows the closed-period rules. A reversed payment keeps its receipt number and shows as reversed.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Step 07 §7, Step 08 §20.                                       |
+| 73  | Refunds return money to the customer from a payment: per allocation (Dr the sales-returns-and-discounts contra-revenue account: the sale is reduced, the receivable stays settled and the invoice does not re-open; its refund status shows the refunded amount) and/or from the unapplied advance (Dr customer advance), Cr cash; the FX difference goes to 7300. A draft reserves nothing; the refundable amount is checked under the payment lock when confirming, so two refunds can never exceed the payment. Refunds are created and confirmed by `refunds.create` and `refunds.confirm` (OWNER only in the default templates; `refunds.view` for finance admin, approver). A confirmed refund is corrected by reversal (`reverse_refund`); a refund receipt is available. Tax credit notes arrive with P7.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Step 07 §8, Step 08 §9.                                        |
+| 74  | Receivables control. `ar_control_report` compares the invoice sub-ledger (issued minus settled) and the advance sub-ledger with the General Ledger for journals the sales workflow produced (opening balances, manual journals and other sources are shown separately as `other_ledger`, never as a difference). A difference is a Close blocker (`ar_ledger_mismatch`, `advance_ledger_mismatch`); draft invoices and pending payment claims in the period are warnings. `ar_aging` buckets outstanding base value by days overdue (not due, 1-30, 31-60, 61-90, over 90) from the due date, as of any date; a due date of today is not overdue.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  | Step 04 §13, Step 12, Step 04 §12.                             |
+| 75  | Permissions of P5 follow the Step 06 templates. Finance staff create and edit drafts and create contacts; finance admin also issues, confirms payments and claims and manages links, and can see refunds; only the OWNER voids or cancels an issued invoice and creates or confirms refunds; the accountant and viewer/auditor read. Every read and write is Entity-scoped by the database; a stranger and a member of the other Entity get the same FORBIDDEN answer for a missing and a forbidden id. Approval rules (maker-checker) can be set for issuing, confirming payments and confirming refunds; the OWNER is exempt (Step 04 §11). Step 06 §8 lists no step-up for these operations, so the database requires none; the public link token is a bearer secret and can be read only with `invoices.regenerate_link` (finance admin, OWNER), not by viewers, accountants or staff. Approval thresholds compare the amount in the Entity's base currency (a foreign-currency amount x its rate), and the date of the rule lookup is the Entity's today.                                                                                                                                                                                                                                                                                     | Step 06 §2-§8, Step 04 §11.                                    |
+| 76  | P5 delivers the database (`*_p5_sales_invoices.sql`, `*_p5_payments.sql`, `*_p5_refunds_public.sql`), the application contracts (`src/schemas/sales.ts`, `src/services/sales`, `src/domain/sales`, `src/domain/money/{format,input}.ts`), the customer-facing invoice and receipt pages (`/i/[token]`), and the tests. The staff screens (customers, invoice editor and list, payments, claims queue, refunds, aging) are built with the application shell, as decided for P2-P4 (decisions 35, 62). Accepted limitations: an invoice is paid only in its own currency through an account of that currency; the payment reversal permission is the finance admin's (the OWNER may prefer to restrict it to the OWNER); the salted requester hash uses a fixed fallback salt until `PUBLIC_CLAIM_SALT` is set; an invoice's payment history is bounded by dates (a void or correction cannot be dated before the last payment activity; a refund cannot be dated before the allocation it refunds); invoices already open at the cutover have no P5 loader (see DATA_CUTOVER); two equivalent mutants remain in the mutation checks (behaviour-neutral rewrites of the same check); no real invoice, receipt, customer or amount is ever stored in Git.                                                                                             | Step 15 §9 scope; decision 35 pattern; P5 independent review.  |
+| 77  | Vendor payments (`record_vendor_payment`, `bills.pay`): money leaves one financial account for one vendor and the payment always equals the sum of its allocations to approved bills. Vendor advances, vendor credits and vendor refunds are not part of P6. A payment, its bills and its paying account share one currency (a foreign account states the rate). Accounts payable is relieved at the value each bill carries (a part takes a proportional share of the remaining base value, rounded half-up once; the payment that clears a bill takes exactly what is left); the difference to the cash paid is a gain or loss on 7300 FX Gain/Loss, and a difference above 20% of the cash is refused as a mistyped rate. Dated not in the future, not before the bill, and not before a reversal already booked on the same bill (otherwise two payments would both count between the dates and the payable would go negative on those days). Gapless numbers BILL, PAY and EXP per Entity.                                                                                                                                                                                                                                                                                                                                                    | Step 07 §5-§6, Step 08 §9, Step 04 §13.                        |
+| 78  | Bills: draft, submitted, approved, cancelled or void. Drafts and submitted bills have no accounting effect; approving (`approve_bill`) numbers the bill, freezes a vendor snapshot (name, legal name, contact and address, never the tax identifier) and posts Dr expense/asset/prepaid, Cr Accounts Payable in one transaction. Draft or submitted bills are cancelled; an approved bill with no active payment is voided by a linked reversal that keeps its number; a correction is a void plus a replacement draft. Arithmetic is server-side and rounds once per line (half-up to the currency's minor unit); purchases have no discounts. Tax is not guessed: approving or confirming a document with tax lines is refused until the tax phase (P7); until then `tax_status` is `pending_engine`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Step 07 §5, Step 08 §5, Step 04 §14, Step 08 §14.              |
+| 79  | Line treatments: `expense` (category mapping, or a chosen account, or the Entity default), `asset` (a fixed-asset account; the line waits with link status `pending` for the asset register of P8) and `prepaid`. A bill with a line already linked to a fixed asset cannot be voided until P8 says how. P8 must amend the line guards (today nothing changes `asset_link_status` after approval) and must select pending lines only from approved or confirmed documents, because void and reversed documents keep their `pending` lines.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Step 04 §16, Step 03 §5, Step 15 (P8) hand-off.                |
+| 80  | Settlement is derived, never stored: paid, partial, unpaid and overdue come from the active allocations as of any date (`list_bill_positions`); a void bill counts as recognised before the day it was voided and as zero after. `ap_control_report` compares the bill sub-ledger with the General Ledger for journals the purchase workflow produced (opening balances and other sources appear as `other_ledger`, never as a difference). Close blockers: `ap_ledger_mismatch`; warnings: `unapproved_bills`, `unconfirmed_expenses`, `purchases_without_evidence`. `ap_aging` buckets the outstanding base value by days overdue (not due, 1-30, 31-60, 61-90, over 90) as of any date.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Step 04 §13, Step 12, Step 07 §5.                              |
+| 81  | Duplicate detection: an exact duplicate (same vendor or payee and the same vendor invoice or receipt number, ignoring case and spaces) is refused until the approver or confirmer writes at least five characters saying why it is a different document; the same vendor, date, currency and total with a different number is only a warning (`likely`). An advisory lock per vendor serialises two simultaneous approvals so exactly one goes through.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Step 08 §15, Step 07 §5.                                       |
+| 82  | Direct expenses (`create_expense_draft`, `confirm_expense`): a purchase paid at once from a cash or bank account, with no payable. The payee is a vendor contact or a free-text name; confirming numbers the expense, posts Dr expense/asset/prepaid, Cr the paying account's ledger account, records the money movement and freezes a snapshot of the contact. Draft or submitted expenses are cancelled; a confirmed expense is reversed (linked journal and mirrored movement) or corrected (reverse plus a replacement draft). Confirmation, reversal and vendor payment follow `bills.pay` and `bills.void` as below.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Step 07 §6, Step 08 §8-§9.                                     |
+| 83  | Evidence documents (`register_document`, `link_document`, `unlink_document`): P6 stores metadata and the SHA-256 only (file name without path characters, PDF/JPEG/PNG/WebP, up to 25 MB); identical content is one document per Entity; a document attaches to a bill or expense with a purpose and can be removed only while the purchase is a draft or submitted. Uploading and reading the bytes (storage, malware checks, previews) belong to P11. Approved bills and confirmed expenses without any document are listed by `list_missing_evidence` and warned about at period close.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Step 08 §17, Step 11.                                          |
+| 84  | Permissions of P6 follow the Step 06 templates. OWNER can do everything and alone voids bills and reverses expenses (`bills.void`); finance admin creates, edits, submits, approves and pays bills, confirms expenses, reverses payments and manages contacts and documents; finance staff create, edit and submit drafts and upload documents; the approver approves; the accountant and viewer/auditor read. Approval rules (maker-checker) can cover approving bills, confirming expenses and paying; thresholds compare the amount in the Entity's base currency; the OWNER is exempt. The preparer who cannot approve above a threshold is whoever created, last edited or submitted the document, not only the creator. A payment has no second approver in P6, so above a payment threshold only the OWNER pays.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Step 06 §2-§9, Step 04 §11.                                    |
+| 85  | Concurrency and idempotency rules of P6: locks are always taken in the order bills, payment, paying account, then the numbering and journal counters, so a payment and a reversal on one account cannot wait on each other; a replay of a finished request returns its result before any status-dependent permission check (a retry after a cancellation must not turn into FORBIDDEN); duplicate documents and links are handled under unique indexes and return the existing row. The P5 payment functions take the account and the journal counter in the opposite order; that pattern is recorded as a known low risk and P5 is not changed in this phase.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     | Step 13 §9, Step 16 G6, P6 independent review.                 |
+| 86  | Input limits are explicit errors, not raw database errors: reasons are 5 to 1000 characters (3 for a rejection, unlink and due-date change), notes and internal notes at most 2000, payment reference 200, note 1000, at most 200 lines per document and 100 allocations per payment. Direct writes are guarded as well: an allocation must match its payment's vendor, currency and date, cannot exceed what is outstanding, and a bill with an active allocation cannot be set to void by any writer.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Step 08 §16, Step 13 §25.                                      |
+| 87  | P6 delivers the database (`*_p6_bills.sql`, `*_p6_vendor_payments.sql`, `*_p6_expenses.sql`), the application contracts (`src/schemas/purchases.ts`, `src/services/purchases`, `src/domain/purchases`) and the tests. The staff screens (vendors, bill editor and list, payments, expenses, evidence, aging) are built with the application shell, as decided for P2-P5 (decisions 35, 62, 76). Accepted limitations: no vendor advances, credits or refunds; no bill discounts; tax stays zero until P7; evidence is metadata plus hash until P11; one currency per bill, payment and account; expense confirmation and vendor payment share `bills.pay` (the OWNER may prefer to restrict payment and reversal to the OWNER); purchase lines may use any active expense or other-expense account, including Depreciation, Bad Debt and Interest Expense (the OWNER may prefer to narrow this list); bills already open at the cutover have no loader (see DATA_CUTOVER); no real bill, receipt, vendor or amount is ever stored in Git.                                                                                                                                                                                                                                                                                                          | Step 15 §10 scope; decision 35 pattern; P6 independent review. |
+| 88  | P7 delivers the database (`*_p7_tax_facts_rules.sql`, `*_p7_line_facts.sql`, `*_p7_determination.sql`, `*_p7_integration.sql`, `*_p7_payments_filings.sql`, `*_p7_final_calendar.sql`), the application contracts (`src/schemas/tax.ts`, `src/services/tax`, `src/domain/tax`; tax facts on the invoice, bill and expense line schemas) and the tests (`94_p7_tax.sql`, `95_p7_determination.sql`). The staff screens (tax facts, rule master, review queue, payments, filings, reconciliation, calendar) are built with the application shell, as decided for P2-P6 (decisions 35, 62, 76, 87). The invoice document shows the output VAT as its own line. No real invoice, tax invoice, filing, NPWP or business figure is ever stored in Git.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Step 15 §11 scope; decision 35 pattern.                        |
+| 89  | Statutory values are data, not code (the rule master). A rule version is dated, carries its legal source (title, reference, https link, verification date and status), is drafted, then published by an authorised person after a recent step-up, and is immutable once published; a new law is a new version or a repeal version. The rule in force for a date is the latest published version effective on or before it. Seed rules: PPN 12% on 11/12 of the price (full DPP for luxury), PPh 23 at 2% and 15% (twice that without NPWP), PPh Final UMKM 0.5% (PP 20/2026, effective 22 April 2026) and the deadline rules; each was verified against public DJP sources on 2026-09-21. A rule that becomes effective retroactively affects only documents recognised afterwards; recognised determinations keep the versions they used.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         | Step 05 §1, §13, §15; Step 06 §3, §8.                          |
+| 90  | Tax facts are recorded, never overwritten, and unknown stays unknown. The Entity's tax profile (kind of taxpayer, residency, income-tax regime, exclusion, aggregation, VAT status, withholding role, NPWP kept encrypted) and each counterparty's tax facts (kind, residency, NPWP status, VAT status, withholding exemption) are effective-dated. The engine is switched on once per Entity from a date; documents before it stay `not_configured` and are never re-evaluated. Aggregation facts count turnover earned outside this system toward the annual ceiling, and only while the profile says aggregation applies.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       | Step 05 §4, §15; Step 02 (Tax domain).                         |
+| 91  | Determination is a separate layer from posting. Pure evaluators read the facts in force on the document date and return an explainable result (rule versions, base, formula, trace, accounting and compliance consequence): output VAT on invoices, input VAT (creditable or cost) and PPh 23 withholding on bills and expenses. A missing or ambiguous fact, an unlisted treatment, or a service by an individual payee that the rule lists for review is `needs_review`, and a document that needs review is not recognised. A tax reviewer settles a draft line (`tax.confirm_facts`); the OWNER may override an amount with a reason, evidence and a recent step-up (`tax.override`), which never touches the rule master and keeps the computed figure beside the override. Every result is stored once with the journal and never rewritten; correcting a recognised document is a void or reversal plus a replacement.                                                                                                                                                                                                                                                                                                                                                                                                                      | Step 05 §5, §10-§11, §14-§15; Step 07 §15.                     |
+| 92  | Recognition. Issuing an invoice adds the output VAT to its total (the receivable includes it), credits Tax Payable and never nets against revenue. Approving a bill or confirming an expense debits creditable input VAT to Tax Asset (non-creditable VAT stays in the cost of its lines) and credits the withholding to Tax Payable, which lowers what is owed to the vendor or paid from the account; the gross expense is unchanged. A bill's payable is `total - withheld_total`: the AP sub-ledger, payment capacity and aging use it. Void, cancel and reversal supersede the determination and reverse the tax ledger at the reversal date, in that period.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Step 04 §9, Step 05 §10-§12, Step 07 §3-§6.                    |
+| 93  | Tax payments (`tax_record_payment`, `tax.mark_filed`) settle the liability that documents recognised (Dr Tax Payable). They are made from a base-currency account, need a date not in the future and not before the period, and cannot exceed what is outstanding for the Entity, tax type and period. A VAT payment may offset creditable input VAT (Cr Tax Asset) up to the input VAT available (the credit accrued up to the period, less what is already used), so only the net leaves the bank; a fully offset payment takes no account and moves no money. Excess input VAT carries forward; a VAT refund workflow is not part of P7. A late-payment penalty is its own expense (`TAX_PENALTY_EXPENSE`) and needs a note; paying a liability never creates an expense for a liability that is already recognised. A payment is reversed, never edited; the reversal restores the liability and the cash.                                                                                                                                                                                                                                                                                                                                                                                                                                     | Step 05 §12, Step 15 §11.                                      |
+| 94  | Voiding or reversing a source after its tax was paid is allowed and shows: the period then holds a negative outstanding amount (an overpaid credit) and the reconciliation lists it. Nothing is hidden or blocked, because the books must follow the documents.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    | Step 05 §12, Step 08 §10.                                      |
+| 95  | Filings (`tax_record_filing`) record a return as filed: period, date, receipt number, reported base, tax and (VAT) credit. They are append-only; a filed period takes an amendment with a note that says what changed, the original stays visible and the amendment becomes the live filing. Evidence documents attach to a filing or payment (`tax_link_evidence`, `tax.mark_filed`) and stay: tax evidence is part of the record and cannot be unlinked. Filing changes no source transaction.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   | Step 05 §12, Step 11.                                          |
+| 96  | Reconciliation of a period (`tax_reconcile_period`) stores a snapshot of ledger, payments and filing. Differences (no filing, filed tax, credit or base differing from the books, unpaid, overpaid) are listed and need a written note of at least ten characters; a snapshot is append-only and becomes stale when the figures change. The tax control compares the tax sub-ledger with the General Ledger balances of Tax Payable and Tax Asset for the journals the tax workflows produced (invoice, bill, expense, tax payment, final tax and their reversals); other journals appear separately as `ledger_other`, never as a difference. A difference is a period-Close blocker (`tax_ledger_mismatch`); documents that need review and an uncomputed final tax are warnings.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                | Step 04 §12-§13, Step 05 §12, Step 12.                         |
+| 97  | PPh Final UMKM is a monthly computation (`tax_final_compute`, `tax.confirm_facts`): 0.5% of the month's gross turnover, that is invoices issued in the month at their pre-VAT base (refunds are not deducted). It runs only for a month that is over and not before the engine start. The first Rp500 million of the year is exempt for individual taxpayers only, never for a Perseroan Perorangan; above the Rp4.8 billion annual ceiling (including aggregation facts) the computation stops for review, as does an unknown or excluded regime, an ineligible taxpayer kind or unknown aggregation. Recomputing supersedes the earlier result and posts only the difference, dated at the end of the month or today when that accounting period is closed. Expense and liability are recognised together (Dr income-tax expense, Cr Tax Payable).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               | Step 05 §5-§6, §13; Step 15 §11.                               |
+| 98  | The tax calendar (`tax_calendar`) derives the steps calculate, pay, file and evidence of each period and their state (done, due, overdue, upcoming, not applicable, no rule) from the effective-dated deadline rules. Public holidays are not modelled, so the nominal date is shown and a person applies any statutory shift. The tax overview shows the profile, documents waiting for review, outstanding amounts and attention items.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          | Step 09 §15, Step 05 §13.                                      |
+| 99  | Permissions of P7 follow the Step 06 templates. `tax.view`: OWNER, tax, finance admin, accountant, viewer/auditor. `tax.confirm_facts` (confirm a line, compute the final tax): OWNER and tax. `tax.mark_filed` (payments, filings, evidence, reconciliation): OWNER and tax. `tax.override` and `tax.manage_rules`: OWNER only, with a recent step-up; the tax role does not upload documents. Reads and writes are Entity-scoped; a stranger and another Entity get the same FORBIDDEN. Tax amounts in reports and lists are exact decimal text.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 | Step 06 §2-§8.                                                 |
+| 100 | Accepted limitations of P7 (the tax baseline must be verified by the OWNER's tax adviser before P15): the PPh 23 that a customer withholds from the Entity's own invoices (a credit against income tax) is not modelled; no VAT refund workflow; no holiday calendar; a rule effective retroactively does not restate recognised documents; only output and input VAT, PPh 23 and PPh Final UMKM are covered (PPh 4(2), 21 and 26 and the annual return come later or stay with the adviser); the exempt band of an individual whose year predates the engine start is a review case; the aggregation fact means turnover earned outside this system. Mutation checks left two equivalent mutants (a second guard behind an existing one in withdrawing an override, and a redundant capacity check in a trigger behind the RPC check).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            | Step 05 §15; P7 mutation review.                               |
+| 101 | The Personal chart of accounts gains three accounts that the P8 workflows need and Step 03 §4 did not list: `1210 Other Personal Receivables` and `2110 Other Personal Payables` (control accounts, no manual posting, same keys as the PT) and `7400 Gain / Loss on Asset Disposal`. Existing Personal Entities receive them when the migration runs. A Personal Entity borrows on `PERSONAL_LOAN` and lends on `OTHER_RECEIVABLE`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 102 | P8 is base-currency only: assets, loans, other receivables/payables and equity accept only accounts in the Entity's base currency (a foreign-currency account is refused). Foreign-currency loans and their revaluation are out of scope until the OWNER needs them.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 103 | Assets come from purchases. Approving a bill or confirming an expense whose line has treatment `asset` registers a DRAFT asset in the same transaction and marks the line `linked` (it replaces the `pending` hand-off of decision 79; `asset_register_pending` covers lines approved before P8). Registration posts nothing: the purchase journal already holds the cost. A draft asset does not depreciate until a person activates it (in-service date, method, life, residual). A line can be split into several assets whose costs add up to it. Voiding the document releases its draft assets; once an asset carries depreciation or a disposal it has to be dealt with first.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 104 | Depreciation: straight-line and declining balance (twice the straight-line rate, never below an even spread of what is left), monthly, starting in the month of service; the last month absorbs the rounding so the total is exactly cost less residual. Depreciation is posted by a command (`asset_post_depreciation`) for complete months only, one journal per asset-month; there is no background job, so a month that is over and not posted is a period-close BLOCKER for that period. Changing the plan re-plans only the months still to come; posted months stay. Land and other undepreciated assets use method `none`, and a Personal asset is never depreciated. The fiscal (tax) depreciation is a separate memo schedule (`asset_fiscal_schedule`) computed from the statutory group in the rule master (Art. 11 UU PPh); it never posts anything and the group is assigned by a person.                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| 105 | The related-entity tag (PT <-> Personal) on loans, other obligations and equity events is analytical only: it needs a stated basis, is never a posting and never creates a matching entry in the other Entity. Each Entity records its own side.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| 106 | The tax consequence of loan interest, forgiven debt (write-offs), dividends, capital returns and distributions is never guessed. Such records are flagged `needs_review` and stay a WARNING at period close until a person with `tax.confirm_facts` records the conclusion (`financing_tax_review`: who, when and a written note of at least five characters; nothing is posted or changed). `financing_tax_reviews` lists the queue. Withholding on interest or dividends and the tax deductibility of interest are matters for the OWNER's tax adviser (see the open items).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| 107 | Permissions. Loans and other receivables/payables share `loans.view` / `loans.manage`; assets use `assets.*`; equity uses `equity.*`. A new permission `equity.approve` is held by the OWNER only by default: a capital return or a dividend (declaring it, or reversing it) needs `equity.approve` and a recent step-up, so a person who may record contributions cannot take value out of the company. Finance admin manages assets, loans and equity events but cannot approve; accountant, finance staff and viewer/auditor read only (staff read assets only). Step-up is also required for writing off a receivable or loan (and reversing a write-off), restructuring a loan, and reversing a dividend payment. These are stricter than the Step 06 §8 list and can be relaxed by the OWNER; disposing of an asset needs only `assets.manage`, as the spec lists no step-up for it.                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| 108 | Interest and fees are recognised when they are PAID (cash basis, like every other cash workflow of this build), as Interest Expense (Interest Income for a loan given; Personal Interest Expense / Investment Income in a Personal Entity) and, for a fee, Other Non-operating Expense (Income for a loan given); the schedule carries the scheduled interest for information, and a period-close warning reports installments that are due and unpaid. Interest is never accrued automatically. A financing fee is expensed, not capitalised into the loan.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 109 | A loan's ledger account is fixed when the loan is created (`LOAN_SHORT_TERM` or `LOAN_LONG_TERM` for a company, `PERSONAL_LOAN` for Personal; a loan given uses `OTHER_RECEIVABLE`). The split of a long-term loan into its current and non-current parts is a presentation matter for the reports of P10, computed from the schedule, and is not posted.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| 110 | Loan payments are allocated by the database, never chosen by the caller: arrears first: principal, interest and fee each go to the oldest installment that still has that component unpaid, so a prepayment lands on the earliest unpaid principal (future installments included), and anything beyond the whole schedule is recorded against no installment. The schedule of a prepaid loan is not regenerated automatically: a restructure regenerates it. A restructure adds a new schedule version from a date and marks the previous one superseded; payments made under a superseded version are history and cannot be reversed. Every schedule version must add up to the outstanding principal.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            |
+| 111 | Loans and receivables are written off only with a reason and a recent step-up; the write-off reduces the principal and posts Bad Debt Expense (a receivable or loan given) or Other Non-operating Income (a debt forgiven to the company), is flagged for a tax review (decision 106) and can be reversed while its schedule is in force. Payments and write-offs never take the principal below zero (a capacity trigger backs the check in the database).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| 112 | A dividend is declared (`equity_confirm`: Dr Retained Earnings / Cr Dividend Payable) and paid separately in parts (`equity_pay_dividend`: Dr Dividend Payable / Cr cash). The profit available (retained earnings plus the current year's result to the date) is recorded on the event; a dividend beyond it is ALLOWED but flagged `exceeds_retained_earnings`, because company-law limits and reserves are the OWNER's and adviser's decision. A capital return is refused when it exceeds the balance of the equity account it reduces; a Personal investment return is refused beyond the investment balance. A resolution reference (RUPS) is recorded on capital returns and dividends.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| 113 | Disposals: a sale, scrapping, loss, damage or donation removes the cost and the accumulated depreciation and books the difference to the single account Gain / Loss on Asset Disposal (`ASSET_DISPOSAL_GAIN_LOSS`; `7400` in Personal). Proceeds are cash, or a receivable that creates an other-receivable obligation, or none. Depreciation stops from the disposal date and history is never deleted; a disposal can be reversed, which restores the asset. Only an active asset can be disposed of, and not before its in-service date or in the future.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 114 | Controls. The asset register (registered cost plus approved lines still pending, and accumulated depreciation) must equal the fixed-asset and Accumulated Depreciation accounts of the ledger. Loans by ledger account, other receivables (obligations plus loans given), other payables and dividends payable must equal their control accounts. Both are period-close BLOCKERS, as is depreciation due in the period and not posted, in addition to the blockers of earlier phases. Warnings: purchase lines booked as assets and not registered, unpaid installments, and financing events waiting for a tax review. The reports are `asset_control_report` and `financing_control_report`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| 115 | Opening data (Step 15 §24): `asset_load_opening` and `loan_load_opening` (right `system.import`) load the sub-ledger of assets (cost, accumulated depreciation and the plan to continue) and loans (outstanding principal and schedule) at the cut-over date and post NOTHING; the control-account balances are posted by the opening balance batch, and the controls of decision 114 show any difference. Other receivables/payables open at the cut-over are recognised as obligations with the `offset` method against an account the accountant chooses, dated at the cut-over, and are then NOT included in the opening balance batch (one way per Entity, like decisions 7-8 of DATA_CUTOVER).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 116 | Immutability and audit. Every P8 table is append-only in what it records: a posted entry is corrected by a reversal, never edited; drafts may change their details; a reversed or cancelled record changes only its tax-review fields; a schedule version and its items, allocations and depreciation lines are never rewritten. All commands are idempotent per key (the same key with a different payload is refused) and audited with a reason where one is given.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 117 | Reading. Assets, loans, other obligations and equity events are listed and shown through RPCs that return exact decimal text (scale 4 in the database; the currency scale, 2 for IDR, applies to what is posted). Lists are limited (default 100-500 rows). Screens for all of P8 are not in this phase, as in P4-P7; the application contracts (`src/schemas`, `src/services`, `src/domain`) are.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| 118 | Accepted limitations of P8: no foreign-currency loans or assets (decision 102); no automatic interest accrual (decision 108); no component or revaluation model for assets; no asset impairment; no capitalised borrowing cost; no lease accounting; no automatic monthly depreciation job; the current/non-current split of loans is for the reports (decision 109); the PT <-> Personal tag does not eliminate anything (decision 105); the deductibility and withholding of interest, dividends and write-offs are not decided (decision 106). The fiscal depreciation groups and rates in the rule master must be re-verified by the OWNER's tax adviser before P15, with the rest of the P7 baseline.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| 119 | Payroll is part of a company Entity only; a Personal Entity has no employees (Step 04 §10). Employees are independent from application users (Step 02). Everything about an employee is effective-dated and append-only: employment terms (position, type), compensation components, tax facts (tax-number status, PTKP status, who bears the tax) and BPJS enrolment change by a new row from a date, never by editing the old one. The employee identity row holds operational fields only; the employee code is numbered `EMP-yyyy-nnnn`.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 120 | The sensitive boundary (Step 06 §6). No payroll table is readable by the browser roles; everything is served by RPCs that each check their own capability: `payroll.employee_view` (list, no money), `payroll.compensation_view` (components, BPJS, and every amount), `payroll.tax_view` (tax facts and every tax figure; the tax number is shown masked, and the full number is a separate call that needs a recent step-up), `payroll.employee_edit`, `payroll.compensation_edit`, `payroll.run`, `payroll.approve`, `payroll.pay`. Only the `payroll` role and the OWNER hold them; a caller without the right gets FORBIDDEN, never an empty list. Audit rows of the sensitive tables are redacted: who changed what and when, never the amounts or identifiers.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 121 | Statutory values are data, not code. PPh 21 (the monthly TER tables of PMK 168/2023, the annual Pasal 17 bands, PTKP, the occupational cost, the no-tax-number multiplier, rounding) and BPJS (Kesehatan, JHT, JP, JKK by risk grade, JKM; rates, employee/employer split and wage caps) are effective-dated rule versions published through the P7 rule master; every payroll line stores which versions it used. A new regulation is a new version, never an edit. JP has a rule only from 2025-03-01, so an earlier month flags `no_bpjs_rule:bpjs_jp` and the OWNER's adviser decides what to do; the system does not backfill. The baseline is asserted, not endorsed: the OWNER's tax adviser must verify it before P15 (see Open items).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| 122 | The calculation is a pure function of recorded inputs (compensation, tax facts, BPJS enrolment, adjustments, year-to-date figures, published rules) and is fingerprinted when the run is calculated. Approval and posting refuse a run whose inputs changed since (`stale`); a posted run is never edited or silently recalculated. Anything that cannot be determined (missing tax facts or rule, incomplete year-to-date, a BPJS rate option not chosen) is a review flag on the line, never a guess, and a run with review flags cannot be submitted. Over-withholding is an information flag (`tax_overwithheld:<amount>`), not a blocker.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| 123 | PPh 21 method. Every month but the last tax month: gross taxable income (compensation marked taxable, taxable adjustments, and the employer's Kesehatan, JKK and JKM contributions as taxable benefits) times the TER rate of the employee's category (TK/0, TK/1, K/0 = A; TK/2, TK/3, K/1, K/2 = B; K/3 = C), times 1.2 without a tax number. The last tax month (December, or the month an employee leaves) is the annual computation: gross for the year, less the 5% occupational cost (capped at 500,000 per month), less the employee's JHT and JP contributions, less PTKP prorated by the months worked, the taxable income rounded down to 1,000, Pasal 17 bands, less what was already withheld (including the employee's opening figures). Tax borne by the employee is withheld from pay; tax borne by the employer (gross-up) is a tax allowance solved by fixed-point iteration, an explicit setting of the employee and never inferred.                                                                                                                                                                                                                                                                                                                                                                                            |
+| 124 | Joiners and leavers are not prorated by the system. A component is taken at its amount in force at the end of the period (or at the exit date), and the accountant adjusts a partial month with a run adjustment (an earning or a deduction, taxable or not). An employee is part of every month from the join month to the exit month; ending employment is refused while a run for a month after the exit month already includes the employee (correct that run first), and the join date cannot be moved after a payroll has counted the employee.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+| 125 | Workflow (Step 07 §14): create, calculate, adjust, submit, approve, post, pay, close, with return (to draft), discard, reopen (step-up and a reason) and correct. One live run per Entity and month. The approver is not the submitter unless a maker-checker rule for `payroll`/`approve` allows it or the approver is the OWNER; preparing, submitting, returning and discarding need `payroll.run`; approving, posting, closing, reopening and correcting need `payroll.approve`; every command that touches money also needs `payroll.compensation_view`. A run with review flags cannot be submitted. Posting happens once per run revision and creates, in one transaction, the journal, the PPh 21 determination and the payslips; the posting date is the earlier of the period end and today.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+| 126 | Posting matrix (Step 04 §8): Dr Salary Expense (gross pay plus tax allowance), Dr Employer Benefit Expense (employer BPJS), Cr Payroll Liabilities (net pay), Cr Tax Payable (PPh 21), Cr BPJS Liabilities (employee plus employer shares). The PAYROLL_LIABILITY and BPJS_LIABILITY accounts are control accounts: they reject manual journals. Payments never book salary expense again.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+| 127 | Payments. Net pay is paid per employee, in part or in full, or as "everything still owed" in one payment; BPJS is paid as one amount against the run's BPJS liability; neither can exceed what is owed. A payment needs `payroll.pay`, `payroll.compensation_view`, a recent step-up and the `payroll`/`pay` maker-checker rule, cannot be dated before the posting or in the future, and is reversed, never edited. PPh 21 is not paid here: it is paid with the tax payment of P7 (tax type `wht_pph21`), which reduces the same tax ledger.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| 128 | PPh 21 joins the P7 tax layer as the tax type `wht_pph21` with the payroll run as its source. The tax layer holds the aggregate per run only; the per-employee detail stays inside the payroll boundary (`payroll.tax_view`). Payment capacity, filings, reconciliation, the calendar and the control against the General Ledger therefore work for PPh 21 without a second implementation.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        |
+| 129 | Corrections. A posted run is corrected by reversing its journal and tax consequence, voiding its payslips, keeping the original visible and opening the next revision as a draft. It needs `payroll.approve`, a fresh step-up, a reason and a date for the reversing entries; payments must be reversed first; and only the latest posted month of the tax year can be corrected first, so the annual computation never rests on a month that no longer exists. A payslip is an immutable snapshot (money as decimal text); the rendered document is made from it later and is a sensitive document.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                               |
+| 130 | Opening data (Step 17 / DATA_CUTOVER 13). Payroll paid before the cut-over enters through `employee_set_tax_opening` (taxable gross, pension contributions and PPh 21 withheld from January through a month up to November, per employee and tax year; a later revision supersedes the earlier one) so the annual computation has the whole year. Unpaid payroll at the cut-over is in the opening balance batch on the payroll accounts and appears as "other" in the payroll control until it is paid. Payroll data in the cut-over files is synthetic in Git; real figures never enter the repository.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| 131 | Reports and controls (Step 12 §12, Step 08 §13/§19): the run list and summary, the liability report (net pay, BPJS and PPh 21 owed, paid and outstanding at a date), the employee tax ledger, the annual reconciliation (what the annual computation says against what was withheld, per employee) and the payroll control (sub-ledger against the two control accounts, with the workflow and "other" columns). Period close gains payroll checks: the payroll sub-ledger differing from the ledger (`payroll_ledger_mismatch`), an approved run not yet posted (`payroll_approved_not_posted`) and a posted run whose lines, journal, tax ledger or payslips differ (`payroll_run_not_reconciled`) are blockers; a run still in draft, calculated or submitted in the month is a warning (`payroll_not_posted`). Payroll reports are excluded from general search and report discovery (P11).                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| 132 | Accepted limitations of P9: no proration of mid-month joiners and leavers (decision 124); no refund of over-withheld PPh 21 through payroll (it is shown, and settled through the annual filing or a correction); no THR, severance, pesangon or other final-payment rules and no non-employee (Pasal 21 non-pegawai) withholding; no payroll for a Personal Entity; no foreign currency; the BPJS wage-base cap and JP rules exist only from the effective dates seeded (decision 121); no payslip PDF or e-bupot export yet (P11 and P13).                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       |
+| 133 | Application layer: `src/schemas/payroll.ts` (inputs and outputs; money as text; tax fields nullable for a person without `payroll.tax_view`), `src/services/payroll` (server-only wrappers, error prefixes mapped to AuthzError without detail, nothing logged), `src/domain/payroll` (labels, flag descriptions, the state machine as a screen sees it, the TER category of a PTKP status, and pure payslip arithmetic checks). The schemas were checked against real payloads of every read function. Payroll screens are a later slice.                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         |
+
+| 134 | `planning.*` permission keys (`planning.view`, `planning.budget_edit`, `planning.recurring_edit`, `planning.recurring_run`) follow the `<module>.<action>` convention of decision 5: Step 06's Permission/RLS Matrix does not name Planning capabilities verbatim. Granted to `finance_admin` (all four), `accountant`/`viewer_auditor` (`planning.view`, `accountant` also `planning.budget_edit`), `finance_staff` (`planning.view` only). |
+| 135 | Recurring "income" (Step 01 #26) maps to a recurring invoice: this build has no non-invoiced income entity. A recurring rule stores a `kind` of `invoice`, `bill` or `expense` and a reusable `create_*_draft`-shaped template; generation always writes a plain DRAFT and never issues/submits it (Step 15 Phase 10: "generate drafts by default"). |
+| 136 | The scheduled recurring-generation path (`run_due_recurring_occurrences`) has no signed-in user, so it cannot pass the existing `auth.uid()`-based `create_*_draft` gates. It is authorized structurally instead: callable by `service_role` (never granted to `anon`/`authenticated`) or by an authenticated caller holding `planning.recurring_run` for a manual "generate now". `app_private.recurring_create_invoice/bill/expense` reuse the exact header-check/line-preparation/line-write helpers of P5/P6, skipping only the actor gate -- no business validation is bypassed. This reuses the `SUPABASE_SERVICE_ROLE_KEY` P0 decision 4 already anticipated. |
+| 137 | Recurring generation processes at most one due occurrence per rule per invocation (Step 15 Phase 10 gate), claimed with `for update skip locked` so two overlapping runs never double-process a rule. A failed attempt is recorded on the (append-only once successful) `recurring_occurrences` row and `next_occurrence_date` is left unchanged so the next run retries the same date; a successful one advances it and ends the rule automatically once it passes `end_date`. Monthly stepping preserves the day-of-month and clamps to the target month's last day (31 Jan + 1 month lands on 28/29 Feb), rather than letting `date + interval` roll forward into the following month. |
+| 138 | Budgets (Step 01 #22) and revenue targets (Step 01 #23) are pure planning data: `budgets`/`budget_lines`/`revenue_targets`/`revenue_target_lines` are never written to by, and never write to, the posting engine or any document. "Actual" and "Committed" are computed on read (`get_budget_report`, `get_revenue_target_report`) from the existing invoice/bill/expense line tables, never cached -- this is what makes the Phase 10 gate ("remain separate from Actual/posted data") true structurally. Neither spec item defines "Committed"; it is read as amounts already entered but not yet recognized: draft invoice lines for a revenue-kind budget category, submitted (awaiting approval) bill lines for an expense-kind one. A budget line may reference a revenue OR expense/asset category (Step 01 #22 says only "Category"); a revenue target has no category breakdown (Step 01 #23 names none, unlike #22's explicit "Category -> Subcategory"). |
+| 139 | `forecast_amount` in `get_budget_report`/`get_revenue_target_report` is always `null`. Both Step 01 #22 and #23 require a "Forecast" figure but no locked spec (including Step 12 Reports) defines a projection methodology, and a wrong number here could mislead a real business decision -- this is filed as an OWNER decision to make (see Open items), not guessed. |
+| 140 | P11 scope (Step 15 §15, Step 01 #34/#35/#43/#44): private document storage/linking/versioning (generalizing P6's `documents`/`document_links` beyond bill/expense), the import staging engine with batch lineage, and a permission-safe global search index. The Command Menu itself (⌘K UI, quick-create registry) is a screen and follows the established pattern (decisions 35, 62, 76, 87, 141 of this list) of every other phase's screens: built with the application shell in P13, over the search/permission primitives P11 delivers. The Storage Dashboard (Step 01 #44) was already mapped to P14 by decision 5 ("Storage Monitor (P14)"); P11 does not build it. |
+| 141 | Documents generalize from two hardcoded targets (`bill`, `expense`) to a data-driven catalog, `app_private.document_target_kinds` (target_type, table_name, view/edit permission keys, statuses that refuse a new link, statuses after which a link is part of the record and cannot be removed). `tg_document_links_guard`, `link_document`, `unlink_document` and `list_document_links` read this catalog with dynamic SQL instead of branching on target_type in code, so a future target needs a data row, not a trigger change (Step 13's no-duplicated-logic principle applied to this guard). P11 seeds nine kinds: `bill`, `expense` (unchanged from P6), `invoice`, `fixed_asset`, `loan`, `other_obligation` (shares the `loans` module permission, matching its P8 RPCs), `equity_event`, `contact`, `journal_entry` and `import_batch` (the raw uploaded CSV/XLSX itself, registered the same way as any other evidence). `documents.mime_type` is widened to also accept `text/csv` and the XLSX content type for import uploads. |
+| 142 | Document versioning (Step 08 §21 "replacing evidence creates version history"): `documents` gains a self-referencing `supersedes_document_id` (entity-scoped FK, set only at `register_document` time, never after -- consistent with the existing immutability guard). `replace_document_link` atomically removes an active link (same rules as `unlink_document`) and creates a new one to a document that supersedes the old, so the chain is readable from either end without ever editing a `documents` row. Uploading/serving the actual bytes is a trusted-server concern (`src/services/documents`, added in this phase's application layer): `get_document_download_grant` re-checks the caller's permission against every accessible link of a document and returns its `storage_path` only on success (Step 06 §5 "knowing a storage path is insufficient"); the route then asks Supabase Storage for a short-lived signed URL (Step 13 §16). File-signature/malware screening before `register_document` is also application-layer, not SQL. |
+| 143 | Import engine (Step 08 §19, Step 01 #43): `import_batches` (one per upload, `domain`, `status` staging/validated/committed/rolled_back, the mapping the caller chose, row counters) and `import_rows` (raw payload, mapped payload, per-row `status`/`messages`, a duplicate-detection `fingerprint`, and `target_type`/`target_record_id` once committed -- this pair of columns on the row IS the required batch lineage, so no separate lineage table exists). Rows can be re-validated freely while the batch is `staging`; once the batch leaves `staging` its rows are frozen (a guard trigger checks the parent batch status, not a per-row lock, since rows never carry their own terminal state independent of the batch). CSV/XLSX parsing happens in the application layer (`src/services/imports`); the database receives already-parsed row payloads through `stage_import_rows` and only validates business rules. Two domains ship in this phase: `contacts` (Step 08's normalized name/tax-id/email/phone matching, delegating the actual write to the existing `create_contact` command per valid row so contacts have exactly one creation path) and the two DATA_CUTOVER opening-AR/AP importers the cutover procedure already named and deferred to P11 (items 7-8: `legacy_open_receivables`, `legacy_open_payables`). Opening balances, assets and loans already have their own OWNER-run loaders (`post_opening_balances`, `asset_load_opening`, `loan_load_opening` -- decisions 43-44, 103, 115); the import wizard does not duplicate them, matching Step 17 §13's rule against a second posting path. |
+| 144 | `legacy_open_items` (new table) is the informational AR/AP record DATA_CUTOVER items 7-8 describe: a receivable or payable whose invoice/bill stays outside the system (their number, evidence and original document remain with the OWNER; the actual GL effect already exists in the opening-balance batch's `other_ledger` bucket, decisions 74/80). It posts nothing -- `kind` (`receivable`/`payable`), contact, amount, currency, date, due date, reference and `status` (`open`/`settled`/`written_off`/`rolled_back`); a settlement is recorded manually (no allocation engine, no partial-payment ledger, since the cash side isn't tracked here -- it already happened, or will happen, through the normal AR/AP flow once the entity is live). Rollback of a committed import batch is only offered where Step 08 §19's "safely and completely reversed" test holds: `legacy_open_items` rows created by a batch move to `rolled_back` (nothing else can reference them, so this is a complete reversal); `contacts` rows are archived (`status = 'inactive'`) only when the created contact has zero references anywhere else in the Entity, and a row that already has references is left committed and reported, not silently skipped. |
+| 145 | Global Search (Step 01 #34, Step 13 §17): a single `search_index` table (entity-scoped, one row per indexed record, the record's `target_type`/`target_id`, denormalized title/subtitle/date for display, a `tsvector`, and the same view-permission key from `app_private.document_target_kinds` reused for search's permission gate so the two stay in one place) kept current by the existing outbox mechanism (`refresh_search_index` outbox consumer) rather than by scanning tables live. `search(p_entity, p_query)` filters candidate rows by `app_authz.has_permission(entity, row.permission_key)` before ranking, so an inaccessible record is excluded before delivery, not hidden in the UI (Step 06 §11, Step 13 §17). Payroll is not indexed at all (decision 131: "excluded from general search and report discovery"), and tax determinations/filings/payments are not indexed either -- both are reached through their own permission-gated screens, consistent with Step 15 P11's gate ("search cannot leak inaccessible Entity/payroll/tax records"). The index is derived and rebuildable (`rebuild_search_index`), never a second source of truth (Step 08 §22). |
+| 146 | Permissions: `system.import`/`system.rollback_import` (catalogued since P2 but never granted) go to `finance_admin` in addition to the OWNER's implicit bypass -- Step 06 lists them as System-specific with no named role, and the import wizard's own validation/staging/preview pipeline is the safety rail (Step 17 §13 "import cannot bypass normal validation/posting rules"), so gating it at finance-admin rather than OWNER-only is a routine within-boundary call. `documents.export` (catalogued but also never granted) goes to `finance_admin` only, kept narrower than `documents.view`/`documents.upload` per Step 06 §11 ("Export is a separate capability"). No new permission key was needed for search: a search hit is authorized by the same permission key as opening the record directly (decision 145), which is what "Global Search returns only records the user could open directly" (Step 06 §11) means structurally, not merely as a UI filter. |
+| 147 | Implementation correction to decision 141, found while building `20260930100100_p11_documents.sql` and running the full existing pgTAP suite against it (not a design change, but the original nine-kind seed list was incomplete): P7's `20260925100400_p7_payments_filings.sql` had already overridden the shared `tg_document_links_guard` trigger to recognize `tax_filing`/`tax_payment` for its own dedicated `tax_link_evidence`/`tax_list_evidence` functions, a fact not surfaced by decision 141's design pass. Re-generalizing the trigger without also seeding these two kinds would have silently broken tax-evidence attachment (`95_p7_determination.sql` failed with `unknown document target type tax_filing` before the fix). Fixed by adding `tax_filing`/`tax_payment` rows to `app_private.document_target_kinds` and introducing a `generic_linker boolean` column (false for these two): the shared trigger now recognizes them (so the dedicated tax functions keep working unchanged), while `link_document` still explicitly refuses them (`this linker does not take tax_filing records`), matching P6/P7's original module-boundary test. The `generic_linker` gate applies only to link creation, not to `unlink_document`/`list_document_links` -- the original P6 code never restricted removal or listing by target-kind module, only creation (module-specific link `purpose` semantics), confirmed by diffing against the pre-P11 baseline. `import_batch`, the tenth kind decision 141 named, is deferred until the import engine migration creates `import_batches` (decision 143) -- P11's documents migration seeds eleven kinds total: the nine from decision 141 minus `import_batch`, plus `tax_filing` and `tax_payment`. |
+| 148 | P12 scope (Step 15 Phase 12, Step 12 §3-§5, §15, §17, §19, §31): the canonical financial statements (Profit & Loss, Balance Sheet, Statement of Changes in Equity, Cash Flow Statement, General Ledger drill-down), year-end closing, a minimal Custom Report Builder over curated datasets, and cross-Entity Consolidated Analysis. Every statement reads posted data only (Step 12 §2) and reuses `trial_balance` (P3) and `ar_aging`/`ap_aging` (P5/P6) rather than duplicating them (Step 12 Table 1: "Reports never invent a second financial truth"). Every RPC is gated by the existing `reports.view` (catalogued since P2); the Custom Report Builder additionally requires each curated dataset's own domain permission (`invoices.view`/`bills.view`), and Consolidated Analysis additionally requires `reports.cross_entity` per requested Entity -- no new permission key was needed for any of P12. Reports screens themselves (statement viewers, the Report Builder UI, the Consolidated Analysis dashboard) are a later slice (P13), like every other phase's screens. |
+| 149 | Every statement RPC returns the account's raw `debit`/`credit` movement (or, for a computed line with no ledger postings of its own -- Balance Sheet's Current Year Earnings, the Statement of Changes in Equity's net-result row -- an equivalent debit/credit pair), exactly like `trial_balance`, never a pre-signed number (Step 13 §25: money crosses the API as text). Which side is the "natural, positive reading" for a given `account_class` is a presentation rule, applied exactly once in `src/domain/reports` (`naturalAmount`, mirroring the exact case `app_private.provision_default_coa` already uses to stamp `normal_balance` at COA-provisioning time -- decision not duplicated at the SQL layer since the statement RPCs return `account_class`, not `normal_balance`) rather than baked into any one statement's SQL, so a future statement (or a screen wanting a different presentation) never has to re-derive or risk drifting from the same sign convention. |
+| 150 | Balance Sheet's `CURRENT_YEAR_EARNINGS` line (Step 12 §4, Table 2, Table 9) is never a posted balance: it is always the live cumulative net of every P&L-class account's posted movement as of the same `p_as_of` date, computed inline and unioned in under the real placeholder account's own identity (code/name) so the OWNER still sees it at its familiar COA position and can still drill into the P&L behind it. This is exactly the not-yet-closed year-to-date result before a fiscal year's closing journal has run, and the (correctly zero) remainder after, because a closing journal is itself made of the same P&L-class debits/credits the cumulative sum already includes -- the two were verified consistent by the pgTAP suite closing a fiscal year mid-test and re-reading the Balance Sheet immediately after. Statement of Changes in Equity's "Net result for the period" row is the same derivation, scoped to the period instead of cumulative. |
+| 151 | Genuine design bug found and fixed while running `close_fiscal_year`/`reverse_fiscal_year_closing` against the real database (not merely a test artifact): the closing journal is dated the day after the fiscal year's last EXISTING accounting period, which for a partial (non-December-ending) fiscal year lands inside that same fiscal year and auto-creates a fresh "housekeeping" period there. The "every period of the fiscal year must be closed" completeness gate was originally counting that housekeeping period's own posted activity (the closing journal itself, `entry_type = 'closing'`) as unclosed activity requiring closure before a re-close, which would have permanently blocked re-closing a fiscal year after any reversal once the housekeeping period existed. Fixed by excluding a period whose ONLY posted activity is `entry_type = 'closing'` from that completeness check. `reverse_fiscal_year_closing` dates its reversal journal `current_date` (today), never inside the historical fiscal year being reversed, so this fix introduces no new gap on the reversal side. |
+| 152 | Custom Report Builder (Step 12 §19, decision #5 maps it onto P12): ships a first, deliberately narrow slice of three read-only curated datasets (`invoices_by_customer`, `bills_by_vendor`, `expenses_by_payee`), each a fixed, reviewed query selected by a PL/pgSQL branch on `p_dataset` inside `run_custom_report` -- never dynamic SQL, string concatenation or a client-supplied column/table name, matching Step 12 §19's "constrained to safe curated datasets/metrics/dimensions, not arbitrary SQL". `report_datasets` is the discovery catalog a future dataset picker reads (permission-gated by `app_authz.is_active_user()` alone, since it names datasets, not data); it and `fiscal_year_closures` (permission-gated by `accounting.view`) are the first two P12 tables the application layer reads directly rather than through a command RPC (`src/services/reports/listReportDatasets`/`listFiscalYearClosures`) -- both are pure informational catalogs with no business rule left to apply once RLS has filtered them, so a wrapping RPC would add a round trip without adding a rule. Broader dataset/dimension/measure coverage, Saved Reports and Export remain a later slice (decision #35 pattern), recorded here rather than silently dropped. |
+| 153 | CI-only bug found and fixed on PR #18 (not a design change): the 9 new P12 RPCs (`close_fiscal_year`, `reverse_fiscal_year_closing`, `profit_and_loss`, `balance_sheet`, `statement_of_changes_in_equity`, `cash_flow_statement`, `general_ledger`, `run_custom_report`, `consolidated_cash_position`) were correctly added to `00_baseline_invariants.sql`'s `rpc_allowlist` in the build/test environment and that copy passed a full local `scripts/db-test.sh` run, but the fixed file never made it into commit `404a3a7` when the branch was synced to the device for commit/push (an md5 diff across every P12 file found this was the only one that had drifted) -- the CI job "Migration clean-rebuild and invariants" correctly caught the omission (`INVARIANT FAILED: authenticated can execute public.<each of the 9>`) that the (stale) local run never re-ran against. Fixed in a follow-up commit on `p12-reports` that only touches this one file; all other P12 files were re-verified byte-identical between the build/test environment and the device before and after. No production behavior changed -- the 9 RPCs were always meant to be `authenticated`-executable (the app layer calls them directly); the allowlist is a reviewed-exposure ledger, not a runtime gate. |
+| 154 | All remaining Step spec documents (02, 03, 04, 05, 06, 07, 08, 09, 10, 11, 12, 13, 14, 15, 16, 17) were supplied by the OWNER this session, confirming Step 01 (Master Specification) already held; every Step named in `docs/SPEC_INDEX.md` is now available to this build. This directly unblocks P13 (decision 155): Step 09 (UI Sitemap + Screen Architecture) and Step 10 (Dashboard + Design System) are P13's primary authorities (decisions 9, 18 already anticipated this), and Step 11 (Invoice/Receipt Visual Specification) governs the customer-document templates P13 finishes wiring to P5's already-built `invoice_document`/`payment_receipt_document`/`refund_receipt_document` RPCs. All three were read in full before any P13 code was written, per this project's standing rule against improvising past a locked spec. |
+| 155 | P13 scope and slicing plan (Step 15 Phase 13, Step 16): P13 is the first phase with no existing screens to extend -- before it, the repository had only the auth flow (`/login`, `/auth/mfa`, `/auth/step-up`) and the public invoice token page (`/i/[token]`); every other module is backend-only (RPC + schema + service + domain layers) with P13 as its explicitly-deferred screen slice (decisions 35, 62, 76, 87, 109, 132-139, 140, 148, and this list's own pattern). Given that size, P13 ships as its own sequence of parts, each with its own PR/db-test/typecheck/build pass like every P0-P12 slice, rather than one undifferentiated commit: Part 1 -- design tokens (Step 10 §2, §4-§6) and the application shell (Step 09 §2-§8: sidebar, top bar, Entity switcher, Global Search, Command Menu, responsive shell) that every later part depends on; Part 2 -- the Dashboard/Overview screen (Step 09 §8, Step 10 §10-§13), reading only already-built P3/P5/P6/P12 report RPCs, never computing an independent frontend financial truth (Step 15 P13's own gate); Part 3 -- the standard list/detail patterns (Step 09 §9-§10) applied across Sales, Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll and Planning (Step 09 §11-§18); Part 4 -- Reports screens (statement viewers, Custom Report Builder UI, Consolidated Analysis -- decision 148), the Documents Center (Step 09 §20) and the Command Menu's quick-create registry (decision 140) wired to P11's search/document RPCs; Part 5 -- the Invoice/Receipt customer-document templates (Step 11) wired to P5's document RPCs, then responsive/mobile behavior, accessibility and motion polish across every part (Step 09 §23, §25-§27; Step 10 §21-§25). `docs/TASK_BOARD.md`'s P13 row stays "In Progress" (not per-part "Verified" rows, to avoid implying Step 16 acceptance before the whole phase is done) until every part ships and the Step 15 gate (dashboard KPI drill-down reconciles to report/source values; mobile essential workflows pass) is demonstrated end-to-end. |
+
+| 156 | P13 Part 1 implementation (Step 09 §2-§8, Step 10 §2-§6): extends the codebase's existing plain-CSS-custom-property token system in `src/app/globals.css` (not Tailwind, not CSS-in-JS -- the file already anticipated this in a P2-era comment) with the rest of Step 10's locked token set (surfaces, semantic status colors, full type/spacing/radius/shadow/motion scales, `prefers-color-scheme: dark` and `prefers-reduced-motion: reduce` overrides), and follows the pre-existing `src/features/<module>` convention (paired with `src/domain/<module>`/`src/services/<module>`, and a `src/features/.gitkeep` already anticipating it) for the shell components, rather than introducing a new pattern -- per this project's standing rule against redesigning past what prior phases established. `lucide-react` (pinned `1.47.0`) is added as the project's first icon-library dependency, needed for Step 09 §4's collapsed icon-mode sidebar; its use is isolated to `src/features/shell/icons.tsx` (maps the pure `NavIconName` data key to a Lucide component) so a future icon-library swap touches one file, though the shell's own generic UI icons (search, menu, chevron, panel-toggle, notification, logout) import `lucide-react` directly in their own components since they aren't part of the sitemap data. |
+| 157 | `src/domain/shell/navigation.ts` is the single source of truth for the primary sitemap (Step 09 §3's full 12-group table), consumed by both the Sidebar (this part) and the Command Menu's navigation results (this part; record/quick-create sources arrive in Part 4, decision 155) -- the IA is fixed here exactly once. Every `href` beyond `/` resolves through a catch-all route (`src/app/(app)/[...slug]/page.tsx`) rendering a "coming soon" placeholder until its own screen ships in a later P13 part; Next.js prefers a more specific route the moment one exists at that path, so the sitemap and the Sidebar/Command Menu that read it never need to change when a placeholder is replaced by a real screen. This was chosen over hand-writing ~50 throwaway stub pages (more files, no behavioral difference) and over hiding unbuilt destinations (Step 09 §28 wants the IA complete and navigable from day one, screens filling in progressively). |
+| 158 | Next.js layouts never receive `searchParams` (only pages do, by design, to keep a layout stable across sibling client-side navigations); since `(app)/layout.tsx` is where the shared `AppShell` chrome is applied, but Entity switching (Step 09 §5) has always worked via a `?entity=` query param read by `requireAccess({ entityCode })` (established at P2, decision -- the original Home page), `AppShell` re-resolves the _active_ membership for chrome/nav-filtering purposes client-side via `useSearchParams()` and the same pure `resolveActiveEntity` domain helper P2 already exported (safe to call client-side -- it has no `server-only` import). The layout's own `requireAccess()` call (no entity code) still does the authoritative auth/MFA/active-user gating server-side, exactly as before; each page continues to call its own `requireAccess({ entityCode })` from its own `searchParams` prop for its authoritative permission checks, so nothing about the existing per-page authorization model changed -- only the chrome now also displays and offers to switch the Entity, reading the identical query string every page already reads, so the two never disagree. The sidebar's collapse/expand preference (Step 09 §4) is a pure display convenience with no authorization meaning, so it is read from `localStorage` after mount (never during the server-rendered or first client render, to avoid a hydration mismatch) rather than persisted server-side. |
+| 159 | The pgTAP-authoritative pattern of "fix real bugs found while proving the code, not just satisfy the linter" continued into the frontend: `visibleNavigation()` (as first written) failed `tsc --noEmit` because `Array.prototype.filter` over a `readonly NavItem[]` narrows to a plain (mutable) `NavItem[]`, which is not assignable back into `NavGroup.items`'s `readonly NavItem[]` -- rewritten as an explicit loop with an annotated `readonly NavItem[] | undefined` local instead of `.map().filter()`, which also reads more plainly. Two ESLint React-Compiler-era rules (`react-hooks/set-state-in-effect`, `react-hooks/refs`) that this codebase's `eslint-config-next` enables reject the classic "adjust state during render via a ref" pattern for resetting the Command Menu's search field on close; fixed by having `AppShell` remount `CommandMenu` with an incrementing `key` each time it opens, so the field starts empty by construction and the component never needs to reset its own state at all -- simpler than either rejected pattern, not just a workaround for the lint rule. |
+| 160 | P13 Part 2 (Dashboard, Step 09 §8, Step 10 §10-13) implementation, core rule: the Dashboard computes NOTHING financially of its own -- it only reads rows already-audited RPCs return (`profit_and_loss`, `statement_of_changes_in_equity`, `cash_flow_statement`, `ar_aging`, `ap_aging`, `money_control`, `reconciliation_status`, `tax_overview`, `tax_calendar`, `tax_review_queue`, `list_missing_evidence`, `list_invoice_positions`/`list_payments`, `list_vendor_payments`) and selects/sums/orders them in `src/domain/dashboard/dashboard.ts` (pure, unit-tested). The Profit/Surplus KPI in particular reads `statement_of_changes_in_equity`'s synthetic "Net result for the period" row (`code: null`, already the database's own period-scoped net -- decision 150) via `naturalAmount(period_debit, period_credit, "equity")`, rather than re-deriving net income from `profit_and_loss` independently, so the KPI is structurally guaranteed to reconcile to the Statement of Changes in Equity screen once Part 4 ships it (Step 15 P13's own gate: "Dashboard KPI drill-down reconciles to report/source values"). Cash uses `movement_base_balance` (already base-currency-converted by `money_control`) summed across active accounts only, never the native `movement_balance`, to avoid silently mixing currencies. |
+| 161 | None of the RPCs the Dashboard reads returns the Entity's base currency code (every financial-statement/aggregate RPC assumes the caller already knows it), and no existing RPC exposes `entities.base_currency` either. Rather than add a new RPC for a pure read already covered by RLS, `src/services/dashboard/dashboard.ts` reads `entities.base_currency` directly via a plain `.from("entities").select("base_currency").eq("id", entityId)` call, governed by the pre-existing `entities_select` RLS policy (`app_authz.is_member(id)`, P2 decision -- no extra permission beyond membership, matching that the Dashboard itself is visible to every member) -- the same direct-table-read shape `src/services/reports/reports.ts` already established for `fiscal_year_closures` and `report_datasets` (decision 152). |
+| 162 | Dashboard sections are gated per-permission in `getDashboardSnapshot`, never fetched-then-hidden: `reports.view` gates Finance + Trend, `money.view` gates Cash + reconciliation freshness, `invoices.view` gates Receivables + customer-payment/issued-invoice activity, `bills.view` gates Payables + vendor-payment activity, `bills.view` AND `documents.view` together gate the missing-evidence attention source, `tax.view` gates the Tax Snapshot and its attention source -- verified against the actual `has_permission` checks in each RPC's migration SQL, not assumed from module naming. A section the caller cannot see is `null` in `DashboardSnapshot`, so the function never calls an RPC it isn't permitted to call and never depends on catching `FORBIDDEN`. The Hero/KPI period is `?month=YYYY-MM` (`resolveDashboardPeriod`, pure, UTC calendar-month boundaries only), defaulting to the current month on an absent or malformed value; the Cashflow Trend makes one `cash_flow_statement` call per trailing month (6, `trailingMonths`) in parallel via `Promise.all` rather than asking the database to reinterpret one wide range into monthly buckets, matching Step 10 §12's "restrained chart, always backed by a table/drill-down source" (the numeric legend beneath the chart plus each point's exact tooltip). |
+| 163 | Tasks & Attention (Step 09 §8 lists "confirmation, approval, reconciliation, missing evidence or review") ships in Part 2 as a merge of three sources the Dashboard already has services for -- the tax review queue, purchase documents missing required evidence, and reconciliations left open or with unresolved lines (`buildAttentionItems`) -- deliberately WITHOUT pending invoice/bill approval queues, which belong to the Sales/Purchases approval workflows Part 3 builds; adding them here would mean duplicating that workflow's own query logic ahead of the workflow itself. Recorded as a scope-trim, not a silent omission, and to be revisited once Part 3 ships. Recent Activity (Step 09 §8: "chronological high-value events; not a noisy raw log") is confirmed customer payments, confirmed vendor payments and issued invoices only (`mergeRecentActivity`) -- reversed payments and draft/cancelled/void invoices are excluded by construction, not by a display filter, so a reversed payment can never appear in the feed even transiently. |
+
+| 164 | P13 Part 3 sub-slicing plan (Step 15 Phase 13, decision 155's "given that size" reasoning applied one level deeper): Part 3 itself packs eight module areas (Step 09 §11-§18) into one line of decision 155's table, each with its own list/detail screens and often its own create/edit builder -- too large for one PR by the same logic that split P13 into five parts to begin with. Part 3 therefore ships as its own lettered sequence, each its own PR/typecheck/lint/test/build pass (and `db:test` only where a migration is touched, which no Part 3 slice expects to need): 3a Sales (Step 09 §11), 3b Purchases & Expenses (§12), 3c Money/Accounts/Reconciliation (§13), 3d Accounting (§14), 3e Tax (§15), 3f Assets/Loans/Equity (§16), 3g Payroll (§17), 3h Planning & Recurring (§18). Within a lettered slice, the List + Detail screens (Step 09 §9-§10) ship before that module's own Create/Edit builder where the builder is materially larger than the list/detail pair (a multi-step document builder with line items, vs. a table and a read view) -- a first read/status-action slice reaches review sooner, mirroring decision 155's own reasoning rather than introducing a new one. `docs/TASK_BOARD.md`'s Part 3 row stays "In Progress" (not split into per-letter "Verified" rows) until every lettered slice ships, matching how Part 3 itself relates to the whole P13 row (decision 155). |
+| 165 | P13 Part 3a implementation, first slice: Invoices List (`/sales/invoices`) and Invoice Detail (`/sales/invoices/[id]`), Step 09 §9-§11, built entirely on P5's already-shipped `list_invoice_positions`/`invoice_document`/`issue_invoice`/`void_invoice`/`correct_invoice`/`invoice_public_link`/`regenerate_invoice_link` RPCs -- no new RPC, no new schema. `src/domain/sales/invoiceList.ts` (pure, unit-tested) derives the list's status badge, the detail header's status badge and a lifecycle Activity timeline entirely from fields these RPCs already return; List's free-text search is a client-visible `?q=` filtering the page's own already-fetched rows (Global Search, decision 145, is Part 4's server-side index, not duplicated early here). The Standard Record Detail Pattern's Accounting/Tax/Audit areas are rendered as their own labeled-but-empty sections rather than omitted (decision 157's "coming soon" placeholder principle, applied within a screen) because no per-invoice journal drill-down or tax-determination read path exists yet (Step 12's `general_ledger` is Entity/period-scoped, not invoice-scoped). Status actions (Issue/Void/Correct/Copy Link) are gated on the exact permissions each RPC's own migration SQL checks (`invoices.issue`, `invoices.void`, `invoices.void`+`invoices.create`, `invoices.regenerate_link`) rather than assumed from module naming, following decision 162's precedent; no step-up is added on Void/Correct beyond decision 75's own finding that Step 06 §8 requires none. Deferred to a further Part 3a increment, recorded rather than silently dropped: the Create/Edit document builder (customer -> items -> terms/due date -> payment destination -> notes/branding -> preview), Send, the Payment Confirmation queue, Refund actions, Customers and Products & Services screens, Quick Preview's side drawer, saved views, export, bulk actions and an asOf/date-range filter. |
+| 166 | Spec/implementation conflict found while scoping Part 3a's Copy Link action, filed for the OWNER rather than resolved unilaterally (this project's standing rule: anything touching a locked spec or an already-shipped, reviewed RPC's behavior is not improvised past): Step 09 §11 states "Public invoice preview is available before Issue", but P5's already-shipped `regenerate_invoice_link`/`invoice_public_link` refuse any invoice whose `status <> 'issued'` (`CONFLICT: only an issued invoice has a public link`), and decision 76 explicitly scoped P5 without a draft-preview path. The UI therefore shows Copy Link only once an invoice is issued, matching the database's actual, already-reviewed behavior, rather than exposing a button the RPC would reject. Resolving this the other way (giving a draft a public link) would mean reopening P5's locked SQL, which is outside a P13 (screens-only) phase's boundary without OWNER sign-off. |
+| 167 | P13 Part 3b implementation: Bills List (`/purchases/bills`) and Bill Detail (`/purchases/bills/[id]`), Step 09 §9-§10, §12. Unlike Sales, no single existing RPC lists every bill regardless of workflow status -- P6's `list_bill_positions` only ever returns `approved`/`void` rows (it needs settlement/overdue, which only apply once a bill has posted) -- so `listBillsOverview` extends decision 161's direct-table-read pattern to `public.bills`/`public.bill_lines` (both already RLS-gated on `bills.view`, confirmed in `20260924100000_p6_bills.sql`'s `bills_select`/`bill_lines_select` policies) to read `draft`/`submitted`/`cancelled` bills directly, merging the two into one `BillListRow` shape. `src/domain/purchases/billList.ts` mirrors `src/domain/sales/invoiceList.ts`'s shape exactly (pure, unit-tested, 21 cases): the list/detail status badge, the filter set (Semua/Menunggu Persetujuan/Terbuka/Jatuh Tempo/Lunas/Dibatalkan) and an Activity timeline built from the bill row's own workflow timestamps (`submitted_at`, `rejected_at`/`reject_reason`, `approved_at`, `closed_at`/`closed_reason`). Status actions (Submit/Recall/Reject/Approve/Void/Correct/Cancel) are gated on the exact permission each RPC's own migration SQL checks (`bills.submit`, `bills.edit`, `bills.approve`, `bills.void`, `bills.void`+`bills.create` for Correct; Cancel accepts either `bills.edit` or `bills.void` depending on the bill's own current status, matching `cancel_bill`'s own branch), following decision 162's precedent rather than assumed from module naming. Bill Detail adds a "Rincian Item" (Line Items) section beyond Step 09 §10's seven named areas, beside Accounting/Tax/Documents/Audit as their own labeled-but-empty placeholders (decision 157's principle) -- line-item data already exists on every bill and Step 09 §12 calls it out specifically ("Record Bill supports line items..."), so showing it plainly is more honest than folding it into Summary or omitting it. Deferred to a further Part 3b increment, recorded rather than silently dropped: the Record Bill/Record Expense builders, the Payment action (§12: "exact source account and resulting outstanding balance before confirmation"), Expenses screens, Vendors, aging, Quick Preview, saved views, export, bulk actions; `approve_bill`'s `duplicate_reason` parameter (only needed on an exact vendor-reference duplicate) is not wired into the UI yet. |
+| 168 | Authorization-model gap found while building Part 3b's vendor-name resolution for in-preparation bills, filed for the OWNER rather than resolved unilaterally: `listBillsOverview`/`getBillDetail`'s direct read of `draft`/`submitted`/`cancelled` bills (decision 167) carries only `vendor_id`, so the display name is resolved via a separate `contacts` read -- but `contacts`' RLS `contacts_select` policy is gated on `contacts.view` (`20260920100200_p2_rls_policies.sql`), a DIFFERENT permission from `bills.view`. Confirmed via `20260920100100_p2_permission_catalog.sql`'s role-template grants: the `approver` and `tax` role templates hold `bills.view` without `contacts.view`, so a member on one of those templates gets zero rows back from the vendor-name lookup for in-preparation bills specifically (RLS-filtered silently, not an error) -- `approved`/`void` bills are unaffected, since `list_bill_positions` already returns `vendor_name` inline. `getVendorNames` (`src/services/purchases/purchases.ts`) is written defensively (catches and returns an empty `Map` rather than throwing) and both callers fall back to `vendor_reference`, then a generic "Vendor" label, so the screen never breaks -- it only shows a less specific label for those two role templates on draft/submitted/cancelled bills. This is a genuine gap in the P2 permission catalog's role templates (decision 2), not a display choice, so it is not resolved here: granting `contacts.view` to `approver`/`tax`, or accepting the fallback label as sufficient for those roles, is an OWNER call. |
+| 169 | P13 Part 3c implementation, first slice: Accounts List (`/money/accounts`) and Account Detail (`/money/accounts/[id]`), Step 09 §9-§10, §13, built entirely on P4's already-shipped `money_control`/`reconciliation_status`/`account_activity` RPCs -- no new RPC, no new schema. Unlike Invoice/Bill Detail, an account is not itself a commercial document with issue/void/correct-style actions, so Account Detail keeps only the two Standard Record Detail Pattern areas that actually apply (Header, and a Summary that doubles as the ledger's own Activity) rather than padding out Accounting/Tax/Documents/Audit placeholders that would say nothing an account doesn't already show here -- a narrower application of decision 157's placeholder principle, not a departure from it. `src/domain/money/accountsList.ts` (pure, unit-tested, 21 cases) provides `mergeAccountRows` (joins `money_control` + `reconciliation_status` purely by `financial_account_id`, exactly like the Dashboard's existing `AccountSnapshot.tsx` already does, never recomputing either RPC's numbers), the list/detail status badge (inactive, then ledger difference, then reconciliation freshness, in that priority), the filter set (Semua/Aktif/Tidak Aktif/Ada Selisih/Belum Direkonsiliasi), a `sourceTypeLabel` humanizer for the ledger's `source_type` column (a small known-label map for the source types this codebase's modules already record, falling back to a plain snake_case->Title Case conversion for the rest rather than a guessed label), and `resolveActivityRange` (the ledger's `?from=`/`?to=` date filter, pure and UTC-based, mirroring `resolveDashboardPeriod`'s own fallback shape: an absent, malformed or inverted pair falls back to a trailing 30-day window). Source links from a ledger line to its originating record (Step 09 §13) are deferred, not silently dropped: `account_activity`'s `source_type`/`source_id` mostly point at records with no detail screen of their own yet in this codebase (payments, refunds, vendor payments, transfers, tax payments -- only Invoices/Bills have one, and neither is what `source_id` points to), so linking out today would mean guessing at routes rather than reading an actual established one. Deferred to a further Part 3c increment: the Transfer form, the Reconciliation workspace (statement-side vs. system-side matching, candidate matches, unresolved queue), balance adjustments, Cash/Bank Activity (an Entity-wide feed across accounts, distinct from one account's own ledger here), and Create/Edit Account. `pnpm check` and `pnpm build` pass (384 tests, up from 363); `pnpm db:test` does not apply (no migration touched). |
+| 170 | P13 Part 3c second increment: Transfers List (`/money/transfers`), Transfer create form (`/money/transfers/new`) and Transfer Detail (`/money/transfers/[id]`), Step 09 §9-§10, §13. Unlike Bills/Invoices, no RPC reads a transfer at all (only `create_transfer`/`confirm_transfer`/`cancel_transfer`/`reverse_transfer` write one), so `listTransfers`/`getTransfer` (`src/services/money/money.ts`) extend the direct-table-read pattern (decisions 161/167) to `public.transfers`, covered by its own pre-existing `transfers_select` RLS policy (`money.view`, confirmed in `20260922100100_p4_transfers.sql`). `src/domain/money/transferList.ts` (pure, unit-tested, 15 cases) provides `mergeTransferRows` (resolves each side's account name AND currency purely by joining against `money_control`'s already-fetched rows -- `amount_out`/`amount_in` are each in their own side's account currency, never assumed to be IDR or the Entity's base, so the join carries currency alongside the name), the list/detail status badge (draft=attention "Menunggu Konfirmasi", confirmed=success, cancelled/reversed=neutral, matching `BILL_STATUS_LABELS`/`EXPENSE_STATUS_LABELS`'s own tone convention), and an Activity timeline from the row's own workflow timestamps. Unlike the Sales/Purchases create builders (deferred as "materially larger" per decision 164's own test), the Transfer form ships now: `TransferForm` is a plain, always-visible field set (no dynamic show/hide) with `amount_in`/`rate_out`/`rate_in` marked optional and explained as "only if the two accounts' currencies differ" (the RPC itself defaults `amount_in` to `amount_out` for a same-currency pair -- confirmed in `app_private.transfer_figures`), matching this codebase's minimal-JS bias over building a client-side currency-comparison show/hide. Step 09 §13's "Transfer form clearly distinguishes same-Entity transfer from prohibited PT<->Personal generic transfer" is satisfied structurally, not by extra copy: both account pickers list only the active Entity's own active accounts (`money_control(entityId)`), so a cross-Entity or PT<->Personal pair is never even selectable, matching exactly what `create_transfer`'s own SQL comment says about this boundary (Step 03 §8). Status actions (Confirm/Cancel/Reverse) are gated on the exact permission each RPC's own migration checks (`money.transfer_create` for Cancel, `money.transfer_approve` for Confirm and Reverse), and the create form's "confirm now" checkbox is shown only when the caller also holds `money.transfer_approve` (matching `create_transfer`'s own additional check when `p_confirm = true`). Two new generic CSS classes (`.record-form`, `.checkbox-field`) were added to `globals.css`, reusable by a future Part 3 create/edit builder needing the same plain field layout. `pnpm check` and `pnpm build` pass (399 tests, up from 384); `pnpm db:test` does not apply (no migration touched). |
+| 171 | P13 Part 3c third increment: Cash/Bank Activity (`/money/activity`), Step 09 §9, §13's fourth Money nav item -- an Entity-wide, chronological feed of every account's movements, distinct from Account Detail's own single-account ledger (decision 169). No RPC reads this feed at all (`account_activity` is single-account only), so `listCashActivity` (`src/services/money/money.ts`) extends the direct-table-read pattern (decisions 161/167/170) to `public.money_movements`, covered by its own pre-existing RLS policy gated on `money.view`. The screen follows the Standard List Screen Pattern (Step 09 §9) with an account-filter `<select>` in place of the usual status filter tabs, since this feed carries no workflow status of its own (every movement here is already posted) -- `?account=`/`?from=`/`?to=`/`?q=` filter a `resolveActivityRange`-bounded read (reusing decision 169's own 30-day-fallback helper unchanged). `src/domain/money/cashActivity.ts` (pure, unit-tested, 8 cases) provides `mergeCashActivityRows`, joining each movement against the already-fetched `money_control` rows for its account name/currency (falling back to a generic label and the movement's own currency if the account is missing) and against a separately-resolved `Map<journal_id, journal_number>` for its journal number. Deliberately no running-balance column, unlike Account Detail's ledger: a running balance across mixed accounts and currencies would not be a meaningful number, so the table only shows Masuk/Keluar per row in that row's own account currency. A second authorization-model gap of the same shape as decision 168 was found and handled the same defensive way, not resolved unilaterally: `money_movements.journal_id` is resolved to a human `journal_number` via a `public.journal_entries` read, but `journal_entries`' RLS is gated on `accounting.view` -- a DIFFERENT permission from this page's own `money.view` gate. Confirmed against the P2 permission catalog's role-template grants: `finance_staff` and `approver` hold `money.view` without `accounting.view`, so a member on either template gets zero rows back from the journal-number lookup specifically (RLS-filtered silently, not an error). `getJournalNumbers` (`src/services/money/money.ts`) is written defensively exactly like `getVendorNames` (decision 168): it catches any Supabase error and returns an empty `Map` rather than throwing, and the screen falls back to "—" in the Jurnal column rather than breaking. This is a genuine gap in the P2 permission catalog's role templates (decision 2), not a display choice, so it is not resolved here -- filed as an OWNER call below, alongside decision 168's own unresolved gap. `pnpm check` and `pnpm build` pass (407 tests, up from 399, plus a clean `tsc --noEmit`/`eslint .`); `/money/activity` registers as a route in the production build; `pnpm db:test` does not apply (no migration touched). |
+| 172 | P13 Part 3d implementation: Journal List (`/accounting/journal`), Journal Detail (`/accounting/journal/[id]`) and Chart of Accounts (`/accounting/coa`), Step 09 §9-§10, §14. No RPC lists or reads a journal, a journal's own lines, a ledger account or an accounting period at all (P3's posting engine only ever writes one, through `create_journal_draft`/`post_journal`/`reverse_journal`/`discard_journal_draft`), so `listJournals`/`getJournalEntry`/`getJournalLines`/`getReversingJournal`/`listLedgerAccounts`/`listAccountingPeriods`/`getEntityBaseCurrency` (`src/services/accounting/ledger.ts`) extend the direct-table-read pattern (decisions 161/167/170/171) to `public.journal_entries`/`journal_lines`/`ledger_accounts`/`accounting_periods`, each already RLS-gated on `accounting.view` (`20260920100200_p2_rls_policies.sql`). `src/domain/accounting/journalList.ts` (pure, unit-tested) provides the list/detail status badge (`draft`/`posted` only -- decision 41 already recorded that a separate approval state is not built), the Journal List's three-way filter (`entry_type`/status/period, Step 09 §14's "source filtering, period, status"), `journalSourceHref` (drill-back to the originating business event, but only for the source types this codebase already has a Detail screen for -- invoice/bill/transfer; the rest of `post_system_journal`'s wide `source_type` vocabulary shows its label with no link, the same "only link what has somewhere to go" choice decision 169 made for Account Activity, now covering more ground because Sales/Purchases/Money Detail screens exist), a two-way reversal cross-link (`journalActivityTimeline`, since `reverses_journal_id` only points backward -- `getReversingJournal` supplies the forward direction), and `mergeJournalLines`/`journalLineTotals` for the Detail screen's debit/credit grid. Journal Detail keeps Header / Lines / Activity only, the same narrower "Standard Record Detail Pattern subset" decision 169 applied to Account Detail: a journal's own debit/credit lines already ARE its accounting detail, so an "Akuntansi" placeholder section would say nothing new, unlike Bill/Invoice Detail's placeholders. Status actions (Post/Discard Draft/Reverse) are gated on the exact permission each RPC's own migration SQL checks (`accounting.journal_post` for `post_journal` and `reverse_journal` -- decision 41 already recorded this as the interim approval gate; `accounting.journal_create` for `discard_journal_draft`), following decision 162's precedent, and shown only for `entry_type` `manual`/`adjusting` (every other entry type is refused by the RPCs themselves with "system journals are posted by their source workflow"). Discarding a draft deletes the row entirely (`discard_journal_draft`'s own SQL), so `discardJournalAction` redirects to the Journal List on success rather than returning an `ok` state, unlike Post/Reverse. Chart of Accounts (`src/domain/accounting/coaList.ts`, pure, unit-tested) is read-only -- `ledger_accounts` is seeded once from a COA template at Entity setup with no create/edit RPC at all yet, so unlike every other list screen in this codebase it has no Create button -- and renders as a depth-first, code-ordered, ancestor-preserving hierarchical tree (`buildCoaTree`) with a status/search filter and `coaIndicators` badges for Step 09 §14's "protected-control indicators" (Grup for a posting-blocked group header, Akun Kontrol for an `is_control` sub-ledger summary account, Dilindungi for a leaf account that refuses manual posting without an authorized override reason). Deferred to a further Part 3d increment, recorded rather than silently dropped: Period Close (checklist of blockers/warnings before Close, Step 09 §14), Opening Balances, the Manual Journal debit/credit grid builder (Step 09 §14: "for authorized advanced users only"), and Advanced Adjustments. `pnpm check` and `pnpm build` pass (448 tests, up from 407, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/accounting/journal`, `/accounting/journal/[id]` and `/accounting/coa` register as routes in the production build; `pnpm db:test` does not apply (no migration touched). |
+| 173 | P13 Part 3e implementation, first increment: Tax Overview (`/tax`), Tax Ledger (`/tax/ledger`) and Tax Determination Detail (`/tax/determination/[sourceType]/[sourceId]`), Step 09 §9-§10, §15. Unlike every earlier Part 3 sub-slice, P7's tax RPC surface was already fully service-wrapped before this increment (`src/schemas/tax.ts`/`src/services/tax/tax.ts`, built during P7 itself) -- `getTaxOverview`/`listTaxLedger`/`getTaxCalendar`/`listTaxReviewQueue` and the rest needed no new RPC wrapper, narrowing this increment to completing two pre-existing but under-typed schemas and adding the one genuinely missing read. `taxOverviewSchema` was completed rather than left as a `looseObject`: `tax_overview`'s own SQL body (`20260925100500_p7_final_calendar.sql`) always returns a `profile` object (the Entity's own recorded tax facts, Step 05 §1-§2, `null` before an OWNER records one) and an `attention` array (the same `tax_calendar` row shape, due/overdue in the last two months, up to 20) that the schema previously let through untyped; both are now typed (`taxOverviewProfileSchema`, reusing `attention: taxCalendarSchema`) so the new Tax Overview screen renders them directly from one RPC call rather than duplicating the Dashboard's own separate `getTaxCalendar` + `upcomingTaxDeadlines` fetch (`src/services/dashboard/dashboard.ts`) -- a deliberate difference from the Dashboard's card, which wants a curated top-5 teaser rather than this screen's own fuller list. A second, unrelated schema gap was found and fixed the same way: `taxLedgerRowSchema.source_id` was typed as a non-nullable UUID, but `tax_ledger_report`'s own SQL joins each ledger entry through to its determination's `source_id`, which the `tax_determinations` table allows null for a `period` source (PPh Final UMKM's own monthly determination has no single document behind it, Step 05 §9) -- an Entity that had ever run a PPh Final UMKM computation would have made `listTaxLedger` throw on that row. Loosened to `.nullable()`, matching what the RPC already returns; no RPC/database change, no behavior change. `listTaxDeterminations(sourceType, sourceId)` (`src/services/tax/tax.ts`) is the one new read: no RPC returns a stored `tax_determinations` row -- `tax_preview_document` is a live, unconfirmed recomputation (a different concept, useful before a document is posted), not a read of what was actually recorded -- so this extends the direct-table-read pattern (decisions 161/167/170/171/172) to `public.tax_determinations`, already RLS-gated on `tax.view` (confirmed directly against `20260925100200_p7_determination.sql`'s own policy). Its new row schema (`taxDeterminationRowSchema`) types the engine's own explanation shapes as actually constructed (`app_private.tax_trace_add`/`tax_rule_ref` in that same migration): `trace` as `{n, text}` steps, `rules` as `{rule_id, code, rule_version, effective_from, source_ref, verified_on}` references, `components` kept loose (`{label, ...}`) since the three tax engines (VAT, WHT, PPh Final UMKM) each build a different combination of extra fields on it. Only `invoice`/`bill`/`expense` sources get a Determination Detail link (`taxDeterminationHref`, `src/domain/tax/taxLedgerList.ts`) -- the same "only link what has somewhere to go" choice decision 172 made for `journalSourceHref`, now one level deeper: a `period` source (no single document, `source_id` null) belongs to the PPh Final UMKM / Tax Calendar family of screens, deferred to a later increment alongside PPh Final/Income Tax (`/tax/pph`), Withholding (`/tax/withholding`), PPN (`/tax/ppn`), Tax Calendar (`/tax/calendar`), Filing & Evidence (`/tax/filing`) and Tax Rules/Configuration (`/tax/rules`, OWNER/Tax-only per Step 09 §15), consistent with decision 164's own List+Detail-before-secondary-screens precedent. `listTaxDeterminations` returns every determination ever made for a document, newest first, since one document can carry more than one `tax_kind` at once (a bill can owe both input VAT and PPh 23 withholding) and a superseded row stays as visible history rather than being deleted (Step 05 §12, §15, the table is append-only) -- the Detail screen groups live determinations first, superseded ones underneath as history. From there onward to the source document itself (`taxSourceDocumentHref`), only `invoice`/`bill` link (decision 172's own precedent; `expense` has no Detail screen yet). `src/domain/tax/taxLedgerList.ts` (pure, unit-tested, 27 cases) adds the Tax Ledger's own status badge (`taxLedgerStatus`, defensive against `determination_status`'s wider plain-text column, reusing `@/domain/tax/tax`'s `DETERMINATION_STATUS_LABELS`/new `DETERMINATION_STATUS_TONE`), the four-way filter Step 09 §15 names ("filterable by tax family, period, source, status and Entity" -- `tax_type`/`tax_period`/`source_type`/`determination_status`, all applied client-side over one `listTaxLedger` fetch per page load exactly like `filterJournalRows`'s own precedent rather than mixing server and client filtering), `taxLedgerPeriodOptions` (the period filter's own option list, since no RPC lists an Entity's tax periods), and `formatTaxRate` (a determination's `rate` shown as a percentage). `@/domain/tax/tax` itself gained label maps for the profile's own vocabulary (`taxpayer_kind`/`residency`/`income_regime`/`vat_status`/`withholding_agent`) and the status-tone map, staying inside that module's own stated scope ("what a screen needs to label a result"). `pnpm check` and `pnpm build` pass (463 tests, up from 448, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/tax`, `/tax/ledger` and `/tax/determination/[sourceType]/[sourceId]` register as routes in the production build; `pnpm db:test` does not apply (no migration touched). |
+| 174 | P13 Part 3f implementation, first increment: Asset Register (`/assets`) and Asset Detail (`/assets/[id]`), Step 09 §9-§10, §16 ("Asset Register supports card/table views, asset detail, acquisition source, depreciation, documents and lifecycle"). Like Tax (decision 173), P8's fixed-asset RPCs were already fully service-wrapped before this increment (`src/schemas/assets.ts`/`src/services/assets/assets.ts`, built during P8 itself) -- `listAssets`/`getAsset` (`asset_register`/`asset_detail`, confirmed gated on `assets.view` directly against `20260926100400_p8_asset_reports.sql`) already return everything both screens need, including the depreciation schedule and lifecycle event log inline in `asset_detail`'s own result -- so this increment added no new RPC wrapper at all, only a table view (the spec's own "card/table" choice defers the card view -- no List screen in this codebase has one yet), a `p_status` server-side filter plus a client-side code/name search (`src/domain/assets/assetList.ts`, pure, unit-tested, 17 cases: `assetStatusBadge`/`assetConditionBadge`, `ASSET_SOURCE_LABELS`, `filterAssetRows`, `assetEventDisplay` defensive against `asset_events.event_type`'s exact 14-value vocabulary read directly from `20260926100000_p8_asset_register.sql`'s check constraint, `depreciationLineStatusBadge`), and `getEntityBaseCurrency` (`src/services/assets/assets.ts`, the same per-module direct-read duplicate decisions 161/172/173 already established, since no `AssetRow`/`AssetDetail` field carries its own currency). Asset Detail follows the same narrower "Standard Record Detail Pattern subset" Journal Detail used (decision 172): Header / Summary / Schedule / Activity, plus a Disposal section only when `asset_detail`'s own `disposal` field is not null, rather than a separate placeholder -- an asset's depreciation schedule and lifecycle events already ARE its detail. Document attachment (the spec's own "documents") is deferred: nothing in the P8 RPC surface reads or writes one yet, the same "not built yet, not silently dropped" treatment every other Detail screen's missing pieces get. Deferred to a further Part 3f increment, recorded rather than silently dropped: the Depreciation report (`/assets/depreciation`, Entity-wide across every asset, `depreciationReport`/`depreciationDue` already wrapped), Loans (`/assets/loans`, `loans.view`), Other Receivables/Payables (`/assets/other-receivables`, `/assets/other-payables`, the "Other AR/AP uses simplified obligation screens" bullet), and Capital & Equity (`/assets/equity`, `equity.view`) -- each its own independent capability with its own permission key (confirmed against `src/domain/shell/navigation.ts`'s Assets & Financing nav group), consistent with decision 164's List+Detail-before-secondary-screens precedent now applied across capabilities rather than only within one. `pnpm check` and `pnpm build` pass (472 tests, up from 463, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/assets` and `/assets/[id]` register as routes in the production build; `pnpm db:test` does not apply (no migration touched). |
+| 175 | P13 Part 3f implementation, second increment: Loan Register (`/assets/loans`) and Loan Detail (`/assets/loans/[id]`), Step 09 §9-§10, §16 ("Loan dashboard shows principal outstanding, next due, interest/fee split and schedule"). Like Assets (decision 174), P8's loan-register RPCs were already fully service-wrapped before this increment (`src/schemas/financing.ts`/`src/services/financing/financing.ts`, built during P8 itself) -- `listLoans`/`getLoan`/`getLoanSchedule` (`loan_list`/`loan_detail`/`loan_schedule`, confirmed gated on `loans.view` directly against `20260926100700_p8_loans_reports.sql`) already return everything both screens need -- so the only service-layer addition was `getEntityBaseCurrency` (`src/services/financing/financing.ts`, the same per-module direct-read duplicate decisions 161/172/173/174 already established, since no `LoanRow`/`LoanDetail` field carries its own currency). The Loan Register follows the Asset Register's own List pattern exactly: `direction`/`status` sent straight to `loan_list`'s own `p_direction`/`p_status` arguments (server-side filtering), a client-side loan-number/counterparty search, and no Create button (loan origination is a dedicated command flow, out of scope for this List/Detail increment, the same boundary the Asset Register drew). Unlike Asset Detail, `loan_detail` does not embed the active schedule inline -- `loan_schedule` is a separate RPC -- so `LoanDetailPage` fetches both in parallel once `getLoan` confirms the loan exists and is visible; the Detail screen follows the same narrower "Standard Record Detail Pattern subset" as Asset Detail (decision 174): Header / Ringkasan / Jadwal Cicilan / Riwayat Pembayaran, plus a Riwayat Jadwal (schedule-version history) section only when more than one version exists, rather than a separate placeholder -- `loan_detail`'s own versions and payments already ARE the loan's detail. The `principal_account_id`/`financial_account_id` fields `loan_detail` returns are left unlinked: the "only link what has somewhere to go" precedent (decision 172) applies again, since no Chart of Accounts detail route exists yet to point them at (Chart of Accounts, decision 172, is list-only so far). `src/domain/financing/loanList.ts` (pure, unit-tested, 11 cases) adds the Loan Register's own status badge (`loanStatusBadge`, reusing `@/domain/financing/financing`'s pre-existing `LOAN_STATUS_LABELS`) and a separate overdue badge (`loanOverdueBadge`) since `loan_list`'s `overdue` is a plain boolean independent of `status`; the schedule-line badge (`loanScheduleStateBadge`) applies the same "flag wins" rule -- an overdue installment always shows critical regardless of its own `state` -- and the schedule-version (`loanVersionStatusBadge`) and payment (`loanPaymentStatusBadge`) badges reuse the "Dibalik"/"Digantikan" wording decisions 41/173 already established for a reversed/superseded record elsewhere in this codebase, rather than inventing new copy. Deferred to a further Part 3f increment, recorded rather than silently dropped: the Depreciation report, Other Receivables/Payables, and Capital & Equity (decision 174's own deferred list, now with Loans removed from it), plus loan origination/repayment/restructure/write-off action forms (`createLoan`/`repayLoan`/`restructureLoan`/`writeOffLoan`/`reverseLoanPayment`/`cancelLoan`/`setLoanAsset`/`loadOpeningLoans`, all already service-wrapped, none yet given a UI) and the Loans Due/Loan Summary reports (`loansDue`/`loanSummary`, already service-wrapped, belonging with the Reports Architecture slice, Step 09 §19, rather than the Loan Register itself). `pnpm check` and `pnpm build` pass (483 tests, up from 472, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/assets/loans` and `/assets/loans/[id]` register as routes in the production build; `pnpm db:test` does not apply (no migration touched). |
+| 176 | P13 Part 3f implementation, third increment: Other Receivables (`/assets/other-receivables`) and Other Payables (`/assets/other-payables`), sharing one Detail route (`/assets/obligations/[id]`), Step 09 §9-§10, §16 ("Other AR/AP uses simplified obligation screens without forcing invoice/bill semantics"). A genuine nav permission bug was found and fixed while verifying the permission gate directly against the RPCs' own migration SQL (the standing rule this codebase has followed since decision 168): `src/domain/shell/navigation.ts` listed `assets.view` for the "Other Receivables"/"Other Payables" nav items, but `obligation_list`/`obligation_detail` (confirmed against `20260926100100_p8_other_obligations.sql`) both check `loans.view`, matching the `other_obligations` table's own RLS policy (also gated on `loans.view`, same file) -- a member holding only `assets.view` would have seen the nav link but hit FORBIDDEN on open, exactly the class of gap decisions 168/171 already found elsewhere (a lookup permission mismatched from its primary gate), except here it was the primary gate itself. Fixed by changing the nav item's own declared permission to `loans.view` to match what the RPC already enforces -- not a new authorization decision, the same "matching what the RPC already returns, no behavior change" treatment decision 173's schema fixes received, since the actual authorization boundary was already decided by the database; nothing about who may see or act on an obligation changed. Like Loans (decision 175), P8's obligation RPCs were already fully service-wrapped before this increment -- `listObligations`/`getObligation` needed no new wrapper, only `getEntityBaseCurrency` (`src/services/financing/financing.ts`, the same per-module direct-read duplicate now in every Part 3 screen family). One screen component (`ObligationRegisterScreen`) serves both nav items, each page passing its own fixed `kind` (`receivable`/`payable`) rather than exposing a kind toggle -- read as the spec's own "simplified" framing, matching how the Loan Register and Asset Register each stayed single-purpose; `status` is sent server-side to `obligation_list`'s own `p_status`, `?q=` is a client-side number/counterparty/purpose search. The Detail screen is one shared route for both kinds (`obligation_detail` returns its own `kind`, unlike Assets/Loans which are each a single kind), with the back link resolved from that `kind` to the correct list. `src/domain/financing/obligationList.ts` (pure, unit-tested, 8 cases) adds `obligationStatusBadge` (settled=success, void=neutral -- the same tone `billListStatus` gives a cancelled/void document -- open=attention, or critical once overdue, the same "flag wins" rule `loanOverdueBadge` established), `obligationKindTitle`, and the settlement kind/status badges. `financial_account_id`/`counter_account_id` on `obligation_detail` are left unlinked, the same "no Chart of Accounts detail route yet" reason Loan Detail's own account ids were left unlinked (decision 175); an `asset_disposal`-sourced obligation's `source_id` was traced directly through `20260926100300_p8_asset_lifecycle.sql` and found to point at the disposal event's own id (`asset_disposals.id`), not the asset -- there is no detail route for a disposal event on its own (only Asset Detail shows one inline), so this is left unlinked too rather than guessed at, the "only link what has somewhere to go" precedent (decision 172) applying a third time this Part. Deferred, recorded rather than silently dropped: the Depreciation report and Capital & Equity (decision 174/175's own deferred list, now with Loans and Other Receivables/Payables removed from it), the obligation create/settle/write-off/reverse-settlement/void action forms (`createObligation`/`settleObligation`/`writeOffObligation`/`reverseObligationSettlement`/`voidObligation`, all already service-wrapped, none yet given a UI). `pnpm check` and `pnpm build` pass (491 tests, up from 483, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/assets/other-receivables`, `/assets/other-payables` and `/assets/obligations/[id]` register as routes in the production build; `pnpm db:test` does not apply (no migration touched, `src/domain/shell/navigation.ts` is not a migration). |
+| 177 | P13 Part 3f implementation, fourth increment: Capital & Equity (`/assets/equity`, `/assets/equity/[id]`), Step 09 §9-§10, §16 ("Capital & Equity screen clearly separates contribution, return, dividend/distribution and history"). Unlike Other Receivables/Payables (decision 176), the nav's own permission for this item was already correct (`equity.view`), confirmed directly against `equity_list`/`equity_detail`'s own migration SQL (`20260926100900_p8_equity_commands.sql`). Like every Part 3f screen family so far, P8's equity RPCs were already fully service-wrapped -- `listEquityEvents`/`getEquityEvent` needed no new wrapper, only `getEntityBaseCurrency` (`src/services/financing/financing.ts`, the same per-module direct-read duplicate now in every Part 3 screen family). The "clearly separates" requirement is read as a `kind` filter (`contribution`/`capital_return`/`dividend`/`investment_contribution`/`investment_return`/`distribution_received`) sent straight to `equity_list`'s own `p_kind` argument alongside `status`, both server-side (matching the Loan Register's direction+status split, decision 175) -- one screen, not a route split like Other Receivables/Payables, since Step 09 §16 names Capital & Equity as a single screen unlike its own separate "Other AR/AP" bullet; `?q=` stays client-side. A small domain gap was found and filled without any RPC change: `equityDetailSchema.equity_class` (`capital`/`additional`) had no label map anywhere in the codebase (`EQUITY_KIND_LABELS`/`EQUITY_STATUS_LABELS` already existed in `src/domain/financing/financing.ts` from P8, but not this one) -- added `EquityClass`/`EQUITY_CLASS_LABELS` there, in the same module and alongside the same vocabulary, rather than inventing a separate home for it. `src/domain/financing/equityList.ts` (pure, unit-tested, 8 cases) adds `equityStatusBadge` (confirmed=success, reversed=attention, cancelled=critical, draft=neutral) and `equityRetainedEarningsBadge` -- a dividend declared beyond the profit available is allowed but flagged (`exceeds_retained_earnings`, the schema's own word for it), shown as a second badge alongside status rather than replacing it, the same "flag wins, doesn't override" shape `loanOverdueBadge` (decision 175) and `obligationStatusBadge` (decision 176) both already use, just additive here instead of substitutive since a flagged dividend is still exactly as confirmed/reversed/etc. as it otherwise would be. Equity Detail follows the same narrower "Standard Record Detail Pattern subset" as Asset/Loan/Obligation Detail: Header / Ringkasan, plus a Riwayat Pembayaran section only when `payments` is non-empty (populated only for a `dividend` event with at least one payment; every other kind's `payments` array is always empty by construction) -- `financial_account_id` is left unlinked, the same "no Chart of Accounts detail route yet" reason every other Part 3f Detail screen's own account ids were left unlinked. Deferred, recorded rather than silently dropped: the Depreciation report (the one remaining Part 3f item, decisions 174/175/176's own deferred list), the equity create/confirm/pay-dividend/reverse/reverse-payment/cancel action forms (`createEquityEvent`/`confirmEquityEvent`/`payDividend`/`reverseEquityEvent`/`reverseDividendPayment`/`cancelEquityEvent`, all already service-wrapped, none yet given a UI), and `equity.approve`'s own extra step-up gate on capital returns/dividends (decision 107) which only an action form would ever exercise. `pnpm check` and `pnpm build` pass (499 tests, up from 491, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/assets/equity` and `/assets/equity/[id]` register as routes in the production build; `pnpm db:test` does not apply (no migration touched). |
+| 178 | P13 Part 3f implementation, fifth and final increment: the Depreciation report (`/assets/depreciation`), Step 09 §9, §16 and Step 12's report catalogue ("Accounting Depreciation Schedule by asset/period"). Unlike Other Receivables/Payables (decision 176), the nav's own permission was already correct (`assets.view`), confirmed directly against `asset_depreciation_report`/`asset_depreciation_due`'s own migration SQL (`20260926100400_p8_asset_reports.sql`). Like every Part 3f screen family so far, P8's depreciation-report RPCs were already fully service-wrapped -- `depreciationReport`/`depreciationDue` (`src/services/assets/assets.ts`) needed no new wrapper, only `getEntityBaseCurrency`'s existing copy on that same module was reused (no new duplicate needed here, since Assets already had one from decision 174). This is the first report-shaped screen this codebase has built (every prior Part 3f increment was a register+detail pair): it follows Step 09 §19's own "filter bar + summary + table" pattern instead of the Standard List Screen Pattern -- a `?from=`/`?to=` date-range filter sent straight to `asset_depreciation_report`'s own `p_from`/`p_to` (`resolveDepreciationRange`, `src/domain/assets/depreciationReport.ts`, mirroring Cash/Bank Activity's `resolveActivityRange` exactly except for a trailing-12-months default rather than 30 days, since depreciation posts monthly and a 30-day window would show at most one period for most assets), a posted/scheduled totals summary band (`depreciationTotals`, using `sumDecimals`/`Decimal.parse` the same way `pnlTotals` does on the Dashboard), and an attention band of `asset_depreciation_due` rows that are `postable` (`depreciationDuePostable`) sitting above the schedule-line table -- one screen, not a route split, since Step 09 §16 lists Depreciation as a single nav item. `?q=` is a client-side asset code/name search, the same shape every other Part 3f List screen's free-text filter takes. The schedule-line status badge is not duplicated: `depreciationLineRowSchema.status` shares its exact vocabulary with `assetDetailSchema.schedule[].status`, so this screen reuses `depreciationLineStatusBadge` from `@/domain/assets/assetList` (decision 174) directly rather than adding a second copy of the same four-value badge map. Each schedule line links to its own Asset Detail (`/assets/[id]`) and, when posted, to its journal (`/accounting/journal/[id]`, the exact "Lihat →" link style Asset Detail's own schedule table already uses) -- no new "only link what has somewhere to go" gap here, since both destinations already exist. `src/domain/assets/depreciationReport.ts` (pure, unit-tested, 9 cases) is the only new domain file this increment needed. This closes out Part 3f: every screen decision 164's List+Detail-before-secondary-screens precedent called for across Assets, Loans, Other Receivables/Payables, Capital & Equity and now Depreciation has shipped. Deferred, recorded rather than silently dropped: the depreciation run action itself (`postDepreciation`, decisions 104, 117, still no UI); the Fiscal Depreciation Schedule and Asset Movement/Disposal Report and Asset GL reconciliation report, all named alongside Depreciation in Step 12's own Asset Reports bullet but not yet built (`fiscalSchedule`/`assetControl` are already service-wrapped; Asset Movement/Disposal has no dedicated RPC yet, only the per-asset `disposal`/`events` fields `asset_detail` already returns); every action form deferred by decisions 175-177 (loan origination/repayment/restructure/write-off; obligation create/settle/write-off/reverse-settlement/void; equity create/confirm/pay-dividend/reverse/reverse-payment/cancel); and the Loans Due/Loan Summary reports (decision 175), which belong with the broader Reports Architecture slice (Step 09 §19, P13 Part 5) rather than this report-shaped screen. `pnpm check` and `pnpm build` pass (508 tests, up from 499, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/assets/depreciation` registers as a route in the production build; `pnpm db:test` does not apply (no migration touched). |
+| 179 | P13 Part 3g implementation, first increment: Employee Register (`/payroll/employees`) and Employee Detail (`/payroll/employees/[id]`), Step 09 §9-§10, §17 ("Payroll is isolated as a sensitive module. Employee list shows only appropriate operational fields; compensation is permission-gated."). Like most of Part 3f, P9's employee RPCs were already fully service-wrapped before this increment (`src/schemas/payroll.ts`/`src/services/payroll/payroll.ts`, built during P9 itself) -- `listEmployees`/`getEmploymentHistory`/`getCompensation`/`getBpjsEnrolment`/`getTaxProfile` needed no new wrapper at all, only `getEntityBaseCurrency` (`src/services/payroll/payroll.ts`, the same per-module direct-read duplicate every screen family now has) was added. Step 09 §17's "compensation is permission-gated" is enforced at the database layer, not invented here: `employee_list` (`20260927100000_p9_employees.sql`) checks `payroll.employee_view` and never returns a compensation figure at all, while `employee_compensation_get`/`employee_bpjs_get` check a separate, more sensitive `payroll.compensation_view`, and `employee_tax_profile_get` checks `payroll.tax_view` (confirmed directly against each RPC's own SQL body, not assumed from naming) -- the Employee Register therefore needed no gating logic of its own for "operational fields only", since `employee_list`'s own row shape already excludes every compensation and tax field. Employee Detail is the first Detail screen in this codebase to fetch optional sections conditionally on the viewer's OWN permission rather than gating the whole page or an action button: Compensation/BPJS are fetched (and their section rendered) only when `can(access, entityId, "payroll.compensation_view")`, and the tax profile only when `can(access, entityId, "payroll.tax_view")` -- reusing `can()`, the exact helper Journal Detail (decision 172) already uses to gate its action buttons, applied here to gate a data fetch instead, so a viewer without the permission never triggers the RPC's own FORBIDDEN and never sees an empty placeholder for a section that isn't theirs to see. No per-employee RPC returns the register row itself (`employee_code`/`full_name`/`status`/dates/current employment) -- only `employee_list`, Entity-scoped -- so Employee Detail fetches the register for the active Entity and looks up the one row by id, the same shape Account Detail (decision 169) already uses for `money_control`; a missing or cross-Entity id lands as "not found". The full (unmasked) tax identifier (`employee_tax_identifier`, needs a fresh step-up) is deferred: `taxProfile.tax_id_masked` already covers what a read-only Detail screen shows day to day, and nothing here needs the unmasked number yet. `src/domain/payroll/employeeList.ts` (pure, unit-tested, 10 cases) adds `employeeStatusBadge` (active=success, ended=neutral) and two client-side filters (`status`, employment `type`) layered over `employee_list`'s own single server-side argument (`p_include_ended`, always requested `true` here so ended employees stay visible and filterable rather than disappearing), plus the usual code/name/position/department free-text search. No Create button: employee creation is a dedicated command flow, out of scope for this List/Detail increment, the same boundary every other Part 3 Register screen's first increment drew. `pnpm check` and `pnpm build` pass (518 tests, up from 508, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/payroll/employees` and `/payroll/employees/[id]` register as routes in the production build; `pnpm db:test` does not apply (no migration touched). |
+| 180 | P13 Part 3g implementation, second increment: Payroll Run Register (`/payroll/runs`) and Payroll Run Detail (`/payroll/runs/[id]`), Step 09 §17's own period -> employees -> calculation -> review -> approval -> post/pay -> close wizard. This increment ships the List+Detail read surface only, the same precedent decision 164 set for every other Part 3 family; the wizard's own actions (`calculatePayrollRun`/`addPayrollAdjustment`/`submitPayrollRun`/`approvePayrollRun`/`postPayrollRun`/`recordPayrollPayment`/`closePayrollRun`/`reopenPayrollRun`/`correctPayrollRun`, all already service-wrapped from P9) get no button here, deferred alongside the employee action forms decision 179 already deferred. A genuinely new authorization shape was found while confirming the permission gate directly against each RPC's own migration SQL (the standing discipline since decision 168): unlike every previous Part 3 family, `payroll_run_list`/`payroll_run_get`/`payroll_run_lines`/`payroll_adjustments_list`/`payroll_payments_list` (`20260927100700_p9_payroll_reports.sql`) do not check a single `.view`-style permission -- their shared `app_private.payroll_read_authorize` requires the actor to hold BOTH `payroll.compensation_view` AND at least one of `payroll.run`/`payroll.approve`/`payroll.pay`, a compound rule `requirePermission`'s single-permission-string signature cannot express. Both new pages call `requireAccess` directly and assert the identical compound rule themselves with `can()`, throwing the same `AuthzError("FORBIDDEN")` `assertCan` would throw for a single permission -- the failure mode already used everywhere else in the codebase (no dedicated 403 screen exists yet anywhere; an uncaught `AuthzError` reaches Next's own error handling) is unchanged. The nav item for "Payroll Runs" (`src/domain/shell/navigation.ts`) had no permission of its own and so inherited the parent group's `payroll.employee_view` -- wrong, since that permission plays no part in the RPC's own check, exactly the class of nav/RPC mismatch decision 176 already found and fixed for Other Receivables/Payables. Fixed to `payroll.compensation_view`, the one component of the compound rule the RPC always requires; recorded honestly rather than glossed over: the nav's `permission` array is OR-only (a membership needs ANY of the listed permissions), so it cannot fully encode an AND-of-(single-permission, OR-of-three) rule, and a member holding `compensation_view` alone without any of `run`/`approve`/`pay` would still see a nav entry that then hits FORBIDDEN -- the same one-sided imperfection every other nav-permission array already accepts for a multi-capability area (the doc comment on `NavItem.permission` already names Assets & Financing's own three-capability span as the same shape), not a new gap this increment introduced. `payroll_run_get`/`payroll_run_lines`'s own tax fields (`tax_allowance_total`/`pph21_total`/`tax_base_total`/`pph21`/`tax_calc`/`tax_mode`/`tax_method`) are null for a viewer without `payroll.tax_view` -- a different, finer-grained shape than Employee Detail's own gating (decision 179 skips the whole compensation/tax RPC call; here the run/line RPCs are always called, and mask only their own tax-specific columns), enforced by the RPC row-by-row, not this screen -- shown as "—" rather than 0 so a masked figure is never mistaken for an actual zero. `src/domain/payroll/runList.ts` (pure, unit-tested, 8 cases) adds `payrollRunStatusBadge` (draft=neutral; calculated/submitted/approved/partially_paid=progress; posted/paid/closed=success; corrected=attention; discarded=critical) and `payrollRunPaymentStatusBadge` (confirmed=success, reversed=attention, the same tone `loanPaymentStatusBadge`/`equityPaymentStatusBadge` already use), reusing `PayrollStatus`/`PAYROLL_STATUS_LABELS`/`payrollPeriodName`/`describePayrollFlag` from `@/domain/payroll/payroll` (P9) rather than a second copy of vocabulary that does not depend on either screen's own row shape. `?status=` is sent straight to `payroll_run_list`'s own `p_status` argument (server-side, matching the Loan Register's own direction/status split, decision 175); `?q=` is a client-side run-number/period-name search, the only free-text filter with no RPC argument of its own. Payroll Run Detail follows the same narrower "Standard Record Detail Pattern subset" as every other Part 3f/3g Detail screen: Header/Ringkasan always render (including a `stale` banner when the run's inputs changed since it was last calculated, and any `differences` the RPC reports); Baris Gaji Karyawan (payroll lines) always renders since a run with zero lines cannot exist past `draft`; Penyesuaian (adjustments) and Pembayaran (payments) sections render only when the run has any, the same "only when non-empty" shape Equity Detail's own Riwayat Pembayaran section already uses. Review/info flags on each line reuse `describePayrollFlag` rather than inventing a second flag vocabulary. `pnpm check` and `pnpm build` pass (526 tests, up from 518, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/payroll/runs` and `/payroll/runs/[id]` register as routes in the production build; `pnpm db:test` does not apply (no migration touched). |
+| 181 | P13 Part 3g implementation, third increment: Payslip Register (`/payroll/payslips`) and Payslip Detail (`/payroll/payslips/[id]`), Step 09 §17. `payroll_payslip_list`/`payroll_payslip_get` (`20260927100700_p9_payroll_reports.sql`) share the exact same compound authorize rule as the Payroll Run screens (decision 180: `payroll.compensation_view` AND at least one of `payroll.run`/`payroll.approve`/`payroll.pay`), so both pages reuse the identical `requireAccess` + manual `can()` pattern rather than `requirePermission`; the "Payslips" nav item had the same missing/inherited-`payroll.employee_view` mismatch decision 180 found for "Payroll Runs" and gets the identical fix (`payroll.compensation_view`, same documented residual imperfection). `payroll_payslip_list` takes no status argument at all (only `p_run`/`p_employee`/`p_limit`, both left as deep-linking hooks with no filter control on this screen's own toolbar yet), so status is a client-side filter over the two-value `PayslipStatus` enum, the same shape Employee Register's own status filter takes; `?q=` (payslip number, employee code/name, `YYYY-MM` period) is client-side too. No Create button, and unlike every other Register screen this is not a deferred future increment: a payslip is issued as a side effect of the payroll run wizard (`postPayrollRun`, per Step 09 §17), never created directly, so there is nothing for this screen to ever gain here. Payslip Detail introduces a genuinely new immutability shape: `payroll_payslip_get` returns the payslip exactly as `payroll_run_post` snapshotted it at issuance (`s.snapshot`, a stored jsonb blob), not recomputed from the run's current state -- the only Detail screen so far with nothing that can go stale, no `stale` flag or `differences` array the way Payroll Run Detail has. Its tax section uses a third distinct gating shape (three now exist in this codebase for the same underlying "mask tax data from `payroll.tax_view`-less viewers" rule): Employee Detail (decision 179) skips the RPC call entirely; Payroll Run Detail (decision 180) nulls individual tax columns row-by-row; Payslip Detail removes the whole `tax` jsonb key from the snapshot (`s.snapshot - 'tax'`), so `PayslipDetail.tax` is `z.object({...}).optional()` (absent, not null) and this screen renders the entire Pajak section only when present, never per-field placeholders. `bpjs_employee`/`bpjs_employer` are each a `{component: amount}` record holding only the BPJS programs that actually applied to that employee; `bpjsRows` (`PayslipDetailScreen.tsx`) drops zero-amount entries so a program the employee simply isn't enrolled in is never shown as an explicit "Rp 0" rather than omitted. `src/domain/payroll/payslipList.ts` (pure, unit-tested, 7 cases) adds `payslipStatusBadge` (issued=success, voided=neutral -- the same "void/cancelled reads as neutral-terminal" tone `obligationStatusBadge`'s own `void` status already established) and the client-side status/query filters, reusing `PayslipStatus`/`PAYSLIP_STATUS_LABELS`/`payrollPeriodName` from `@/domain/payroll/payroll` (P9) rather than a second copy. `pnpm check` and `pnpm build` pass (533 tests, up from 526, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/payroll/payslips` and `/payroll/payslips/[id]` register as routes in the production build; `pnpm db:test` does not apply (no migration touched). |
+| 182 | P13 Part 3g implementation, fourth increment: Payroll Tax & Liabilities (`/payroll/tax`), Step 09 §17. Of the five payroll report RPCs (`20260927100700_p9_payroll_reports.sql`), this increment ships the two that most directly match the nav label's own "Tax" and "Liabilities" halves -- `payroll_liability_report` and, gated further, `payroll_annual_reconciliation`/`payroll_employee_tax_ledger`; `payroll_summary_report` and `payroll_control_report` are deferred to the broader Reports Architecture slice (Step 09 §19, P13 Part 5), the same "reports catalogue item belongs with Part 5" treatment decision 178 already gave the Loans Due/Loan Summary reports (`payroll_control_report` additionally needs `accounting.view` on top of the payroll rule, a third distinct permission combination among these five RPCs, one more reason it reads as a cross-module GL-reconciliation report rather than this screen's own concern). `payroll_liability_report` needs only the same base compound rule as Payroll Runs/Payslips (decision 180: `payroll.compensation_view` AND at least one of `payroll.run`/`payroll.approve`/`payroll.pay`) -- its own `pph21` rows are simply absent (not null-masked) for a viewer without `payroll.tax_view`, the RPC's own `if app_authz.has_permission(...) then return query ... end if` shape, a fourth tax-masking variant alongside the null-fields (decision 180), whole-object-skip (decision 179) and jsonb-key-removal (decision 181) shapes already found. `payroll_annual_reconciliation`/`payroll_employee_tax_ledger` additionally hard-require `payroll.tax_view` (a real `FORBIDDEN`, confirmed directly against each function's own SQL body) on top of the base rule, so this page fetches them only when `can(access, entityId, "payroll.tax_view")` -- the same "gate the fetch itself" precedent decisions 179/181 established, reused here for a genuinely different reason (a hard second permission requirement, not an RPC that silently returns less). The "Payroll Tax & Liabilities" nav item's own declared permission (`payroll.tax_view` alone) was wrong for the same class of reason decisions 180/181 already found and fixed twice: the screen's always-visible Liabilities section needs the base compound rule, not `tax_view`, so a `tax_view`-only holder without the base rule would see a nav entry that fails immediately on open, while a base-rule holder without `tax_view` still gets a working page (Liabilities alone). Fixed to `payroll.compensation_view`, matching the identical fix already applied to Payroll Runs and Payslips, with the identical documented residual imperfection (the nav's OR-only `permission` array cannot express the true compound rule). Two new pure helpers with no existing precedent in this codebase: `resolveAsOfDate` (mirrors `payroll_liability_report`'s own default of "today" when `p_as_of` is omitted, rather than inventing a different default) and `resolveTaxYear` (falls back to the current year for a missing, unparseable, or out-of-range `?year=`, matching the RPC's own `p_year between 2000 and 2100` `INVALID` check rather than sending a value the database would reject). `src/domain/payroll/taxLiabilities.ts` (pure, unit-tested, 5 cases) also adds `annualReconciliationStatusBadge` (reconciled=success; under_withheld/over_withheld=attention, neither is wrongdoing, just a gap the last tax month's own computation should close; incomplete=neutral, a data gap rather than a tax outcome) and `TAX_LEDGER_SOURCE_LABELS`. `pnpm check` and `pnpm build` pass (538 tests, up from 533, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/payroll/tax` registers as a route in the production build; `pnpm db:test` does not apply (no migration touched). This closes out every nav item under Payroll except the action forms. |
+| 183 | P13 Part 3h implementation, first increment: Recurring Rules Register (`/planning/recurring`) and Recurring Rule Detail (`/planning/recurring/[id]`), Step 09 §9-§10, §18: "Recurring Rules list shows next run, status, frequency and generated history." Closes out Part 3's own lettered sequence (decision 164) with its final sub-slice. Unlike Payroll (decisions 179-182), Planning's read RPCs check a single, simple permission -- `planning.view` -- confirmed directly against both `app_private.planning_authorize` (the shared authorize helper `list_recurring_rules`/`list_recurring_occurrences` both call) and the nav's own pre-existing `permission: ["planning.view"]` declaration (`src/domain/shell/navigation.ts`, already correct, no fix needed this time, unlike every Payroll nav item so far). No `get_recurring_rule` RPC exists -- only `list_recurring_rules`, Entity-scoped -- so Detail fetches the register and finds the one row by id, the same "no per-record RPC, fetch the list and find by id" precedent decisions 169/179 already established. Occurrence history (`list_recurring_occurrences`) is fetched separately and always rendered with an empty-state message rather than hidden when empty, since Step 09 §18's own wording makes generated history this screen's central purpose -- the same choice Loan Detail's schedule/payment sections made (decision 175), not the "hide when empty" choice used for Payroll Run's genuinely optional adjustments/payments sections (decision 180). A generated occurrence links to its own record's Detail screen only for `invoices` and `bills` (both have one built); a generated `expense` is shown as plain text since no Expense Detail route exists yet in this repository (Part 3b shipped only Bills List/Detail so far, decisions 167-168) -- the same "only link what has somewhere to go" precedent decision 172 established for Loan Detail's own account references, applied here to a generated-record link instead. The rule's own `template` (arbitrary jsonb line items, shaped differently per `kind`) is deliberately not rendered on this screen: a later increment's create/edit builder needs to interpret that shape to build its own form anyway, and a partial, un-interpreted rendering here first would read as more confusing than nothing, not less. `recurringRuleActions` (pause/resume/end eligibility, already built and unit-tested from P10) is surfaced only as an inert hint sentence, not action buttons -- `pauseRecurringRule`/`resumeRecurringRule`/`endRecurringRule`/`runDueRecurringOccurrences` (the manual "generate now" action) and the create/edit template builder are deferred to a later increment together, the same "List/Detail first, builder later where the builder is materially larger" ordering decision 164 itself set out. `getEntityBaseCurrency` was added to `src/services/planning/planning.ts` (the by-now-established per-module duplication, decisions 174/175/172/173/179) even though this increment's own screens do not yet need it -- Budgets and Revenue Targets, Part 3h's remaining two areas, will. `pnpm check` and `pnpm build` pass (545 tests, up from 538, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/planning/recurring` and `/planning/recurring/[id]` register as routes in the production build; `pnpm db:test` does not apply (no migration touched). Remaining in 3h: Budgets (list/detail/report), Revenue Targets (list/detail/report), Forecasts (Step 09 §18 names it as its own nav item, but every forecast field the backend exposes -- `budget_report_row.forecast_amount`/`revenue_target_report_row.forecast_amount` -- is always null per decision 139's own "no locked projection methodology, filed as an open OWNER question" ruling, so Forecasts has no independent content of its own yet and is expected to fold into the Budget/Target report screens rather than become a fourth route), and every Recurring/Budget/Target action form (create, pause/resume/end, activate/close, set lines). Completing 3h closes out all of Part 3 except the deferred action forms across every lettered sub-slice (3a-3h) -- Part 4 (Reports Architecture, Documents Center, Command Menu quick-create) is the next part in decision 155's own sequence once those are scoped. |
+| 184 | P13 Part 3h implementation, second increment: Budget Register (`/planning/budgets`) and Budget Detail (`/planning/budgets/[id]`), Step 09 §9-§10, §18: "Budget/Target screens use period-based editable planning tables with Actual vs Budget/Target comparisons." Budget's own read RPCs (`list_budgets`, `get_budget_lines`, `get_budget_report`) all check the same single `planning.view` permission as Recurring Rules (decision 183, confirmed directly against each function's own `perform app_private.planning_authorize(..., 'planning.view', ...)` call in `20260929100000_p10_budgets_targets.sql`); writes (`create_budget`, `set_budget_lines`, `activate_budget`, `close_budget`) check `planning.budget_edit` instead, deferred with the rest of this increment's action forms. No per-budget RPC returns the row itself -- only `list_budgets`, Entity-scoped -- so Detail again fetches the register and finds the row by id (decisions 169/179/183 precedent). `get_budget_report` is used alone for the Detail screen's own table, not `get_budget_lines` alongside it: the report RPC is a strict superset of the lines RPC (it already carries every budgeted line's own category/month/budgeted amount, joined with Actual/Committed/Remaining/%Used/Variance computed live from posted invoices, bills and expenses) -- fetching both would only duplicate the same budgeted-amount column twice. `forecast_amount` is deliberately given no column on this table: the RPC always returns it `null` (decision 139's own "no locked projection methodology" ruling), so a column that could only ever render "—" would be noise, not information -- the same reasoning already applied to omitting a Forecasts route (decision 183). The report table is rendered in the RPC's own returned order (`period_month`, then category `sort_order`/`name`) rather than re-grouped or pivoted into a month x category grid -- a real editable planning grid is exactly what the still-deferred `set_budget_lines` builder will need to build, and inventing a different, non-editable presentation here first would only be thrown away. `src/domain/planning/budgetList.ts` introduces `planStatusBadge`/`PLAN_STATUS_FILTER_OPTIONS`/`parsePlanStatusFilter` for the shared `PlanStatus` enum (draft/active/closed, used identically by both Budgets and the still-pending Revenue Targets) -- kept in this one file rather than duplicated a second time when Revenue Targets ships, since the underlying enum, labels and tone mapping are genuinely identical between the two areas, not just similarly shaped. `pnpm check` and `pnpm build` pass (551 tests, up from 545, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/planning/budgets` and `/planning/budgets/[id]` register as routes in the production build; `pnpm db:test` does not apply (no migration touched). Remaining in 3h: Revenue Targets (list/detail/report, reusing `budgetList.ts`'s shared `PlanStatus` helpers), and every Recurring/Budget/Target action form. |
+
+| 185 | P13 Part 3h implementation, third increment: Revenue Target Register (`/planning/targets`) and Revenue Target Detail (`/planning/targets/[id]`), Step 09 §9-§10, §18: "Budget/Target screens use period-based editable planning tables with Actual vs Budget/Target comparisons." Completes Part 3h's list/detail surface (decisions 164, 183, 184). Revenue Target's own read RPCs (`list_revenue_targets`, `get_revenue_target_lines`, `get_revenue_target_report`) all check the same single `planning.view` permission as Recurring Rules and Budgets, confirmed directly against each function's own `perform app_private.planning_authorize(..., 'planning.view', ...)` call in `20260929100000_p10_budgets_targets.sql`; writes (`create_revenue_target`, `set_revenue_target_lines`, `activate_revenue_target`, `close_revenue_target`) check `planning.budget_edit` -- the same edit permission Budgets uses, not a separate `revenue_target_edit` (confirmed directly against the same migration's SQL bodies) -- deferred with the rest of this increment's action forms. No per-target RPC returns the row itself -- only `list_revenue_targets`, Entity-scoped -- so Detail again fetches the register and finds the row by id (decisions 169/179/183/184 precedent). Unlike Budgets, a revenue target carries no category breakdown: Step 01 #23 names no "Category -> Subcategory" the way #22 does for Budgets, so `revenue_target_lines` has no `category_id` and `get_revenue_target_report` returns one row per month, entity-wide (Target, Actual from issued invoice revenue, AR Outstanding, Variance) rather than per category -- the report table has no Committed or %Used column either, since neither concept exists without a category to attribute a draft invoice or submitted bill to. `forecast_amount` is given no column, the same reasoning as Budget Detail (decision 184): the RPC always returns it `null` (decision 139's own "no locked projection methodology" ruling), so a column that could only ever render "—" would be noise, not information. `src/domain/planning/budgetList.ts` gains `matchesRevenueTargetQuery`/`filterRevenueTargetRows` alongside the existing Budget pair, reusing the same `PLAN_STATUS_FILTER_OPTIONS`/`planStatusBadge`/`parsePlanStatusFilter` helpers decision 184 already shared between the two areas -- no new file, since the underlying `PlanStatus`/`PlanPeriodType` enums and every label/tone mapping stay identical. The "Targets" nav item's own permission (already `planning.view`, inherited from the Planning group) needed no fix, the same "no fix needed" outcome decisions 183/184 already found for their own nav items. `pnpm check` and `pnpm build` pass (554 tests, up from 551, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/planning/targets` and `/planning/targets/[id]` register as routes in the production build; `pnpm db:test` does not apply (no migration touched). This completes Part 3h's list/detail surface. Remaining in 3h: Forecasts (Step 09 §18 names it as its own nav item, but per decision 139's ruling every forecast field the backend exposes is always null, so it is expected to fold into the Budget/Target report screens rather than become a fourth route -- unchanged from decision 183's own note), and every Recurring/Budget/Target action form (create, activate/pause/resume/end/close, set lines). Completing those closes out all of Part 3 (decision 164) -- Part 4 (Reports Architecture, Documents Center, Command Menu quick-create) is next per decision 155's own sequence once scoped. |
+
+| 186 | P13 Part 3h implementation, fourth increment: status-transition action forms for Recurring Rules (pause/resume/end, plus the entity-wide manual "generate now" button gated by `planning.recurring_run`) and Budget/Revenue Target (activate/close, sharing `planning.budget_edit` per decision 184). `src/features/planning/actions.ts` is a new "use server" file with `pauseRecurringRuleAction`/`resumeRecurringRuleAction`/`endRecurringRuleAction`/`runDueRecurringOccurrencesAction`/`activateBudgetAction`/`closeBudgetAction`/`activateRevenueTargetAction`/`closeRevenueTargetAction`, each an unmodified P10 RPC call, mirroring `src/features/money/transferActions.ts` exactly (form input shaping, `AuthzError` mapped to the same user-safe Indonesian copy every other screen uses). Pause and End both require a `reasonSchema`-gated (5-1000 character) reason via a reveal-then-confirm form, the same shape `ReverseForm` uses for Transfer's own irreversible action; Resume needs no reason (`ConfirmForm`'s plain-button shape); Activate (Budget and Revenue Target alike) needs no gate at all; Close is terminal for both (a closed plan can never be reopened) so it gets a reveal-then-confirm gate without a reason field, since neither `close_budget` nor `close_revenue_target` accepts one. `budgetActions(status)` was added to `src/domain/planning/budgetList.ts` (3 new unit test cases), mirroring the already-existing `recurringRuleActions(status)` in `planning.ts` -- Budget and Revenue Target share the identical draft-only-activate/active-only-close rule (decision 184's "genuinely shared, not just similarly shaped" reasoning extended from badges/filters to eligibility). `run_due_recurring_occurrences` takes `p_entity`/`p_as_of`, not a rule id (confirmed against its own migration signature) -- it is entity-wide, not per-rule -- so its button lives in the Recurring Rules Register screen's header rather than on Recurring Rule Detail. The three Detail screens (`RecurringRuleDetailScreen`, `BudgetDetailScreen`, `RevenueTargetDetailScreen`) each gained a `permissions` prop computed with the same active-Entity `can()` pattern Invoice Detail already established (decision 158); their own `page.tsx` files, plus the Recurring Rules Register `page.tsx`, were updated to compute and pass it. `RecurringRuleDetailScreen`'s previous inert per-action hint sentences ("Dapat dijeda. Dapat dilanjutkan. ...") were removed now that the buttons themselves show the same information, so the two could never end up disagreeing. This closes out every action form decision 185 itself listed as "remaining in 3h" except create and the "set lines"/per-kind template builders, still deferred to a separate, later increment (decision 164's own ordering) since they are genuinely new UI territory (no editable multi-row grid precedent exists anywhere in this codebase) -- Part 3h's status-transition surface is otherwise complete. `pnpm check` and `pnpm build` pass (557 tests, up from 554, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); every affected route still registers in the production build; `pnpm db:test` passes (clean rebuild, no migration touched). |
+
+| 187 | P13 Part 3h implementation, fifth increment: Budget/Revenue Target create forms and their "set lines" editable grids, Step 09 §13, §18. The one genuinely new piece of infrastructure this increment needed did not exist anywhere in the codebase: a way to list an Entity's own `public.categories` for the Budget grid's category picker. No RPC returns one, and none was added -- `categories_select` (`20260920100200_p2_rls_policies.sql`) already scopes to plain Entity membership (`app_authz.is_member(entity_id)`, no `categories.manage` or any Planning permission required to read), so `listActiveCategories` (`src/services/accounting/categories.ts`, backed by `src/schemas/categories.ts`) is a direct, RLS-scoped table read, the exact precedent `getEntityBaseCurrency` already set for `public.entities` (decisions 161/167/170/171/172/173) -- filtered only by `is_active`, deliberately not by `kind`, since neither `budget_lines`'s own category FK nor `set_budget_lines` restricts a line's category by kind, and inventing that restriction here would be exactly the kind of improvised business rule Step 17's own protocol forbids. `createBudgetAction`/`createRevenueTargetAction` (`src/features/planning/actions.ts`) mirror `createTransferAction` exactly, including its `redirect()`-after-success shape (called outside the try/catch, since Next's `redirect()` throws internally): on success each redirects straight to the new record's own Detail page rather than returning an ok state, since a freshly created Budget/Revenue Target is an empty shell with nothing else worth showing on a confirmation screen -- the "set lines" grid on Detail is the very next thing the user needs. One shared `CreatePlanForm` (parameterized by `kind: "budget" | "revenue_target"`) covers both: `create_budget`/`create_revenue_target` take the identical name/period_type/start_date/end_date/fiscal_year/note shape, the same "genuinely shared, not just similarly shaped" reasoning decision 184 already applied to `budgetList.ts`'s own badge/filter/eligibility helpers. Both new routes (`/planning/budgets/new`, `/planning/targets/new`) gate on `planning.budget_edit` directly (`requirePermission`), the exact permission `create_budget`/`create_revenue_target` themselves check -- the same "gate the page on the create RPC's own permission" shape `NewTransferPage` already established for Transfers; the Register screens' own new "Buat Anggaran Baru"/"Buat Target Baru" buttons (`canCreate`) follow the identical `AccountsListScreen`/`InvoicesListScreen` conditional-Link-button precedent. The "set lines" grids intentionally take two different shapes because the underlying data genuinely differs, not out of inconsistency: `BudgetLinesEditor` is a real 2D grid (categories as user-added/removed rows, months as fixed columns derived from the budget's own date range), while `RevenueTargetLinesEditor` is a flat month -> amount list with no category dimension and no add/remove machinery, since Step 01 #23 names no category breakdown for revenue targets (the same asymmetry Budget/Revenue Target Detail's own report tables already reflect, decision 185). Both share the same month-range derivation (`monthRangeInclusive`, new in `src/domain/planning/planning.ts`, pure calendar math mirroring `previewNextOccurrenceDate`'s own year*12+month stepping, unit-tested) and the same FormData encoding: each editor serializes its own row state into one hidden `lines` JSON field at submit time rather than a dynamic `amount__<categoryId>__<month>` field set, which would need reconstructing server-side for no real benefit -- `setBudgetLinesAction`/`setRevenueTargetLinesAction` `JSON.parse` it, fail cleanly on anything that isn't an array, and otherwise let the schema at the service boundary do the real shape validation, the same "validate once, at the service call" discipline every other action in this file already follows. Both `set_budget_lines`/`set_revenue_target_lines` wholesale-replace the entire line set, so both editors always submit the complete desired state, pre-populated from `get_budget_lines`/`get_revenue_target_lines` (fetched unconditionally by the Detail pages now, alongside the report and currency, since neither needs a permission beyond Entity membership) -- a blank cell simply omits that month's (or month+category's) line rather than sending a zero. Each editor is rendered only when `permissions.canManage` and the plan is not `closed` (`budgetActions`'s own "closed is terminal" reasoning, decision 186), and is keyed by the plan's own `version` so a successful save -- which bumps the version -- remounts the editor from the freshly revalidated `lines` instead of leaving stale local row state on screen. `pnpm check` and `pnpm build` pass (560 tests, up from 557, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/planning/budgets/new` and `/planning/targets/new` register as routes in the production build; `pnpm db:test` does not apply (no migration touched -- this was a pure application-layer increment, per its own scoping). This closes out every action form decision 186 itself listed as remaining in 3h except Recurring Rule's own create/edit template builder (invoice/bill/expense line items), still explicitly deferred to a separate, later increment (decisions 164, 183, 186's own ordering) since it is materially larger (arbitrary per-kind jsonb template shapes, not a fixed set of fields) and belongs on its own. |
+
+| 188 | P13 Part 3h implementation, sixth increment: Recurring Rule's own create/edit template builder (invoice/bill/expense line items), Step 09 §13, §18 -- the one piece decisions 186/187 both explicitly deferred as "genuinely new UI territory" and "materially larger... arbitrary per-kind jsonb template shape rather than a fixed set of fields." Most of the backend layer this increment needed already existed from P10 itself: `createRecurringRuleInputSchema`/`updateRecurringRuleInputSchema` (`src/schemas/planning.ts`) and `createRecurringRule`/`updateRecurringRule` (`src/services/planning/planning.ts`) were already written, including a deliberately loose, `.catchall(z.unknown())` per-kind template line schema -- this increment's own work was the UI layer alone, confirming that loose schema's own design intent ("full arithmetic/reference validation happens at generation time"). The one genuinely new infrastructure need was a set of pickers no RPC returns: customers/vendors (`public.contacts`, filtered by `kind in (target, 'both')`, matching `invoice_check_header`/`bill_check_header`/`expense_check_header`'s own contact-kind checks exactly), financial accounts and payment channels (`public.financial_accounts`/`public.payment_channels`) -- three new direct RLS-scoped table reads (`listActiveContacts`/`listActiveFinancialAccounts`/`listActivePaymentChannels`, `src/services/planning/planning.ts`) following the exact `listActiveCategories` precedent (decision 187): no RPC exists, none is needed, since `contacts_select`/`financial_accounts_select`/`payment_channels_select` already scope to `contacts.view`/`money.view`, and every role holding `planning.recurring_edit` (only `finance_admin`, decision 134) already holds both (confirmed against `20260920100100_p2_permission_catalog.sql`). One shared `RecurringRuleForm` covers both create and edit -- not two components, and not Budget's own two-RPC create-then-"set-lines" split -- because `create_recurring_rule`/`update_recurring_rule` both take the whole `template` as one jsonb parameter, so one form and one submit assembles header fields and lines together every time; `update_recurring_rule`'s own SQL body was read directly to confirm its patch reads only `label`/`template`/`interval_count`/`due_offset_days`/`end_date`/`note` and never `kind`, `frequency` or `start_date`, so those three are fixed at creation and rendered read-only (not even given a `name` attribute) in edit mode, while every template header field stays editable in both modes since it lives inside the wholesale-replaced `template`. The form never assembles the nested `template` object itself: it submits flat, kind-specific named fields (`customer_id`, `vendor_id`, `account_id`, `payee_id`/`payee_name`, `notes`, `terms`, ...) plus one hidden `lines` JSON field, and a new `buildRecurringTemplate` helper in `src/features/planning/actions.ts` assembles the actual per-kind jsonb server-side, keyed off a hidden `kind` field the form also sends -- simpler than replicating Budget's own client-side nested-object assembly, and it means `createRecurringRuleAction`/`updateRecurringRuleAction` read exactly the same flat-FormData shape every other action in this file already does. `RecurringLinesEditor` (new) is the multi-row grid itself -- a plain repeating row list, not Budget's category x month grid, since a template's lines have no fixed columns and no per-row uniqueness -- covering `description`/`quantity`/`unit_price`/`category_id` for every kind plus `treatment` (expense/asset/prepaid) for `bill`/`expense` only, deliberately leaving every other optional tax/discount/product-linkage field `invoice_prepare_lines`/`purchase_prepare_lines` (P7) themselves accept (`vat_treatment`, `discount_type`, `wht_object`, `tax_amount`, `product_id`, `account_id` on a line) unexposed in this v1 UI -- the same "no locked spec forces every field" reasoning decisions 139/184/185 already used for `forecast_amount`; those fields stay valid, defaulted inputs at generation time and, for a line being edited, are preserved verbatim as each row's own `extra` bag (carried with the row itself, not re-matched by array position, so adding/removing/reordering rows never misattributes them) rather than being silently dropped on a re-save. The category picker is filtered by both the rule's `kind` (invoice needs a `revenue` category) and, for bill/expense, each row's own `treatment` (`expense` needs an `expense` category, `asset`/`prepaid` need an `asset` one) -- exactly the pairing `purchase_prepare_lines` itself validates, so the UI can never offer a category combination the database would reject. `due_offset_days` is hidden (not shown-and-ignored) for an `expense` rule, mirroring the migration's own "due_offset_days is meaningless for an expense" comment. The Detail page fetches only the one rule's own kind's pickers (not every kind's, unlike the create page, which must fetch all of them since its own form chooses the kind client-side); the edit form itself is rendered on `RecurringRuleDetailScreen` inline, gated by `permissions.canManage && recurringRuleActions(status).canEdit` -- the same eligibility source the Pause/Resume/End buttons already use, so the two can never disagree about whether a rule may still be changed -- rather than introducing a new `/edit` route this codebase has no precedent for. The Register screen's new "Buat Aturan Baru" button (`canCreate`, `planning.recurring_edit`) follows the identical conditional-Link-button precedent `BudgetRegisterScreen` established. A new `.record-form-wide`/`.record-form-section` pair was added to `globals.css`: the same field styling `.record-form` already gives Transfer/CreatePlanForm, but not capped at 480px, since this form also embeds the wide lines table -- each individual label still caps at 480px so no header field reads wider than any other form's. `pnpm check` and `pnpm build` pass (560 tests, unchanged -- this increment added no new domain logic, only UI/service/schema plumbing over an already-tested backend, plus a clean `tsc --noEmit`/`eslint .`/`prettier --check .`); `/planning/recurring/new` registers as a route in the production build, and `/planning/recurring/[id]` continues to; `pnpm db:test` does not apply (no migration touched -- this was a pure application-layer increment). This closes out the one piece decisions 186/187 both deferred, and with it every Part 3h screen and action form (decisions 164, 183-188) -- Part 3h, and Part 3 as a whole, is now fully shipped. |
+| 189 | P13 Part 4 implementation, first increment: the Financial Reports statement viewer (`/reports`, nav's existing "Financial Reports" sub-item), Step 12 §3-§5, decision 155 -- the four canonical statements P12 already computes (Profit & Loss, Balance Sheet, Statement of Changes in Equity, Cash Flow Statement) switched by `?statement=` using the same `list-filter-tabs` pattern every Part 3 status-filter toolbar already established, each with its own date filter form. No new RPC, schema or service wrapper beyond `getEntityBaseCurrency` (`src/services/reports/reports.ts`), the exact duplicated-per-service shape decision 161 established and every later service (planning, assets, payroll, tax, accounting/ledger, financing) has since reused -- no statement RPC returns the Entity's own base currency, so this reads `entities.base_currency` directly under `entities_select` RLS, same as every one of those. New pure domain helpers in `src/domain/reports/reports.ts` (unit-tested, 560 -> 577 tests): `resolveReportRange`/`resolveAsOfDate` mirror `resolveActivityRange`'s (money) and `resolveDashboardPeriod`'s (dashboard) own "invalid/missing/inverted falls back to a default" shape, but default to year-to-date (Jan 1 of the current UTC year through today) rather than a trailing window -- the reading a person actually wants on first opening a financial statement, not a rolling 30-day slice. `groupByAccountClass` sections a canonical statement's rows (Profit & Loss or Balance Sheet, both one row per posting account with a debit/credit pair) by `account_class` in a fixed order (`PNL_SECTION_ORDER`/`BALANCE_SHEET_SECTION_ORDER`), skipping any class with no rows -- note that `profit_and_loss`/`balance_sheet` return only non-group (`not a.is_group`) posting accounts, ordered flatly by `code` (`20260930200100_p12_financial_statements.sql`), so unlike Chart of Accounts' own `buildCoaTree` there are no group-header rows to nest under; a flat section-per-class layout with subtotals is what the data actually supports, not an invented hierarchy. `pnlNetIncome` sums every credit-normal P&L class's (`revenue`, `other_income`) natural amount minus every debit-normal class's (`contra_revenue`, `expense`, `other_expense`, `other`, `tax`) -- verified algebraically identical to the database's own `v_pl_net := v_pl_credit - v_pl_debit` summed across the same mixed rows, exactly the derivation `balance_sheet`'s "Current Year Earnings" and `statement_of_changes_in_equity`'s "Net result for the period" computed rows already use, so the P&L screen's own net total is structurally guaranteed to reconcile to both of those for the same period -- never a second, independently-derived figure. `balanceSheetTotals` and `cashFlowTotals` are each a display-only reconciliation check (Total Aset vs. Total Liabilitas & Ekuitas; opening + the three flow buckets vs. closing) -- true by construction of posted double-entry data and the RPC's own direct-method sums, shown as a Seimbang/Tidak seimbang and Rekonsiliasi cocok/Tidak cocok badge, never a correction of a real mismatch, satisfying the Step 15 P13 gate's own reconciliation requirement for this slice without inventing a second source of truth. `equityRowAmounts`/`equityClosingTotal` net each column's own credit minus debit since every `equityChangeRowSchema` row (including the computed "Net result for the period" row, `account_id: null`) is equity-normal (credit-normal) by construction and the row shape itself carries no `account_class` to look up. Three new `.record-table` row styles added to `globals.css` (`statement-section-row`, `statement-subtotal-row`, a `tfoot` rule) rather than a new component -- a canonical statement is still one `.record-table`, only needing a section-boundary weight/background the plain list screens never needed. `pnpm check` and `pnpm build` pass (577 tests, up from 560); `/reports` registers as a route; `pnpm db:test` passes (double clean rebuild, no migration touched -- confirms this pure frontend increment disturbed nothing in the schema). Deferred to later Part 4 increments, recorded rather than silently dropped: General Ledger drill-down (`general_ledger`, the fifth P12 statement RPC -- needs an account picker plus a running-balance card, a materially different UI shape from the other four), the P&L comparison-period columns (`compare_start_date`/`compare_end_date`, already in `profitAndLossInputSchema`/the service wrapper but not surfaced in this v1 UI), the Custom Report Builder UI, Consolidated Analysis, the Documents Center and the Command Menu quick-create registry. The other Reports nav sub-items (Sales/Purchase, a standalone Cashflow view, Tax, Payroll, Assets/Loans, Saved Reports) have no P12 RPC behind them at all and correctly fall through to the `[...slug]` "coming soon" placeholder (decision 157's precedent) rather than getting an empty screen of their own. |
+| 190 | P13 Part 4 implementation, second increment: the General Ledger drill-down (`/reports?statement=gl`, the fifth new tab on the same Financial Reports viewer, decision 189), Step 12 §3, the `general_ledger` RPC's own comment -- "p_account omitted returns every non-group account's posted lines in range (a Journal Report); a specific account additionally carries a running balance in its own natural direction (a General Ledger card)". This increment ships the account-picker-plus-running-balance-card shape only (decision 189's own deferred-item description), not the Journal Report mode (`p_account` omitted) -- a materially different flat cross-account listing the RPC also supports but this v1 doesn't surface a tab for. The account picker reads `listLedgerAccounts` (`src/services/accounting/ledger.ts`, already built for the Chart of Accounts screen), filtered to posting accounts (`not is_group`) since only those can carry journal lines; every role in the permission-catalog seed that carries `reports.view` also carries `accounting.view` (`finance_admin`, `accountant`, `tax`, `viewer_auditor`), so this direct-table read never silently empties the picker for a Reports-only role in practice, though the screen still renders a plain "Tidak ada akun yang dapat dipilih" empty state rather than assuming that holds. New pure domain helper `resolveGeneralLedgerAccount` (`src/domain/reports/reports.ts`, unit-tested, 577 -> 584 tests) mirrors `resolveReportRange`/`resolveAsOfDate`'s own "invalid/missing falls back to something sensible, never block on a missing filter" shape: a missing, unknown, or group-account id falls back to the first posting account by code, `null` only when the Entity has no posting account at all -- so the tab is never a blank prompt screen on first load. `generalLedgerTotals` sums the period's own debit/credit columns and reads the closing balance straight off the last row's own `running_balance` (the RPC's own windowed sum, ordered `entry_date, created_at, line_no`) -- explicitly not a true carried-forward opening-balance-adjusted figure, since `general_ledger` has no opening-balance parameter and a `start_date` filter genuinely restarts the running sum from zero at that date; the doc comment says so plainly rather than presenting it as more than it is. Each row links its journal number to the existing Journal Detail screen (`/accounting/journal/[id]`, same href shape `JournalsListScreen` already uses) rather than duplicating any of that screen's own detail. No new RPC, schema, or service wrapper -- `getGeneralLedger`/`generalLedgerInputSchema`/`generalLedgerRowSchema`/`generalLedgerSchema` were already built and typed in P12/the first Part 4 increment, unused until now. `pnpm check`, `pnpm format:check` and `pnpm build` pass (584 tests, up from 577); `/reports?statement=gl` renders under the existing route; `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Still deferred, per decision 189's own list, now minus this item: the P&L comparison-period columns, the Custom Report Builder UI, Consolidated Analysis, the Documents Center and the Command Menu quick-create registry. |
+| 191 | P13 Part 4 implementation, third increment: the Profit & Loss comparison-period columns (`/reports?statement=pnl&compare_from=&compare_to=`, decision 189's own deferred item), Step 12 §3, `profit_and_loss`'s own `p_compare_start`/`p_compare_end` parameters. `profitAndLossInputSchema` and the `getProfitAndLoss` service wrapper already passed these through unused since the first increment (decision 189); this increment only surfaces them in the UI and in the RangeForm as an optional second date pair, never computing a comparison figure of its own -- the RPC returns `compare_debit`/`compare_credit` per row (both `null` together when no comparison was requested, per its own `case when p_compare_start is null then null ...`) and every comparison figure shown is that pair re-signed once via the existing `naturalAmount`, the same single conversion point decision 189 already established. New pure domain helpers in `src/domain/reports/reports.ts` (unit-tested, 584 -> 593 tests): `resolveCompareRange` mirrors `resolveReportRange`/`resolveAsOfDate`'s "invalid/missing falls back to something sensible" shape with one deliberate difference -- there is no sensible default comparison period (no comparison at all is the normal case, not a filter someone forgot), so a missing, partial, invalid or inverted pair returns `undefined` rather than a guessed range; `hasPnlComparison`/`pnlCompareAmount`/`pnlCompareSubtotal`/`pnlCompareNetIncome` mirror `pnlNetIncome`'s own income-minus-cost split and `groupByAccountClass`'s own per-section summing, applied to the comparison figures instead, each returning `null` when the result carries no comparison rather than a misleading zero. `ProfitAndLossTable` (`src/features/reports/ReportsScreen.tsx`) grows two extra columns ("Periode Pembanding", "Selisih") only when `hasPnlComparison` is true -- the v1 P&L table (decision 189) renders byte-identical to before when no comparison is requested, so this is a strictly additive UI change. The comparison fields are plain optional date inputs on the same `RangeForm`; leaving both empty clears an existing comparison on the next "Terapkan" (matching `resolveCompareRange`'s own "absent means no comparison" contract, no separate "clear" control needed). No new RPC, schema, or service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (593 tests, up from 584); `/reports?statement=pnl&compare_from=2026-01-01&compare_to=2026-06-30` renders the comparison columns; `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Still deferred, per decision 190's own list, now minus this item: the Custom Report Builder UI, Consolidated Analysis, the Documents Center and the Command Menu quick-create registry. |
+| 192 | P13 Part 4 implementation, fourth increment: the Custom Report Builder UI (`/reports?statement=custom&dataset=`, a sixth Reports tab), Step 12 §19, `run_custom_report`'s own three curated datasets (`invoices_by_customer`/`bills_by_vendor`/`expenses_by_payee`). `reportDatasetKeySchema`/`runCustomReportInputSchema`/`customReportSchema`/`reportDatasetCatalogSchema` and the `runCustomReport`/`listReportDatasets` service wrappers already existed, unused since P12 (decision 189's own precedent of surfacing an already-built RPC layer); this increment only wires them into a screen. The dataset picker reads `listReportDatasets` (a plain permission-gated table read, not an RPC) and the route keeps only the datasets whose `required_permission` the active membership actually holds, checked locally via `can` (`@/domain/authz/access`) against the already-loaded access snapshot -- never a second round trip, and never a surfaced choice `run_custom_report` would then reject with FORBIDDEN; a caller holding none of the three dataset permissions sees "Tidak ada dataset laporan yang dapat Anda akses" rather than an error. New pure domain helpers in `src/domain/reports/reports.ts` (unit-tested, 593 -> 600 tests): `resolveCustomReportDataset` mirrors `resolveGeneralLedgerAccount`'s own "always resolve to something sensible, an empty list returns null" shape -- a missing, unknown, or permission-filtered-out key falls back to the first dataset the caller may actually run; `customReportTotals` sums the RPC's own per-dimension `row_count`/`total_amount` into one grand-total row, the same "already in each row, never a second aggregation" shape `generalLedgerTotals`/`cashFlowTotals` already use. `CustomReportTable` (`src/features/reports/ReportsScreen.tsx`) renders one table per run, using the selected dataset's own catalog row (`dimension_label`/`measure_label`/`description`) as its column headers and caption rather than a hardcoded label per dataset, so a future fourth curated dataset needs no frontend change at all. The date range reuses the existing `Dari`/`Sampai` inputs (`resolveReportRange`; both optional, matching `runCustomReportInputSchema`'s own optional `start_date`/`end_date`); the dataset select is a plain `<select name="dataset">` alongside them on the same `RangeForm`. No new RPC, schema, or service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (600 tests, up from 593); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Still deferred, per decision 191's own list, now minus this item: Consolidated Analysis, the Documents Center and the Command Menu quick-create registry. |
+| 193 | P13 Part 4 implementation, fifth increment: the Consolidated Analysis dashboard (`/reports?statement=consolidated`, a seventh Reports tab), Step 12 §15, Table 6, Table 10, `consolidated_cash_position`'s own cross-Entity cash position. `consolidatedCashPositionInputSchema`/`consolidatedCashPositionRowSchema`/`consolidatedCashPositionSchema` and the `getConsolidatedCashPosition` service wrapper already existed, unused since P12; this increment only wires them into a screen. Unlike every other Reports tab, this one is not scoped to the single active Entity `requirePermission` resolves -- it reads every membership already loaded onto the access snapshot (`access.memberships`) and keeps only the ones the caller holds `reports.cross_entity` for (checked locally via `can`, the same filter-before-offering shape decision 192 established for Custom Report Builder datasets), so the Entity checkboxes never offer a selection `consolidated_cash_position` would reject with FORBIDDEN -- the RPC itself still fails the whole call closed per its own per-Entity check, this is only ever a pre-filter. New pure domain helpers in `src/domain/reports/reports.ts` (unit-tested, 600 -> 608 tests): `resolveConsolidatedEntityIds` mirrors `resolveCustomReportDataset`'s own "always resolve to something sensible" shape but for a _set_ rather than a single value -- any requested id that is not eligible is silently dropped rather than erroring, and when nothing requested survives that filter (first load, or every requested id was dropped) it defaults to _every_ eligible Entity, since "show everything I may see" is the sensible starting point for a cross-Entity view; an empty eligible list (no `reports.cross_entity` anywhere) returns an empty selection, since there is nothing sensible to fall back to. `consolidatedCashPositionTotals` sums the RPC's own per-Entity `cash_balance` the same "already in each row, never a second aggregation" way every other totals helper here does, with one deliberate addition: `consolidated_cash_position` returns no currency of its own, so the route looks up each selected Entity's own `base_currency` separately (`getEntityBaseCurrency`, already built) into a `currencyByEntity` map, and the grand total is `null` -- not a silently wrong number -- whenever the selected Entities do not all share one base currency, since summing say IDR and USD balances into one figure would be exactly the "invented second financial truth" this app's reports are built never to produce; each row is formatted with its own Entity's currency regardless. `ConsolidatedAnalysisTable` (`src/features/reports/ReportsScreen.tsx`) renders Kode/Entity/Tipe/Mata Uang/Saldo Kas columns per selected Entity plus the conditional grand total; the Entity picker is a plain `<fieldset>` of checkboxes (`name="entities"`, GET-submitted, Next.js parses repeated same-name query params into an array natively -- no new client-side JS). No new RPC, schema, or service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (608 tests, up from 600); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Still deferred, per decision 192's own list, now minus this item: the Documents Center and the Command Menu quick-create registry. |
+| 194 | P13 Part 4 implementation, sixth increment: the Documents Center listing (`/documents`), Step 01 #35, Step 15 §15, `list_documents`'s own search-by-name/filter-by-target-kind/permission-scoped listing -- the only requirement `docs/TRACEABILITY.md` traces for Step 09 §20 in this repository (the DOCX spec files themselves are kept by the OWNER outside this repository, `docs/SPEC_INDEX.md`). `listDocuments`/`registerDocument`/`finalizeDocumentUpload`/`linkDocument`/`unlinkDocument`/`replaceDocumentLink`/`listDocumentLinks`/`getDocumentDownloadGrant` (`src/services/documents/documents.ts`) and their schemas already existed, unused since P11; this increment wires only `listDocuments` into a screen, the same "already-built P11/P12 RPC, no new backend" shape decisions 189-193 each followed. New pure domain helpers in `src/domain/documents/documents.ts` (unit-tested, 608 -> 616 tests): `DOCUMENT_TARGET_TYPE_FILTER_OPTIONS`/`parseDocumentTargetTypeFilter` mirror `parseBillFilter`'s own "an unrecognized or absent filter value shows everything, never errors" shape (`src/domain/purchases/billList.ts`), rather than `resolveGeneralLedgerAccount`/`resolveCustomReportDataset`'s "always pick one" shape -- a listing's natural default is unfiltered, not a forced single selection. `documentTargetTypesLabel` renders a document's `target_types` array (a document can be linked to more than one target) as one string, falling back to the raw value for any kind the catalog has not labelled rather than dropping it silently. Unlike every List screen before Part 4 (Bills, Invoices, etc., which fetch every row and filter client-side because no server-side search existed yet), `list_documents` itself does server-side `p_target_type`/`p_q`/`p_limit`/`p_offset` filtering and pagination (Global Search's own permission-scoped-before-ranking precedent, decision 145) -- `src/app/(app)/documents/page.tsx` passes `?target_type=`/`?q=`/`?offset=` straight through as RPC arguments rather than fetching everything and filtering after, and `DocumentsListScreen` (`src/features/documents/DocumentsListScreen.tsx`) shows a "Berikutnya" (Next) link whenever a full 50-row page came back (the RPC returns no total count to compare against instead). Scope deliberately excludes three things this increment does not add: (1) Upload (`documents.upload`, `registerDocument`/`finalizeDocumentUpload`) -- Supabase Storage itself is not yet configured (decision 142's own note that signed-URL generation "needs Supabase Storage configured, which is an infrastructure step outside this repository's migrations"); (2) a per-document detail or download view -- no traced requirement asks for one, only the listing; (3) the three nav sub-routes `src/domain/shell/navigation.ts` already declares under Documents (`/documents/uploads`, `/documents/evidence`, `/documents/archive`) -- their exact semantics (a target-kind grouping? upload-vs-linked-vs-superseded state? something else) are not stated anywhere in this repository, so they keep falling through to the `[...slug]` "coming soon" placeholder (decision 157) rather than guessing; only the one route with a traced, unambiguous requirement (`/documents` itself) ships this increment. `pnpm check`, `pnpm format:check` and `pnpm build` pass (616 tests, up from 608); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration; one run hit an unrelated, pre-existing environmental flake in `99_p11_3_search.sql` caused by the test container's local system timezone (`Asia/Makassar`, UTC+8) crossing midnight about an hour ahead of the `Asia/Jakarta` (UTC+7, decision -- entity default timezone) business-day boundary `entity_today()` uses; re-running with `TZ=UTC` reproduced the same fingerprint and confirms this was never about this increment's own code). Still deferred, per decision 193's own list minus this item: the Command Menu quick-create registry, the `/documents/uploads`/`/documents/evidence`/`/documents/archive` sub-routes, and Documents Center upload/download/detail. |
+| 195 | P13 Part 4 implementation, seventh increment: the Loans Due and Loan Summary reports (`/reports?statement=loans_due` and `?statement=loan_summary`, an eighth and ninth Reports tab), Step 12 report catalogue, `loan_due`/`loan_summary`'s own comments ("installments falling due", "opening/closing principal per loan over a period") -- the two remaining reports the P13 3f increment pushed here (decision 175's own note, alongside Payroll Summary/Control and the Fiscal asset reports). `loansDue`/`loanSummary` (`src/services/financing/financing.ts`) and `LoanDueRow`/`LoanSummaryRow`/`loanDueInputSchema`/`periodInputSchema` (`src/schemas/financing.ts`) already existed, fully typed, unused since P8; this increment wires them straight into the Reports screen and route, the same "already-built RPC, no new backend" shape every Part 4 increment has used -- imported directly from the financing module rather than duplicated into `src/schemas/reports.ts`/`src/services/reports/reports.ts`, exactly like the General Ledger tab (decision 190) already imports `listLedgerAccounts`/`LedgerAccountRow` straight from the accounting module instead of re-exporting them. Unlike every other Reports tab, `loan_due`/`loan_summary` are gated by `loans.view`, not `reports.view` (confirmed directly against `20260926100700_p8_loans_reports.sql`) -- and not every role holding `reports.view` also holds `loans.view`: the `tax` role is the one exception in the seed catalog (`20260920100100_p2_permission_catalog.sql`), holding `reports.view` but not `loans.view`, unlike `finance_admin`/`accountant`/`viewer_auditor` which hold both. `src/app/(app)/reports/page.tsx` checks `can(access, membership.entity_id, "loans.view")` before calling either RPC (never surfacing a call the RPC would reject with FORBIDDEN, the same rule the Custom Report Builder's dataset filter and the Consolidated Analysis Entity filter already follow) and the screen renders a plain "Anda tidak memiliki izin untuk melihat laporan pinjaman" message instead of an error when it is false, rather than hiding the tab itself -- the tab list here, unlike Consolidated Analysis's own Entity checkboxes, is not permission-filtered per decision 189's original design (every tab reflects a Reports nav sub-item that already exists). New pure domain helpers in `src/domain/reports/reports.ts` (unit-tested, 616 -> 622 tests): `resolveLoanDueThrough` mirrors `resolveAsOfDate`'s own "invalid or missing falls back to something sensible" shape, but its sensible default is `reference` plus 30 days, matching `loan_due`'s own `coalesce(p_through, entity_today(p_entity) + 30)` default rather than `reference` itself -- a Loans Due screen opened with no filter should show what is coming due soon, not only what is due exactly today; `loanDueTotals`/`loanSummaryTotals` sum the RPC's own already-computed per-row figures into a grand-total row, the same "already in each row, never a second aggregation" shape every other totals helper here uses, `loanDueTotals` additionally counting overdue rows for the summary line. Loan Summary's own period (`from`/`to`) reuses `resolveReportRange` unchanged -- `loan_summary` takes a plain mandatory period, the identical shape Equity and Cash Flow already use, so no new range-resolving helper was needed for it. `LoansDueTable`/`LoanSummaryTable` (`src/features/reports/ReportsScreen.tsx`) reuse `loanScheduleStateBadge`/`LOAN_DIRECTION_LABELS` unchanged from Loan Register/Detail (decisions 172/174) rather than a second copy of either, so the same installment can never show a different state or direction label depending on which screen it is viewed from; each row links to the existing Loan Detail screen (`/assets/loans/[id]`, the same href shape `LoanRegisterScreen` already uses). No new RPC, schema, or service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (622 tests, up from 616); `/reports?statement=loans_due` and `/reports?statement=loan_summary` render under the existing route; `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Still deferred, per decision 194's own list minus this item: the Command Menu quick-create registry, the `/documents/uploads`/`/documents/evidence`/`/documents/archive` sub-routes, Documents Center upload/download/detail, and the Payroll Summary/Control and Fiscal asset reports (Loans Due/Loan Summary being the only pair of that group shipped so far). |
+| 196 | P13 Part 4 implementation, eighth increment: the Payroll Summary and Payroll Control reports (`/reports?statement=payroll_summary` and `?statement=payroll_control`, a tenth and eleventh Reports tab), Step 12 report catalogue, `payroll_summary_report`/`payroll_control_report`'s own migration comments -- the two reports the P13 3g increment pushed here (decision 182's own note, alongside the Fiscal asset reports still deferred). `getPayrollSummary`/`getPayrollControl` (`src/services/payroll/payroll.ts`) and `PayrollSummaryRow`/`PayrollControlRow`/`payrollPeriodInputSchema`/`payrollAsOfInputSchema` (`src/schemas/payroll.ts`) already existed, fully typed, unused since P9; this increment wires them straight into the Reports screen and route, the same "already-built RPC, no new backend" shape every Part 4 increment has used. Before building, whether these two tabs would be practically reachable was raised with the OWNER as a genuine authorization question: `payroll_summary_report`/`payroll_control_report` are gated by the same compound "base payroll" rule Payroll Runs/Payslips/Tax already use (decision 180: `payroll.compensation_view` AND at least one of `payroll.run`/`payroll.approve`/`payroll.pay`), `payroll_control_report` additionally hard-requiring `accounting.view` (confirmed directly against `20260927100700_p9_payroll_reports.sql`) -- and no role in the seed catalog (`20260920100100_p2_permission_catalog.sql`) holds `reports.view` together with the full payroll-run permission set, unlike every prior Part 4 tab. The OWNER confirmed (`harusnya kan itu bisa di akses oleh OWNER karena owner bisa akses dan atur semua yang ada di website`) that the `owner` role's own blanket access resolves this: `app_authz.has_permission` special-cases `role_key = 'owner'` to return true for every key in `public.permissions` unconditionally (`20260920100000_p2_authz_helpers.sql`), and `public.my_access()` builds each membership's permission array by running every catalog key through that same check, so an OWNER's frontend `AccessSnapshot` already contains every permission -- these tabs are reachable by the OWNER today, and by any future custom role combining both permission sets, the same as every other Reports tab; building them under `/reports` following the established pattern was therefore correct, not a reachability dead end. `src/app/(app)/reports/page.tsx` computes `canViewPayroll` once (the compound base rule) and reuses it for both tabs, additionally requiring `accounting.view` for Payroll Control's own `canView` -- never surfacing a call either RPC would reject with FORBIDDEN, the same rule `loans.view` already follows for Loans Due/Summary -- and the screen renders a plain "Anda tidak memiliki izin untuk melihat laporan payroll" message instead of an error when false. New pure domain helpers in `src/domain/reports/reports.ts` (unit-tested, 622 -> 631 tests): `payrollSummaryTotals` sums each already-computed row figure into a grand-total row, the same "already in each row, never a second aggregation" shape every other totals helper here uses, except for its three tax-masked columns (`tax_allowance`, `pph21`, `pph21_period_outstanding` -- masked inside the RPC itself by `payroll.tax_view`, decision 182's own precedent) where a private `sumMaskedColumn` returns `null` rather than a misleading zero when every row in view has that column masked, the same "has*-or-null" idiom `hasPnlComparison`/`pnlCompareSubtotal` already established for the P&L comparison columns; `PayrollSummaryTable` renders "—" for any null cell or null total rather than `Rp 0`. `payrollControlAccountLabel` labels `payroll_control_report`'s fixed two account keys (`PAYROLL_LIABILITY`, `BPJS_LIABILITY`), falling back to the raw key for anything unrecognized, the same shape `documentTargetTypesLabel` already uses (decision 194); `payrollControlSummary` counts how many of the (always exactly two) rows have a nonzero `difference` rather than summing across account keys into a grand total -- `PAYROLL_LIABILITY` and `BPJS_LIABILITY` are unrelated liability balances, so a combined total would not be a meaningful figure, the one totals helper here that intentionally has none; `payrollControlRowBalanced` exposes the same zero-check per row so `PayrollControlTable` can badge each account without a second, ad hoc string comparison of its own. No new RPC, schema, or service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (631 tests, up from 622); `/reports?statement=payroll_summary` and `/reports?statement=payroll_control` render under the existing route; `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Still deferred, per decision 195's own list minus this item: the Command Menu quick-create registry, the `/documents/uploads`/`/documents/evidence`/`/documents/archive` sub-routes, Documents Center upload/download/detail, and the Fiscal Depreciation Schedule/Asset Movement/Asset GL reconciliation reports (decision 178) -- the only item left in that group. |
+| 197 | P13 Part 4 implementation, ninth increment: the Fiscal Depreciation Schedule and Asset GL Reconciliation reports (`/reports?statement=fiscal_schedule` and `?statement=asset_control`, a twelfth and thirteenth Reports tab), Step 12 report catalogue -- two of the three items decision 178 pushed here (the third, Asset Movement/Disposal, has no dedicated RPC yet and stays deferred). `fiscalSchedule`/`assetControl` (`src/services/assets/assets.ts`) and `FiscalScheduleRow`/`AssetControlRow` (`src/schemas/assets.ts`) already existed, fully typed, unused since P8; this increment wires them straight into the Reports screen and route, the same "already-built RPC, no new backend" shape every Part 4 increment has used. Both are gated by `assets.view` plus a second hard-required permission (`tax.view` for the schedule, `accounting.view` for the reconciliation, both real `FORBIDDEN`s raised inside the RPC itself, confirmed directly against `20260926100400_p8_asset_reports.sql`) -- unlike Payroll Summary/Control (decision 196), the `accountant` and `viewer_auditor` seed roles already hold every permission either tab needs together with `reports.view` (confirmed against `20260920100100_p2_permission_catalog.sql`), so no OWNER-reachability question arose here; both tabs are reachable by an ordinary role today. Unlike every other Reports tab, `asset_fiscal_schedule` takes one asset (`p_asset`), not the active Entity, so Fiscal Depreciation Schedule needed its own record picker -- `src/app/(app)/reports/page.tsx` reads `listAssets` (already gated the same as every other read here) to populate it and resolves the requested one with a new `resolveFiscalScheduleAsset` (`src/domain/reports/reports.ts`), which mirrors `resolveGeneralLedgerAccount`'s exact "always resolve to something sensible when asked" contract: an invalid or missing selection falls back to the first asset in the register, an Entity with none registered yet returns `null`. The RPC itself silently returns no rows for an asset with no fiscal class or in `draft`/`cancelled` status -- a legitimate empty schedule, not an error -- so the picker is never filtered down to only depreciable assets, the same "never surface a choice the RPC would reject with FORBIDDEN" rule applied only to permission, not to an empty-but-valid result. New pure domain helpers in `src/domain/reports/reports.ts` (unit-tested, 631 -> 643 tests): `resolveFiscalScheduleAsset` (above); `fiscalScheduleTotalDepreciation` sums the schedule's own `depreciation` column into a grand total, the same "already in each row, never a second aggregation" shape every other totals helper here uses. Asset GL Reconciliation mirrors Payroll Control's own shape exactly (`asset_control_report` returns the same `account_key`/`sub_ledger`/`ledger_workflow`/`ledger_other`/`ledger_total`/`difference` columns as `payroll_control_report`, always exactly two fixed, unrelated account keys -- `FIXED_ASSET_COST`, `ACCUMULATED_DEPRECIATION`) via its own `assetControlAccountLabel`/`assetControlSummary`/`assetControlRowBalanced`, a second, asset-specific copy of the same three small helpers rather than repurposing the payroll-named ones across an unrelated module, the same per-module duplication precedent decisions 161/174/175/179 already established repeatedly; `assetControlSummary` again has no cross-account grand total, since summing two unrelated balances would not be a meaningful figure. No new RPC, schema, or service wrapper. `pnpm check`, `pnpm format:check` and `pnpm build` pass (643 tests, up from 631); `/reports?statement=fiscal_schedule` and `/reports?statement=asset_control` render under the existing route; `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Still deferred, per decision 196's own list minus these two items: the Command Menu quick-create registry, the `/documents/uploads`/`/documents/evidence`/`/documents/archive` sub-routes, Documents Center upload/download/detail, and the Asset Movement/Disposal Report (no dedicated RPC yet -- new backend work, likely its own OWNER scope question before building). |
+| 198 | P13 Part 4 implementation, tenth increment: the Documents Center's own `/documents/uploads` ("Unggahan Belum Ditautkan") and `/documents/evidence` ("Bukti Tertaut") sub-routes, both already declared in the nav (`src/domain/shell/navigation.ts`) but until now falling through to the `[...slug]` "coming soon" placeholder (decision 157), since decision 194 found no traced requirement stating their exact semantics anywhere in this repository. Before building, the OWNER was asked two scoping questions in one turn: whether to start the Command Menu quick-create registry now given only four `/new` routes exist (Transfer Uang, Anggaran, Aturan Berulang, Target Pendapatan) -- OWNER chose the 4-item registry, a separate increment (still pending, not part of this one) -- and how to proceed on Documents given upload stays blocked on Storage (decision 142) and the three sub-routes' semantics are unstated. The OWNER's answer to the second question, free text not matching either offered option, was "harus di selesaikan" (must be resolved/completed). Since no further clarification was available, this increment resolved as much as could be honestly grounded in the schema itself rather than guessing or stalling: `list_documents` already returns `link_count` per document (`20260930100100_p11_documents.sql`), which distinguishes a raw upload nothing has been linked to yet (`link_count = 0`) from a document that has become evidence for a real record (`link_count > 0`) -- exactly the distinction the nav's own labels "Uploads" and "Linked Evidence" already name, so no new backend concept was invented. New pure domain helper in `src/domain/documents/documents.ts` (unit-tested, 643 -> 646 tests): `filterDocumentsByLinkStatus`, a plain display filter over an already permission-scoped, already-fetched `list_documents` page -- never a second permission check or an independent financial computation, the same "client-side filter over what the RPC already returned" shape the Depreciation report's own `?q=` search (decision 178) established. A genuine structural constraint shaped the Uploads route specifically: `list_documents`'s own WHERE clause (confirmed directly against `20260930100100_p11_documents.sql`) returns an unlinked document only when `p_target_type is null` -- a document with no link has no `target_type` of its own, so any type filter excludes it entirely; sending one from the Uploads route would silently return zero rows even when unlinked documents exist. Rather than offer a filter-tab combination that the RPC would always empty out, `/documents/uploads` never sends `target_type` and hides the filter-tab row entirely. `DocumentsListScreen` (`src/features/documents/DocumentsListScreen.tsx`) was generalized with four optional props -- `basePath`, `title`, `showTargetTypeFilter`, `hasMore` -- all defaulting to the exact prior `/documents` behavior, rather than writing two near-duplicate screen components for `/documents/uploads` and `/documents/evidence`; this is the same "don't duplicate a whole component when a few props suffice" instinct the codebase already follows elsewhere, deliberately distinct from the per-module duplication of small domain _functions_ like `assetControlAccountLabel` vs `payrollControlAccountLabel` (decision 197), where naming clarity outweighs the cost of two near-identical five-line functions. Filtering the fetched page client-side by link status creates a pagination-correctness risk the base `/documents` screen never had: computing "Berikutnya" from the _filtered_ row count would undercount, since a full 50-row RPC page can filter down to a handful of matching rows while more unfetched rows remain. Both new route handlers (`src/app/(app)/documents/uploads/page.tsx`, `src/app/(app)/documents/evidence/page.tsx`) fix this by computing `hasMore` from the _raw_ fetched page length (`page.length === PAGE_SIZE`) before applying `filterDocumentsByLinkStatus`, and passing it down as an explicit prop override -- `DocumentsListScreen`'s own `more = hasMore ?? rows.length === PAGE_SIZE` falls back to the original derivation only when no caller-computed value is supplied, so `/documents` itself is unaffected. The third declared sub-route, `/documents/archive`, stays deferred with a precise technical reason rather than a guess: `documents.supersedes_document_id` exists on the table (`20260930100100_p11_documents.sql`, set only by `register_document`'s own superseding-upload path) but no RPC, including `list_documents`, ever reads or returns it -- there is no way for any screen to discover or render a supersession chain without a new RPC (or an extension to `list_documents`'s own return columns), the same "no new backend" boundary already applied to the Asset Movement/Disposal Report (decision 178). No new RPC, schema, or service wrapper for Uploads/Evidence themselves. `pnpm check`, `pnpm format:check` and `pnpm build` pass (646 tests, up from 643); `/documents/uploads` and `/documents/evidence` render under their own routes; `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Still deferred, per decision 197's own list minus this item: the Command Menu quick-create registry (OWNER-approved 4-item scope, not yet built), the `/documents/archive` sub-route (no RPC exposes `supersedes_document_id`), Documents Center upload/download/detail (Storage not configured, decision 142), and the Asset Movement/Disposal Report (no dedicated RPC yet). |
+| 199 | P13 Part 4 implementation, eleventh increment: the Command Menu quick-create registry (Step 09 §7, Step 10 §18), decision 198's own first scoping question answered by the OWNER in the same turn as the Documents Center question: whether to start this registry now, given most modules (invoices, bills, loans, obligations, equity, assets, and more) have no create form/UI yet at all -- every one of those flows is still deferred elsewhere in `docs/DECISIONS.md`. The OWNER chose to ship it now, scoped to exactly the four `/new` routes that already exist rather than wait for the rest ("Registry terbatas 4 item dulu"): Transfer Uang (`money.transfer_create`), Anggaran (`planning.budget_edit`), Aturan Berulang (`planning.recurring_edit`) and Target Pendapatan (`planning.budget_edit` again -- Revenue Target reuses Budget's own edit permission on the create side too, the same choice decision 185 already made for its read side). New domain module `src/domain/shell/quickCreate.ts` (unit-tested, 653 tests, up from 646): `QUICK_CREATE_REGISTRY`, a plain data array of the four entries, and `visibleQuickCreate(permissions)`, which mirrors `visibleNavigation`'s own "unavailable by permission is omitted, never a dead control" contract (`src/domain/shell/navigation.ts`) but filters on a single required `permission: string` per item rather than `NavItem`'s own `permission?: readonly string[]` "any of these" array -- every quick-create target gates its `/new` route on exactly one `requirePermission(...)` call (confirmed directly against each of the four route files), never a compound or OR-permission rule the way some nav items only approximate (decisions 180-182), so a plain single string says exactly what the gate is, with nothing left to approximate. `CommandMenu` (`src/features/shell/CommandMenu.tsx`) takes a new `quickCreate` prop, already filtered by the caller the same way its existing `groups` prop already is (`AppShell`, `src/features/shell/AppShell.tsx`, a new `quickCreate` `useMemo` mirroring the existing `navigation` one) -- the component itself never re-checks a permission. Quick-create entries are flattened into the same result list as navigation entries (`"Buat Baru"` as their `group` label) rather than rendered as a separate, always-visible section, so they search and sort through the identical `FlatEntry`/substring-match/`slice(0, 8)` pipeline the navigation results already use -- typing "anggaran" surfaces both the Budgets nav entry and the "Anggaran Baru" quick-create action together, and an empty query shows quick-create first only because `flatten` lists it first, not because of any special-cased always-on section. Global Search (`public.search`, decision 145) stays unwired into the Command Menu -- still no settled data-fetching pattern for a debounced, server-backed result source inside this synchronous local-filter shell, the same gap `CommandMenu`'s own doc comment has named since P13 Part 1. No new RPC, schema, or service wrapper; no component-level test file, matching this codebase's existing convention that `src/features/**` components (Sidebar, TopBar, CommandMenu itself, every List/Detail screen) have no `.test.tsx` files of their own -- only the pure `src/domain/**` logic they call is unit-tested. `pnpm check`, `pnpm format:check` and `pnpm build` pass (653 tests, up from 646); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Still deferred, per decision 198's own list minus this item: the `/documents/archive` sub-route (no RPC exposes `supersedes_document_id`), Documents Center upload/download/detail (Storage not configured, decision 142), and the Asset Movement/Disposal Report (no dedicated RPC yet). The quick-create registry itself grows automatically as future increments ship more `/new` routes -- no further OWNER scoping question is needed for that growth, only for whichever module's create flow is built next. |
+| 200 | P13 Part 4 closes and Part 5 opens (decision 155's own slicing plan): every screen decision 155 assigned to Part 4 -- Reports (decisions 189-197), the Documents Center listing and its Uploads/Linked Evidence sub-routes (decisions 194, 198) and the Command Menu quick-create registry (decision 199) -- has shipped, so `docs/TASK_BOARD.md`'s Part 4 row moves to Implemented (its own remaining items -- `/documents/archive`, Documents upload/download/detail, the Asset Movement/Disposal Report -- stay individually deferred with their own precise reasons, the same "Implemented despite named deferred items" reading Part 3's own row already carries for its many still-unbuilt action forms). Part 5's first increment: bringing the two customer-document views P5 built before P13 existed (`InvoiceDocumentView`/`ReceiptDocumentView`, `src/features/sales/`) up to Step 11 -- Invoice/Receipt Visual Specification (FINAL/LOCKED), which `src/app/globals.css`'s own comment on the `.doc*` rules had flagged since P5 as "print-clean; final design comes with P13." Step 11 was supplied by the OWNER and read in full before any P13 code was written (decision 154) and its own §26 Status states "No additional OWNER decision is required at this stage" -- so this increment proceeds directly from the spec, the same as every other Part 4 tab did, rather than raising a scoping question first. Three concrete, spec-grounded gaps were found and fixed, not a redesign: (1) `InvoiceDocumentView` carried its own local three-tone (`ok`/`warn`/`muted`) status label that had drifted from `invoiceDocumentStatus` (`src/domain/sales/invoiceList.ts`), the exact same status the Invoice List/Detail screens already show for the identical invoice (Step 09 §11's five-tone `neutral`/`progress`/`attention`/`success`/`critical` vocabulary) -- meaning a customer could in principle see a different status word on the public/printed document than staff see on the same invoice in the app. Fixed by having the document view call the existing, already-tested domain helper directly; `ReceiptDocumentView` got the same treatment via a new `paymentReceiptStatus` (`src/domain/sales/receiptDocument.ts`, unit-tested, 655 tests up from 653), since no such helper existed for receipts yet (the Payments Received screen itself is still deferred). `.doc-status-{tone}` (`globals.css`) is now keyed on `InvoiceListTone` directly, so neither view needs its own tone-translation layer any more. (2) Every `.doc*` CSS rule inherited the app's own dark-mode-aware tokens (`--ink`/`--text-secondary`/`--line`/`--bronze`, redefined under `prefers-color-scheme: dark`, Step 10 §3) while `.doc` itself hard-coded a white `#fff` background -- in dark mode this put near-white text on that white canvas, a genuine, objectively verifiable contrast failure directly contradicting Step 11 §2 ("near-black text" on the document canvas) and §18 (Accessibility: "sufficient contrast"). Fixed by giving `.doc` its own fixed `--doc-*` custom properties (never redefined under `prefers-color-scheme`) and repointing every `.doc*` rule at them; `.doc-page`/`.doc-actions`/`.print-button` (the surrounding web chrome, not the document body) deliberately keep the app's own theme-aware tokens, since Step 11 §8 explicitly allows that chrome to follow "Step 10 premium design language" while only the document itself must stay fixed. (3) Step 11 §12's VOID state ("watermark/badge; document remains readable for audit; cannot masquerade as active invoice") had no watermark at all, only the status badge -- added a faint, print-visible diagonal "VOID" mark (`.doc[data-watermark="void"]::before`, `doc.status === "void"` only, opacity reduced further under `@media print` per §12's own "no alarming full-page red" instruction, applied here the same as OVERDUE's). §12's REFUNDED state is shown by adding a "Dikembalikan (refund)" totals line whenever `doc.refunded` is nonzero (an already-fetched, already-authoritative figure `invoice_document` returns -- no new computation), rather than replacing the main status badge with a sixth badge word Step 11 §4's own named vocabulary (UNPAID/PARTIALLY PAID/PAID/OVERDUE/VOID) does not list. §12's CORRECTED/SUPERSEDED state stays unrepresented: `invoices.status` has no such value and no `supersedes_invoice_id`-style column exists on `public.invoices` for this build to read (confirmed by schema inspection), so there is no backend concept to surface yet -- the same "no new backend" boundary already applied to Documents Archive (decision 198) and Asset Movement/Disposal (decision 178), recorded rather than guessed at. §13 PDF/Print Rules: added `@page { size: A4; margin: 16mm }`, `.doc-lines thead { display: table-header-group }` (the line-item table header now repeats on every continuation page, Step 11 §13's own line verbatim) and `break-inside: avoid` on table rows/head/meta/totals/block sections so a total or a line item is never orphaned across a page break -- but a running invoice-identity header/footer on every continuation page beyond that repeated table header is recorded as NOT achievable with this codebase's existing browser-print-to-PDF approach (`PrintButton`, `window.print()`, a P5 decision reused here rather than replaced): the one CSS mechanism for it, `@page` margin-box `content`, has no reliable Chrome support, so this is a documented limitation, not silently claimed done. No new RPC, schema, or service wrapper; `invoice_document`/`payment_receipt_document` were already fully wrapped (`getInvoiceDocument`/`getPaymentReceipt`, P5). `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, up from 653); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Deferred to a further Part 5 increment, recorded rather than silently dropped: the Refund Receipt document view and template (Step 11 §11 -- `refund_receipt_document` already exists and is fully authorized in `20260923100200_p5_refunds_public.sql`, but has no schema, service wrapper or component yet, and the Refunds screens themselves that would reach it are still deferred, decision 270's own Open Items list); Step 11 §23's named reusable component primitives (BrandHeader, DocumentIdentity, PartyBlock, FactGrid, LineItemTable, TotalsBlock, PaymentBlock, StatusMark, NotesTerms, DocumentFooter) -- this increment fixed concrete, objectively wrong gaps in the two existing monolithic components rather than also refactoring their internal structure into those ten primitives, a larger change better done as its own increment once Refund Receipt exists too and there are three document views to share primitives across, not two; the Public Invoice Page's own responsive/mobile treatment (Step 11 §22, Step 09 §25-§27) and the "Saya Sudah Bayar" submission form's exact field set against Step 11 §9; and Step 09/Step 10's own broader responsive/mobile/accessibility/motion polish pass across every other P13 part, which decision 155's plan places later in Part 5 regardless. |
+| 201 | P13 Part 5 (second increment): the Public Invoice/Receipt page's own responsive/mobile treatment, Step 11 §22 (Responsive Rules), read together with §8's own note that "on mobile, Total/Outstanding and primary CTA remain easy to find without horizontal table scrolling" -- the next concrete, buildable item on decision 200's own deferred list, taken directly from the spec since §26 already states no further OWNER decision is required. §22's table names three rows -- Desktop ("centred premium document/surface with side or top actions"), Tablet ("single primary document column, actions remain visible") and Mobile ("summary-first, stacked item rows, sticky/obvious payment CTA, easy copy/download") -- plus PDF/Print, already addressed by decision 200's own A4/pagination rules. Desktop and Tablet needed no new CSS at all: `.doc-page`'s existing `width: min(100%, 860px); margin: 0 auto` already gives a single centred document column at every width down to the mobile breakpoint, and `.doc-actions` already sits visibly at the top of the page -- both already matched §22's own wording, confirmed by inspecting the existing rules rather than assumed, so only a Mobile breakpoint was added (`@media (max-width: 640px)` in `src/app/globals.css`, the same width the application shell's own mobile breakpoint already uses). Three concrete changes, all scoped to the `.doc*` rules (the surrounding `.doc-actions`/`.print-button` chrome keeps following the app's own theme-aware tokens exactly as decision 200 already established, since Step 11 §8 allows this): (1) the line-item table (`InvoiceDocumentView.tsx`'s `.doc-lines`) becomes stacked cards under 640px -- each `<tr>` a block, the description its own full-width heading line with no label, and every other cell (`Jumlah`/`Harga`/`Diskon`/`Total`) reading its own column header back via a new `data-label` attribute plus `content: attr(data-label)`, so nothing is ever cut off or needs horizontal scrolling to read (§8, §22's own "stacked item rows"); `ReceiptDocumentView.tsx` needed no equivalent change since its only tabular-shaped content is a `<dl>` and a payments/allocations `<ul>`, both of which already stack correctly once `.doc-head`/`.doc-meta` switch to `flex-direction: column`. (2) `.doc-actions` (the print/download button, and the receipt page's own "back to invoice" link) becomes `position: sticky; top: 0` on mobile so it stays reachable without scrolling back to the top of a long document -- §22's own "easy copy/download." (3) the payment-claim form's submit button (`.doc-claim .form button[type="submit"]`) becomes `position: sticky; bottom: 12px`, full width, with a shadow, so it stays obvious and reachable once the claim form has scrolled into view -- §22's own "sticky/obvious payment CTA." All three stay CSS-only plus the one `data-label` markup addition; a page-wide `position: fixed` bottom bar that stays visible regardless of scroll position anywhere on the page was considered and rejected as a larger redesign than §22's own wording asks for, outside this increment's scope. Two related Part 5 audits, investigated this increment and resulting in no code change, are recorded here rather than left undocumented: the "Saya Sudah Bayar" form (`PublicClaimForm.tsx`, five fields -- `amount`/`payment_date`/`payer_name`/`reference`/`note`) was compared field-by-field against Step 11 §9 and against `public_submit_payment_claim`'s own RPC signature (`p_token, p_amount, p_date, p_payer_name, p_reference, p_note, p_client`, confirmed directly against `20260923100200_p5_refunds_public.sql`) and found already fully compliant for everything the backend can accept; §9's own payment-source/channel field and its optional proof-upload are genuine backend gaps -- no column for the former, and Storage is still unconfigured for the latter (decision 142) -- not frontend oversights, and are explicitly not added without new backend work going through the OWNER process. Separately, `app_private.invoice_document_json`'s full `jsonb_build_object(...)` return (the same migration, lines 803-828) was checked against Step 11 §16's customer-facing-vs-internal table and confirmed already fully compliant by construction: no journal ID, tax-engine trace, staff note or database ID is ever included, matching the RPC's own inline comment ("Only intentionally configured receiving details are shown, Step 11 §7"). No new RPC, schema, service wrapper, or test file (a pure CSS/markup increment); `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Deferred, unchanged from decision 200's own list: the Refund Receipt document view/template; Step 11 §23's named reusable component primitives; and Step 09/Step 10's own broader responsive/mobile/accessibility/motion polish pass across every other P13 part. |
+| 202 | P13 Part 5 (third increment): the first step of Step 09/Step 10's own broader responsive/mobile polish pass across every other P13 part -- decision 200's last remaining deferred item, and decision 155's own slicing plan puts it in Part 5 regardless. Step 09 §23 (Responsive/Mobile Architecture) says "dense tables convert to cards/stacked rows with key fields and drill-down" and Step 10 §22's Mobile row says "card lists," but `.record-table` -- the shared table class every List/Detail screen across the whole app uses (confirmed by `grep -rl "record-table" src/features`: 38 files across Sales, Purchases, Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning, Reports and Documents) -- only had `overflow-x: auto` on mobile, a genuine, spec-contradicting gap for every one of those screens, not something to silently leave as-is. Before writing any CSS, the App Shell itself (`.app-shell`/`.app-sidebar`, the `@media (max-width: 1023px)` block already in `globals.css`) and the Dashboard's own KPI/grid breakpoint were checked and confirmed already compliant with Step 09 §23's own "sidebar becomes a compact navigation drawer" and Step 10 §22's Tablet/Mobile rows -- both were already built in P13 Part 1, so this increment is genuinely the first gap found, not a redo. Converting all 38 `.record-table` consumers to stacked cards in one increment was considered and rejected: `.record-table` is also what the Reports statement viewer (P&L/Balance Sheet/Equity/Cash Flow, decision 189), the Chart of Accounts and the Journal debit/credit grid use, and those are genuinely columnar, comparative tables where stacking into cards would break the column alignment a reader needs -- exactly what §23's own carve-out anticipates ("Complex manual journals, deep COA maintenance and advanced report building remain desktop-optimized but still safely viewable where practical"). So rather than a blanket CSS change to `.record-table` itself, a new opt-in modifier class, `record-table-stacked` (`globals.css`, scoped inside the existing `@media (max-width: 640px)` block), carries the stacked-card treatment -- reusing the exact same pattern decision 201 already established for `.doc-lines` (hidden `<thead>`, each `<tr>` a block, each `<td>` reading its own column header back via a new `data-label` attribute and `content: attr(data-label)`, the first cell an unlabelled bold heading line) -- and is rolled onto each screen module by module, each needing its own `data-label` attributes added to its `<td>`s, rather than attempted in one giant increment. `InvoicesListScreen.tsx` ships first in this increment, since Step 09 §23 explicitly names "invoice ... viewing/sharing" among the handful of flows it says mobile prioritizes (Dashboard, search, approvals, invoice viewing/sharing, expense capture, payment confirmation, notifications, essential reports) -- a principled starting point, not an arbitrary one. Its own seven columns (No. Faktur/Pelanggan/Tanggal/Jatuh Tempo/Status/Total/Sisa Tagihan) become a card per invoice on mobile, No. Faktur as the unlabelled heading link. No new RPC, schema, service wrapper, or test file (a pure CSS/markup increment, the same shape as decision 201). `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Deferred, recorded as a module-by-module rollout rather than a single remaining item: the other 37 `.record-table` consumers, prioritized by Step 09 §23's own named mobile-priority list where it names a screen that already exists (approvals has no screen yet; expense capture is Purchases' still-deferred Record Expense builder; payment confirmation is Sales' still-deferred Payment Confirmation queue; essential reports stay on plain `.record-table` per this decision's own carve-out) -- so the next candidates are Money's Accounts/Cash Activity and Purchases' Bills, both already-shipped List screens naming everyday operational records the same way Invoices does. The Refund Receipt document view/template and Step 11 §23's named component primitives stay deferred, unchanged from decision 200/201. |
+| 203 | P13 Part 5 (fourth increment): the `record-table-stacked` mobile rollout (decision 202) continues onto three more List screens named as the next candidates -- `AccountsListScreen.tsx` (Nama Akun/Jenis/Status/Saldo Sistem/Saldo Buku Besar, Nama Akun the unlabelled heading link), `BillsListScreen.tsx` (an exact structural match to `InvoicesListScreen`: No. Tagihan/Vendor/Tanggal/Jatuh Tempo/Status/Total/Sisa Tagihan) and `CashActivityScreen.tsx`. The first two follow decision 202's own pattern exactly (`record-table-stacked` class, `data-label` on every `<td>` but the first). `CashActivityScreen` needed one deliberate judgment call: unlike every other List screen here, its first column is `Tanggal` (date), not a drill-down link -- the drill-down (`Akun`, linking to Account Detail) is its _second_ column, because this screen is a chronological feed across every account, not a register of one kind of record, and date is its own natural grouping key. Rather than mechanically applying "first column = unlabelled heading" and making a bare date the only unlabelled line, the DOM/column order was kept exactly as it already reads on desktop -- Tanggal stays the unlabelled heading, `Akun`'s link stays reachable one labelled row down -- since reordering columns specifically for the mobile card would make the two views describe the data differently for no real benefit, and `data-label="Akun"` already keeps the drill-down link clearly labelled and just as tappable as any other stacked row. No new RPC, schema, service wrapper, or test file (a pure CSS-consuming markup increment, no `globals.css` change needed since `record-table-stacked` already exists from decision 202). `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3`). Deferred, unchanged in shape from decision 202's own list, now with three fewer names in it: 34 more `.record-table` consumers remain (Sales' own remaining screens, Purchases' Bill Detail, the rest of Money, Accounting, Tax, Assets/Loans/Equity, Payroll, Planning and Documents List/Detail screens -- Reports' statement viewer and other genuinely columnar tables stay excluded by design, per decision 202's own carve-out); the Refund Receipt document view/template and Step 11 §23's named component primitives stay deferred, unchanged from decision 200/201. |
+| 204 | P13 Part 5 (fifth increment): the `record-table-stacked` rollout continues onto four Register screens in Assets/Loans/Equity -- `AssetRegisterScreen.tsx` (Kode/Nama/Tanggal Perolehan/Sumber/Status/Kondisi/Nilai Buku), `EquityRegisterScreen.tsx` (Nomor/Jenis/Tanggal/Pihak/Jumlah/Status), `LoanRegisterScreen.tsx` (Nomor/Arah/Pihak/Pokok/Outstanding/Jatuh Tempo Berikutnya/Status) and `ObligationRegisterScreen.tsx` (Nomor/Pihak/Tujuan/Jatuh Tempo/Pokok/Outstanding/Status) -- all four an exact structural match to the Register/List pattern decisions 202-203 already established (identifying number/code as the unlabelled heading link, every other column reading its own header back via `data-label`), confirmed by reading each file in full before editing rather than assumed from the name alone. No new RPC, schema, service wrapper, or test file, and no `globals.css` change (`record-table-stacked` already exists from decision 202). `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3`). Deferred, now with four fewer names in it: 30 more `.record-table` consumers remain -- the next candidates are the remaining Register screens (Employee, Payroll Run, Payslip, Budget, Recurring Rule, Revenue Target, Transfers, Journals List), then the Detail screens (each needs its own inspection, since several show a secondary activity/ledger/lines sub-table that may not share the simple Register shape); Reports' statement viewer, the Chart of Accounts and the Journal debit/credit grid stay excluded by design (decision 202's own carve-out), and the Budget/Recurring/Revenue-Target "LinesEditor" components need checking for reachability before any mobile work, since they may belong to a still-deferred create/edit form rather than a live screen. The Refund Receipt document view/template and Step 11 §23's named component primitives stay deferred, unchanged from decision 200/201. |
+| 205 | P13 Part 5 (sixth increment): the `record-table-stacked` rollout continues onto Payroll's three Register screens plus Money's Transfers List -- `EmployeeRegisterScreen.tsx` (Kode/Nama/Jabatan/Departemen/Jenis/Tanggal Masuk/Status, Kode the unlabelled heading link; no compensation figure ever reaches this screen, so there was nothing to gate here), `PayrollRunRegisterScreen.tsx` (Nomor/Periode/Tanggal Bayar/Karyawan/Gaji Bersih/Status, Nomor the heading link), `PayslipRegisterScreen.tsx` (Nomor/Karyawan/Periode/Diterbitkan/Gaji Bersih/Status, Nomor the heading link) and `TransfersListScreen.tsx` (No. Transfer/Dari/Ke/Tanggal/Status/Jumlah, No. Transfer the heading link) -- all four an exact structural match to the Register/List pattern decisions 202-204 already established, confirmed by reading each file in full before editing rather than assumed from the name alone. No new RPC, schema, service wrapper, or test file, and no `globals.css` change (`record-table-stacked` already exists from decision 202). `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3`). Deferred, now with four fewer names in it: 26 more `.record-table` consumers remain -- the next candidates are the remaining Register/List screens (Budget, Recurring Rule, Revenue Target, Journals List), then the Detail screens (each needs its own inspection, since several show a secondary activity/ledger/lines sub-table that may not share the simple Register shape); Reports' statement viewer, the Chart of Accounts and the Journal debit/credit grid stay excluded by design (decision 202's own carve-out), and the Budget/Recurring/Revenue-Target "LinesEditor" components still need a reachability check before any mobile work, unchanged from decision 204's own note. The Refund Receipt document view/template and Step 11 §23's named component primitives stay deferred, unchanged from decision 200/201. |
+| 206 | P13 Part 5 (seventh increment): the `record-table-stacked` rollout continues onto Planning's three Register screens plus Accounting's Journals List -- `BudgetRegisterScreen.tsx` (Nama/Jenis Periode/Tahun Fiskal/Periode/Status, Nama the unlabelled heading link), `RecurringRuleRegisterScreen.tsx` (Nama/Jenis/Frekuensi/Berikutnya/Terakhir Dibuat/Status, Nama the heading link), `RevenueTargetRegisterScreen.tsx` (Nama/Jenis Periode/Tahun Fiskal/Periode/Status, Nama the heading link, structurally identical to `BudgetRegisterScreen.tsx`) and `JournalsListScreen.tsx` (No. Jurnal/Tanggal/Sumber/Deskripsi/Status, No. Jurnal the heading link) -- all four an exact structural match to the Register/List pattern decisions 202-205 already established, confirmed by reading each file in full before editing rather than assumed from the name alone. `JournalsListScreen.tsx` is explicitly not the excluded "Journal debit/credit grid" from decision 202's carve-out -- that exclusion is `JournalDetailScreen.tsx` (a single journal's own debit/credit lines, a genuinely columnar comparative table), whereas this screen is a plain list of journal entries, structurally the same as every other Register/List screen already converted. No new RPC, schema, service wrapper, or test file, and no `globals.css` change (`record-table-stacked` already exists from decision 202). `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3`). Deferred, now with every simple Register/List screen exhausted: the remaining `.record-table` consumers are the 13 Detail screens (`AccountDetailScreen`, `AssetDetailScreen`, `EquityDetailScreen`, `LoanDetailScreen`, `ObligationDetailScreen`, `EmployeeDetailScreen`, `PayrollRunDetailScreen`, `PayslipDetailScreen`, `BudgetDetailScreen`, `RecurringRuleDetailScreen`, `RevenueTargetDetailScreen`, `BillDetailScreen` and `JournalDetailScreen` -- the last excluded by design), each needing individual inspection since several show a secondary activity/ledger/lines sub-table that may not share the simple Register shape; `PayrollTaxScreen.tsx`, `TaxLedgerScreen.tsx`, `DocumentsListScreen.tsx` and `DepreciationReportScreen.tsx` not yet read/categorized; Reports' statement viewer and the Chart of Accounts stay excluded by design (decision 202's own carve-out); and the Budget/Recurring/Revenue-Target "LinesEditor" components still need a reachability check before any mobile work, unchanged from decision 204's own note. The Refund Receipt document view/template and Step 11 §23's named component primitives stay deferred, unchanged from decision 200/201. |
+| 207 | P13 Part 5 (eighth increment): the `record-table-stacked` rollout is inspected against all 13 Detail screens named as remaining in decision 206, each read in full before editing rather than assumed from the name. 10 of the 13 carry a simple line-item/activity/schedule table structurally safe to stack -- `AccountDetailScreen.tsx` (Aktivitas: Tanggal stays the unlabelled heading rather than a drill-down, the same reasoning `CashActivityScreen` established in decision 203, since this screen is already scoped to one account and date is the natural reading key), `BillDetailScreen.tsx` (Rincian Item: Deskripsi as heading, the same line-item treatment `.doc-lines` already uses on the public Invoice/Receipt page per decision 201), `RecurringRuleDetailScreen.tsx` (Riwayat Pembuatan: Tanggal as heading), `AssetDetailScreen.tsx` (Jadwal Penyusutan: Bulan as heading), `EmployeeDetailScreen.tsx` (three tables -- Riwayat Jabatan, Kompensasi, BPJS -- each keeping its own first column as heading), `PayslipDetailScreen.tsx` (three tables -- Komponen Gaji, Penyesuaian, Rincian BPJS), `PayrollRunDetailScreen.tsx` (three tables -- Baris Gaji Karyawan, Penyesuaian, Pembayaran), `EquityDetailScreen.tsx` (Riwayat Pembayaran: Nomor as heading), `ObligationDetailScreen.tsx` (Riwayat Pelunasan: Nomor as heading) and `LoanDetailScreen.tsx` (three tables -- Jadwal Cicilan, Riwayat Jadwal, Riwayat Pembayaran; Jadwal Cicilan's own first column, `#`, is the installment sequence number and stays the unlabelled heading rather than being reordered, the same "keep the DOM order the desktop view already reads" choice decision 203 made). 18 tables in total across these 10 files. The remaining 3 are excluded by design, extending decision 202's own carve-out for genuinely columnar, comparative tables beyond Reports/COA/the journal debit-credit grid: `BudgetDetailScreen.tsx`'s "Anggaran vs Aktual" table (Bulan/Kategori/Anggaran/Aktual/Komitmen/Sisa/%Terpakai/Varians, 8 columns) and `RevenueTargetDetailScreen.tsx`'s "Target vs Aktual" table (Bulan/Target/Aktual/Piutang Belum Tertagih/Varians, 5 columns) are both a period-by-period Budget/Target-vs-Actual comparison, the exact shape a stacked card would break the side-by-side reading of, the same reason Reports' statement viewer stays excluded; `JournalDetailScreen.tsx`'s debit/credit grid (with its own `<tfoot>` total row) reconfirms decision 202's original exclusion rather than changing it. No new RPC, schema, service wrapper, or test file, and no `globals.css` change (`record-table-stacked` already exists from decision 202). `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3`). This exhausts every `.record-table` consumer that fits the stacked-card pattern: the only ones left on plain `.record-table` are the three now-confirmed comparative/columnar exclusions above plus Reports' statement viewer and the Chart of Accounts (decision 202's own carve-out). Still not yet read/categorized: `PayrollTaxScreen.tsx`, `TaxLedgerScreen.tsx`, `DocumentsListScreen.tsx` and `DepreciationReportScreen.tsx` (likely a report, per the same carve-out, but not yet confirmed); the Budget/Recurring/Revenue-Target "LinesEditor" components still need a reachability check before any mobile work, unchanged from decision 204's own note. The Refund Receipt document view/template and Step 11 §23's named component primitives stay deferred, unchanged from decision 200/201. |
+| 208 | P13 Part 5 (ninth increment): the last 4 not-yet-categorized `.record-table` screens named as open in decision 206/207 are inspected -- `DepreciationReportScreen.tsx`, `PayrollTaxScreen.tsx`, `TaxLedgerScreen.tsx` and `DocumentsListScreen.tsx`. Despite three of the four being named "report"/"ledger" screens, none of their 7 tables (2 in Depreciation, 3 in Payroll Tax, 1 each in Tax Ledger and Documents) is a period-by-period comparison the way Reports' statement viewer or Budget/Revenue Target's "vs Aktual" tables are (decision 202/207's carve-out) -- every one is a per-row schedule/liability/reconciliation/ledger/document list, structurally the same shape as every screen already converted, so all 4 files ship `record-table-stacked`: `DepreciationReportScreen.tsx` (Perlu Diposting + the main schedule table, Aset as heading, the same treatment `AssetDetailScreen`'s own depreciation schedule already uses), `PayrollTaxScreen.tsx` (Kewajiban Pembayaran, Rekonsiliasi Tahunan, Buku Besar Pajak Karyawan -- each table's own first column as heading), `TaxLedgerScreen.tsx` (Tanggal stays the unlabelled heading rather than Deskripsi's drill-down link, the same `CashActivityScreen` chronological-feed reasoning decision 203 established) and `DocumentsListScreen.tsx` (Nama Berkas as heading, a plain filename with no drill-down since no per-document detail screen exists yet). No new RPC, schema, service wrapper, or test file, and no `globals.css` change (`record-table-stacked` already exists from decision 202). `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3`). This closes out the `record-table-stacked` rollout entirely: every `.record-table` consumer in the codebase has now been read and either converted (30 of 38) or confirmed as a genuine columnar/comparative table that stays excluded by design (Reports' statement viewer, the Chart of Accounts, the Journal debit/credit grid, and Budget/Revenue Target Detail's own "vs Aktual" tables -- 8 screens/tables in total). Still deferred, unchanged from decision 207: the Budget/Recurring/Revenue-Target "LinesEditor" components need a reachability check before any mobile work; the Refund Receipt document view/template and Step 11 §23's named component primitives stay deferred from decision 200/201; and the rest of Step 09/Step 10's own broader responsive/accessibility/motion polish pass (empty/loading/error visuals, micro-interactions, dashboard personalization, keyboard/focus/touch-target accessibility) that decision 155's plan places in Part 5. |
+| 209 | P13 Part 5 (tenth increment): the reachability check decision 204 flagged for the Budget/Recurring/Revenue-Target "LinesEditor" components is finally answered -- all three are live, reachable components, not orphaned code belonging to a still-deferred form: `BudgetLinesEditor` renders inside `BudgetDetailScreen` (`/planning/budgets/[id]`), `RevenueTargetLinesEditor` inside `RevenueTargetDetailScreen` (`/planning/targets/[id]`), and `RecurringLinesEditor` inside `RecurringRuleForm`, itself rendered by `RecurringRuleDetailScreen` when the rule is still editable. Being reachable does not automatically make them safe to stack, though: `BudgetLinesEditor` and `RevenueTargetLinesEditor` are genuine category x month editable matrices -- their own column count grows with the plan's date range, the exact period-by-period-comparison shape decision 202/207 already excludes for read-only tables (`BudgetDetailScreen`'s/`RevenueTargetDetailScreen`'s own "vs Aktual" tables), here even more clearly desktop-oriented since editing a category's figure across many months at once is the whole point of the grid -- Step 09 §23's own "complex... remains desktop-optimized" carve-out is cited directly. Both stay on plain `.record-table`, excluded by design. `RecurringLinesEditor` is structurally different -- a template's line items are a plain repeating row list (Deskripsi/Kuantitas/Harga Satuan/Perlakuan/Kategori/Hapus, no per-row uniqueness, no month columns), the same shape as `BillDetailScreen`'s own line items (decision 207) just editable, so it ships `record-table-stacked`: Deskripsi's own input stays the unlabelled heading, every other cell (including each `<select>`) reads its own column header back via `data-label`; the trailing "Hapus" delete-button column carries no `data-label` (its header is an `aria-label`-only empty `<th>`, nothing to echo). No new RPC, schema, service wrapper, or test file, and no `globals.css` change (`record-table-stacked` already exists from decision 202). `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3`). This resolves the last open item from decisions 204-208: every `.record-table`-class consumer in the codebase (including the three LinesEditor grids that were not originally counted in the "38 screens" figure, since they are components rather than pages) has now been read and either converted or confirmed excluded by design. Still deferred, unchanged from decision 208: the Refund Receipt document view/template and Step 11 §23's named component primitives (decision 200/201); and the rest of Step 09/Step 10's own broader responsive/accessibility/motion polish pass (empty/loading/error visuals, micro-interactions, dashboard personalization, keyboard/focus/touch-target accessibility) that decision 155's plan places in Part 5. |
+| 210 | P13 Part 5 (eleventh increment): the first concrete item of the still-deferred Step 09 §25-§27/Step 10 §21-§25 accessibility polish pass -- keyboard focus visibility (WCAG 2.4.7 Focus Visible), read as a genuine, objectively-verifiable consistency gap rather than a new design decision. Four component classes already established the app's own focus-visible treatment (`outline: 2px solid var(--accent); outline-offset: 2px`): `.form input:focus-visible`/`.form button:focus-visible`/`.entities a:focus-visible` (P2 auth), `.app-nav-link:focus-visible` and `.icon-button:focus-visible` (P13 Part 1 shell), and all four `.btn-primary/.btn-secondary/.btn-danger/.btn-ghost:focus-visible` variants (P13 Part 3) -- but a full audit of every other interactive selector in `globals.css` (`grep -n ":focus-visible\|:focus\b"`) found nothing else carries any override at all: every `.record-table a` drill-down link (the row link nearly every List/Detail screen across the whole app uses), every `.record-form`/`.record-form-wide`/`.plan-lines-table` input/select/textarea (the field shell shared by every Create/Edit form and editable grid in the app, including `RecurringLinesEditor`'s own grid just shipped in decision 209), `.list-search-form`'s and `.invoice-link-row`'s inputs, `.invoice-action-form`'s textarea, and `.list-filter-tab` links all fell back to the browser's own inconsistent default outline instead -- the overwhelming majority of the app's interactive surface, not an edge case. Rather than patch each of those component classes individually (the same reasoning decision 156's own base-token-system choice already established for this codebase), one base-level rule keyed off the plain tag (`a`/`button`/`input`/`select`/`textarea`, placed in the reset section right after `* { box-sizing: border-box; }`) extends the app's own already-established pattern to cover them: since every existing specific rule already uses the identical declaration, the new tag-level rule never visibly changes any of them (same outline, whichever selector's specificity wins), and only adds coverage where none existed. `.command-menu-input:focus { outline: none }` (its own deliberate visual focus treatment, a class selector) is unaffected -- it still wins over the new tag-level rule on CSS specificity regardless of source order, confirmed by inspection rather than assumed. Touch-target sizing was investigated and deliberately left out of this increment: `.icon-button` renders at 36x36px, which clears WCAG 2.5.8's AA minimum (24x24 with adequate spacing) but not the stricter AAA 44x44 target, and without the exact Step 10 spec wording on file to cite a required number this stays an open question rather than a guessed-at CSS change, consistent with this project's standing rule against inventing thresholds the spec doesn't hand over. No new RPC, schema, service wrapper, or test file, and no markup/`data-label` changes -- pure CSS in `globals.css`. `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3`). Still deferred: the Refund Receipt document view/template (blocked on the Refunds list/detail screens themselves, which don't exist yet -- a Part 3-scope gap, not a Part 5 one) and Step 11 §23's named component primitives (decision 200/201); and the rest of the accessibility/motion pass -- touch-target sizing against a concrete number, empty/loading/error visuals, micro-interactions, dashboard personalization, and `prefers-reduced-motion` coverage beyond the token-level override decision 156 already shipped. |
+| 211 | P13 Part 5 (twelfth increment): the "loading visuals"/"error visuals" items of the still-deferred Step 09 §25-§27/Step 10 §21-§25 accessibility polish pass, decision 155's list. A repo-wide check (`find src/app -iname "loading.tsx" -o -iname "error.tsx"`) found zero of either anywhere in the app, apart from the public invoice token page's own `not-found.tsx` (P5) -- a genuine, objectively-verifiable structural gap, not a guessed-at requirement: every route under the `(app)` route group fetches its own data via RPC before it can render (Step 13's own command/query architecture), and Next.js's own App Router convention already defines exactly the two files that give a route segment loading and error UI, neither of which this codebase had ever added. Two new files, `src/app/(app)/loading.tsx` and `src/app/(app)/error.tsx`: Next.js wraps `page.tsx` and everything below it in the segment in a `<Suspense>` boundary (for `loading.tsx`) and an Error Boundary (for `error.tsx`) automatically once these files exist, while `(app)/layout.tsx` and the `AppShell` it renders (sidebar, top bar, Entity switcher) sit outside both boundaries and keep rendering immediately -- so only the content area (`.app-content`) shows either fallback, the sidebar/top bar never disappear or reset. Both reuse `.list-empty` (`globals.css`) verbatim, the same muted centred panel already shown for "no rows" across every List/Detail screen in the app, rather than inventing a new loading/error visual language with no precedent to extend. `loading.tsx` shows "Memuat…" with `role="status" aria-live="polite"`; `error.tsx` (`"use client"`, required by Next.js for the `reset` callback) shows a generic "Terjadi masalah saat memuat halaman ini." with a "Coba Lagi" button calling Next.js's own `reset()`, `role="alert"`. `error.message` is deliberately never rendered: an RPC failure's own text can carry internal detail (a raised Postgres exception, a `FORBIDDEN: missing <permission>` string, a constraint name) -- the same customer-facing-vs-internal boundary Step 11 §16 already establishes for invoice document data (decision 201), applied here to error text rather than invented fresh. No new RPC, schema, service wrapper, or test file (no unit-test precedent exists for any other screen-level component in this codebase either, per decisions 200-210's own pattern); `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3` -- confirms this pure frontend increment touched no migration). Deliberately scoped to the `(app)` segment only: `/login`, `/auth/*` and `/i/[token]` (outside `(app)`, per `(app)/layout.tsx`'s own doc comment) still have neither, recorded as a further Part 5 item rather than folded in here, since the public invoice page in particular already has its own bespoke `not-found.tsx` styling (`.shell`/`.card`, matching the P2 auth pages) that a generic `(app)`-shaped fix would not fit. Still deferred: the Refund Receipt document view/template and Step 11 §23's named component primitives (decision 200/201); touch-target sizing against a concrete number (decision 210); loading/error UI for the non-`(app)` route segments; and the rest of the polish pass -- micro-interactions and dashboard personalization -- both of which stay open pending either OWNER input or the actual Step 09/Step 10 spec text, neither of which is available in this repo to ground a further change against. |
+| 212 | P13 Part 5 (thirteenth increment): decision 211's own deferred "loading/error UI for the non-`(app)` route segments" item -- `/login`, `/auth/mfa`, `/auth/step-up` and the public `/i/[token]`/`/i/[token]/receipt` pages, which sit outside the `(app)` route group (`(app)/layout.tsx`'s own doc comment: "every screen except `/login`, `/auth/*` and `/i/[token]`") and so were untouched by decision 211's `(app)/loading.tsx`/`error.tsx`. Two new root-level files, `src/app/loading.tsx` and `src/app/error.tsx`: Next.js only falls back to a root `loading.tsx`/`error.tsx` for a route segment that has no closer one of its own, so neither overrides `(app)`'s pair, and both apply exactly to the five routes decision 211 left open. Styled with `.shell`/`.card` rather than `(app)`'s skeleton-in-content-area treatment, since none of these routes render inside `AppShell`'s sidebar/top bar chrome -- this is not a new visual choice invented for this increment: `/login`, `/auth/mfa`, `/auth/step-up` and this exact route's own `not-found.tsx` (P5) already render with `.shell`/`.card`, so the new files match a precedent already set for this exact route family rather than picking a style fresh. `loading.tsx` renders `.skeleton-panel` (three pulsing lines, sized to the small `.card` these routes use) rather than plain text, per Step 09 §25/Step 10 §23-§24's own skeleton requirement -- read directly from the spec DOCX for the first time this increment (decision 213 records why that had not happened for decisions 210/211, and corrects `(app)/loading.tsx` to match). The public invoice page mattered most for `error.tsx` specifically: `/i/[token]/page.tsx` already calls Next's own `notFound()` deliberately for an invalid/expired token (still routed to `not-found.tsx`, unchanged), but a genuine unhandled exception -- a network fault, an unexpected RPC error -- previously fell straight through to Next.js's bare default error screen in front of a customer, not staff, the highest-stakes gap of the five routes. `error.tsx` shows a generic "Terjadi masalah saat memuat halaman ini." with a "Coba Lagi" button calling `reset()`, `role="alert"`, `error.message` never rendered (same Step 11 §16 customer-facing-vs-internal boundary), matching (app)/error.tsx and Step 10 §24's own "calm, specific and actionable... avoid alarming full-red pages" and "permission-denied state is discreet" wording. A root-level `global-error.tsx` (the one Next.js mechanism that can also catch an error inside the root `layout.tsx` itself) was considered and left out: `src/app/layout.tsx` is a plain synchronous `<html><body>{children}</body></html>` wrapper with no data fetching of its own (confirmed by reading it), so it has no realistic failure mode for `error.tsx` to miss. No new RPC, schema, service wrapper, or test file. `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3`). Still deferred: the Refund Receipt document view/template (Part 3-scope, needs the Refunds list/detail screens first) and Step 11 §23's named component primitives (decision 200/201); touch-target sizing against a concrete number; and the rest of decision 155's Part 5 polish list -- micro-interactions and dashboard personalization, now scoped concretely by decision 213's spec read, recorded there as its own further increment rather than attempted in this one. |
+| 213 | Process correction, prompted by the OWNER asking directly whether this session had been working from the spec files in the connected folder at all: decisions 210-212 (the accessibility/motion polish items) were built reasoning from indirect evidence -- inspecting the existing codebase for already-established patterns to extend -- rather than reading the actual Step 09/Step 10 spec DOCX text, because `docs/SPEC_INDEX.md` says those files are "kept by the OWNER outside this repository" and this session read that as "not accessible to me," never checking whether they were in fact reachable through the connected device folder one level up from the git repo (`/Users/anna/Downloads/Kamar Kajian Market/PT Hikarich/`). They were: `09_..._UI_Sitemap_Screen_Architecture_FINAL.docx`, `10_..._Dashboard_Design_System_FINAL.docx` and every other Step 01-17 file sit right there, confirmed by `device_list_dir`. Converted to text with `pandoc` and read in full (Step 09 §25-§27, Step 10 §21-§26). Cross-checking decisions 210-212 against the real text: decision 210's keyboard-focus-visibility work and decision 211/212's error-boundary work both hold up against the real wording (Step 10 §21 "Visible focus state is elegant but unmistakable"; Step 10 §24 "Error states remain calm, specific and actionable... permission-denied state is discreet and does not reveal sensitive object details" -- exactly what a generic, non-leaking `error.tsx` message already gives). But decision 211/212's loading-state work did not: Step 09 §25 says "Use skeleton loading for primary workspace content rather than disruptive full-screen spinners" and Step 10 §23/§24 say "Skeletons match final geometry to minimize layout shift" and "Skeleton loading uses neutral shimmer or subtle pulse compatible with reduced-motion" -- a plain "Memuat…" text panel met none of that. Both `(app)/loading.tsx` (decision 211, already merged) and the newly-written root `loading.tsx` (decision 212, corrected before it ever shipped) are fixed in this same increment: a new `.skeleton-panel`/`.skeleton-block` treatment in `globals.css` (a pulsing placeholder stack, `--motion-ease` reused for the pulse's easing but a deliberately new 1.4s duration since `--motion-fast/base/slow` are interaction-timing tokens far too quick for a resting ambient loop, and `prefers-reduced-motion: reduce` disables the animation outright -- the same explicit-disable approach decision 156's own token-level override already established). `(app)/loading.tsx` gets a list-screen-shaped stack (header bar plus six row bars, since List/Detail screens are the segment's majority shape); the root `loading.tsx` gets a shorter three-line stack sized to the small `.card` panel. Both are an approximation of "final geometry," not literally page-specific -- a shared segment-level `loading.tsx` cannot know which route triggered it, and true per-route skeletons would need one `loading.tsx` per route, a materially larger increment recorded as still open rather than attempted here. Reading the real spec text also surfaced two further genuine, now-concretely-scoped gaps this increment does NOT attempt, recorded rather than silently noticed and dropped: (1) Step 09 §25/Step 10 §24's own empty-state wording ("concise, visually polished and action-oriented"; "minimal line/icon treatment and one clear CTA") means the plain-text `.list-empty` panel used across roughly 40 List/Detail screens since decision 155's slicing began is itself short of spec -- a pre-existing gap, not one these three decisions introduced, but a real one now confirmed rather than assumed compliant; (2) Step 10 §25 Dashboard Personalization ("users may later reorder/hide selected secondary widgets... preferences are per user and may differ by Entity... personalization changes presentation only") describes a genuine, non-trivial feature (a new preferences table, an RPC, and reordering UI) that the current Dashboard does not have at all -- concretely scoped now, but a schema change and a feature build, not a CSS-only polish increment, and out of scope for a same-day correction. `pnpm check`, `pnpm format:check` and `pnpm build` pass (655 tests, unchanged); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3`). Going forward this session reads the actual spec DOCX directly (via the connected device folder) before any further Part 5/P14/P15 work that touches Step 09/Step 10/any other Step's own wording, rather than reasoning from `DECISIONS.md`'s own prior citations alone. |
+
+## Open items for later phases
+
+- SMTP provider for Auth emails (Step 14 §21).
+- Domain `hikarich.com` / `finance.hikarich.com` purchase and DNS (Step 14 (domain)).
+- Taxpayer facts (Perseroan Perorangan status, NPWP, PKP) and Personal-entity invoice numbering prefix, needed at P15.
+- MFA on the infrastructure accounts (GitHub, Vercel, Supabase) before P15.
+- Approval-rule workflow for manual journals (decision 41) and year-end closing entries (decision 45).
+- Sub-ledger reconciliation of control-account opening balances (decision 44) once P7-P8 exist; financial account balances are covered since P4 (decisions 51-53), customer receivables since P5 (decision 74) and vendor payables since P6 (decision 80).
+- Money screens still remaining after Part 3c's Accounts List/Detail, Transfers List/Detail/create form and Cash/Bank Activity (decisions 169-171): the Reconciliation workspace, balance adjustments, Create/Edit Account, and statement file import (decision 62); source links from an account ledger line to its originating record, once those records have their own detail screens; the OWNER's choice of account kinds that may never go negative (decision 55).
+- Accounting screens still remaining after Part 3d's Journal List/Detail and Chart of Accounts (decision 172): Period Close (checklist of blockers/warnings before Close), Opening Balances, the Manual Journal debit/credit grid builder, and Advanced Adjustments.
+- Sales screens still remaining after Part 3a's Invoices List/Detail (decisions 164-166) and Customers List/Detail (decision 225): the invoice Create/Edit builder, Send, the Payment Confirmation queue, and Products & Services (AR Aging now ships as decision 284; Refund draft/confirm/reject/cancel/reverse now ships as decision 285; this bullet otherwise pre-dates many later decisions and may already be further stale -- verify against the code before treating any remaining item here as untouched); step-up on reversal and refund specifically (Void/Correct already ship in Part 3a with no step-up, per decision 75's own finding that Step 06 §8 requires none).
+- OWNER to decide the Step 09 §11 vs. P5 conflict recorded in decision 166: whether a draft invoice should get a public preview link (would mean reopening P5's locked `regenerate_invoice_link`/`invoice_public_link` SQL) or Step 09 §11's line is superseded by P5's already-reviewed decision 76 scope.
+- Set `PUBLIC_CLAIM_SALT` in Vercel Production before customers use the payment page (decision 70); OWNER to decide whether payment reversal should be OWNER-only (decision 76).
+- Tax on invoices and tax credit notes with P7 (decision 65).
+- Purchase screens still remaining after Part 3b's Bills List/Detail (decisions 167-168) and Vendors List/Detail (decision 225): the Record Bill/Record Expense builders, the Payment action, Expenses, and evidence upload (AP Aging now ships as decision 284; this bullet otherwise pre-dates many later decisions and may already be further stale -- verify against the code before treating any remaining item here as untouched); step-up on void and payment reversal (decisions 84, 87).
+- OWNER to decide whether paying and reversing vendor payments should be OWNER-only (decision 87) and whether purchase lines may use Depreciation, Bad Debt and Interest Expense accounts (decision 87).
+- OWNER to decide the `contacts.view`/`bills.view` permission gap recorded in decision 168: whether the `approver`/`tax` role templates should also receive `contacts.view` so vendor names resolve for draft/submitted/cancelled bills, or whether the `vendor_reference`/"Vendor" fallback already shipped is acceptable as-is.
+- OWNER to decide the `accounting.view`/`money.view` permission gap recorded in decision 171: whether the `finance_staff`/`approver` role templates should also receive `accounting.view` so journal numbers resolve on Cash/Bank Activity, or whether the "—" fallback already shipped is acceptable as-is.
+- Tax on bills and expenses with P7 (decision 78); fixed-asset hand-off of `pending` asset lines with P8 (decision 79); evidence storage with P11 (decision 83).
+- Tax screens still remaining after Part 3e's first increment -- Tax Overview, Tax Ledger and Tax Determination Detail (decision 173): the tax-facts recording forms (Entity profile, contact/counterparty facts, aggregation facts), the rule master (draft/publish/discard), the review queue and line-confirmation workflow, payments and their reversal (with step-up, decision 99), filings and evidence, period reconciliation, PPh Final UMKM's own compute screen, the Tax Calendar, Filing & Evidence, Tax Rules/Configuration (OWNER/Tax-only, Step 09 §15), and the PPh Final/Withholding/PPN family views (`/tax/pph`, `/tax/withholding`, `/tax/ppn`) (decisions 88, 99).
+- OWNER's tax adviser to verify the P7 rule baseline and the design choices of decisions 93-100 (customer-withheld PPh 23 credit, VAT refund, penalties, exempt band, holiday shifts) before P15.
+- Tax on documents already open at the cutover (decision 100; DATA_CUTOVER item 9).
+- OWNER's tax adviser to verify the fiscal depreciation groups and rates, and to decide the tax treatment of loan interest (deductibility, withholding), forgiven debt, dividends and capital returns (decisions 104, 106, 118), before P15.
+- OWNER to confirm the P8 permission choices: `equity.approve` owner-only and the extra step-up on write-offs, restructures and dividend reversals (decision 107).
+- Part 3f is fully closed out (decisions 174-178: Asset Register/Detail, Loan Register/Detail, Other Receivables/Payables Register/Detail, Capital & Equity Register/Detail, and the Depreciation report). This bullet used to claim every action form across the whole capability was still missing; a direct code audit on 4 October 2026 (decision 283) found that was stale -- obligation create/settle/write-off/reverse-settlement/void (decision 176), equity create/confirm/pay-dividend/reverse/reverse-payment/cancel (decision 177), every loan command except restructure/set-asset, and the depreciation run action itself (`postDepreciation`, decisions 104, 117) already had real wired-up UI forms; decision 283 closed the last two loan gaps (restructure, set-asset). That same audit, redone against `src/services/assets/assets.ts` specifically, found one more gap it had missed: `splitAsset`/`asset_split` had no form either -- closed as decision 286. Remaining for a later slice: current/non-current loan presentation with P10/reports (decision 109) -- a presentation-only item, not a missing action form; investigated 4 October 2026 and found to need a small migration (adding `current_portion`/`noncurrent_portion` to `public.loan_summary`, not pure client-side wiring) plus two OWNER judgment calls not yet answered anywhere: (a) "12 months from when" for the current/non-current cut (the sensible default is 12 months from the report's own as-of date, matching standard balance-sheet classification, but decision 109 never says so), and (b) whether the split belongs only on the Loan Summary report or also on the canonical Balance Sheet's `LOAN_LONG_TERM` line. The Asset Movement/Disposal Report named alongside Depreciation in Step 12's own report catalogue (decision 178) shipped as decision 279, alongside the Fiscal Depreciation Schedule and Asset GL reconciliation report from that same bullet (decision 197) -- the whole report-catalogue item is now closed.
+- Foreign-currency loans and assets, interest accrual and asset revaluation: the OWNER confirmed (2026-10-04) these are needed -- any selectable foreign currency with IDR as default, manual monthly exchange-rate entry, automatic FX gain/loss posting to P&L. The loans half shipped as decision 281 and the fixed-asset half (a historical-rate-only memo, no revaluation) as decision 282. Still open: interest accrual (Step 04 §6 still recognises interest when paid, not accrued).
+- OWNER's tax adviser to verify the payroll baseline before P15: the TER tables and categories, PTKP values, the occupational-cost cap, the treatment of employer Kesehatan/JKK/JKM as taxable benefits, PTKP proration for part-year employees, rounding, the JP cap dates and the treatment of over-withheld tax (decisions 121-123, 132).
+- OWNER to decide who holds the `payroll` role and whether payroll approval and payment should be OWNER-only (decisions 120, 125, 127); OWNER to decide the approval rules for `payroll`/`approve` and `payroll`/`pay`.
+- Payroll screens still remaining after Part 3g's first four increments -- Employee Register/Detail (decision 179), Payroll Run Register/Detail (decision 180), Payslip Register/Detail (decision 181), Payroll Tax & Liabilities (decision 182): every payroll action form (employee create/edit/end/record-employment/set-compensation/set-tax-profile/set-bpjs/set-tax-opening; run calculate/adjust/submit/approve/return/post/pay/close/reopen/correct -- all already service-wrapped, none yet given a UI), the payslip PDF/document export, and THR/severance and e-bupot export (decisions 132-133). `payroll_summary_report`/`payroll_control_report` (decision 182's own deferred list) shipped as the Payroll Summary/Payroll Control reports (decision 196).
+- Tax rule master review against official sources (2026-10-02, for P15; not tax advice, to be confirmed by
+  the OWNER's tax consultant before anything is published in production):
+  - Deadlines: PMK 81/2024 Pasal 94 moved the payment deadline of PPh 21 and PPh 23 to the 15th of the
+    following month from 2025; the master's version 1 says the 10th. Draft versions were prepared on the
+    non-production database for review; production needs the same correction.
+  - PPh Final UMKM (PP 20/2026, effective 22 Apr 2026): confirmed 0.5%, Rp4.8 billion ceiling, Rp500
+    million band for individuals only; individuals and Perseroan Perorangan have no time limit,
+    cooperatives 4 years, ordinary PT/CV/firma are no longer eligible (transition applies). The Rp4.8
+    billion test aggregates the turnover of husband, wife, minor children and every Perseroan Perorangan
+    they founded; the engine has no such aggregation yet beyond `aggregation_status`.
+  - Not in the master and not computed by the engine: corporate income tax (Pasal 17/31E, PPh 25/29),
+    PPh 21 for non-employees, marketplace PPh 22 (PMK 37/2025), annual SPT deadlines. PPh 4(2) on rent
+    and PPh 26 were added and the deadline correction published in decision 256; marketplace PPh 22 is
+    approved by the OWNER and is the next engine slice.
+- Forecast projection methodology decided by the OWNER (decision 250, answers decision 139). Confirm the "Committed" reading for budgets (decision 138) is what was intended.
+- Recurring rule / budget / revenue target screens (decisions 134-139) are now fully shipped (decisions 183-188), including Recurring Rule's own create/edit template builder (decision 188). The template builder's v1 line editor deliberately leaves every optional tax/discount/product-linkage field (`vat_treatment`, `discount_type`, `wht_object`, `tax_amount`, `product_id`, an account-linked line) unexposed in the UI (decision 188); OWNER to confirm whether a future increment should expose them or whether the defaulted-at-generation behavior is acceptable long-term.
+- Documents Center, Import Wizard and Command Menu screens (decisions 140-146) are a later slice (P13), like every other phase's screens; the download route's signed-URL generation needs Supabase Storage configured, which is an infrastructure step outside this repository's migrations.
+- OWNER to confirm the `legacy_open_items` rollback rule (decision 144: contacts archive only when unreferenced, everything else is a normal correction) and the `finance_admin` grant for `system.import`/`system.rollback_import` (decision 146) match intent before real opening-balance data is imported at P15 cutover.
+- The Financial Reports statement viewer (P&L/Balance Sheet/Equity/Cash Flow, decision 189), the General Ledger drill-down (decision 190), the P&L comparison-period columns (decision 191), the Custom Report Builder UI (decision 192), the Consolidated Analysis dashboard (decision 193), the Documents Center listing (decision 194), the Loans Due/Loan Summary reports (decision 195), the Payroll Summary/Payroll Control reports (decision 196), the Fiscal Depreciation Schedule/Asset GL Reconciliation reports (decision 197), the Documents Center Uploads/Linked Evidence sub-routes (decision 198) and the Command Menu quick-create registry (decision 199, OWNER-approved 4-item scope: Transfer Uang, Anggaran, Aturan Berulang, Target Pendapatan) are now shipped, and Part 4 is closed (decision 200). Still deferred, individually, not blocking Part 4's own "Implemented" status: the `/documents/archive` sub-route (decision 198: no RPC exposes `supersedes_document_id`) and Documents Center upload/download/detail (decision 194's own deferred list), plus the Asset Movement/Disposal Report (decision 178's own note: no dedicated RPC yet, new backend work). The Budget/Revenue-Target Forecast methodology (decision 139) stays an open OWNER decision and P12's reports do not attempt one either.
+- Part 5 is open (decisions 200-214): the Invoice/Payment Receipt document views were brought up to Step 11 -- Invoice/Receipt Visual Specification (status badges reusing the shared domain helpers instead of a local copy, a fixed print-safe color system immune to `prefers-color-scheme: dark`, a VOID watermark, a refund total line, §13's A4/pagination print rules, and the Public Invoice/Receipt page's own Mobile responsive treatment per §22 -- stacked line-item cards, a sticky print/download bar, a sticky payment CTA). The "Saya Sudah Bayar" form's field set (§9) and the invoice document RPC's customer-vs-internal data split (§16) were both audited against the spec and found already compliant, recorded in decision 201 rather than silently assumed. The broader Step 09 §23/Step 10 §22 mobile-table gap (every `.record-table` List/Detail screen, 38 files, only had `overflow-x: auto` on mobile instead of "cards/stacked rows") is now fully rolled out via the opt-in `record-table-stacked` class -- never a blanket change, since Reports' statement viewer and other genuinely columnar `.record-table` usages stay real tables per §23's own carve-out. Every Register/List screen shipped it first: `InvoicesListScreen` (decision 202); `AccountsListScreen`/`BillsListScreen`/`CashActivityScreen` (decision 203 -- the latter's own first column, `Tanggal`, deliberately stays the unlabelled heading instead of its drill-down `Akun` link, since it is a chronological cross-account feed rather than a register of one record kind); `AssetRegisterScreen`/`EquityRegisterScreen`/`LoanRegisterScreen`/`ObligationRegisterScreen` (decision 204); `EmployeeRegisterScreen`/`PayrollRunRegisterScreen`/`PayslipRegisterScreen`/`TransfersListScreen` (decision 205); `BudgetRegisterScreen`/`RecurringRuleRegisterScreen`/`RevenueTargetRegisterScreen`/`JournalsListScreen` (decision 206). Then 10 of the 13 Detail screens followed (decision 207): `AccountDetailScreen`, `BillDetailScreen`, `RecurringRuleDetailScreen`, `AssetDetailScreen`, `EmployeeDetailScreen` (3 tables), `PayslipDetailScreen` (3 tables), `PayrollRunDetailScreen` (3 tables), `EquityDetailScreen`, `ObligationDetailScreen` and `LoanDetailScreen` (3 tables) -- 18 tables. Then the last 4 not-yet-categorized screens (decision 208): `DepreciationReportScreen` (2 tables), `PayrollTaxScreen` (3 tables), `TaxLedgerScreen` and `DocumentsListScreen` -- 7 tables, none of them the period-by-period comparison shape the exclusions below are, despite three being named "report"/"ledger" screens. Finally decision 204's own deferred reachability question was answered (decision 209): all three Budget/Recurring/Revenue-Target "LinesEditor" components are confirmed live and reachable, but only `RecurringLinesEditor` (a plain repeating row list, inside `RecurringRuleForm`/`RecurringRuleDetailScreen`) shipped the treatment -- `BudgetLinesEditor` and `RevenueTargetLinesEditor` stay on plain `.record-table` by design, genuine category x month editable matrices whose own column count grows with the plan's date range, the same period-comparison shape decision 202/207 already excludes. The rollout is now genuinely complete across every screen and reachable editing component: 31 of 39 `.record-table` consumers are mobile-stacked, and the remaining 8 stay on plain `.record-table` as confirmed, genuine columnar/comparative tables -- `BudgetDetailScreen`'s and `RevenueTargetDetailScreen`'s own "vs Aktual" tables, `JournalDetailScreen`'s debit/credit grid, Reports' statement viewer/Chart of Accounts (decision 202's original carve-out), and `BudgetLinesEditor`/`RevenueTargetLinesEditor`'s own editable matrices (decision 209). The accessibility/motion polish pass then opened with its first concrete item (decision 210): a consistent, visible keyboard focus indicator (WCAG 2.4.7) for every interactive control, not just the handful of component classes (buttons, nav links, icon buttons, the P2 auth form) that already had one -- one base-level tag rule in `globals.css` extends the app's own already-established `outline: 2px solid var(--accent)` pattern to every `.record-table` drill-down link and every Create/Edit form's input/select/textarea, none of which previously had any override at all. Touch-target sizing was investigated and deliberately left open pending the exact spec number. The "loading visuals"/"error visuals" items were then shipped (decision 211): `src/app/(app)/loading.tsx` and `src/app/(app)/error.tsx`, Next.js's own App Router convention for segment-level loading and error UI, both entirely missing from the whole repo before this (confirmed by a repo-wide `find`, apart from the public invoice page's own bespoke `not-found.tsx`) despite every route under `(app)` fetching its own data via RPC before it can render. `error.tsx` deliberately never renders `error.message`, the same customer-facing-vs-internal boundary Step 11 §16 already establishes for document data, applied here to error text instead. Decision 211's own deferred item -- loading/error UI for the `/login`, `/auth/*` and `/i/[token]` route segments -- was then closed (decision 212): root-level `src/app/loading.tsx`/`error.tsx`, styled with `.shell`/`.card` (the precedent `not-found.tsx`/the auth pages already set for this exact route family, not a fresh choice); Next.js's own fallback rule means neither overrides `(app)`'s own pair. A `global-error.tsx` for the root layout itself was considered and left out, since the root layout has no data fetching of its own to fail.
+
+  Decisions 210-212 were built reasoning from indirect evidence in the existing codebase rather than the actual Step 09/Step 10 spec DOCX text, on a mistaken belief that those files were not reachable from this session; asked directly by the OWNER, this was checked and the files were in fact sitting one level up from the git repo in the same connected device folder. Reading them in full (decision 213) confirmed decision 210's focus-visibility work and 211/212's error-boundary work, but found decision 211/212's loading state did not comply: Step 09 §25/Step 10 §23-§24 require skeleton loading ("match final geometry," "neutral shimmer or subtle pulse compatible with reduced-motion"), not the plain "Memuat…" text panel shipped. Both `(app)/loading.tsx` (decision 211, already merged) and the root `loading.tsx` (decision 212, corrected before it ever shipped) now render a new `.skeleton-panel`/`.skeleton-block` pulse treatment instead, respecting `prefers-reduced-motion` by disabling the animation outright. The same spec read surfaced two further, now-concretely-scoped but out-of-scope-for-this-correction gaps: the plain-text `.list-empty` empty-state panel used across roughly 40 screens since decision 155's slicing began falls short of Step 09 §25/Step 10 §24's "action-oriented... one clear CTA" wording; and Step 10 §25 Dashboard Personalization describes a genuine, non-trivial feature (per-user/per-Entity widget reorder/hide preferences) the current Dashboard does not have at all, a schema-plus-feature build rather than a CSS-only polish item. Both are recorded as open rather than attempted here. Going forward, this session reads the actual spec DOCX directly (via the connected device folder) before further work touching Step 09/Step 10/any other Step's own wording, rather than reasoning from `DECISIONS.md`'s own prior citations alone.
+
+  Deferred to a further Part 5 increment: the Refund Receipt document view/template (`refund_receipt_document` exists and is authorized, but has no schema/service wrapper/component yet, and the Refunds screens that would reach it are still deferred -- a Part 3-scope gap, not Part 5's); Step 11 §23's named reusable component primitives (BrandHeader, DocumentIdentity, PartyBlock, FactGrid, LineItemTable, TotalsBlock, PaymentBlock, StatusMark, NotesTerms, DocumentFooter); §9's own payment-source/channel field and proof-upload (backend-blocked: no column, and Storage is still unconfigured per decision 142); the `.list-empty` empty-state CTA gap and Dashboard Personalization (decision 213, both now concretely scoped against the real spec text but not yet built); touch-target sizing against a concrete number; and the rest of Step 09/Step 10's own broader responsive/accessibility/motion polish pass (micro-interactions, motion beyond decision 156's own token-level `prefers-reduced-motion` override) that decision 155's plan places in Part 5.
+
+  Per the OWNER's explicit "pastikan bahwa P13 selesai dengan baik" instruction, this session then audited the codebase directly against Step 09 §28's and Step 10 §26's own named reusable-primitive lists (PageHeader, EntitySwitcher, GlobalSearch, CommandMenu, DataTable/ListWorkspace, FilterBar, StatusBadge, RecordTimeline, DetailTabs, Drawer, ConfirmAction) rather than assuming P13 Parts 1-4's prior work already covered them, since Step 15 §17's own P13 gate names "drawers" explicitly (decision 214). PageHeader (`.list-screen-header`/`.record-detail-header`), StatusBadge (`.status-badge-*`), CommandMenu (`⌘K`, `src/features/shell/CommandMenu.tsx`), EntitySwitcher and a functional FilterBar-equivalent (`.list-screen-toolbar`/`.list-search-form`, search + status filter, though without saved views/export) are all confirmed present as consistent, reused CSS-class-plus-JSX conventions -- this codebase's established way of building "reusable patterns," never literal named React components, which decisions 202-209's own record-table-stacked rollout and decision 210's focus-visible rule both already established as the house style. `ConfirmAction` is likewise met in spirit by the shared `ReasonForm` component (`InvoiceActions.tsx` and its siblings across every module with a Void/Correct/Reverse action): an inline, reason-required, two-step confirm rather than a literal centered modal, which still satisfies Step 09 §27's "reserved for meaningful irreversible/high-impact actions" intent.
+
+  Two items, however, are not met in any form and are genuine, objectively-verifiable gaps rather than a difference of implementation style: **Global Search** (Step 09 §6, §28) is entirely unwired on the frontend -- `CommandMenu.tsx`'s own doc comment states plainly that "Search-across-records (Global Search, `public.search`) stays unwired," even though the backend RPC (`public.search`, `20260930100300_p11_search.sql`, P11) has existed since P11 and ⌘K currently only searches the fixed sitemap plus the quick-create registry (decision 199), never an actual record; and **Drawer** (Step 09 §2, §9, §27, §28; Step 10 §19, §26) does not exist anywhere in the codebase in any form -- no `.drawer` CSS class, no `Drawer` component, and every List screen (confirmed directly in `AssetRegisterScreen.tsx` and, by the same established pattern, every other Register/List screen shipped since decision 164) links its rows straight to a full Detail page rather than opening the "Quick Preview... side drawer for fast review without losing list position" Step 09 §9 requires. `DetailTabs` (Step 09 §10, §28) is a third, softer gap: every Detail screen (confirmed in `AssetDetailScreen.tsx`, and the same stacked-`<section>` shape every other Detail screen shipped since decision 165 uses) lays its Summary/Activity/etc. sections out as a single scrollable page rather than clickable tabs -- this preserves the same information _order_ Step 09 §10 specifies, just not as an interactive `DetailTabs` widget, so it is a real but more debatable deviation than the other two.
+
+  Retrofitting Drawer-based quick preview and wiring Global Search would touch most of the ~30 List/Detail screen pairs already shipped across P3-P12 -- this is new frontend scope, not a CSS-only polish pass like the rest of Part 5, and Step 15 §17's own P13 gate names "drawers" as a specific completion criterion. Per this project's own standing rule that anything changing a user workflow goes to the OWNER as a question, this was not attempted unilaterally; the OWNER was asked directly how to scope it and chose to build both fully.
+
+  Decision 215 ships the two shared primitives, split from the retrofit itself (a further Part 6 increment) to keep each PR reviewable. **Drawer** (`src/features/shell/Drawer.tsx`): a generic right-side panel (Step 10 §19) with no record-specific knowledge -- Escape/backdrop-click to close, focus moved into the panel on open, a one-shot `animation` (not a `transition`, since the panel mounts/unmounts with `open` rather than staying resident) for the slide-in Step 10 §8 asks for, explicitly disabled under `prefers-reduced-motion: reduce` on top of `--motion-base` already collapsing to `0ms` -- the same belt-and-suspenders style decision 213's skeleton pulse established. **RecordPreviewLink** (`src/features/shell/RecordPreviewLink.tsx`): the List-row Quick Preview pattern (Step 09 §9) built on `Drawer`, deliberately zero-network -- every prop it takes (title, badges, fields) is data the row's own `<table>` already has, so retrofitting a Register/List screen to use it is a presentational change only, never a new RPC/service/schema. The underlying `<a href>` stays real (a modified click -- ⌘/Ctrl/Shift/Alt -- or middle-click still opens the full Detail page in a new tab instead of the Drawer), and the Drawer itself always offers a "Lihat Detail Lengkap" link to that same full page: Step 09 §10's complete Summary/Activity/Accounting/Tax/Documents/Audit architecture is untouched and remains the place for deep work -- the Drawer is a faster glance, not a replacement.
+
+  **Global Search** turned out to need far less new work than the audit implied: P11 had already shipped the full backend and a typed service wrapper (`public.search`, `src/services/search/search.ts`, `src/schemas/search.ts`, `src/domain/search/search.ts`'s own `SEARCH_TARGET_TYPE_LABELS`) -- CommandMenu's own doc comment was the only thing confirming it was never wired to the UI. This decision wires it: a new `searchRecordsAction` server action (`src/features/shell/searchActions.ts`) is a thin, zero-logic call-site for the existing `search()` service; `CommandMenu.tsx` debounces the query (250ms, 2-character minimum matching `search()`'s own server-side floor), guards against an out-of-order response with a ref (a stale response from an earlier keystroke is dropped, never shown), and renders results in a second, separately-labelled section below navigation/quick-create -- Step 13 §17's own "Command Menu navigation/action search remains separate from financial content search," not a single merged/ranked list. `src/domain/search/routes.ts` (`searchResultHref`, unit-tested) maps a result to its Detail route for 7 of the 9 indexed kinds; `contact` and `expense` return `null` and render as a plain, non-clickable row rather than a link that 404s, since neither has a Detail screen yet (Sales/Purchases screens still remaining, decisions 286/290/294) -- the same "known, scoped gap documented rather than guessed around" choice this project already makes elsewhere (e.g. decision 168's "Vendor" fallback).
+
+  No RPC, schema, migration or service-layer file changed -- `pnpm db:test`'s schema fingerprint stays `5335133e42e3`. `pnpm check`, `pnpm format:check` and `pnpm build` pass (658 tests, +3 for `routes.test.ts`).
+
+- Part 6 is closed (decisions 215-217): the Drawer/Global Search gap decision 214 found is closed at the OWNER's explicit direction ("Bangun penuh: Drawer + Global Search") rather than accepted as a documented deviation. Decision 215 ships the two shared primitives -- `Drawer`/`RecordPreviewLink` (Step 09 §9/§27, Step 10 §8/§19) and Global Search wired into Command Menu (Step 09 §6, Step 13 §17) via the already-shipped P11 `search()` service, `searchResultHref` routing 7 of 9 indexed kinds to their Detail page and leaving `contact`/`expense` non-clickable pending their own screens. Decision 216 retrofits `RecordPreviewLink` onto the first module group -- Sales, Purchases, Money and Accounting's own List screens (`InvoicesListScreen`, `BillsListScreen`, `AccountsListScreen`, `TransfersListScreen`, `JournalsListScreen`): every row's identity-column `<Link>` becomes a `RecordPreviewLink` carrying exactly the fields/badge that row's own table already renders, so each change is presentational only, no new RPC/service/schema. `CashActivityScreen` is a deliberate exclusion, not an oversight: its rows are cross-account _movements_, and the one link each row has already goes to the _account_ the movement belongs to (Account Detail) -- previewing "the account" from a movement row would show the wrong record (a movement has no Detail screen of its own), and the account's own Quick Preview already exists one screen up on `AccountsListScreen`, so adding a second, redundant preview here would not serve Step 09 §9's own intent.
+
+  Decision 217 retrofits `RecordPreviewLink` onto the second and final module group -- Assets & Financing, Payroll and Planning -- closing the 3-PR plan agreed with the OWNER to reduce merge count. Ten Register screens: `AssetRegisterScreen` (eyebrow "Aset," badges status+condition, fields Nama/Tanggal Perolehan/Sumber/Nilai Buku), `EquityRegisterScreen` ("Modal & Ekuitas," badges status+the optional exceeds-retained-earnings badge, fields Jenis/Tanggal/Pihak/Jumlah), `LoanRegisterScreen` ("Pinjaman," badges status+the optional overdue badge, fields Arah/Pihak/Pokok/Outstanding/Jatuh Tempo Berikutnya), `ObligationRegisterScreen` (eyebrow is the screen's own dynamic `title` -- "Piutang Lain" or "Utang Lain" depending on which nav item reached it -- fields Pihak/Tujuan/Jatuh Tempo/Pokok/Outstanding); `EmployeeRegisterScreen` ("Karyawan," fields Nama/Jabatan/Departemen/Jenis/Tanggal Masuk -- no compensation figure ever reaches this screen, so the Drawer surfaces nothing `employee_list` itself does not already return, the same boundary decision 205 already drew for the List table), `PayrollRunRegisterScreen` ("Proses Penggajian," fields Periode/Tanggal Bayar/Karyawan/Gaji Bersih), `PayslipRegisterScreen` ("Slip Gaji," fields Karyawan/Periode/Diterbitkan/Gaji Bersih); `BudgetRegisterScreen` ("Anggaran," fields Jenis Periode/Tahun Fiskal/Periode), `RecurringRuleRegisterScreen` ("Aturan Berulang," fields Jenis/Frekuensi/Berikutnya/Terakhir Dibuat) and `RevenueTargetRegisterScreen` ("Target Pendapatan," fields Jenis Periode/Tahun Fiskal/Periode) -- every one an exact application of decision 216's own established shape: the identity-column `<Link>` becomes `RecordPreviewLink` carrying the fields/badges that row's own table already renders, so the change stays presentational only, no new RPC/service/schema (`pnpm db:test`'s schema fingerprint is unaffected). `Link` from `next/link` is removed from the six files where it was otherwise unused after the swap (Asset/Equity/Loan/Obligation/Employee/PayrollRun/Payslip Register screens have no other `<Link>` on the page) and kept in `BudgetRegisterScreen`/`RecurringRuleRegisterScreen`/`RevenueTargetRegisterScreen`, whose own "Buat ... Baru" create-button `<Link>` still needs it.
+
+  `DocumentsListScreen.tsx` -- the eleventh screen decision 214's audit named -- is a deliberate exclusion, structurally different from `CashActivityScreen`'s: it is not that a Drawer here would preview the wrong record, it is that there is no Detail screen to preview _toward_ at all. Its filename cell (`row.file_name`) has never been a `<Link>` in the first place, confirmed by reading the file directly -- decision 198/208's own note states plainly "a plain filename with no drill-down since no per-document detail screen exists yet," unchanged since Documents Center Storage itself is still unconfigured (decision 142). Building a `RecordPreviewLink` around a target that does not exist would mean inventing an `href`, which this project's standing rule against guessing at backend surfaces that are not there does not allow; this stays an open item for whenever a document Detail screen and Storage both ship, not a Part 6 gap.
+
+  No RPC, schema, migration or service-layer file changed. `pnpm check`, `pnpm format:check` and `pnpm build` pass (658 tests, unchanged -- no new domain/routes logic, the same "presentational-only, no new test file" shape decision 216 already established); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3`). This closes Part 6 and the Step 15 §17 P13 gate's own "drawers" completion criterion in full: every List/Register screen decision 214's audit found reachable now offers Quick Preview, and Global Search is wired end to end. The `DetailTabs` softer gap decision 214 also named stays open, unchanged, pending its own OWNER scoping question -- it was never part of the OWNER's "Bangun penuh: Drawer + Global Search" scope, which named only those two items.
+
+- With Part 6 closed, the OWNER was asked how to proceed against the remaining Part 5 open items (decision 213's own deferred list) rather than assumed; chose "Lanjut item kecil dulu" -- the concretely-scoped, presentational-only items, building directly from the actual spec text without a further OWNER decision, the same pattern decisions 200-213 already used. Decision 218 closes two of them.
+
+  **The `.list-empty` empty-state CTA gap** (decision 213's own finding: "falls short of Step 09 §25/Step 10 §24's 'action-oriented... one clear CTA' wording"). Step 09 §9 (Standard List Screen Pattern) states the requirement precisely: "Empty state explains what belongs here and provides one clear action" -- re-read directly from the converted spec text (`pandoc`) rather than assumed from decision 213's own paraphrase, to ground the exact wording before building. `.list-empty` itself already meets Step 10 §24's "minimal line... treatment" half (a bordered, muted panel, no illustration) -- the gap was purely the missing CTA, so this increment adds one `.list-empty-action` CSS slot (`globals.css`) and wires it onto the 7 List/Register screens that actually have a `canCreate` prop to reuse: `InvoicesListScreen`, `BillsListScreen`, `AccountsListScreen`, `TransfersListScreen`, `BudgetRegisterScreen`, `RecurringRuleRegisterScreen`, `RevenueTargetRegisterScreen`. Two distinct actions, picked by which state produced the empty result, never both and never a third invented one: when a search/filter produced zero rows (`query.trim()`/`status`/`activeFilter` set), the CTA is "Hapus Saringan," linking back to the screen's own unfiltered base URL (each screen's own existing `buildHref`/base-path helper, so no new URL-building logic was written) -- offering "create" here would be wrong, since the person is searching for something that should already exist, not asking to make a new one. When genuinely empty with no filter active, the CTA is the exact same create action the screen's header already conditionally shows (`canCreate`, same `href`, same label) -- relocated into the empty panel, never a new or different action, so three of these seven (`InvoicesListScreen`/`BillsListScreen`/`AccountsListScreen`) route through the same catch-all placeholder (decision 157) their header button already does, which is a faithful continuation of what already exists on the page, not a claim that a real create flow now exists where one does not.
+
+  The remaining ~30 List/Register screens carry no `canCreate` prop at all -- their own create flow has never shipped (every one individually named in this file's own "still remaining" deferred bullets, e.g. Employee/Loan/Journal/Equity/Obligation/Payroll Run/Payslip register create forms). Adding a CTA there would mean inventing a destination this codebase does not have, which this project's standing rule against guessing at backend/frontend surfaces that are not there does not allow -- these screens keep the plain-text `.list-empty` panel, unchanged, and get their own CTA only as part of whichever future increment ships that screen's own create form (the same "resolved by the feature that actually adds the capability" boundary decision 217 drew for `DocumentsListScreen`).
+
+  **Touch-target sizing** (decision 210's own open question, "without the exact Step 10 spec wording on file to cite a required number"). Re-checked directly against the actual spec text now on file (`pandoc`-converted Step 09/Step 10, the same files decision 213 first read): the only line in either document mentioning touch targets is Step 10 §22's Tablet row, "Sidebar drawer, 1-2 column cards, simplified tables, touch-friendly actions" (implementation-vague) and its Mobile-section neighbor "Touch targets remain usable on mobile/tablet" -- no numeric minimum (24x24, 44x44 or otherwise) appears anywhere in either Step 09 or Step 10. `.icon-button`'s existing 36x36px (noted in decision 210) already clears the WCAG AA floor (24x24 with adequate spacing) that would apply in the absence of a project-specific number. This closes decision 210's own open question definitively rather than leaving it as a dangling "maybe": there is no further spec text to read that would resolve it, so it stays a permanently open item pending an OWNER-supplied number, not a to-do this session can complete on its own.
+
+  No RPC, schema, migration or service-layer file changed. `pnpm check`, `pnpm format:check` and `pnpm build` pass (658 tests, unchanged -- pure CSS/markup, no new domain logic to test); `pnpm db:test` passes (clean rebuild, schema fingerprint unchanged at `5335133e42e3`). Still open, unchanged from decision 213: Step 10 §25 Dashboard Personalization (a genuine new feature -- schema, RPC, UI -- out of scope for a polish increment, the OWNER declined to reprioritize it ahead of the small items in this same turn) and the `DetailTabs` softer gap (decision 214, never part of the OWNER's approved Drawer/Search scope).
+
+- Custom Report Builder's broader dataset/dimension/measure coverage, Saved Reports and Export are deferred beyond the three curated datasets P12 ships (decision 152).
+- Exact production color values for Step 10's locked palette direction may be tuned for contrast/accessibility during P13 Part 1 (Step 10 §2 explicitly allows this); OWNER to review the tuned values once implemented.
+- OWNER to review each P13 part (decision 155) against Steps 09-11 as it ships, since P13 is this project's largest single frontend slice and the first with no prior screens to extend from.
+- Part 1 specifics for the OWNER to confirm against Step 09 §5/§7's own mockups/wireframes if any exist beyond the written spec: the Entity switcher's placement in the top bar (left of the search field) rather than the sidebar; the exact wording of the "coming soon" placeholder shown for sitemap destinations without a screen yet; and the sidebar collapse preference being remembered per-browser (`localStorage`) rather than per-account.
+
+- With P13 substantially closed (Part 6's Drawer/Global Search retrofit done in full; Part 5's remaining small items closed by decision 218; Dashboard Personalization and `DetailTabs` deliberately deferred, the former at the OWNER's own explicit "di akhir saja" instruction), **Phase 14 (Hardening, Recovery & Performance) opens** (decision 219), per Step 15's own build order -- read directly from the converted spec text (`pandoc`, `/tmp/step15.txt`) this session, continuing decision 213's "read the actual spec, don't paraphrase" discipline, rather than assumed from the phase name alone.
+
+  **Security review.** The Supabase Security Advisor run against `hikarich-finance-prod` returned one WARN-level finding: `public.rls_auto_enable()`, a `SECURITY DEFINER` function declared `returns event_trigger`, owned by `postgres`, flagged as callable by both `anon` and `authenticated` roles via `/rest/v1/rpc/rls_auto_enable`. Confirmed absent from every migration this repository itself tracks (no match anywhere under `supabase/migrations` for the name); its live definition (read directly, not modified) shows it is Supabase's own platform-managed "auto-enable RLS on every new `public` table" event-trigger handler, not app-authored code. A function declared `returns event_trigger` can, by ordinary PostgreSQL semantics, only ever be invoked by the event-trigger machinery itself -- a direct RPC call against it fails at the language level regardless of any nominal EXECUTE grant a role holds -- so the WARN's practical exploitability against this app's own authorization design is assessed as none. This session attempted to confirm that empirically with a single, read-only diagnostic call, and the call was declined by this session's own tool-permission layer before it could run (unrelated to Supabase or RLS itself); the conclusion above therefore rests on the function's documented definition and standard PostgreSQL event-trigger semantics rather than an executed test, stated plainly here rather than glossed over. No corrective migration is proposed -- this is a Supabase-platform artifact outside this repository's own migration set, not a finding in this project's own RLS design.
+
+  **Performance review.** The Supabase Performance Advisor returned zero findings. Low-signal at this stage: a pre-launch database has no real data volume yet to meaningfully stress query plans, pagination or report aggregation against -- this bullet stays open, to be re-run against real usage data closer to launch rather than treated as closed now.
+
+  **Concurrency/idempotency stress testing.** `docs/TESTING.md` and `scripts/db-test.sh` were read directly and confirm five existing concurrency suites, each independently reviewed and mutation-tested in its own phase: `concurrency_test` (document-number allocation, P3), `posting_concurrency_test` (duplicate posting, P3), `money_concurrency_test` (transfers/reversals/matches, P4), `sales_concurrency_test` (payments/claims/reversals/voids/refunds, P5) and `purchases_concurrency_test` (bills/payments/voids/reversals/expenses, P6). Phase 14's own spec bullet names "payment, refund, posting, numbering and recurring generation" concurrency explicitly -- the first four are covered, but **no recurring-generation concurrency stress test exists anywhere** in `scripts/db-test.sh` or `supabase/tests/`: confirmed both by the test-file listing (`99_p10_planning.sql` is P10's own functional-correctness suite, not a concurrency one) and by the absence of any recurring-named concurrency function alongside the five that do exist. This is a genuine, concretely-scoped, spec-named gap fitting the established `db-test.sh` pattern exactly (synthetic entity, several `psql` sessions racing `generate_due_recurring_occurrences`/equivalent on the same rule, asserting exactly-once generation), and is proposed to the OWNER as the next small buildable item. No payroll concurrency suite exists either, but payroll is not named in Phase 14's own bullet, so this is noted rather than treated as in-scope.
+
+  Phase 14's remaining bullets -- backup/recovery and Storage recovery procedure verification in non-production, migration-from-clean and upgrade-from-previous-version tests, and accessibility/browser/device/failure-mode testing -- are substantial, and backup/recovery configuration specifically may need OWNER-level Supabase/Vercel account actions this session cannot take unilaterally. These are surfaced to the OWNER as a scoping question rather than assumed or silently deferred, mirroring the process decision 214 used when Part 6's scope was opened. No RPC, schema, migration or service-layer file changed this decision -- it is an audit, like decision 214. `pnpm db:test`'s schema fingerprint stays `5335133e42e3`.
+
+- Asked how to sequence the rest of Phase 14, the OWNER chose the concretely-scoped, no-account-dependency item decision 219 itself proposed: **build the missing recurring-generation concurrency stress test** (decision 220), fitting the established `db-test.sh` pattern (`concurrency_test`, `posting_concurrency_test`, `money_concurrency_test`, `sales_concurrency_test`, `purchases_concurrency_test`) exactly, over backup/recovery, migration/upgrade testing or moving on to P15.
+
+  **`recurring_concurrency_test`** (`scripts/db-test.sh`): a synthetic Entity with six active, immediately-due `expense`-kind recurring rules (the simplest kind to set up -- no customer/vendor contact needed, only a financial account and a `payee_name`). Six sessions call `public.run_due_recurring_occurrences` concurrently, racing to claim the same six due rules at once, exactly mirroring how a scheduled job and a manual "generate now" click (`RunDueRecurringOccurrencesButton`, decision 183) could genuinely overlap in production. The engine's own idempotency design (`20260928100200_p10_recurring_engine.sql`, read directly): each due rule is claimed with `for update skip locked` inside `run_due_recurring_occurrences`, so two concurrent runs structurally never process the same rule at once; `recurring_occurrences`' `UNIQUE (recurring_rule_id, occurrence_date)` is the idempotency backstop. The test asserts, after the race, exactly 6 generated occurrences, 6 distinct generated documents and 0 rules still due (never fewer -- a rule silently skipped -- and never more -- a rule double-processed); a second wave of 6 concurrent calls with nothing left due is asserted to be a pure no-op (still exactly 6 occurrence rows, no error). **Mutation-tested directly**, not just written and trusted: `for update skip locked` was temporarily removed from `run_due_recurring_occurrences` and `pnpm db:test` re-run against the mutated migration -- the new test failed loudly and correctly, catching the exact double-processing race the removed lock exists to prevent (two sessions both generated a document and both then hit `recurring_occurrences`' UNIQUE constraint, one succeeding and one raising an unhandled `duplicate key value violates unique constraint` error that `money_workers`' allowed-error filter does not permit); the migration was then restored byte-identical (diffed against a pre-mutation backup) and the full suite re-verified clean before shipping.
+
+  **Incidental discovery and fix: a calendar-boundary test bug in `96_p8_assets.sql`** (P8, already closed and mutation-tested per decisions 96-100). Running `pnpm db:test` today (2026-09-30, the last calendar day of the month) surfaced a pre-existing, latent flakiness: the "not through a month that is not over" case (line ~331) posted depreciation through _the current month's own end_ and expected `INVALID`, but `asset_post_depreciation`'s real guard (`20260926100300_p8_asset_lifecycle.sql`, read directly) only rejects `p_through > v_today` -- on the one day per month when the current month's end genuinely equals `v_today`, that through-date is not in the future and the call legitimately succeeds, so the test's own expectation was wrong specifically on that day, not the application code. This is a test-suite date-arithmetic bug, not an economic-meaning, tax, authorization or workflow change, so it was corrected directly rather than escalated: the assertion now uses _next_ month's end, which is unconditionally in the future relative to `v_today` on every calendar day, so it tests the intended "a future month-end is rejected" behavior without ever coinciding with today. Fixed with a comment explaining why, not silently. This was found and fixed only because this session happened to run `pnpm db:test` on the exact day it manifests -- flagged here plainly as a small but real illustration of why calendar-boundary/failure-mode testing (one of Phase 14's own remaining named bullets) has genuine value, rather than treated as a fluke to shrug off.
+
+  `pnpm check` passes (658 tests, unchanged -- no application/domain code touched). `pnpm db:test` passes: two clean rebuilds reproduce the identical schema fingerprint `5335133e42e3` (this decision adds a test script and corrects one test assertion, no migration/schema file changed), and the new `recurring_concurrency_test` runs cleanly in both rebuild passes. `npx prettier --check .` clean. Phase 14's remaining bullets (backup/recovery, migration-from-clean/upgrade tests, accessibility/browser/device/failure-mode testing) stay open, per decision 219.
+
+- Asked to sequence the next Phase 14 item, the OWNER chose **migration-from-clean and upgrade-from-previous-version tests** (decision 221) over accessibility/browser/device/failure-mode testing, backup/recovery, or moving to P15.
+
+  The exact spec line (`/tmp/step15.txt`, read directly): "Migration-from-clean and upgrade-from-previous-version tests." The "migration-from-clean" half already exists and has existed since P0/P1 (decision 7: "Two clean rebuilds must yield an identical schema" -- `scripts/db-test.sh`'s own `rebuild`/`fingerprint` pair, exercised at the top of every single `pnpm db:test` run this whole project). The "upgrade-from-previous-version" half is genuinely new, but this project has not shipped a production release yet -- Phase 15 (Production Launch) has not run -- so there is no historical previous version to literally restore and upgrade from. Rather than invent one or silently skip the bullet, the buildable, honest subset of the gate for a still-pre-launch codebase is identified and built: **prove migrations are safe to apply to a database that already holds real records, not only to an empty one** -- exactly what every future deploy to the live Supabase project will actually do, and a case `rebuild()`'s own clean-rebuild check has never once exercised, because `supabase/seed.sql` only ever runs after every migration is already applied (confirmed by re-reading `rebuild()` directly), so no migration in this whole test suite has ever been applied against non-empty tables.
+
+  **`upgrade_test`** (`scripts/db-test.sh`, a new standalone check run once after the two clean rebuilds, against its own throwaway `hikarich_upgrade_test` database): applies every migration except the newest one, runs `supabase/seed.sql` against that near-complete schema (two synthetic Entities, a COA, accounts, categories, a contact and a product -- real rows in real tables), then applies the single newest migration on top. Asserts three things, each a genuine "an upgrade would have broken production" failure mode: the newest migration must apply without error against the now-populated database (not just an empty one); the resulting schema must fingerprint identically to a normal clean rebuild (`fp1`) -- migrating "seed partway through" must never leave the database in a different shape than migrating everything first and seeding after; and the seeded records (Entities, ledger accounts, the demo contact) must still be exactly present afterward -- an upgrade must never touch, let alone lose, existing data. Deliberately holds back only the single newest migration, not an arbitrary earlier cutoff: this is what actually happens on every future PR in this project (one or a few new migration files land on top of a live, already-populated database), so the check is automatically exercised against whichever migration is newest at any given time, with no manual update ever needed as new migrations are added later. Once P15 actually launches and a real previous version exists, this same mechanism can be pointed at an archived migration-set snapshot for a stricter check; until then, this is the honest, buildable interpretation of the gate, stated plainly rather than glossed over.
+
+  Not formally mutation-tested the way decision 220's `recurring_concurrency_test` was: that test validated a genuinely novel concurrency-correctness property (`for update skip locked` actually preventing a real race) that needed empirical proof. `upgrade_test`'s own failure detection reuses only mechanisms already proven correct everywhere else in this file -- `${PSQL[@]}`'s `ON_ERROR_STOP=1` exit-code convention (identical to the `rebuild()` migration loop already exercised by every `pnpm db:test` run), and the `fingerprint()` function (identical to the `fp1`/`fp2` comparison already exercised the same way) -- so a second mutation pass would be re-testing already-proven machinery rather than new logic. Stated here rather than silently assumed equivalent rigor to decision 220.
+
+  No RPC, schema, migration or service-layer file changed -- `scripts/db-test.sh` only. `pnpm check` passes (658 tests, unchanged). `pnpm db:test` passes: two clean rebuilds reproduce fingerprint `5335133e42e3`, and the new `upgrade_test` passes on first run (the newest migration, `20260930200200_p12_consolidated_and_custom_reports.sql`, applies cleanly against the seeded database; fingerprint and record counts match). `npx prettier --check .` clean (`.sh` files have no Prettier parser and are correctly left unchecked, matching every prior `scripts/db-test.sh` edit this project). Phase 14's remaining bullets (backup/recovery verification, accessibility/browser/device/failure-mode testing) stay open.
+
+- Continuing Phase 14 with **accessibility, browser/device and failure-mode testing** (decision 222), without waiting for an OWNER sequencing choice, per the OWNER's explicit standing instruction to proceed automatically and never stop even without merge confirmation ("lanjutkan sampai selesai jangan berhenti"). The exact spec line (`/tmp/step15.txt`, re-confirmed by direct read): "Accessibility, browser/device and failure-mode testing."
+
+  **Live browser/device (E2E) testing was investigated first and found infeasible in this environment, on two independent grounds, both recorded here rather than silently worked around.** First: `docker info` confirms the Docker CLI is present in this cloud sandbox but its daemon is unreachable (`failed to connect to the Docker daemon... is the docker daemon running?`), so `supabase start` (which needs Docker Compose for a local PostgREST/GoTrue/Kong stack) cannot run here, ruling out driving the actual Next.js app against a real local backend. Second, and more significant: `mcp__Supabase__list_migrations` against `hikarich-finance-dev` (the hosted Preview/dev Supabase project backing Vercel Preview deployments, decision 6/14) shows only 15 migrations applied, ending at `p3_periods_opening`, while the repo's own migration set has 60 files, ending at P12 -- **`hikarich-finance-dev` is 57 migrations behind the codebase**, missing every P4-P12 table (money, sales, purchases, tax, assets, loans, equity, payroll, recurring, budgets, permissions, documents, imports, search, closing, statements). This means Preview deployments and any live browser testing against this real hosted project would fail for the large majority of the app's actual features today. This is a genuine, previously-unknown, live-infrastructure gap -- applying 57 migrations to a real hosted project unilaterally is exactly the kind of consequential shared-resource action this project's standing discipline reserves for OWNER awareness first, so it was deliberately NOT done here; it is flagged to the OWNER as its own separate item, distinct from and not blocking the buildable static-testing work below.
+
+  **`eslint-plugin-jsx-a11y`, full ruleset** (`package.json`, `eslint.config.mjs`): `eslint-config-next/core-web-vitals` already bundles this plugin but enables only 6 of its 34 rules (`alt-text`, the `aria-*` pair, the `role-*` pair), all at warn. Added `eslint-plugin-jsx-a11y@^6.10.2` as an explicit devDependency (already present transitively via pnpm's store) and wired in the plugin's full upstream `recommended` ruleset (34 rules -- `label-has-associated-control`, `anchor-is-valid`, `heading-has-content`, `html-has-lang`, `no-noninteractive-element-interactions` and more) as a permanent, automated check on every future change, not a one-off manual pass -- matching Phase 14's own framing of this bullet as ongoing testing infrastructure. Only `jsxA11y.flatConfigs.recommended.rules` is spread into the config, not the whole flat-config object: `eslint-config-next` already registers the `jsx-a11y` plugin under that name, and ESLint's flat config refuses to register the same plugin name twice (`ConfigError: Cannot redefine plugin "jsx-a11y"`) even with the identical underlying plugin object -- confirmed by hitting this exact error on the first attempt and fixing it by narrowing to `{ rules: jsxA11y.flatConfigs.recommended.rules }`.
+
+  Wiring in the full ruleset surfaced exactly 9 real, pre-existing errors, all in two files, all the same underlying pattern: `Drawer.tsx` (decision 213's generic right-side Drawer primitive) and `CommandMenu.tsx` (the ⌘K command palette) each render a full-screen backdrop `<div onClick={onClose}>` behind a `role="dialog"` panel `<div onClick={(event) => event.stopPropagation()}>`. Fixed with targeted, justified `eslint-disable-next-line` comments, not by restructuring away the pattern, because the pattern itself is correct and not a genuine accessibility gap: both components already wire a real `document.addEventListener("keydown", ...)` Escape handler (read directly in both files) that closes the same way the backdrop click does, so the keyboard-equivalent action jsx-a11y's rules ask for already exists -- it is just implemented via a global key listener rather than an `onKeyDown` prop on the backdrop element itself, which the static rule cannot see. Each disable comment states this reasoning inline (citing the specific Escape handler above it) rather than suppressing silently, per this project's standing discipline against gaming checks. The panel `<div>`'s own `onClick` exists only to call `event.stopPropagation()`, preventing a click inside the dialog from bubbling to the backdrop's close handler -- not itself a user-facing interaction, so it needs no keyboard equivalent either, and its disable comment says so. `CommandMenu.tsx`'s search `<input autoFocus>` (`jsx-a11y/no-autofocus`) is kept, with an inline comment explaining why it is safe here specifically: the palette only ever opens from an explicit user-initiated keyboard shortcut (never on page load or programmatically), so `autoFocus` moves focus in direct response to the same keypress that opened it, matching the same convention VS Code, Linear and Slack's own command palettes use, rather than the "focus moved away from something the user was doing, without their initiation" case the rule exists to catch.
+
+  `pnpm lint` now passes with zero errors and zero warnings (was 9 errors on the recommended ruleset's first run; a stray `Unused eslint-disable directive` warning from one comment's placement not matching the JSX attribute's own error line was found and fixed by moving the comment inside the opening tag's attribute list, directly above `autoFocus`, rather than as a sibling JSX comment above the element). `pnpm check` passes (658 tests, unchanged -- no test file touched). `pnpm db:test` passes: two clean rebuilds reproduce the identical schema fingerprint `5335133e42e3` (no migration/schema file touched by this decision). `npx prettier --check .` clean. Phase 14's remaining bullets: backup/recovery and Storage recovery procedure verification in non-production (needs OWNER-level Supabase/Vercel dashboard action, to be presented as an actionable checklist), and the newly-flagged `hikarich-finance-dev` migration-drift gap (57 migrations behind, needs OWNER awareness before this session applies them to a live hosted project) -- both stay open, continuing directly per the OWNER's "don't stop" instruction.
+
+- Continuing directly into Phase 14's last remaining bullet, **"backup/recovery and Storage recovery procedure verification in non-production"** (decision 223) -- an audit only, no code shipped, because what it found changes the shape of the work itself and this project's standing discipline sends exactly this kind of finding to the OWNER before building.
+
+  Re-reading `docs/DECISIONS.md`'s own existing OWNER decision (line 10, recorded 2026-09-19, before Phase 14 started) first: **"No paid Supabase upgrade for managed backups. Recovery relies on the in-app Backup & Restore Center (Step 01 #36) with export to external storage, plus a restore drill before real data (Step 16 §34)."** This already settled that this project does not rely on Supabase's own paid PITR/managed-backup capability -- recovery is instead built on an in-app feature. Confirmed via `mcp__Supabase__get_project` on both `hikarich-finance-prod` and `hikarich-finance-dev` (neither call exposes a plan/backup-retention field at all -- that posture lives only in the Supabase Dashboard's own Settings > Database > Backups screen, an OWNER-only account surface this session has no API path to read or change), consistent with the free-tier assumption decision line 10 already recorded.
+
+  **The in-app Backup & Restore Center this recovery plan depends on does not exist yet.** Searched the full repo (`src/`, `supabase/`) for any implementation and found none -- the only trace is a single navigation placeholder, `{ label: "Backup & Restore", href: "/admin/backup", ... }` (`src/domain/shell/navigation.ts:245`), which resolves to the generic "not yet built" catch-all placeholder (decision 157), not a real screen. This matches decision 5's own note, read directly: "Capabilities Step 15 does not name are mapped to the nearest valid phase... Backup & Restore Center and Storage Monitor (P14)" -- a _proposed_ mapping into this very phase, "to be confirmed when each phase starts." Decision 140 similarly already deferred the related Storage Dashboard (Step 01 #44) to P14 without building it. So Phase 14's own bullet cannot mean "verify an existing feature" here -- the feature it verifies has never been built. The two locked spec sections were read directly (`Hikarich_Finance_Master_Specification_FINAL.docx` via `pandoc`, and `16_..._QA_Acceptance_Criteria_FINAL.docx`) to ground this precisely rather than improvised:
+
+  - **Step 01 #36, Backup & Restore Center** (verbatim): "Full Backup, Data-only Backup, Documents Archive; validation before restore; history/reminders; external storage encouraged."
+  - **Step 01 #44, Document Retention & Storage** (verbatim, the related Storage Dashboard half): "Optimize Supabase Free using compression, configurable size limits, duplicate hash detection and shared references without sacrificing evidence integrity... Storage Dashboard tracks usage/file count/largest files/by Entity/type; financial/tax evidence is never casually auto-deleted... Old documents may be archived externally with relationships retained and controlled restore/relink."
+  - **Step 16 §34, Backup / Recovery Acceptance** (verbatim, the actual QA gate this Phase 14 bullet exists to satisfy): "Current production backup capability is verified before real financial use. A non-production restore drill proves database recovery procedure. Storage recovery/retention procedure is separately documented/tested for critical evidence. Restored environment passes migration/integrity/reconciliation checks before being considered usable. Recovery does not silently point restored Preview/testing systems to live external integrations. Recovery objectives are documented based on the actual subscribed infrastructure plan at launch."
+
+  Read together, this is a genuinely larger item than the other Phase 14 bullets shipped so far: it requires _building_ a new, spec-locked admin capability -- Full Backup, Data-only Backup, and Documents Archive exports; validation before restore; a restore path itself; history/reminders -- before that capability's own restore drill can even be attempted, and the restore path is high-stakes by construction (a feature whose whole purpose is writing recovered data back over, or alongside, real financial records). Two genuine open questions this session cannot resolve unilaterally, both squarely within this project's standing "anything changing... a user workflow goes to the OWNER as a question" rule: (1) the spec says export "external storage encouraged" without naming a specific provider or integration -- V1 scope (a plain download-to-the-OWNER's-device export, versus wiring up a specific external-storage integration) is an open choice, not a locked detail; (2) §34's "actual subscribed infrastructure plan" line means the _documented_ recovery objectives (RPO/RTO) depend on knowing whether the OWNER intends to stay on Supabase's free tier indefinitely or upgrade before real production use -- decision line 10 recorded the free-tier choice on 2026-09-19, before Phase 14 was reached, and is re-confirmed rather than silently assumed still current.
+
+  No RPC, schema, migration, service-layer or UI file changed -- this is an audit, like decisions 214 and 219. `pnpm db:test`'s schema fingerprint stays `5335133e42e3`. Surfaced to the OWNER directly, with a concrete recommended path (build the Backup & Restore Center's V1 scope -- Full/Data-only/Documents-Archive export with plain download, validation-before-restore, and a non-production restore drill -- deferring a specific external-storage-provider integration to a later increment unless the OWNER wants it now) rather than silently building an assumed scope or silently skipping the bullet.
+
+- The OWNER confirmed decision 223's recommended V1 scope: plain manual download/export (no external-storage integration in V1) and the free-tier Supabase assumption stays current. Decision 224 builds the Backup & Restore Center (Step 01 #36) **Part 1**: export (Full Backup, Data-only Backup, Documents Archive) plus history plus validate-before-restore -- everything read-only or append-only. The actual restore-write path is deliberately deferred to a Part 2 increment for its own dedicated build/test/review pass: it is the higher-stakes half (writing recovered data back over, or alongside, real financial records), matching this project's established practice of splitting high-stakes work into ordered Parts (the P13 Part 6 Drawer/Global Search retrofit is the same shape).
+
+  **Permissions**: `backup.create`/`backup.restore` were already catalogued in `20260920100100_p2_permission_catalog.sql` (P2) but never granted to any role template -- confirmed directly by grep. `app_authz.has_permission`'s own owner-bypass rule (`20260920100000_p2_authz_helpers.sql` line 93: `when a.role_key = 'owner' then exists (select 1 from public.permissions x where x.key = p_key)`) means OWNER already holds both automatically, since both keys already exist in `public.permissions` -- no grant migration was needed. No other role template grants either key, so this Center is OWNER-only today by construction, matching how `security.manage` and the rest of the Step 06 §3 matrix's most sensitive capabilities are handled. The nav placeholder's permission gate (`src/domain/shell/navigation.ts`) was wrong (`settings.view`, a much broader permission) and is corrected to the real catalogued keys (`backup.create`/`backup.restore`).
+
+  **Export design** (`supabase/migrations/20260930300000_p14_backup_restore.sql`): `export_backup_snapshot(p_entity, p_kind)` dynamically enumerates every `public` schema base table carrying an `entity_id` column via `information_schema` (`app_private.backup_export_tables`), rather than a hand-maintained list of the 106+ tables this repo now has -- the same "never goes stale as new tables are added" reasoning decision 221's `upgrade_test` already established for this project, now applied to data rather than migrations. "Full" is every Entity-scoped table; "Data-only" is the same set minus `audit_events` (append-only history, not current state) and `documents`/`document_links` (file metadata with no underlying bytes, Storage still unconfigured per decision 142 -- including them in a "data" backup would misleadingly imply a document restore that cannot happen). This table-inclusion split is this session's own documented, buildable interpretation: the locked spec (#36) names the two kinds without itemizing which tables each covers. "Documents Archive" honestly returns the `documents` row manifest with an explicit `storage_configured: false` flag and zero file bytes, rather than silently omitting the third kind or pretending file contents exist. Every export appends exactly one `backup_jobs` history row (Step 01 #36's own "history"); "reminders" is a pure function (`src/domain/backup/backup.ts`'s `backupReminderMessage`/`daysSinceLastBackup`, unit-tested) shown on the screen itself, not a scheduled notification -- no scheduling infrastructure exists for this yet, and inventing one was out of this increment's scope.
+
+  **Validate-before-restore** (`validate_backup_payload`, read-only, never writes): checks the payload is a JSON object with a `data` section, cross-checks the `checksum`/`entity_id` fields as warnings (not hard failures -- a backup restored into a different Entity than it was exported from is a legitimate, if unusual, recovery scenario the spec does not forbid), and walks every table's rows to reject (as a hard error) any row whose `entity_id` does not match the target Entity -- Entity isolation is "absolute" (Step 01 #38) even for a file the OWNER uploads themselves.
+
+  **Testing** (`supabase/tests/99_p14_1_backup.sql`, new; `00_baseline_invariants.sql`'s function-execute allowlist extended with `export_backup_snapshot`/`validate_backup_payload`; `10_structure.sql`'s existing `entity_id` immutability/`unique (entity_id, id)` invariants required `backup_jobs` to carry `tg_lock_entity` and the matching unique constraint, both added): two synthetic Entities to prove cross-Entity isolation, both the FORBIDDEN (finance_admin lacks either permission) and INVALID (unknown kind) paths, the Full/Data-only/Documents-Archive table-set distinctions, the `storage_configured: false` honesty check, a `backup_jobs` history-row-per-export count, a clean-payload validation pass, three malformed-payload validation failures (non-object, missing `data`, a tampered cross-Entity row), and `backup_jobs`' own RLS (an unpermissioned user sees zero history rows). Two real implementation bugs were caught and fixed by this test file before it ever passed: `jsonb_agg(t order by t.id)` failed outright against `entity_profiles` (one row per Entity, no `id` column of its own) -- fixed by dropping the ordering, since row order is not itself meaningful for a backup; and `v_errors || 'text'` (intending array-append) instead raised a Postgres "malformed array literal" error, since `||` between a `text[]` and a bare `text` is array-to-array concatenation, not append -- fixed with `array_append` throughout.
+
+  **Frontend**: `/admin/backup` (`src/app/(app)/admin/backup/page.tsx`) replaces the placeholder the nav already pointed at, gated on `backup.create` (the same "gate the page on the create RPC's own permission" shape every other `/new` page already establishes), with the validate-before-restore section additionally gated on `backup.restore` via `can(access, entityId, ...)` -- the same second-permission-beyond-the-page-gate shape `NewTransferPage`'s own `canConfirmOnCreate` already set (decision 170). `BackupRestoreScreen` (`src/features/backup/`) triggers each export's browser download client-side from the RPC's own JSON payload (`Blob` + a programmatic `<a download>` click) rather than a server route handler -- this codebase has never had one (confirmed: no `route.ts` file exists anywhere), and none is needed for a JSON blob. Server Actions (`src/features/backup/actions.ts`) are called directly as plain async functions, the same shape `searchRecordsAction` (`src/features/shell/searchActions.ts`) already established for a non-form-submission action, rather than forcing `useActionState`'s form-submission shape onto a "fetch data, then do something with it client-side" interaction. The validate-before-restore section says plainly, in its own copy, that the restore action itself is not yet available -- never implying a button is coming right after the person reads a validation result.
+
+  `pnpm check` passes (673 tests, up from 658 -- 15 new: 6 domain unit tests for `formatByteSize`/`daysSinceLastBackup`, plus the rest already counted in `pnpm test`'s file total). `pnpm build` passes (`/admin/backup` compiles as a real route, not the `[...slug]` placeholder). `pnpm db:test` passes: two clean rebuilds reproduce schema fingerprint `f1427317e184` (changed from `5335133e42e3` -- the first schema change since decision 220, as expected: one new table, two new RPCs), the new `99_p14_1_backup.sql` suite passes both rebuild passes, and the `upgrade_test` passes applying this migration on top of already-seeded data. `npx prettier --check .` clean. Phase 14's remaining items: the Backup & Restore Center's Part 2 (the actual restore-write path and its non-production restore drill -- the drill itself also needs either `hikarich-finance-dev` brought current or a fresh non-production Supabase branch/project, both already-flagged OWNER-relevant infrastructure gaps), and the live browser/device E2E half of accessibility testing (decision 222).
+
+- OWNER instruction ("saya lihat banyak halaman yang belum dibangun ... kerjakan saja semuanya" -- many nav
+  destinations are still unbuilt, so browsing is pointless; just build all of them): a full nav-vs-route
+  audit (`src/domain/shell/navigation.ts`'s 60 `href` values diffed against every real `page.tsx` under
+  `src/app`) found 32 still served by the `[...slug]` "coming soon" catch-all. Nearly every one already has
+  its backend fully `Implemented`/`Verified` per `docs/TASK_BOARD.md`'s own phase checklists -- this is
+  exactly the P13 screens/action-forms backlog `docs/DECISIONS.md`'s own "Open items for later phases"
+  section has been carrying forward since decisions 165-208, not new backend work, so it proceeds without a
+  new OWNER scoping question. Building continues item by item, one increment/PR per slice, the same
+  established rhythm, without pausing for confirmation between items per the OWNER's own standing
+  "lanjutkan sampai selesai jangan berhenti" instruction.
+
+  Decision 225, first increment: **Customers** (`/sales/customers`, `/sales/customers/[id]`) and **Vendors**
+  (`/purchases/vendors`, `/purchases/vendors/[id]`) -- the two items decisions 165/167 listed as remaining in
+  Part 3a/3b that were still genuinely unbuilt despite Part 3's own later closure note. Both read the same
+  `public.contacts` table (Step 02 §4); no RPC lists or reads a contact -- only `create_contact`/
+  `find_contact_duplicates` exist -- so `src/services/contacts/contacts.ts` extends the direct-table-read
+  pattern already established for accounting/money (decisions 161/167/169/170/171/172) rather than adding a
+  new RPC. One shared `ContactsListScreen`/`ContactDetailScreen` pair (`src/features/contacts/`) serves both
+  roles via a `role`/`basePath`/`title` prop, the same generalization precedent `DocumentsListScreen`
+  (decision 198) and Other Receivables/Payables (decision 176) already established; a contact recorded as
+  `kind = 'both'` legitimately appears on both lists, never duplicated or hidden. `tax_identifier` is a
+  genuinely sensitive column (Step 06 §6): `contacts_select`'s own column-level grant
+  (`app_private.expose_select`) never includes it for the `authenticated` role at all, so it is never
+  selected here -- selecting it would fail at the database itself. Revealing it on demand
+  (`reveal_sensitive('contact_tax_identifier', id)`, gated on the separate `contacts.view_sensitive`
+  permission) is deferred to a later increment, the same "no ungrounded UI" discipline every other
+  masked-field screen in this codebase already follows (Employee Detail, Payroll Run/Payslip). Unlike a
+  commercial document, a contact has no issue/void/correct lifecycle, so Detail keeps only Header and a
+  Summary of its own recorded facts, the same narrower application `AccountDetailScreen` established for a
+  non-document record (decision 169). Create/Edit is deferred (no `create_contact`/`update_contact` UI yet)
+  and stays on the catch-all placeholder for now.
+
+  `pnpm check` passes (673 tests, unchanged -- pure direct-read plumbing and routing, no new domain logic to
+  unit-test). `pnpm build` passes (`/sales/customers`, `/sales/customers/[id]`, `/purchases/vendors`,
+  `/purchases/vendors/[id]` all register as real routes, in place of the catch-all). `pnpm db:test` does not
+  apply (no migration touched). `npx prettier --check .` clean. Still deferred, per decisions 165/167's own
+  remaining lists minus these two items: the invoice/bill Create/Edit builders, Send, Payment Confirmation
+  queue, Refund actions, Record Expense builder, the Payment action, Products & Services, evidence upload,
+  aging, and every other item this session's fresh audit found still on the catch-all (Accounting Periods,
+  Opening Balances, Advanced Adjustments, Money Reconciliation, the Tax family screens, Planning Forecasts
+  -- blocked on decision 139's own open OWNER methodology question, Documents Archive -- needs new backend,
+  Recent Activity, and the Administration module). This branches from `main` independently of the
+  still-unmerged PR for decisions 225-226 shown in an earlier working-tree draft of this file that was never
+  committed -- to avoid confusion, this session's own decision numbering restarts cleanly at 225 from
+  `main`'s actual last committed decision (224); the other, differently-numbered 225/226 will renumber
+  automatically once that separate PR merges and this file is next touched.
+
+  Decision 226, second increment: **Accounting Periods** (`/accounting/periods`,
+  `/accounting/periods/[id]`), Step 09 §14's own "Period Close screen presents a checklist of
+  blockers/warnings before Close." No new RPC, schema or service wrapper -- `listAccountingPeriods`/
+  `getPeriodChecks`/`beginPeriodClose`/`cancelPeriodClose`/`closePeriod`/`reopenPeriod` were already fully
+  wrapped in `src/services/accounting/ledger.ts` since decision 172 (Part 3d), just never given a UI. The
+  List screen has no search toolbar (a year carries at most ~12 rows, all meant to be seen, not filtered
+  out) and no Create action (no RPC creates a period; `accounting_periods` is seeded per Entity). Detail
+  always fetches `period_close_checks` -- not only while `closing_review` -- so a person can see what would
+  block closing before even starting the review, matching the spec's own "before Close" wording; blockers
+  and warnings render through the existing `dashboard-list`/`status-badge` primitives `TasksAttention`
+  already established, no new CSS. Status actions (Begin Close/Cancel Close/Close, gated on `periods.close`;
+  Reopen, gated on `periods.reopen`) follow the exact `JournalActions`/`ReverseForm` shape: small
+  `useActionState` forms calling the unmodified P3 RPCs directly, reason-gated reveal-confirm for Reopen (≥10
+  characters, matching `reopenPeriodInputSchema`). Reopen's own `STEP_UP_REQUIRED` case needs no special
+  handling here -- `errorState`'s existing generic `AuthzError` mapping already renders `authzErrorMessage`'s
+  friendly copy directing the caller to re-authenticate, the same shape every other step-up-gated action in
+  this codebase already relies on.
+
+  `pnpm check` passes (673 tests, unchanged -- pure UI/action-wiring over already-tested RPCs, no new domain
+  logic to unit-test). `pnpm build` passes (`/accounting/periods`, `/accounting/periods/[id]` register as
+  real routes). `pnpm db:test` does not apply (no migration touched). `npx prettier --check .` clean. Still
+  on the catch-all: Opening Balances, Advanced Adjustments, Money Reconciliation, the Tax family screens,
+  Planning Forecasts, Documents Archive, Recent Activity, the Administration module, and every action-form
+  item decisions 165/167 still carry (invoice/bill builders, Send, Payment Confirmation queue, Refund
+  actions, Record Expense builder, the Payment action, Products & Services, evidence upload, aging).
+
+- `hikarich-finance-dev` brought current with the codebase (decision 227): OWNER approved applying the 46
+  pending migrations directly (this is the non-production Preview/dev backend, not real financial data).
+  Applied in strict filename order via the Supabase management API, matched by name against the 15 already
+  applied (Supabase assigns its own version timestamps on apply, which don't match the repo's own
+  filename-embedded dates -- expected, matched by migration _name_ instead). `list_migrations` now shows
+  61 migrations on `hikarich-finance-dev`, ending with `p14_backup_restore`, identical to the repo's own
+  `supabase/migrations/` set -- independently re-verified directly (not taken on trust) after the batch
+  finished. `hikarich-finance-prod` was never touched (confirmed unchanged). Security and performance
+  advisors were re-run afterward and show no new categories beyond what the codebase's own established
+  patterns already produce (SECURITY DEFINER RPCs with an internal `app_private.*_authorize` check on
+  every one, by design; RLS-enabled-no-policy on tables intentionally closed to direct SELECT, served only
+  through RPCs, including the new P9 payroll tables) -- nothing attributable specifically to this batch.
+
+  This closes the shared infrastructure gap decisions 222 and 223 both flagged as OWNER-relevant and
+  deliberately did not act on unilaterally. It unblocks both of Phase 14's remaining items at once: the
+  Backup & Restore Center's Part 2 non-production restore drill (Step 16 §34) now has a real, current,
+  non-production database to drill against, and the live browser/device E2E half of accessibility testing
+  (decision 222) can now run against a real Vercel Preview deployment (which backs onto `hikarich-finance-dev`)
+  instead of needing a local Docker-based Supabase stack this sandbox has never had. No repo files changed --
+  a pure database-side operation, like decisions 214/219/223's audits are pure documentation-side ones.
+  `pnpm db:test`'s schema fingerprint is unaffected (it tests a from-scratch local rebuild, not any hosted
+  project).
+
+- Live browser E2E smoke check against the now-current `hikarich-finance-dev` Preview deployment
+  (decision 228): with decision 227 shipped, the previously-blocked live half of decision 222's
+  accessibility/browser testing bullet was attempted for real. The PR's own Vercel Preview build
+  (`hikarich-finance-dqd025q3m-hikarich.vercel.app`, deployed against the now-current `hikarich-
+finance-dev`) was opened in a real browser. `/login` renders correctly end to end -- title,
+  heading, both fields (`Email`/`Kata sandi`) correctly wrapped in their own `<label>` (confirmed
+  via the page's accessibility tree, not assumed), submit button, zero console errors. This alone
+  is a meaningful confirmation: before decision 227, the large majority of routes would have
+  failed outright against a 57-migrations-behind backend (decision 222's own finding); now the
+  app actually renders against live infrastructure.
+
+  **Going further than the unauthenticated `/login` page requires signing in, and this session's own
+  standing safety rules prohibit that here.** Creating an account or entering a password is flatly
+  prohibited on any host that is not a local development address (`localhost`/`127.0.0.1`/`.test`) --
+  a real hosted Vercel Preview URL does not qualify, so this session cannot type real (or synthetic) login
+  credentials into it, with or without OWNER permission; that exception only covers a locally-running dev
+  server. This is a hard stop, not a scope choice, so authenticated live E2E/accessibility testing (walking
+  through actual List/Detail/Form screens signed in, keyboard-navigation and screen-reader passes on real
+  data-bearing pages, failure-mode testing against real validation) stays open pending one of: the OWNER
+  doing the signed-in walkthrough themselves (with this session driving specific checks alongside), or the
+  OWNER creating a dedicated non-production test login this session can be told to use. Recorded here
+  rather than worked around.
+
+  Renumbered 225->227 and 226->228 when merging onto `main`, which by then already had this project's own
+  decision 225 (Customers/Vendors) merged, with decision 226 (Accounting Periods, same numbering) queued in
+  its own still-open PR -- exactly the automatic renumbering the disambiguation note at the end of decision
+  225 above anticipated, done now (rather than waiting for that second PR to land first) so this branch stops
+  blocking on the conflict and 227/228 stay clear of either one. No content changed beyond the two
+  self-referential decision numbers and the section headers; this merge also fixed a pre-existing Markdown
+  typo in this branch's own original text (stray backslashes before backticks, which rendered literally
+  instead of as a code span) wherever it appeared in these two entries.
+
+- Payments Received and Refunds List/Detail (decision 229, unbuilt-screens backlog): `/sales/payments`,
+  `/sales/payments/[id]`, `/sales/refunds` -- Step 09's primary sitemap lists Payments Received and Refunds
+  as two separate Sales nav items. Both read `list_payments` (P5, decision 76): no `list_refunds` RPC exists
+  (only `payment_refund_options`, per-payment, and `refund_receipt_document`, per-refund -- neither wired to
+  any list yet), so Refunds is built as a filtered view of payments carrying refund activity
+  (`refund_status !== 'none'`), the same shared-List-screen-via-a-view-prop pattern decisions 198/176/225
+  already established, rather than guessing at an unbuilt data shape. Payment Detail has no single-item RPC
+  either (matching decision 226's own Accounting Periods precedent): the row comes from `list_payments`
+  matched by id for the Ringkasan fields (`refund_status`/`refundable`/`advance_remaining`, none of which
+  `payment_receipt_document` returns), and the already-shipped `ReceiptDocumentView` (P13 Part 5, built for
+  the public receipt page) is reused unchanged for the Dokumen section. The only status action wired is
+  Reverse Payment (`reverse_payment`, gated on `invoices.confirm_payment` -- there is no separate
+  `payments.reverse` permission key; the RPC itself refuses a payment with confirmed refunds still against
+  it, "reverse them first," which this form does not pre-check client-side, matching this codebase's own
+  "database is the one source of business truth" rule). Refund creation stays deferred: `actions.ts`'s own
+  standing note already scoped it to "their own queue screens (Step 09 §11 Payment confirmation queue...)
+  rather than a single-invoice action," the same reasoning that kept Confirm Payment/Refund out of
+  `InvoiceActions.tsx` since Part 3a.
+
+  `/sales/refunds` is gated on `refunds.view` (matching `navigation.ts`'s own declared permission for that
+  href), while `list_payments` itself is gated on `invoices.view` at the database level. Every role template
+  that currently holds `refunds.view` (finance_admin, approver) also holds `invoices.view`, so this does not
+  fail in practice today; flagged here as an OWNER-relevant observation rather than silently patched over,
+  since actually closing that gap would mean either widening `list_payments`' own gate or guaranteeing
+  `invoices.view` alongside every future `refunds.view` grant -- both authorization decisions outside this
+  increment's scope.
+
+  `pnpm check` passes (673 tests, unchanged -- pure UI/action-wiring over already-tested RPCs). `pnpm build`
+  passes (`/sales/payments`, `/sales/payments/[id]`, `/sales/refunds` register as real routes). `pnpm
+db:test` does not apply (no migration touched). `npx prettier --check .` clean. Still on the catch-all:
+  `/sales/products`, `/purchases/expenses`, `/purchases/payments`, Opening Balances, Advanced Adjustments,
+  Money Reconciliation, the Tax family screens, Planning Forecasts, Documents Archive, Recent Activity, the
+  Administration module, and every remaining action-form item decisions 165/167 still carry (invoice/bill
+  builders, Send, Payment Confirmation queue, Refund creation, Record Expense builder, the Payment action,
+  Products & Services, evidence upload, aging).
+
+- Payments Made List/Detail (decision 230, unbuilt-screens backlog): `/purchases/payments`,
+  `/purchases/payments/[id]` -- Step 09's primary sitemap lists Payments Made as a Purchases nav item (no
+  Refunds counterpart exists on the Purchases side, unlike decision 229's Sales pairing, so this stays a
+  plain List/Detail). Reads `list_vendor_payments` (P6), gated on `bills.view` matching `navigation.ts`.
+  Detail has no single-item RPC either (matching decisions 226/229's own precedent): the row comes from
+  `list_vendor_payments` matched by id. No printable document section: `payment_receipt_document` has no
+  vendor-payment counterpart, so Detail stays Header/Actions/Ringkasan only, the same narrower Standard
+  Record Detail Pattern subset Transfer Detail already uses (decision 169) -- `bill_count` is shown as a
+  plain number rather than a fabricated drill-down list, since no RPC returns the allocated bills' own
+  numbers. Only Reverse is wired (gated `bills.pay`, the RPC's own permission -- there is no separate
+  `payments.reverse` key), mirroring decision 229's own Sales-side Reverse Payment exactly.
+
+  `pnpm check` passes (673 tests, unchanged -- pure UI/action-wiring over already-tested RPCs). `pnpm build`
+  passes (`/purchases/payments`, `/purchases/payments/[id]` register as real routes). `pnpm db:test` does
+  not apply (no migration touched). `npx prettier --check .` clean. Still on the catch-all: `/sales/products`,
+  `/purchases/expenses`, Opening Balances, Advanced Adjustments, Money Reconciliation, the Tax family
+  screens, Planning Forecasts, Documents Archive, Recent Activity, the Administration module, and every
+  remaining action-form item decisions 165/167 still carry.
+
+- Reconciliation List, read-only (decision 231, unbuilt-screens backlog): `/money/reconciliation` --
+  reads `reconciliation_status` (per financial account: freshness, session-in-progress, unresolved lines,
+  outstanding movements), joined against `money_control` purely for each account's currency (the same
+  presentational join `mergeAccountRows`/`mergeTransferRows` already use), gated `money.view` matching both
+  RPCs. No search/filter toolbar, the same `PeriodsListScreen` precedent for a small, always-fully-shown
+  status overview.
+
+  This increment stops at the List screen. Starting a session and the full matching workspace
+  (`/money/reconciliation/new`, `/money/reconciliation/[id]`) were drafted and then deliberately cut back
+  out before shipping, once a close reading of `20260922100200_p4_reconciliation.sql` turned up a real
+  backend gap: `create_reconciliation_session`, `discard_reconciliation_session`, `add_statement_lines`,
+  `match_statement_line`/`unmatch_statement_line`/`exclude_statement_line`/`include_statement_line`,
+  `complete_reconciliation` and `reopen_reconciliation` are all real, already-wired-in-`services/money/
+money.ts` RPCs ready to call -- but **no RPC anywhere returns a `reconciliation_sessions` row's own
+  fields** (status open/reopened/reconciled, period, statement opening/closing, note). `reconciliation_
+status` is keyed per _account_, not per _session_, and only ever reports the latest **completed** session's
+  freshness -- never an in-progress one's own id. `reconciliation_workspace(p_session)` returns only its
+  statement lines, nothing about the session itself. This means: (1) a List row cannot link to an
+  in-progress session even to view it, since no RPC hands back that session's id; and (2) a workspace page,
+  if built anyway, could not honestly render its own header (period/statement balances) or correctly gate
+  its own actions (Complete/Discard only make sense on an open/reopened session, Reopen only on a reconciled
+  one) without fabricating or guessing that state -- exactly what this codebase's own discipline elsewhere
+  refuses to do (decision 230's `bill_count`-as-plain-number precedent, decision 226's "no single-item RPC"
+  precedent, both chose to show less rather than invent unreturned data). A `list_X` + client-side `.find()`
+  workaround (Accounting Periods, Payment Detail, Vendor Payment Detail's own precedent) does not apply here
+  either, because there is no `list_reconciliation_sessions` RPC to find from.
+
+  Closing this needs a new read RPC -- at minimum a `get_reconciliation_session(p_session)` (or a
+  `list_reconciliation_sessions(p_entity)` the same "look up from the list" pattern could reuse) returning
+  the session's status/period/statement balances/note, and ideally also surfacing an in-progress session's
+  own id per account so the List screen can link to it. Designing that RPC is new backend surface, not UI
+  wiring over an existing one, so it is flagged here for the OWNER rather than invented solo -- the same
+  class of gap as `/sales/products` and `/purchases/expenses` below.
+
+  While investigating this, the same audit confirmed two more backlog items are backend gaps, not just
+  missing UI, worth recording precisely since the catch-all previously listed them as plain unbuilt screens:
+  **`/sales/products`** -- `public.products`/`public.product_aliases` exist as tables (`20260919100400_
+p1_master_data.sql`) and `products.view`/`create`/`edit`/`archive` are catalogued permissions (P2), but
+  every migration was searched and **no RPC of any kind** (`list_products`, `create_product`, `get_product`,
+  ...) exists; the table is only ever read internally, by `create_invoice`/tax-facts logic looking up one
+  product by id to default a line. **`/purchases/expenses`** -- the full write lifecycle exists
+  (`create_expense_draft`/`update_expense_draft`/`submit_expense`/`confirm_expense`/`cancel_expense`/
+  `reverse_expense`/`correct_expense`, `20260924100200_p6_expenses.sql`), but **no `list_expenses` RPC**
+  exists at all, so even a Detail-only screen (reachable by a direct link from elsewhere, if there were one)
+  has nothing to read from. Both need new read RPCs before any UI increment, same as Reconciliation above.
+
+  `pnpm check` passes (678 tests, up from 673 -- `reconciliationList.test.ts` is new). `pnpm build` passes
+  (`/money/reconciliation` registers as a real route). `pnpm db:test` does not apply (no migration touched).
+  `npx prettier --check .` clean. Still on the catch-all: `/sales/products` (needs new backend), `/purchases/
+expenses` (needs new backend), the Money Reconciliation session/workspace (needs new backend, this
+  decision), Opening Balances, Advanced Adjustments, the Tax family screens, Planning Forecasts, Documents
+  Archive (needs new backend, decision 223's own finding), Recent Activity, the Administration module, and
+  every remaining action-form item decisions 165/167 still carry.
+
+- Advanced Adjustments (decision 232, unbuilt-screens backlog): `/accounting/adjustments` -- a single
+  form, not a List+New split, since `record_balance_adjustment` (P4, already wrapped as
+  `recordBalanceAdjustment` in `services/money/money.ts` since an earlier increment, just never given a
+  UI) posts its journal and money movement immediately and has no draft, list or detail RPC of its own.
+  Step 01 §28/Step 15 §8's own principle is what this form exists for: a reconciliation difference is
+  "corrected through an explicit balance adjustment," the counterpart the Reconciliation session workspace
+  above would eventually call into once its own backend gap is closed.
+
+  This item was reached after `/accounting/opening-balances` (next on the catch-all) turned out to be the
+  same class of gap decision 231 just documented: `post_opening_balances`/`complete_opening_balances`
+  (P3, already wrapped in `services/accounting/ledger.ts`) post immediately, but `public.opening_balance_
+batches` has **no reading RPC at all** -- so a List/Detail for it would have exactly the same "cannot
+  honestly show what already exists" problem as the Reconciliation workspace, not merely a missing form.
+  Recorded here rather than acted on solo, and Advanced Adjustments was built instead since it has no such
+  gap (`record_balance_adjustment` needs nothing read back, only ledger accounts and financial accounts
+  already served by existing RPCs).
+
+  Gated `money.adjust`, matching the RPC's own check exactly -- `navigation.ts` nests this item under the
+  Accounting section (parent-gated `accounting.view` only, no item-level permission declared for this
+  href), so gating by the RPC's real permission rather than the section's is this codebase's own established
+  discipline whenever the two could diverge (the `/sales/refunds` observation, decision 229). Confirmed this
+  never locks out anyone who could otherwise reach the item from the nav: `accountant` is the only role
+  template holding `money.adjust`, and it also holds `accounting.view` and `money.view`
+  (`20260920100100_p2_permission_catalog.sql`).
+
+  The counter (ledger) account picker uses `eligibleCounterAccounts` (new,
+  `src/domain/money/balanceAdjustment.ts`), filtering to active, non-group, non-control accounts other than
+  the opening-balance clearing account -- exactly `record_balance_adjustment`'s own validation, deliberately
+  not also requiring `allows_manual_posting` since the RPC itself does not check that flag either (tested
+  explicitly in `balanceAdjustment.test.ts` so a future "obviously it should filter on this too" edit does
+  not silently add a restriction the database disagrees with). On success there is nothing of its own to
+  redirect to (no adjustment record, no detail page) -- the form redirects to the affected account's own
+  Detail page instead, where the new movement already shows up in its ledger, the same "go see the result
+  where it actually lives" shape `TransferForm`'s create action already uses.
+
+  `pnpm check` passes (684 tests, up from 678 -- `balanceAdjustment.test.ts` is new). `pnpm build` passes
+  (`/accounting/adjustments` registers as a real route). `pnpm db:test` does not apply (no migration
+  touched). `npx prettier --check .` clean. Still on the catch-all: `/sales/products` (needs new backend),
+  `/purchases/expenses` (needs new backend), `/accounting/opening-balances` (needs new backend -- no
+  reading RPC over `opening_balance_batches`, this decision), the Money Reconciliation session/workspace
+  (needs new backend), the Tax family screens, Planning Forecasts, Documents Archive (needs new backend),
+  Recent Activity, the Administration module, and every remaining action-form item decisions 165/167 still
+  carry.
+
+- Tax Calendar (decision 233, unbuilt-screens backlog): `/tax/calendar` -- the first of the six remaining
+  Tax nav items (`/tax/pph`, `/tax/withholding`, `/tax/ppn`, `/tax/calendar`, `/tax/filing`, `/tax/rules`).
+  Before building anything, re-ran the same exhaustive RPC-inventory discipline decisions 231/232 just
+  established -- grepped every `create function public.` across all six P7 tax migrations
+  (`20260925100000_p7_tax_facts_rules.sql` through `20260925100500_p7_final_calendar.sql`) -- and found
+  this family is **not** the same class of gap as Reconciliation/Products/Expenses/Opening-Balances: every
+  read and write RPC the family needs is already service-wrapped in `src/services/tax/tax.ts` (built during
+  P7 itself, confirmed by decision "3e"'s own note), including reads for every remaining screen --
+  `getTaxCalendar`/`tax_calendar`, `previewFinalTax`/`computeFinalTax` (PPh Final), `getTaxPeriodPosition`,
+  `listTaxPayments`, `listTaxLedger` (all three already accept a `tax_type` filter covering PPh Final/
+  Withholding/PPN), `listRulesInForce`/`tax_rule_in_force` (Rules), and `listTaxEvidence`/`recordTaxFiling`
+  (Filing & Evidence). Two tables also carry their own direct-read RLS policy gated on `tax.view`
+  (`call app_private.expose_select(...)`, the same direct-table-read pattern decisions 161/167/170/171/172
+  established and decision 231's own `listTaxDeterminations` already used for `tax_determinations`):
+  `tax_rule_versions` (`tax_rule_versions_select`, `20260925100000_p7_tax_facts_rules.sql`) and
+  `tax_filings` (`tax_filings_select`, `20260925100400_p7_payments_filings.sql`) -- so a "list every rule"
+  view for `/tax/rules` and a "list every filing" view for `/tax/filing` are both buildable without a new
+  RPC too, the same way `/sales/products`/`/purchases/expenses`/the Reconciliation workspace/Opening
+  Balances are **not**. This finding is recorded in full here so the remaining five Tax items can each be
+  picked up as their own increment without re-doing this inventory.
+
+  Built the simplest of the six first: Tax Calendar is a pure List screen over `getTaxCalendar` (`tax_type`,
+  `tax_period`, `step`, `due_date`, `state`, `outstanding`, `rule_code`, `detail` -- already fully typed in
+  `src/schemas/tax.ts`, and every label it needs -- `CALENDAR_STEP_LABELS`/`CALENDAR_STATE_LABELS` -- already
+  exists in `src/domain/tax/tax.ts`, left over unused from `TaxOverviewScreen`'s own "Tenggat Terdekat"
+  section). `tax_calendar` itself defaults to a backward-looking window (the past three months through
+  today) when `p_from`/`p_to` are omitted -- a ledger-style default, not a calendar-style one -- so
+  `resolveTaxCalendarRange` (new, `src/domain/tax/taxCalendarList.ts`) widens and re-centres the page's own
+  default to one month back through two months ahead of today instead, the same `from`/`to` date-input
+  toolbar shape `CashActivityScreen` already uses (decision 203) rather than Tax Ledger's four-select
+  toolbar, since a calendar is read a window at a time, not filtered by family/source/status. Whatever the
+  user actually requests is passed through unchanged, `tax_calendar`'s own 36-month span limit left for the
+  database to enforce (no stricter than the RPC, decision 232's own precedent). Gated `tax.view` directly --
+  `tax_calendar`'s own exact check -- which happens to already be the Tax nav section's own parent-item
+  permission, so no gate-mismatch exists here the way decision 229's `/sales/refunds`/decision 232's
+  `/accounting/adjustments` observations found elsewhere.
+
+  `pnpm check` passes (689 tests, up from 684 -- `taxCalendarList.test.ts` is new). `pnpm build` passes
+  (`/tax/calendar` registers as a real route). `pnpm db:test` does not apply (no migration touched). `npx
+prettier --check .` clean. Still on the catch-all: `/sales/products` (needs new backend), `/purchases/
+expenses` (needs new backend), `/accounting/opening-balances` (needs new backend), the Money Reconciliation
+  session/workspace (needs new backend), `/tax/pph`, `/tax/withholding`, `/tax/ppn`, `/tax/filing`,
+  `/tax/rules` (all five newly confirmed buildable, no backend gap, this decision), Planning Forecasts,
+  Documents Archive (needs new backend), Recent Activity, the Administration module, and every remaining
+  action-form item decisions 165/167 still carry.
+
+- PPh Final UMKM (decision 234, unbuilt-screens backlog): `/tax/pph` -- the second of the six Tax family
+  items, the one with its own compute step (`tax_final_compute`) rather than a plain per-document accrual,
+  since the UMKM final-tax regime recognises a flat rate on turnover once a month, not line by line (Step 05
+  §9). A period picker (native `<input type="month">`, no client script needed for its own GET submission --
+  new `resolveTaxPeriod` in `src/domain/tax/tax.ts` accepts its "YYYY-MM" value directly, or a full
+  "YYYY-MM-01" period, falling back to the most recently completed month when neither is given) selects the
+  month; "Pratinjau" shows `tax_final_preview`'s live, unrecorded evaluation of that month, "Posisi
+  Tercatat" shows what `tax_period_position` says is actually on the books (both already service-wrapped,
+  confirmed backend-ready by decision 233's own inventory).
+
+  `tax_final_compute` itself needs `tax.confirm_facts` -- narrower than `tax_final_preview`/
+  `tax_period_position`'s own `tax.view`, which is the permission this page is gated on (matching the Tax
+  nav section's own parent permission, same as decision 233). Rather than gating the whole page on the
+  narrower permission (which would hide the figures from every `tax.view`-only role -- `finance_admin`,
+  `accountant`, `viewer_auditor` all hold `tax.view` but not `tax.confirm_facts`, only the dedicated `tax`
+  role template holds both, `20260920100100_p2_permission_catalog.sql`), the Compute button's own server
+  action lets `tax_final_compute`'s `AuthzError` surface naturally on submit, the same "let the RPC's own
+  narrower permission fail on the action, not the page" shape `ReverseForm`/`PeriodActions` already use. The
+  button is also disabled client-side whenever the live preview's own status is not `auto_determined` --
+  early feedback only, since `tax_final_compute` re-checks the identical condition itself and raises its own
+  `CONFLICT` if bypassed.
+
+  `pnpm check` passes (695 tests, up from 689 -- `resolveTaxPeriod`'s own new test cases in `tax.test.ts`).
+  `pnpm build` passes (`/tax/pph` registers as a real route). `pnpm db:test` does not apply (no migration
+  touched). `npx prettier --check .` clean. Still on the catch-all: `/sales/products` (needs new backend),
+  `/purchases/expenses` (needs new backend), `/accounting/opening-balances` (needs new backend), the Money
+  Reconciliation session/workspace (needs new backend), `/tax/withholding`, `/tax/ppn`, `/tax/filing`,
+  `/tax/rules` (all four confirmed buildable, no backend gap), Planning Forecasts, Documents Archive (needs
+  new backend), Recent Activity, the Administration module, and every remaining action-form item decisions
+  165/167 still carry.
+
+- Withholding (PPh 23) and PPN (decision 235, unbuilt-screens backlog): `/tax/withholding` and `/tax/ppn`,
+  the third and fourth Tax family items, shipped together since both are read-only period position reports
+  with no compute step of their own -- unlike PPh Final UMKM (decision 234), withholding and VAT are
+  determined automatically per document, at invoice/bill/expense time (Step 05), not from a monthly batch
+  action on these screens. New `TaxPositionScreen` (`src/features/tax/TaxPositionScreen.tsx`) is shared
+  between both routes, a `taxType`/`title` prop picking the role -- the same shared-screen-via-a-prop
+  generalization decisions 198/176/225/229 already established, here extending PPh Final's own layout
+  (period picker, "Posisi Tercatat" section, link to the filtered Tax Ledger) but dropping the "Pratinjau"/
+  Compute half entirely, since `tax_period_position` is the only RPC either screen needs. Reuses
+  `resolveTaxPeriod` unchanged from decision 234 for the same native `<input type="month">` period picker.
+  `accrued_asset`/`applied_asset`/`asset_available` (the input-VAT-credit fields) render only when
+  `taxType === "vat"`, since those concepts are meaningless for withholding's own payable-only position.
+  Gated `tax.view` on both pages, matching `tax_period_position`'s own exact check and the Tax nav section's
+  own parent permission -- no narrower action exists on either screen to create a gate-mismatch the way
+  decision 234's Compute button did.
+
+  `recordTaxPayment`, `recordTaxFiling`, and `tax_reconcile_period` (gated the even narrower
+  `tax.mark_filed`, confirmed by decision 233's own permission-catalog inventory) are deliberately NOT wired
+  into either screen. Paying, filing, reconciling, and evidence all belong together as the period-closing
+  action set for a dedicated `/tax/filing` ("Filing & Evidence") increment, not scattered across the three
+  read-only position reports -- the same "defer to the increment where it naturally belongs" scoping
+  decision 234's own Compute-vs-page split established in miniature, applied here at the level of an entire
+  action family rather than one button.
+
+  `pnpm check` passes (695 tests, unchanged from decision 234 -- no new domain logic, `resolveTaxPeriod` and
+  `TaxPeriodPosition` were both already fully covered). `pnpm build` passes (`/tax/withholding` and
+  `/tax/ppn` both register as real routes). `pnpm db:test` does not apply (no migration touched). `npx
+prettier --check .` clean. Still on the catch-all: `/sales/products` (needs new backend), `/purchases/
+expenses` (needs new backend), `/accounting/opening-balances` (needs new backend), the Money
+  Reconciliation session/workspace (needs new backend), `/tax/filing`, `/tax/rules` (both confirmed
+  buildable, no backend gap), Planning Forecasts, Documents Archive (needs new backend), Recent Activity, the
+  Administration module, and every remaining action-form item decisions 165/167 still carry.
+
+- Filing & Evidence (decision 238, unbuilt-screens backlog): `/tax/filing` -- the fifth Tax family item, the
+  period-closing action set decision 235 deliberately deferred out of `/tax/pph`/`/tax/withholding`/
+  `/tax/ppn`: recording a payment (`tax_record_payment`, and reversing one via `tax_reverse_payment`),
+  recording a filing -- original or amendment -- (`tax_record_filing`), reconciling the period
+  (`tax_reconcile_period`), and attaching evidence (`tax_link_evidence`/`tax_list_evidence`). One screen
+  serves all three tax types these write RPCs accept (`vat`/`wht_pph23`/`final_umkm` -- new
+  `resolveFilingTaxType`/`FILING_TAX_TYPES` in `src/domain/tax/tax.ts`; `wht_pph21`, employee withholding,
+  is excluded because `tax_record_payment`/`tax_record_filing`/`tax_reconcile_period` all reject it --
+  that type is settled through Payroll's own tax ledger, `/payroll/tax`, instead) through its own `?type=`
+  selector, rather than tripling the same five forms across three near-identical pages.
+
+  Most of the domain-layer groundwork for this screen was already sitting unused in `src/domain/tax/tax.ts`
+  from earlier P7 work -- `checkTaxPayment`/`PAYMENT_ISSUE_LABELS` (shape checks mirroring
+  `tax_record_payment`'s own validation exactly, for early feedback on the payment form) and
+  `EVIDENCE_PURPOSE_LABELS`, the same "unused domain helpers left over, ready for the screen that needed
+  them" pattern decision 233's own Tax Calendar labels were. New: `resolveFilingTaxType`/`FILING_TAX_TYPES`
+  and `eligibleTaxPaymentAccounts` (a payment's paying account must hold the Entity's own base currency,
+  `tax_record_payment`'s own check, mirroring decision 232's own `eligibleCounterAccounts`). The paying
+  account list itself reuses `listActiveFinancialAccounts` (`src/services/planning/planning.ts`, already
+  built for Recurring Rules) rather than a new tax-specific query.
+
+  `tax_period_position` already returns a `reconciliation` object (the period's current reconciliation
+  outcome/note/staleness) that `periodPositionSchema` had never been extended to read -- extended it here
+  (`reconciliation: taxReconciliationSchema`, new) since this screen is the first to need it; no RPC
+  behavior changed, only more of an already-returned response is now read.
+
+  Evidence in this increment targets **the period's own filing only** (`target_type: "tax_filing"`) --
+  `tax_link_evidence` also accepts a `"tax_payment"` target (each payment has its own transfer-receipt
+  evidence too), but that needs a target picker per payment row on top of the document search already
+  here; the primary real-world need -- attaching the filing receipt itself -- does not, so per-payment
+  evidence is left for a later refinement of this same screen, the same kind of incremental scoping
+  decision 235 itself made when it deferred this whole action family out of the position-report screens.
+  The evidence section (and its `?doc_q=` document search, `list_documents`, plain GET, no client script)
+  only renders once a filing exists for the period. `list_documents` needs the separate `documents.view`
+  permission (not `tax.view`); a viewer without it still sees the rest of the page, only the search itself
+  reports it cannot run -- caught in `page.tsx` rather than crashing the render, the one read on this page
+  that is not the page's own `tax.view` gate.
+
+  Every write action's own server action (`taxFilingActions.ts`) lets its `AuthzError` surface on submit
+  rather than pre-checking `tax.mark_filed` -- the same shape `taxFinalActions.ts`/`ReverseForm`/
+  `PeriodActions` already use throughout, and the only one available here since (per decision 233's own
+  permission-catalog reading) only the `tax` role template holds `tax.mark_filed` alongside `tax.view`.
+
+  `pnpm check` passes (701 tests, up from 695 -- `resolveFilingTaxType`/`eligibleTaxPaymentAccounts`'s own
+  new test cases in `tax.test.ts`, plus a `periodPositionSchema` test extended for the new `reconciliation`
+  field and one added for a reconciled-with-differences case). `pnpm build` passes (`/tax/filing` registers
+  as a real route). `pnpm db:test` does not apply (no migration touched). `npx prettier --check .` clean.
+  Still on the catch-all: `/sales/products` (needs new backend), `/purchases/expenses` (needs new backend),
+  `/accounting/opening-balances` (needs new backend), the Money Reconciliation session/workspace (needs new
+  backend), `/tax/rules` (confirmed buildable, no backend gap), per-payment evidence on this same screen
+  (deferred above), Planning Forecasts, Documents Archive (needs new backend), Recent Activity, the
+  Administration module, and every remaining action-form item decisions 165/167 still carry.
+
+- Tax Rules / Configuration, read-only (decision 239, unbuilt-screens backlog): `/tax/rules` -- the sixth and
+  last Tax family item, a List/Detail over the global statutory rule master (`public.tax_rule_versions`, Step
+  05 §13). No RPC lists every version of every rule -- only `tax_rule_in_force(code, date)` returns the
+  single version in force for one code on one date -- so both screens read the table directly
+  (`listTaxRuleVersions`, new, `src/services/tax/tax.ts`), covered by that table's own pre-existing
+  `tax.view`-gated RLS policy (`tax_rule_versions_select`), the exact `listActiveCategories`/
+  `listTaxDeterminations`/`getEntityBaseCurrency` direct-table-read precedent decisions 161/167/170/171/
+  172/173 and this file's own Filing & Evidence groundwork already established. The rule master carries no
+  `entity_id` -- it is the same for every Entity -- so the List screen has no per-row Entity column, and the
+  page gate uses the current Entity's `tax.view` only to keep this item consistent with the rest of the Tax
+  nav section (the same reasoning `tax_rule_in_force`'s own `app_authz.has_any_permission` check already
+  applies at the database layer).
+
+  **Deliberately read-only this increment.** `saveRuleDraft`/`publishRule`/`discardRule` (and their RPCs,
+  `tax_rule_draft_save`/`tax_rule_publish`/`tax_rule_discard`) were already fully built in the service and
+  schema layers from earlier P7 work, with no UI -- unlike every other "unused helper" this backlog has found
+  (decision 233's calendar labels, decision 238's payment-check helpers), building a UI on top of these three
+  is **not** exercised here, and this is a deliberate scope decision, not an oversight. Reasons: (1)
+  `tax_rule_draft_save`'s own params shape is validated per rule family by
+  `app_private.tax_rule_params_problem` (`20260925100000_p7_tax_facts_rules.sql`) with materially different,
+  deeply nested JSON per family -- a `rounding` object and a decimal `rate` for `ppn`/`pph23`/`pph_final_umkm`,
+  plus a `dpp_numerator`/`dpp_denominator` pair for `ppn` alone, a `non_npwp_multiplier` and an `objects` array
+  cross-checked against `tax_treatment_catalog` for `pph23`, an `annual_ceiling`/`eligible_kinds`/`exempt_band`
+  shape for `pph_final_umkm`, and presumably more for the families this migration's excerpt did not show --
+  designing a guided, family-aware editing form for all of this without the Step 05 spec text in hand (kept
+  by the OWNER outside this repository, `docs/SPEC_INDEX.md`) risks guessing at a UX the spec may already
+  prescribe, or silently narrowing what a future rule family needs. (2) Publishing a rule version is a
+  **material act** by design -- it needs `tax.manage_rules`, a recent step-up (`app_authz.recent_step_up()`),
+  and a verified source, and a mistake here changes real tax output for every document evaluated afterwards,
+  squarely inside this project's own standing rule that anything changing tax/economic meaning goes to the
+  OWNER as a question rather than being decided solo. This is therefore filed as an **OWNER QUESTION** (resolved by decision 249) below,
+  not built blind: what should the rule-authoring UI look like (raw JSON `params` entry with server-side
+  validation surfacing `tax_rule_params_problem`'s own message, or a structured sub-form per family), and
+  should a second person's review be expected before publish beyond the step-up MFA the database already
+  requires? Read-only List/Detail delivers the actual near-term need (seeing what the system currently
+  asserts as law, and its source) without that open design question blocking it.
+
+  The List screen follows `TaxLedgerScreen`'s own Standard List Screen Pattern (a GET-form toolbar of
+  family/status `<select>` filters plus a free-text search over the code and source title/reference, new
+  `src/domain/tax/taxRulesList.ts` mirroring `taxLedgerList.ts` function-for-function). New vocabulary in
+  `src/domain/tax/tax.ts`: `RuleFamily`/`RULE_FAMILY_LABELS` (the rule master's `family` column, widened
+  since the P7 baseline by the P8 fiscal-depreciation and P9 payroll-rules migrations to include
+  `fiscal_depreciation`/`bpjs`), `RuleStatus`/`RULE_STATUS_LABELS`/`RULE_STATUS_TONE`
+  (`draft`/`published`/`discarded`), `RuleVerificationStatus`/`RULE_VERIFICATION_LABELS`
+  (`verified`/`needs_review`). The Detail screen shows one version's full source/verification/params (raw
+  JSON, pretty-printed in a new `.record-raw-block` style, `globals.css`) plus every other version of the
+  same code, each linking to its own Detail page, since the rule master's own point is showing how a value
+  changed over time.
+
+  This module deliberately does **not** compute "which version is in force right now" client-side --
+  `app_private.tax_rule_at`/`tax_rule_in_force` already do this in the database, and decision 237 just found
+  that "today" itself is ambiguous between an Entity's timezone and the caller's; re-deriving that comparison
+  here, for a screen whose whole point is to be trustworthy reference data, risks the same class of bug for
+  no real benefit -- a viewer comparing `effective_from`/`status` against a date they already know answers
+  the same question.
+
+  `pnpm check` passes (713 tests, up from 701 -- `taxRulesList.test.ts`, new, mirroring
+  `taxLedgerList.test.ts`'s own coverage shape, plus one new `taxRuleVersionListSchema` schema test). `pnpm
+build` passes (`/tax/rules` and `/tax/rules/[id]` both register as real routes). `pnpm db:test` does not
+  apply (no migration touched). `npx prettier --check .` clean. This closes the Tax family: every item
+  `docs/TRACEABILITY.md`'s Step 09 §9-§15/Step 05 §13 audit named is now built or explicitly deferred with a
+  reason. Still on the catch-all: `/sales/products` (needs new backend), `/purchases/expenses` (needs new
+  backend), `/accounting/opening-balances` (needs new backend), the Money Reconciliation session/workspace
+  (needs new backend), per-payment evidence on `/tax/filing` (deferred, decision 238), the rule-authoring UI
+  on `/tax/rules` (**OWNER QUESTION above, resolved by decision 249**), Planning Forecasts, Documents Archive (needs new
+  backend), Recent Activity, the Administration module, and every remaining action-form item decisions
+  165/167 still carry.
+
+- `/reports/*` nav sub-item routing (decision 240, unbuilt-screens backlog): the routing-only fix the
+  backlog note has carried since decision 225 for the seven `/reports/*` nav sub-items
+  (`src/domain/shell/navigation.ts`) that never got a page of their own. Three of them name content that
+  already ships as a `/reports?statement=` tab (P13 Part 4) with exactly one matching tab, so each now gets a
+  tiny server page that only `redirect()`s there, carrying `?entity=` forward: `/reports/cashflow` ->
+  `statement=cashflow`, `/reports/payroll` -> `statement=payroll_summary`, `/reports/custom` ->
+  `statement=custom`. The mapping lives in one place, `REPORT_SUBROUTE_STATEMENTS`/`reportSubrouteHref`
+  (`src/domain/reports/reports.ts`, unit-tested), not repeated per page. No permission check is duplicated
+  in the redirect pages -- the target `/reports` page's own `requirePermission` still decides access, so a
+  person who could not open the tab directly cannot open it through the sub-route either.
+
+  **Deliberately not mapped** (they keep falling through to the `[...slug]` placeholder, decision 157,
+  rather than guessing): `/reports/sales-purchase` (no Sales/Purchase report tab or RPC exists),
+  `/reports/tax` (no Tax report tab; whether it should point at `/tax/ledger`, one of the period-position
+  screens, or a future combined report is a product choice, not a routing one), `/reports/assets-loans`
+  (four candidate tabs -- Pinjaman Jatuh Tempo, Ringkasan Pinjaman, Jadwal Penyusutan Fiskal, Kontrol Aset
+  Tetap -- and none is obviously "the" one), and `/reports/saved` (no saved-report backend at all). Both
+  `/reports/tax` and `/reports/assets-loans` can become one-line additions to `REPORT_SUBROUTE_STATEMENTS`
+  once the OWNER says which destination they mean.
+
+  `pnpm check` (716 tests, up from 713 -- three new `reportSubrouteHref` tests), `pnpm build` (3 new real
+  routes replacing the catch-all), `pnpm db:test` N/A (no migration touched), prettier clean. Verified via
+  CI on the PR rather than locally: this session's network policy blocks the npm registry, so dependencies
+  could not be installed here.
+
+- Import history, read-only (decision 241, unbuilt-screens backlog): `/admin/imports` and
+  `/admin/imports/[id]` -- the Administration item whose backend has existed since P11 (decisions 140-146)
+  with no screen. `list_import_batches` and `get_import_batch_rows` (and their service wrappers
+  `listImportBatches`/`getImportBatchRows`) were already built and unused; both are gated on
+  `system.import` inside the database, which is also this page's gate and `navigation.ts`'s own declared
+  permission. The List filters by domain via the RPC's own `p_domain` (`?domain=`), the Detail filters rows
+  by status via `p_status` (`?status=`); both parsers (`parseImportDomainFilter`/
+  `parseImportRowStatusFilter`, `src/domain/imports/imports.ts`, unit-tested) fall back to unfiltered on an
+  unknown value and use `Object.hasOwn` so a prototype key such as `toString` is never passed to the
+  database. No single-batch read RPC exists, so the Detail header is looked up from the active Entity's own
+  list by id (decision 226/230's precedent), which also guarantees another Entity's batch never renders
+  under this one.
+
+  **Deliberately not shown:** a row's `raw_payload`/`mapped_payload`. A contacts import can carry a tax
+  identifier, which decision 225 keeps off every screen behind a column-level grant; echoing the raw upload
+  here would quietly route around that. Each row shows its number, status, validation messages and result
+  type, which is what Step 08 §19's "one bad row is left inspectable" needs. **Deliberately not built:**
+  Validate/Commit/Rollback actions and staging a new batch -- those belong to the Import Wizard (decision
+  140), still a later slice, and Rollback in particular is an irreversible workflow action this read-only
+  history screen should not introduce on its own.
+
+  `pnpm check` (720 tests, up from 716 -- four new tests in `imports.test.ts`), `pnpm build` (2 new real
+  routes replacing the catch-all), `pnpm db:test` N/A (no migration touched), prettier clean. Verified via
+  CI on the PR (this session cannot install npm dependencies locally).
+
+- Audit Log, read-only (decision 242, unbuilt-screens backlog): `/admin/audit` -- the active Entity's
+  audit trail from `public.audit_events` (P1), newest first. No RPC lists audit events, so
+  `listAuditEvents` (`src/services/audit/audit.ts`, new) reads the table directly under its own
+  `audit_events_select` RLS policy (`audit.view` on the row's Entity) -- the direct-table-read precedent of
+  decisions 161/167/170-173/239. Gated on `audit.view`, matching that policy and `navigation.ts`. Filter
+  tabs by operation (`?op=insert|update|delete`, matched against the trigger's own `<table>.<op>` action
+  shape); paged server-side 50 at a time (`?offset=`), fetching one extra row to know whether a next page
+  exists. Actor names come from `profiles` under `profiles_select` RLS; an actor the viewer may not read is
+  shown by a shortened id rather than hidden.
+
+  **Field names, never values.** For an update the screen lists which fields changed
+  (`changedFieldNames`, bookkeeping columns excluded), not their before/after values. The trigger already
+  strips sensitive keys, but a bulk trail of raw financial values is more than a reviewer of "who changed
+  what, when" needs, and per-record history with values belongs on each record's own Activity tab.
+  Timestamps are shown to the second in UTC, labelled, rather than in one Entity's timezone (decision
+  237's finding that "today" differs between timezones applies equally to a trail).
+
+  New pure helpers in `src/domain/audit/audit.ts` (`parseAuditOperation`, `parseAuditOffset`,
+  `auditOperationOf`, `changedFieldNames`, `shortId`), unit-tested. `pnpm check` (731 tests, up from 720),
+  `pnpm build` (1 new real route replacing the catch-all), `pnpm db:test` N/A (no migration), prettier
+  clean; verified via CI on the PR.
+
+  **OWNER-relevant observation, not changed here:** `navigation.ts` gates "Users & Roles" and "Security" on
+  `settings.view`, while the tables behind them are RLS-gated on `users.view` (`entity_memberships`,
+  `profiles`) and `security.view` (`security_events`, `trusted_devices`). Whoever builds those screens
+  must choose which permission the page itself requires; recorded so it is decided deliberately.
+
+- Settings, read-only (decision 243, unbuilt-screens backlog): `/admin/settings` -- the Administration
+  group's landing page, showing the active Entity's configuration on one page in four sections: Entity
+  profile (`entities` + `entity_profiles`), document numbering (`numbering_sequences`, with an example of
+  the first number each sequence would issue), approval rules (`approval_rules`, approver role names from
+  `roles`), and stored key/value settings (`entity_settings`). No RPC returns any of these, so
+  `getEntitySettingsOverview` (`src/services/settings/settings.ts`, new) reads each table directly under
+  its own existing RLS policy -- the direct-table-read precedent of decisions 161/167/170-173/239/242.
+  Gated on `settings.view`, the permission three of those policies already require and `navigation.ts`
+  declares.
+
+  `numberingExample` (`src/domain/settings/settings.ts`, unit-tested) builds the example exactly the way
+  `app_private.allocate_document_number` (P1) builds a real number: prefix, separator, optional year plus
+  separator, counter left-padded to the configured width. The three `entity_settings` keys the database
+  reads today (`money.block_negative_balance`, `money.match_date_tolerance_days`, `security.require_mfa`)
+  get readable labels; any other stored key is still shown under its raw key so nothing stored is hidden.
+
+  **Deliberately read-only.** Every value here changes authorization (approval rules, MFA), document
+  numbering, or money behaviour (negative-balance blocking, match tolerance); editing them is a separate
+  increment with its own scope and, where it changes a user workflow, an OWNER question -- not something to
+  add alongside a viewer.
+
+  `pnpm check` (738 tests, up from 731), `pnpm build` (1 new real route replacing the catch-all),
+  `pnpm db:test` N/A (no migration), prettier clean; verified via CI on the PR.
+
+- OWNER answers applied (decision 244): three questions decisions 240 and 242 raised, answered by the
+  OWNER on 2026-10-01 as "1a, 2a, 3a".
+
+  1. Navigation gating for "Users & Roles" and "Security" (decision 242's observation): the items now
+     require `users.view` and `security.view` respectively, matching the RLS policies on
+     `entity_memberships`/`profiles` and `security_events`/`trusted_devices`, instead of
+     `settings.view`. The Administration group's own permission list gains both keys, so a person who
+     holds only one of them still sees the group. Both keys already exist in the P2 catalog.
+  2. `/reports/tax` now forwards to the Tax Ledger screen (`/tax/ledger`), keeping `?entity=`.
+  3. `/reports/assets-loans` now forwards to the Kontrol Aset Tetap tab
+     (`/reports?statement=asset_control`).
+
+  The decision-240 mapping is generalised from statement-only to `REPORT_SUBROUTE_TARGETS`, where each
+  sub-route names either a statement tab or a path; `reportSubrouteHref` builds both, unit-tested. Only
+  `/reports/sales-purchase` and `/reports/saved` remain on the catch-all (no backend).
+
+  `pnpm check` (740 tests, up from 738), `pnpm build` (2 new real routes replacing the catch-all),
+  `pnpm db:test` N/A (no migration), prettier clean; verified via CI on the PR.
+
+- Forecasts (decision 250, OWNER answer to decision 139).
+
+  OWNER answer: forecasts are based on the last 3 months and must be adjustable through the budget.
+  Migration `20261001300000_p14_planning_forecast.sql`:
+
+  1. Baseline: per category, the average actual of the 3 complete months before the Entity's current
+     month (Entity timezone), months without activity counting as zero, rounded half-up to the base
+     currency's scale. "Actual" is the budget report's existing definition (issued invoice lines,
+     approved bill lines, confirmed expense lines, base currency). Only the current and future months get
+     a forecast.
+  2. `get_budget_report` and `get_revenue_target_report` now return that baseline in `forecast_amount`
+     (null for past months; for revenue targets the baseline is the average issued revenue). All other
+     columns are unchanged; the P10 test now expects 0 instead of null for the current month.
+  3. `get_planning_forecast(entity, months 1-24, budget)` (`planning.view`): per active revenue/expense
+     category with activity or budget lines, per month from the current month, the baseline, the chosen
+     budget's amount and the forecast, which is the budget where it plans that category-month and the
+     baseline otherwise (source `budget` or `average_3m`). A budget of another Entity is refused.
+  4. `/planning/forecasts`: a category x month grid for 3, 6 or 12 months with group totals and revenue
+     minus expense, labelled as a planning estimate; choosing a budget marks budget-sourced figures and
+     links to that budget, which is where the forecast is adjusted.
+
+  Tests: `supabase/tests/99_p14_4_forecast.sql`, `src/domain/planning/forecast.test.ts`.
+
+- Products & Services, Direct Expenses and Opening Balances (decision 245, unbuilt-screens backlog): three
+  Step 09 sitemap items the backlog had marked "needs new backend". Re-reading the migrations showed all
+  three already exist in the database, so none needs a migration.
+
+  1. Products & Services (`/sales/products`, `/new`, `/[id]`): `public.products` has had RLS policies for
+     select, insert and update since P2 (`products.view`, `products.create`, `products.edit`) and is
+     granted for direct writes (`expose_write`), because a product is master data with no posting side
+     effect. `src/services/products/products.ts` therefore reads and writes the table directly, the first
+     direct write in this codebase, guarded by those policies; updates match on `version`, so two people
+     cannot overwrite each other silently. Delete (`products.archive`) is deliberately not offered: a
+     product may be referenced by invoice lines, so it is deactivated instead.
+  2. Direct Expenses (`/purchases/expenses`, `/new`, `/[id]`): `public.expenses` and `expense_lines` are
+     read directly under their `bills.view` policies; every write is an unmodified P6 RPC
+     (`create_expense_draft`, `submit_expense`, `recall_expense`, `reject_expense`, `confirm_expense`,
+     `cancel_expense`, `reverse_expense`, `correct_expense`). `expenseActions` mirrors each RPC's own
+     status and permission guard, unit-tested. The create form reuses `RecurringLinesEditor` with kind
+     `expense`, whose category/treatment pairing is exactly what `purchase_prepare_lines` validates. A
+     new expense is saved as a draft; confirming (posting) is a separate step on its Detail page.
+  3. Opening Balances (`/accounting/opening-balances`): batches are read directly under
+     `opening_balance_batches_select` (`accounting.view`); posting and completing use the P3 RPCs
+     `post_opening_balances` and `complete_opening_balances` (`system.import`). The grid offers only
+     active, postable balance-sheet accounts other than the clearing account (`openingEligibleAccounts`),
+     and `checkOpeningLines` previews the database's own rules and the difference it will book to the
+     clearing account, unit-tested.
+
+  `pnpm check`, `pnpm build` and `pnpm format:check` were run in a Vercel Sandbox before the PR was
+  opened (this session cannot install npm packages locally), then again by CI. `pnpm db:test` N/A (no
+  migration).
+
+- Tax rule authoring (decision 249, OWNER answer to decision 239).
+
+  OWNER answer: build the rule-authoring UI; the engine keeps following the rules already in the master,
+  and the OWNER can adjust them later. Built on the existing P7 RPCs `tax_rule_draft_save`,
+  `tax_rule_publish` and `tax_rule_discard` (no migration):
+
+  1. A published rule is never edited. On its Detail screen, "Buat versi baru" opens a draft prefilled
+     with that rule's family, code, parameters and source (effective date and verification date default
+     to today, verification status to "Perlu ditinjau"), so a new version follows the existing rule
+     until a value is changed. "Aturan baru" on the list starts an empty rule.
+  2. Parameters are edited as JSON (prefilled, monospace). The browser only checks it is a JSON object;
+     the database validates the shape per family (`app_private.tax_rule_params_problem`) and the form
+     shows its explanation next to the error.
+  3. A draft can be edited, discarded with a reason, or published. Publishing keeps the database's
+     rules: `tax.manage_rules`, a recent step-up (the form links to step-up), status "Terverifikasi"
+     against the official source, and no other published version of the same code on the same date.
+  4. `src/services/tax/tax.ts` now keeps the database message inside `AuthzError` so the form can show
+     that explanation; the user-facing text stays the generic Indonesian copy plus the detail.
+
+  No second-person review before publish: the OWNER's step-up is the control, as the RPC already defines.
+
+- Users & Roles, Security Center and Recent Activity (decision 246, unbuilt-screens backlog).
+
+  1. Users & Roles (`/admin/users`, `/admin/users/[id]`), gated `users.view`: members of the active
+     Entity with their role and status, and per member the effective permissions (role permissions plus
+     `grant` overrides, minus `deny` overrides, `effectivePermissions`, unit-tested) and the overrides
+     themselves. Changing a role, enabling/disabling a membership and setting a permission override use
+     the P2 RPCs `assign_membership`, `set_membership_status` and `set_permission_override`, which check
+     their own permissions, refuse a change to the caller's own access, protect OWNER memberships and
+     require a recent step-up; the page links to `/auth/step-up` when one is needed. Every change asks
+     for a written reason (5 to 500 characters), recorded by the RPC. Adding a brand-new person needs an
+     account created through Supabase Auth first, so this screen manages existing members.
+  2. Security Center (`/admin/security`), gated `security.view`, read-only: the Entity's MFA requirement,
+     its security events (paged 50, labelled UTC timestamps) and its members' trusted devices.
+     `fingerprint_hash` is never selected (the column grant excludes it). No RPC revokes a trusted device,
+     so devices are listed, not managed; recorded as a remaining item.
+  3. Recent Activity (`/activity`): the full version of the Dashboard's own feed, built by the same
+     `mergeRecentActivity` from the same permission-gated sources, limit 100. The raw trail stays in the
+     Audit Log (decision 242).
+
+  No migration. Checked in a Vercel Sandbox before the PR (format, typecheck, lint, tests, build), then by
+  CI.
+
+- Entity timezone and fiscal year in Settings; decision 237 resolved (decision 248, P14).
+
+  OWNER answer to decision 237: tax periods follow Indonesian rules for the Entity, and the OWNER can
+  change the settings later. Taken as option (a): "today" for every Entity rule is already
+  `app_private.entity_today` (the Entity's own timezone) and fiscal years already follow
+  `entities.fiscal_year_start_month`; the defaults stay WIB (`Asia/Jakarta`) and January, i.e. the tax
+  year is the calendar year unless the books use another year. Test 9.5 in
+  `supabase/tests/95_p7_determination.sql` now picks the current month with `test_helpers.today` (the
+  Entity's date) instead of the session's `current_date`, which removes the month-end flake.
+
+  New RPC `update_entity_time_settings` (`20261001200000_p14_entity_time_settings.sql`), taking the
+  Entity, timezone, fiscal-year start month, expected version and reason. It requires
+  `system.entity_config` (OWNER by default), a recent step-up, a 5-500 character reason, a valid IANA timezone, month 1-12 and the current
+  `entities.version`. The fiscal-year start is refused once the Entity has any accounting period, since
+  every period's fiscal-year label is derived from it; the timezone may change at any time (stored dates
+  never move). Each change is audited as `entities.time_settings_changed` with the reason and
+  before/after values. Settings (`/admin/settings`) gains a "Zona Waktu & Tahun Buku" form offering WIB,
+  WITA and WIT. Tests: `supabase/tests/99_p14_3_entity_time.sql`.
+
+- Backup & Restore Center Part 2 and trusted-device revocation (decision 247, P14).
+
+  OWNER decision: a backup may be restored only into an **empty** Entity (no merge, no overwrite).
+  Migration `20261001100000_p14_restore_and_device_revoke.sql`:
+
+  1. `export_backup_file(entity, kind)` returns the snapshot as the database's own JSON text. Part 1's
+     screen parsed and re-stringified the JSON in the browser, which turns NUMERIC money values into
+     JavaScript doubles (precision loss above 15 significant digits, and changed formatting that breaks
+     the checksum). The download now saves the database's text byte-for-byte.
+  2. `preview_backup_restore(entity, file)` (`backup.restore`, read-only): checksum over `data`, kind
+     full or data-only, Entity id match, no rows for another Entity, no unknown tables, target empty;
+     returns errors, warnings, rows per table in the file, rows already in the target and whether the
+     step-up window is satisfied.
+  3. `restore_backup_snapshot(entity, file, confirm)`: `backup.restore`, a recent step-up and the typed
+     Entity code; one restore per Entity at a time (advisory lock). Supabase does not allow
+     `session_replication_role`, so user triggers on the target tables are disabled inside the
+     transaction and rows are inserted in foreign-key order (nullable self/cyclic references are filled in
+     a second pass), keeping identity values. Then integrity is verified: exact row counts, every posted
+     journal balanced, trial-balance difference zero. Any failure rolls the writes back and records a
+     Failed job. Every attempt is stored in the append-only `restore_jobs` (excluded from backups, like
+     `backup_jobs`) and in the Audit Log. `entity_memberships` are never restored (accounts are
+     re-invited); the preview warns about it.
+  4. `revoke_trusted_device(device, reason)`: own device always; another person's device needs
+     `security.manage` on a shared Entity plus step-up. Records a `trusted_device.revoked` security event.
+
+  Screens: `/admin/backup` gains Pulihkan dari Berkas (pick file, preview, step-up link, typed Entity
+  code, result with integrity outcome) and Riwayat Pemulihan; `/admin/security` gains a revoke action per
+  active device. A backup file goes through a Server Action, so `next.config.ts` raises
+  `serverActions.bodySizeLimit` to 5 MB and the browser refuses files over 4 MB (Vercel's 4.5 MB ceiling);
+  recorded in `docs/RELEASE.md` as a limit to re-assess as data grows.
+
+  Restore drill: `supabase/tests/99_p14_2_restore.sql` exports an Entity with data (including a
+  14-digit amount), checks every refusal (permission, step-up, wrong code, tampered checksum, non-JSON,
+  non-empty target), proves a failing restore writes nothing, restores, and requires the re-export to
+  equal the original per table. Device revocation is tested in the same file. `pnpm db:test` passes
+  (62 migrations, upgrade-from-seeded-data check included).
+
+- Money Reconciliation workspace (decision 251, closes the gap decision 231 recorded).
+
+  Decision 231 kept the workspace on the catch-all because no RPC returns a session's own row. The
+  table `reconciliation_sessions` has had a `money.view` RLS select policy since P4, so the session header
+  (period, statement balances, status, completion figures) and the session history are read directly,
+  the same direct-table-read precedent as decisions 170/239/245; numeric columns are cast to text in the
+  select so exact decimals survive. No migration.
+
+  1. `/money/reconciliation`: each account links to its session in progress ("Lanjutkan sesi") or, with
+     `money.reconcile`, to "Mulai rekonsiliasi"; a "Riwayat Sesi" table lists every session.
+  2. `/money/reconciliation/new?account=`: period and opening balance default to continuing from the
+     account's last reconciled statement (the database requires that continuity).
+  3. `/money/reconciliation/[id]`: header and figures, "Tambah Mutasi" (pasted rows
+     `tanggal;jumlah;keterangan;referensi`, semicolon or tab, signed amounts with a dot decimal, parsed
+     and validated row by row before anything is sent; duplicates are skipped by the RPC), the line
+     table with match (candidates from `reconciliation_candidates`, optional manual reason),
+     unmatch/exclude with a reason, include, then complete (reason required for a non-zero difference),
+     reopen with a reason, or discard.
+  4. Every action is the unmodified P4 RPC; errors show the database's own explanation. The money
+     service now keeps the database message inside `AuthzError` for that purpose.
+
+  Tests: `src/domain/money/reconciliationSession.test.ts`; the RPCs are covered by the existing P4 tests.
+
+- Documents Archive, Sales/Purchase report and Saved Reports (decision 252, the last Step 09 screens
+  without a backend). Migration `20261001400000_p14_archive_sales_purchase_saved.sql`:
+
+  1. `list_document_archive(entity, q, limit, offset)` (`documents.view`): documents replaced by a newer
+     version (`supersedes_document_id`) and documents whose every link was removed, with the reason, the
+     replacing file, when it was archived and the former target kinds. Like `list_documents`, a document
+     that was ever linked is shown only through a target kind the caller may view. Screen:
+     `/documents/archive`, visually separate from active evidence (Step 09 §20).
+  2. `sales_purchase_report(entity, side, dimension, start, end)` (`reports.view` plus `invoices.view` for
+     sales or `bills.view` for purchases): issued invoices, or approved bills plus confirmed expenses,
+     grouped by party, category, product (sales only) or month, with document count and base-currency
+     amounts before and after tax (line amounts converted at the document rate, half-up, as the budget
+     report does). Amounts are returned as text. Screen: `/reports/sales-purchase`.
+  3. `saved_reports` (own rows only, `reports.view`), written through `save_report` and
+     `delete_saved_report`: a person's named shortcut to a report page and its filter query (only
+     `/reports...` and `/tax/ledger` paths, at most 100 per person, unique names). "Simpan laporan ini" on
+     `/reports` and `/reports/sales-purchase`; `/reports/saved` lists, opens (in the active Entity) and
+     deletes them. Exports stay as they are (permission-controlled per report).
+  4. Hardening: `restore_jobs` (decision 247) now also goes through `secure_table` before its select
+     grant, the house rule for every table.
+
+  Tests: `supabase/tests/99_p14_5_archive_reports.sql`, `src/domain/reports/salesPurchase.test.ts`.
+
+- Per-payment evidence on `/tax/filing` (decision 253, the refinement decision 238 deferred). The
+  evidence section now also appears once a confirmed payment exists, lists the evidence of the filing and
+  of each confirmed payment (`tax_list_evidence` per target), and each found document gets a "Lampirkan
+  ke" picker (the filing, or a payment by number); the purpose defaults to "Bukti lapor" for the filing
+  and "Bukti bayar" for a payment. Uses the existing `tax_link_evidence`, which already accepts
+  `tax_payment`. No migration.
+
+- Indonesian menu names and reveal submenus (decision 254, OWNER request after the first signed-in
+  walkthrough). Every label in `src/domain/shell/navigation.ts` is now simple Indonesian (for example
+  Penjualan, Pembelian, Kas & Bank, Rekonsiliasi Bank, Perencanaan, Perkiraan, Laporan, Administrasi); terms
+  people use in English anyway stay English (Dashboard, Invoice, Vendor, Payroll, Backup & Restore); the
+  sitemap's structure, order, routes and permissions are unchanged, so this is wording only. The Sidebar
+  shows one row per menu; pressing it reveals its submenu (short fade/slide, none with reduced motion)
+  and closes the one opened before, and the menu of the current page is open by default
+  (`activeNavItem`, longest path prefix, so detail pages keep their list highlighted). In the collapsed
+  icon sidebar, a menu icon expands the sidebar and opens that menu. The Command Menu reads the same
+  labels. Found while testing: a submenu item without its own permission made its menu appear for
+  people who could not open any of its pages (the pages themselves still refused); such items now
+  inherit their menu's permission. Tests: `src/domain/shell/navigation.test.ts`.
+
+- Loan foreign-currency revaluation (decision 281, 4 October 2026). The loans half of the OWNER's
+  foreign-currency confirmation in the "Open items for later phases" bullet above ("Versi Sederhana": any
+  selectable foreign currency with IDR as default, manual monthly exchange-rate entry, automatic FX
+  gain/loss posting to P&L) -- the fixed-asset half and interest accrual stay open.
+  1. New migration `20261004200000_p15_loan_fx_revaluation.sql`, purely additive: `loan_fx_terms` (one row
+     per loan once an FX currency is set -- currency, optional note) and `loan_fx_revaluations` (one row
+     per posted or reversed monthly revaluation -- date, foreign-currency outstanding, rate, the computed
+     base-currency adjustment, status, reversal linkage), each with the project's standard guard trigger,
+     timestamps and RLS. `app_private.loan_outstanding` -- the single function every loan reader, report
+     and control RPC already calls -- is patched with `create or replace function` to add
+     `+ coalesce(sum(adjustment) from loan_fx_revaluations where posted and as-of-date, 0)`; because nothing
+     else reads outstanding any other way, this one additive patch is the entire propagation, with zero
+     changes to any existing loan command, report or control. `public.loan_detail` is similarly patched
+     (`create or replace function`) to add `fx_terms`/`fx_revaluations` keys to its JSON; `create or
+replace function` was confirmed to preserve the existing grants on both functions, so no grant/revoke
+     statements needed repeating.
+  2. Three new RPCs, each `security definer`: `loan_set_fx_terms` (sets or clears the currency once; the
+     currency locks after the first revaluation is posted, so it can't change mid-series), `loan_revalue_fx`
+     (posts one monthly revaluation -- the date must advance past the last one, the rate must be within 20%
+     of the amount, the same mistyped-rate sanity guard `app_private.transfer_figures` uses for Transfer FX
+     -- and posts the Dr/Cr side of the gain/loss to the `FX_GAIN_LOSS` system account, with the correct side for
+     all four combinations of growing/shrinking and borrowed/lent derived from one boolean expression
+     rather than four hard-coded cases), and `loan_reverse_fx_revaluation` (reverses a revaluation with a
+     required reason -- only the latest posted revaluation for a loan is reversible, because each
+     revaluation's adjustment is computed against the running total at post time, not a stored chain, so
+     reversing anything but the latest would desynchronize it). All three added to the `rpc_allowlist`
+     invariant in `00_baseline_invariants.sql`.
+  3. pgTAP coverage added to `98_p8_loans.sql` (section 13): viewer-forbidden checks, currency validation
+     (must differ from base, must be a known currency, case-insensitive), the 20% rate guard, "no FX terms
+     set yet", a full borrowed-loan revaluation and a full lent-loan revaluation with journal assertions on
+     both, the currency-lock-after-first-revaluation check, the date-must-advance check, a second (netting)
+     revaluation, the only-latest-is-reversible check, a full reversal with mirrored journal assertions,
+     re-reversal rejection, `loan_detail` JSON-shape assertions, and direct-table lockdown. `pnpm db:test`
+     passes (clean migration rebuild, invariants, upgrade-from-seeded-data).
+  4. Application layer, following the existing financing-module conventions exactly: input/output schemas
+     in `src/schemas/financing.ts` (`setLoanFxTermsInputSchema`, `revalueLoanFxInputSchema`,
+     `reverseLoanFxRevaluationInputSchema`, `loanFxTermsSchema`, `loanFxRevaluationSchema`, and
+     `loanDetailSchema` extended with `fx_terms`/`fx_revaluations`); three thin service wrappers in
+     `src/services/financing/financing.ts`; three server actions in
+     `src/features/financing/financingActions.ts`; three new command forms (set/update FX currency, post a
+     revaluation, reverse the latest one) added to `LoanActionsPanel` in
+     `src/features/financing/FinancingForms.tsx`; a new "Revaluasi Kurs" section on the loan detail screen
+     (`src/features/financing/LoanDetailScreen.tsx`, with a `loanFxRevaluationStatusBadge` helper added to
+     `src/domain/financing/loanList.ts`); and the loan detail page wired up with the FX props.
+  5. `pnpm check` (838 tests), `pnpm build` and `pnpm db:test` all pass.
+
+- Fixed-asset foreign-currency memo (decision 282, 4 October 2026). The fixed-asset half of the OWNER's
+  foreign-currency confirmation in the "Open items for later phases" bullet above -- "Hanya catat &
+  tampilkan dalam mata uang asal": historical-rate only, no revaluation, unlike the ongoing monthly workflow
+  decision 281 gave loans (a fixed asset's cost does not move once it is bought). Interest accrual stays open.
+  1. New migration `20261004300000_p15_asset_fx_memo.sql`, purely additive: three nullable columns on
+     `fixed_assets` (`fx_currency`, `fx_cost`, `fx_rate`), shaped by a check constraint (all three set or all
+     three null) and locked by the same "fixed once the asset leaves draft" rule `acquisition_cost` and
+     `acquisition_date` already follow. `acquisition_cost` itself is untouched and never recomputed from the
+     memo.
+  2. The memo is captured automatically, not entered by hand, for the normal path: `app_private.
+asset_register_line` (which turns an approved bill/expense asset line into a draft asset) now also reads
+     the originating document's own `currency`/`exchange_rate` and the line's document-currency `line_total`,
+     and fills the memo whenever that currency differs from the Entity's base currency -- zero new UI, zero
+     new RPC, for a bill or expense that was already foreign-currency under P6's own FX support.
+  3. Opening assets have no originating document, so `public.asset_load_opening` accepts an optional
+     `fx_currency`/`fx_cost`/`fx_rate` per item: the currency must differ from the base currency, the rate must
+     be positive with at most 10 decimals (the same shape `bill_check_header` already enforces), and the memo
+     cost converted at the memo rate must land within 20% of the base cost already given -- the same
+     mistyped-rate sanity guard every FX feature in this codebase uses (transfers, decision 281 loans).
+  4. `public.asset_detail` patched (`create or replace function`, grants preserved) to add `fx_currency`/
+     `fx_cost`/`fx_rate` to its JSON. pgTAP coverage in `96_p8_assets.sql` section 11: the automatic capture
+     from a USD bill line, a base-currency line carrying no memo, the memo surfacing read-only through
+     `asset_detail`, direct-update lockdown, the opening-asset currency-must-differ and mistyped-rate checks,
+     and a successful opening-asset memo with its currency upper-cased. `pnpm db:test` passes (clean rebuild,
+     invariants, upgrade check).
+  5. Application layer: `fx_currency`/`fx_cost`/`fx_rate` added to `openingAssetSchema` (all-or-nothing,
+     `src/schemas/assets.ts`, reusing `currencyCodeSchema` from the Loan FX work) and to `assetDetailSchema`;
+     `loadOpeningAssetAction` passes the three fields through unchanged; `OpeningAssetForm` gains an optional
+     "Mata Uang Asal" field that reveals the cost/rate inputs (with a note that they are memo-only); `Asset
+DetailScreen` shows a "Harga & Kurs Asal" row when a memo is present. `pnpm check` (836 tests) and
+     `pnpm build` pass.
+
+- Loan Restructure and Loan Set-Asset UI (decision 283, 4 October 2026). An audit of the real code (not
+  `docs/DECISIONS.md`'s own stale "Open items" bullet, which still claimed "every action form across the
+  whole capability" was missing for loans/obligations/equity -- obligations and equity were already fully
+  wired, and so were every other loan command except these two) found exactly two genuinely unbuilt UI gaps:
+  `loan_restructure` and `loan_set_asset` both already had a full, tested RPC and service-layer function
+  (`restructureLoan`/`setLoanAsset` in `src/services/financing/financing.ts`, calling unmodified P8 RPCs
+  with their own pgTAP coverage in `98_p8_loans.sql`) but no server action and no form anywhere. Pure
+  wiring, no schema or RPC change, no OWNER decision needed (the RPCs' own behaviour is already locked spec).
+  1. `restructureLoanAction`/`setLoanAssetAction` added to `src/features/financing/financingActions.ts`,
+     following the exact pattern of every other loan action in that file (`run()`, `loanPaths()`,
+     `errorState()` for `STEP_UP_REQUIRED` -- `loan_restructure` needs a recent step-up like write-off does).
+  2. Two new `CommandForm`s added to `LoanActionsPanel` in `src/features/financing/FinancingForms.tsx`:
+     "Restrukturisasi Jadwal" (status `active` only, matching the RPC's own guard) reusing the exact
+     rate/method/installments/step_months/first_due fields `LoanCreateForm` already uses for the initial
+     schedule, plus a reason field; "Tautkan ke Aset" / "Ubah Tautan Aset" (any non-cancelled status, borrowed
+     loans only, matching `loan_set_asset`'s own guard) with a dropdown of the Entity's own non-cancelled
+     fixed assets.
+  3. `src/app/(app)/assets/loans/[id]/page.tsx` now also loads the asset list (`listAssets`, gracefully
+     degrading to an empty list on a permission error exactly like the existing `accounts` fetch already
+     does) when the viewer can manage the loan and it is a borrowed one, and passes it plus the loan's current
+     `asset_id` (already present in `loan_detail`'s own JSON) to the panel.
+  4. No schema, RPC or migration touched -- `pnpm check` (839 tests, unchanged count: no new tests needed,
+     since the RPCs this wires up already have their own full pgTAP coverage and no new business logic was
+     written), `pnpm build` and `npx prettier --check .` all pass.
+     (Note: this slice also considered, then explicitly declined, automatic loan interest accrual -- see the
+     "Open items for later phases" bullet above. Decision 108 ("Interest is never accrued automatically") was
+     re-confirmed by the OWNER on 4 October 2026 rather than reversed.)
+
+- AR Aging / AP Aging report screen (decision 284, 4 October 2026). A further audit of the "Open items for
+  later phases" bullet (same method as decision 283: verify against the real code, not the bullet's own
+  prose) found the `ar_aging`/`ap_aging` RPCs (P5/P6) were already built, already typed end-to-end
+  (`getArAging`/`getApAging` in `src/services/sales/sales.ts`/`src/services/purchases/purchases.ts`,
+  `ArAgingRow`/`ApAgingRow` in `src/schemas/sales.ts`/`src/schemas/purchases.ts`) and already pgTAP-tested,
+  but only ever consumed by the Dashboard's own KPI tiles -- no standalone report screen existed. Pure
+  wiring, same shape as decision 196 (Payroll Summary/Control) and decision 197 (Fiscal Depreciation
+  Schedule/Asset GL Reconciliation): an already-built, already-tested RPC gets its first dedicated screen.
+  No schema, RPC or migration change, no OWNER decision needed.
+  1. New shared `agingTotals` helper added to `src/domain/reports/reports.ts` (one helper for both reports,
+     since `ar_aging`/`ap_aging` return identically-shaped aging buckets, differing only in the
+     id/name/record-count column) -- covered by two new unit tests in `reports.test.ts`.
+  2. Two new tabs ("Umur Piutang", "Umur Utang") added to the Reports screen
+     (`src/features/reports/ReportsScreen.tsx`): `ArAgingTable`/`ApAgingTable`, each with a per-customer/
+     per-vendor row and a totals footer, following the exact `asset_control`-style "Per tanggal" (as-of
+     date) filter shape -- not a date range, since aging is a point-in-time snapshot.
+  3. `src/app/(app)/reports/page.tsx` wires both in via the existing `getArAging`/`getApAging` wrappers.
+     Each tab is gated by its own RPC's own permission (`invoices.view` for AR, `bills.view` for AP) rather
+     than `reports.view` alone, computed as its own `canView` and checked before the RPC is called --
+     the same "never surface a choice the RPC would reject with FORBIDDEN" rule Loans Due's `loans.view`
+     check already established -- and renders a plain permission message instead of an error when false.
+  4. `pnpm check` (841 tests, up from 839: the two new `agingTotals` unit tests), `pnpm build` and
+     `npx prettier --check .` all pass.
+
+- Refund draft/confirm/reject/cancel/reverse screen (decision 285, 4 October 2026). Decision 263's own
+  deferred item: `create_refund` with immediate confirmation shipped, but "the separate draft/confirm/
+  reject/cancel/reverse refund commands still have no screen" -- in practice, Payment Detail's refund form
+  was only ever shown to a caller holding BOTH `refunds.create` AND `refunds.confirm` together, so no draft
+  refund could even come into existence from the UI, and nothing existed to act on one if it had (e.g.
+  created directly against the database). `confirmRefund`/`rejectRefund`/`cancelRefund`/`reverseRefund`
+  (`src/services/sales/sales.ts`) already existed, already typed, already pgTAP-tested (P5) -- pure wiring,
+  no schema or RPC change, no OWNER decision needed (every RPC's own permission/status guard is already
+  locked spec).
+  1. `RefundForm` (`src/features/sales/RefundForm.tsx`) now opens for `refunds.create` ALONE, not only the
+     combined permission pair -- a new `immediate` prop picks `createRefundAction` (`p_confirm: true`, the
+     existing decision-263 behaviour, unchanged for a caller who also holds `refunds.confirm`) or the new
+     `createDraftRefundAction` (`p_confirm: false`) otherwise, so a create-only caller now gets a real draft
+     instead of no form at all.
+  2. New `listPaymentRefunds` (`src/services/sales/sales.ts`) reads `public.refunds` directly for one
+     payment (no `list_refunds` RPC exists -- the same "direct table read, RLS alone gates it" shape
+     `listBillsOverview` already uses for `public.bills`; `refunds_select`'s own policy already narrows it
+     to nothing for a caller without `refunds.view`). New `refundRowSchema`/`RefundRow` in
+     `src/schemas/sales.ts`.
+  3. New `RefundActionForms` (`src/features/sales/RefundActionForms.tsx`), the same multi-mode
+     closed/confirm/reject/cancel/reverse shape `PaymentClaimForms` already established for the Payment
+     Confirmation queue (decision 259): a `draft` refund offers Confirm/Reject to `refunds.confirm` and
+     Cancel to `refunds.create` (the RPC's own guard -- any holder of the permission, not narrowed to the
+     original creator); a `confirmed` refund offers Reverse to `refunds.confirm`; every other status
+     (`rejected`/`cancelled`/`reversed`) is terminal and shows only its own `closed_reason`/`reverse_reason`.
+  4. `src/app/(app)/sales/payments/[id]/page.tsx` wires all of this into the existing Payment Detail
+     `refundPanel` slot -- the natural home, since decision 263 already put refund creation there and every
+     refund is already scoped to one payment. No new route.
+  5. `pnpm check` (841 tests, unchanged: no new tests needed, the RPCs this wires up already have their own
+     full pgTAP coverage and no new business logic was written), `pnpm build` and `npx prettier --check .`
+     all pass.
+
+- Split Aset screen (decision 286, 4 October 2026). A direct code audit of every exported function in
+  `src/services/**` against its action/UI consumers (following the same method decision 283 used) found
+  `splitAsset`/`asset_split` (`20260926100300_p8_asset_lifecycle.sql`, pgTAP-tested, Step 15 §12) was the
+  only P8 asset command with no server action and no form anywhere in `src/features/assets/` or
+  `src/app/(app)/assets/` -- every sibling command (activate, transfer, setCondition, replan, cancel,
+  setFiscalClass, dispose, reverseDisposal, post/reverseDepreciation, split from decision 283's own loan
+  pair) already had one. Pure wiring, no schema/RPC/migration change, no OWNER decision needed: the RPC
+  itself enforces every constraint (2-50 parts, names required, costs summing to exactly the asset's own
+  acquisition cost, status `draft`, source not `opening`) server-side.
+  1. New `splitAssetAction` (`src/features/assets/assetActions.ts`), the established `errorState()`/
+     `revalidateAsset()` pattern.
+  2. New `SplitAssetForm` (`src/features/assets/AssetForms.tsx`): a repeating name+cost row editor (2-50
+     rows, add/remove), the same `plan-lines-editor`/JSON-hidden-field shape `JournalDraftForm` already
+     established for a dynamic list of lines. The running total is checked client-side against the asset's
+     own acquisition cost before the button enables; the database checks it again.
+  3. `src/app/(app)/assets/[id]/page.tsx`: the form shows only when `asset.status === "draft" &&
+asset.source_type !== "opening"` -- mirroring `asset_split`'s own guard, so no choice is offered that
+     the RPC would reject.
+  4. `pnpm check` (841 tests, unchanged: no new business logic, the RPC already has full pgTAP coverage),
+     `pnpm build` and `npx prettier --check .` all pass.
+
+- "Kirim Invoice via Email" (decision 280). OWNER, 4 October 2026: Resend, kept alongside -- not instead
+  of -- the existing "Salin Tautan Publik" share; confirmed Resend's free tier (3,000 emails/month,
+  100/day) covers Hikarich's volume before building.
+  1. New optional server env vars `RESEND_API_KEY`/`RESEND_FROM_EMAIL` (`src/lib/env/schema.ts`), the same
+     "absent means off" shape `SUPABASE_SERVICE_ROLE_KEY` already uses: without both set, sending reports
+     "not configured" and every existing flow (public link included) keeps working. `src/services/email/
+resend.ts`: a plain `fetch` against Resend's HTTP send endpoint, not the `resend` npm package -- no
+     new dependency for one POST call.
+  2. `src/services/sales/invoiceEmail.ts`'s `sendInvoiceEmail`: only an issued invoice can be emailed (the
+     same gate `regenerate_invoice_link` itself enforces), reuses the exact public link
+     `getInvoiceLink`/`regenerateInvoiceLink` already manage -- never a second, untracked kind of link, so
+     revoking or expiring the link disables both the copied link and every email already sent. The
+     recipient is the address typed in the form, falling back to the customer's own `contacts.email`; either
+     missing is reported plainly, never a silent no-op.
+  3. Invoice Detail's "Kirim Invoice via Email" form (`InvoiceActions.tsx`) sits beside "Salin Tautan
+     Publik", gated the same way (`invoices.regenerate_link`, issued only); when Resend is not configured it
+     is replaced by a plain hint, the same "hint instead of a form that can only fail" pattern Document
+     Storage (decision 275) already uses for an unconfigured integration.
+  4. No migration, no new RPC -- purely an application-layer feature over the already-shipped P5 invoice
+     link commands. `pnpm check` (835 tests, unchanged) and `pnpm build` pass. The OWNER still needs to sign
+     up for Resend, verify a sending domain, and set `RESEND_API_KEY`/`RESEND_FROM_EMAIL` in Vercel before
+     this does anything in Production.
+
+- Asset Movement/Disposal report (decision 279, 4 October 2026). Closes the one Step 12 report-catalogue
+  item decision 178 left open (the Fiscal Depreciation Schedule and Asset GL reconciliation report from
+  that same bullet already shipped as decision 197).
+  1. New read-only RPC `asset_movement_report(p_entity, p_from, p_to, p_limit)`: purely additive, no new
+     table and no change to any existing table, function or trigger. It reads `asset_events` (every
+     lifecycle event: transferred, condition_changed, split, disposed, disposal_reversed, registered,
+     activated, cancelled, opening_loaded) left-joined to `asset_disposals` via the disposal row's own id,
+     which `app_private.asset_event` already stores at `details->>'disposal'` -- an exact join, not a guess
+     from free text. A disposed/disposal_reversed row carries proceeds, cost/accumulated removed, net book
+     value, gain/loss and the posting journal; every other event type carries those as null. Gated by
+     `assets.view` alone (no second hard-required permission, unlike the Fiscal Depreciation Schedule's
+     `tax.view` or the Asset GL reconciliation's `accounting.view`).
+  2. Migration `20261004100000_p15_asset_movement_report.sql`; added to the `rpc_allowlist` invariant;
+     covered by a new pgTAP block in `96_p8_assets.sql` (every transfer/condition-change counted, a
+     disposal and its reversal both shown, the disposal row's gain/loss and proceeds match the disposal
+     record, a from-date after every event excludes everything, a viewer with only `assets.view` reads it,
+     an unauthenticated call is refused). `pnpm db:test` passes (clean rebuild reproducible, invariants
+     pass, upgrade-from-seeded-data check passes).
+  3. Application layer: `assetMovement` wrapper (`src/services/assets/assets.ts`), schemas in
+     `src/schemas/assets.ts`, and a new "Mutasi/Pelepasan Aset" tab on `/reports` (`asset_movement`
+     statement) -- a plain date-range report like every other Entity-scoped statement, not the
+     one-asset/one-as-of-date shape the two tabs beside it use. Each disposal row's event description is
+     composed by the RPC itself in Indonesian (never recomputed in the frontend); proceeds/gain-loss/
+     journal-link columns render "—" for every non-disposal event. `pnpm check`/`pnpm build` pass.
+  4. While verifying this slice, confirmed `eslint-plugin-jsx-a11y` was missing from `node_modules` despite
+     being declared in `package.json` (a stale install, not a code defect) -- `pnpm install` restored it
+     and also picked up the already-declared `next`/`eslint-config-next` 16.3.8 bump from decision 236;
+     `pnpm check` then passed cleanly (835 tests).
+
+- Separate ledger accounts for the two BPJS bodies (decision 278).
+  1. OWNER, 3 October 2026, on decision 277 item 3: "ikut rekomendasimu". Recommended and done: two
+     accounts, because they are two creditors. `2220` keeps its system key `BPJS_LIABILITY` and is renamed
+     "BPJS Ketenagakerjaan Liabilities"; new `2221` "BPJS Kesehatan Liabilities" (`BPJS_KES_LIABILITY`),
+     a control account, provisioned for every business Entity.
+  2. Migration `20261003170000_p15_bpjs_two_accounts.sql`: posting credits each body's account, paying a
+     body debits its account; `payroll_run_differences` and the payroll control read both accounts. The
+     control report keeps one BPJS row (both accounts against both bodies).
+  3. A run posted before this change has its whole BPJS liability in 2220. Production has none.
+  4. Also in this change: the Import Wizard preview shows "Pelanggan/Vendor", its table field is wide and
+     its button compact (findings from testing).
+
+- BPJS Kesehatan and BPJS Ketenagakerjaan are owed and paid separately (decision 277).
+  1. OWNER, 3 October 2026: "BPJS harusnya ada 2 yaitu kesehatan dan ketenagakerjaan. Itu harus dibedakan,
+     jangan disatukan." BPJS Kesehatan is the health contribution; BPJS Ketenagakerjaan is JHT, JP, JKK and
+     JKM. The amounts calculated do not change.
+  2. Migration `20261003160000_p15_bpjs_two_bodies.sql`: a payroll payment of BPJS names the body
+     (`bpjs_kes` / `bpjs_tk`) and cannot exceed what that body is still owed; an empty amount pays the
+     whole remainder. Posting a run books the BPJS liability as two lines, one per body. `payroll_run_get`
+     returns owed and paid per body. The undivided kind `bpjs` stays valid for payments already recorded
+     and is refused for new ones.
+  3. Still shared, stated for the OWNER: both lines are in the one ledger account "BPJS Liabilities", and
+     the Payroll liability report still shows one BPJS row. Separate ledger accounts would change the chart
+     of accounts of every Entity; not done without a further decision.
+  4. Screens: the payment form offers "Iuran BPJS Kesehatan" and "Iuran BPJS Ketenagakerjaan" with what is
+     left of each; the run shows owed and paid per body; the programme names read "BPJS Ketenagakerjaan:
+     JHT" and so on.
+  5. Two messages found while testing were corrected: posting a payroll run of a period before the tax
+     engine's start now says so (it said "activate the tax engine"); a BPJS enrolment that clashes with an
+     existing date names the programme instead of its internal code.
+  6. Tests: `99_p9_3_posting.sql` (per-body payments, the body's own ceiling, the old kind refused),
+     `99_p9_4_controls.sql`, `src/schemas/payroll.test.ts`.
+
+- An OWNER can add an Entity (decision 276).
+  1. OWNER, 3 October 2026, on the rule proposed in decision 275 item 4: "setuju". Only a person who is
+     already an active OWNER may add an Entity; a recent step-up is required; the new Entity gets the
+     standard chart of accounts, an empty profile, and the creator as its only member, as OWNER.
+  2. `create_entity(code, type, legal name, brand)` (migration `20261003150000_p15_create_entity.sql`),
+     audited as `entities.created`. Type is a business ledger or a household ledger; the code and type
+     cannot be changed afterwards and an Entity cannot be deleted.
+  3. Step 06 §1 (no self-granting) stays enforced by `tg_membership_guard`. The guard now accepts an own
+     membership in exactly one case: the OWNER role, on an Entity that `create_entity` marked as being
+     created in the same transaction, while that Entity has no member yet. Test `99_p15_2_create_entity.sql`
+     section 3 shows the marker cannot be used to join an existing Entity.
+  4. Form "Tambah Entity" on Settings, shown to an OWNER. Tax profile, accounts and the tax engine of the
+     new Entity are set up in the application afterwards, as for the first two.
+
+- Import Wizard, file attachments, PPh Final reasons in Indonesian (decision 275).
+  1. Import Wizard (Step 15 §15; decisions 140/143 left the screen for later). `/admin/imports/new`: choose
+     Kontak, Piutang Terbuka or Utang Terbuka, paste a table from a spreadsheet or pick a CSV file, see how
+     the columns were read, then "Periksa Data" stages and validates the batch. The batch page now has
+     Periksa Ulang, Terapkan ke Pembukuan and Batalkan Impor Ini. Parsing and column mapping are
+     application code (`src/domain/imports/csv.ts`: comma, semicolon or tab; Indonesian headers; amounts
+     such as "Rp 1.500.000,50"; day-first dates). The four P11 RPCs are unchanged and decide everything.
+     The import kinds are the three P11 ones; importing invoices or journal entries is not part of it.
+  2. Attachments (Step 08 §21, Step 13 §16; decisions 141-142 left the bytes for later). A "Lampiran"
+     section on Bill, Expense and Invoice detail: upload (PDF, JPG, PNG, WebP; 4 MB, the Server Action
+     ceiling on Vercel), download, remove with a reason. The file type is read from the content. Bytes go
+     to a private bucket `documents` with no Storage policy (migration
+     `20261003140000_p15_documents_bucket.sql`); only the server, with `SUPABASE_SERVICE_ROLE_KEY`, writes
+     it and mints a one-minute signed URL, each time after the database's own check (`register_document`,
+     `get_document_download_grant`). Without the key the section says file storage is not switched on.
+     The OWNER sets the key in Vercel (Production only); it is never in Git.
+  3. The reasons shown on the PPh Final screen and the import row messages are translated
+     (`reasonTranslations.json`).
+  4. Open, for the OWNER: a screen to add a further Entity. It creates a ledger and grants OWNER on it,
+     which is an authorization rule the specs do not state; not built until the OWNER confirms who may do
+     it.
+
+- PPh Final UMKM rules for earlier years; click and loading feedback (decision 274).
+  1. OWNER: "tambahkan aturan dan mesin pajaknya yang relate dengan aturan 2021 sampai aturan terbaru",
+     to record earlier years. Migration `20261003130000_p15_pph_final_umkm_history.sql` publishes three
+     earlier versions of `PPH_FINAL_UMKM` and one of its deadline rule; nothing existing is edited.
+     From 1 July 2018 (PP 23/2018): 0.5%, ceiling Rp4.8 billion, individuals, companies and
+     cooperatives, no untaxed band. From 1 January 2022 (UU 7/2021): the Rp500 million band for
+     individuals. From 20 December 2022 (PP 55/2022): Perseroan Perorangan added. From 22 April 2026 the
+     existing PP 20/2026 version applies. The rule in force on the last day of each month is used.
+  2. Not modelled, as before: the time limits of the older regulations (7 tax years for individuals, 4
+     for cooperatives, CV and firma, 3 for a PT). The regime chosen on the taxpayer profile is the
+     OWNER's statement that the taxpayer was entitled in that period. Withholding, VAT and payroll rules
+     still start in 2025/2026: a bill or payroll run dated earlier goes to review.
+  3. Production state: the tax engine is active for `hikarich` from 1 January 2021 and for `pt` from 1
+     September 2026 (activation is one-time per Entity).
+  4. OWNER: click and loading feedback "wajib ada". `NavigationProgress` in the app shell shows a bar at
+     the top, dims the page and marks the pressed link with a spinner from the click until the address
+     changes; links and buttons have a pressed state. Display only. Tests: `94_p7_tax.sql` 1.0, 1.4a-d.
+
+- Production is up; Entity labels "PT" and "Pribadi"; PP 20/2026 term re-checked (decision 273).
+  1. Go-live steps done on 3 October 2026: the OWNER set the two GitHub secrets and re-ran the workflow,
+     which applied all 71 migrations to production; the two Entities were created by the administrator
+     (`pt`: PT Hikarich Kitana Digital, brand Kamar Kajian Market; `hikarich`: Hikarich; both
+     business-type, 59 ledger accounts each); the OWNER ran `bootstrap_owner` themselves in the Supabase
+     SQL editor, signed in and enrolled an authenticator. Taxpayer profiles, accounts and opening balances
+     are still to be entered by the OWNER in the application.
+  2. OWNER: "ubah menjadi Pribadi & PT, tidak perlu tulis nama brand". `entityLabel` now shows the legal
+     form a business ledger's legal name starts with ("PT", "CV") and "Pribadi" when it has none; the
+     household ledger shows "Rumah Tangga". Both production Entities are business-type, so the previous
+     rule labelled both "PT". Display only.
+  3. PPh Final UMKM term, asked by the OWNER. DJP (pajak.go.id/en/node/119971) and Ortax state that under
+     PP 20/2026 individuals and Perseroan Perorangan use the 0.5% rate with no time limit (the 7-year and
+     4-year limits of PP 55/2022 Art. 59 are removed); cooperatives are limited to four years; ordinary
+     PT, CV and firma no longer qualify; the Rp500 million untaxed band is for individuals only. The
+     published rule `PPH_FINAL_UMKM` already encodes exactly this, and `95_p7_determination.sql` 9.27-9.31
+     asserts the band (300 million: no tax; cumulative 700 million: 0.5% of 200 million = 1,000,000; over
+     Rp4.8 billion: review). Ortax also reports a new Art. 58(3) that adds the turnover of a Perseroan
+     Perorangan founded by husband or wife to the Rp4.8 billion test. Whether the OWNER's own PT
+     Perorangan and personal business must be added together was not confirmed from a primary text; the
+     profile field "Omzet digabung" stays the OWNER's answer, and "Belum diketahui" stops the computation
+     for review.
+
+- P15 start: production migrations through GitHub, and editable Entity names (decision 272).
+  1. OWNER: "buat otomatisasi itu". `.github/workflows/production-migrations.yml` applies
+     `supabase/migrations` to the production project with the Supabase CLI when a merge to `main` changes
+     a migration, and on demand. It needs two repository secrets the OWNER types in GitHub
+     (`SUPABASE_ACCESS_TOKEN`, `SUPABASE_DB_PASSWORD`); the seed file is never applied. Chosen over
+     applying the SQL by hand because the files are sent byte for byte and the history is recorded.
+     State found before this: the production database had no migration at all, the production deployment
+     existed, no custom domain (the OWNER has not bought one; `hikarich-finance.vercel.app` is used).
+  2. OWNER: "pastikan bahwa semua bisa diubah dan diedit diganti namanya". New
+     `update_entity_identity` (`system.entity_config`, step-up, version check, audited) changes the legal
+     name, brand, address and contact details from Settings. Issued documents keep their own snapshot.
+     The Entity code and type stay fixed. Migration `20261003120000_p15_entity_identity.sql`; test
+     `99_p15_1_entity_identity.sql`. Creating a further Entity is still an administrator step.
+  3. Facts from the OWNER for P15: the PT (PT Hikarich Kitana Digital, brand Kamar Kajian Market) was
+     registered in September 2026; the personal business (Hikarich) is ordinary trade and services, not
+     "pekerjaan bebas". The procedure is in `docs/GO_LIVE.md`.
+
+- Refusal reasons in Indonesian (decision 271). The database raises `INVALID:` / `CONFLICT:` reasons in
+  English; decision 267 made every form show them. `src/domain/authz/reasonTranslations.json` now holds
+  the 852 distinct reason templates found in the migrations with an Indonesian text each (`{1}`, `{2}`
+  for the `format` placeholders), and `translateReason` matches a reason against them, most specific
+  first, and fills in the values. `describeAuthzError` shows the Indonesian reason alone when it is
+  known and the generic text with the English original otherwise. Display only: the database messages,
+  the error codes and what is refused are unchanged, and the tests that assert on database messages are
+  untouched. A new migration that adds a reason should add its template to the JSON; an unknown reason
+  still shows in English, so nothing is hidden. The Indonesian wording was machine-drafted in bulk and
+  spot-checked, not reviewed line by line.
+
+- Step-up window 30 minutes, and the personal business as a business-type Entity (decision 270).
+  1. OWNER: "verifikasinya diubah menjadi 30 menit. karena 10 menit terlalu cepat". The recent
+     re-authentication window of Step 06 §8 goes from 10 to 30 minutes: the default of
+     `app_authz.recent_step_up()` (migration `20261003110000_p14_step_up_30_minutes.sql`) and the
+     application's `STEP_UP_WINDOW_MINUTES`. Which commands need a step-up and who may run them is
+     unchanged. This is an OWNER override of a locked value; a longer window means an unattended, unlocked
+     session stays able to run sensitive commands for longer.
+  2. OWNER agreed ("saya setuju dengan yang di atas") that the personal business is kept as a
+     business-type Entity with taxpayer kind "Orang pribadi", so every feature equals the PT and only the
+     tax rules differ; the household "personal" ledger of Step 03 is unchanged. To be set up at P15.
+  3. Verified in the browser after decision 269's migration: a payroll net-pay payment now saves (run
+     "Dibayar penuh").
+
+- Automatic fiscal grouping, automatic month-end depreciation, and a payroll payment that could not be
+  saved (decision 269, OWNER: "harusnya ada mesin sistem otomatis dalam pengelompokannya", "penyusutan
+  harus dalam bentuk otomatis setiap akhir bulan", "bila ada perubahan manual juga harus bisa").
+  1. Grouping. `suggestFiscalClass` picks the fiscal group from words in the asset's name (laptop, printer,
+     meja, kursi: Kelompok 1; mobil, AC, mebel logam: Kelompok 2; gedung, ruko: permanent building; tanah:
+     land), the group fills the useful life, and the form says the group was chosen automatically. It is a
+     suggestion the person can change; an unrecognised name asks the person to choose. The word list is
+     from memory of the PMK 72/2023 attachment and should be checked against the primary text.
+  2. Month end. `autoPostDepreciation` calls the existing `asset_post_depreciation` through the last
+     completed month end when someone with `assets.manage` opens the Dashboard, the Asset register or the
+     Depreciation screen. The command is idempotent and serialised per Entity, so each month posts once; it
+     runs as that person, so the journal has a real actor and no scheduler or service key is needed. When
+     the database refuses (for example a closed period) nothing is posted and the manual screen remains.
+     Trade-off: posting happens at the first visit after month end, not at midnight; the journals are
+     dated month end either way.
+  3. Manual changes already exist and are unchanged: "Ubah Rencana Penyusutan" (method, life, residual for
+     the months still to come), reversing a posted month from the asset, and manual "Posting Penyusutan".
+  4. Defect found in the browser: no payroll payment could be saved. `payroll_payments.tg_capacity` is an
+     INITIALLY DEFERRED constraint trigger; it runs at COMMIT, after the SECURITY DEFINER command returned,
+     as the signed-in person, who has no privilege on `payroll_runs`. Migration
+     `20261003100000_p14_deferred_trigger_definer.sql` makes the trigger function SECURITY DEFINER. Test
+     `99_p14_8_deferred_triggers.sql` asserts it for every initially deferred trigger, since the test
+     files roll back and can never observe a commit.
+
+  Open, for the OWNER ("role PT dan Pribadi harus sama dalam segala hal kecuali pasal pajak"): the
+  "personal" ledger of Step 03 is a household ledger (housing, food, lifestyle accounts; no depreciation,
+  no sales). Nothing is changed there. The tax engine already separates the ledger type from the taxpayer
+  kind, so a personal business can be kept as a business-type Entity with taxpayer kind "Orang pribadi":
+  every feature is then the same as the PT and only the tax rules differ. To be confirmed at P15 setup.
+
+- Depreciation help and assets owned before the app (decision 268, OWNER: "rumus perhitungan otomatis
+  penyusutan ... ketika dimasukkan nilai awal atau adanya pembelian barang"). The computation itself has
+  existed since P8 and is unchanged: a purchase or expense line marked "Aset" becomes a draft asset when
+  approved, activation writes the monthly plan, and month-end posting books it. Straight line is
+  (cost − residual) ÷ useful-life months; declining balance applies a fixed rate to the book value. Added,
+  screens only, no migration:
+  1. `src/domain/assets/fiscalClasses.ts`: the fiscal groups with their life and yearly rates (Kelompok 1
+     to 4: 4/8/16/20 years, 25/12.5/6.25/5% straight line, 50/25/12.5/10% declining balance; permanent
+     building 20 years 5%; non-permanent 10 years 10%; UU PPh Pasal 11, PMK 72/2023). Choosing a group in
+     the form fills in the useful life, and the form shows the monthly amount before saving. Display and
+     form help only; the database still validates the key and computes the plan.
+  2. `/assets/opening` ("Aset yang Sudah Dimiliki", `system.import`): the screen for `asset_load_opening`,
+     which decision 264 had left without one.
+
+  Verified in the browser: an asset bill line registered itself on approval, activation with Kelompok 1
+  planned 48 months, Rp 12.000.000 gave Rp 250.000 a month. Payroll post was also exercised (posted);
+  payroll payment asks for the authenticator code.
+
+  Open, for the OWNER: a Personal ledger still tracks assets at cost with no depreciation (Step 15, as
+  built in P8). Depreciating personal-business assets changes economic meaning and is not done here.
+
+- Second walkthrough with the OWNER's authenticator code, and form behaviour (decision 267). Exercised on
+  `demo_pt`: tax engine activation (refused for a start date on which documents already exist, accepted
+  for the next day), automatic PPh 4(2) 10% on a rent bill, tax override and its withdrawal, fiscal-year
+  close (correctly refused while periods are open), posting a manual journal, payroll submit and approve.
+  Fixed, none changing economic meaning, tax treatment or authorization:
+  1. A form that answered with an error lost everything typed, because React clears an uncontrolled form
+     when its action finishes. New `usePreservingForm` submits the same action from `onSubmit` and clears
+     the form only after `status: "ok"`; applied to every form bound to `useActionState`.
+  2. Ten services threw `AuthzError` without the database message, and most forms showed only "Permintaan
+     tidak valid." New `describeAuthzError` adds the database's reason for `INVALID` and `CONFLICT` (never
+     for other codes), used by every form. The reasons are still English.
+  3. An overridden tax result still showed the engine's sentence quoting the computed amount; it now says
+     the figure is a manual correction.
+
+- Browser walkthrough of the write screens on the preview, and what it fixed (decision 266, OWNER: "kamu
+  saja yang uji"). Exercised on `demo_pt` against the development database: add customer and vendor with
+  tax facts, bank/e-wallet account, category (add, tax mapping, account mapping, deactivate), invoice
+  (add and remove lines, edit draft, issue, public link, customer claim, confirm, record payment, refund),
+  marketplace (store, payout, cancel), bill (create, submit, approve, pay), expense (create, edit,
+  confirm), taxpayer profile, employee (compensation, tax, BPJS), payroll run (create, calculate), equity
+  (create, confirm), loan (create, cancel), manual journal draft. Defects found and fixed, none changing
+  economic meaning, tax treatment or authorization:
+  1. Nineteen `"use server"` files exported their initial form-state objects. Next.js allows only async
+     functions there, so every action in those files failed at runtime ("found object"); the build and
+     tests did not catch it. The states moved to sibling `*State.ts` modules.
+  2. Direct reads of numeric columns without `::text` (bills, bill lines, expenses, transfers, money
+     movements, journal lines, tax determinations, products, approval rules, opening batches): PostgREST
+     sends JSON numbers, the row schemas expect exact decimal text. A single draft bill made the Bills
+     list and detail fail.
+  3. Four pages failed to load: Settings (the numbering-scope schema knew 6 of the database's 21 scopes),
+     PPh and Withholding (`asset_available` is null for tax types with no credit side), Forecast (numeric
+     table columns arrive as numbers).
+  4. Forms that embed a line table were capped at 480px by `.record-form`; prefilled amounts showed
+     padding zeros ("2500000.0000"); the sales screens said "Faktur" where the OWNER asked for "Invoice"
+     ("Faktur Pajak" is unchanged).
+
+  Not exercised because they need the OWNER's authenticator code: activating the tax engine (so tax on the
+  test invoice/bill was not computed in the browser), tax override, fiscal-year close. Known and left: a
+  form that returns an error clears what was typed (React resets an uncontrolled form after its action).
+
+- Category to ledger account mapping (decision 265, Step 03 §6). `category_account_mappings` has been
+  read by invoices, bills and expenses since P5/P6 but no command wrote it, so every category posted to
+  the Entity's default account. New `set_category_account(entity, category, account, effective_from)`
+  (`categories.manage` and `coa.manage`): a revenue category maps the credited account in the "sales"
+  context, an expense category the debited account in the "purchases" context, each restricted to an
+  active, non-group account of the matching class. It is effective-dated and never rewrites the past: the
+  mapping in force ends the day before the new one starts, the same start date corrects it in place, an
+  earlier date than an existing later mapping is refused, and passing no account ends the mapping. The
+  Categories screen shows the account in force and sets it. Migration
+  `20261002300000_p14_category_account_mapping.sql`; test `99_p14_7_category_account.sql`.
+
+- Remaining write screens in one slice (decision 264, OWNER: "semua itu kamu kerjakan dalam 1 merge").
+  Every command below already existed and was tested at the database level; this adds only screens, each
+  gated on the permission its RPC checks and shown only in the statuses the RPC accepts. No migration.
+  Payroll: add an employee; employment, compensation, tax profile, BPJS, tax opening, update, end; create
+  a payroll run and every run command (calculate, adjust, submit, approve, return, discard, post, close,
+  reopen, correct, pay, reverse payment). Fixed assets: register a pending purchase line as an asset
+  (`/assets/new`), activate, update, condition, fiscal class, replan, transfer, dispose, reverse disposal,
+  cancel, post and reverse depreciation. Financing: create a loan, activate, repay, cancel, write off,
+  reverse a payment; create an other receivable/payable, settle, void, write off, reverse a settlement;
+  create an equity event, confirm, cancel, reverse, pay a dividend, reverse a dividend payment.
+  Accounting: manual journal draft (`/accounting/journal/new`), close a fiscal year and reverse the
+  closing. Also: edit a draft expense, mark a payment claim as a duplicate, set a public link's expiry,
+  cancel a draft invoice, withdraw a tax override. Deliberately left without a screen: `splitAsset`,
+  `loadOpeningAssets`, `restructureLoan`, `loadOpeningLoans`, `setLoanAsset`, `recordFinancingTaxReview`
+  (inputs too large for a simple form), manual loan schedules and offset-origin obligations, the Import
+  Wizard commands and document attach/download (both wait for file storage, P15), and the
+  category-to-account mapping (no command exists yet). The screens were built by parallel workers and
+  verified together by typecheck, lint, unit tests and build; none was exercised in a browser.
+
+- Refund from Payment Detail (decision 263, Step 07 §3). A confirmed payment can be refunded in part or
+  in full: one amount per refundable part (`payment_refund_options`: what was applied to each invoice, and
+  an unapplied advance), the paying account, the date and a reason, through the unmodified `create_refund`
+  with immediate confirmation. The form appears only for a person who holds both `refunds.create` and
+  `refunds.confirm`, so there is no draft refund waiting without a screen to confirm it; the separate
+  draft/confirm/reject/cancel/reverse refund commands still have no screen. No migration.
+
+- Tax preview before recognition, manual override, and Categories (decision 262, Step 05 §10-§11, §14-§15,
+  Step 03 §6). (1) Bill Detail (draft, submitted) and Invoice Detail (draft) now show what the engine would
+  recognise (`tax_preview_document`): each result with its amount and consequence, and the reasons that
+  block recognition when a review is needed. Until now a blocked document gave no explanation on screen.
+  (2) With `tax.override` the panel offers the manual correction (`tax_override_set`: amount, reason,
+  evidence note; the database requires a recent step-up). Withdrawing an override and the per-line
+  "confirm treatment" command still have no screen. (3) `/accounting/categories`: categories could not be
+  created or mapped from the app. `categories` already takes browser writes under RLS
+  (`categories.manage`, P2), so the screen inserts a category and updates its tax mapping
+  (`tax_category_key`) or active flag directly, without a new RPC. The category-to-account mapping
+  (`category_account_mappings`) is select-only and has no command yet, so a new category posts to the
+  Entity's default revenue/expense account until that backend exists. No migration.
+
+- Editing a draft invoice or bill (decision 261, Step 09 §11-§12). `/sales/invoices/[id]/edit` and
+  `/purchases/bills/[id]/edit` reuse the create forms with the draft's values and save through the
+  unmodified `update_invoice_draft` / `update_bill_draft` (`invoices.edit` / `bills.edit`, with the row
+  version for optimistic concurrency). Only a DRAFT opens there; anything recognised is corrected, never
+  edited. Line facts the editor does not show (product, discount) travel with the line untouched. Editing
+  a draft expense is not built yet: a draft expense is cancelled and recorded again. No migration.
+  The same day the tax baseline was re-checked against official sources in place of a consultant (the
+  OWNER has none): PMK 37/2025 marketplace collection (0.5% excluding VAT; four designated marketplaces;
+  DJP release SP-23/2026 says collection started 1 October 2026 after earlier statements said 1 November,
+  with an adjustment period to 31 October -- the rule date stays 2026-10-01 and the payout report is the
+  fact); for a final-regime taxpayer the collection is "bagian dari pelunasan PPh final" and a shortfall
+  is paid by the seller, which is what decision 260 models; no rule was found for an excess, so it is not
+  carried. PP 20/2026, PP 34/2017 (service charges are part of the rent base), PMK 81/2024 Pasal 94 and
+  the PPh 23 rates were confirmed. Not confirmed from a primary text: the 2026 status of PMK 131/2024
+  and the wording that a non-PKP may not charge VAT (the engine already charges none).
+
+- Marketplace sales per settlement, with PPh 22 collected by the marketplace (decision 260, OWNER:
+  "rekap per pencairan", "biaya admin otomatis", "PPh marketplace saya setuju", "akun marketplace ...
+  sudah kita rancang dari sekarang"). (1) `marketplace_stores` (Shopee, Tokopedia, Lazada, Blibli, TikTok
+  Shop, Bukalapak, other; receiving account; an exemption flag) and `marketplace_settlements`: one row is
+  one payout report -- gross sales before VAT, fees, PPh 22 collected, payout. Recording posts ONE journal
+  (Dr receiving account, Dr fee expense, Dr income-tax expense for the PPh 22; Cr revenue, Cr Tax Payable
+  for VAT) and the cash movement; a settlement is never edited, it is reversed. (2) New published rule
+  `PPH22_MARKETPLACE` (PMK 37/2025, 0.5% of gross excluding VAT, the four designated marketplaces,
+  collection from 1 October 2026 per pajak.go.id). The rule computes the amount; when the payout report
+  states another amount, the stated amount is the fact that is booked and both are kept. (3) Because the
+  amount collected is part of the settlement of the final tax for a taxpayer on the final regime, the
+  monthly PPh Final UMKM computation now adds marketplace turnover of the month (and of the year, for
+  the ceiling and band) and deducts the PPh 22 collected in the month; it never goes below zero and an
+  excess is reported in the trace, not carried. For a taxpayer not on the final regime a settlement with
+  PPh 22 is refused (the credit of the tax year is not modelled). (4) While the Entity is PKP the output
+  VAT of a settlement is computed from `PPN_STANDARD`, credited to Tax Payable and recorded in the tax
+  ledger with its own determination (`source_type = marketplace_settlement`); while it is not PKP no VAT
+  is computed. (5) Stated simplifications: base currency only; turnover is recognised on the payout date;
+  refunds/returns inside a payout are netted by the person in the gross figure; per-order detail is not
+  kept. Permissions reuse the sales ones (`invoices.view/create/issue/confirm_payment/void`). Not tax
+  advice; the OWNER's tax consultant confirms before production.
+
+- Payment Confirmation queue and link revocation (decision 259, Step 07 §4, Step 09 §11). A customer
+  could already submit "Saya Sudah Bayar" on the public invoice page, but no screen let staff act on it.
+  `/sales/claims` lists the Entity's pending claims (direct RLS read; the requester hash is never
+  selected) and, with `invoices.confirm_payment`, confirms one (`confirm_payment_submission`: account,
+  the date and amount the bank actually shows) or rejects it with a reason (`reject_payment_submission`).
+  Invoice Detail gains "Cabut Tautan Publik" (`revoke_invoice_link`). The public page's PDF path stays
+  the browser print button it already has. Marking a claim as a duplicate of another and setting a link
+  expiry remain without a screen; a duplicate is rejected with a reason for now. No migration.
+
+- Daily-use screens that had a backend but no screen (decision 258, OWNER: "silahkan dibuat ... sampai
+  selesai"). An audit of every write service against the screens found many commands no screen calls; this
+  slice adds the ones daily work and correct tax determination depend on, all through unmodified RPCs and
+  the permission each RPC itself checks: Add Customer / Add Vendor (`create_contact`, `contacts.create`;
+  the similar-name confirmation is a checkbox); Add Account (`create_financial_account`, `money.edit`; the
+  list already linked to the missing page); Record Payment on an issued invoice (`record_payment`,
+  `invoices.confirm_payment`) and Pay Bill on an approved bill (`record_vendor_payment`, `bills.pay`), each
+  as one allocation to that document, defaulting to the outstanding amount; the contact's tax facts on
+  Customer/Vendor Detail (`tax_record_contact_facts`, `tax.confirm_facts`); and Tax Setup (`/tax/setup`):
+  the Entity's effective-dated tax profile (`tax_record_entity_profile`) and the engine switch
+  (`tax_engine_activate`, OWNER + step-up). No migration. Still without a screen, in the order planned:
+  marketplace sales (new engine scope), editing drafts, payment claims and refunds, tax override and line
+  confirmation, category tax mapping (needs a backend), then payroll, assets, financing, imports, document
+  attachments, manual journals and the fiscal-year close.
+
+- Create Invoice and Record Bill screens, with the tax fields of a line (decision 257). The list screens
+  already linked to `/sales/invoices/new` and `/purchases/bills/new`, but neither page existed (only the
+  services), so an invoice or a bill could not be created from the app, and no screen could record the
+  tax facts of a line. Both pages now exist (`invoices.create` / `bills.create`, the permissions the draft
+  RPCs check) and save a DRAFT through the unmodified `create_invoice_draft` / `create_bill_draft`;
+  issuing or approving, which posts and recognises the tax, stays on the Detail page. The shared line
+  editor gained an optional tax row per line: for a bill or expense the withholding object, the VAT the
+  vendor charged and the tax-invoice number; for an invoice the VAT treatment. These are the facts the P7
+  engine already reads from a line; a blank value keeps today's behaviour (category mapping, or a tax
+  review). The Record Expense form shows the same row. Wording of the catalog keys is in
+  `src/domain/tax/tax.ts` and names no rate. The sales and purchases services now keep the database's
+  own message on an `AuthzError`, so a refused draft shows why. No migration.
+
+- PPh 4(2), PPh 26 and the deadline correction (decision 256, OWNER instruction "kerjakan sekarang" and
+  "langsung saja ubah dan buatkan terverifikasinya"). (1) Two more withholdings run through the same P7
+  machinery as PPh 23 (determination, tax ledger, payment, filing, reconciliation, calendar) as the tax
+  types `wht_pph4_2` and `wht_pph26`. Which tax applies is decided from facts, per Step 05 §10: a
+  non-resident payee means PPh 26 on every withholding object; a resident payee means PPh 4(2) when the
+  object is covered by a PPh 4(2) rule (the new object `wht_rent_land_building`), otherwise PPh 23. One
+  bill can carry several withholdings; `withheld_total` is their sum. (2) New published rules:
+  `PPH4_2_RENT_LAND_BUILDING` (10% of the gross rent, PP 34/2017; not doubled without a tax number; a
+  PPh 23 exemption certificate does not remove it), `PPH26_RATE_20` (20% of the gross amount, UU PPh
+  Pasal 26), `DEADLINE_PPH4_2` and `DEADLINE_PPH26` (pay by the 15th, report by the 20th). A tax-treaty
+  rate is never guessed: it is entered as an override of the PPh 26 result with the DGT form as evidence.
+  Foreign-currency documents still go to review. (3) `DEADLINE_PPH21` version 2 (from 2025-01-01) and
+  `DEADLINE_PPH23` version 2 (from 2026-10-01, because version 1 is already published for 2026-01-01)
+  move the payment deadline to the 15th (PMK 81/2024 Pasal 94); earlier periods keep the version they
+  had. On the non-production database the two drafts were marked verified and published through the rule
+  master commands; the migration carries the same versions to every other database. (4) The long P7/P9
+  commands are patched in place by the migration (one list or label each, exact-match or the migration
+  fails) instead of being restated. (5) Found while building: the app has no Create Bill and no Create
+  Invoice screen yet (only the services), and the expense form has no tax fields, so a withholding object
+  cannot be chosen from the screen today; this is the next slice. Not tax advice; the OWNER's tax
+  consultant confirms the baseline before production (P15).
+
+- Sidebar follow-ups (decision 255, OWNER walkthrough feedback). (1) "Saldo Kas & Bank" under
+  Ringkasan now has its own page, `/cash-snapshot` (total active balance, each active account's balance
+  and reconciliation freshness, read-only, `money.view`, the Dashboard's own Account Snapshot data),
+  instead of sharing `/money/accounts` with Kas & Bank > Rekening, which made the highlight jump to the
+  other menu; every submenu now has a unique route (tested). (2) Menus the person opened stay open until
+  they close them, rather than closing when another menu is opened, so they need not remember where a
+  submenu lives; the menu of the current page still opens by itself.
+
+- Security hotfix: `next` 16.3.5 -> 16.3.8 (decision 236). While verifying CI for decision 235's PR,
+  `pnpm audit --prod --audit-level=high` newly reported a **critical** RCE advisory
+  (GHSA-vcvr-r3jv-pc5j, "Remote Code Execution in next/og ImageResponse") affecting `next` versions
+  `>=16.2.0 <16.3.6` -- the repo was pinned to `16.3.5`, inside the vulnerable range. This was not caused
+  by any code change in this repo; it surfaced because the public advisory database picked up a
+  newly-disclosed vulnerability, and the project's CI runs `pnpm audit` on every build. Patched at
+  `>=16.3.6`; bumped straight to the latest `16.3.x` patch, `16.3.8` (and `eslint-config-next` to the
+  matching `16.3.8` in lockstep, since the two are always kept in sync in this repo), a patch-only bump
+  with no API surface change. Built as its own standalone hotfix branched directly off `main` (not stacked
+  on the Tax family chain) so it can be merged immediately without waiting on or entangling the in-flight
+  feature PRs -- every other open PR in the stack will also start failing this same audit check on its
+  next CI re-run (e.g. whenever its base auto-retargets after the PR below it merges) until this lands on
+  `main` and each branch picks it up.
+
+  While investigating, the "Migration clean-rebuild and invariants" CI job on decision 235's own PR also
+  failed; reproduced `pnpm db:test` locally against the identical 61-migration set decision 235's branch
+  carries and it passed cleanly (clean rebuild reproducible, invariants pass, upgrade-from-seeded-data
+  check passes) -- decision 235 touches zero migration files, so this is treated as a transient CI-runner
+  flake, not a real defect, and is not otherwise addressed here.
+
+  `pnpm audit --prod --audit-level=high` now reports no known vulnerabilities. `pnpm check` passes (673
+  tests, unchanged). `pnpm build` passes (no routes added or removed). `pnpm db:test` not re-run (a JS
+  dependency bump touches no migration). `npx prettier --check .` clean.
+
+- **OWNER QUESTION -- resolved by decision 248.** CI invariant test flake traced to a real timezone-boundary defect in
+  already-shipped P7 tax logic (decision 237). While verifying CI for decisions 235/236's PRs, the
+  "Migration clean-rebuild and invariants" job started failing on `supabase/tests/95_p7_determination.sql`
+  assertion "9.5 a period that is not over is not computed" -- reproducibly on GitHub's CI runner, but not
+  locally (ran `pnpm db:test` three times locally with the identical migration set: all three passed).
+
+  Root cause traced by reading the actual functions, not guessed: `app_private.tax_final_evaluate`
+  (`20260925100500_p7_final_calendar.sql`) decides whether a period is "over" by comparing the period's
+  last day (`v_end`) against `app_private.entity_today(p_entity)`, which is `(now() at time zone
+e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's own configured timezone**.
+  Test 9.5 instead picks the period it queries with plain `date_trunc('month', current_date)::date` -- the
+  **Postgres session's own timezone** (`current_date`, no entity involved). On any ordinary day these
+  agree. On the **last day of a calendar month**, in the hours where the Entity's timezone has already
+  rolled over past midnight into the next month while the Postgres session's timezone has not yet, the two
+  disagree: the test still asks about the (session-timezone) current month, but `entity_today()` already
+  reads as the 1st of next month, so `v_end >= v_today` (the "not over yet" guard) is now false, evaluation
+  falls through past the guard, and -- because the synthetic fixture's taxpayer profile was confirmed
+  effective 2026-05-01 onward with no end date (test 9.2/9.3) -- it resolves to a real status instead of
+  the `not_configured` the test still expects. This is a genuine defect in the interaction between two
+  already-shipped, already-tested P7 pieces (the entity-timezone-aware "period over" guard and a
+  session-timezone-naive test assertion), not anything introduced by decisions 235 or 236 -- both branches
+  touch zero P7 files -- and it will recur on the last day of every month during the same UTC window until
+  resolved.
+
+  Not fixed here. `tax_final_evaluate`'s "period is not over yet" guard and `supabase/tests/
+95_p7_determination.sql` are both Step 05 §9 / Step 07 locked-spec territory (tax-computation business
+  logic and its own invariant suite) -- changing either without sign-off risks quietly altering when the
+  final-tax engine considers a period computable, which the standing rule requires routing to the OWNER
+  as a question, not deciding solo. Two shapes of fix are visible from the code read above (not chosen
+  between here): (a) make the test period-select entity-timezone-aware instead of session-timezone-naive,
+  matching what `entity_today()` already does; or (b) decide what "the period is over" should mean when an
+  Entity's timezone differs from the Postgres session's -- UTC-normalize `entity_today()`, or accept the
+  boundary-hour disagreement as expected and make the test tolerant of it. Left as an open OWNER question;
+  no repo file behavior changed by this decision, only this documentation entry.
+
+  Practical effect on decisions 235/236: their own PRs' code is unaffected and independently verified
+  (`pnpm check`/`pnpm build`/`npx prettier --check .` all pass on both; decision 236 additionally confirms
+  `pnpm audit` clean) -- only the shared, pre-existing "Migration clean-rebuild and invariants" CI job is
+  affected, by this unrelated pre-existing defect, and it should stop failing once UTC time moves past the
+  boundary window for today (and will recur again at next month's end until resolved).
+
+- **FATAL** (OWNER's own word): switching Entity then clicking any other menu silently reverted to
+  "Pribadi" (decision 287). Root cause: every `(app)` page and `AppShell` resolve the active Entity purely
+  from the `?entity=` query string (`resolveActiveEntity`, falling back to the first membership when the
+  param is missing or invalid) -- by design, so the URL stays the single source of truth and both places
+  agree. `Sidebar`'s nav links, though, were bare `item.href` with no `?entity=` at all, so the very first
+  click away from the page that set the query string dropped it, and the fallback silently picked
+  "Pribadi" (the first membership by `entity_code` order) -- never merging PT's data with Pribadi's (every
+  RPC still runs under the one Entity the server actually resolved), but making the PT books effectively
+  unreachable past one click. Fixed two ways: (1) `Sidebar` now receives the active `entityCode` and
+  appends it to every nav `href` (fast path for the one place that was wrong); (2) a universal safety net
+  in `src/lib/supabase/proxy.ts` (`decideEntityCookie`, 9 new Vitest cases) -- on every signed-in `GET`, it
+  remembers the Entity named in the URL in an httpOnly cookie, and when a URL carries none it 307-redirects
+  to the same URL with `?entity=<remembered>` appended, so _any_ internal link that forgets the query
+  string (not just the sidebar) still lands on the right Entity instead of silently falling back. Verified
+  with `pnpm check` (850 tests) and `pnpm build`.
+
+- "Nama Pemilik / Pihak" on Tambah Modal/Ekuitas showed the other Entity's name after switching Entity
+  (decision 287). Likely the browser's own form-autofill remembering a value typed on a previous visit to
+  the same-shaped field, since the field is an uncontrolled `<input>` with no `autoComplete` set. Fixed by
+  adding `autoComplete="off"` to the `counterparty`/`purpose` inputs in all three financing create forms
+  (Pinjaman, Piutang Lain/Utang Lain, Modal/Ekuitas) and giving each create form a `key={entity}`, so React
+  remounts it (and its DOM) fresh on an Entity switch instead of reusing the previous Entity's form
+  element.
+
+- Known counterparties (Nama Pemilik/Pihak and similar) are now click-and-pick, not forced free text
+  (decision 287, OWNER: "hal-hal yang sudah pasti begini tidak perlu diberikan isian tapi diberikan
+  pilihan"). No new RPC or migration: each of the three financing create-forms' pages now loads the
+  Entity's existing Contacts (`listContacts`) and passes their names down as `knownParties`; the
+  `counterparty` field (new shared `PartyField`) renders as a native `<input list>` + `<datalist>`, which
+  shows a clickable dropdown of names already on file while still accepting a new name by typing -- a
+  name not yet in Contacts is not forced through a separate screen first.
+
+- "Tambah Pelanggan" directly from Buat Invoice (decision 287, OWNER: a new-customer button or a
+  search-and-pick, not a trip to the Pelanggan screen first). New non-redirecting server action
+  `quickCreateContactAction` (bound to `quickCreateCustomerAction`/`quickCreateVendorAction`) and a
+  reusable `QuickAddContactDrawer` (name, email, phone only; links to the full Add Customer/Vendor screen
+  for the rest) wired into `InvoiceForm`'s Pelanggan field via a "+ Tambah pelanggan baru" button, so a
+  brand-new customer can be added and selected without losing the invoice lines already typed below. The
+  existing Pelanggan `<select>` was already a real dropdown over every active customer (click and pick),
+  so the "search an existing one" half of the request was already there; this adds the missing "or add
+  new" half.
+
+- "Rekening Tujuan Pembayaran" empty on Buat Invoice despite bank accounts existing (decision 287). Traced
+  to the same root cause as the entity-revert FATAL above: with the Entity silently falling back to
+  "Pribadi", the account list was genuinely for the wrong Entity (empty or someone else's accounts), not a
+  separate filtering bug in `InvoiceForm`. No change needed beyond the entity-revert fix; resolved
+  transitively once that proxy-level fix landed.
+
+- Default timezone for a brand-new Entity changed from WIB to **WITA (`Asia/Makassar`)** (decision 287,
+  OWNER: "untuk jam default website gunakan saja jam lokal yaitu WITA Asia/Makassar," her own location).
+  `alter table entities alter column timezone set default 'Asia/Makassar'`
+  (`20261005100000_p15_default_timezone_wita.sql`) -- only the default for an Entity created from now on;
+  an existing Entity's stored timezone is untouched (she can change it herself from Settings > Waktu &
+  Tahun Buku, decision 248, which already offers WITA as a choice and keeps the audit trail). Test 1.0 in
+  `supabase/tests/99_p14_3_entity_time.sql` updated to assert the new default, and its "valid change"
+  scenario (2.x) retargeted from Makassar to Jakarta so it still exercises a real change instead of a
+  no-op against the new default.
+
+- Kategori screen wording (decision 288, OWNER: "saya tidak mengerti fungsi kategori ini"). Text only, no
+  behaviour change. The page now says a category is the kind of revenue or expense on an invoice/bill line
+  (not a customer or vendor list), and the tax-mapping default option reads "Otomatis dari profil pajak
+  (disarankan)" with a hint that tax is still computed automatically from the Entity's tax profile. Checked
+  in the code: a category is optional on an invoice line (`Tanpa kategori`; revenue then posts to
+  `OTHER_OPERATING_REVENUE`, `resolve_revenue_account`), so an empty category list does not block the first
+  invoice. Seeding standard categories is a separate, OWNER-approved follow-up.
+
+- Jurnal Manual account picker (decision 289, OWNER: "pilihannya banyak sekali dan saya bingung"). Display
+  only, no posting rule changed: the account dropdown is grouped (Pendapatan, Beban, Aset, Liabilitas,
+  Ekuitas, Lainnya), sorted by code inside each group, with the system-protected accounts in a last
+  group; the page explains that everyday income and costs belong in Invoice/Pembayaran Diterima and Beban.
+  Account names are still the English COA template names; translating them is a separate, OWNER-approved
+  change to data.
+
+- Default chart-of-accounts names in Indonesian (decision 290, OWNER: "disesuaikan dengan penggunaan bahasa
+  indonesia ... jangan mengurangi makna, atau jangan terlalu berbelit karena menerjemahkan semua kata").
+  Migration `20261005200000_p15_coa_indonesian_names.sql` renames the 61 company and 35 personal template
+  accounts to natural accounting terms (Piutang Usaha, Utang Usaha, Laba Ditahan, Beban ..., Kas Tunai) --
+  short, not word for word. Names only: codes, classes, normal balances and system keys are unchanged and
+  posting never reads a name (Step 04 §16), so no journal, report or tax result moves. Existing ledger
+  accounts are renamed only where the name still equals the old template default, so an account the OWNER
+  renamed or created herself (for example 1121 "Mandiri Bisnis HKD") is kept. The migration is idempotent and
+  new Entities start in Indonesian. Test `99_p15_4_coa_indonesian_names.sql` covers new-Entity names, no
+  English accounting word left in either template, and that an owner-chosen name survives; test 99_p12_2 now
+  looks the Current Year Earnings line up by its Indonesian name.
+
+- Standard categories for every Entity (decision 291, OWNER, 5 October 2026: "buat kategori standard,
+  misalnya Penjualan Produk, dan lainnya yang diperlukan"). Migration
+  `20261005300000_p15_default_categories.sql` adds `app_private.provision_default_categories`: a company
+  Entity gets 5 revenue categories (Penjualan Produk, Penjualan E-book, Penjualan Software & Alat Digital,
+  Penjualan Jasa, Pendapatan Lainnya) and 13 expense categories (Pemasaran & Iklan, Produksi Konten, Software
+  & Langganan, Hosting/Domain & Cloud, Biaya Payment Gateway, Biaya Bank, Jasa Profesional, Kantor & Umum,
+  Komunikasi & Internet, Perjalanan & Transportasi, Gaji & Tunjangan, Sewa & Ruang Kerja, Pengeluaran
+  Operasional Lainnya); a personal Entity gets 4 income and 9 expense categories. Each is mapped to its ledger
+  account by system key (never by name) in the `sales` / `purchases` context from 2000-01-01, so a back-dated
+  invoice maps too; the tax classification stays empty (automatic, decision 288). A category whose name the
+  Entity already has is skipped with its mapping, so nothing the OWNER made herself is duplicated or
+  re-mapped. New Entities get the set because `provision_default_coa` now also provisions categories (the
+  account provisioning keeps its own name, `provision_default_accounts`); existing Entities are filled by the
+  same migration. Idempotent. Test `99_p15_5_default_categories.sql`.
+
+- Invoice, bill and expense line entry (decision 292, OWNER, 5 October 2026), four connected changes.
+  (1) Every amount field puts its thousands separators in by itself while typing ("100000000" shows as
+  "100.000.000"; a comma starts the decimals). The shared `MoneyInput` is a drop-in for the old plain
+  decimal input: the visible field has no name and a hidden field submits the plain decimal text, so no
+  server action or schema changed; the typing rules live in `src/domain/money/typing.ts` (dots are ignored
+  while typing, since the field inserts them; a pasted value goes through `parseMoneyInput`) with the caret
+  kept after the same digit. Applied to the transfer, payment, refund, settlement, marketplace, asset, payroll,
+  tax, journal, opening-balance, financing, budget and line-editor amount fields; exchange rates and
+  percentage rates are deliberately left as plain decimals. The public "Saya Sudah Bayar" amount accepts the
+  plain text first and the older Indonesian style as before. (2) The invoice line editor shows the Diskon
+  column that was missing (none, percent or fixed amount, sent as the RPC's `discount_type`/`discount_value`
+  and validated server-side as before); purchases still have no discount (decision 78). (3) Typing a
+  description shows a popup above the field with names already used on earlier lines (and, for invoices, the
+  products on file) and the price last used; clicking one (or arrow keys + Enter) fills the description and
+  its price, and the line's category when it has none; typing the same name in full fills an empty price on
+  its own; carrying on typing something different is never blocked and every filled value stays editable.
+  The popup is drawn on the page so the scrolling table cannot clip it. The suggestions are a best-effort
+  RLS-scoped read (`listLineSuggestions`: `invoice_lines`, `bill_lines`, `expense_lines`, newest first, one
+  per name, case- and spacing-insensitive); a failed read just shows no popup. (4) ESLint's
+  `label-has-associated-control` is told `MoneyInput` is a control. Tests: `typing.test.ts`,
+  `lineSuggestions.test.ts`, plus a real-browser check of the typing, caret, popup placement, click and keyboard
+  picks and the submitted values.
+
+- Negative-balance block and Contacts access for approver/tax (decision 293, OWNER, 4 October 2026, answers to
+  the open points of decisions 55 and 168). (1) Settings gains a "Blokir Saldo Minus" form: the OWNER (or anyone
+  holding `system.entity_config`, with a recent step-up) chooses which account kinds -- bank, cash, e-wallet --
+  may never go negative, through the new `set_negative_balance_block` RPC; `record_movement` has read the
+  `money.block_negative_balance` setting since P4 but nothing could write it. The migration seeds her answer
+  ("bank only: every expense reduces the bank balance; cash can be topped up from the bank") for every Entity
+  that never had the key set. (2) `approver` and `tax` roles gain `contacts.view`, so a bill shows the real
+  vendor name instead of the generic "Vendor" (decision 168). Decision 171's companion ask -- journal numbers
+  on Cash/Bank Activity for finance_staff/approver -- is deliberately not granted: `accounting.view` also
+  opens the Journal List/Detail, Trial Balance, Opening Balances and the control reports, a much larger grant
+  than asked, so it stays an open question for the OWNER (task 67). Migrations
+  `20261005400000_p15_role_permission_grants.sql` and `20261005500000_p15_negative_balance_setting.sql` (dated
+  after the newest applied migration so a push never lands out of order); test
+  `99_p15_3_negative_balance_block.sql`.
+
+- Saving a customer or vendor failed in production (decision 294, 5 October 2026). Root cause, read from the
+  runtime log: `contactActions.ts` is a "use server" file, and decision 287's quick-add work exported a
+  constant (`idleQuickCreateContactState`) and two `.bind(...)` constants from it. Next.js allows only async
+  functions to be exported from such a file and checks this when the module is first loaded, so the whole file
+  failed to load and EVERY action in it (Add Customer, Add Vendor, the quick add in Buat Invoice) returned an
+  error before reaching the database. `tsc`, lint and `next build` do not run that check, which is why it was
+  missed. Fix: the state moves to `contactActionsState.ts` (with the other idle states) and the two bound
+  constants become async wrapper functions. Guard: `tests/unit/useServerExports.test.ts` reads every file that
+  starts with the "use server" directive and refuses any export that is not an async function or a type; it was
+  checked to fail on the broken version.
+
+- Account detail and "Hapus Rekening" (decision 295, OWNER, 5 October 2026: "saat klik rekening pun tidak ada
+  detailnya yang muncul ... dan juga harus ada tombol hapus rekening"). (1) The empty button in the account
+  panel was a styling bug: the plain-link rule of `.record-table` turned a button-styled link inside a table
+  cell dark-on-dark, in every list that uses the Quick Preview panel; button-styled links now keep their own
+  colour. (2) The Accounts list opens the full Account Detail page directly; the page already shows the system
+  and ledger balance, the activity ledger (invoice receipts, expenses, bill and tax payments, transfers) and now
+  also the total in and out for the chosen date range. (3) New `delete_financial_account` RPC (migration
+  `20261005600000_p15_delete_financial_account.sql`, test `99_p15_6_delete_financial_account.sql`): needs
+  `money.edit` and `coa.manage`; refuses while the account has any money movement, any journal line or any other
+  record pointing at it (those foreign keys are `on delete restrict`); a ledger account the system created for it is
+  set inactive, a default control account mapped by hand is left alone. An account with history is retired with the
+  existing disable action (reason required, balance must be zero), which the detail page now offers too. (4) The
+  category form says plainly that tax treatment is automatic and the per-category choice is only a fallback; the
+  field is now called "Perlakuan Pajak (opsional)" (task 69).
+
+- Line description picker opens on focus (decision 296, OWNER, 5 October 2026: "supaya saat pembuatan invoice
+  tinggal atau bisa di klik yang sudah ada"). The popup above a line's Description field no longer waits for two
+  typed characters: clicking the empty field lists the first names on file (products on file and earlier lines),
+  one character narrows to names that start with it, two or more match anywhere in the name as before. Products
+  without a default price are now offered too (the price stays empty). The user guide PDF gained "Bagian I --
+  Langkah Awal" (order of first-time setup: tax profile, accounts, opening balances, categories, customers,
+  vendors, products, first invoice, expenses, tax payment) and its stale limitation notes were corrected. Task 67
+  answered by the OWNER: follow the recommendation, `accounting.view` stays withheld from finance_staff/approver.
+
+- E-mail receipts and delivery history (decision 297, OWNER, 5 October 2026: "pengiriman bukti bayar atau
+  invoice ... via email ke email pelanggan ... tetap bisa di edit atau dikirim ulang"). Checked first: "Kirim
+  Invoice via Email" (decision 280) is in the code and stays on the invoice page after payment (an invoice stays
+  `issued` once paid), but `RESEND_API_KEY`/`RESEND_FROM_EMAIL` are not set in Production, so it is still off
+  there. Added: (1) "Kirim Bukti Pembayaran" on Payment Detail (`sendPaymentReceiptEmail`): mails the customer the
+  public receipt page `/i/<token>/receipt?no=<payment number>` through the public link of an invoice the payment
+  settled, reusing that link (never a second kind), pre-filled address always editable, gated like the invoice
+  e-mail (`invoices.regenerate_link`), confirmed payments only. (2) `email_deliveries` + `record_email_delivery`
+  (migration `20261005700000_p15_email_deliveries.sql`, test `99_p15_7_email_deliveries.sql`): append-only
+  history of every attempt (to whom, sent/failed, when), written only through the function, readable with
+  `invoices.view`; shown as "Riwayat Pengiriman Email" on Invoice Detail and Payment Detail, so a document can
+  be sent again and the earlier sends stay visible. History writing is best effort and never turns a delivered
+  e-mail into an error. (3) The invoice e-mail reads "sudah lunas" with a "Lihat Invoice & Kwitansi" button once
+  paid. The OWNER still has to create a Resend account, verify a sending domain and set the two variables in
+  Vercel; the guide PDF explains the steps.
+
+- Type-to-search contact fields, nested-form fix and Hapus Rekening with transactions (decision 298, OWNER, 5
+  October 2026, tasks 78-81). (1) In Buat Invoice the "Tambah Pelanggan Baru" panel was rendered inside the
+  invoice `<form>`; a form inside a form is invalid HTML and its "Simpan & Gunakan" button submitted the invoice
+  instead. The panel now sits outside the form (also in the new Bill form). (2) Customer and vendor are no
+  longer plain dropdowns: `ContactPicker` is a field you click and type in; the list narrows to the registered
+  names that match the letters (names starting with them first), a name that is not on file offers "+ Tambah ...
+  baru" with the typed name carried into the panel, and the browser's own required check still blocks saving
+  until one is chosen. Used on Buat Invoice, Record Bill (vendor quick-add added) and the recurring-invoice form.
+  (3) The line Description popup now opens on focus even when nothing is registered and says why (Production had
+  0 products and 0 invoice lines, so it looked broken); it narrows with every letter and says so when nothing
+  matches. No products are seeded: the business's products are the OWNER's to register under Penjualan > Produk &
+  Jasa, and invoiced lines then appear by themselves. (4) Hapus Rekening is now available for an account with
+  transactions too, behind a double confirmation (type the exact name, then tick a final box). Step 03 §1 still
+  holds in substance: an account with history is not physically erased but archived
+  (`remove_financial_account`, migration `20261005800000_p15_remove_financial_account.sql`, test
+  `99_p15_8_remove_financial_account.sql`): `deleted_at` is set, `public.money_control` no longer lists it, its
+  ledger account, journal lines and movements stay exactly as they were (period close still reads it through
+  `money_control_rows`), and its name gets a "(dihapus ...)" suffix so the name can be reused. A balance left on
+  it stays in the ledger; the confirmation shows it. An account with no history is still erased for real.
+
+- Step-by-step guide ("Panduan" menu), PDF built from the same source, and a batch of finding fixes (decision
+  299, OWNER, 5 October 2026, tasks 83-93). (1) A new last menu group "Panduan" (`/guide`) holds 25 core
+  how-to guides (getting started, cash and bank, sales, purchases, tax and other receivables), each with
+  location, who may do it, numbered steps, real screenshots, result, rules, common mistakes and error texts.
+  The content is JSON under `src/content/guide/` (inline grammar `**bold**` and `[teks](slug)`), the single
+  source for the pages (`src/domain/guide/guides.ts`, `src/app/(app)/guide/**`) and for the PDF
+  (`scripts/guide/build_guide_pdf.py`, new "Bagian VI"; the same script is kept in the Project doc). Screenshots
+  are real captures of the live site stored in `src/content/guide/images/`, NOT in `public/`, because a screenshot
+  can show real data: they are served by `/guide/image/<name>` (extension-less, since `src/proxy.ts` skips paths
+  ending in an image extension) behind `requireAccess()`. Guides whose screens need transactions that do not
+  exist yet (invoice detail, public page, payment form) carry no screenshot for now. (2) The guide states that an
+  issued unpaid invoice is Piutang Usaha automatically and that no separate "piutang" switch exists. (3) Findings
+  fixed in the same change: draft invoices now show in the invoice list (all, and a "Draf" tab) read directly
+  because they have no number and no receivable (#88); default dates use the business time zone WITA through
+  `src/lib/time.ts` and the e-mail history shows WITA (#89); customers and vendors can be edited and
+  deactivated (`contacts.edit`, direct RLS update, tax identifier untouched, role only widened to "both") and a
+  cash/bank account's name, institution, holder and number can be edited through the existing
+  `update_financial_account` (#90); Saldo Awal clears its grid after a successful posting, the account list
+  hides default cash accounts that no cash/bank account is linked to and disables foreign-currency cash/bank
+  accounts, the reconciliation page hides archived accounts and their sessions, and "money_adjustment" gets a
+  label (#91); misleading "tanpa titik ribuan" and "contoh 1500000.00" texts removed, Kuantitas accepts a decimal
+  comma, and pending payment claims lead the Dashboard "Perlu Perhatian" list with the bell icon opening it
+  (#92); the untranslated tax-reconciliation sentences are shown in Indonesian (#93). Open and not changed: the
+  OWNER's decision on receipts first made to a director's or personal account (task 82), and the cleanup of test
+  data in Production (task 77), which the OWNER runs herself.
+
+- Flow diagrams in the guide (decision 300, OWNER, 5 October 2026, task 94). The OWNER asked for pictures of
+  the workflow, for example "when a customer wants to pay, which menu do I open and what comes next", drawn as
+  diagrams. (1) One source, `src/content/guide/alur.json`, holds a quick lookup table ("Saya mau ... buka menu
+  apa?") and seven flow diagrams: money coming in from a customer, billing a customer, correcting or cancelling
+  an invoice or payment, recording an expense or paying a vendor, moving money between accounts, paying and
+  reporting tax, and first-time set-up. Each box names who acts (Pelanggan, Anda, Sistem), what is done and which
+  menu to open; diamonds are questions whose answers run side by side. (2) `scripts/guide/flow_diagrams.py` lays
+  the source out once and writes it two ways: SVG files in `src/content/guide/diagrams/` for the website and
+  reportlab drawings for the PDF, so the two cannot disagree; a test fails when an SVG is missing or was drawn
+  from an older `alur.json` (run `scripts/guide/build_flow_diagrams.py`). (3) The website gets a page "Alur Kerja
+  (Diagram)" (`/guide/alur-kerja`, sidebar item under Panduan) and each related guide shows its diagrams above
+  its steps; every diagram also has a plain-text outline. The SVG is served by an auth-checked route
+  (`/guide/diagram/<id>`, entity-less path) and never from `public/`. (4) The PDF gets a chapter "Alur Kerja
+  (Diagram)" at the start of Bagian VI; a tall diagram is cut between top-level steps. No change to accounting,
+  tax, authorization or any user workflow.
+
+- Compact product screens (decision 301, OWNER, 5 October 2026, task 95). The OWNER asked for a more compact
+  product display, with a reveal effect for long descriptions, and for the add-product page to be apart from the
+  list view. (1) The product list is tighter (smaller row padding) and shows each description under the name,
+  cut to two lines with a "Selengkapnya" / "Ringkas" toggle that opens it smoothly (`ExpandableText`; the full
+  text stays in the page; the toggle only appears when the text is longer than 110 characters or has more than two
+  lines, `needsReveal`; no motion with "reduce motion"). (2) The product detail page is read-only and compact (smaller
+  title and summary, description in the same reveal); the edit form moves to its own page
+  `/sales/products/[id]/edit` (`products.edit`, "Ubah" button on the detail page, saving returns to the detail),
+  the same way customers and vendors already work. Tambah Produk was already its own page
+  (`/sales/products/new`) and stays so. No change to data, accounting, tax or authorization. The guide "Cara
+  Menambah Produk dan Jasa" describes the new flow; its screenshots are retaken after this is live.
+
+- Follow-up to decision 301 (6 October 2026, task 95). The product edit form's "Aktif" checkbox sat centred above
+  its label because the generic form-label rule outranked the checkbox rule; a checkbox field now stays a row.
+  The guide "Cara Menambah Produk dan Jasa" has retaken screenshots of the compact list and the new read-only
+  detail page. Open: none for tasks 94 and 95.
+
+- Guide modules for the remaining menus (decision 302, OWNER, 6 October 2026, tasks 82, 96-98). The OWNER asked to
+  continue until every menu has a guide. (1) 38 new guides in four new groups, each written from the code (labels,
+  permissions, error messages and journals taken from the screens, services and migrations, not from memory):
+  Akuntansi dan Laporan (9), Aset dan Pinjaman (10), Payroll dan Perencanaan (8), Administrasi dan Dokumen (11);
+  the groups are registered in `src/domain/guide/guides.ts` and in the PDF generator, so the website and the PDF
+  carry the same text. 40 real screenshots from the live site are attached to steps. (2) Task 82 is closed by
+  the OWNER's answer: customer payments go straight to a PT account, so no new mechanism is needed (revenue is
+  recognised when the invoice is issued; the payment only settles the receivable; no double revenue). The guide
+  "Memahami Piutang dan Pendapatan" now says so. (3) The sidebar marks Piutang Lain or Utang Lain (not Aset Tetap)
+  on the shared obligation form and detail pages: the address carries `kind` and `activeNavItem` reads it
+  (task 96). (4) While writing the guides several real defects were found and recorded as tasks 99-104 (the TER
+  category of PTKP K/0 and K/2 in the seeded PPh 21 rule, payslip BPJS details empty, payroll role unable to pay,
+  English text left on screens, entity time zone still WIB); they are fixed separately, not in this change.
+  No change to data, accounting, tax or authorization.
+
+- Fixes for the findings of tasks 99-104 (decision 303, OWNER, 6 October 2026: "kerjakan semuanya dan usahakan di
+  merge sekaligus"). (1) Task 99: PPh 21 TER category. The seeded rule (version 1) put PTKP K/0 and K/2 in the wrong
+  TER category; a published rule is never edited, so a NEW version 2 (effective 2024-01-02) carries the corrected
+  map (A: TK/0, TK/1, K/0; B: TK/2, TK/3, K/1, K/2; C: K/3). Payroll reads the rule by the period end, so every
+  month from January 2024 on uses version 2; already-posted runs keep their snapshot. (2) Task 100: the payslip
+  BPJS table now reads the snapshot keys (`kes`, `jht`, ...); the "joined/left during the month" flags are shown
+  as information (full month pay, no proration yet); the payment kind uses its Indonesian label. The Payroll role
+  still lacks money.view (documented, not changed: authorization). (3) Task 101/104: Indonesian text for 31 more
+  database reasons (FX revaluation, memo rate, entity details, documents); the 31 period-close checks, the Tax
+  Calendar sentences and the account classes (contra_asset ...) are translated on the screen; the Custom Report
+  datasets are renamed by migration (keys and permissions unchanged); the equity statement row "Net result for the
+  period" reads "Laba (Rugi) Periode Berjalan"; a failed recurring occurrence shows its reason in Indonesian;
+  payroll forms offer the "Verifikasi ulang" link when a fresh verification is required; an approval-rule refusal
+  (maker-checker) says that another person must finish the step instead of "no permission"; payroll page titles are
+  "Proses Payroll" and "Pajak & Kewajiban Payroll". (4) Task 102: a monthly recurring rule keeps the day it started
+  on (31 Jan -> 28 Feb -> 31 Mar, not stuck on the 28th); "Generate now" counts only occurrences that were
+  generated; the General Ledger running balance now carries the balance forward from before the start date and
+  the screen shows an "Saldo Awal" row; default report dates (year start, today, month, calendar window) follow
+  the business time zone WITA instead of UTC; the payslip and payroll-run lists say when they hit the 100-row
+  limit. Not changed (needs the OWNER): whether the Custom Reports should leave out void invoices/bills, the
+  scheduler for recurring rules, and a PPh 21 deposit screen. (5) Task 103: the Audit Log shows times in WITA
+  (labelled) instead of UTC; the stored instant is unchanged. The timezone of the two existing Entities is still
+  changed by the OWNER in Administrasi > Pengaturan (decision 248); only new Entities default to WITA.
+  No change to accounting rules, tax law inputs other than the TER correction, or authorization.
+
+- Follow-up to decision 303 (OWNER, 6 October 2026, answers to the open points). (1) Custom Reports follow the
+  recommendation: cancelled (void) invoices and bills are no longer counted (migration `20261006140000`).
+  (2) The Personal Entity moves to WITA (Asia/Makassar) by migration `20261006150000` (audited, system actor,
+  reason recorded); the PT Entity is left on WIB for now. (3) The OWNER's rule about recurring transactions is:
+  the same kind of transaction may happen several times, even on the same day; what must never happen is ONE
+  transaction being recorded twice. The recurring engine already guarantees the second (one occurrence per rule
+  per date, unique key, retries reuse the same row, idempotency keys on every write); no automatic scheduler is
+  added yet. (4) The PPh 21 deposit screen: payment, filing and reconciliation of PPh 21 already ran through the
+  tax layer (P9) but no screen offered them. Pajak > Pelaporan & Bukti now offers "PPh 21 (karyawan)" and the
+  Payroll > Pajak & Kewajiban Payroll PPh 21 rows with an outstanding amount have a "Setor →" link to it. No
+  change to the rules of the tax layer. (5) CI: the dependency audit failed on a new advisory in
+  `source-map-js` (through Next.js); an override to the patched version 1.2.2 is set in `pnpm-workspace.yaml`.
+
+- Correction to decision 303 (6 October 2026). The Personal Entity is stored with `entity_type = 'company'`, so the
+  timezone migration `20261006150000`, which selected `entity_type = 'personal'`, changed nothing in production
+  (checked after the merge). Migration `20261006160000` selects the Entity by its code `hikarich` and makes the
+  WITA change that was agreed. PT stays on WIB.
+
+- Decision 304 (6 October 2026): guide screenshots and two label bugs found by looking at the production site.
+  (1) About 30 of the 74 guide screenshots showed a different page than their caption (the batch that saved them
+  matched files by time order). Each caption now points to a `-v2` file whose content was checked page by page
+  against the caption; the old files are left in place (unused). Pages that changed since (Jejak Audit in WITA,
+  Kalender Pajak, Laporan Kustom, Bagan Akun) and the missing ones (Ubah Produk, Laporan Penjualan & Pembelian,
+  Anggaran) were retaken. (2) Finding #104 had not really been fixed: the Kategori table still printed the stored
+  word (`expense`) because `CATEGORY_KIND_LABELS` was exported from a `"use client"` module, which a server page
+  receives as an unusable client reference. The same happened with the Marketplace platform names. Both label
+  maps now live in plain modules, and `src/lib/clientBoundary.test.ts` fails when a server file imports an
+  upper-case constant from a `"use client"` module. No database change.
+
+- Decision 305 (6 October 2026): taking the remaining guide screenshots in production (with the OWNER's approval: one
+  sample invoice HKD-2026-0001 for "Penjualan Umum", one sample bill BILL-2026-0001 for the vendor "CONTOH PANDUAN
+  Vendor", to be removed with the other test data, finding #77) showed English sentences from the tax engine on the
+  invoice and bill pages ("No output VAT...", "Line 1 has no withholding classification...", "Nothing is withheld...").
+  The reasons and consequences of the tax determination are now shown in Indonesian through the same display-only
+  templates as the other database reasons (`reasonTranslations.json`, +27 templates); the stored text is unchanged.
+  The step-by-step trace on the determination detail page is still English (follow-up). The guide gained seven
+  screenshots (invoice draft/issued/public, payment form, quick-add vendor, approved bill, pay-bill form) and a note
+  that "Objek potongan PPh" must be chosen on a bill line whose category has no tax mapping, otherwise the bill stays
+  "Perlu ditinjau" and cannot be approved.
+  A second sample invoice was saved as a DRAFT (not issued, "CONTOH PANDUAN - Jasa konsultasi", Rp 500.000, Penjualan
+  Umum) to take the draft-detail screenshot with the Indonesian tax text; it is removed with the other test data (#77).
+
+- Decision 306 (6 October 2026): the step-by-step explanation ("Penjelasan Mesin Pajak"), the amount-breakdown labels
+  ("Rincian Perhitungan") and the "Alasan Digantikan" on the tax determination detail page are now shown in
+  Indonesian through the same display-only templates (`reasonTranslations.json`, +60 templates: VAT, input VAT,
+  withholding PPh 23 / 4(2) / 26, final tax, marketplace PPh 22 and VAT, override and payroll sentences). The
+  stored text is unchanged; a sentence without a template still shows as written. No database change. (Closes the
+  follow-up of decision 305, TASK #107.)
+
+- Decision 307 (6 October 2026): invoice appearance and payment details, from the OWNER's review of the public invoice
+  (TASK #108-#111). (1) Company logo: `entity_profiles.logo_data_url` (PNG/JPEG/WebP, at most 400,000 characters,
+  stored as an embedded data URL, no file storage needed), set through `set_entity_logo` (needs `system.entity_config`
+  and a recent step-up; the audit entry records only that a logo exists and its size, never the image). The logo is
+  shown live on the invoice, public invoice and receipt pages; the issuer name still comes from the frozen issue
+  snapshot. The name appears once when the OWNER sets "Nama Merek" equal to "Nama Resmi". (2) "Nama pembayar" is now
+  required in the public payment confirmation (`public_submit_payment_claim` raises INVALID when blank); reference
+  and note stay optional. (3) Totals are a right-aligned block under the Total column. (4) "Cara pembayaran" shows
+  the receiving account number and holder, and a new master "Tautan Pembayaran" (`payment_channels` rows with
+  `method_kind = 'payment_link'`, https only, managed at Penjualan → Tautan Pembayaran or added from the invoice
+  form) puts a clickable "Bayar sekarang" link on the invoice; the link is copied into the issued payment snapshot
+  so later edits do not change an issued invoice. Recording a payment stays manual (the OWNER's instruction: no
+  gateway integration for now). Migration 20261006170000; new RPCs `set_entity_logo`, `create_payment_link`,
+  `update_payment_link`.
+
+- Decision 308 (6 October 2026): two interaction changes from the OWNER, applied to every screen. (1) Re-verification
+  (the authenticator code needed for sensitive actions, valid 30 minutes) is a popup on the same page instead of a
+  jump to `/auth/step-up`: `StepUpProvider`/`StepUpLink` (`src/features/feedback/StepUp.tsx`) and the new
+  `verifyStepUpAction`, which answers instead of redirecting. The popup opens by itself when a form is refused for
+  want of a fresh code (`stepUp` flag or the database's own "verifikasi ulang" copy), closes on success, shows
+  "Verifikasi berhasil." and sends the refused form again with the same button, so the person neither leaves the page
+  nor retypes anything; a wrong code stays in the popup with an error. The `/auth/step-up` page remains as the
+  fallback of the link (scripts off, new tab). The restore-from-backup screen reloads instead of re-sending (the
+  chosen file is not sent twice). The database still enforces the rule; the popup is only the way to satisfy it.
+  (2) Every action announces its result as a notice in the corner of the screen (`ToastProvider`): all forms use
+  `useActionState` from `src/features/feedback/useActionState.ts`, which shows the action's own message (or
+  "Berhasil: <button pressed>") on success and the reason on failure; an action that redirects after success leaves a
+  one-line cookie through `setFlash` (`src/lib/flash.ts`) that the next page shows once. `src/lib/feedbackGuard.test.ts`
+  fails when a form uses React's `useActionState` directly, a link goes to the step-up page, or a redirecting action
+  forgets `setFlash`. No database change.
+
+- Decision 309 (6 October 2026): the company logo is compressed on upload (OWNER: "logo yang di upload dikompres
+  supaya tidak membebani storage"). `src/lib/logoImage.ts` (library `sharp`, now a direct dependency) decides by the
+  file's real content, not its name or declared type, that it is a PNG, JPEG or WebP (an SVG is refused), turns a
+  rotated photo upright, shrinks it to fit 600x240 px (never enlarged), keeps transparency, stores a WebP and steps the
+  quality down until it is at most 60 KB (typically 5-40 KB). The upload limit is now 4 MB (it was 280 KB, because
+  nothing shrank the picture); the original is never stored, so the database holds only the small WebP. Also confirmed:
+  every sensitive action opens the re-verification popup right after Simpan/Submit, because the popup is triggered by
+  the action's own refusal (`needsStepUp`, `src/features/feedback/stepUpState.ts`), not by a link the person must find;
+  an action inside the 30-minute window goes straight through, as Step 06 specifies. No database change.
+
+- Decision 310 (7 October 2026): (1) On an invoice (and receipt) the legal name leads and the brand name sits below it
+  (`issuerNames` in `InvoiceDocumentView.tsx`); a brand that is the only name, or equal to the legal name, shows once
+  (OWNER: "PT HIKARICH KITANA DIGITAL di atas, nama brand di bawah"). (2) New Settings page "Tampilan Invoice"
+  (`/admin/invoice-layout`): the invoice document is a stack of eleven blocks (logo, issuer, title, customer, dates,
+  lines, totals, payments, instructions, notes, terms) the OWNER arranges by dragging (above/below another block to
+  reorder, left/right of it to share a row), with alignment (left/centre/right), width (half/full), hide/show and the
+  logo size (`src/domain/sales/invoiceLayout.ts`, `InvoiceLayoutEditor.tsx`; buttons Naik/Turun for touch screens).
+  Per the OWNER's answers: blocks, not free pixel placement (a free layout would let a long item table overlap other
+  parts), and it applies to NEW invoices only. Stored in `entity_profiles.invoice_layout` (jsonb, null = standard),
+  changed by `set_invoice_layout` (needs `system.entity_config` and a recent step-up; audited as
+  `entities.invoice_layout_changed`); validated by `app_private.valid_invoice_layout` and a table check. The six blocks
+  that carry the number, parties, dates, lines and amounts can be moved but never hidden. Issuing copies the layout
+  into the frozen issuer snapshot (`issuer_snapshot.layout`), so an issued invoice keeps its look; an invoice issued
+  before this keeps the standard look; a draft previews the current layout. Presentation only: no amount, tax or
+  number is touched. Migration 20261007100000; new RPC `set_invoice_layout`; the JSON field is `key`, not `id`,
+  because the public-view test refuses the word "id".
+
+- Decision 311 (6 October 2026): fields that repeat from one record to the next are "type and pick" fields, and the
+  popup waits for typing (OWNER, on the Catat Pengeluaran screen: "Nama Penerima ... harus bisa diketik manual, akan
+  muncul popup yang sesuai ketikan, dan bisa diklik dipilih"; "deskripsi juga pada semua bagian harusnya punya sistem
+  seperti pengisian tambah pelanggan"; the popup "akan muncul ketika ketikan dimulai ... bukan saat kursor disiapkan
+  pada kolom", narrowing as the text grows; "berlaku untuk semua jenis isian kolom seperti ini"). (1) One rule for every
+  such field, in `src/domain/shared/typeahead.ts`: nothing is offered until a character is typed (a click, or a field
+  that already shows its saved name, opens no list); one character offers names that start with it, two or more add
+  names that contain it, starts first, recency order kept; spaces alone do not count. `matchContacts`
+  (`ContactPicker`) and `matchSuggestions` (line descriptions) now delegate to it, so the three fields cannot drift.
+  Behaviour change: the customer/vendor picker used to list the first names on click and matched "contains" from
+  one character; it now follows the same rule as the others. (2) `ContactPicker`, `LineDescriptionInput` and the new
+  `SuggestTextInput` open only after typing. (3) "Nama Penerima" on a new/edited expense and on a recurring-expense
+  template is a `SuggestTextInput` fed by the recipient names already on this Entity's expenses
+  (`listPayeeNameSuggestions`, a best-effort direct read like `listLineSuggestions`; no database change). (4) The
+  expense "Vendor (opsional)" list is now a `ContactPicker` (`optional`) with "+ Tambah vendor baru" through the same
+  quick-add drawer a bill uses; an optional vendor with typed text that is neither picked, added nor cleared blocks
+  submit with a message, so a half-typed name is never silently dropped. (5) Every such field ends with "+ Tambah
+  "..." sebagai ... baru" (vendor, penerima, deskripsi). For a vendor that creates the contact record. For a recipient
+  name or a description it keeps the typed text and says so: those are not records of their own, they are remembered
+  through the document they are saved on and offered from the next time. Presentation only: no amount, tax or workflow
+  changes; the saved values are exactly what was typed. **OWNER QUESTION**: should "tambah penerima" and "tambah
+  deskripsi" instead be saved as their own lists (a recipient/description catalogue to manage, with rename and
+  archive, like Produk & Jasa)? That is new tables and permissions and changes who can maintain the lists, so it is
+  not decided here; until answered, names are remembered from saved documents only. Not touched, listed for the
+  OWNER: other free-text fields that may repeat (payer name on payment claims, counterparty on financing/asset
+  forms, the description on a manual journal and on a transfer); they were not named as in scope.
+
+312. **Type-and-pick on the remaining repeating fields (p45, 6 October 2026).** Follow-up to decision 311 on the
+     OWNER's "berlaku untuk semua jenis isian kolom seperti ini" and "lanjutkan". (1) The counterparty on a new loan,
+     obligation and equity event (`PartyField`) was a native `<input list>`, which offers its list on click; it is now a
+     `SuggestTextInput` fed by the same known parties (Contacts and earlier records), so it opens only after typing and
+     ends with "+ Tambah "..." sebagai pihak baru". (2) "Penjelasan" on a manual / adjusting journal is a
+     `SuggestTextInput` fed by `listJournalDescriptionSuggestions` (explanations of earlier manual and adjusting
+     journals only; system-posted journals carry generated text and are left out). (3) "Deskripsi" on a new transfer is
+     a `SuggestTextInput` fed by `listTransferDescriptionSuggestions`. Both reads are best-effort direct RLS-scoped
+     reads that return no suggestions on failure; no database change. The typed text is what is saved. Presentation
+     only: no amount, tax, posting or workflow changes. **Deliberately not changed**: the payer name on the public
+     payment-claim form. That page is open to anyone without signing in, so offering names that earlier payers typed
+     would show one customer's name to another; it stays a plain field. "Keterangan Baris" on a manual journal line and
+     the "purpose" fields on financing forms are not offered either (not named as in scope; say so if wanted).
+
+313. **Type-and-pick on "Keterangan Baris" and the financing purpose (p46, 6 October 2026).** The OWNER answered "ya" to
+     extending decision 312. (1) Each line of a manual journal ("Keterangan Baris") now uses `LineDescriptionInput`, the
+     same field as an invoice line, fed by `listJournalLineDescriptionSuggestions` (lines of earlier manual and adjusting
+     journals only; two small RLS-scoped reads, no join; best effort). It offers no price (a journal line has none). (2)
+     "Tujuan Pinjaman" (loan) and "Keterangan" (obligation, equity event) are `SuggestTextInput` fed by
+     `listPurposeSuggestions`, one shared list over the purposes of earlier loans, other obligations and equity events of
+     the Entity. Both open only after typing and end with "+ Tambah ... baru", like decisions 311-312. Presentation only:
+     no database change, no amount, tax or workflow change; the typed text is what is saved. Still plain fields on
+     purpose: the payer name on the public payment-claim form (open to anyone, decision 312).
+
+314. **Internal functions pin their search_path (p47, 6 October 2026).** The OWNER answered "ya" to closing the Supabase
+     security advisor finding "Function Search Path Mutable": 299 functions in the internal schemas `app_private` and
+     `app_authz` left the search_path to the caller (identical on dev and production). They are not reachable from the
+     browser (the schemas are closed to `anon` and `authenticated`), so the risk was low; migration
+     `20261007110000_p18_internal_function_search_path.sql` gives each of them `search_path = pg_catalog, public`, the
+     same pinned path the rest of the code uses. Only the setting changes: no body, signature, grant, owner or security
+     mode; functions that already pin a path or belong to an extension are skipped, so it is safe to run twice.
+     `supabase/tests/10_structure.sql` now fails if any such function is left without a pinned path, so a future function
+     cannot slip through. Confirmed on production after the migration ran: the finding count went from 299 to 0. Already
+     checked and unchanged: the three public functions callable without signing in (`public_invoice_view`,
+     `public_receipt_view`, `public_submit_payment_claim`) are by design; the 15 tables with RLS and no policy are reached
+     only through functions. Leaked-password protection in Supabase Auth needs the Pro plan; the OWNER chose to leave it off.
+
+315. **Company data typed straight into Tampilan Invoice (p48, 6 October 2026).** The OWNER: "untuk data data bawaan, bisa
+     langsung diketik dan diganti disini, dan datanya otomatis konek dengan menu lainnya yang terkait". On
+     `/admin/invoice-layout` the company's legal name, brand name, address, city, province, postal code, email and phone
+     are now fields above the preview (`InvoiceIssuerFields`); every keystroke shows in the preview at once. Saving uses
+     the same action as Pengaturan → Nama & Profil (`updateEntityIdentityAction`: same permission `system.entity_config`,
+     step-up and version check, website sent back unchanged), so there is one copy of the data: Pengaturan, new invoices,
+     receipts and emails read what is saved here, and invoices already issued keep the name they were issued with
+     (decision 272). The preview's customer, items, payments, notes and terms stay made-up examples: they belong to each
+     invoice (customer, lines) or to the payment links and accounts (payment instructions), which are edited in their own
+     menus. No database change, no amount, tax or workflow change.
+
+316. **Guide updated (p49, 6 October 2026).** The in-app guide (Panduan, decision 299) gains "Cara Memakai Kolom
+     Ketik-dan-Pilih" (group Mulai Memakai) covering decisions 311-313, and its "Atur tampilan invoice" step now describes
+     typing the company's details straight into Tampilan Invoice (decision 315). Content only. Also in this change, the
+     decision entries 313 and 314 (and the numbering of 315) are restored: an earlier merge (#155) dropped them from this
+     file by mistake while the code and the migration they describe were unaffected. Left for the OWNER: GitHub announced
+     that `ubuntu-latest` moves to Ubuntu 26 on 19 October 2026; naming `ubuntu-24.04` in the three `runs-on` lines of
+     `.github/workflows/ci.yml` and `production-migrations.yml` keeps the runner fixed, but the token used to push from
+     here may not change workflow files, so it is not part of this change. The "Node.js 20 is deprecated" notice
+     (checkout, setup-cli) is informational: GitHub already runs those actions on Node 24.
+
+317. **Compact invoice header and closing blocks; clear company-data save errors (p50, 6 October 2026).** The OWNER: the logo
+     and the company name must sit side by side with INVOICE at the far right ("harus dibuat lebih fleksibel"), the invoice
+     should be shorter, and "Pembayaran diterima, Cara pembayaran, Catatan, Syarat dan ketentuan" should be smaller.
+     (1) A block can now be `fit` (as wide as its content) besides `full` and `half`; the standard arrangement is logo
+     (`fit`) + company (`half`) + title (`half`) in one row, and a row takes up to three neighbouring blocks that are not full
+     width (never more than two halves). Dropping a block to the left or right of another in Tampilan Invoice makes the logo
+     `fit` and the others `half`; "Sesuai isi / Setengah / Penuh" in the panel sets it by hand. The database rule
+     `valid_invoice_layout` accepts `fit` (migration `20261007120000`, presentation only, no amount, tax or number is
+     affected). Layouts saved earlier keep their arrangement (a logo saved as full width stays on its own row until set to
+     "Sesuai isi"), and issued invoices keep the look they were issued with (decision 310). (2) The company's email and phone
+     share one line, and the company lines and the four closing blocks use smaller type and tighter spacing. (3) Saving
+     company data in Tampilan Invoice: production showed no `entities.identity_changed` event, i.e. no company-data save had
+     ever reached the database, while the page gave no usable reason. The refusal is now named in Indonesian (data changed
+     elsewhere, email not valid, too long, legal name missing, other) and the database's own text is logged for the
+     developer; the form also says "Belum disimpan" while what is typed differs from what is stored.
+
+318. **The invoice sits on a twelve-column grid with a ruler (p52, 7 October 2026).** The OWNER, after trying decision 317:
+     the page should not look empty on the right, every part must be movable freely, and there should be a ruler to
+     check that left and right match. The OWNER chose "free placement on a 12-column grid with a ruler" over fully free
+     pixel coordinates (which can overlap, and a growing item table could cover the part below it). Each block of the
+     layout now has `row`, `col` (1-12) and `span` (1-12, never past column 12) instead of the full/half/fit width of
+     decisions 310 and 317; blocks on the same row sit side by side and never overlap. Layouts saved earlier are converted
+     when read (full, half and fit give the same look as before), and the database rule `valid_invoice_layout` (migration
+     `20261007130000`) accepts both forms. In Tampilan Invoice a part can be dragged anywhere (above or below a row for a
+     new row, or into a row at the column under the pointer, made narrower when the gap is smaller), resized by its blue
+     edge handles, or placed with "Mulai kolom" and "Lebar (kolom)", "Tengahkan" and "Selebar halaman" in the panel; the
+     panel says how many columns are free on each side and marks "seimbang" when they are equal. A ruler (columns 1-12 and
+     percentages), faint column lines, a dashed line at the page centre and a band over the selected part can be switched
+     off. The item table and the totals box stay full width. Also fixed: in the editor the rows had shrunk to their
+     content because each part is wrapped for dragging (PR #159). The standard arrangement is unchanged in look: logo
+     (columns 1-2), company (3-8), title (9-12, right-aligned). Presentation only: no amount, tax or number is affected, and
+     issued invoices keep the arrangement they were issued with.
+
+319. **Fully flexible invoice editor: 24 columns, stacked blocks, smart guides, compact table (p53, 7 October 2026).** The
+     OWNER, after trying decision 318: "good but not flexible", free space under the company name could not be used, he
+     wants Canva-style guide lines (is it exactly centred, is it on the edge), the item rows were too tall and too large,
+     and asked for a recommendation for long invoices and a left/right bottom. The page is now 24 columns, a row holds
+     lanes side by side, and a lane stacks several blocks from top to bottom (`stack`), so any block can be dropped into the
+     empty space under another (for example the customer right under the company name beside the logo); a block alone in
+     a lane still slides sideways. Blocks can be dropped into empty columns (a lane of its own), above or below a block
+     (stacked) or on the top or bottom edge of a row (a new row); resizing a block resizes its whole lane. The item table
+     still takes a row of its own. The totals box is no longer fixed: it fills its lane, so its width is the lane's.
+     Smart guides (`alignmentGuides`, red lines with labels) show while a block is moved or resized when its left edge,
+     right edge or middle lines up with the page (edges, exact centre) or with another block, and a status line gives the
+     free columns left and right. New standard arrangement: header (logo, company, title) on one row, customer and dates
+     side by side, the item table, then two columns: payments received, notes and terms on the left; totals and how to
+     pay on the right (the OWNER's sketch). Item table: 13px text, 5px cell padding. Recommendation adopted for long
+     invoices: no cap and no forced second page; printing or saving as PDF breaks the item table between items only, repeats
+     its header on every page and prints "Halaman X dari Y" in the bottom margin (browsers that do not draw page margin
+     boxes leave the number out); the blocks below the table are never cut in half. Layouts saved earlier are converted
+     when read (twelve columns become 24, the old fixed-width totals box becomes a half-page lane in the same place), and
+     the database rule `valid_invoice_layout` (migration `20261007140000`) accepts `grid` 24 and `stack` besides the earlier
+     forms. Presentation only: no amount, tax or number is affected, and issued invoices keep the arrangement they were
+     issued with.
+
+320. **Professional invoice look, symmetrical and aligned (p54, 7 October 2026).** The OWNER, after trying decision 319: the
+     result looks messy and not like a professional invoice; it should use a row grid as well as a column grid, be exactly
+     symmetrical, with the layout aligned and no excess empty space on the left or right. The grid and the editor of
+     decision 319 stay (rows of lanes, blocks stacked in a lane), but the document is restyled: one type scale (14px
+     body, small print for the closing blocks), one rhythm (22px between sections, hairline rules), a bronze bar on top, a
+     letterhead (logo, company name and address, then INVOICE in a light large type with the number and status at the
+     right) over an ink rule, then the customer on the left and the dates (label left, value flush right) on the right,
+     the item table with ink rules over and under the header and under the last item, the totals with Total and Sisa
+     tagihan ruled in ink, and the closing blocks in two columns (payments received, notes, terms left; totals and how to
+     pay right). No box or fill pushes text inwards: every block sits flush with the page margins, so the left edges
+     (logo, company, customer, table, payments) and the right edges (title, dates, table, totals) are the same
+     line, and the left and right page padding are equal (measured on the rendered page: all right edges at the same
+     pixel, all left edges at the same pixel). The logo lane is five columns and the company lane eleven so the logo never
+     runs into the name; a logo is never wider than its lane; the gutter between columns is 12px. Without a logo the
+     company name (and what is stacked under it) moves to the left edge instead of leaving empty columns. Looks only: no
+     text, amount or rule of the data changes; issued invoices keep the arrangement they were issued with and take the new
+     styling.
+
+321. **Free invoice page, no grid; the original look is back (p55, 7 October 2026).** The OWNER, after trying decisions
+     319 and 320: still not professional; the content must be widenable to the left and right and downwards, for every
+     block (logo and the others); payments received, notes, how to pay and terms must run down the page again as at the
+     start; all grids removed and the editor made free drag and drop, but with alignment aids and, if needed, a choice
+     of font size; "restore the original look" (the invoice of 6 October 2026). The grid, lanes and stacks of decisions
+     318-320 are removed. The invoice page is now three zones from top to bottom (above the item table, the item table,
+     below it). A block is placed by its left edge `x` and width `w` (percent of the page width, 0.1 steps, `w` at least
+     8, `x + w` at most 100), `y` (whole pixels from the top of its zone, or from the bottom of the block it follows)
+     and a minimum height `h` (whole pixels, 0 = as the content), and carries its text alignment, the vertical position
+     of its content, a text size (xs, sm, md, lg, xl; 0.8 to 1.35 times, also the logo) and optionally `after`, the block
+     of the same zone it follows (never itself, never the item table, no loops). A follower is drawn inside the node of
+     the block it follows, so it always sits under it whatever its height (the company name under any logo, the closing
+     blocks under any totals box); a block with nothing to show (no logo, no notes) takes no place and its follower
+     takes the slot. All blocks of a zone share one CSS grid cell, so a zone is as tall as its lowest block and the
+     item table never collides with what is under it. The standard arrangement is the original look: logo, company name
+     under it and INVOICE with number and status at the right; the customer left and the dates right; the item table
+     (compact, decision 317); the totals in a box at the right; then payments received, how to pay, notes and terms one
+     under the other over the full width. The editor drags a block live (it follows the pointer, with the blocks that
+     follow it), snaps to guides within six pixels (page edges and centre, edges and centres of other blocks, the top of
+     the page and of the area under the table; Alt holds the snap off, or a checkbox switches it off) and draws red lines
+     with labels where it lines up, with a percent ruler and the page centre on top; the selected block has grips on its
+     left, right and bottom edges and lower corners; a block let go right under another one (within 18 pixels,
+     overlapping at least 30 percent) follows it, and the "Mengikuti" choice in the panel detaches or re-attaches it;
+     a block dropped above or below the middle of the item table goes to the area above or below it. The panel has
+     numeric fields (x, w, y, h), page-align buttons, text alignment, vertical position, five text sizes, and a list to
+     pick blocks that lie on top of each other; arrow keys nudge the focused block. Two blocks drawn over each other raise
+     a red warning above the preview. On a narrow screen the blocks run one under the other. Printing: A4, page number
+     "Halaman X dari Y", the item table breaks between items and repeats its header, no other block is cut in half.
+     Layouts of version 1 (every layout stored by decisions 310-320, also those frozen into issued invoices) are not
+     converted: they are read as the standard arrangement, so after this change the owner presses "Kembalikan ke Bawaan"
+     or arranges the page again; no data is touched. The database rule `valid_invoice_layout` (migration `20261007150000`,
+     helper `valid_invoice_layout_v2`) accepts version 2 with exactly these keys and ranges and still accepts version 1,
+     so migrations 20261007120000-140000 stay. Presentation only: no amount, tax, number or text is affected, the six
+     blocks that carry them cannot be hidden, and issued invoices keep the arrangement they were issued with.
+
+322. **Masked account number shown; app servers moved next to the database (p56, 7 October 2026).** Owner approval
+     (7 October 2026): the number of a cash/bank account stays write-only (finding #90), but the owner must be able to
+     recognise which bank account is which. The table `financial_accounts` gets a generated column
+     `account_number_masked` (migration `20261007160000`): stars for all but the last four characters, e.g.
+     `***********7890`, never the full number. Only this column is granted to `authenticated`; `account_number` stays
+     unreadable. The audit trigger excludes the masked column like the full number. The Rekening list has a "Nomor
+     Rekening" column and the account page shows the masked number under the title and in "Ubah Detail Rekening"
+     ("Tersimpan: ..."); the field stays empty with "Kosongkan jika tidak diubah". Speed: the app functions ran in
+     Washington (`iad1`) while the database is in Singapore (`ap-southeast-1`), so every query crossed the ocean. A new
+     `vercel.json` pins the functions to Singapore (`sin1`); no data, amount or rule changes.
+
+323. **A customer's payment claim shows on the invoice page; invoice page loads its data at once (p57, 7 October 2026).**
+     Owner report (7 October 2026): after a customer pressed "Saya Sudah Bayar" on the public link nothing showed on the
+     invoice. The claim itself was saved (status "pending", decision 259) and waits in Penjualan, Klaim Pembayaran; the
+     invoice becomes paid only when it is confirmed there, unchanged. The invoice page now shows a box "Klaim Pembayaran
+     Menunggu Konfirmasi" (payer name, amount, date, with a button to Klaim Pembayaran for those who may confirm
+     payments) while a claim of that invoice is pending. Speed: the page fetched eight independent things one after
+     another (logo, layout, tax preview, accounts, email, email history, ...); they are now fetched together, so the
+     page waits for the slowest instead of the sum. Nothing about amounts, tax, numbering or authorization changes.
+
+324. **Automatic SKU generator, owned by the Owner (p58, 7 October 2026).** Owner request (7 October 2026): product
+     codes are generated by the system, in a format the Owner controls, for every Entity. Default
+     `[Brand]-[Jenis]-[Nomor]-[Variant]`, e.g. `KEA-EA-001-1B`. Migrations `20261007170000` (generator) and
+     `20261007180000` (search). What is decided:
+     - **Format** (table `sku_settings`, one row per Entity): the four parts can be reordered and switched off; separator,
+       prefix, suffix, how an empty part is shown (skip or a filler), number of digits (default 3), start, step, numbering
+       scope (global, per brand, per brand + type; default brand + type) and automatic generation on/off. The format is
+       validated by the database, and a settings screen (Administrasi, Konfigurasi SKU) shows a live preview.
+     - **Masters**: `product_brands`, `product_types`, `product_variants` (code A-Z/0-9, name, sort order, active,
+       archived). A live code is unique per Entity; archiving frees it; restore refuses a code that is taken. A master
+       that is used can be deactivated or archived but never deleted. Defaults: brands KEA, KKM, HIK; types EA, IND, TOOL,
+       ACC, EBK, VID, TPL, SRV; variants 1B, 3B, 6B, 1T, LT.
+     - **Numbering** is taken atomically in the database (`sku_sequences`, one upsert per scope), never `count + 1`,
+       never reused (a deleted product does not give its number back), and a taken SKU is skipped. Tested with six
+       sessions racing: 120 distinct SKUs, numbers 1..120.
+     - **Authorization**: two new permissions held by the Owner only, `products.sku_settings` (format and masters) and
+       `products.sku_override` (typing or changing a SKU by hand). Staff only pick brand, type and variant. Writes to the
+       masters and settings go only through security-definer functions (so the baseline "no direct browser writes" rule
+       holds; the seven function names are on its allowlist); reads are plain RLS under `products.view`.
+     - **Variants** are separate sellable product rows (`parent_product_id` + `variant_id`) with their own SKU (base +
+       variant code), price and status. A product's brand, type, number and variant cannot be changed afterwards.
+     - **History**: every SKU creation or change is kept in `product_sku_history` (old, new, who, when, reason) and in the
+       audit log. Invoice lines keep the SKU they were saved with (`invoice_lines.sku_snapshot`); old documents are not
+       rewritten. Existing products keep their SKU and are marked as manual.
+     - **Every Entity**: all of it is Entity-scoped; defaults are provisioned for every existing Entity by the migration
+       and for every new one by a trigger on `entities`. Backup picks the new tables up on its own (they carry entity_id).
+     - **Global Search** gets a tenth kind, `product` (permission `products.view`): a SKU, product name, brand or type
+       finds it and opens the product page. Renaming a brand or type refreshes its products in the index. The search
+       tests now say "generic-linker kinds minus import batch, plus product".
+
+325. **Recurring invoice/bill: due on a fixed day of the month; page renamed "Transaksi Berulang" (p58, 7 October 2026).**
+     Owner report (7 October 2026): a recurring bill (Indihome, IPL) is due on a fixed day each month, but the form
+     only offered "days after the draft is made". Migration `20261007190000` adds the optional field
+     `recurring_rules.due_day_of_month` (1-31). When set it replaces the day offset: the bill is due on that day of
+     the document's month; a short month uses its last day; a day already before the document date falls in the next
+     month. When empty, the old offset rule applies unchanged, so every existing rule behaves as before. The form
+     asks "Cara Menentukan Jatuh Tempo" (tanggal tetap setiap bulan, or beberapa hari setelah dibuat); it applies to
+     invoice and bill rules only, never to an expense rule. `create_recurring_rule` has one more optional argument
+     (the old signature is replaced); `update_recurring_rule` takes `due_day_of_month` in its patch. The screens that
+     said "Aturan Berulang" now say "Transaksi Berulang", like the menu. Drafts are still only made when someone presses
+     "Jalankan yang Jatuh Tempo" (decision 136); no automatic scheduler is added by this decision.
+
+326. **"Rekening Koran": monthly cash and bank statement from the journal, in pages (p58, 7 October 2026).** Owner
+     request (7 October 2026): a statement-style view to follow money in and out month by month, in several
+     clickable pages when it is long. Migration `20261007200000` adds the read-only function `cash_statement`
+     (needs `accounting.view`, like the journal screens). One call returns the month's opening balance, money in
+     (debit side of the cash/bank accounts), money out (credit side), closing balance, one page of lines with a
+     running balance that stays correct on every page, and a 12-month overview. Only posted journals count; amounts
+     are in the Entity's base currency; it can show one cash/bank account or all together. New screen
+     `/accounting/statement` (Akuntansi, Rekening Koran): filters for account and month, four summary cards, pages
+     of 20 lines with page-number buttons, and a 12-month table whose months link to that month. It reads the
+     books, not a bank file; matching against the bank stays in reconciliation. Also in this release: (a) the side
+     preview panel that opens from a list row no longer starts the page-loading bar or spinner, because it opens
+     from data already on the page; (b) `staleTimes` in the Next.js config lets the browser reuse a page it already
+     has for 30 seconds on back/forward and repeat visits, and any save clears it (speed, owner request).
+
+327. **Recurring transactions run by themselves; Rekening Koran becomes a year overview with a page per month
+     (p60, 7 October 2026).** Owner request: once a rule is set up (for example the Indihome bill, starting
+     tomorrow), on its date the invoice / expense / bill must simply be there as a draft, and the Owner or staff
+     posts it later when it is paid; and the Rekening Koran main page must show only the 12-month summary of a
+     chosen year, with each month opening its own detail page. (a) Migration `20261007210000` adds
+     `app_private.run_all_due_recurring()`, which runs the existing engine (`run_due_recurring_occurrences`, on its
+     structurally authorized service path) for every active Entity, each Entity isolated so one failure cannot
+     block the others, and schedules it with pg_cron at 15:10, 16:10 and 17:10 UTC (just after midnight in WIT,
+     WITA, WIB). A run with nothing due does nothing; a failed occurrence is recorded and retried on the next day's
+     run, exactly as before. What is generated is unchanged: drafts only, never posted, one occurrence per rule per
+     run (a rule far in the past catches up one schedule per day; the manual button still catches up faster).
+     Where pg_cron is not available (the bare test database) the migration only prints a notice. This supersedes
+     the "no automatic scheduler" note of decision 325. The manual button "Jalankan yang Jatuh Tempo" stays. (b)
+     `/accounting/statement` now shows the twelve months of a chosen year (January to December) with year and
+     account pickers and previous/next-year buttons; each month name opens `/accounting/statement/YYYY-MM`, a page
+     with that month's four cards, its lines in pages of 20, and previous/next-month buttons. No database change
+     for (b): the existing `cash_statement` already returns the twelve months ending at the month asked for.
+
+328. **Alur Kerja: one page per diagram, in the order of the owner's journey (p61, 7 October 2026).** Owner
+     request: every flow diagram gets its own page so the diagrams are never mixed, and they are ordered from the
+     first time the website is used through every menu and purpose of the app. `/guide/alur-kerja` is now an index:
+     the diagrams listed as numbered cards grouped by stage, then the "Saya mau ... buka menu apa?" lookup table.
+     Each diagram opens at `/guide/alur-kerja/<id>` with its number ("Diagram 8 dari 30"), the picture, the text
+     version, the step-by-step guides it relates to, and previous/next buttons that walk the journey. The set grew
+     from 7 to 30 diagrams in 11 stages: Memulai, Penjualan, Pembelian, Kas & Bank, Pembukuan, Pajak, Aset &
+     Pendanaan, Payroll, Perencanaan, Laporan, Dokumen & Administrasi. The order of `alur.json` is the order shown
+     and each flow has a `stage`. The PDF chapter follows the same order with stage headings, numbers and a list of
+     diagrams. Content only: no database or behaviour change. The recurring-transactions diagram describes the
+     automatic daily run of decision 327.
+
+329. **The left menu and the top bar stay on screen while the page scrolls (p63, 7 October 2026).** Owner report:
+     scrolling a long page down made the left menu disappear, so the Owner had to scroll back up to find it.
+     Cause: `html, body { overflow-x: hidden }` made `<body>` its own scroll container, which silently disables
+     `position: sticky` for everything inside it (the menu and the top bar were already marked sticky). Fix:
+     `body { overflow-x: clip }` (cuts horizontal overflow without creating a scroll container). Checked in
+     Chromium: with the old rule the menu moved to -1200px after a 1200px scroll; with `clip` it stays at 0.
+     Styling only, no behaviour or database change.
+
+330. **The receipt number on the invoice page opens the receipt (p64, 7 October 2026).** Owner report: on the
+     internal invoice page the "Dokumen" preview showed "Kwitansi RCP-..." as plain text, while the same document
+     on the customer's public link has it as a link. The internal page now builds the link too:
+     `/sales/invoices/<id>/receipt?no=RCP-...` shows the same receipt document as the public page (same back link
+     "Kembali ke invoice" and print button), read with the existing `payment_receipt_document`. The receipt number
+     must be one of THIS invoice's payments, otherwise the page answers "not found". No database change.
+
+331. **Every Dashboard card opens the page that matches its name (p64, 7 October 2026).** Owner report: the
+     "Beban" card opened the Laporan Keuangan instead of Beban. Each card now has one destination: Pendapatan and
+     Beban open the Laba Rugi of the same period scrolled to the Pendapatan / Beban section (`#pnl-revenue`,
+     `#pnl-expense`), Laba Bersih opens the whole Laba Rugi, and each recent-activity row opens its own document
+     (`/sales/invoices/<id>`, `/sales/payments/<id>`, `/purchases/payments/<id>`), not the list. The period is
+     carried in the link. Tested in `kpiStrip.test.ts`. No database change.
+
+332. **Attachments sit inside the "Dokumen" section of the record (p64).** Owner request: "Lampiran" belongs with
+     the document at the top of the page, not in a separate card below. `AttachmentsSection` takes `embedded` and is
+     rendered under the document view on Invoice, Tagihan and Beban (Beban gets a Dokumen section of its own).
+     Behaviour, permissions and storage are unchanged.
+
+333. **Reports can be printed and downloaded (p64).** Owner question: "Simpan laporan" only stores a view
+     (a named filter shown in Laporan Tersimpan); it never produced a file. The Laporan Keuangan and Penjualan &
+     Pembelian screens now have "Cetak / simpan PDF" (browser print with the menu and top bar hidden) and "Unduh
+     CSV" (every table of the report on screen, one block each, `tablesToCsv`). The saved-report card moved below
+     the report and is hidden when printing. Nothing is computed twice: both read what is on screen.
+
+334. **A payment claim closes by itself when its invoice is paid (p64).** Owner report: an invoice of Rp875.000
+     was paid ("Catat Pembayaran" by staff) but the customer's earlier claim for the same invoice stayed pending
+     and could still be confirmed or rejected. The two were not connected: a payment recorded by staff never
+     touched the claims. Migration `20261008100000`: after a payment allocation is stored, once the invoice is fully
+     settled every claim still pending for it is closed as rejected with the reason "Invoice sudah lunas oleh
+     pembayaran lain; klaim ini ditutup otomatis."; the claim being confirmed right now is excluded (confirming is
+     what created the payment). A partly paid invoice keeps its claims. The migration also closes claims already in
+     that state. Test `99_p29_close_claims.sql`. Money, ledger and permissions are untouched.
+
+335. **Spelling: "kuitansi" (p64).** Owner question: "kuitansi" or "kwitansi"? The standard form in KBBI is
+     "kuitansi"; every screen, e-mail, guide and diagram text now uses it. The document number prefix (RCP) and
+     stored data are unchanged. Note for the owner: a receipt for money above Rp5.000.000 carries meterai under UU
+     10/2020 Art. 3(2)(g); the app does not add it.
+
+336. **Dashboard revenue is net of discounts; Beban card explained (p64).** The "kontra pendapatan" account
+     (4200, debit-normal) holds discounts and sales returns; the Dashboard's Pendapatan now subtracts it, so the
+     Laba Rugi and the Dashboard agree. A discount is a reduction of revenue, never an expense. The Dashboard
+     "Beban" counts bills (accrual), while Pembelian > Beban lists only directly paid expenses; the Beban list now
+     says so and links to Tagihan.
+
+337. **Ringkasan Pajak is empty during the month by design (p64, owner question).** PPh Final UMKM is computed from
+     the invoices issued in a month and only after the month has ended (`tax_final_evaluate`: "the period is not
+     over yet"); until then Kewajiban Terutang is empty and the PPh Final preview says "Belum aktif". Invoice
+     HKD-2026-0002 (7 October, Rp875.000) is computed in November: for a Perseroan Perorangan, which has no
+     Rp500 million exempt band, 0,5% is Rp4.375. Database connection and all eleven tax screens were checked on
+     production: they load and read the same determinations and ledger. A "perkiraan bulan berjalan" line is proposed
+     to the owner (needs a change to the tax engine, so not done without approval).
+
+338. **Aktivitas Terbaru stays as it is (p64, owner decision).** An expansion to every financial event was drafted
+     and withdrawn before release: internal financial activity already has its own menu, Mutasi Kas & Bank.
+
+339. **A stuck page load recovers by itself (p64).** Owner report: after the browser Back button a page could load
+     for very long or never finish. The server answers in about 0,4 to 0,7 s (measured on production), so the delay
+     is a lost or stalled request on the way. `NavigationProgress` now (a) reloads the page once when Back/Forward
+     leaves the loading skeleton on screen for 15 seconds (guarded to once a minute) and (b) opens the link as a
+     normal page load when a menu click has not changed the page after 12 seconds. Speeding up `my_access()` itself
+     needs the owner's approval and is not part of this change.
+
+340. **Category field with "add new", and own attachment types (p64, owner requests).** (a) In the line editor
+     (invoice, bill, expense, recurring) the category is typed and picked like a customer; "+ Tambah kategori baru"
+     opens a small panel asking only the name (the kind follows the line), creates it under `categories.manage` and
+     selects it. A new category posts to the default account of its kind until mapped on Akuntansi > Kategori.
+     Changing a line's treatment clears a category of the wrong kind. (b) Attachment types: migration
+     `20261008110000` adds `document_purposes` (per Entity, read with `documents.view`) and
+     `create_document_purpose` (needs `documents.upload`; same name ignoring case returns the existing type). A link
+     carries `custom:<id>` as its purpose, checked by `link_document` (same Entity, active). The four built-in types
+     are unchanged. The upload form has "+ Tambah jenis lampiran…". Rename and deactivate are not built yet.
+     Test `99_p30_document_purposes.sql`.
+
+341. **PPh Final UMKM: no monthly return; PPh 23 deadline corrected (p64, owner request, audit against the law).**
+     Owner: the 15th is right for paying, but reporting stays yearly. Law: payment with a billing code and NTPN is
+     deemed the monthly return (PMK 164/2023 Art. 7(5)); payment by the 15th of the next month (PMK 81/2024 Art.
+     94(2)); SPT Tahunan 31 March for an individual and 30 April for other taxpayers (UU KUP Art. 3(3)). Migration
+     `20261008120000`: DEADLINE_PPH_FINAL_UMKM version 3 (from 2 January 2026, "monthly_return": false) removes
+     the monthly "Lapor" step; `tax_calendar` shows one "Lapor" row in March/April for the year before, with the
+     right date by taxpayer kind. DEADLINE_PPH23 version 3 (from 2 January 2026) sets the 15th for the whole of
+     2026; version 1 still said the 10th, so September 2026 showed the wrong date. Two published versions cannot
+     share an effective date, hence 2 January. Audit of the rest, from the seeded rules: PPN pay and file end of the
+     next month (correct, PMK 81/2024 Art. 94(3)); PPh 21, 4(2), 26 pay on the 15th and file on the 20th
+     (correct); the 0,5% rate, the Rp4,8 billion ceiling, the Rp500 million band for individuals only and
+     Perseroan Perorangan eligibility follow PP 55/2022 and PP 20/2026. Not modelled: holidays moving a due date,
+     time limits of the regime, the SPT Tahunan's own content. Sources are secondary (DDTC, ortax, pajak.go.id);
+     the owner should have a tax adviser confirm before relying on them. Tests 9.17-9.17d and 11.8.
+
+342. **Estimate of the running month's PPh Final UMKM (p65, owner request).** Owner: the tax of the month in
+     progress should be estimated as income comes in, shown on the tax menu, and become fixed once the month has
+     ended. Migration `20261009100000`: `tax_final_evaluate` gets a three-argument form (`p_estimate`), built from
+     the live function by exact text replacement so the marketplace changes stay; the two-argument form is a wrapper
+     with `false`, so `tax_final_preview`, `tax_final_compute`, the journal and the tax ledger are unchanged. New
+     read-only `tax_final_estimate(entity, period)` (needs `tax.view`; only the running month, a future month stays
+     "not configured"; the output carries `estimate: true`). It applies the same rule, profile checks, exempt band,
+     annual ceiling and marketplace credit to the invoices issued so far, and is recomputed from the invoices on
+     every read, so each new invoice and each void moves it. Nothing is recorded. The "Perkiraan Pajak Bulan
+     Berjalan" card shows on Ringkasan Pajak, Kalender Pajak and PPh Final. Making the month final is still the
+     explicit "Hitung Pajak Final Bulan Ini" step after the month has ended (it posts the journal); doing that
+     automatically needs a scheduled job and is left to the owner's decision. Tests `99_p32_final_estimate.sql`,
+     `runningTaxPeriod`.
+
+343. **Fixed-asset forms made automatic, asset origin, more accounts (p66, owner requests of 7-8 October 2026).**
+     Owner: the person should not have to know "golongan", fiscal depreciation, useful life or residual value; the
+     depreciation should follow the kind of asset; "Mulai Dipakai" gets a "same as purchase date" tick; and a used
+     asset (used car, used laptop) needs its year of manufacture so the depreciation fits. Built: (a) the
+     golongan is suggested from the asset's name, then from its account (`accountDefault`); in the default mode the
+     method is straight line, the life is the life of the golongan, the residual 0, and land, assets under
+     construction and collectibles are not depreciated; "Ubah manual" opens the figures; a fold-out explains the
+     words in plain Indonesian. (b) New columns `acquired_condition` (new/used; not the physical `condition`) and
+     `manufacture_year` on `fixed_assets` (a used asset must have the year); `asset_load_opening` reads
+     `condition`/`manufacture_year`; new `asset_set_origin` (activation calls it first); `asset_detail` returns both.
+     For the financial statements a used asset's life is the life of its golongan less its age in whole years
+     (year put in service minus year made), never under 12 months; the tax (fiscal) plan is NOT shortened, the
+     database still uses the full life of the golongan. (c) Fiscal groups apply to any date: rule version 2 of
+     `FISCAL_DEP_CLASSES` is effective from 1900-01-01 with the same values as version 1 (owner: the limit to 2020
+     was wrong). This is a data addition to a tax rule and should be confirmed by a tax adviser; acquisition dates
+     before 2000-01-01 are still refused by the global date rule. (d) Error guidance: a refusal now carries the
+     field it is about and a way out (`guideAssetError`); that field turns red with the way out written under it,
+     the form checks dates and amounts as the person types, and a box at the bottom says what went wrong; "Isi
+     otomatis" fills the depreciation already taken from the life and the dates. (e) Chart of accounts for
+     companies (template and existing active Entities): 19 fixed-asset accounts under 1500 (land, buildings,
+     renovation, installations, communication, studio, machinery, shop/warehouse, tools, cooling/generator,
+     cars, motorbikes, trucks and heavy equipment, vessels and aircraft, construction in progress, leased assets,
+     plantations and livestock, art and collectibles; control accounts fed by the register); group 1600 intangible
+     assets (software, brand/copyright/patent, website/app, other, accumulated amortisation) and group 1700
+     long-term investments (term deposit over 3 months, shares, bonds, mutual funds, gold, investment property,
+     other), both outside the asset register and open to manual journals (no schedule for amortisation or
+     revaluation: journals); 1220 funds with a broker or trading platform (forex, shares, crypto) and 1230 crypto
+     assets; income 7110-7160 (dividend, rent, yield, bonus/rebate, crypto income, other), gain/loss accounts
+     7320-7380 (forex, crypto, shares/funds/bonds, gold, other investments, revaluation, investment property),
+     costs 7210-7240 (broker commission/spread, swap/margin, crypto network and exchange fees, impairment), 6710
+     amortisation and 8300 final tax on investment income. Not decided and left to the owner and a tax adviser: how
+     crypto and forex are recognised (cost, fair value) and their tax treatment, and whether term deposits of up to
+     3 months should sit under cash equivalents. Tests `99_p33_asset_origin.sql`, `assetFormGuide.test.ts`.
+
+344. **Research on fiscal groups for old years, forex and crypto (owner request, 8 October 2026).** Sources are
+     official or well-known tax sites; the owner should have a tax adviser confirm. (a) Fiscal groups for old years:
+     the lives (Kelompok 1-4 = 4, 8, 16, 20 years; permanent building 20, non-permanent 10) come from Article 11 of
+     the Income Tax Law and are the same in the older ministerial rules, so rule version 2 (from 1900-01-01) is
+     sound for the lives. What changed over time is which kind of asset belongs to which group: KMK 520/KMK.04/2000
+     (from 1 January 2001; computers were in Kelompok II), KMK 138/KMK.03/2002, PMK 96/PMK.03/2009 (from 1 January
+     2009, not retroactive; an asset not listed is Kelompok 3) and PMK 72/2023 (replaces PMK 96/2009; for buildings
+     and intangibles owned before tax year 2022 the owner could choose the life in the books, notified by 30 April
+     2024). The form now warns, for an asset in service before 2009, that the grouping of items follows the older
+     rule and the person should match the group with their tax records. Not confirmed by any source found: whether
+     the tax life of a used asset is the full life of its group (decision 343 assumes so); to be confirmed.
+     (b) Forex trading: the profit is ordinary (non-final) income, reported in the annual return (UU PPh Art. 4(1)
+     and 17; corporate rate 22% under UU HPP; losses offset gains within the year per one source); in the books
+     (PSAK 71), a trading position is carried at fair value with the change in profit or loss, and transaction
+     costs are expensed; tax follows realisation, so a fiscal correction may be needed for unrealised amounts.
+     Accounts 1220, 7210, 7220, 7320 and 7370 serve this. Whether a small company may leave forex profit out of
+     the 0,5% final regime base is not settled by the sources and is left to a tax adviser. (c) Crypto: since 1
+     August 2025 (PMK 50/2025) a sale is subject to final Income Tax Article 22 withheld by the platform, 0,21% via a
+     domestic digital-asset trader and 1% via other platforms, with no VAT on the asset itself; mining income
+     follows the general rates from tax year 2026. Accounts 1230, 7150, 7230, 7330 and 8300 serve this.
+
+345. **Forex profit is taxed yearly, by decision of the owner (8 October 2026).** Owner: profit from forex trading
+     uses the yearly settlement (annual corporate return), not a monthly tax. Consequences: nothing monthly is
+     computed or reminded for forex in the tax menu; the profit or loss is only recorded in the forex gain/loss
+     account (7320) and the related accounts (decision 344); the tax is settled once a year from the net result of the
+     whole year (losses offset gains), in the annual return due 30 April of the next year. Nothing is built for it now,
+     and a forex income feature is not planned until the owner asks for it ("only if the website will have forex
+     income"). Owner's confirmation the same day: the company is on the PPh Final UMKM 0,5% regime, so there is no
+     monthly instalment (PPh 25) and none is built; forex profit is paid and reported once a year. Still open for a
+     tax adviser (the owner has none; the free Kring Pajak line 1500200 or the tax office can answer): whether forex
+     profit falls inside the base of the 0,5% final regime or is taxed at the general rate in the annual return, and
+     whether the 50% rate reduction (Art. 31E) can be used.
+
+346. **The final tax of a month is computed by itself on the first day of the next month (owner, 8 October 2026).**
+     Owner: "the tax of this month should be counted automatically on the 1st of the next month, so there is no
+     'Hitung Pajak Final Bulan Ini' button; but there must always be an estimate that follows the income so far."
+     (a) `app_private.tax_final_auto_run()` runs in pg_cron three times a day just after midnight in WIT, WITA and
+     WIB (`20 15-17 * * *`, like the recurring-transactions job); the Entity's own date decides which month has
+     ended. For every active Entity it re-checks the month just ended and the month before it (so a late invoice
+     moves the tax by a new revision with the difference only) and computes any earlier month of the last two
+     years that has no record yet (a missed day heals itself). (b) The computation is the very same as the manual
+     command (journal, `tax_determinations` revision, tax ledger accrual): `app_private.tax_final_compute_auto` is
+     built in the migration from the live definition of `public.tax_final_compute` by exact text replacement,
+     dropping only the sign-in, permission and idempotency-key steps, because no person is signed in; the
+     migration fails if the old text is not found. The public command stays but the screen no longer offers it.
+     (c) A month whose evaluation is not "auto_determined" (no profile, engine off, over the ceiling, ...) is
+     skipped; one failing Entity or month raises a warning and never blocks the others. (d) The running month is
+     never recorded; it shows the live estimate of decision 342, which changes with every issued invoice. (e)
+     The screen says so in a "Dihitung Otomatis" section and flags an ended month that is not recorded yet.
+
+347. **Speed measurement, 8 October 2026 (owner: "everything must load fast: submit, back, page change").** Measured
+     on production (read-only): the server (Vercel `sin1`) and the database (Supabase `ap-southeast-1`) are already in
+     the same region, and the data is small (20 journal lines, 3 invoices), so volume is not the cause. The two
+     measured costs are both in the authorization path: (a) `public.my_access()`, called once per page request,
+     takes about 138 ms in the database (about 214 calls of `app_authz.has_permission`, each a SECURITY DEFINER
+     function that cannot be inlined); (b) every row-level-security policy that calls `has_permission(entity_id, ...)`
+     runs it once per row (about 0,6 ms per row, so a list of 1.000 rows costs about 0,6 s and 10.000 journal lines
+     about 6 s). Already in place: client router cache for back/forward (decision of 7 October), skeleton loading
+     screens, navigation progress bar. The owner left the choice for the authorization speed to the recommendation:
+     it stays unchanged (the authorization engine is not rewritten without the owner's explicit yes). Recommended
+     next step, to be done only with that yes: compute the permission list of `my_access()` in one set-based query
+     and give the policies a per-statement set of allowed Entities, each proven identical to today's answers by a
+     test that compares every user, Entity and permission. Not done: unindexed foreign keys and unwrapped
+     `auth.uid()` in six policies (advisor notices) -- no measurable effect at this data size.
+
+348. **`my_access()` lists permissions in one pass (owner approval, 8 October 2026).** After decision 347 the owner
+     approved the first step of the recommendation: only the permission list inside `public.my_access()` changes.
+     It no longer calls `app_authz.has_permission` once per permission (about 214 calls, 138 ms per page); it
+     applies the same rule inline: owner = every permission; otherwise (granted by the role or by a membership
+     override) and not denied by an override. The membership, active status, active Entity, active profile and MFA
+     condition are those `my_access` already selects for the row, so fields, order and refusals are unchanged.
+     `app_authz.has_permission` and every row-level-security policy are NOT touched. Proof:
+     `supabase/tests/99_p35_my_access_fast.sql` compares the new list with `has_permission` for every role in two
+     Entities with grant and deny overrides, an OWNER without MFA, a disabled membership and a disabled user. The
+     second step (a per-statement Entity set for the policies) is still open and needs its own equivalent proof and
+     its own owner confirmation.
+
+349. **Row-level-security policies ask once per statement (owner approval, 8 October 2026: "continue, as long as it
+     does not disturb the website").** Step 2 of decision 347/348. Before, a policy such as
+     `has_permission(entity_id, 'contacts.view')` ran the permission lookup for every candidate row (about 0,6 ms per
+     row). Now `app_authz.permitted_entities(key)` returns the Entities where the caller holds the permission, and
+     the 100 policies of the exact shape `has_permission(<column>, '<literal>')` use
+     `coalesce(column = any ((select permitted_entities(key))::uuid[]), false)`, which the planner evaluates once
+     per statement. `permitted_entities` is defined by `has_permission` itself (it asks it once for each active
+     membership of the caller), so it cannot disagree with it; `has_permission` is not rewritten, and policies of any
+     other shape (column-valued key, lookups inside EXISTS, `has_any_permission`, `shares_entity_with`) are left
+     as they are. Names, commands and roles of the policies are unchanged; `coalesce(..., false)` keeps "no Entity
+     means no permission" inside NOT/OR. Proof: `supabase/tests/99_p36_rls_permitted_entities.sql` (the list equals
+     `has_permission` for every role, user, Entity and permission, including grant/deny overrides, an OWNER without
+     MFA, a disabled membership and a disabled user; no per-row shape remains; real contacts are seen and refused
+     exactly as before), plus the whole existing authorization and isolation test suite unchanged. Measured after
+     decision 348 on production: `my_access()` 138 ms -> 3,6 ms with an identical answer.
+
+350. **Catat Pendapatan: income without an invoice, in plain fields (owner request and confirmations, 8 October
+     2026).** The owner asked that income that does not go through an invoice be easy to enter by owner or staff
+     with no knowledge of debit and credit, and that it be counted everywhere. Found first: income typed into a
+     manual journal never reached the PPh Final base (that base is issued invoices plus marketplace payouts). Built:
+     menu Penjualan > Catat Pendapatan (`/sales/income`, `/new`, `/[id]`), table `income_entries`, RPCs
+     `list_income_categories`, `record_income_entry` (journal: debit the receiving account, credit the income
+     account; one cash movement in; source type `income_entry`) and `reverse_income_entry` (reason of 5 to 500
+     characters; reverses the journal and the movement; an entry is never edited). Owner confirmations: (1) the new
+     menu under Penjualan; (2) business income counts in the PPh Final 0,5% base and in the yearly ceiling, income
+     outside the business (interest, dividend, investment property rent, investment yield, bonus/cashback, crypto,
+     other investment, other) is booked but kept out of the base (follows decisions 344-345); (3) staff entries are
+     recorded immediately with no approval; (4) a manual journal that uses a revenue account shows a warning and a
+     link to the new menu, it is not blocked. Same-system request (owner, same day): every pick-or-type field works
+     like the customer field on an invoice. The kind of income IS a revenue category (the field invoice lines use;
+     type to find it, or "+ Tambah ... baru" in a panel, using `categories.manage` like on an invoice), "Dari
+     siapa" is a customer with the same quick-add panel, reference and note offer earlier entries. Tax follows the
+     account the category credits: a revenue account (class `revenue`, 4xxx) is business turnover, an other-income
+     account (class `other_income`, 7xxx) is not; a category the person adds on the spot uses the default operating
+     revenue account, so it counts as business turnover until it is mapped to another account on the Kategori
+     screen (the form and the guide say so). Ready categories added to every company Entity, and to every new one,
+     by `provision_income_categories` (also called by `provision_default_coa`): Komisi & Afiliasi (4190) and, tied
+     to 7100-7190, Bunga Bank & Deposito, Dividen, Sewa Properti Investasi, Imbal Hasil Investasi, Bonus Cashback &
+     Rebate, Pendapatan Kripto, Pendapatan Investasi Lainnya, Pendapatan di Luar Usaha. `tax_final_evaluate` adds
+     the recorded business entries of the month and of the year before it (also to the Rp 4,8 billion ceiling), and
+     returns `turnover_income`; the scheduled job (decision 346) re-checks the previous two months, so a late or
+     reversed entry creates a revision. Permissions: `invoices.view` to see, `invoices.issue` plus
+     `invoices.confirm_payment` to record, `invoices.void` to cancel; documents attach as target `income_entry`.
+     Dashboard, profit and loss and cash flow read the journal, so they include the entries without any change.
+     Not included (told to the owner): receivables (use Invoice), VAT (the entity is non-PKP), a search index for
+     entries, and income that repeats by itself through Transaksi Berulang (phase 2: needs a generator for entries,
+     like invoices have). Proof: `supabase/tests/99_p37_income_entries.sql`.
+
+351. **Brand, product type, variant and default category can be typed and added in place (owner request, 8 October
+     2026).** On Tambah Produk the Brand and Jenis Produk fields were plain lists with no way to add an entry, and
+     the same was true of Variant on the product detail and of Kategori Pendapatan Bawaan. They now use the same
+     type-pick-or-add field as the customer on an invoice (`ContactPicker`): type to find, or "+ Tambah ... baru"
+     opens a small panel (`QuickAddSkuMasterDrawer`: name and code, the code suggested from the name by
+     `suggestSkuCode`, a variant also its kind and validity days) that saves through the existing `save_sku_master`
+     and hands the new row back to the field; a category uses the existing category panel. The add action is
+     `quickCreateSkuMasterAction`, permission `products.sku_settings` (categories: `categories.manage`), so a person
+     without it still picks from the list and the add row is hidden. Everything else about brands, types and
+     variants (order, description, switching off, archiving) stays on Administrasi > SKU. The product detail also
+     shows the add-variant form when no variant exists yet (for a person who may add one). Same day, the income
+     entry detail page (decision 350) was made compact: the tax sentence became a hint under the facts, a long note
+     reveals with "Selengkapnya", the cancel button is a quiet "Salah catat? Batalkan" that reveals its reason form,
+     and the header says "Sudah tersimpan".
+
+352. **Income outside the PPh Final is shown on Ringkasan Pajak (owner request, 8 October 2026).** The owner recorded
+     forex trading income and asked where the estimate and the final figure appear; nothing did, because decision
+     345 said "nothing is computed until the owner asks". The owner has now asked, so this supersedes that sentence
+     for the display (still no posting). New read-only `tax_non_final_income(entity, year)` (permission `tax.view`):
+     the net result of the 7xxx accounts (classes other income, other expense and other: credits minus debits, so a
+     gain is positive and a loss or trading cost negative) of the posted journals of a calendar year, per account and
+     per month, excluding year-end closing journals and rounding differences; the unrealised revaluation account
+     (7370) is shown but not counted. The card "Penghasilan di Luar PPh Final" on Ringkasan Pajak shows the result
+     per type, a "Lihat per bulan" reveal, and an ESTIMATED yearly tax at 22% (company, cooperative, sole-owner
+     company; no rate is assumed for other taxpayer kinds), labelled as an assumption, with no facility, loss
+     carry-forward, tax already withheld or business cost applied. Owner answer on timing: the year is settled on
+     1 January of the next year; read here as "the year's result is fixed from then on" (the card says Ditetapkan),
+     with the SPT Tahunan still due 30 April (decision 345). Nothing is recorded as a liability and no journal is
+     posted; recording the tax would need a decision on the account and on the 31E and loss rules. Still open for
+     the tax adviser (project doc): forex inside the 0,5% base or not, the Article 31E 50% reduction, 22% versus
+     25%, and bank interest or dividend that already carry a final tax withheld by the payer.
+     Proof: `supabase/tests/99_p38_non_final_income.sql`.
+
+353. **Expenses and bills take one amount per line (owner request, 8 October 2026).** Catat Pengeluaran asked for
+     quantity and unit price on every line, so a food purchase had to be split per menu. The lines now take one
+     "Jumlah (sesuai struk)" (stored as quantity 1 and that unit price, so the purchase RPCs and the books are
+     unchanged); a "Rinci per barang" tick brings quantity x unit price back, and unticking folds quantity x price
+     into the amount. A draft that holds a quantity other than 1 opens in the detailed mode. The same applies to
+     Catat Tagihan. Recurring templates keep their own columns. Answer given to the owner on the difference: a bill
+     (Tagihan) is money owed to a vendor, approving it creates an account payable (the expense is booked at approval) and it is paid later with the
+     "Bayar Tagihan" button on the bill itself, which lowers the payable and the cash account and adds no further
+     expense (Pembayaran Keluar only lists those payments; it has no button for a new one); an expense (Beban / Pengeluaran) is paid at the moment it is recorded from a cash or bank
+     account and has no payable. Confirmed in `confirm_expense` (Dr expense, Cr the paying account) versus bill
+     approval (Dr expense, Cr accounts payable).
+
+354. **Guide, flow diagrams and PDF follow decisions 350-353 (owner request, 8 October 2026).** New guides: "Tagihan
+     atau Beban: Apa Bedanya" and "Melihat Penghasilan di Luar PPh Final"; the expense and bill guides now describe
+     the single amount; the flow diagrams "pengeluaran" (Beban versus Tagihan, with what each step does to the
+     payable and the cash account), "pantau-pajak", "pendapatan-tanpa-invoice" and "data-master" are updated and all
+     SVG files regenerated; the PDF's menu texts add Catat Pendapatan, the new Ringkasan Pajak card, the single
+     amount, and correct the earlier line that said a bill is paid "through Pembayaran Keluar" (it is paid from the
+     bill). The PDF is regenerated and given to the owner with this change.
+
+355. **Pick-or-type fields open the whole list when clicked (owner request, 8 October 2026).** On the expense form the
+     Kategori field showed nothing until something was typed, so a person could forget which categories exist. This
+     reverses the rule of 6 October 2026 (the list waited for the first typed character) for every pick-or-type
+     field: clicking into the field (again, after a pick) opens the full reference list, scrollable and capped at
+     200 entries, in `ContactPicker` (customer, vendor, category, Brand, Jenis Produk, Variant, the product's default
+     category), with the chosen entry marked, scrolling inside the popup (the list area is about 260 px high) while the add row stays in view; typing narrows it as before; the "+ Tambah ... baru" row stays at the
+     bottom even before anything is typed (the panel then opens with an empty name) and is hidden only when what was
+     typed is already on the list. `SuggestTextInput` (recipient, reference, note) and `LineDescriptionInput` list the
+     most recent entries used before when the field is empty. A field that already holds saved text opens its list
+     only after it is edited, except `ContactPicker`, which always opens (the chosen name may be changed). Enter in
+     an untouched field no longer blocks submitting the form. Shared helper `browseTypeahead`; guide
+     "Kolom Ketik-dan-Pilih" updated.
+     Follow-up (same day): inside a table the list was cut off by the table's scroll wrapper, so `ContactPicker` now
+     draws the list through a portal on the page body with fixed positioning (opens upward when there is little room
+     below, follows scroll and resize), and no table can clip it.
+
+356. **Hints on the Refund and Pembayaran Keluar lists (owner question, 8 October 2026).** The Refund list
+     (`/sales/refunds`, menu "Pengembalian Dana") has no add button by design: a refund belongs to one payment, so it
+     is created from the payment's detail page (Penjualan > Pembayaran Diterima > payment > "Refund ke Pelanggan").
+     The list now says so, with a link to Pembayaran Diterima. The Pembayaran Keluar list (`/purchases/payments`)
+     holds only bill payments (made with "Bayar Tagihan" on the bill); an expense paid directly (Beban) creates no
+     vendor payment and is seen in Beban and Mutasi Kas & Bank. The page now says that and links to Tagihan. No change
+     in workflow, permission or accounting; guide "Cara Membalik Pembayaran dan Refund" and the PDF follow.
+
+357. **"+ Tambah" on a line description gives visible feedback (owner question, 8 October 2026).** On the expense form,
+     choosing "+ Tambah ... sebagai deskripsi baru" only keeps the typed text (it is saved with the document and
+     offered from then on; there is no separate list of descriptions), so nothing seemed to change. Now the list
+     closes, a note "Deskripsi dipakai. Tersimpan bersama dokumen ini" appears under the field, and focus moves to the
+     next field (also after picking an existing description). No new table and no change of what is stored; a
+     separate maintained list of descriptions would be a new master-data feature and is not built. Guide "Kolom
+     Ketik-dan-Pilih" follows.
+
+358. **Refusal reasons nested inside another refusal are translated too (owner screenshot, 8 October 2026).** Confirming
+     an expense whose line has no withholding object showed the refusal in English ("...needs review before it can be
+     confirmed: Line 1 has no withholding classification..."): the outer sentence was translated but the reason
+     inside it was not. `translateReason` now translates a captured value that is itself a known reason. The
+     Indonesian text of that reason now says where to fix it (Objek potongan PPh on the line via Tarik Kembali ke
+     Draf > Ubah Draf, or map the category in Akuntansi > Kategori). Display only; no rule changed. Whether an
+     unmapped category should count as "not a withholding object" for an entity that is a withholding agent stays a
+     tax decision for the owner and the adviser.
+
+359. **Withholding on expenses: standard mapping and a "Kena potongan PPh?" column (owner, 8 October 2026).** The PT is
+     recorded as a withholding agent and stays so ("Pemotong Pajak = Ya"), so every expense line needs a withholding
+     classification, and an ordinary expense (a meal) was held back. Official data was gathered (PMK 141/PMK.03/2015,
+     62 kinds of "jasa lain" under PPh 23 at 2%, including internet, website, software, hosting/data, advertising and
+     professional services; PPh 4(2) 10% for rent of land/building; PPh 26 20% or treaty for foreign payees; summary in
+     the project document "riset-potongan-pph-pengeluaran"). PPN charged by a vendor is a separate tax and does not
+     remove the PPh duty. Result: (1) the standard company categories carry a classification where it does not depend
+     on who is paid: "Bukan objek potongan" for Biaya Bank, Biaya Payment Gateway, Gaji & Tunjangan (payroll has its
+     own PPh 21), Kantor & Umum, Perjalanan & Transportasi, Pengeluaran Operasional Lainnya; sewa tanah/bangunan
+     (PPh 4(2)) for Sewa & Ruang Kerja. Later the same day the owner, overwhelmed by the monthly deposit and filing work, asked the app to be set up
+     so routine purchases raise no question: Komunikasi & Internet, Software & Langganan, Hosting/Domain/Cloud and
+     Pemasaran & Iklan also start as "Bukan objek potongan" (an assumption against PMK 141 for domestic vendors, to be
+     confirmed with the tax adviser, who also gives the vendor list that is withheld). (2) Only Jasa Profesional, Produksi
+     Konten and a new standard category "Influencer & Kontrak Besar" (owner: focus on the large items such as building rent
+     and big influencer contracts) stay empty and ask per line. (3) On expense and bill lines a
+     category that settles the withholding shows only a note "Potongan PPh otomatis: ..." with a small "Ubah"; a line
+     whose category does not settle it shows one column "Kena potongan PPh?" with five answers (not subject, PPh 23
+     service, PPh 4(2) land/building rent, PPh 23 other rent, foreign vendor or not sure = review) and it is required
+     while the Entity is a withholding agent. The rate and amount are always worked out by the engine, never typed.
+     (4) The expense detail page now shows "Perhitungan Pajak (sebelum dicatat)" like a bill, so the withholding and
+     the net payment are visible before confirming. Existing Entities: only a standard category without a
+     classification is filled (migration p39); one the owner set is untouched. Working assumption to be confirmed
+     with the tax adviser: foreign vendors (PPh 26 / P3B), individuals (PPh 21 outside payroll) and vendors with a
+     withholding exemption certificate are not decided by the app and go to review.
+
+360. **"Harga sudah termasuk PPN", a fuller category table and red marks on what must change (owner, 8 October 2026).**
+     Same day, second round: the manual column "PPN ditagih vendor" is gone from bill/expense lines ("PPN terhitung otomatis"; "No. Faktur Pajak" stays); "Kena potongan PPh?" is always shown on every line, preselected from the category (or "Tidak kena" when the category settles nothing), can be changed, and an unanswered line is sent as "Bukan objek potongan"; it is hidden only for an Entity that is not a withholding agent. (1) On a bill/expense line of quantity 1 a box "Sudah termasuk PPN 11%" under the amount lets the person type the
+     receipt total as it is printed; the form splits it into the price before VAT (total x 100/111, rounded half up)
+     and the VAT (the rest), so the two always add up to the receipt and the withholding base is the price before VAT,
+     never the receipt total. The split only fills the two ordinary fields (`unit_price`, `tax_amount`); the tax
+     engine still decides at posting (a Entity that is not PKP treats the VAT as cost). (2) Purchase of an asset /
+     equipment (`treatment` = asset) is classified "Bukan objek potongan" automatically, without a question. (3) The
+     standard company expense categories grow from 14 to 27 (migration p40), each with a classification from the
+     research table: certain objects are mapped (Sewa Kendaraan & Peralatan PPh 23 rent; Jasa Konsultan & Manajemen;
+     Jasa Hukum, Akuntan & Notaris; Jasa Teknik & Pemeliharaan; Jasa Konstruksi & Renovasi; Jasa Kebersihan, Keamanan &
+     Tenaga Kerja; Katering & Konsumsi Acara; Royalti & Hak Cipta), routine ones are "Bukan objek" (Perlengkapan &
+     Peralatan Kecil; Makan, Minum & Representasi; Ekspedisi & Pengiriman; Pajak, Perizinan & Biaya Pemerintah;
+     Asuransi). Still asked per line: Jasa Profesional, Produksi Konten, Influencer & Kontrak Besar. Assumptions to
+     confirm with the tax adviser: ekspedisi and the routine items of decision 359. (4) A refused save or submit now says
+     WHICH line and column or field to change: `locateProblems` reads the database's own reason ("Line 2 has no
+     withholding classification") and returns line + column; the form paints that column red (border, wash and a
+     short instruction under it) until the person touches it, the message lists "Yang perlu diubah: Baris 2 · Kena
+     potongan PPh?", and on a Detail page a refused submit/approve of a draft links to the edit form with the same
+     columns already red (`?problems=`). After pressing save, a half-filled row (description without amount or the
+     reverse) is red too. Display only: no rule changed and a reason
+     the table does not know simply marks nothing (the translated sentence is still shown).
+
+361. **Tax row layout, "PPN dari vendor" wording, tax shown in Baris, and a faster way out of a stuck Back (owner, 8 October 2026).**
+     (1) In the line editor the tax fields are three equal cards in one row (Kena potongan PPh?, PPN dari vendor /
+     restoran with the "Sudah termasuk PPN 11%" box and its split, Faktur Pajak); the box no longer sits inside the
+     amount cell, so Deskripsi and Kategori keep their width. (2) Wording: the VAT on a receipt is the vendor's or the
+     restaurant's, not tax the Entity pays or reports. Labels read "Harga sebelum PPN" and "PPN dari vendor" with a note,
+     and the tax preview explains "PPN masukan" and "PPh dipotong". (3) The Baris card of an expense or bill shows a
+     PPN column per line and a summary under the table: the VAT charged, whether it is a cost (Entity not PKP) or
+     credited (PKP), and the PPh withheld (which feeds Pajak > Pemotongan PPh once posted, the same ledger as before).
+     The summary reads the preview before confirming and the non-superseded tax determinations afterwards; no rule
+     changed. (4) Back button: measured on production, a click on a list row and Back both stay in the app (no full
+     page load; list back in 0,8 to 1,0 s), so no fault was reproduced. To make a slow case shorter: repeat visits and
+     Back reuse a page for 120 s instead of 30 s (saving anything still clears it), a Back stuck on the skeleton reloads
+     after 6 s instead of 15 s, and a menu click that did not move the page opens as a normal load after 8 s instead
+     of 12 s. Not reproduced is not solved: if it happens again the owner is asked which page and what the clock says.
+
+362. **Income tax on a purchase is a tax cost of the company, not taken out of the vendor's payment; five categories now PPh 23 (owner, 8 October 2026). Part 1 (who bears the tax) was withdrawn by decision 364; the rest stands.**
+     (1) Wording and money: "potongan" is gone. The income tax the engine finds on a bill or expense (PPh 23, PPh 4(2)
+     or PPh 26) is the company's own cost on top of the purchase. The vendor, or the payee of an expense, is paid the
+     FULL amount; the tax is a separate liability to the tax office (credit Tax Payables, same tax ledger and calendar
+     as before) AND an expense on top (debit "Denda & Beban Pajak Lainnya", system key TAX_PENALTY_EXPENSE). So the
+     company's total cost is the amount plus the tax, paid to two different places. Migration p41 patches the posting
+     functions in place (bill approval, expense confirmation, base total, the payable of a bill in three functions,
+     the consequence texts) and keeps the `withheld_total` column and its meaning "income tax found on this document".
+     Production held no bill or expense with a non-zero `withheld_total` (checked before the migration), so no posted
+     document changes meaning. (2) Defaults: PMK 141/PMK.03/2015 lists internet, hosting and data services, software
+     services, advertising and freight / logistics as PPh 23 services (research note of 8 October 2026 in the docs
+     project). Komunikasi & Internet, Software & Langganan, Hosting/Domain/Cloud, Pemasaran & Iklan and Ekspedisi &
+     Pengiriman therefore default to "Jasa lain (PPh 23)" for a domestic vendor (new Entities and Entities still on the
+     old "not an object" answer; one the owner set is untouched). A foreign vendor (contact with a non-resident tax
+     domicile) automatically answers "Tidak kena PPh" on the line, because PPh 23 is for domestic vendors and the
+     engine would otherwise hold the document for review; PPh 26 and the PPN on foreign services (PMSE, PPN JLN)
+     stay a question for the tax adviser. (3) Screens: the Baris card shows three figures (Dibayar ke vendor, PPh ke
+     negara, Total biaya PT) plus the PPN note; the menu "Pemotongan PPh" is now "PPh Vendor". (4) Open question for
+     the tax adviser: whether PPh borne by the company is deductible and whether it counts as extra income to the
+     vendor (gross-up). Not decided here; the books show it as a separate tax expense so either answer is a
+     reclassification, not a data change. PPN of a non-PKP company stays a cost (cannot be credited); the company
+     never pays a "difference" to the state because it charges no PPN on its sales.
+
+363. **Modern, number-first Dashboard and Ringkasan Pajak (owner, 8 October 2026).**
+     The owner asked for a modern, professional, elegant look that is not confusing, with far fewer sentences and
+     many more numbers. (1) Dashboard: Tren Arus Kas is an interactive chart; hovering or focusing a point shows the
+     exact closing balance and its change from the month before, and clicking it opens the Arus Kas report of that
+     month. New cards Pendapatan and Beban show the month with its change (more revenue is green, more expense is
+     red), six monthly bars (hover for the amount, click for that month's Laba Rugi) and the biggest revenue sources
+     or expense accounts as share bars. The six months of Laba Rugi are read in parallel with the existing calls (the
+     month shown reuses its own result). The Dashboard's tax card uses the same share bars and date cards. (2)
+     Ringkasan Pajak: four figure cards (Total terutang, PPh Final bulan ini as an estimate, Perkiraan PPh on income
+     outside the final tax, Perlu ditinjau), a yearly bar chart of income tax per month from the tax ledger (click
+     opens that month in Buku Pajak), owed-by-type bars, deadline date cards, short profile labels and the 22%
+     estimate card with its tables and caveats folded away. Display only: every figure is the database's own decimal
+     text; charts and shares use `Number` for positions only. (3) The guide, flow diagrams and PDF follow: a new
+     "Cara Membaca Dashboard" guide and diagram, new images, and the wording of decision 362.
+
+364. **Income tax on a purchase is borne by the payee again; the contract amount is the company's whole cost (owner, 8 October 2026, after merge of #186).**
+     The owner: "kalau kontrak dengan freelancer tersebut adalah 10jt, masak PT saya yang membayar lebih." Decision 362 part 1
+     (the vendor paid in full, the income tax an extra cost on top) is withdrawn; migration p42 puts the posting back as it
+     was before p41: the vendor or payee receives the total less the income tax, the income tax is a liability to the tax
+     office (credit Tax Payables, same ledger and calendar) paid by the company out of the contract amount, and there is no
+     separate tax expense (the "Denda & Beban Pajak Lainnya" debit of p41 is gone). The company's cost equals the amount
+     on the document. Production held no document with income tax, so nothing posted changes meaning. Kept from 362: the
+     five categories on PPh 23 for a domestic vendor, the foreign-vendor default "Tidak kena PPh", the menu name "PPh
+     Vendor" and the label "Kena PPh?". The Baris card now shows Diterima vendor (total less PPh), PPh disetor ke negara
+     and Total biaya PT (the document total). Not decided: a contract written "net" (the company bears the tax, which needs
+     a gross-up so the payee still nets the contract amount) is not offered; if the owner needs it, it becomes a per-document
+     choice. For an individual freelancer without payroll (PPh 21 non-employee, PMK 168/2023) the rate is Pasal 17(1)(a) on
+     50% of the gross of each payment, PTKP is not deducted at withholding and the base is no longer cumulative; the
+     app does not compute PPh 21 non-employee yet (backlog, with the question of the no-NPWP rate for the tax adviser).
+     Because the PT Perorangan is on the final regime (0,5% of turnover), its costs, including any PPh it bears, do not
+     reduce its tax.
+
+365. **Pajak Pribadi: the Personal book gets its own yearly income-tax estimate, and the books of one owner count together (owner, 8-9 October 2026, one merge).**
+     The owner: PT Hikarich sells digital products (group access, licences), so it is a goods business on the final 0,5%;
+     the Personal book may receive service income, which must be taxed progressively on NET income, with PTKP and every
+     layer; both books must show the combined turnover (the "konsorsium", for the Rp 4,8 miliar ceiling); and nothing may
+     be a chore: "jangan buat saya repot mengisi integrasi data antara PT dan PRIBADI". Researched first (PP 20/2026, UU HPP
+     Art. 17(1)(a), PMK 168/2023): no time limit for individuals and PT Perorangan; the first Rp 500 juta is still free for
+     an individual; freelance (pekerjaan bebas) income cannot use the final 0,5% but counts toward the ceiling.
+     (1) Sorting: one tag per category, `categories.personal_tax_role` (owner chose "per kategori" and net income from the
+     books): revenue `umkm_business` (sales: final 0,5%), `freelance` (progressive), `company_payout` (money paid by the
+     owner's own PT: cash only, income and withholding come from the PT's documents); expense `business_cost` (reduces
+     net income). No tag means private: in the books, not in the tax. Default Personal categories carry the tags.
+     (2) Automatic integration: other entities where the same user is OWNER form the group; a PT contact is "me" when its
+     NPWP or NIK digits (at least 15) or its normalised legal or brand name match the Personal entity; income = base +
+     withheld, credit = withheld (confirmed expenses by payee, approved bills by vendor). Nothing is filled in.
+     (3) Clients' withholding is one optional field on Catat Pendapatan ("Pajak yang Dipotong Klien"); the form asks for
+     what reached the account, the action records gross = received + withheld (journal: bank, credit account 1310
+     `PERSONAL_TAX_CREDIT`, income at gross). 1310 is a control account but deliberately not `TAX_ASSET`, so the tax
+     control reconciliation is untouched.
+     (4) Calculation (`@/domain/tax/personalTax`, rule data `PERSONAL_INCOME_TARIFF` v1, nothing hard-coded): net = gross
+     services less business costs, never below zero; less PTKP (status chosen once a year, TK/0 until chosen), rounded
+     down to whole thousands; layers 5/15/25/30/35%; less credit. Final: 0,5% of sales above the Rp 500 juta band.
+     (5) Group turnover feeds the final-tax ceiling check (`tax_final_evaluate` patched in place) and is shown as the
+     "Omzet gabungan" card on the Dashboard and Ringkasan Pajak of both books; the question about spouse and minor
+     children stays, because the system cannot read their books. (6) New menu Pajak > Pajak Pribadi, one answer on top and
+     two ladders of steps; Ringkasan Pajak of a Personal book links to it.
+     Uncertain, for the tax adviser: whether freelance income also consumes the Rp 500 juta band (it is not counted now);
+     the rounding of PKP to whole thousands (taken from the SPT instructions, not a primary source). Not modelled: monthly
+     PPh 25 instalments, depreciation of assets bought for the business, tax withheld on sales (shown as a note only).
+     Nothing is recorded as a journal by the estimate; the year settles on 1 January of the next year.
+
+366. **Pajak Pribadi: the three open tax questions settled from primary sources, and PPh 25 instalments plus tax-paid tracking added (builder decision after the owner asked to stop asking; 9 October 2026, one merge).**
+     Research settles decision 365's "uncertain" list; nothing is left for the adviser on these points.
+     (1) Rounding: taxable income (PKP) is rounded DOWN to whole thousands of rupiah (UU PPh Pasal 17 ayat 4; DJP
+     SPT Tahunan OP instructions). The existing `pkp_round_down_to` 1000 rule is correct and unchanged.
+     (2) The Rp 500 juta tax-free band belongs to the final-regime business turnover only (UU PPh Pasal 7 ayat 2a;
+     PP 55/2022 Pasal 60 ayat 2; PMK 164/2023 Pasal 6; carried on by PP 20/2026). Income from free-lance work
+     ("pekerjaan bebas") is outside the final scheme (PMK 164/2023 Pasal 3 ayat 3 huruf a; PP 20/2026 Pasal 56) so it
+     neither consumes nor receives the band: it is taxed progressively on net income. It still counts toward the
+     Rp 4,8 miliar turnover ceiling (existing behaviour kept).
+     (3) PPh 25 for an individual (PMK 215/PMK.03/2018 Pasal 2, 7, 10; DJP "Angsuran PPh Pasal 25"): monthly instalment
+     = (last year's progressive tax less credits for PPh 21/22/23/24) / 12, due on the 15th of the next month; the
+     payment slip (NTPN) doubles as the monthly return; nil in the first year of registration or when last year had no
+     tax to pay; PPh Final has no PPh 25. `computeInstallment` returns that figure (half-up whole rupiah) from last
+     year's computed result, shown as the "Angsuran PPh 25 bulanan" card. Not modelled: recalculation when the
+     expected tax is above 150% or reduction after three months below 75%, "Pengusaha Tertentu" 0,75% of gross
+     at a business location apart from home (not free-lance), depreciation of business assets.
+     (4) Payments the owner makes are recorded, never guessed: two new Personal expense roles `tax_paid_final`
+     ("Setoran PPh Final UMKM") and `tax_paid_installment` ("Setoran PPh 25 (Angsuran)"), both on new account 6060
+     `PERSONAL_INCOME_TAX_PAID`, provisioned for every Personal entity (existing ones too). They are NOT business costs,
+     so net income is unchanged; `personal_tax_summary` returns `payments{final, installment, installment_months}`.
+     Each balance is computed on its own (progressive tax - credit - instalments paid; final tax - final paid) and the
+     total to pay adds only positive balances: an overpayment of one tax is never netted against the other.
+     Migration `20261014100000_p44_personal_tax_payments.sql`, test `99_p44_personal_tax_payments.sql`; guide,
+     flow diagram and PDF updated.
+
+367. **Purchase line tax cards back to three compact equal cards (owner complaint, 9 October 2026).**
+     An obsolete rule `.plan-lines-tax-fields label { flex: 1 1 14rem }` from the older layout still matched labels inside the new
+     card grid, so the tick-box row grew to 14rem tall and the cards stretched to about 320px, and it also overrode the card
+     font and colour. Removed it; "Kena PPh?" and the invoice "Perlakuan PPN" field now use the same `plan-lines-tax-card` look.
+     Also corrected the menu name in the guide and the Personal tax screen: the menu is Pembelian > Beban, not "Biaya".
+
+368. **The page at /tax/personal is named by the kind of book (owner, 9 October 2026).**
+     In a Personal book the menu is "Pajak Pribadi" (the yearly income-tax estimate). In a company (PT) book it was wrongly
+     called "Pajak Pribadi" although it only shows the combined-turnover card; there it is now "Omzet Gabungan": the turnover of
+     all the owner's books against the Rp 4,8 miliar ceiling of PPh Final UMKM, with a note that personal income tax lives in the
+     Personal book. `NavItem.labelByEntityType` and `visibleNavigation(permissions, entityType)` do this; the Sidebar and the
+     Command Menu both read the relabelled list. Guide updated.
+
+369. **PPh 21 on fees to individuals who are not employees (builder decision, 9 October 2026, one merge with 370 if any).**
+     The owner asked the builder to settle tax rules from sources. PMK 168/2023 (read from the official text): Pasal 12 ayat (3)
+     the base for a non-employee is 50% of the gross; Pasal 16 ayat (3) the rate is the progressive rate of UU PPh Pasal 17 ayat (1)
+     huruf a applied to that base, for each tax period and no longer accumulated over the year (the old continuing / non-continuing
+     distinction of PMK 252/2008 and PER-16/PJ/2016 is gone). No PTKP is deducted by the withholder. A payee without a tax number: rate x 1,2
+     (UU PPh Pasal 21 ayat 5a; an individual with a valid NIK counts as having one, so the existing "has a tax number" fact is used).
+     New withholding object `wht_pph21_non_employee` (catalogue entry), new rule `PPH21_NON_EMPLOYEE` v1 (the layers are read from
+     `PERSONAL_INCOME_TARIFF`, not repeated), `PPH26_RATE_20` v2 adds the object (a non-resident individual is article 26), and the
+     determination function `tax_eval_wht` learns the fourth tax (type `wht_pph21`, shared with payroll: same ledger, payment, filing,
+     reconciliation and 15th / 20th deadlines). A company payee goes to review (it is a PPh 23 matter). Migration
+     `20261015100000_p45_pph21_non_employee.sql`, test `99_p45_pph21_non_employee.sql`.
+     Limit, stated in the guide: the layers are applied to each document, not to the sum of one payee's payments in the same month, because
+     the engine determines one document at a time; a payee paid several times a month may be under-withheld at the higher layers.
+     Not modelled: Bupot 21/26 export, the NIK check against the tax office, PPh 21 for continuing foreign experts.
+
+370. **"Penyesuaian Lanjutan" can no longer book income (owner question, 9 October 2026).**
+     The owner added Rp 5.000.000 through the balance adjustment against revenue account 4100 and saw no tax change. The
+     adjustment is a plain journal; the tax base (PPh Final UMKM turnover, "Omzet Gabungan", the personal-tax summary) is built
+     from issued invoices, marketplace settlements and recorded income (Catat Pendapatan), never from a free journal, so income
+     booked there reached the books but never the tax. Decision: an adjustment may not touch an account of class revenue,
+     contra_revenue or other_income, in either direction. `record_balance_adjustment` refuses it (migration
+     `20261016100000_p46_adjustment_not_income.sql`, patched in place), the form no longer offers those accounts
+     (`eligibleCounterAccounts`) and says to use Penjualan > Catat Pendapatan, which makes the same journal and also reaches the
+     tax. Expense and other-expense accounts (bank fee, FX loss) stay allowed. Already-booked adjustments are left as they are
+     (the one on prod is test data, to be cleared with the planned test-data reset). Guide and PDF updated.
+
+371. **Asset categories for the expense form, and "Tambah kategori baru" saves again (owner, 9 October 2026).**
+     (a) On an expense line the Perlakuan "Aset" and "Dibayar di muka" only offer categories of kind `asset` (the database
+     requires it, `purchase_prepare_lines`), and no Entity had any: only expense and revenue categories were ever provisioned, so
+     buying a phone showed "Belum ada kategori". Migration `20261016110000_p47_asset_categories.sql` adds
+     `provision_asset_categories`: for a company 26 fixed-asset categories (laptop, smartphone, printer, storage, telephone / router
+     / CCTV, studio gear, production machines, shop / kitchen, tools, AC / genset, office equipment, furniture, the four vehicle
+     classes, land, permanent and non-permanent buildings, rented-building renovation, installations, construction in progress,
+     leasing, plantations, art, other) each posting to its fixed-asset account (found by account code), and 9 prepaid / deposit ones
+     (names start with "Dibayar di Muka", "Deposit" or "Uang Muka") posting to 1300 / 1310; for a Personal book 8. Existing
+     Entities receive them now, new ones through `provision_default_coa` (patched in place). Intangibles (software, website) are
+     not offered: the purchase rules only accept fixed-asset accounts for "Aset".
+     (b) "Simpan & Gunakan" in the add-a-category panel did nothing on the expense form: the panel sat inside the expense form, and
+     that form handles its own `onSubmit` (usePreservingForm), so it took the click. The panel is now drawn on the page body and stops
+     its own submit from reaching any outer form.
+
+372. **"← Kembali ke ..." returns to the page the person was on before (owner, 9 October 2026).**
+     Complaint: opening an invoice from Aktivitas Terbaru and going back landed in the Invoice menu. The browser's own Back button
+     was already right (checked live: Aktivitas Terbaru -> invoice -> Back = Aktivitas Terbaru); the culprit was the fixed
+     "Kembali ke daftar invoice" link on record pages, which always opened the list. All such links are now `BackLink`: the shell
+     remembers the page visited before the current one (`PathMemoryTracker`, `createPathMemory`), and a plain click takes the
+     browser's history step back to it. It falls back to the fixed list (still its `href`) when there is no previous page (opened
+     directly, bookmark, reload), when the previous page is the same page, or when it is a `/new` or `/edit` form (so saving a
+     record and pressing "Kembali" lands on the list, not on the form that was just saved). Modified clicks (new tab) keep the
+     normal link. Rule in `backNavigation.ts`, unit-tested. Guide updated.
+
+373. **Green for money in, red for money out; the loan card; rate changes (owner, 9 October 2026).**
+     (a) Direction of money is coloured with the theme tokens `--success` / `--danger` (`.amt-in`, `.amt-out`; `.stmt-in/out`
+     now use them too, so dark mode works): movements of an account and the cash activity list, Rekening Koran, customer payments
+     (in), vendor payments (out), the Arus Kas totals by sign, and Aktivitas Terbaru (payments carry "+" / "−", invoices stay
+     neutral). Balances, totals, Laba Rugi and Neraca stay neutral; a negative balance stays red. Meaning is never colour alone
+     (column headers, "+" / "−", the amount's own minus sign).
+     (b) A loan is not "Utang Usaha" (that card is vendor bills only): the Dashboard gets a "Pinjaman" card with the principal still
+     owed on active borrowed loans (and what is overdue), shown only when there is one and the viewer holds `loans.view`.
+     (c) Fixed-then-floating interest is already possible with "Restrukturisasi Jadwal" (new rate, effective date, remaining
+     instalments, recalculated from the remaining principal); the form and the guide now say so. The annuity formula is the
+     standard PMT; no change.
+
+374. **Bunga Berjenjang: later interest rates on a loan, and Ubah Bunga (owner, 9 October 2026).**
+     (a) A loan can be made with an opening rate and up to 20 later rates, each from a date (for example 6% fixed, then 10% from
+     the fourth year). An instalment uses the rate in force on its due date; an annuity's payment is recomputed from the
+     remaining balance and remaining instalments whenever the rate changes; flat and interest-only use the rate of each period.
+     Stored on the schedule version (`loan_schedule_versions.rate_steps`), shown as "Bunga Berikutnya" on the loan.
+     (b) "Ubah Bunga" on a running loan (`loan_change_rate`): a new rate from a date, which may lie in the future. Instalments due
+     before that date keep their amounts (what is unpaid on them is carried over); the instalments from that date are
+     recalculated from the remaining principal over the same number of instalments, so the term and the due dates do not
+     change. The old schedule stays as history and, as with a restructuring, payments made under it can no longer be reversed
+     afterwards; the form says so. A manual schedule cannot change its rate this way (Restrukturisasi Jadwal replaces it).
+     (c) Restrukturisasi Jadwal can carry later rates too, and its text now says it is for a loan that is hard to pay; a
+     change of rate alone uses Ubah Bunga.
+     (d) Bug fixed: Restrukturisasi Jadwal sent no effective date (the form's field is "date", the action read
+     "effective_date"), so it could never be saved.
+     Migration `20261017100000_p48_loan_rate_steps.sql`; tests in `98_p8_loans.sql` (374.1-374.15); guide updated. Rebuilt
+     in this session from the description of the same feature built in a session that could not send it; that copy is
+     superseded by this one.
+
+375. **Bunga Berjenjang entered by year instead of by date (owner, 9 October 2026).**
+     The owner asked that the later rates of a loan be entered as "mulai tahun ke-N" (e.g. a 10-year loan, a new rate
+     from year 4, another from year 7) rather than by picking dates. The form now asks "Mulai tahun ke-" (whole number,
+     2 to the loan term in years); year 1 starts at the first installment date, so year N starts at the installment
+     due (N - 1) x 12 months after it -- the same date `app_private.loan_plan` gives that installment. The server action
+     converts years to the dated steps the database already stores (decision 374, unchanged), and refuses year 1,
+     years not strictly rising, years past the term and a missing first installment date. Restrukturisasi counts years
+     from the new schedule's first installment date. Ubah Bunga on a running loan keeps its date ("berlaku mulai"),
+     because it records a real change on a known day. No database change. `src/domain/financing/financing.ts`
+     (`rateStepsFromYears`, unit-tested), `financingActions.ts`, `FinancingForms.tsx`; guide, diagrams and PDF updated.
+
+376. **Paying a loan: instalments from the schedule, partial early repayment, no note for ordinary interest, phones as
+     Group 1, clearer amount label (owner, 9 October 2026).**
+     (a) The owner found that "Bayar Cicilan" asked for principal and interest by hand and refused an ordinary
+     instalment without a note ("Bunga atau biaya memerlukan catatan"). The form now offers "Cicilan sesuai jadwal":
+     choose how many instalments (1, 2, ...), the amounts are taken from the schedule by the new
+     `loan_pay_installments` (arrears first; what is part paid counts only for what is left), with a live preview. The
+     older typed form stays as "Jumlah lain (isi sendiri)" for what the schedule does not cover.
+     (b) A note is required only for a fee or penalty that is not on the schedule; interest never needs one
+     (`loan_repay` now delegates to `app_private.loan_repay_core`). Interest is still flagged `needs_review` for tax
+     (decision 106). Interest and fee on Piutang Lain / Utang Lain (`obligation_settle`) still ask for a note: not part of
+     this request, raised as a finding.
+     (c) "Pelunasan dipercepat" (`loan_prepay`): pays part of the principal; the payment belongs to no instalment (a null
+     allocation) and the schedule is recalculated from the balance into a new version, either shortening the term (the
+     instalment stays about the same, the last one is smaller) or lowering the instalment (same term). Overdue and part
+     paid instalments carry over; paid ones are left out; later rate steps still apply. Paying the whole principal closes
+     the loan with no new version. A manual schedule is refused (use Restrukturisasi Jadwal). No step-up, because it is a
+     payment; like Ubah Bunga it makes earlier payments history, so a prepayment cannot be reversed afterwards
+     (decision 374).
+     (d) Name keywords iphone, ipad, tablet, smartphone, handphone, hp, ponsel, telepon now suggest fiscal Group 1
+     (with laptops and computers); the "Smartphone & Gadget" asset category already existed.
+     (e) The amount column of the Beban and Tagihan lines is "Nominal (Rp)", with a hint that it is the total price and
+     that the quantity needs "Rinci per barang" (an owner typed 1 for an iPhone, which recorded Rp 1).
+     Migration `20261018100000_p49_loan_payments.sql`; tests 376.1-376.14 in `98_p8_loans.sql`, unit tests for
+     `sumNextInstallments`, `unpaidInstallments` and the phone keywords; guide, diagrams and PDF updated.
+377. **Loan screens tidy-up and the note rule on Piutang Lain / Utang Lain (follow-up to 376, found while testing on
+     production).** (a) A command form on a loan's Detail screen closes after it saves, so it opens fresh next time
+     (before, the old amounts stayed and the mode snapped back); only one command form is open at a time (before, Bayar
+     Cicilan and Ubah Bunga stacked). (b) Instalments fully paid under an earlier schedule version (after a partial early
+     repayment, a rate change or a restructuring) are shown in Jadwal Cicilan as "Lunas (jadwal lama)", so the schedule
+     stays complete. (c) Settling a Piutang Lain / Utang Lain no longer needs a note for ordinary interest, the same as
+     loans (decision 376); only a fee or penalty still needs one. Migration `20261019100000_p50_obligation_interest_note.sql`
+     (the function body is otherwise unchanged); test 97_p8_obligations updated.
+378. **Payroll calculation when an employee has no tax profile (found while testing on production).** Calculating a run
+     for an employee with no tax data failed with a misleading "reason of at least 5 letters" message, because a JSON
+     null (not SQL null) reached the PPh 21 step. The engine now treats a missing or JSON-null tax block as missing tax
+     facts: the line is flagged `tax_facts_missing` and PPh 21 is 0 until the data is filled in. The Hitung Payroll
+     screen also shows its own error ("check the employee data: salary, tax, BPJS") instead of the generic one.
+     Migration `20261019110000_p51_payroll_missing_tax_data.sql` (`payroll_compute_line`, search_path pinned); test in
+     `99_p9_2_engine.sql`.
+379. **Employee screens rebuilt: one page per area, a component editor with presets, a BPJS package choice (OWNER request,
+     9 October 2026; no change to economic or tax meaning).** (a) The employee page was one long page of buttons that
+     opened forms. It is now a profile header with tabs, each tab its own address: Ringkasan (with a "what is still
+     missing" list linking to the area), Gaji & Komponen, Pajak, BPJS and Pekerjaan (job history, personal data,
+     leaving). The tabs follow the same permissions as before (`payroll.compensation_view`, `payroll.tax_view`; edit
+     forms need `payroll.employee_edit` / `payroll.compensation_edit`). (b) Salary components: the name is picked from
+     a list (Gaji Pokok, tunjangan jabatan/keluarga/transport/makan/komunikasi, lembur, bonus, potongan pinjaman,
+     kasbon, absensi, lainnya) or typed freely; the code is made from the name (`componentCode`, always inside the
+     database pattern, numbered if two rows would clash, and an existing component keeps its saved code); a preset
+     fills the kind and the two flags (fixed allowances count for the BPJS wage, irregular ones do not, a deduction
+     does not lower the PPh 21 base); a running total is shown. The fields posted to `employee_set_compensation` are
+     unchanged. (c) BPJS: one package is chosen (Lengkap, Hanya Kesehatan, Hanya Ketenagakerjaan, Tidak ikut) instead
+     of five "no change / yes / no" choices; "Lengkap" is preselected when nothing is recorded yet and JKK risk
+     level 1 is preselected (changeable). The posted fields to `employee_set_bpjs` are unchanged. (d) Saldo Awal
+     Pajak is offered only for someone who may have been paid before this app (from February, joined before this
+     month), with a worked example and "Sampai Bulan" prefilled with last month. No migration; unit tests in
+     `compensationPresets.test.ts`; the guide is updated to the new pages.
+380. **Two findings from the production run of the loan and tax screens, fixed as presentation only (OWNER
+     request, 9 October 2026; no change to economic or tax meaning).** (a) `/tax/filing`'s "Catat Pembayaran"
+     printed the outstanding amount as the raw database decimal ("150537.0000") because the hint used the string
+     straight from `tax_position`; it now goes through `formatMoney` with the Entity's own currency, the same as
+     the summary above it, and so does the VAT input-tax line next to it. (b) Restrukturisasi Jadwal opened with
+     "Bunga per Tahun" at 0 and the calculation method at Anuitas regardless of the loan, so a restructure that
+     was only meant to change the term silently dropped the rate to 0 unless it was retyped. Both fields now open
+     on the active schedule's own rate (trailing zeros trimmed: "12.0000" shows as "12") and its own method; a
+     `manual` schedule still opens on Anuitas, because Restrukturisasi always writes a generated schedule. The
+     RPC contracts (`tax_record_payment`, `loan_restructure`) are unchanged -- only the prefilled values are.
+     No migration.
+381. **A deduction lowers the PPh 21 base only when it is marked taxable (OWNER, 9 October 2026; this DOES change
+     tax meaning, and was asked and answered before it was built).** The engine took every "potongan" off both
+     take-home pay and the month's taxable income (`v_taxable := ... - v_red - v_adj_red`), so a loan instalment or
+     a kasbon repayment lowered the PPh 21 due. That is wrong for PPh 21: the employee received the income in full
+     and is paying back their own debt out of it, so nothing has been reduced for tax. An unpaid absence is the
+     opposite -- the income was never earned -- and must still lower the base. The component's own `taxable` flag,
+     which until now the engine read for earnings only, decides it for deductions too: true means less income
+     (Potongan Absensi), false means take-home only (Potongan Pinjaman Karyawan, Potongan Kasbon, Potongan
+     Lainnya). The same rule applies to one-off adjustments, whose `payroll_adjustment_add(..., p_taxable)` already
+     carries the flag and still defaults to true. Gross pay, net pay and the BPJS wage base are unchanged, and no
+     RPC signature changes. Migration `20261020100000_p52_deduction_tax_base.sql` (`payroll_compute_line`,
+     search_path pinned); the preset for Potongan Absensi flips to `taxable: true`; the editor already labels the
+     flag "Mengurangi dasar PPh 21" on a deduction row and now says in one line when to tick it; tests in
+     `99_p9_2_engine.sql` and `compensationPresets.test.ts`; the payroll guide is updated. Components saved before
+     this migration keep the flag they were stored with (the old form defaulted a deduction to taxable), so a
+     deduction entered earlier should be re-checked on the Gaji & Komponen page.
+382. **The payslip is a sheet, not a screen of tables (OWNER, 9 October 2026; presentation only, no figure is
+     recomputed).** The payslip will be printed and emailed to employees, so Payslip Detail is now the sheet
+     itself (`PayslipDocument.tsx`) on the same document canvas the invoice and receipt already use
+     (`.doc-page`, `.no-print`, the print stylesheet), with the company letterhead on top and a print button
+     beside it. It is laid out around the single line a payslip has to make obvious, which is what the OWNER
+     asked for: **Penghasilan Bruto − Potongan = Gaji Dibawa Pulang**. The Potongan column is split under
+     headings, which decision 381 is what makes meaningful: the potongan that is really less income and so
+     lowers the PPh 21 base, the employee's own BPJS and PPh 21, and the potongan that lowers take-home pay
+     only. A "Dasar Perhitungan PPh 21" block then shows that base built up from the lines above it, so the
+     tax can be followed by eye on the printed page. Everything is read from the issued snapshot; the two
+     sums the view makes itself are checked against the snapshot's `net_pay`, and a sheet that does not add
+     up says so rather than printing a number that was not paid. The run number, the amount actually paid
+     out and the tax method move to a "Catatan internal" section marked `no-print`, so the employee's copy
+     carries none of it. Without `payroll.tax_view` the snapshot has no `tax` key (decision 180) and the
+     sheet prints no tax figure at all, not even one derived from gross and net. New
+     `getEntityLetterhead(entityId)` reads the Entity name, address, contact and logo in one pass, instead of
+     `getEntitySettingsOverview`'s five queries for a page that needs none of the rest. No migration.
+383. **Gaji & Komponen says each thing once (OWNER, 9 October 2026; presentation only).** The page showed the
+     components twice: a read-only table of what is in effect, then an editor already pre-filled with those
+     same components, their amounts and their flags. The only fact the table carried that the editor did not
+     was when each component started, so that moved onto the editor's own row ("Berlaku sejak 9 Okt 2026 ·
+     gaji_pokok", in place of the bare "Kode: gaji_pokok"), and the table now appears only for someone who may
+     see pay but not edit it -- for whom it is the whole page. The running totals at the top of the page went
+     with it: the editor's own totals are the live ones and were saying the same thing a second time. (b) The
+     twelve preset chips are split under "Tambah penghasilan" and "Tambah potongan", which halves how heavy the
+     block reads and is also the shortest way to teach the distinction decision 381 rests on; "Ketik nama
+     sendiri" is now a dashed chip among them rather than a button of its own below. (c) The note about which
+     potongan lowers the PPh 21 base appears only once a potongan is actually on the form. (d) In the totals,
+     "Gaji sebelum BPJS dan PPh 21" is the one figure set in a larger size; the two lines above it stay quiet.
+     No change to what is posted (`employee_set_compensation` and its `label_i`/`component_i`/`kind_i`/
+     `amount_i`/`taxable_i`/`bpjs_base_i`/`row_count` fields are untouched) and no migration.
+384. **Air under a section's opening line (OWNER, 9 October 2026; presentation only).** On every employee tab
+     the sentence explaining the page sat flush against whatever came next -- on Gaji & Komponen the "Berlaku
+     mulai" field looked like a line of that sentence. `.dashboard-section` deliberately spaces none of its
+     children and `.hint` carries no margin, so the description `EmployeeShell` renders now also takes
+     `.emp-lead` (one 24px bottom margin). It applies to all five tabs at once rather than to this one page.
+385. **NIK recorded beside NPWP, and asked for when the employee is added (OWNER, 9 October 2026; no change to
+     how PPh 21 is computed).** The tax profile held one identifier, `tax_id`, which is the right input for
+     PPh 21: what is reported is the NPWP when there is one and the NIK when there is not. But an employer
+     needs both on file -- BPJS registration asks for the NIK, and someone who registered an NPWP before the
+     2024 NIK integration has two different numbers -- so a form that asks for both and keeps one would throw
+     away what was typed. `employee_tax_profiles.national_id` (16 digits, nullable) now holds the NIK.
+     It is identity, never arithmetic: nothing in the payroll engine, the PPh 21 computation or any report
+     reads it, and `tax_id` alone remains the tax identifier. It is masked on read exactly as `tax_id` is
+     (`national_id_masked`, last four digits), the full number still only through `employee_tax_identifier`'s
+     step-up, and it joins `tax_id` in the audit trigger's redaction list -- the P9 invariant test caught that
+     omission before it shipped. `employee_set_tax_profile` takes one more optional trailing argument
+     (`p_national_id`); the old eight-argument form is dropped so there is no overload to resolve. On Tambah
+     Karyawan both numbers are optional fields; filling either writes the tax profile from the join date with
+     `tax_id_status = has_tax_id` and `ptkp_status = unknown`, so payroll still flags the line until someone
+     sets PTKP on the Pajak tab, and a failure there leaves the employee created and says so in the flash
+     rather than pretending. Migration `20261021100000_p53_employee_national_id.sql`; tests in
+     `99_p9_1_employees.sql`.
+
+386. **A potongan can be typed too (OWNER, 9 October 2026; presentation only).** Decision 383 grouped the
+     preset chips and put "Ketik nama sendiri" with the penghasilan ones only, so a potongan with a name of
+     the OWNER's own choosing had no one-click route. Each group now has its own, and the row it adds takes
+     that group's kind: a typed potongan starts outside the PPh 21 base, which is right for the common ones
+     and one tick away for an absence (decision 381). The chips block also no longer disappears once every
+     preset in a group is already on the form.
+387. **One employee per row of a payroll run, read top to bottom (OWNER, 9 October 2026; presentation only).**
+     The Baris Gaji Karyawan cell ran "EMP-2026-0001 — UJI COBA Karyawan" straight into the review badges and
+     then into a paragraph of flag text, so a run of three people read as a wall. The cell is now a small
+     code line, the name in its own weight, the review badges, and the informational note last and quiet. The
+     two part-month notes are also cut to one short clause each ("Mulai bekerja di tengah bulan; gaji belum
+     diprorata."), because decision 388 now offers the figure itself instead of telling the reader what to do.
+
+388. **Pro-rata worked out for a part month, and filled into the adjustment (OWNER, 9 October 2026; the engine
+     is untouched).** The payroll rules deliberately pay a mid-month joiner or leaver a full month and flag
+     the line: what a part month is worth is an employment question, not an arithmetic one, so the locked
+     engine does not decide it. Tambah Penyesuaian now does the arithmetic instead. Choosing an employee whose
+     join or exit date falls inside the period shows the month's gross as calculated, the pro-rated gross and
+     the difference, and one button fills the form with a deduction for that difference, named "Prorata masa
+     kerja (17 dari 31 hari)". The split is by calendar days of the period, counting the first and last day
+     worked -- the measure a monthly-paid Indonesian contract normally uses, and the only one this app can
+     compute, holding no working calendar; the form says so and the amount stays editable. The deduction is
+     marked as lowering the PPh 21 base, which decision 381 makes meaningful and which is right here: this is
+     pay that was never earned, unlike a loan instalment. It goes through `payroll_adjustment_add` exactly as
+     a hand-typed adjustment does -- no migration, no new RPC, nothing recomputed. `prorataFor`
+     (`src/domain/payroll/prorata.ts`) does the arithmetic on the minor units, so the pro-rated part and the
+     deduction always add back up to the gross; the run page reads the employee register once more for the
+     dates, which the payroll lines do not carry, and offers nothing without `payroll.employee_view`.
+
+389. **The run summary reads in three tiers (OWNER, 9 October 2026; presentation only).** Sixteen equal-weight
+     items sat in one flat grid -- period, pay date, headcount, six money totals, two BPJS rows that each
+     wrapped onto three lines, the calculation revision and two journal links -- so nothing stood out and the
+     page looked scattered. Now: the month's three figures across the top (Gaji Bruto, Gaji Bersih, Sudah
+     Dibayar, the last in the success colour once it matches), then three small groups under them (what comes
+     off the employee, the tax, what the company owes each BPJS body), then one quiet line carrying the dates,
+     the headcount, the calculation revision and the journal links. A BPJS body's row says "lunas" or "belum
+     dibayar" rather than printing a second full amount, which is what made those two rows wrap. Every figure
+     and every link that was there is still there; `tax_view` masking (decision 180) is unchanged.
+
+390. **PTKP explained where it is chosen (OWNER, 9 October 2026; no change to the computation).** The Pajak
+     tab asked for a PTKP status with no hint of what the eight codes mean, and the OWNER could not tell which
+     to pick. One line above the field now says it: the letter is the marital status, the number is the count
+     of dependants (maximum three), it is judged as at 1 January of the tax year, only straight-line relatives
+     who are fully supported and have no income of their own count (so not siblings, nephews or in-laws, even
+     when they are on the Kartu Keluarga), and a married woman is normally TK/0 unless she holds a statement
+     that her husband has no income. The amounts themselves were already versioned rules in the database.
+391. **The Entity says once which of its names its documents carry (OWNER, 9 October 2026; presentation
+     only).** An invoice already led with the legal name and put the brand under it (decision 272), but the
+     payslip took whichever name was set and preferred the brand, so a PT's payslip -- a tax document -- could
+     go out under a trading name. Rather than hard-code the rule per document, the Entity now answers it once
+     in Pengaturan: `legal` (the legal name alone), `brand` (the brand alone), or `both` (the legal name with
+     the brand under it, the behaviour so far and the default). Each choice shows what it would actually print
+     using this Entity's own names. Setting key `document.name_style`, written by
+     `set_document_name_style` under `system.entity_config` and a recent step-up, the same shape as
+     `set_negative_balance_block` (decision 55); migration `20261022100000_p54_document_name_style.sql`.
+     Nothing about an amount, a tax or an authorization depends on it.
+
+392. **An unposted payroll run no longer breaks the whole Payroll report (OWNER report, 10 October 2026).**
+     `/reports?statement=payroll_summary` showed "Terjadi masalah saat memuat halaman ini." as soon as the
+     Entity had a run that was not posted yet. `payroll_summary_report` works out `net_unpaid`,
+     `bpjs_unpaid` and `pph21_period_outstanding` only for a run that is posted/partially paid/paid/closed and
+     returns null otherwise -- nothing is owed yet -- but the client schema declared the first two as plain
+     text, so zod rejected the row and the page errored out. They are nullable now and the report prints "—",
+     which is the truth: not zero, not yet owed. The RPC is unchanged; this was never a database fault.
+
+393. **"Aset & Pinjaman" in Laporan becomes two items (OWNER report, 10 October 2026).** One nav item of that
+     name opened Kontrol Aset Tetap alone (decision 244's own choice), so the one thing its name promised and
+     this company actually has -- a bank loan -- was nowhere on the page it opened, and the guide had to carry
+     a step explaining that the menu does not show loans. It is now **Pinjaman** (Ringkasan Pinjaman) and
+     **Aset Tetap** (Kontrol Aset Tetap): each lands on the report it is named after. `/reports/assets-loans`
+     is replaced by `/reports/loans` and `/reports/assets`.
+394. **PTKP is the whole year's, however many months were worked (OWNER, 10 October 2026, after checking the
+     regulation; this changes the tax every mid-year joiner and leaver pays).** The seeded rule
+     `PPH21_ANNUAL` version 1 carried `"ptkp_proration":"months_worked"`, so the December recalculation gave
+     an employee who started in October only 3/12 of their PTKP. The OWNER asked for the source to be checked
+     before anything was changed, and it does not support that: PER-16/PJ/2016 Lampiran example I.6.1.1
+     (Suwondo, a permanent employee starting 1 September) counts only the income of the months worked but
+     applies the **full annual PTKP** (Rp 58,500,000 for K/0), and PMK 168/2023 changed how the monthly
+     withholding is found (TER) without touching that. Only biaya jabatan follows the months worked, through
+     its Rp 500,000 per-month cap. Prorating the PTKP inflates the taxable income, so the employer withholds
+     more from the employee than the law asks and over-pays the state: on this Entity's own figures, an
+     employee joining in October on Rp 8,463,320 a month was taxed Rp 531,000 for 2026 where the answer is
+     Rp 0. A published rule version is never edited (Step 05 §15), so the fix is a new published version 2,
+     identical but for that key, dated 2024-01-02 the way decision 303's TER correction was. No code changed:
+     `pph21_annual` already read the parameter and already accepted `full_year`. Migration
+     `20261023100000_p55_ptkp_full_year.sql`. The P9 engine test asserted the old behaviour in so many words
+     ("A: PTKP is prorated to the months worked") and now asserts the new one; `99_p9_4_controls.sql` gains a
+     check against the published rule itself, so a later version that reintroduced the proration fails the
+     suite rather than quietly overcharging every mid-year joiner. Nothing posted used version 1.
+395. **The Picker, named and used in Perencanaan (OWNER, 10 October 2026).** The OWNER asked for one name for
+     the behaviour the customer/vendor field already had, so it can be asked for by name instead of described
+     each time: a field you click to see the whole list, type to narrow, pick with a click or Enter, with
+     "+ Tambah ... baru" as the last row. It is the **Picker**. `src/features/shared/Picker.tsx` is that name
+     made real -- a thin generic wrapper over `ContactPicker`, which is where the behaviour grew and where the
+     implementation still lives; twenty-odd screens already call `ContactPicker`, so inverting the two is a
+     tidy-up to do on its own rather than inside a feature. (a) Anggaran's line editor picks its category with
+     a Picker instead of a dropdown; categories already used on another row stay out, the rule the dropdown
+     followed. (b) The **Nama** of a Budget or Revenue Target is not an account and has no register to pick
+     from, but an empty box still asks the person to invent a wording, so it offers suggestions with the same
+     behaviour (`SuggestTextInput`, which decision 2xx already built for expense recipients): the names this
+     Entity used before first, then the shapes that follow from the period type and the year, and anything
+     else can still be typed. Revenue Target's own line editor carries no category yet -- Step 01 #23 names
+     none -- which decision 396 changes; Perkiraan's two dropdowns are short fixed lists and keep them.
+396. **PPh 21 over-withheld over the year goes back to the employee in the December payroll (OWNER,
+     10 October 2026; this changes what the tax ledger carries and what employees are paid).** The December
+     recalculation already found the figure -- the year's tax against what was withheld month by month -- and
+     reported anything negative as `tax_overwithheld` before dropping it (`greatest(v_due, 0)`), leaving the
+     employee to reclaim it in their own annual return. Under PPh 21 the excess is the employer's to return,
+     handed over with the bukti potong. Decision 394 makes it more common, not less: a mid-year joiner now
+     gets the whole year's PTKP, so their annual tax is often nil while TER has taken a slice every month.
+     The OWNER asked for it to be automatic so employees are not put to any trouble.
+     It is carried as its own figure, not as a negative PPh 21: `pph21` stays what was withheld this month
+     (zero in a month that only refunds), so `tax_allowance <= pph21` and everything that reads the tax as an
+     amount owed keep their meaning, and the tax layer is never handed a negative total to interpret. The new
+     `payroll_run_lines.tax_refund` / `payroll_runs.tax_refund_total` carry the money going back. Net pay
+     rises by it; the journal books Tax Payables **net** of it, so a month of refunds debits that account
+     instead of crediting it, which is what returning withheld tax does to the liability; the determination
+     and the tax ledger carry the same net figure, so the month's PPh 21 -- and the SPT Masa built from it --
+     is already after the refund; the payslip shows it under "Dikembalikan ke Anda", in the earnings column,
+     because it is money coming to the employee. `payroll_run_differences` checks the netted figure against
+     the journal and the determination, and gains a check that the lines' refunds add up to the run's.
+     Migration `20261024100000_p56_pph21_refund.sql` (six functions replaced; `payroll_run_lines` is dropped
+     and recreated because its row gains a column). The P9 engine test asserted the old behaviour in so many
+     words ("H: over-withholding is reported, not refunded through payroll") and now asserts the refund and
+     the larger net pay.
+397. **The annual withholding certificate, Bukti Potong 1721-A1 (OWNER, 10 October 2026).** The payslip
+     answers one month; the employee also needs the year's statement to file their own SPT Tahunan by
+     31 March. The OWNER asked for the document and chose the 1721-A1 form, and asked where it should live:
+     it sits in **Payroll → Pajak & Kewajiban Payroll**, one row per employee for the chosen tax year with a
+     printable sheet per employee, rather than on each employee's own page -- the person issuing them does it
+     for everyone at once, in the same place they already read the annual reconciliation.
+     Nothing on the certificate is computed afresh: `payroll_withholding_certificate` reads the year's posted
+     payroll lines plus any `employee_tax_openings`, combines them exactly as the December payroll's own
+     year-to-date does (openings for the months they cover, posted lines for the months after), and runs them
+     through the same `app_private.pph21_annual` the December payslip used -- so the certificate and the last
+     payslip cannot disagree. A refund handed back in December (decision 396) is subtracted from what was
+     withheld, and the sheet states **PPh 21 yang ditanggung karyawan**, which is the figure the employee's
+     own return needs. An employee whose PTKP status or NPWP is not recorded comes back as `incomplete` with
+     the five computed figures null, rather than a guessed form.
+     The full NPWP is on the sheet, because the form is not usable without it, and is the one field behind a
+     recent step-up (Step 06 #8). Unlike `employee_tax_identifier`, which refuses outright, the certificate
+     returns the identifier as null and every other figure as normal, so the list shows who is ready to issue
+     before anyone is asked to verify again. The sheet reuses the payslip's `.slip` / `.doc-page` / `.no-print`
+     furniture, so the two print alike and no new styling was needed.
+     Migration `20261025100000_p57_bukti_potong.sql`; `payroll.tax_view` required, as the annual
+     reconciliation already is.
+398. **Catat Pelaporan fills in the three amounts itself, and says where No. Tanda Terima comes from (OWNER,
+     10 October 2026).** The OWNER asked what "No. Tanda Terima" and "Dasar Pengenaan" should be filled with
+     and whether it could be automatic. Two different answers. The amounts can be and now are: the form opens
+     with the masa's own figures from this Entity's books -- `base`, `accrued_payable` and, for PPN,
+     `accrued_asset`, the same ones the position summary above the form already shows -- so the normal case is
+     to glance and submit rather than work them out and retype them, which is where a digit goes wrong. They
+     stay editable on purpose: what is recorded here is what the SPT actually said, and a difference between
+     that and the books is exactly what Rekonsiliasi Masa below exists to surface -- typing the books' figure
+     over it would hide it.
+     No. Tanda Terima cannot be automatic: it is the NTTE on the Bukti Penerimaan Elektronik that DJP Online
+     issues when the SPT is submitted, so it is only knowable after filing, outside this system. The field now
+     says so instead of leaving the person guessing.
+399. **A Revenue Target may be split per revenue category (OWNER, 10 October 2026, who asked for it and for a
+     recommendation).** A Budget has carried a category since P10 (Step 01 #22); a Revenue Target carried only
+     a month, so the screen could say the month missed its target and nothing about which line of business
+     missed it. Step 01 #23 names no dimension, so the dimension is added rather than assumed and the category
+     is OPTIONAL: a line with no category is the Entity's whole revenue, which is what every existing target
+     already means, so nothing already written changes. A target can now be the Entity total, one line per
+     revenue category, or both.
+     The parts are deliberately not forced to add up to the total, and the report does not add them together:
+     they are two different sums. The Entity row is measured against `invoices.base_total`, the amount booked
+     at issue; a category row against the issued invoice LINES carrying that category (`base_amount` less
+     `base_discount_amount`), which excludes tax and anything booked outside an invoice line. A plan that
+     covers two product lines out of five is a normal thing to write. Open AR and the 3-month forecast stay on
+     the Entity row: a receivable is owed on a document, not on a category, and splitting either across lines
+     would invent a figure.
+     Only a revenue category is accepted, and only this Entity's own. The line cap rises from 120 to 1200,
+     since a target may now carry a line per category per month. Migration
+     `20261026100000_p58_revenue_target_category.sql`; the flat month list becomes the same grid Anggaran uses,
+     with the Entity total as a fixed first row and category rows added under it through the Picker.
+400. **THR Keagamaan is worked out and offered, not typed (OWNER, 10 October 2026).** The OWNER asked for the
+     automatic calculation to cover "gajinya jika mereka kerja dari tengah bulan, atau tengah tahun untuk
+     pembayaran THR". The mid-month half is decision 388; this is the THR half.
+     Permenaker 6/2016: at least one continuous month of service earns it (Pasal 2); twelve months or more is
+     one month's wage, one to eleven months is proportional at months/12 (Pasal 3(1)); and for a monthly-paid
+     worker the wage is gaji pokok plus tunjangan tetap (Pasal 3(2)) -- not gross pay, so the figure is taken
+     from the line's own `bpjs_wage_base`, which is that exact sum, rather than `gross_pay` which would
+     wrongly include overtime and tunjangan tidak tetap. Masa kerja is counted in whole completed months, as
+     the regulation counts it.
+     Like the pro-rata offer it only computes: the Tambah Penyesuaian form shows one month's wage and what is
+     owed, and fills in a taxable earning adjustment that then goes through `payroll_adjustment_add` like any
+     hand-typed one -- so a company paying more than the regulation requires just edits the amount. It is
+     offered on every run rather than only before a holiday, because which month THR is paid in is the
+     company's own decision and the figure is the same either way. THR is taxable; the month's TER picks it up
+     with the rest of the gross once the adjustment is on the line (PMK 168/2023), so no tax rule changed.
+     `src/domain/payroll/thr.ts` with its own tests; no migration.
+401. **Attachment types can be renamed and taken out of use (finishing decision 340).** Decision 340 built
+     the per-Entity catalog of own attachment types and said plainly that "rename and deactivate are not
+     built yet", which left a typo in a type's name permanent and a type added by mistake in the dropdown for
+     good -- the only way out being a second, correctly named type sitting next to the wrong one.
+     `rename_document_purpose` and `set_document_purpose_active` close both (migration
+     `20261027100000_p59_document_purpose_manage.sql`). Both need `documents.upload`, the same right that
+     adds a type, on decision 340's own reasoning: a person who may attach a file may name what they are
+     attaching. The rename obeys the catalog's existing case-and-spacing-insensitive uniqueness, so a rename
+     onto another type's name is refused rather than silently merging two types that attachments already
+     point at separately.
+     Taking a type out of use deliberately does not touch the attachments already carrying it: a link stores
+     `custom:<id>`, `link_document` checks "active" only when the link is made, and the name still resolves
+     whatever the state -- so a past attachment keeps reading the way it was filed and only new attachments
+     stop being offered the type. Rewriting a document trail would be the wrong fix, which is also why a type
+     is never deleted. The manager sits under Pusat Dokumen and shows types out of use too, greyed, with a
+     way to put one back; the four built-in types are not listed, being the system's rather than the
+     Entity's. Test `99_p30_document_purposes.sql` section 4.
+     Also corrected in this slice: `docs/GO_LIVE.md` still said the Import Wizard and file attachments were
+     not built, which decision 275 had already done -- a stale line in the one document the OWNER follows at
+     cut-over.
+402. **A personal Entity is called "Pribadi" (OWNER, 11 October 2026, seen while setting production up).**
+     The Entity switch called the OWNER's own business **"Rumah Tangga"**. That label (decision 273) existed
+     to keep the household ledger of Step 03 from being mistaken for a personal business; the distinction
+     stopped holding when decision 365 put Pajak Pribadi -- the personal book's PPh Final 0,5% **and** the
+     progressive tax on service income -- behind `entity_type = 'personal'`. A person's business must now BE
+     a personal Entity, so the type no longer tells the two apart, and the label was calling a business a
+     household book. `entityLabel` and the consolidated-report type column now say "Pribadi"; a ledger whose
+     legal name starts with a legal form still shows that form ("PT", "CV"), which is what the OWNER asked
+     for in decision 273 ("ubah menjadi Pribadi & PT"). Display only, no migration.
+     Also corrected: `docs/GO_LIVE.md` listed `hikarich` as a business-type Entity, following decision 270
+     and never updated for decision 365 -- had it been followed as written, production would have gone live
+     with no progressive-tax calculation and no way to add one, since the type cannot be changed afterwards.
+     It now records the type, the reason, what it costs (payroll is company-only, and the employees belong
+     to the PT anyway), the exact SQL and the timezone decision.
+     **Wrong turn recorded, because it nearly shipped:** while writing this I also built a migration to make
+     `provision_default_coa` call `provision_personal_tax_categories`, believing a new personal Entity would
+     otherwise come up with no `personal_tax_role` on any category. It already calls it -- decision 365 wired
+     it in (`20261013100000` line 100); I had read only the backfill a few lines below and concluded it was
+     missing. The migration I wrote recreated `provision_default_coa` from the P15 body, which silently
+     dropped the `provision_income_categories` call decision 350 added in P37 -- a real regression for every
+     Entity created afterwards. `99_p15_5_default_categories.sql` failed on the company category count and
+     caught it. The migration was deleted, not patched. The lesson is the plain one: `create or replace` of a
+     function that several migrations have extended must start from the CURRENT definition, not from the
+     oldest one that happens to be easy to find.
+403. **The chart of accounts is picked, not scrolled (OWNER, 11 October 2026: "harusnya picker ya, bisa
+     diketik").** The account field was still a dropdown on every screen that reaches the chart of
+     accounts — the longest list in the app, 114 accounts for a company — so finding "3100 Modal Disetor"
+     meant scrolling past a hundred others. The Picker (decision 395) was already in use for customers,
+     vendors and categories; this extends it to accounts, on the four screens where the chart itself is
+     offered: Saldo Awal, Jurnal Manual, the counter account of Koreksi Saldo, and the category-to-account
+     mapping on Akuntansi → Kategori.
+     Two details worth recording, because they are losses, not just a swap. (a) Jurnal Manual's dropdown
+     grouped accounts under `optgroup` headings by kind; a Picker has no headings. The accounts keep the
+     order the page sorts them into (income, costs, …, system-protected last), so the open list reads the
+     same, and typing narrows it faster than scanning headings ever did — the page's own help line now
+     says that instead of describing the headings. (b) Saldo Awal's dropdown offered accounts it then
+     refused, greyed out with a hint saying why. A Picker cannot grey a row, so those accounts are left
+     out of the list entirely; the hint stays on the ones that remain. Offering something and refusing it
+     was never the better half of that trade.
+     The cash/bank fields stay dropdowns: those list the Entity's own handful of accounts, not the chart.
+     Display only — no RPC, schema or posting rule changes.
+404. **The Dashboard summarises a month, a year, or everything (OWNER, 11 October 2026).** It had one period
+     selector, a month, with arrows either side — so "how are we doing this year" and "what have we got
+     altogether" could not be asked at all, and a figure entered in September read as zero while the
+     Dashboard sat on October. `?scope=month|year|all` now chooses, `?month=` names which one ("YYYY-MM" for
+     a month, "YYYY" for a year, ignored for all), and three pills under the greeting switch between them.
+     The arrows disappear on "all", which has nothing before or after it rather than dead controls.
+     `resolveDashboardPeriod` grew a scope and every period now carries it; nothing else in the snapshot
+     changed, because every figure was already computed from `period.start`/`period.end` and those simply
+     widen. "All" runs from 1900 to the end of the current year: no book starts earlier, and the RPCs never
+     report a movement that has not happened, so a year-end bound shows nothing that is not there.
+405. **Penyesuaian Lanjutan lists what was recorded, and can undo one (OWNER, 11 October 2026: "harus punya
+     list apa saja yang telah di buat, dan harus punya hapus atau batalkan. karena bisa saja ada kesalahan
+     disitu").** The screen was a form and nothing else: an adjustment, once posted, could not be seen from
+     there again and could not be undone at all — on the one screen whose whole purpose is correcting
+     mistakes. Every other money command in P4 has a reversal; this was the one that did not.
+     Not a delete: `reverse_balance_adjustment` posts the opposite journal and the opposite movement and
+     keeps both, and the list shows the reversed row greyed rather than hiding it. **The reversal is dated
+     the original adjustment's own date**, not today — this is the point of the slice. Earlier the same day,
+     reversing a 23 September journal booked the reversal in October and put a cash outflow in a month where
+     nothing had moved; the Rekening Koran then showed money leaving in October that never left. If that
+     period is closed the posting engine refuses, which is the right answer, not a silent move into another
+     month. `balance_adjustment_list` needs only `money.view`; undoing needs `money.adjust`, the right that
+     makes one. Migration `20261029100000_p61_balance_adjustment_list_reverse.sql`.
+406. **Every field that chooses from a register is a Picker (OWNER, 11 October 2026: "semua yang model
+     begini harus dibuat picker").** Decision 403 did the chart of accounts; this extends the same treatment
+     to the cash/bank, contact, channel and document registers across the money, sales and purchase forms —
+     including the cash/bank fields 403 had deliberately left as dropdowns on the grounds that the list was
+     short. That reasoning was wrong in the OWNER's own terms: a person should not have to learn which
+     fields type and which do not. Dropdowns remain only where the choice is a fixed set the app defines —
+     direction, journal kind, status, document type — not a register that grows.
+     The sweep was finished the same day, so no screen is left behind: payroll (karyawan, penyesuaian,
+     rekening pembayar, pembayaran yang dibatalkan), pembiayaan (rekening, aset yang dibiayai, pembayaran,
+     pelunasan), aset (rekening penerimaan penjualan, bulan penyusutan, akun aset tetap pada Saldo Awal
+     Aset), pajak (akun pembayar), marketplace (toko dan rekening pencairan), klaim pembayaran (rekening
+     dan klaim duplikat), jenis lampiran -- which keeps "+ Tambah jenis lampiran" as the Picker's own add
+     row instead of a `__add__` option -- and the register filters on Aktivitas Kas & Bank, Rekening Koran,
+     Laporan (akun buku besar, dataset, aset), Perkiraan (anggaran) and Pendapatan Lain (jenis).
+     Three details worth recording. (a) A filter Picker is `optional`, so an empty field still means "all",
+     the way the blank first option did. (b) Laporan's account, dataset and asset fields had no blank option
+     and relied on the browser choosing the first row; they now name that first row as their own default, so
+     the report opens on the same thing it used to. (c) A Picker keeps its label beside the field rather than
+     wrapping it, so the red "field refused" state of Saldo Awal Aset had to reach one level further in --
+     `.record-form div.field-invalid` in `globals.css`. Display only: no RPC, schema or posting rule changed.
+
+407. **A `create table as` backup loses any column whose type is a domain in the schema being dropped
+     (found while running the reset, 11 October 2026).** Cara 3 in `docs/RESET_PRODUKSI.md`
+     copies the rows that must survive into `restore_tmp`, outside `public`, then drops `public` and
+     restores afterwards. `entities.base_currency` and `financial_accounts.currency` are of the domain
+     `public.currency_code`; `create table as select *` inherits that domain, so dropping `public` with
+     `cascade` dropped the domain and with it those two columns **inside the backup**. The restore then ran
+     `insert into public.entities select *`, which matches columns by position, and the shifted row put
+     `timezone` ("Asia/Makassar") into `fiscal_year_start_month` -- caught only because that one is a
+     smallint. A shift between two text columns would have restored silently wrong data.
+     Both fixes are in the document now: the two columns are recreated before the restore, and every
+     insert names its columns instead of using `select *`, so a future schema change cannot shift a row
+     unnoticed. The document also carries the query that lists which `public` columns use a `public`
+     domain, to run before the backup rather than after the failure. Nothing was lost: the restore runs in
+     one transaction, so the failure rolled the whole thing back.
+     Two more traps surfaced in the same restore, both in `financial_accounts`.
+     `account_number_masked` is a generated column, so it must not be listed at all. And a financial
+     account's ledger account is **not** part of the default chart: `create_financial_account` makes it
+     when the account is added, taking the first free code in that kind's range (cash 1111-1119, bank
+     1121-1189, e-wallet 1191-1199), so `provision_default_coa` does not bring it back and the restored
+     account would have no ledger account -- a not-null column, which is the only reason this one failed
+     loudly rather than quietly. The document now recreates it exactly the way the function does.
+     The third attempt was dry-run against production first, inside a `do $$ ... end $$` block ending in
+     `raise exception`, so the whole thing rolled back and the error message carried the verification
+     counts. That is the way to run this script again: prove it, then run it.
+
+408. **The final tax follows every posting at once, PPh Final has no monthly return, and the tax screens agree
+     with each other (OWNER, 12 October 2026: "begitu ada postingan invoice atau pendapatan apapun, harus
+     langsung terbaca pajaknya").** The owner issued a September invoice at 23.29 WITA on 11 October; the
+     automatic run had stored September as 0 at 23.20, so Ringkasan Pajak, PPh Final and Pelaporan & Bukti all
+     showed 0 although the invoice existed, and a payment could not even be recorded (a payment is capped at what
+     is accrued). The next daily run repaired it at 00.20, but a month older than the previous one would never
+     have been looked at again. Fixed three ways. (1) Posting, changing or voiding an invoice, an income entry or
+     a marketplace settlement dated in an ended month queues that month in `app_private.tax_final_recheck_queue`;
+     a deferred constraint trigger on the queue computes it when the transaction commits, so the figures are
+     final and a failure never blocks the posting. The running month is not queued (it is the live estimate).
+     (2) A job every 15 minutes retries what is still queued (an empty queue is one index read; a row that failed
+     20 times keeps its last error). (3) The daily sweep now re-evaluates every one of the last 24 months. The
+     computation is repeatable, so a run that finds nothing new changes nothing. Screens: PPh Final UMKM shows no
+     "Catat Pelaporan" and no NTTE for January to November (paying with a billing code and NTPN is deemed the
+     monthly return, decision 341); the payment form asks for the NTPN and billing code; the SPT Tahunan receipt
+     is still recorded on the December masa. The "no filing" difference is hidden where there is nothing to
+     file, the English difference text on PPh Final and the position screen is translated, and Ringkasan Pajak
+     names the month of its estimate. Catat Pendapatan now adds the invoice revenue of the month under its own
+     total so the two sources are not mistaken for one. The Beban form points to Catat Pembayaran for tax, since a
+     tax paid as an expense and also accrued is counted twice. Every attached file opens in a popup (images and
+     PDFs shown, "Cetak / Simpan PDF", download), served from `/documents/view/<id>` with the same permission
+     re-check as the download. The owner's own September payment (EXP-2026-0002, 116.814 booked as an expense)
+     is a data correction decided with her, never a silent delete.
+
+409. **Interest income is kept apart by kind, the interest a bank already taxed is not taxed again, and Ringkasan
+     Pajak can be filtered (OWNER, 12 October 2026).** Three categories replace the single "Bunga Bank &
+     Deposito": Bunga Tabungan (account 7101) and Bunga Deposito (7102), on which the bank withholds PPh final
+     of 20% itself (PP 131/2000 as amended by PP 123/2015; interest on a deposit of up to Rp 7.500.000 is
+     exempt, PMK 212/PMK.03/2018 article 7), and Bunga Lainnya (7100: loans given and any other interest). The
+     old category is renamed Bunga Lainnya where that name is free, so earlier entries keep account 7100. The
+     amount recorded is what reached the account (net of the bank's tax). `tax_non_final_income` leaves accounts
+     7101 and 7102 out of the yearly estimate (they are shown, marked as already taxed), so the 22% estimate no
+     longer taxes them a second time. The owner pays nothing herself for this tax, monthly or yearly; the
+     interest is only reported in the annual return, with the bank's statement as the record. New read-only
+     `tax_scope_summary(entity, from, to)`: per tax type the tax counted (ledger accruals net of reversals), paid
+     (confirmed payments) and left, by tax period. Ringkasan Pajak gets a "Rekap Pajak" with Bulan, Tahun and
+     Seluruhnya chips (a plain GET form, view only). EXP-2026-0002 (the PPh Final paid as an expense) was
+     reversed with a reversing journal; the owner records the payment under Pelaporan & Bukti herself.
+
+410. **Every page says what it does and what it affects; the Dashboard says why a month is empty (OWNER, 12
+     October 2026).** One central file, `src/content/pageHelp.ts`, holds a one- or two-sentence description for
+     each page (small grey text under the title, a folded "Selengkapnya" for the longer part) and for the
+     sections of Pelaporan & Bukti; the `PageHelp` component sits under every page title and shows nothing for a
+     page that has no entry. The Dashboard in its month view, when the month has no revenue or expense but an
+     earlier month of the last six does, says so and links to that month: it opens on the running month, which
+     is empty at the start of a month, and a page of zeros read as "nothing was recorded". Sections of other
+     screens (fields, forms) are added to the same file in later changes.
+
+411. **Tax proofs are uploaded where they belong, every payment has its own detail, one preview for all
+     attachments (OWNER, 12 October 2026).** In Pelaporan & Bukti, "Bukti Pendukung" only offered to search
+     files already in Dokumen, so a person with a Bukti Penerimaan Negara in hand found no way to attach it, and a
+     recorded payment could not be opened. Now each payment has "Rincian dan bukti" (date, masa, tax paid, penalty,
+     the account it was paid from, NTPN and billing code, the journal and the reversal journal, and its proofs),
+     and both there and in Bukti Pendukung a file is uploaded straight onto the payment or the filing at any time
+     after it is recorded (`uploadTaxEvidenceAction`: the same check and storage as every other attachment, then
+     `tax_link_evidence`). The storing of a file is now one function, `storeUploadedFile`, used by the record
+     attachments and the tax proofs alike. The preview of decision 408 stays the only way to open an attached
+     file: a test fails if a screen outside Dokumen links to the view or download route itself. For PPh Final
+     UMKM the "Pelaporan" box in a month other than December now links to the December masa, where the SPT
+     Tahunan receipt is recorded. No database change.
+
+412. **A PPh Final UMKM month without a filing is not a reconciliation difference (OWNER, 12 October 2026).**
+     Reconciling September 2026 for the owner failed with "Periode ini memiliki 1 selisih (pertama: No filing is
+     recorded for this period)" and asked for a note, although the month was in order: PPh Final UMKM has no
+     monthly return (the payment with its NTPN is the return, decision 341; the only return is the SPT Tahunan in
+     the December masa). `app_private.tax_period_differences` no longer reports `filing_missing` for
+     `final_umkm`; VAT and PPh 23 still do. A filing that is recorded (the December SPT Tahunan receipt) is still
+     compared with the ledger, and unpaid or overpaid tax still shows. The English sentences the database puts in
+     a refusal ("first: ...") are now translated like every other reason. No data is changed.
+
+413. **The Dashboard shows income tax as its own card, so Pendapatan − Beban − Pajak = Laba (OWNER, 12 October
+     2026).** The company's PPh Final is booked to Beban Pajak Penghasilan (account 8100, class `tax`). The
+     "Beban" card counted only the classes `expense` and `other_expense`, while "Laba Berjalan" (from the equity
+     statement) already had the tax taken off: for September 2026 the cards did not add up by exactly the tax
+     (Rp 116.814) and the tax was nowhere on the Dashboard except Ringkasan Pajak. The owner asked for a
+     complete, clear picture of money in, money out and profit. Decision: the tax is NOT folded into Beban
+     (it is not an operating cost and the Laba Rugi report already keeps it as its own "Pajak" section); a new
+     card "Pajak Penghasilan" sits between Beban and the result, opens the Pajak section of the Laba Rugi
+     report of the same period, and "Laba Berjalan" says "Setelah beban dan pajak". It follows the Bulanan,
+     Tahunan and Sejak Awal views like the other cards. `pnlTotals` gets a `tax` total. No database change.
+
+414. **A tax payment has its own page, and PPh Final UMKM is the first choice (OWNER, 12 October 2026).** The
+     detail and the proofs of a payment used to open as an expandable block under Riwayat Pembayaran, unlike
+     every other record in the system (invoice, Pembayaran Diterima), which opens on a page of its own. The
+     owner asked for the same concept. Decision: the payment number in Riwayat Pembayaran is a link to
+     `/tax/payments/<id>`, laid out like the other detail pages (back link, title with status and amount,
+     Ringkasan, Jurnal, Lampiran). The proofs open in the preview and a proof can be uploaded there at any time;
+     "Balik Pembayaran" (a counter-journal, never a delete) moves to that page too. After uploading or reversing
+     the person stays on the payment's page. The table keeps a "Bukti" column with the number of files. The
+     inline block and its styles are removed. "Pelaporan & Bukti" stays highlighted in the menu while on a
+     payment page. Also, the list of tax types on this screen now starts with PPh Final UMKM, the main tax of
+     the company, and it is the default when none is chosen (it was PPN). No database change.
+
+415. **The guide, the flow diagrams and the PDF follow the application up to decision 414 (OWNER, 13 October
+     2026).** The owner asked whether the guide and diagrams on the website and in the PDF match the newest
+     features. They did not: the tax guide still described a monthly PPh Final return and an expandable payment
+     block, the Dashboard guide lacked the Pajak Penghasilan card, the picker guide predated the new Picker,
+     and many guides and 18 of the 33 flow diagrams (plus 5 new rows in "Saya mau ... buka menu apa?") were
+     out of date after decisions 400–414. Decision: all 74 guides and the diagrams are updated to the screens as
+     they are now; the "Catatan" label on a loan payment says it is required only when there is a fee (the screen
+     and the guide now agree); the description of "Tambah Akun" says the opening balance is recorded separately
+     under Akuntansi > Saldo Awal. The PDF no longer keeps its own hand-written copy of the menu: Bagian II is
+     generated from `src/domain/shell/navigation.ts` and `src/content/pageHelp.ts` through
+     `scripts/guide/export_menu.mts`, Bagian I takes its seven steps from the guide "Urutan Langkah Pertama
+     Kali", the old hand-written flow chapter is removed (the Alur Kerja chapter inside Bagian V already draws
+     the same diagrams as the website), and the PDF now has five parts instead of six. Screenshots are not
+     changed (they still need a re-capture with sample data, never with production data in this public repo).
+     No database change.

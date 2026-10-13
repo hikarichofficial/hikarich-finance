@@ -1,0 +1,102 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 710 1048.5" width="710" height="1048.5" role="img" aria-label="Melihat Kondisi Keuangan Sekilas: Membaca Dashboard" font-family="Helvetica, Arial, sans-serif">
+<!-- source: alur.json sha256:a5ce59429e1a4226 (dibuat oleh scripts/guide/build_flow_diagrams.py; jangan diedit tangan) -->
+<title>Melihat Kondisi Keuangan Sekilas: Membaca Dashboard</title>
+<rect width="100%" height="100%" fill="#ffffff"/>
+<rect x="250" y="18" width="210" height="43" rx="18" fill="#1a2b4a" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="355" y="36.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Ingin melihat kondisi keuangan PT</text>
+<text x="355" y="50" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">sekilas</text>
+<polyline points="355,61 355,84" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,89 350.5,81 359.5,81" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="89" width="210" height="127.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="102" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="118.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Buka Dashboard dan pilih tampilan</text>
+<text x="260" y="133.5" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Ringkasan &gt; Dashboard</text>
+<text x="260" y="148.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Di bawah sapaan ada pilihan Bulanan,</text>
+<text x="260" y="160" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Tahunan, dan Sejak Awal. Bulanan dan</text>
+<text x="260" y="171.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Tahunan punya panah di samping nama</text>
+<text x="260" y="183" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">periode untuk berpindah; Sejak Awal tidak.</text>
+<text x="260" y="194.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Bulan ini masih kosong? Dashboard menautkan</text>
+<text x="260" y="206" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">ke bulan terakhir yang ada isinya</text>
+<polyline points="355,216.5 355,239.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,244.5 350.5,236.5 359.5,236.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="244.5" width="210" height="135.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="257.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="274" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Baca kartu angka</text>
+<text x="260" y="289" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Kas &amp; Bank, Pendapatan, Beban, Pajak</text>
+<text x="260" y="300.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Penghasilan, Laba Berjalan (atau Rugi</text>
+<text x="260" y="312" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Berjalan), Piutang Usaha, Utang Usaha, dan</text>
+<text x="260" y="323.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Pinjaman bila ada. Pendapatan dikurangi Beban</text>
+<text x="260" y="335" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">dan Pajak sama dengan Laba. Pajak</text>
+<text x="260" y="346.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Penghasilan (mis. PPh Final UMKM) berdiri</text>
+<text x="260" y="358" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">sendiri di antara Beban dan Laba; klik untuk</text>
+<text x="260" y="369.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">membuka bagian Pajak di Laba Rugi</text>
+<polyline points="355,380 355,403" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,408 350.5,400 359.5,400" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="408" width="210" height="78" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="421" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="437.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Baca Tren Arus Kas</text>
+<text x="260" y="452.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Arahkan kursor ke titik untuk saldo kas akhir</text>
+<text x="260" y="464" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">bulan itu. Klik titik untuk membuka laporan Arus</text>
+<text x="260" y="475.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Kas bulan itu</text>
+<polyline points="355,486 355,509" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,514 350.5,506 359.5,506" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="514" width="210" height="89.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="527" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="543.5" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Baca kartu Pendapatan dan Beban</text>
+<text x="260" y="558.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Enam batang bulanan: arahkan kursor untuk</text>
+<text x="260" y="570" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">jumlah, klik untuk membuka Laba Rugi bulan</text>
+<text x="260" y="581.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">itu. Di bawahnya sumber pendapatan dan akun</text>
+<text x="260" y="593" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">beban terbesar</text>
+<polyline points="355,603.5 355,626.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,631.5 350.5,623.5 359.5,623.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<polygon points="355,631.5 505,666.5 355,701.5 205,666.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1.4" stroke-linejoin="round"/>
+<text x="355" y="670" font-size="10" font-weight="bold" fill="#3d3000" text-anchor="middle">Ada yang perlu ditindaklanjuti?</text>
+<polyline points="355,701.5 355,717.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,717.5 587,717.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,717.5 123,746.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="123,751.5 118.5,743.5 127.5,743.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="18" y="751.5" width="210" height="93" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="28" y="764.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="28" y="781" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Selesaikan item satu per satu</text>
+<text x="28" y="796" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Dashboard &gt; Perlu Perhatian</text>
+<text x="28" y="811" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Isinya Klaim Pembayaran, Tinjau Pajak, Bukti</text>
+<text x="28" y="822.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Belum Lengkap, dan Rekonsiliasi. Setiap item</text>
+<text x="28" y="834" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">menautkan ke halaman yang menyelesaikannya</text>
+<rect x="73.3" y="726.5" width="99.4" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="123" y="737.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Perlu Perhatian berisi</text>
+<polyline points="355,717.5 355,746.5" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,751.5 350.5,743.5 359.5,743.5" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="751.5" width="210" height="116.5" rx="8" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1.4"/>
+<text x="260" y="764.5" font-size="7" font-weight="bold" fill="#1a2b4a" text-anchor="start">ANDA</text>
+<text x="260" y="781" font-size="10.5" font-weight="bold" fill="#111111" text-anchor="start">Buka Ringkasan Pajak</text>
+<text x="260" y="796" font-size="9" fill="#1a4d8f" text-anchor="start">Menu: Dashboard &gt; Ringkasan Pajak &gt; Buka</text>
+<text x="260" y="808" font-size="9" fill="#1a4d8f" text-anchor="start">Pajak</text>
+<text x="260" y="823" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">Total terutang, tenggat terdekat, dan transaksi</text>
+<text x="260" y="834.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">yang perlu ditinjau. Bila ada kartu Omzet</text>
+<text x="260" y="846" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">gabungan, PT dan Buku Pribadi dijumlahkan</text>
+<text x="260" y="857.5" font-size="8.6" font-style="italic" fill="#555555" text-anchor="start">terhadap batas Rp 4,8 miliar</text>
+<rect x="312.39" y="726.5" width="85.21" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="355" y="737.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Ada tenggat pajak</text>
+<rect x="561.39" y="726.5" width="51.21" height="15" rx="7.5" fill="#ffffff" stroke="#8a6d00" stroke-width="1"/>
+<text x="587" y="737.5" font-size="8.5" font-weight="bold" fill="#3d3000" text-anchor="middle">Tidak ada</text>
+<polyline points="123,844.5 123,888" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,868 355,888" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="587,717.5 587,888" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="123,888 587,888" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polyline points="355,888 355,911" fill="none" stroke="#444444" stroke-width="1.4"/>
+<polygon points="355,916 350.5,908 359.5,908" fill="#444444" stroke="#444444" stroke-width="0.5" stroke-linejoin="round"/>
+<rect x="250" y="916" width="210" height="78.5" rx="18" fill="#2f5233" stroke="#2f5233" stroke-width="1.4"/>
+<text x="355" y="934.5" font-size="10.5" font-weight="bold" fill="#ffffff" text-anchor="middle">Selesai</text>
+<text x="355" y="948" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Dashboard hanya membaca; angkanya berasal</text>
+<text x="355" y="959.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">dari jurnal yang sudah diposting. Pajak</text>
+<text x="355" y="971" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">Penghasilan muncul setelah PPh Final bulan itu</text>
+<text x="355" y="982.5" font-size="8.6" font-style="italic" fill="#e9efe9" text-anchor="middle">dicatat</text>
+<rect x="182.95" y="1020.5" width="12" height="10" rx="2" fill="#fdf2e3" stroke="#b5791a" stroke-width="1"/>
+<text x="198.95" y="1028.5" font-size="8" fill="#444444" text-anchor="start">Pelanggan</text>
+<rect x="253.2" y="1020.5" width="12" height="10" rx="2" fill="#eef2f8" stroke="#1a2b4a" stroke-width="1"/>
+<text x="269.2" y="1028.5" font-size="8" fill="#444444" text-anchor="start">Anda (pengguna aplikasi)</text>
+<rect x="375.91" y="1020.5" width="12" height="10" rx="2" fill="#e6f2e8" stroke="#2f5233" stroke-width="1"/>
+<text x="391.91" y="1028.5" font-size="8" fill="#444444" text-anchor="start">Sistem (otomatis)</text>
+<polygon points="476.14,1019.5 482.14,1025.5 476.14,1031.5 470.14,1025.5" fill="#fff6cf" stroke="#8a6d00" stroke-width="1" stroke-linejoin="round"/>
+<text x="486.14" y="1028.5" font-size="8" fill="#444444" text-anchor="start">Pertanyaan</text>
+</svg>
