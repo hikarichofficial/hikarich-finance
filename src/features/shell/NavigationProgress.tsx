@@ -25,6 +25,16 @@ export function NavigationProgress() {
   const searchParams = useSearchParams();
   const here = `${pathname}?${searchParams.toString()}`;
   const [pendingFrom, setPendingFrom] = useState<string | null>(null);
+  // Once the address has changed the click has been answered, so "pending" is forgotten for good. Without this
+  // the old "from" address stayed remembered: pressing Back to the page the click started from made it equal
+  // `here` again and the bar came back and never went away (OWNER, 13 October 2026: every Back "loads
+  // forever", while any other menu opens at once). Adjusting state while rendering is the React-endorsed way to
+  // reset state when an input changes.
+  const [seenHere, setSeenHere] = useState(here);
+  if (seenHere !== here) {
+    setSeenHere(here);
+    setPendingFrom(null);
+  }
   const hereRef = useRef(here);
   const pressed = useRef<HTMLAnchorElement | null>(null);
   const timer = useRef<number | null>(null);

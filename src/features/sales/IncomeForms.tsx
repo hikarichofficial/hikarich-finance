@@ -252,7 +252,19 @@ export function IncomeForm({
 }
 
 /** Cancel an entry: one button and a reason; the system posts the reversal itself (no editing of a recorded entry). */
-export function ReverseIncomeForm({ entryId, today }: { entryId: string; today: string }) {
+export function ReverseIncomeForm({
+  entryId,
+  entryDate,
+  defaultDate,
+  today,
+}: {
+  entryId: string;
+  /** The date of the entry: a cancellation cannot be dated before it. */
+  entryDate: string;
+  /** Pre-filled date (the entry's own date while its month is open, otherwise today). */
+  defaultDate: string;
+  today: string;
+}) {
   const [state, action, pending] = useActionState(reverseIncomeAction, IDLE);
   const actionForm = usePreservingForm(action, state);
   const [open, setOpen] = useState(false);
@@ -266,14 +278,26 @@ export function ReverseIncomeForm({ entryId, today }: { entryId: string; today: 
   return (
     <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="entry_id" value={entryId} />
-      <input type="hidden" name="date" value={today} />
+      <label>
+        Tanggal pembatalan
+        <input
+          type="date"
+          name="date"
+          required
+          defaultValue={defaultDate}
+          min={entryDate}
+          max={today}
+        />
+      </label>
       <label>
         Alasan (minimal 5 karakter)
         <input name="reason" required minLength={5} maxLength={500} />
       </label>
       <p className="hint">
-        Saldo rekening dan laporan kembali seperti sebelum dicatat. Catatan ini tetap tersimpan
-        sebagai riwayat.
+        Pembatalan masuk ke bulan pada tanggal di atas. Dengan tanggal catatan asli, saldo dan
+        laporan bulan itu kembali seperti sebelum dicatat; dengan tanggal lain, bulan asli tetap
+        memuat catatan dan bulan tanggal pembatalan memuat pembaliknya. Bulan yang sudah ditutup
+        tidak bisa dipilih. Catatan ini tetap tersimpan sebagai riwayat.
       </p>
       <Feedback state={state} />
       <button type="submit" className="btn-secondary" disabled={pending}>

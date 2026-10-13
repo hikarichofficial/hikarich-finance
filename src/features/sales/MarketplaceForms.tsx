@@ -159,9 +159,12 @@ export function MarketplaceSettlementForm({
 /** Reverse a recorded settlement: the journal, the cash movement and the tax are undone. */
 export function ReverseSettlementForm({
   settlementId,
+  settlementDate,
   today,
 }: {
   settlementId: string;
+  /** The payout date: a cancellation cannot be dated before it. */
+  settlementDate: string;
   today: string;
 }) {
   const [state, action, pending] = useActionState(reverseSettlementAction, IDLE);
@@ -177,7 +180,17 @@ export function ReverseSettlementForm({
   return (
     <form {...actionForm} className="invoice-action-form">
       <input type="hidden" name="settlement_id" value={settlementId} />
-      <input type="hidden" name="date" value={today} />
+      <label>
+        Tanggal pembatalan
+        <input
+          type="date"
+          name="date"
+          required
+          defaultValue={today}
+          min={settlementDate}
+          max={today}
+        />
+      </label>
       <label>
         Alasan (minimal 5 karakter)
         <input name="reason" required minLength={5} maxLength={500} />

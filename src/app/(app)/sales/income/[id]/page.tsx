@@ -9,6 +9,7 @@ import { getIncomeEntry, listIncomeCategories } from "@/services/sales/income";
 import { ExpandableText } from "@/features/shared/ExpandableText";
 import { AttachmentsSection } from "@/features/documents/AttachmentsSection";
 import { ReverseIncomeForm } from "@/features/sales/IncomeForms";
+import { defaultReversalDate } from "@/services/accounting/reversalDate";
 import { formatShortDate } from "@/features/sales/format";
 import { todayInBusinessZone } from "@/lib/time";
 import { BackLink } from "@/features/shell/BackLink";
@@ -120,7 +121,16 @@ export default async function IncomeDetailPage({
         </p>
         {!reversed && can(access, entityId, "invoices.void") ? (
           <div className="record-actions">
-            <ReverseIncomeForm entryId={entry.id} today={todayInBusinessZone()} />
+            <ReverseIncomeForm
+              entryId={entry.id}
+              entryDate={entry.entry_date}
+              defaultDate={await defaultReversalDate(
+                entityId,
+                entry.entry_date,
+                todayInBusinessZone(),
+              )}
+              today={todayInBusinessZone()}
+            />
           </div>
         ) : null}
       </section>
