@@ -39,7 +39,7 @@
         },
         {
           "title": "Cara 2: langsung dari Buat Invoice",
-          "text": "Di halaman **Buat Invoice**, klik kolom **Pelanggan** lalu ketik nama. Daftar menampilkan pelanggan yang cocok dengan huruf yang diketik (maksimal 8). Klik untuk memilih. Bila belum ada, pilih baris **+ Tambah “NAMA” sebagai pelanggan baru**. Panel samping **Tambah Pelanggan Baru** terbuka dengan nama sudah terisi; isi **Email** dan **Telepon** bila ada, lalu tekan **Simpan & Gunakan**. Pelanggan langsung terpilih di invoice dan isian invoice tidak hilang.",
+          "text": "Di halaman **Buat Invoice**, klik kolom **Pelanggan** lalu ketik nama. Mengklik kolom langsung membuka seluruh daftar pelanggan (bisa digulir); mengetik mempersempitnya (maksimal 8 yang cocok). Klik nama atau tekan **Enter** untuk memilih (lihat [Cara Memakai Kolom Ketik-dan-Pilih](kolom-ketik-dan-pilih)). Bila belum ada, pilih baris **+ Tambah “NAMA” sebagai pelanggan baru**. Panel samping **Tambah Pelanggan Baru** terbuka dengan nama sudah terisi; isi **Email** dan **Telepon** bila ada, lalu tekan **Simpan & Gunakan**. Pelanggan langsung terpilih di invoice dan isian invoice tidak hilang.",
           "warning": "Panel cepat tidak punya kotak “Tetap simpan walau ada nama yang mirip”. Bila nama mirip dengan pelanggan lama, gunakan pelanggan lama atau buka form Tambah Pelanggan lengkap."
         }
       ],
@@ -51,7 +51,7 @@
         "Nama yang sama setelah dirapikan ditolak kecuali kotak “Tetap simpan walau ada nama yang mirip” dicentang di form lengkap.",
         "Hanya pelanggan Aktif yang bisa dipilih di invoice baru.",
         "NPWP/NIK tidak ditampilkan lagi setelah disimpan dan tidak tercetak di invoice.",
-        "Mengubah atau menonaktifkan pelanggan setelah dibuat belum tersedia di layar."
+        "Mengubah dan menonaktifkan pelanggan (tombol **Ubah** dan **Nonaktifkan** di halaman detail) butuh izin ubah kontak. Pelanggan nonaktif tidak bisa dipilih lagi di dokumen baru, tetapi riwayatnya tetap ada."
       ],
       "mistakes": [
         "Membuat pelanggan dua kali dengan ejaan sedikit berbeda. Cari dulu di daftar.",
@@ -84,7 +84,7 @@
       "steps": [
         {
           "title": "Buka Penjualan > Produk & Jasa",
-          "text": "Tabel memuat **Nama** (dengan deskripsi singkat di bawahnya), **Jenis**, **SKU**, **Satuan**, **Harga Bawaan**, dan **Status**. Deskripsi yang panjang dipotong dua baris: tekan **Selengkapnya** untuk membukanya dan **Ringkas** untuk menutup lagi. Tab: Semua, Aktif, Nonaktif, Produk, Jasa. Tekan **Tambah Produk**; form Tambah Produk ada di halaman tersendiri, terpisah dari daftar.",
+          "text": "Tabel memuat **Nama** (dengan deskripsi singkat di bawahnya), **Jenis**, **SKU**, **Satuan**, **Harga Bawaan**, dan **Status**. Deskripsi yang panjang dipotong dua baris: tekan **Selengkapnya** untuk membukanya dan **Ringkas** untuk menutup lagi. Tab: Semua, Aktif, Nonaktif, Produk, Jasa. Kotak **Cari nama, SKU atau deskripsi…** mempersempit daftar. Tekan **Tambah Produk** (bagi Owner ada juga tombol **Konfigurasi SKU** di sebelahnya); form Tambah Produk ada di halaman tersendiri, terpisah dari daftar.",
           "image": {
             "file": "produk-daftar.jpg",
             "caption": "Daftar produk dan jasa. Deskripsi panjang dipotong dua baris; tekan Selengkapnya untuk membukanya."
@@ -92,7 +92,7 @@
         },
         {
           "title": "Isi form Tambah Produk",
-          "text": "**Jenis**: Produk atau Jasa. **Nama** (wajib). **Brand** dan **Jenis Produk** (wajib bila SKU otomatis aktif): pilih dari daftar; di bawahnya tampil **Pratinjau SKU** yang akan didapat. **Satuan** (wajib, bawaan “unit”). **Harga Satuan Bawaan (opsional)**: pemisah ribuan otomatis, koma untuk desimal. **Mata Uang Harga (opsional)**. **Kategori Pendapatan Bawaan (opsional)**: menentukan akun pendapatan, misalnya Penjualan Produk, Penjualan E-book, Penjualan Software & Alat Digital, Penjualan Jasa, Pendapatan Lainnya. **Deskripsi (opsional)**. Kotak **Aktif (dapat dipilih saat membuat invoice)** tercentang bawaan.\n\nKolom SKU tidak diketik oleh staf. Hanya Owner (atau peran yang diberi izin khusus) yang melihat kotak **Isi SKU manual**.",
+          "text": "**Jenis**: Produk atau Jasa. **Nama** (wajib). **Brand** dan **Jenis Produk** (wajib bila SKU otomatis aktif) adalah kolom ketik-dan-pilih: klik untuk melihat semua pilihan atau ketik untuk mencari; di bawahnya tampil **Pratinjau SKU** yang akan didapat. **Satuan** (wajib, bawaan “unit”). **Harga Satuan Bawaan (opsional)**: pemisah ribuan otomatis, koma untuk desimal. **Mata Uang Harga (opsional)**. **Kategori Pendapatan Bawaan (opsional)** (juga ketik-dan-pilih): menentukan akun pendapatan, misalnya Penjualan Produk, Penjualan E-book, Penjualan Software & Alat Digital, Penjualan Jasa, Pendapatan Lainnya. **Deskripsi (opsional)**. Kotak **Aktif (dapat dipilih saat membuat invoice)** tercentang bawaan.\n\nKolom SKU tidak diketik oleh staf. Hanya Owner (atau peran yang diberi izin khusus) yang melihat kotak **Isi SKU secara manual (khusus Owner)**.",
           "image": {
             "file": "produk-tambah-form.jpg",
             "caption": "Form Tambah Produk."
@@ -109,7 +109,7 @@
         },
         {
           "title": "Cara produk muncul di Buat Invoice",
-          "text": "Di baris invoice, klik kolom **Deskripsi**. Daftar saran menampilkan nama produk aktif dan deskripsi yang pernah dipakai, menyempit sesuai huruf yang diketik. Klik saran untuk mengisi deskripsi, harga terakhir, dan kategori. Anda juga boleh mengetik nama baru secara bebas."
+          "text": "Di baris invoice, klik kolom **Deskripsi**. Daftar saran menampilkan nama produk aktif dan deskripsi yang pernah dipakai; mengetik mempersempitnya mulai dari huruf pertama. Klik saran untuk mengisi deskripsi, harga terakhir, dan kategori. Anda juga boleh mengetik nama baru secara bebas."
         },
         {
           "title": "Menonaktifkan produk",
@@ -263,7 +263,7 @@
         },
         {
           "title": "Tambah variant",
-          "text": "Pilih **Variant** (mis. 1B), lihat **SKU variant** pada pratinjau, isi harga bila berbeda dari produk utama, lalu tekan **Tambah Variant**. Variant baru muncul di daftar produk dan bisa dipilih di invoice seperti produk biasa.",
+          "text": "Klik kolom **Variant** lalu pilih atau ketik (mis. 1B), lihat **SKU variant** pada pratinjau, isi harga bila berbeda dari produk utama, lalu tekan **Tambah Variant**. Variant baru muncul di daftar produk dan bisa dipilih di invoice seperti produk biasa.",
           "tip": "Bila harga dikosongkan, variant memakai harga bawaan produk utama."
         },
         {
@@ -315,7 +315,7 @@
       "steps": [
         {
           "title": "Buka Penjualan > Invoice dan tekan Buat Invoice",
-          "text": "Halaman daftar berjudul **Invoice Penjualan**. Tab saringan: Semua, Terbuka, Jatuh Tempo, Belum Dibayar, Dibayar Sebagian, Lunas, Dibatalkan.",
+          "text": "Halaman daftar berjudul **Invoice Penjualan**. Tab saringan: Semua, Draf, Terbuka, Jatuh Tempo, Belum Dibayar, Dibayar Sebagian, Lunas, Dibatalkan. Di bawah judul ada penjelasan singkat fungsi halaman; tekan **Selengkapnya** untuk penjelasan yang lebih panjang.",
           "image": {
             "file": "invoice-daftar.jpg",
             "caption": "Daftar invoice dengan tombol Buat Invoice di kanan atas."
@@ -323,7 +323,7 @@
         },
         {
           "title": "Pilih Pelanggan",
-          "text": "Klik kolom **Pelanggan** lalu ketik nama. Daftar menyempit sesuai huruf yang diketik. Klik untuk memilih, atau pilih **+ Tambah “NAMA” sebagai pelanggan baru** bila belum terdaftar (lihat [Cara Menambah Pelanggan](tambah-pelanggan)).",
+          "text": "Klik kolom **Pelanggan**: seluruh daftar pelanggan terbuka, dan mengetik mempersempitnya. Klik nama atau tekan **Enter** untuk memilih (lihat [Cara Memakai Kolom Ketik-dan-Pilih](kolom-ketik-dan-pilih)), atau pilih **+ Tambah “NAMA” sebagai pelanggan baru** bila belum terdaftar (lihat [Cara Menambah Pelanggan](tambah-pelanggan)).",
           "image": {
             "file": "invoice-form.jpg",
             "caption": "Form Buat Invoice."
@@ -336,18 +336,18 @@
         },
         {
           "title": "Pilih Rekening Tujuan Pembayaran (opsional)",
-          "text": "Pilih rekening PT supaya nama bank, nomor rekening, dan atas nama tercetak di invoice sebagai **Cara pembayaran**. Rekening harus berada dalam mata uang invoice (IDR).",
+          "text": "Klik kolom **Rekening Tujuan Pembayaran (opsional)** lalu pilih rekening PT (boleh diketik untuk mencari) supaya nama bank, nomor rekening, dan atas nama tercetak di invoice sebagai **Cara pembayaran**. Rekening harus berada dalam mata uang invoice (IDR).",
           "tip": "Nomor rekening dan atas nama diisi di Kas & Bank saat rekening dibuat. Bila keduanya kosong, invoice hanya menampilkan nama bank."
         },
         {
           "title": "Pilih Tautan Pembayaran (opsional)",
-          "text": "Pilih salah satu **Tautan Pembayaran** bila Anda memakai halaman pembayaran dari penyedia pembayaran (gateway). Di invoice, tautan tampil sebagai tombol **Bayar sekarang** yang bisa diklik pelanggan. Belum ada tautan yang cocok? Tekan **+ Tambah tautan baru**, isi nama dan alamat https://, lalu **Simpan & Gunakan**; tautan langsung terpilih tanpa kehilangan isian invoice.",
+          "text": "Pilih salah satu **Tautan Pembayaran** (kolom ketik-dan-pilih juga) bila Anda memakai halaman pembayaran dari penyedia pembayaran (gateway). Di invoice, tautan tampil sebagai tombol **Bayar sekarang** yang bisa diklik pelanggan. Belum ada tautan yang cocok? Tekan **+ Tambah tautan baru**, isi nama dan alamat https://, lalu **Simpan & Gunakan**; tautan langsung terpilih tanpa kehilangan isian invoice.",
           "tip": "Tautan hanya membawa pelanggan ke halaman pembayaran. Setelah uang masuk, pembayaran tetap Anda catat sendiri (lihat Cara Menerima Pembayaran Invoice)."
         },
         {
           "title": "Isi baris invoice",
-          "text": "Untuk setiap baris:\n\n**Deskripsi**: klik lalu ketik atau pilih saran produk. Saran menyempit sesuai huruf yang diketik; memilih saran mengisi harga dan kategori.\n\n**Kuantitas**: kosong dianggap 1. Desimal boleh memakai koma (1,5) atau titik (1.5).\n\n**Harga Satuan**: pemisah ribuan otomatis, koma untuk desimal.\n\n**Diskon**: “Tanpa diskon”, “Persen (%)”, atau “Nominal (Rp)”.\n\n**Kategori**: kategori pendapatan, menentukan akun pendapatan. Tanpa kategori masuk ke Pendapatan Usaha Lainnya.\n\n**Perlakuan PPN**: untuk Entity PKP wajib dipilih di setiap baris atau lewat kategori. Pilihan: “Kena PPN”, “PPN dibebaskan / tidak dipungut”, “Bukan objek PPN”, dan lainnya.\n\nTekan **+ Tambah Baris** untuk baris berikutnya (maksimal 200). **Hapus** menghapus baris.",
-          "warning": "Baris yang deskripsi atau harga satuannya kosong dibuang diam-diam saat disimpan."
+          "text": "Untuk setiap baris:\n\n**Deskripsi**: klik lalu ketik atau pilih saran produk. Saran menyempit sesuai huruf yang diketik; memilih saran mengisi harga dan kategori.\n\n**Kuantitas**: kosong dianggap 1. Desimal boleh memakai koma (1,5) atau titik (1.5).\n\n**Harga Satuan**: pemisah ribuan otomatis, koma untuk desimal.\n\n**Diskon**: “Tanpa diskon”, “Persen (%)”, atau “Nominal (Rp)”.\n\n**Kategori**: kolom ketik-dan-pilih berisi kategori pendapatan, menentukan akun pendapatan. Klik untuk melihat semua kategori, ketik untuk mencari, atau pilih **+ Tambah ... baru** di bawah daftar untuk membuat kategori baru tanpa meninggalkan form. Tanpa kategori masuk ke Pendapatan Usaha Lainnya.\n\n**Perlakuan PPN**: kartu di bawah tiap baris; bawaannya “Ikut kategori / belum ditentukan”. Untuk Entity PKP wajib dipilih di setiap baris atau lewat kategori. Pilihan: “Kena PPN”, “PPN dibebaskan / tidak dipungut”, “Bukan objek PPN”, dan lainnya.\n\nTekan **+ Tambah Baris** untuk baris berikutnya (maksimal 200). **Hapus** menghapus baris.",
+          "warning": "Baris yang deskripsi atau harga satuannya kosong tidak disimpan (tertulis juga di atas tabel baris)."
         },
         {
           "title": "Isi Catatan dan Syarat & Ketentuan (opsional)",
@@ -356,7 +356,7 @@
         {
           "title": "Tekan Simpan sebagai Draf",
           "text": "Anda dibawa ke detail draf. Header menampilkan “Draf” (belum bernomor), pelanggan, total, dan bagian **Perhitungan Pajak (sebelum dicatat)** yang menunjukkan pajak yang akan diakui. Periksa semuanya. Tombol yang tersedia: **Ubah Draf**, **Batalkan Draf**, dan **Terbitkan Invoice**.",
-          "tip": "Draf tampil di daftar Penjualan > Invoice dengan status “Draf” dan sisa tagihan “—” (belum menjadi piutang). Tab **Draf** menampilkan draf saja. Draf juga bisa dicari lewat kolom “Cari atau buka halaman…” di bilah atas."
+          "tip": "Draf tampil di daftar Penjualan > Invoice dengan status “Draf” dan sisa tagihan “—” (belum menjadi piutang). Tab **Draf** menampilkan draf saja. Draf juga bisa dicari lewat kolom “Cari atau buka halaman…” di bilah atas. Bukti pendukung (misalnya pesanan dari pelanggan) bisa dilampirkan di bagian **Lampiran** pada halaman detail: pilih **Berkas**, pilih **Jenis lampiran**, tekan **Lampirkan**; klik nama berkas di tabel untuk membukanya di jendela pratinjau (lihat [Cara Melampirkan Bukti dan Mencari Dokumen](dokumen-lampiran))."
         },
         {
           "title": "Tekan Terbitkan Invoice",
@@ -406,6 +406,7 @@
       ],
       "result": [
         "Pendapatan diakui saat invoice terbit (basis akrual), bukan saat uang masuk. Bila ada PPN, Utang Pajak (2200) dikreditkan; bila ada diskon, Diskon & Retur Penjualan (4200) didebit.",
+        "Invoice yang terbit ikut dasar PPh Final UMKM (bila Entity memakainya) pada bulan tanggal invoicenya. Bila tanggal invoice jatuh di bulan yang sudah berakhir, pajak bulan itu langsung dihitung ulang begitu invoice terbit, tanpa menunggu proses malam; untuk bulan berjalan yang tampil adalah perkiraan.",
         "Tampil nomor invoice, tombol berbagi, tombol Catat Pembayaran, serta tombol Koreksi dan Batalkan Invoice bagi yang berizin.",
         "Setelah terbit isi invoice tidak bisa diedit. Perbaikan dilakukan lewat Koreksi Invoice (lihat [Cara Membatalkan atau Mengoreksi Invoice](batalkan-koreksi-invoice))."
       ],
@@ -695,7 +696,7 @@
         },
         {
           "title": "Pilih rekening penerima",
-          "text": "Pada **Diterima di Rekening** pilih rekening PT tempat uang benar-benar masuk. Rekening harus bermata uang sama dengan invoice.",
+          "text": "Klik kolom **Diterima di Rekening** (ketik-dan-pilih) lalu pilih rekening PT tempat uang benar-benar masuk; mengetik sebagian nama mempersempit daftar. Rekening harus bermata uang sama dengan invoice.",
           "image": {
             "file": "invoice-pembayaran-form.jpg",
             "caption": "Form Catat Pembayaran: rekening penerima, tanggal, jumlah, referensi, dan catatan."
@@ -797,7 +798,7 @@
       "steps": [
         {
           "title": "Buka menu Catat Pendapatan",
-          "text": "Buka **Penjualan > Catat Pendapatan**, lalu tekan **+ Catat Pendapatan**. Menu ini juga ada di kotak pencarian cepat (Command Menu) sebagai **Catat Pendapatan**."
+          "text": "Buka **Penjualan > Catat Pendapatan**. Halaman ini memuat saringan **Bulan** dan **Jenis**, ringkasan bulan itu, dan **Daftar Pendapatan** (Tanggal, Jenis, Dari, Rekening, Jumlah, Status Tercatat atau Dibatalkan). Di bawah ringkasan, pendapatan dari invoice terbit bulan yang sama ditampilkan di baris tersendiri (sebelum PPN) bersama total seluruh pendapatan bulan itu, supaya dua sumber ini tidak tertukar. Di bawah judul ada penjelasan singkat fungsi halaman; tekan **Selengkapnya** untuk yang lebih panjang. Lalu tekan **+ Catat Pendapatan**. Menu ini juga ada di kotak pencarian cepat (Command Menu) sebagai **Catat Pendapatan**."
         },
         {
           "title": "Isi tanggal uang diterima",
@@ -805,7 +806,7 @@
         },
         {
           "title": "Ketik dan pilih jenis pendapatan",
-          "text": "Pada **Jenis Pendapatan** ketik beberapa huruf, lalu pilih dari daftar yang muncul, misalnya Penjualan Produk, Penjualan Jasa, Komisi & Afiliasi, Bunga Tabungan, Bunga Deposito, Bunga Lainnya, atau Dividen. Di bawah kolom ini tertulis apakah jenis itu ikut dasar PPh Final 0,5%."
+          "text": "Klik kolom **Jenis Pendapatan** untuk melihat semua jenis, atau ketik beberapa huruf untuk mempersempit, lalu pilih dari daftar, misalnya Penjualan Produk, Penjualan Jasa, Komisi & Afiliasi, Bunga Tabungan, Bunga Deposito, Bunga Lainnya, atau Dividen. Di bawah kolom ini tertulis apakah jenis itu ikut dasar PPh Final 0,5%.\n\nBunga dipisah menurut jenisnya. **Bunga Tabungan** dan **Bunga Deposito** adalah bunga yang sudah dipotong PPh final oleh bank, jadi catat jumlah yang benar-benar masuk ke rekening; bunga ini tampil di laporan tetapi tidak dihitung lagi di perkiraan PPh tahunan. **Bunga Lainnya** untuk bunga selain itu (misalnya dari pinjaman yang Anda berikan)."
         },
         {
           "title": "Belum ada jenis yang cocok? Tambah di tempat",
@@ -813,11 +814,11 @@
         },
         {
           "title": "Isi jumlah dan rekening",
-          "text": "Isi **Jumlah** (titik ribuan terisi otomatis) dan pilih **Diterima di Rekening**, yaitu rekening kas/bank PT tempat uang benar-benar masuk.\n\nDi **Buku Pribadi**, untuk jenis jasa tampil juga **Pajak yang Dipotong Klien (opsional)**. Jumlah di atas adalah yang benar-benar masuk ke rekening; pendapatan bruto dihitung otomatis dari jumlah itu ditambah pajak yang dipotong."
+          "text": "Isi **Jumlah** (titik ribuan terisi otomatis) dan pilih **Diterima di Rekening** (juga kolom ketik-dan-pilih), yaitu rekening kas/bank PT tempat uang benar-benar masuk.\n\nDi **Buku Pribadi**, untuk jenis jasa tampil juga **Pajak yang Dipotong Klien (opsional)**. Jumlah di atas adalah yang benar-benar masuk ke rekening; pendapatan bruto dihitung otomatis dari jumlah itu ditambah pajak yang dipotong."
         },
         {
           "title": "Isi dari siapa (opsional)",
-          "text": "Ketik nama pelanggan pada **Dari Siapa**. Bila belum terdaftar, pilih **+ Tambah ... sebagai pelanggan baru** seperti di Buat Invoice; cukup nama."
+          "text": "Klik atau ketik nama pelanggan pada **Dari Siapa (opsional)**. Bila belum terdaftar, pilih **+ Tambah ... sebagai pelanggan baru** seperti di Buat Invoice; cukup nama."
         },
         {
           "title": "Isi bukti dan keterangan (opsional)",
@@ -825,7 +826,7 @@
         },
         {
           "title": "Baca ringkasan lalu simpan",
-          "text": "Setelah jenis, jumlah, dan rekening terisi, tampil kalimat seperti “Saldo BCA bertambah Rp 2.500.000”. Bila sudah benar, tekan **Catat Pendapatan**. Bukti (foto nota, bukti transfer) bisa dilampirkan di halaman detail yang terbuka setelahnya."
+          "text": "Setelah jenis, jumlah, dan rekening terisi, tampil kalimat seperti “Saldo BCA bertambah Rp 2.500.000”. Bila sudah benar, tekan **Catat Pendapatan**. Bukti (foto nota, bukti transfer) bisa dilampirkan di bagian **Lampiran** pada halaman detail yang terbuka setelahnya: klik nama berkas di tabel untuk membukanya di jendela pratinjau."
         }
       ],
       "tables": [
@@ -841,16 +842,17 @@
       "result": [
         "Saldo rekening bertambah dan tampil sebagai pemasukan di Kas & Bank > Mutasi.",
         "Pendapatan muncul di Laba Rugi, Arus Kas, dan dasbor pada bulan tanggal uang diterima.",
-        "Pendapatan usaha ikut dasar PPh Final 0,5% bulan itu dan batas omzet Rp 4,8 miliar. Pajaknya dihitung otomatis tiap tanggal 1; perkiraan bulan berjalan ikut berubah.",
+        "Pendapatan usaha ikut dasar PPh Final 0,5% bulan itu dan batas omzet Rp 4,8 miliar. Pajaknya langsung terbaca: bila tanggal uang diterima jatuh di bulan yang sudah berakhir, pajak bulan itu dihitung ulang begitu catatan disimpan (juga saat dibatalkan); untuk bulan berjalan yang tampil adalah perkiraan, yang ikut berubah.",
         "Pendapatan di luar usaha (bunga, dividen, sewa properti investasi, imbal hasil investasi, bonus/cashback, kripto, lain-lain) tercatat di laporan tetapi tidak ikut dasar PPh Final 0,5%.",
         "Di Buku Pribadi, jenis berkategori jasa ikut hitungan PPh Progresif, jenis penjualan usaha ikut PPh Final 0,5%, dan jenis tanpa tanda tidak masuk hitungan pajak. Lihat [Cara Membaca Pajak Pribadi](pajak-pribadi)."
       ],
       "rules": [
-        "Catatan tidak bisa diedit. Bila salah, buka catatannya lalu tekan **Batalkan Pendapatan** dan isi alasan (minimal 5 karakter). Saldo dan pajak kembali seperti semula; catatan tetap tersimpan sebagai riwayat. Lalu catat ulang yang benar.",
+        "Catatan tidak bisa diedit. Bila salah, buka catatannya (klik tanggalnya di daftar), tekan **Salah catat? Batalkan**, isi **Alasan** (minimal 5 karakter), lalu tekan **Ya, Batalkan**. Saldo dan pajak kembali seperti semula; catatan tetap tersimpan sebagai riwayat. Lalu catat ulang yang benar.",
         "Hanya untuk uang yang sudah diterima. Untuk tagihan yang belum dibayar, buat Invoice agar tercatat sebagai piutang.",
         "Pendapatan diterima dalam mata uang dasar PT (rupiah).",
         "Jenis pendapatan dipilih dari Kategori pendapatan. Menambah jenis baru butuh izin kelola kategori (categories.manage).",
-        "Memilih akun pendapatan di Jurnal Manual tidak ikut pajak; di sana tampil peringatan dan tautan ke menu ini."
+        "Memilih akun pendapatan di Jurnal Manual tidak ikut pajak; di sana tampil peringatan dan tautan ke menu ini.",
+        "Pendapatan tidak bisa dicatat lewat Penyesuaian Lanjutan: menu itu menolak akun pendapatan. Selalu pakai Catat Pendapatan agar pajaknya ikut terbaca."
       ],
       "mistakes": [
         "Memakai Jurnal Manual untuk pendapatan biasa. Pendapatan itu tidak ikut dasar PPh Final.",

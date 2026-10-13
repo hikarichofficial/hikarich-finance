@@ -71,7 +71,7 @@
         },
         {
           "title": "Periksa Dashboard dan pemilih Entity",
-          "text": "Setelah berhasil, Dashboard terbuka. Di bilah atas sebelah kiri ada **pemilih Entity** yang menampilkan label **PT** atau **Pribadi**.",
+          "text": "Setelah berhasil, Dashboard terbuka. Di bilah atas sebelah kiri ada **pemilih Entity** yang menampilkan label **PT** atau **Pribadi**.\n\nDi bawah salam ada tombol **Bulanan** (bawaan), **Tahunan**, dan **Sejak Awal** untuk memilih rentang angka. Tanda ‹ dan › memindahkan ke bulan atau tahun sebelum dan sesudahnya (tidak ada untuk Sejak Awal). Bila bulan yang tampil belum punya pendapatan atau beban, muncul catatan dengan tautan ke bulan terakhir yang ada transaksinya. Ikon lonceng di bilah atas membuka bagian **Perlu Perhatian**. Cara membaca angkanya ada di [Cara Membaca Dashboard](membaca-dashboard).",
           "image": {
             "file": "mulai-dashboard.jpg",
             "caption": "Dashboard. Pemilih Entity ada di kiri atas, menu di sisi kiri."
@@ -88,7 +88,7 @@
         },
         {
           "title": "Mencari halaman atau data dengan cepat",
-          "text": "Tekan tombol **Cari atau buka halaman…** di bilah atas, atau tekan Ctrl+K (Windows) atau Cmd+K (Mac) saat kursor tidak sedang berada di kolom isian. Ketik minimal 2 huruf untuk mencari kontak, invoice, tagihan, pengeluaran, aset, pinjaman, atau jurnal di Entity aktif. Hasil dipilih dengan klik.\n\nDraf invoice yang belum terbit juga bisa ditemukan lewat pencarian ini (tampil sebagai “Invoice (draft)”)."
+          "text": "Tekan tombol **Cari atau buka halaman…** di bilah atas, atau tekan Ctrl+K (Windows) atau Cmd+K (Mac) saat kursor tidak sedang berada di kolom isian. Kotak pencarian terbuka dengan isian “Cari halaman atau data...”. Sebelum mengetik, yang tampil lebih dulu adalah pintasan **Buat Baru** (Transfer Uang Baru, Anggaran Baru, Transaksi Berulang Baru, Target Pendapatan Baru, dan Catat Pendapatan). Ketik untuk menyaring halaman menu (tampil seperti “Grup · Nama Halaman”).\n\nKetik minimal 2 huruf untuk memunculkan bagian **Hasil Pencarian**, yang mencari kontak, invoice, tagihan, pengeluaran, aset tetap, pinjaman, piutang atau utang lain-lain, transaksi ekuitas, jurnal, dan produk di Entity aktif. Hasil dipilih dengan klik.\n\nHasil Kontak dan Pengeluaran tampil abu-abu dan belum bisa dibuka; carilah lewat halaman daftarnya. Draf invoice yang belum terbit juga bisa ditemukan lewat pencarian ini (tampil sebagai “Invoice (draft)”)."
         },
         {
           "title": "Keluar",
@@ -103,7 +103,9 @@
         "Akun yang dinonaktifkan melihat pesan “Akun ini dinonaktifkan. Hubungi OWNER.”",
         "Pintasan Ctrl+K atau Cmd+K tidak aktif saat kursor berada di kolom isian.",
         "Tautan “← Kembali ke …” di halaman data (invoice, tagihan, pengeluaran, dan lainnya) membawa Anda ke halaman yang Anda buka sebelumnya, sama seperti tombol Back browser. Misalnya dari Aktivitas Terbaru membuka invoice, “Kembali” mengembalikan ke Aktivitas Terbaru, bukan ke daftar Invoice. Bila halaman dibuka langsung (tautan, bookmark, atau setelah muat ulang), tautan itu menuju daftar aslinya.",
-        "Warna angka: hijau berarti uang masuk dan merah berarti uang keluar, di mutasi rekening, Rekening Koran, Arus Kas, daftar pembayaran, dan Aktivitas Terbaru (pembayaran diterima diberi tanda +, pembayaran keluar tanda −). Saldo, total, Laba Rugi, dan Neraca memakai warna biasa."
+        "Warna angka: hijau berarti uang masuk dan merah berarti uang keluar, di mutasi rekening, Rekening Koran, Arus Kas, daftar pembayaran, dan Aktivitas Terbaru (pembayaran diterima diberi tanda +, pembayaran keluar tanda −). Saldo, total, Laba Rugi, dan Neraca memakai warna biasa.",
+        "Di bawah judul banyak halaman ada teks bantuan abu-abu yang menjelaskan fungsi halaman itu. Bila ada tombol **Selengkapnya**, tekan untuk membaca penjelasan lengkapnya. Halaman yang belum punya teks bantuan tidak menampilkannya.",
+        "Di daftar seperti Aset Tetap, Pinjaman, Modal & Ekuitas, Utang Lain, Piutang Lain, Transfer, Invoice, dan Tagihan, mengklik nomor atau kode pada baris membuka panel pratinjau di kanan. Tekan **Lihat Detail Lengkap** untuk membuka halaman penuh, atau **Tutup** (atau tombol Esc) untuk menutup panel. Menahan Ctrl, Shift, Alt, atau Cmd saat mengklik langsung membuka halaman penuh. Daftar Rekening tidak memakai panel ini."
       ],
       "mistakes": [
         "Mencatat transaksi saat Entity aktif salah. Selalu periksa label di kiri atas sebelum menekan Simpan.",
@@ -123,7 +125,12 @@
           "meaning": "Akun belum diberi akses ke PT maupun Pribadi. OWNER perlu menambahkannya di Administrasi > Pengguna & Peran."
         }
       ],
-      "related": ["urutan-langkah-awal", "pengaturan-pajak-awal"]
+      "related": [
+        "urutan-langkah-awal",
+        "pengaturan-pajak-awal",
+        "membaca-dashboard",
+        "kolom-ketik-dan-pilih"
+      ]
     },
     {
       "slug": "pengaturan-pajak-awal",
@@ -139,7 +146,7 @@
         },
         {
           "title": "Buka Pajak > Pengaturan Pajak",
-          "text": "Di menu kiri pilih **Pajak**, lalu **Pengaturan Pajak**. Halaman memiliki dua bagian: **Profil Pajak Entitas** dan **Mesin Pajak**.",
+          "text": "Di menu kiri pilih **Pajak**, lalu **Pengaturan Pajak**. Halaman memiliki dua bagian: **Profil Pajak Entitas** dan **Mesin Pajak**. Formulir untuk mengaktifkan mesin pajak baru muncul setelah profil tersimpan dan selama mesin belum aktif.",
           "image": {
             "file": "pajak-setup.jpg",
             "caption": "Halaman Pengaturan Pajak: profil dan mesin pajak."
@@ -147,7 +154,7 @@
         },
         {
           "title": "Isi Profil Pajak Entitas",
-          "text": "Isi kolom berikut:\n\n**Berlaku Sejak**: tanggal profil mulai berlaku (bawaan hari ini).\n\n**Jenis Wajib Pajak**: pilih “PT Perorangan (Perseroan Perorangan)”, “Orang pribadi”, “PT / CV / badan lain”, “Koperasi”, atau “Lainnya”. Untuk Entity PT pilih PT Perorangan; untuk Entity Pribadi ganti menjadi “Orang pribadi” (bawaan formulir adalah PT Perorangan).\n\n**Skema Pajak Penghasilan**: “PPh Final UMKM”, “Tarif umum”, atau “Belum diketahui”.\n\n**Dikecualikan dari PPh Final UMKM?** dan **Omzet Digabung dengan Usaha Lain**: Tidak, Ya, atau Belum diketahui.\n\n**Status PPN**: “Belum PKP (PPN tidak dihitung)”, “PKP (PPN dihitung otomatis)”, atau “Belum diketahui”.\n\n**Wajib Memotong PPh (PPh 23, 4(2), 26)?**: Ya, Tidak, atau Belum diketahui.\n\n**NPWP (opsional; disimpan terenkripsi)** dan **Catatan Bukti (opsional)**."
+          "text": "Isi kolom berikut:\n\n**Berlaku Sejak**: tanggal profil mulai berlaku (bawaan hari ini).\n\n**Jenis Wajib Pajak**: pilih “PT Perorangan (Perseroan Perorangan)”, “Orang pribadi”, “PT / CV / badan lain”, “Koperasi”, atau “Lainnya”. Untuk Entity PT pilih PT Perorangan; untuk Entity Pribadi ganti menjadi “Orang pribadi” (bawaan formulir adalah PT Perorangan).\n\n**Skema Pajak Penghasilan**: “PPh Final UMKM”, “Tarif umum”, atau “Belum diketahui”.\n\n**Dikecualikan dari PPh Final UMKM?** dan **Omzet Digabung dengan Usaha Lain (keluarga / PT Perorangan lain)?**: Tidak, Ya, atau Belum diketahui.\n\n**Status PPN**: “Belum PKP (PPN tidak dihitung)”, “PKP (PPN dihitung otomatis)”, atau “Belum diketahui”.\n\n**Wajib Memotong PPh (PPh 23, 4(2), 26)?**: Ya, Tidak, atau Belum diketahui.\n\n**NPWP (opsional; disimpan terenkripsi)** dan **Catatan Bukti (opsional)**."
         },
         {
           "title": "Simpan profil",
@@ -160,7 +167,7 @@
         },
         {
           "title": "Periksa hasilnya",
-          "text": "Buka **Pajak > Ringkasan Pajak**. Tertulis “Mesin pajak aktif sejak …” dan bagian **Profil Pajak Entity** menampilkan profil yang berlaku."
+          "text": "Buka **Pajak > Ringkasan Pajak**. Di bawah judul tertulis “Per <tanggal> · mesin pajak aktif sejak <tanggal>”, diikuti empat label profil yang berlaku: **Wajib pajak**, **Rezim**, **PPN**, dan **Pemotong pajak**. Bila profil belum ada, tampil tautan “Isi profil pajak Entity →”. Di Pengaturan Pajak, bagian Mesin Pajak juga menuliskan “Aktif sejak <tanggal>”."
         }
       ],
       "result": [
@@ -201,41 +208,52 @@
     },
     {
       "slug": "kolom-ketik-dan-pilih",
-      "title": "Cara Memakai Kolom Ketik-dan-Pilih (Pelanggan, Vendor, Kategori, Penerima, Deskripsi)",
-      "summary": "Mengisi kolom nama, kategori, dan deskripsi dengan cepat: klik untuk melihat semua pilihan, ketik untuk mempersempit, atau tambahkan yang baru bila belum ada.",
-      "path": "Muncul di banyak form: Penjualan > Invoice (Pelanggan dan deskripsi baris), Pembelian > Beban (Vendor dan Nama Penerima), Pembelian > Tagihan, Kas & Bank > Transfer, Akuntansi > Jurnal Manual, Aset & Pendanaan (pinjaman, utang-piutang, ekuitas)",
+      "title": "Cara Memakai Kolom Ketik-dan-Pilih (Nama, Akun, Rekening, Kategori, dan Deskripsi)",
+      "summary": "Mengisi kolom pilihan (pelanggan, vendor, kategori, akun, rekening, dan lainnya) serta kolom nama dan deskripsi dengan cepat: klik untuk melihat semua pilihan, ketik untuk mempersempit, atau tambahkan yang baru bila kolomnya mengizinkan.",
+      "path": "Muncul di hampir semua form: Penjualan (Invoice, Pembayaran, Refund, Pendapatan), Pembelian (Beban, Tagihan), Kas & Bank (Transfer, Mutasi, Penyesuaian Saldo), Akuntansi (Jurnal Manual, Saldo Awal), Aset & Pendanaan (aset, pinjaman, utang-piutang, ekuitas), Payroll, Perencanaan, Produk, Laporan, dan Pajak",
       "who": "Semua pengguna yang boleh mengisi form tersebut. Tidak ada izin khusus; daftar yang muncul hanya berasal dari data Entity yang sedang aktif.",
-      "quick": "Klik kolomnya dan seluruh pilihan langsung terbuka (bisa digulir), jadi Anda tidak perlu mengingat apa yang ada. Mengetik mempersempit daftar mulai dari huruf pertama, dan tombol **+ Tambah ... baru** selalu ada di bagian bawah daftar.",
+      "quick": "Klik kolomnya dan seluruh pilihan langsung terbuka (bisa digulir), jadi Anda tidak perlu mengingat apa yang ada. Mengetik mempersempit daftar. Tombol **+ Tambah ... baru** hanya ada di kolom yang boleh menambah, seperti pelanggan, vendor, dan kategori; akun dan rekening hanya bisa dipilih.",
       "steps": [
         {
           "title": "Klik kolomnya, lihat semua pilihan, atau ketik",
-          "text": "Mengklik kolom membuka seluruh daftar pilihan (pelanggan, vendor, kategori, Brand, Jenis Produk, Variant) yang bisa digulir. Pada kolom nama penerima dan deskripsi baris, yang tampil adalah yang pernah dipakai. Ketik satu huruf atau lebih untuk mempersempit: pada satu huruf, daftar menampilkan nama yang diawali huruf itu. Mulai dua huruf, nama yang memuat huruf itu di bagian mana pun ikut tampil, dengan yang diawali huruf Anda di atas.",
-          "tip": "Makin banyak yang diketik, makin pendek daftarnya. Ketik “bud” untuk menemukan “Pak Budi” tanpa menggulir."
+          "text": "Mengklik kolom (atau menekan Tab ke kolom itu) membuka seluruh daftar pilihan, sampai 200 baris dan bisa digulir: pelanggan, vendor, kategori, akun, rekening, karyawan, aset, Brand, Jenis Produk, Variant, dan sejenisnya. Kolom berisi petunjuk “Ketik nama …”. Daftar terbuka ke bawah, atau ke atas bila ruang di bawah kurang.\n\nKetik satu huruf atau lebih untuk mempersempit: pada satu huruf, daftar menampilkan nama yang diawali huruf itu. Mulai dua huruf, nama yang diawali huruf Anda tampil di atas, disusul nama yang memuat huruf itu di bagian mana pun (paling banyak 8 baris). Akun bisa dicari dengan kode maupun nama.\n\nPada kolom tulisan bebas seperti Nama Penerima, Keterangan, Deskripsi, dan Tujuan, kolom yang masih kosong menampilkan nama yang pernah dipakai. Bila kolom sudah berisi nama tersimpan, daftarnya baru terbuka setelah Anda mengubah isinya.",
+          "tip": "Makin banyak yang diketik, makin pendek daftarnya. Ketik “bud” untuk menemukan “Pak Budi”, atau “1121” untuk menemukan akun “1121 · BCA Operasional”, tanpa menggulir."
         },
         {
           "title": "Pilih dari daftar",
-          "text": "Klik nama yang Anda maksud, atau tekan tombol panah bawah/atas lalu **Enter**. Kolom terisi dengan pilihan itu. Pada deskripsi baris invoice, harga terakhir yang dipakai ikut terisi dan tetap bisa Anda ubah."
+          "text": "Klik baris yang Anda maksud, atau tekan tombol panah bawah/atas lalu **Enter**. Tombol **Esc** menutup daftar. Kolom terisi dengan pilihan itu. Bila Anda mengetik nama yang persis sama dengan salah satu pilihan lalu menekan Enter atau pindah ke kolom lain, pilihan itu otomatis terpilih. Enter pada nama yang belum dipilih tidak mengirim form. Pada deskripsi baris invoice, harga terakhir yang dipakai ikut terisi dan tetap bisa Anda ubah."
         },
         {
-          "title": "Tambahkan bila belum ada",
-          "text": "Baris terakhir daftar selalu menawarkan **+ Tambah … baru** (bila Anda sudah mengetik, tertulis **+ Tambah “…” sebagai … baru**). Untuk **Pelanggan** dan **Vendor**, ini membuka panel kecil untuk menyimpan kontak baru tanpa meninggalkan form. Untuk **Nama Penerima**, **deskripsi**, **penjelasan**, dan **tujuan/keterangan**, tulisan Anda dipakai apa adanya. Setelah menekan tombol tambah, daftar menutup, muncul tanda “✓ Deskripsi dipakai” (untuk deskripsi) dan kursor pindah ke kolom berikutnya. Tulisan itu tersimpan saat dokumennya disimpan (misalnya tombol Simpan pada pengeluaran), bukan saat tombol tambah ditekan; sesudah itu namanya muncul di daftar pada pengisian berikutnya."
+          "title": "Tambahkan bila belum ada (hanya di kolom yang mengizinkan)",
+          "text": "Di kolom yang boleh menambah, baris terakhir daftar menawarkan **+ Tambah … baru** (bila Anda sudah mengetik, tertulis **+ Tambah “…” sebagai … baru**). Baris ini tidak muncul bila yang Anda ketik sama dengan pilihan yang sudah ada. Kolom yang punya tombol tambah: **Pelanggan** dan **Vendor** (invoice, tagihan, pengeluaran, pendapatan), **Kategori** pada baris pembelian, **Brand**, **Jenis Produk**, **Variant**, dan **Jenis lampiran**. Untuk **Pelanggan** dan **Vendor**, tombol ini membuka panel kecil untuk menyimpan kontak baru tanpa meninggalkan form, dan hasilnya langsung terpilih.\n\nKolom **akun**, **rekening**, **karyawan**, **aset**, dan **pembayaran** tidak punya tombol tambah. Datanya dibuat di menunya sendiri, misalnya [Cara Menambah Rekening](tambah-rekening).\n\nUntuk **Nama Penerima**, **deskripsi**, **penjelasan**, dan **tujuan/keterangan**, tulisan Anda dipakai apa adanya. Setelah menekan tombol tambah, daftar menutup, muncul tanda “✓ Deskripsi dipakai” (untuk deskripsi) dan kursor pindah ke kolom berikutnya. Tulisan itu tersimpan saat dokumennya disimpan (misalnya tombol Simpan pada pengeluaran), bukan saat tombol tambah ditekan; sesudah itu namanya muncul di daftar pada pengisian berikutnya."
         },
         {
-          "title": "Tetap boleh menulis sendiri",
-          "text": "Daftar hanyalah bantuan. Anda boleh mengabaikannya dan menulis sesuatu yang lain. Pada kolom Vendor yang opsional, tulisan yang belum dipilih atau ditambahkan akan ditolak dengan pesan agar Anda memilih, menambah, atau mengosongkannya, supaya tidak ada nama setengah jadi yang tersimpan.",
+          "title": "Kolom pilihan tidak menerima tulisan bebas",
+          "text": "Pada kolom pilihan (pelanggan, vendor, kategori, akun, rekening, karyawan, aset, dan sejenisnya), yang tersimpan hanya yang Anda pilih dari daftar. Bila tulisan yang diketik tidak cocok dengan pilihan mana pun, form menolak dengan pesan seperti “Pilih … dari daftar, atau tambah … baru.” Pada kolom yang boleh dikosongkan, pesannya “Pilih … dari daftar, tambah … baru, atau kosongkan kolom ini.” Supaya tidak ada nama setengah jadi yang tersimpan, pilih dari daftar, tambahkan (bila ada tombol tambah), atau kosongkan kolomnya.\n\nHanya kolom tulisan bebas (Nama Penerima, Keterangan, Deskripsi, Tujuan, dan nama pihak pada pinjaman atau utang) yang menyimpan tulisan apa adanya; daftar di sana hanya saran.",
           "warning": "Formulir klaim pembayaran publik (yang diisi pelanggan tanpa masuk) sengaja memakai kolom biasa tanpa daftar, agar nama pembayar lain tidak terlihat."
         }
       ],
       "rules": [
-        "Daftar tidak pernah terbuka hanya karena kolom diklik; ia muncul setelah ada huruf yang diketik.",
         "Daftar hanya berisi data Entity yang sedang aktif; PT dan Pribadi tidak saling melihat.",
-        "Yang tersimpan selalu tulisan yang ada di kolom saat Anda menyimpan."
+        "Pada kolom pilihan, yang tersimpan adalah item yang Anda pilih. Mengetik lagi setelah memilih membatalkan pilihan sebelumnya, jadi pilih ulang dari daftar.",
+        "Pada kolom tulisan bebas, yang tersimpan adalah tulisan yang ada di kolom saat Anda menyimpan.",
+        "Kolom pilihan untuk saringan (misalnya Akun di Mutasi Kas & Bank) boleh dikosongkan; kosong berarti semua. Tulisan yang tidak cocok dengan apa pun tetap ditolak.",
+        "Beberapa daftar sengaja tidak memuat semua data, misalnya rekening nonaktif di Transfer, serta rekening mata uang asing dan akun kas bawaan yang tidak terhubung ke rekening di Saldo Awal.",
+        "Pilihan dengan isi tetap (arah, jenis jurnal, status, jenis dokumen) tetap berupa dropdown biasa."
       ],
       "mistakes": [
-        "Menunggu daftar muncul tanpa mengetik: ketik satu huruf dulu.",
-        "Mengetik nama vendor lalu langsung menyimpan tanpa memilihnya: pilih dari daftar atau tambahkan sebagai vendor baru."
+        "Mengetik sebagian nama (vendor, pelanggan, rekening) lalu langsung menyimpan tanpa memilihnya: pilih dari daftar, atau tambahkan sebagai baru bila kolomnya punya tombol tambah.",
+        "Mencari tombol **+ Tambah** di kolom akun, rekening, karyawan, atau aset. Kolom itu hanya bisa dipilih; buat datanya di menu masing-masing. Akun yang tidak tampil biasanya sengaja disembunyikan (nonaktif, mata uang asing, atau akun kas yang tidak terhubung ke rekening).",
+        "Mengetik lagi di kolom yang sudah terpilih lalu menyimpan: pilihan lama hilang dan harus dipilih ulang."
       ],
-      "related": ["buat-terbitkan-invoice", "buat-biaya", "tambah-pelanggan", "tambah-vendor"]
+      "related": [
+        "buat-terbitkan-invoice",
+        "buat-biaya",
+        "tambah-pelanggan",
+        "tambah-vendor",
+        "transfer-antar-rekening",
+        "saldo-awal"
+      ]
     }
   ]
 }
