@@ -847,7 +847,7 @@
         "Di Buku Pribadi, jenis berkategori jasa ikut hitungan PPh Progresif, jenis penjualan usaha ikut PPh Final 0,5%, dan jenis tanpa tanda tidak masuk hitungan pajak. Lihat [Cara Membaca Pajak Pribadi](pajak-pribadi)."
       ],
       "rules": [
-        "Catatan tidak bisa diedit. Bila salah, buka catatannya (klik tanggalnya di daftar), tekan **Salah catat? Batalkan**, isi **Alasan** (minimal 5 karakter), lalu tekan **Ya, Batalkan**. Saldo dan pajak kembali seperti semula; catatan tetap tersimpan sebagai riwayat. Lalu catat ulang yang benar.",
+        "Catatan tidak bisa diedit. Bila salah, buka catatannya (klik tanggalnya di daftar), tekan **Salah catat? Batalkan**, cek **Tanggal pembatalan** (otomatis tanggal catatan asli selama bulannya masih terbuka, sehingga laporan bulan itu kembali seperti sebelum dicatat; bila memilih tanggal bulan lain, pembaliknya masuk ke bulan itu), isi **Alasan** (minimal 5 karakter), lalu tekan **Ya, Batalkan**. Saldo dan pajak kembali seperti semula; catatan tetap tersimpan sebagai riwayat. Lalu catat ulang yang benar.",
         "Hanya untuk uang yang sudah diterima. Untuk tagihan yang belum dibayar, buat Invoice agar tercatat sebagai piutang.",
         "Pendapatan diterima dalam mata uang dasar PT (rupiah).",
         "Jenis pendapatan dipilih dari Kategori pendapatan. Menambah jenis baru butuh izin kelola kategori (categories.manage).",
