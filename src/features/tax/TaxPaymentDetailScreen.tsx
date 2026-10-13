@@ -162,7 +162,17 @@ export function TaxPaymentDetailScreen({
         <div className="dashboard-section-header">
           <h2 className="dashboard-section-title">Lampiran</h2>
         </div>
-        <EvidenceList title={null} rows={evidence} />
+        <EvidenceList
+          title={null}
+          rows={evidence}
+          returnPath={`/tax/payments/${payment.payment_id}`}
+        />
+      </section>
+
+      <section className="dashboard-section">
+        <div className="dashboard-section-header">
+          <h2 className="dashboard-section-title">Unggah Lampiran Baru</h2>
+        </div>
         {confirmed ? (
           <TaxEvidenceUploadForm
             targets={[

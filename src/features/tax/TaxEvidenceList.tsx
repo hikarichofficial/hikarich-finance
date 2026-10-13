@@ -1,3 +1,4 @@
+import { AttachmentDeleteForm } from "@/features/documents/AttachmentForms";
 import { AttachmentPreviewLink } from "@/features/documents/AttachmentPreviewLink";
 import { formatDocumentSize } from "@/domain/documents/documents";
 import { EVIDENCE_PURPOSE_LABELS } from "@/domain/tax/tax";
@@ -8,9 +9,12 @@ import { formatShortDate } from "./format";
 export function EvidenceList({
   title,
   rows,
+  returnPath,
 }: {
   title: string | null;
   rows: readonly TaxEvidenceRow[];
+  /** The page the delete goes back to (decision 418); without it the proofs are shown without a delete button. */
+  returnPath?: string;
 }) {
   return (
     <>
@@ -32,6 +36,7 @@ export function EvidenceList({
                 {EVIDENCE_PURPOSE_LABELS[e.purpose]} &middot; {formatDocumentSize(e.size_bytes)}{" "}
                 &middot; {formatShortDate(e.created_at.slice(0, 10))}
               </p>
+              {returnPath ? <AttachmentDeleteForm linkId={e.link_id} returnPath={returnPath} /> : null}
             </li>
           ))}
         </ul>

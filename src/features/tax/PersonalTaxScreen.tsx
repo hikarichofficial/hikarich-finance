@@ -403,7 +403,7 @@ export function PersonalTaxScreen({
                   </div>
                   <p className="hint">
                     {installment.kind === "amount"
-                      ? `Pajak progresif tahun lalu dikurangi pajak yang dipotong (${money(installment.basis)}), dibagi 12. Setor lewat e-Billing lalu catat di Pembelian > Beban dengan kategori "Setoran PPh 25 (Angsuran)"; angka di sini dan kurang bayar ikut menyesuaikan.`
+                      ? `Pajak progresif tahun lalu dikurangi pajak yang dipotong (${money(installment.basis)}), dibagi 12. Setor lewat e-Billing lalu catat di Pajak > Pelaporan & Bukti (jenis PPh 25) dengan NTPN dan bukti bayar; angka di sini dan kurang bayar ikut menyesuaikan.`
                       : installment.reason}
                   </p>
                 </section>
@@ -502,9 +502,9 @@ export function PersonalTaxScreen({
                 jasa tidak memakainya dan dihitung penuh dengan tarif progresif.
               </li>
               <li>
-                Pajak yang Anda setor sendiri (PPh Final dan angsuran PPh 25) dicatat sebagai biaya
-                dengan kategori &ldquo;Setoran PPh Final UMKM&rdquo; atau &ldquo;Setoran PPh 25
-                (Angsuran)&rdquo;, lalu otomatis mengurangi kekurangan bayar.
+                Pajak yang Anda setor sendiri (PPh Final dan angsuran PPh 25) dicatat di Pajak &gt;
+                Pelaporan &amp; Bukti, sama seperti PT: lengkap dengan NTPN dan bukti bayar, lalu
+                otomatis mengurangi kekurangan bayar.
               </li>
               <li>
                 Ini perkiraan. Angka tidak dicatat sebagai jurnal; tahun ditetapkan otomatis tiap 1

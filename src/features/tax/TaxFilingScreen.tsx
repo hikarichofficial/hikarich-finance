@@ -12,7 +12,7 @@ import { formatDocumentSize } from "@/domain/documents/documents";
 import {
   DIFFERENCE_LABELS,
   EVIDENCE_PURPOSE_LABELS,
-  FILING_TAX_TYPES,
+  filingTaxTypesFor,
   PAYMENT_ISSUE_LABELS,
   TAX_TYPE_LABELS,
   checkTaxPayment,
@@ -63,6 +63,7 @@ export function TaxFilingScreen({
   currency,
   entityId,
   entity,
+  entityType,
   paymentAccounts,
   evidence,
   paymentEvidence = [],
@@ -77,6 +78,8 @@ export function TaxFilingScreen({
   currency: string;
   entityId: string;
   entity: string | undefined;
+  /** `personal` offers PPh Final UMKM and PPh 25; a company the other types (decision 417). */
+  entityType?: string;
   paymentAccounts: readonly FinancialAccountPickerRow[];
   evidence: readonly TaxEvidenceRow[];
   paymentEvidence?: ReadonlyArray<{
@@ -106,7 +109,7 @@ export function TaxFilingScreen({
         <label>
           Jenis Pajak
           <select name="type" defaultValue={taxType}>
-            {FILING_TAX_TYPES.map((t) => (
+            {filingTaxTypesFor(entityType).map((t) => (
               <option key={t} value={t}>
                 {TAX_TYPE_LABELS[t]}
               </option>
@@ -140,7 +143,7 @@ export function TaxFilingScreen({
         assetAvailable={position.asset_available}
       />
       {hasNoReturnToRecord(taxType, period) ? (
-        <FinalNoMonthlyReturn period={period} entity={entity} />
+        <FinalNoMonthlyReturn taxType={taxType} period={period} entity={entity} />
       ) : (
         <RecordFilingForm
           taxType={taxType}
@@ -154,14 +157,16 @@ export function TaxFilingScreen({
           reportedCredit={position.accrued_asset}
         />
       )}
-      <ReconcilePeriodForm
-        taxType={taxType}
-        period={period}
-        entityId={entityId}
-        entity={entity}
-        differenceCount={relevantDifferences(taxType, period, position.differences).length}
-        reconciliation={position.reconciliation}
-      />
+      {taxType === "pph25" ? null : (
+        <ReconcilePeriodForm
+          taxType={taxType}
+          period={period}
+          entityId={entityId}
+          entity={entity}
+          differenceCount={relevantDifferences(taxType, period, position.differences).length}
+          reconciliation={position.reconciliation}
+        />
+      )}
       <EvidenceSection
         taxType={taxType}
         period={period}
@@ -193,52 +198,70 @@ function PositionSummary({
         <h2 className="dashboard-section-title">Posisi Tercatat</h2>
       </div>
       <SectionHelp id="tax.filing.position" />
-      <dl className="record-summary-grid">
-        <div>
-          <dt>Terutang (Diakui)</dt>
-          <dd>{formatMoney(position.accrued_payable, currency)}</dd>
-        </div>
-        <div>
-          <dt>Sudah Dibayar</dt>
-          <dd>{formatMoney(position.paid_payable, currency)}</dd>
-        </div>
-        <div>
-          <dt>Sisa Kekurangan</dt>
-          <dd>{formatMoney(position.outstanding_payable, currency)}</dd>
-        </div>
-        {position.tax_type === "vat" ? (
+      {position.tax_type === "pph25" ? (
+        <dl className="record-summary-grid">
           <div>
-            <dt>PPN Masukan Tersedia</dt>
-            <dd>{formatMoney(position.asset_available, currency)}</dd>
+            <dt>Sudah Disetor</dt>
+            <dd>{formatMoney(position.paid_payable, currency)}</dd>
           </div>
-        ) : null}
-        <div>
-          <dt>Pelaporan</dt>
-          <dd>
-            {position.filed_reference
-              ? `Dilaporkan (${position.filed_reference})`
-              : hasNoReturnToRecord(position.tax_type, period)
-                ? "Tidak ada laporan bulanan (SPT Tahunan)"
-                : "Belum dilaporkan"}
-          </dd>
-        </div>
-        <div>
-          <dt>Rekonsiliasi</dt>
-          <dd>
-            {position.reconciliation
-              ? `${position.reconciliation.outcome === "reconciled" ? "Sudah direkonsiliasi" : "Direkonsiliasi (ada selisih)"}${position.reconciliation.stale ? " -- sudah berubah sejak itu" : ""}`
-              : "Belum direkonsiliasi"}
-          </dd>
-        </div>
-        <div>
-          <dt>Bukti Terlampir</dt>
-          <dd>{position.evidence_count}</dd>
-        </div>
-        <div>
-          <dt>Per Tanggal</dt>
-          <dd>{formatShortDate(position.as_of)}</dd>
-        </div>
-      </dl>
+          <div>
+            <dt>Bukti Terlampir</dt>
+            <dd>{position.evidence_count}</dd>
+          </div>
+          <div>
+            <dt>Per Tanggal</dt>
+            <dd>{formatShortDate(position.as_of)}</dd>
+          </div>
+        </dl>
+      ) : null}
+      {position.tax_type === "pph25" ? null : (
+        <dl className="record-summary-grid">
+          <div>
+            <dt>Terutang (Diakui)</dt>
+            <dd>{formatMoney(position.accrued_payable, currency)}</dd>
+          </div>
+          <div>
+            <dt>Sudah Dibayar</dt>
+            <dd>{formatMoney(position.paid_payable, currency)}</dd>
+          </div>
+          <div>
+            <dt>Sisa Kekurangan</dt>
+            <dd>{formatMoney(position.outstanding_payable, currency)}</dd>
+          </div>
+          {position.tax_type === "vat" ? (
+            <div>
+              <dt>PPN Masukan Tersedia</dt>
+              <dd>{formatMoney(position.asset_available, currency)}</dd>
+            </div>
+          ) : null}
+          <div>
+            <dt>Pelaporan</dt>
+            <dd>
+              {position.filed_reference
+                ? `Dilaporkan (${position.filed_reference})`
+                : hasNoReturnToRecord(position.tax_type, period)
+                  ? "Tidak ada laporan bulanan (SPT Tahunan)"
+                  : "Belum dilaporkan"}
+            </dd>
+          </div>
+          <div>
+            <dt>Rekonsiliasi</dt>
+            <dd>
+              {position.reconciliation
+                ? `${position.reconciliation.outcome === "reconciled" ? "Sudah direkonsiliasi" : "Direkonsiliasi (ada selisih)"}${position.reconciliation.stale ? " -- sudah berubah sejak itu" : ""}`
+                : "Belum direkonsiliasi"}
+            </dd>
+          </div>
+          <div>
+            <dt>Bukti Terlampir</dt>
+            <dd>{position.evidence_count}</dd>
+          </div>
+          <div>
+            <dt>Per Tanggal</dt>
+            <dd>{formatShortDate(position.as_of)}</dd>
+          </div>
+        </dl>
+      )}
       {relevantDifferences(position.tax_type, period, position.differences).length > 0 ? (
         <ul className="dashboard-list">
           {relevantDifferences(position.tax_type, period, position.differences).map((diff, i) => (
@@ -376,12 +399,20 @@ function RecordPaymentForm({
         <h2 className="dashboard-section-title">Catat Pembayaran</h2>
       </div>
       <SectionHelp id="tax.filing.record-payment" />
-      <p className="hint">
-        Sisa kekurangan saat ini: {formatMoney(outstanding, currency)}
-        {taxType === "vat"
-          ? ` -- PPN Masukan tersedia untuk kompensasi: ${formatMoney(assetAvailable, currency)}`
-          : ""}
-      </p>
+      {taxType === "pph25" ? (
+        <p className="hint">
+          Angsuran PPh 25 dibayar di muka untuk pajak tahunan, jadi tidak ada tagihan yang dilunasi.
+          Isi jumlah yang Anda setor lewat kode billing; setoran ini otomatis mengurangi kekurangan
+          bayar di Pajak Pribadi.
+        </p>
+      ) : (
+        <p className="hint">
+          Sisa kekurangan saat ini: {formatMoney(outstanding, currency)}
+          {taxType === "vat"
+            ? ` -- PPN Masukan tersedia untuk kompensasi: ${formatMoney(assetAvailable, currency)}`
+            : ""}
+        </p>
+      )}
       <form {...actionForm} className="record-form">
         <input type="hidden" name="entity_id" value={entityId} />
         <input type="hidden" name="tax_type" value={taxType} />
@@ -427,16 +458,20 @@ function RecordPaymentForm({
           optional
         />
         <label>
-          {taxType === "final_umkm" ? "NTPN dan Kode Billing (opsional)" : "Referensi (opsional)"}
+          {taxType === "final_umkm" || taxType === "pph25"
+            ? "NTPN dan Kode Billing (opsional)"
+            : "Referensi (opsional)"}
           <input
             type="text"
             name="reference"
             maxLength={200}
-            placeholder={taxType === "final_umkm" ? "NTPN ... / Kode Billing ..." : undefined}
+            placeholder={
+              taxType === "final_umkm" || taxType === "pph25" ? "NTPN ... / Kode Billing ..." : undefined
+            }
           />
-          {taxType === "final_umkm" ? (
+          {taxType === "final_umkm" || taxType === "pph25" ? (
             <span className="hint">
-              Bukti pembayaran PPh Final adalah NTPN pada Bukti Penerimaan Negara (BPN) setelah kode
+              Bukti pembayaran {taxType === "pph25" ? "PPh 25" : "PPh Final"} adalah NTPN pada Bukti Penerimaan Negara (BPN) setelah kode
               billing dibayar. Tulis NTPN dan kode billing-nya di sini.
             </span>
           ) : null}
@@ -480,7 +515,28 @@ function RecordPaymentForm({
  * the NTPN on the Bukti Penerimaan Negara) and the return is the SPT Tahunan, so there is no "Catat Pelaporan"
  * and no NTTE for it (decision 408).
  */
-function FinalNoMonthlyReturn({ period, entity }: { period: string; entity: string | undefined }) {
+function FinalNoMonthlyReturn({
+  taxType,
+  period,
+  entity,
+}: {
+  taxType: FilingTaxType;
+  period: string;
+  entity: string | undefined;
+}) {
+  if (taxType === "pph25") {
+    return (
+      <section className="dashboard-section">
+        <div className="dashboard-section-header">
+          <h2 className="dashboard-section-title">Pelaporan</h2>
+        </div>
+        <p className="hint">
+          Angsuran PPh 25 tidak dilaporkan per bulan. Setoran dikreditkan di SPT Tahunan Orang
+          Pribadi, jadi cukup catat pembayaran di atas (NTPN dan bukti bayar).
+        </p>
+      </section>
+    );
+  }
   const params = new URLSearchParams({ type: "final_umkm", period: `${period.slice(0, 4)}-12` });
   if (entity) params.set("entity", entity);
   return (
@@ -731,27 +787,42 @@ function EvidenceSection({
     })),
   ];
   return (
-    <section className="dashboard-section">
-      <div className="dashboard-section-header">
-        <h2 className="dashboard-section-title">Bukti Pendukung</h2>
-      </div>
-      <SectionHelp id="tax.filing.evidence" />
-      {!filingId && paymentEvidence.length === 0 ? (
-        <p className="hint">
-          Lampirkan bukti setelah pembayaran atau pelaporan periode ini dicatat.
-        </p>
-      ) : (
-        <>
-          {filingId ? (
-            <EvidenceList
-              title={`Pelaporan ${filedReference ? `(${filedReference})` : "periode ini"}`}
-              rows={evidence}
-            />
-          ) : null}
-          {paymentEvidence.map((p) => (
-            <EvidenceList key={p.paymentId} title={`Pembayaran ${p.paymentNumber}`} rows={p.rows} />
-          ))}
+    <>
+      <section className="dashboard-section">
+        <div className="dashboard-section-header">
+          <h2 className="dashboard-section-title">Bukti Pendukung</h2>
+        </div>
+        <SectionHelp id="tax.filing.evidence" />
+        {!filingId && paymentEvidence.length === 0 ? (
+          <p className="hint">
+            Lampirkan bukti setelah pembayaran atau pelaporan periode ini dicatat.
+          </p>
+        ) : (
+          <>
+            {filingId ? (
+              <EvidenceList
+                title={`Pelaporan ${filedReference ? `(${filedReference})` : "periode ini"}`}
+                rows={evidence}
+                returnPath="/tax/filing"
+              />
+            ) : null}
+            {paymentEvidence.map((p) => (
+              <EvidenceList
+                key={p.paymentId}
+                title={`Pembayaran ${p.paymentNumber}`}
+                rows={p.rows}
+                returnPath="/tax/filing"
+              />
+            ))}
+          </>
+        )}
+      </section>
 
+      {!filingId && paymentEvidence.length === 0 ? null : (
+        <section className="dashboard-section">
+          <div className="dashboard-section-header">
+            <h2 className="dashboard-section-title">Unggah Bukti Baru</h2>
+          </div>
           <TaxEvidenceUploadForm
             targets={targets}
             taxType={taxType}
@@ -805,9 +876,9 @@ function EvidenceSection({
               ))}
             </ul>
           ) : null}
-        </>
+        </section>
       )}
-    </section>
+    </>
   );
 }
 
