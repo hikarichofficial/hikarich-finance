@@ -254,6 +254,52 @@
         "transfer-antar-rekening",
         "saldo-awal"
       ]
+    },
+    {
+      "slug": "pakai-di-hp-dan-ipad",
+      "title": "Cara Memakai Hikarich Finance di HP dan iPad",
+      "summary": "Membuka Hikarich Finance di Android, iPhone, dan iPad lewat browser, memasangnya di layar utama seperti aplikasi, dan hal yang berbeda di layar kecil.",
+      "path": "Tidak ada menu khusus: buka https://finance.hikarichgroup.com dari browser di HP atau iPad",
+      "who": "Semua pengguna. Hak akses dan data sama persis dengan di komputer; yang berbeda hanya tampilannya.",
+      "quick": "Buka alamat situsnya di Chrome (Android) atau Safari (iPhone dan iPad), masuk seperti biasa, lalu pilih **Tambah ke Layar Utama** agar bisa dibuka seperti aplikasi. Menu ada di tombol ☰ di kiri atas, dan tabel yang lebar bisa digeser ke samping.",
+      "steps": [
+        {
+          "title": "Buka situsnya dari browser dan masuk",
+          "text": "Di Android pakai **Chrome**, di iPhone dan iPad pakai **Safari**. Buka https://finance.hikarichgroup.com lalu masuk dengan email dan kata sandi seperti di komputer. Tampilan menyesuaikan layar sendiri: di HP, kartu ringkasan tersusun ke bawah dan daftar berubah menjadi kartu; di iPad, tampilannya lebih lega dengan beberapa kartu berdampingan.",
+          "tip": "Layar iPad yang lebar (posisi mendatar) menampilkan menu di kiri tetap terlihat. Di HP dan iPad posisi tegak, menu disembunyikan dan dibuka dengan tombol ☰."
+        },
+        {
+          "title": "Pasang di layar utama seperti aplikasi",
+          "text": "**Android (Chrome):** ketuk tombol tiga titik di kanan atas, pilih **Tambah ke Layar utama** (atau **Instal aplikasi**), lalu **Tambahkan**.\n\n**iPhone dan iPad (Safari):** ketuk tombol **Bagikan** (kotak dengan panah ke atas), gulir lalu pilih **Tambah ke Layar Utama**, dan ketuk **Tambah**.\n\nIkon Hikarich muncul di layar utama. Dibuka dari ikon itu, situs tampil penuh layar tanpa bilah alamat browser.",
+          "tip": "Memasang ke layar utama hanya membuat pintasan. Aplikasi tidak menyimpan data keuangan di HP, jadi sambungan internet tetap dibutuhkan, dan Anda tetap harus masuk bila sesi sudah berakhir."
+        },
+        {
+          "title": "Pindah menu dan pindah Entity di layar kecil",
+          "text": "Ketuk tombol **☰** di kiri atas untuk membuka menu, lalu ketuk menu yang dituju; menu menutup sendiri. Pemilih Entity (**PT** atau **Pribadi**) tetap di bilah atas. Pencarian ada di kolom kaca pembesar di bilah atas, dan lonceng membuka daftar Perlu Perhatian di Dashboard.",
+          "tip": "Sebelum menyimpan, lihat dulu tulisan **PT** atau **Pribadi** di bilah atas. Tampilan yang kecil tidak mengubah Entity yang aktif."
+        },
+        {
+          "title": "Tabel yang lebar dan form di layar sentuh",
+          "text": "Di HP, daftar seperti Invoice tampil sebagai kartu berisi data pokok. Laporan dan tabel yang kolomnya banyak tetap berupa tabel: **geser ke kiri atau kanan** di dalam kotaknya untuk melihat kolom lainnya, sementara halamannya tidak ikut bergeser. Kolom isian berukuran cukup besar sehingga layar tidak memperbesar sendiri saat diketuk.",
+          "tip": "Untuk laporan yang banyak kolomnya (misalnya laporan keuangan dan laporan pajak), putar HP ke posisi mendatar atau pakai iPad agar lebih banyak kolom terlihat sekaligus."
+        },
+        {
+          "title": "Mengunggah foto bukti dari kamera",
+          "text": "Di bagian **Unggah Lampiran Baru**, ketuk **Pilih berkas**. HP menawarkan **Ambil Foto** atau **Pustaka Foto**; pilih salah satu, tentukan **Jenis lampiran**, lalu ketuk **Lampirkan**. Berkas boleh PDF, JPG, PNG, atau WebP, maksimal 4 MB.",
+          "tip": "Foto dari kamera HP sering lebih dari 4 MB. Bila ditolak, ambil foto dengan kualitas lebih rendah atau kirim sebagai tangkapan layar."
+        }
+      ],
+      "rules": [
+        "Semua fungsi dan hak akses sama dengan di komputer; hanya tata letaknya yang menyesuaikan.",
+        "Memasang di layar utama tidak menyimpan data keuangan di perangkat dan tidak membuat sesi masuk jadi permanen.",
+        "Tindakan sensitif tetap meminta verifikasi kode seperti biasa, juga di HP dan iPad."
+      ],
+      "mistakes": [
+        "Mencari menu yang \"hilang\" di HP: menu ada di balik tombol ☰ di kiri atas.",
+        "Mengira bagian halaman terpotong, padahal tabelnya bisa digeser ke samping di dalam kotaknya.",
+        "Lupa memeriksa Entity (PT atau Pribadi) di bilah atas sebelum mencatat sesuatu dari HP."
+      ],
+      "related": ["masuk-dan-ganti-entitas", "urutan-langkah-awal"]
     }
   ]
 }
