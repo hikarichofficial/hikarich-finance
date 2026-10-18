@@ -6530,3 +6530,175 @@ tr[data-muted="true"] td {
   width: auto;
   margin-top: 0.2rem;
 }
+
+/* ---------------------------------------------------------------------------------------------------
+ * Phone and tablet pass (decision 421, OWNER request: the site must open well on Android, iPhone and iPad).
+ * Everything below only changes how the existing screens fit a small or touch screen; no screen is
+ * redesigned. It sits at the very end of the file so it wins over the equal-specificity rules above.
+ * ------------------------------------------------------------------------------------------------- */
+
+/* iOS enlarges the text of a page that is turned sideways; keep the sizes the page was designed with. */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/* "100vh" on a phone is the height with the address bar hidden, so the page was always a little taller
+ * than the visible screen. "dvh" follows the bar as it shows and hides. */
+@supports (height: 100dvh) {
+  body,
+  .shell,
+  .app-shell {
+    min-height: 100dvh;
+  }
+
+  .app-sidebar {
+    height: 100dvh;
+  }
+
+  .modal-panel.attachment-preview {
+    max-height: calc(100dvh - var(--space-6));
+  }
+}
+
+/* A field is never wider than the card that holds it. Without "min-width: 0" a field inside a grid label
+ * (nearly every form) keeps the width of its longest option or its default size and pushes the page
+ * sideways on a narrow screen. `:where` keeps the rule at zero weight, so every field that sets its own
+ * width or minimum above still wins. */
+:where(select, input, textarea) {
+  min-width: 0;
+  max-width: 100%;
+}
+
+/* The search and filter rows (Reports, Tax Ledger, lists) wrap onto a second line instead of pushing the
+ * page sideways. */
+.list-search-form {
+  flex-wrap: wrap;
+}
+
+.list-search-form input {
+  min-width: min(220px, 100%);
+}
+
+/* A wide table scrolls sideways inside its own card on a tablet or a phone turned sideways (the table
+ * cards stack into rows only below 641px). Any element that directly holds a table takes the scrolling,
+ * so no screen needs its own wrapper. */
+@media (max-width: 1279px) {
+  :has(> table.record-table) {
+    overflow-x: auto;
+    max-width: 100%;
+  }
+}
+
+@media (max-width: 1023px) {
+  /* A closed menu must leave no empty column even when the desktop "collapsed" choice was saved. */
+  .app-shell,
+  .app-shell[data-sidebar="collapsed"] {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  /* Cards at least 200px wide: on a tablet the amount "Rp 33.233.504,81" fits inside its card. */
+  .kpi-strip {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr));
+  }
+
+  .app-sidebar {
+    overscroll-behavior: contain;
+  }
+}
+
+@media (max-width: 640px) {
+  .app-content {
+    padding: var(--space-4) var(--space-3);
+  }
+
+  .app-topbar {
+    gap: var(--space-2);
+    padding: 0 var(--space-3);
+  }
+
+  /* Form fields fill the card (they were as wide as their text), and in a stacked line-item card the
+   * fields share one width beside their labels. */
+  .record-form
+    input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]),
+  .record-form select,
+  .record-form textarea {
+    width: 100%;
+  }
+
+  .record-table-stacked td[data-label] {
+    align-items: center;
+  }
+
+  .record-table-stacked td[data-label] > input:not([type="checkbox"]):not([type="radio"]),
+  .record-table-stacked td[data-label] > select,
+  .record-table-stacked td[data-label] > .plan-lines-discount,
+  .record-table-stacked td[data-label] > .category-picker-cell,
+  .record-table-stacked td[data-label] > .contact-picker {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 62%;
+  }
+
+  .record-table-stacked td[data-label] .plan-lines-discount select,
+  .record-table-stacked td[data-label] .contact-picker input {
+    width: 100%;
+  }
+
+  /* The cell already shows the column name on its left; the label stays for screen readers. */
+  .record-table-stacked td[data-label] .contact-picker-field > label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+}
+
+/* Touch screens (phones and tablets): fingers need bigger targets than a mouse. */
+@media (pointer: coarse) {
+  .icon-button {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+  }
+
+  .app-topbar-search,
+  .entity-switcher-trigger,
+  .app-nav-group-toggle,
+  .app-nav-link,
+  .app-sidebar-collapse-toggle,
+  .lay-segment button,
+  .button-secondary,
+  .btn-primary,
+  .btn-secondary,
+  .btn-danger,
+  .btn-ghost,
+  select,
+  input:not([type="checkbox"]):not([type="radio"]):not([type="file"]):not([type="hidden"]) {
+    min-height: 44px;
+  }
+}
+
+/* A text-style button ("Lepas", "Hapus", ...) keeps its look; only the area that reacts to a finger grows, upward and
+ * downward, without moving the lines around it. */
+@media (pointer: coarse) {
+  .link-button {
+    padding-block: 0.85rem;
+    margin-block: -0.85rem;
+  }
+}
+
+/* iOS zooms the whole page when a field smaller than 16px is tapped and does not zoom back. Fields are
+ * 16px on touch screens and on any narrow window. "!important" is only there to win over the many per-form
+ * font sizes above without touching each one. */
+@media (pointer: coarse), (max-width: 640px) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]):not(
+      [type="color"]
+    ),
+  select,
+  textarea {
+    font-size: 16px !important;
+  }
+}
