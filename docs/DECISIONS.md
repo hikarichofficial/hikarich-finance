@@ -3968,3 +3968,24 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      payout cancel form shows the same field, pre-filled with today as before. The hint says in which month the
      reversal lands. The two September/October journals already booked for the 427,81 interest are left as they are
      (OWNER: the total is right; nothing is added to the books). The guide follows.
+
+421. **The site fits phones and tablets, and can be put on the home screen (OWNER, 19 October 2026).** The owner asked
+     for the site to open well on Android, iPhone and iPad, with a layout that suits each device. The shell was
+     already responsive (the menu becomes a "☰" drawer below 1024px, Invoice and a few lists turn into cards below
+     641px), so this is a pass over what was left, not a second site. Measured on the live site (81 screens, widths
+     360, 390, 768 and 1024, no data changed): on an iPhone 2 screens were wider than the screen, on an iPad 13 (every
+     wide table and the search/filter rows), the top-bar buttons were 34-36px high, and about 150 fields used 14px
+     text, which makes an iPhone zoom the whole page when one is tapped. Decision: (1) a wide table scrolls sideways
+     inside its own card from 1279px down, instead of widening the page (the element that holds the table takes the
+     scrolling, so no screen needs a wrapper); (2) fields never exceed their card (`min-width: 0; max-width: 100%`
+     at zero weight), filter rows wrap, KPI cards are at least 200px wide; (3) on a touch screen (`pointer: coarse`)
+     buttons, fields, menu rows and the top bar are at least 44px high and text-style buttons get a larger touch area
+     without moving; (4) fields use 16px text on a touch screen or a narrow window (no zoom on focus); (5) the page
+     uses `100dvh` so the address bar of a phone does not leave a gap; (6) on a phone, form fields fill the card and
+     the line-item cards of an invoice share one field width; (7) "Add to Home Screen": `manifest.webmanifest`
+     (standalone, name "Hikarich Finance"), icons 192/512/maskable and `apple-icon`, `appleWebApp` meta and the
+     browser-bar colour. The manifest is excluded from the login redirect (the browser fetches it without a
+     session). There is deliberately no service worker: the app stores nothing of the finance data on the device and
+     still needs the network and a login. No change to any screen's content, permission or workflow. After the
+     change the same measurement found no screen wider than the screen at any width. The guide has a new page, "Cara
+     Memakai Hikarich Finance di HP dan iPad". Not covered: a native Play Store / App Store app (not needed).
