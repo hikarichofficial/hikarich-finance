@@ -142,7 +142,7 @@ call app_private.secure_table('public.telegram_updates');
 -- Presents the paired user to the existing rules (see the header) and returns the user id. Restores nothing by
 -- itself: callers run in one transaction and call telegram_restore_claims() before returning.
 create function app_private.telegram_act_as(p_link uuid) returns uuid
-language plpgsql as $$
+language plpgsql set search_path = pg_catalog, public as $$
 declare
   l public.telegram_links%rowtype;
 begin
@@ -163,7 +163,7 @@ end
 $$;
 
 create function app_private.telegram_restore_claims(p_claims text, p_sub text) returns void
-language plpgsql as $$
+language plpgsql set search_path = pg_catalog, public as $$
 begin
   perform set_config('request.jwt.claims', coalesce(p_claims, ''), true);
   perform set_config('request.jwt.claim.sub', coalesce(p_sub, ''), true);
@@ -173,7 +173,7 @@ $$;
 
 -- True when the membership list (from my_access) grants the permission in the Entity.
 create function app_private.telegram_has(p_access jsonb, p_entity uuid, p_key text) returns boolean
-language sql immutable as $$
+language sql immutable set search_path = pg_catalog, public as $$
   select exists (
     select 1 from jsonb_array_elements(coalesce(p_access -> 'memberships', '[]'::jsonb)) m
     where (m ->> 'entity_id')::uuid = p_entity and (m -> 'permissions') ? p_key)

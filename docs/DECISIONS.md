@@ -3996,31 +3996,31 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      summaries and answer ad-hoc questions, with the free Google Gemini tier as the only AI and with the AI never
      receiving any books data. The owner has no credit card, so the AI helper is Gemini's free tier (swappable:
      `src/services/telegram/gemini.ts` is the only file that knows the provider).
-     **Design.** (1) *The bot is a revocable delegate of one signed-in user.* On the website (Administrasi > Bot
+     **Design.** (1) _The bot is a revocable delegate of one signed-in user._ On the website (Administrasi > Bot
      Telegram) the owner, with MFA and a fresh step-up, creates a one-time 8-character code (10 minutes, stored as a
      SHA-256 hash) and sends `/start CODE` to the bot in a private chat. The link can be revoked at any time (also
-     from Security), and a disabled user's link stops working. (2) *Bot functions are `service_role`-only* (`telegram_*`
+     from Security), and a disabled user's link stops working. (2) _Bot functions are `service_role`-only_ (`telegram_*`
      in migration `20261103100000_p68_telegram_bot.sql`). Each acts as the paired user by setting transaction-local
      `request.jwt.claims` (`sub`, `aal2`, no `amr`), restores the previous claims, re-reads `my_access()` and calls the
      existing `create_expense_draft` / `confirm_expense` / `reverse_expense` / `cancel_expense` unchanged, so every
      guard (permission, period, duplicate, payee, currency) still runs. No table is written by the bot directly.
-     (3) *Nothing is recorded without the final summary step.* A receipt is read by the AI, then goes through the same
+     (3) _Nothing is recorded without the final summary step._ A receipt is read by the AI, then goes through the same
      steps, with the total confirmed first. An entry above the per-entry limit (default Rp 5.000.000; raising it needs a
      fresh step-up) or by a user without `bills.pay` stays a draft. The bot's own entries start their internal note with
      "Telegram" and carry the audit reason "Dicatat lewat Telegram"; only they can be undone from Telegram, and a
-     confirmed one is reversed, never deleted. (4) *The Entity is never guessed.* It is read from the words PT / pribadi,
+     confirmed one is reversed, never deleted. (4) _The Entity is never guessed._ It is read from the words PT / pribadi,
      from a group topic the owner tied to an Entity, or - when the owner belongs to one Entity only - that one.
      Otherwise the bot asks "dicatat di entitas yang mana?". Changing the Entity resets the account and category guesses.
      PT and Pribadi are never merged in one summary line; a question that names neither is answered per Entity.
-     (5) *The AI sees nothing from the books.* `gemini.ts` sends only the owner's message or photo, today's date and fixed
+     (5) _The AI sees nothing from the books._ `gemini.ts` sends only the owner's message or photo, today's date and fixed
      instructions; categories, accounts, vendors, balances and entries are matched by our own code (rules first,
      learned rules, then a built-in vocabulary), and the AI's answer is validated and shown for confirmation. Rule-based
      reading comes first; the AI is used only for free-form text, photos and questions. A failure of the AI falls back to
-     the rules. (6) *Learning:* a category the owner confirms is stored as a rule per Entity (`telegram_learned_rules`),
-     so the same merchant is automatic next time. (7) *Assets:* a purchase that looks like durable equipment (laptop,
+     the rules. (6) _Learning:_ a category the owner confirms is stored as a rule per Entity (`telegram_learned_rules`),
+     so the same merchant is automatic next time. (7) _Assets:_ a purchase that looks like durable equipment (laptop,
      iPhone, ...) of Rp 1.000.000 or more is asked as "Aset tetap" or "Biaya biasa"; an asset is recorded on an asset-kind
      category and the summary reminds the owner to register it in Aset (the bot does not create fixed assets itself).
-     (8) *Reports:* daily 21.00 WITA, weekly Monday 08.00 (previous Monday-Sunday), monthly on the 1st at 08.00
+     (8) _Reports:_ daily 21.00 WITA, weekly Monday 08.00 (previous Monday-Sunday), monthly on the 1st at 08.00
      (previous month), each with a comparison to the period before, sent to the private chat only; two Vercel crons
      (`vercel.json`; Hobby allows two daily crons and fires within the hour, so times are approximate). Groups can be
      registered by the owner (`/daftargrup`), tied to an Entity (`/topik pt|pribadi`), and only show that Entity.
