@@ -225,6 +225,10 @@ declare
                                          'preview_product_sku', 'set_product_sku', 'sku_master_in_use',
                                          'product_used_on_documents', 'save_sku_master', 'set_sku_master_state',
                                          'save_sku_settings',
+                                         -- The Telegram bot's pairing and settings, run by the signed-in owner (decision 422);
+                                         -- the bot's own `telegram_*` functions are service-role only
+                                         'create_telegram_link_code', 'my_telegram_link', 'revoke_telegram_link',
+                                         'update_telegram_settings',
                                          -- the three token-scoped functions (also open to `anon`, see below)
                                          'public_invoice_view', 'public_submit_payment_claim',
                                          'public_receipt_view'];

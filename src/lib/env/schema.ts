@@ -43,6 +43,21 @@ export const serverEnvSchema = z.object({
    */
   RESEND_API_KEY: z.string().trim().min(10).optional(),
   RESEND_FROM_EMAIL: z.string().trim().email().optional(),
+  /**
+   * Telegram bot (decision 422). All optional: without them the bot routes answer "not configured" and the rest of the
+   * site is unaffected. `TELEGRAM_WEBHOOK_SECRET` is the value Telegram sends back in the
+   * `X-Telegram-Bot-Api-Secret-Token` header; `CRON_SECRET` is what Vercel Cron sends as a Bearer token.
+   * `GEMINI_API_KEY` belongs to the free Google AI Studio tier; the AI helper never receives books data.
+   */
+  TELEGRAM_BOT_TOKEN: z.string().trim().min(20).optional(),
+  TELEGRAM_WEBHOOK_SECRET: z
+    .string()
+    .trim()
+    .regex(/^[A-Za-z0-9_-]{16,256}$/, "use 16-256 letters, digits, _ or -")
+    .optional(),
+  GEMINI_API_KEY: z.string().trim().min(10).optional(),
+  GEMINI_MODEL: z.string().trim().min(3).max(80).optional(),
+  CRON_SECRET: z.string().trim().min(16).optional(),
 });
 
 export const envSchema = publicEnvSchema.extend(serverEnvSchema.shape);

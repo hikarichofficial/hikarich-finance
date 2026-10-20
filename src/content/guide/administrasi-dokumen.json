@@ -1080,6 +1080,68 @@
         }
       ],
       "related": ["kalender-pajak", "buku-besar-pajak", "pengaturan-pajak-awal"]
+    },
+    {
+      "slug": "bot-telegram",
+      "title": "Cara Memakai Bot Telegram untuk Mencatat Pengeluaran",
+      "summary": "Menghubungkan Telegram, mencatat pengeluaran dari chat atau foto struk, memilih entitas PT atau Pribadi, dan menerima laporan harian, mingguan dan bulanan.",
+      "path": "Administrasi > Bot Telegram",
+      "who": "Menghubungkan dan mengatur: bills.create di entitas yang ingin dicatat, akun dengan verifikasi dua langkah, dan verifikasi ulang. Mendaftarkan webhook: backup.create (OWNER). Bot hanya bisa melakukan yang boleh Anda lakukan di website; mengonfirmasi catatan butuh bills.pay, kalau tidak catatan jadi draf.",
+      "quick": "Bot **tidak pernah mencatat sebelum Anda menekan Simpan**. AI Gemini hanya membaca pesan atau foto struk yang Anda kirim; saldo, kategori, rekening dan data pembukuan lain tidak pernah dikirim ke AI.",
+      "steps": [
+        {
+          "title": "Siapkan bot (sekali saja, oleh pemilik)",
+          "text": "Buat bot di Telegram lewat @BotFather (kirim /newbot), lalu salin tokennya. Untuk membaca struk dan pesan bebas, buat kunci gratis di Google AI Studio. Isi variabel di Vercel: TELEGRAM_BOT_TOKEN, TELEGRAM_WEBHOOK_SECRET (acak, 16 karakter atau lebih), GEMINI_API_KEY, CRON_SECRET, dan pastikan SUPABASE_SERVICE_ROLE_KEY terisi. Setelah itu buka **Administrasi > Bot Telegram** dan tekan **Daftarkan Webhook**."
+        },
+        {
+          "title": "Hubungkan akun Telegram Anda",
+          "text": "Di halaman **Bot Telegram** tekan **Buat Kode Penghubung**. Masukkan kode autentikator bila diminta. Kirim `/start KODE` ke bot di chat pribadi dalam 10 menit. Kode hanya berlaku sekali.",
+          "tip": "Kehilangan HP? Tekan **Putuskan Telegram** di halaman yang sama; bot langsung berhenti."
+        },
+        {
+          "title": "Catat pengeluaran dengan bahasa sehari-hari",
+          "text": "Ketik misalnya: *makan siang di warteg 35rb pakai gopay*, *beli iPhone 15 untuk usaha 15jt*, atau *kemarin bensin 50rb dan parkir 5rb pribadi*. Atau kirim **foto struk**. Bot membaca nominal, tanggal, tempat, rekening dan kategori, lalu menanyakan hal yang belum jelas."
+        },
+        {
+          "title": "Sebutkan entitas, atau bot akan bertanya",
+          "text": "Tulis **PT** atau **pribadi** di pesan supaya langsung tepat. Kalau tidak disebut, bot selalu bertanya \"dicatat di entitas yang mana?\" dan tidak pernah menebak, supaya buku PT dan Pribadi tidak tercampur."
+        },
+        {
+          "title": "Ikuti langkah konfirmasi",
+          "text": "Bot menampilkan \"Langkah n dari N\" dengan daftar langkah (entitas, rekening, aset atau biaya bila perlu, kategori, ringkasan). Langkah yang sudah jelas ditandai otomatis. Tombol **Kembali** mengulang langkah sebelumnya, **Batal** membatalkan semuanya. Pembelian barang tahan lama bernilai besar (misalnya iPhone) ditanyakan: **Aset tetap** atau **Biaya biasa**. Aset tetap tetap perlu didaftarkan di menu Aset."
+        },
+        {
+          "title": "Cek ringkasan lalu Simpan",
+          "text": "Ringkasan memuat entitas, tanggal, rekening, penerima, tiap baris dan total. Ubah nominal, tanggal, penerima, entitas, rekening atau kategori dari tombol di ringkasan. Setelah **Simpan**, catatan dikonfirmasi dan bernomor. Catatan di atas batas nominal atau tanpa hak konfirmasi disimpan sebagai **draf** untuk Anda konfirmasi di website."
+        },
+        {
+          "title": "Salah catat? Batalkan",
+          "text": "Ketik *batalkan yang tadi* atau /batalkan. Bot bertanya dulu. Catatan yang sudah dikonfirmasi dibalik dengan jurnal pembalik, bukan dihapus. Hanya catatan buatan bot yang bisa dibatalkan dari Telegram."
+        },
+        {
+          "title": "Minta ringkasan kapan saja",
+          "text": "Ketik *pengeluaran hari ini*, *rekap minggu lalu*, *bulan ini berapa?* atau perintah /hariini /mingguini /bulanini /bulanlalu. Sebut *pribadi* atau *PT* untuk satu entitas saja. Ketik /tips untuk saran yang menyesuaikan data Anda."
+        },
+        {
+          "title": "Atur laporan otomatis dan batas",
+          "text": "Di halaman **Bot Telegram** pilih laporan harian (sekitar 21.00 WITA), mingguan (Senin sekitar 08.00 untuk minggu sebelumnya) dan bulanan (tanggal 1 sekitar 08.00 untuk bulan sebelumnya), serta batas nominal per catatan (bawaan Rp 5.000.000). Menaikkan batas meminta verifikasi ulang. Jam laporan bisa bergeser sampai satu jam karena paket Vercel gratis."
+        },
+        {
+          "title": "Pakai di grup (opsional)",
+          "text": "Tambahkan bot ke grup, matikan Group Privacy di @BotFather (Bot Settings > Group Privacy) agar bot membaca pesan biasa, lalu ketik /daftargrup di grup. Hanya Anda yang bisa mencatat dari grup. Ketik /topik pt atau /topik pribadi di grup atau di sebuah topik untuk mengikatnya ke satu entitas. Di grup, ringkasan hanya menampilkan entitas yang diikat, dan laporan otomatis hanya dikirim ke chat pribadi."
+        }
+      ],
+      "rules": [
+        "Bot memakai izin Anda sendiri; mengonfirmasi catatan butuh izin bills.pay, kalau tidak catatan menjadi draf.",
+        "Foto struk dan teks yang dikirim ke AI Gemini gratis dapat dipakai Google untuk meningkatkan produknya. Jangan kirim foto dengan data sensitif lain.",
+        "Entitas Pribadi perlu punya rekening kas atau dompet aktif agar bisa dipilih; tambahkan di website bila belum ada."
+      ],
+      "mistakes": [
+        "Mengira bot menebak entitas: bot selalu bertanya bila Anda tidak menyebut PT atau pribadi.",
+        "Lupa mendaftarkan webhook setelah mengisi variabel di Vercel.",
+        "Mengirim kode penghubung lebih dari 10 menit setelah dibuat."
+      ],
+      "related": ["keamanan-akun", "buat-biaya"]
     }
   ]
 }

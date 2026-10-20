@@ -130,4 +130,11 @@ describe("isPublicPath", () => {
     expect(isPublicPath("/sales/invoices")).toBe(false);
     expect(isPublicPath("/")).toBe(false);
   });
+
+  it("lets the Telegram webhook and the cron routes through to their own secret check (decision 422)", () => {
+    expect(isPublicPath("/api/telegram/webhook")).toBe(true);
+    expect(isPublicPath("/api/cron/telegram-evening")).toBe(true);
+    expect(isPublicPath("/api/telegramx")).toBe(false);
+    expect(isPublicPath("/api")).toBe(false);
+  });
 });

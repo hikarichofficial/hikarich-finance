@@ -33,11 +33,13 @@ create table if not exists auth.users (
 );
 
 -- Stubs of the JWT helper functions; tests set request.jwt.claims via set_config.
+-- Same lookup order as Supabase's own auth.uid(): the legacy per-claim setting first, but an EMPTY one is ignored
+-- (a function that restores a setting it cannot unset leaves an empty string behind).
 create or replace function auth.uid() returns uuid
 language sql stable as $$
   select nullif(
     coalesce(
-      current_setting('request.jwt.claim.sub', true),
+      nullif(current_setting('request.jwt.claim.sub', true), ''),
       (nullif(current_setting('request.jwt.claims', true), '')::jsonb ->> 'sub')
     ),
     ''

@@ -85,3 +85,17 @@ Tax items that could not be confirmed from a primary text are listed in `docs/DE
 The Import Wizard and file attachments were built by decision 275, so they are no longer on this list.
 Attachments need `SUPABASE_SERVICE_ROLE_KEY` set in Vercel Production (the private bucket); without it the
 upload form is absent rather than broken.
+
+## Telegram bot (decision 422, optional)
+
+The bot stays off until these are set in Vercel Production (never Preview, never committed). Then, signed in as the
+OWNER, open Administrasi > Bot Telegram and press **Daftarkan Webhook**, create a code, and send `/start CODE` to the bot.
+
+1. Create the bot with @BotFather (`/newbot`); copy the token to `TELEGRAM_BOT_TOKEN`. Optionally turn off Group
+   Privacy (Bot Settings) to use it in a group.
+2. `TELEGRAM_WEBHOOK_SECRET`: any random string of 16-256 letters, digits, `_` or `-`.
+3. `CRON_SECRET`: a random string of 16+ characters (Vercel sends it to the two cron routes automatically).
+4. `GEMINI_API_KEY` (free, https://aistudio.google.com/apikey) reads receipt photos and free-form messages;
+   without it the bot still works with typed amounts. `GEMINI_MODEL` is optional (default `gemini-2.5-flash`).
+5. `SUPABASE_SERVICE_ROLE_KEY` must be set (the bot's database functions are service-role only).
+6. The Entity "Pribadi" needs at least one active cash/e-wallet account before the bot can record in it.
