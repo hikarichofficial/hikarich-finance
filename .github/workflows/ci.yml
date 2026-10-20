@@ -31,12 +31,7 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Format check
-        run: |
-          pnpm exec prettier --version | sed 's/^/::error::VER /'
-          pnpm exec prettier --write src/services/telegram/store.ts src/lib/supabase/proxy.ts src/domain/telegram/roadmap.ts >/dev/null
-          for f in src/services/telegram/store.ts src/lib/supabase/proxy.ts src/domain/telegram/roadmap.ts; do echo "::error::DIFF $f $(git diff -U0 -- $f | tail -n +5 | tr '\n' '~')"; done
-          git checkout -- .
-          pnpm format:check
+        run: pnpm format:check
       - name: Type check
         run: pnpm typecheck
       - name: Lint

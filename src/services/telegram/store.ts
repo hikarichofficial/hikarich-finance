@@ -147,25 +147,21 @@ export function createStore(client: SupabaseClient) {
         entityName: str(e.entity_name),
         today: str(e.today),
         canConfirm: e.can_confirm === true,
-        categories: rows(e.categories).map(
-          (c): CategoryOption => ({
-            id: str(c.id),
-            name: str(c.name),
-            kind: c.kind === "asset" ? "asset" : "expense",
-            isParent: c.is_parent === true,
-          }),
-        ),
+        categories: rows(e.categories).map((c): CategoryOption => ({
+          id: str(c.id),
+          name: str(c.name),
+          kind: c.kind === "asset" ? "asset" : "expense",
+          isParent: c.is_parent === true,
+        })),
         accounts: rows(e.accounts).map((a) => ({ id: str(a.id), name: str(a.name) })),
         vendors: rows(e.vendors).map((v) => ({ id: str(v.id), name: str(v.name) })),
-        rules: rows(e.rules).map(
-          (r): LearnedRule => ({
-            keyword: str(r.keyword),
-            categoryId: strOrNull(r.category_id),
-            accountId: strOrNull(r.account_id),
-            payeeName: strOrNull(r.payee_name),
-            hits: num(r.hits),
-          }),
-        ),
+        rules: rows(e.rules).map((r): LearnedRule => ({
+          keyword: str(r.keyword),
+          categoryId: strOrNull(r.category_id),
+          accountId: strOrNull(r.account_id),
+          payeeName: strOrNull(r.payee_name),
+          hits: num(r.hits),
+        })),
       }));
     },
 
