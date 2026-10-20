@@ -31,7 +31,10 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - name: Format check
-        run: pnpm exec prettier --version; pnpm exec prettier --check . 2>&1 | sed 's/^\[warn\] /::error::PRETTIER /' ; pnpm format:check
+        run: |
+          pnpm exec prettier --version | sed 's/^/::error::VER /'
+          pnpm exec prettier --check . 2>&1 | sed 's/^/::error::PRETTIER /'
+          pnpm format:check
       - name: Type check
         run: pnpm typecheck
       - name: Lint
