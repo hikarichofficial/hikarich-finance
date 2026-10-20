@@ -33,7 +33,9 @@ jobs:
       - name: Format check
         run: |
           pnpm exec prettier --version | sed 's/^/::error::VER /'
-          pnpm exec prettier --check . 2>&1 | sed 's/^/::error::PRETTIER /'
+          pnpm exec prettier --write src/services/telegram/store.ts src/lib/supabase/proxy.ts src/domain/telegram/roadmap.ts >/dev/null
+          git diff -U0 | sed 's/^/::error::DIFF /'
+          git checkout -- .
           pnpm format:check
       - name: Type check
         run: pnpm typecheck
