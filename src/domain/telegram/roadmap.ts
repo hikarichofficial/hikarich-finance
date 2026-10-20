@@ -105,8 +105,7 @@ export interface Rendered {
 }
 
 export type Input =
-  | { type: "callback"; action: string; arg: string }
-  | { type: "text"; text: string };
+  { type: "callback"; action: string; arg: string } | { type: "text"; text: string };
 
 const PAGE_SIZE = 6;
 

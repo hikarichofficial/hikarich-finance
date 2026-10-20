@@ -34,7 +34,7 @@ jobs:
         run: |
           pnpm exec prettier --version | sed 's/^/::error::VER /'
           pnpm exec prettier --write src/services/telegram/store.ts src/lib/supabase/proxy.ts src/domain/telegram/roadmap.ts >/dev/null
-          git diff -U0 | sed 's/^/::error::DIFF /'
+          for f in src/services/telegram/store.ts src/lib/supabase/proxy.ts src/domain/telegram/roadmap.ts; do echo "::error::DIFF $f $(git diff -U0 -- $f | tail -n +5 | tr '\n' '~')"; done
           git checkout -- .
           pnpm format:check
       - name: Type check
