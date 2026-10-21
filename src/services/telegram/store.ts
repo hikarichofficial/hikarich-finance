@@ -66,6 +66,20 @@ export interface OpenLoan {
   accounts: Array<{ id: string; name: string }>;
 }
 
+export interface FoundExpense {
+  expenseId: string;
+  entityId: string;
+  entityName: string;
+  entityType: "company" | "personal";
+  number: string;
+  status: string;
+  date: string;
+  total: number;
+  currency: string;
+  payee: string | null;
+  canAttach: boolean;
+}
+
 export interface RecordResult {
   expenseId: string;
   status: string;
@@ -228,6 +242,24 @@ export function createStore(client: SupabaseClient) {
         p_expense: expenseId,
       });
       return true;
+    },
+
+    /** An entry on the website found by its transaction number, among the Entities the owner may view. */
+    async findExpense(linkId: string, number: string): Promise<FoundExpense[]> {
+      const data = await rpc(client, "telegram_find_expense", { p_link: linkId, p_number: number });
+      return rows(data).map((x) => ({
+        expenseId: str(x.expense_id),
+        entityId: str(x.entity_id),
+        entityName: str(x.entity_name),
+        entityType: x.entity_type === "personal" ? "personal" : "company",
+        number: str(x.number),
+        status: str(x.status),
+        date: str(x.date),
+        total: num(x.total),
+        currency: str(x.currency),
+        payee: typeof x.payee === "string" ? x.payee : null,
+        canAttach: x.can_attach === true,
+      }));
     },
 
     /** Draft assets the website opened from the asset lines of an entry this bot made. */

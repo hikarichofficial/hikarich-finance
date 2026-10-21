@@ -1,4 +1,5 @@
 import { aiToParsed, type AiExtraction } from "@/domain/telegram/ai";
+import { extractExpenseCode, hasAttachWord, wantsAttachment } from "@/domain/telegram/attach";
 import { formatDateId } from "@/domain/telegram/dates";
 import { formatDateEn, L, parseLang, type Lang } from "@/domain/telegram/i18n";
 import {
@@ -25,6 +26,7 @@ import {
   parseCallbackData,
   payeeFor,
   render,
+  startAttachWait,
   startDraft,
   toRecordPayload,
 } from "@/domain/telegram/roadmap";
@@ -33,6 +35,7 @@ import { todayInBusinessZone } from "@/lib/time";
 import type { SendOptions, TgCallbackQuery, TgMessage, TgResult, TgUpdate } from "./api";
 import { errorLine, refusalText } from "./errors";
 import {
+  attachByNumber,
   handleAssetCallback,
   handleLoanCallback,
   offerAssets,
@@ -99,6 +102,7 @@ function helpText(lang: Lang): string {
         "<b>Durable purchases & loan instalments</b> — for a purchase like an iPhone for the business I ask how long it lasts and then activate it as an asset. For a loan instalment type <i>pay instalment</i> or /loan; the amount follows the loan schedule.",
         "",
         "<b>Receipt photos</b> you save are attached to the entry.",
+        "<b>Attach to an existing entry</b>: send the photo with the caption <i>lampirkan EXP-001-0003</i> (the number from the website), or just <i>lampirkan</i> and I ask for the number.",
         "",
         "<b>Ask for a summary</b>: <i>expenses today</i>, <i>recap last week</i>, <i>how much this month?</i>",
         "",
@@ -119,6 +123,7 @@ function helpText(lang: Lang): string {
         "<b>Barang tahan lama & cicilan</b> — pembelian seperti iPhone untuk usaha saya tanyakan masa manfaatnya lalu saya aktifkan sebagai aset. Untuk cicilan pinjaman ketik <i>bayar cicilan</i> atau /cicilan; jumlahnya mengikuti jadwal pinjaman.",
         "",
         "<b>Foto struk</b> yang kamu simpan ikut terlampir di catatan.",
+        "<b>Lampirkan ke catatan yang sudah ada</b>: kirim foto dengan keterangan <i>lampirkan EXP-001-0003</i> (kode dari website), atau cukup <i>lampirkan</i> dan saya tanyakan kodenya.",
         "",
         "<b>Tanya ringkasan</b>: <i>pengeluaran hari ini</i>, <i>rekap minggu lalu</i>, <i>bulan ini berapa?</i>",
         "",
@@ -246,11 +251,63 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
     return;
   }
 
-  const session = await store.getSession(who.linkId, chat, thread);
+  let session = await store.getSession(who.linkId, chat, thread);
 
   if (intent.kind === "command") {
     await handleCommand(intent.name, intent.arg, msg, who, session, deps);
     return;
+  }
+  // A photo is waiting for the transaction number it should be attached to (decision 424).
+  if (
+    session?.awaiting === "attach_code" &&
+    msg.text &&
+    !msg.photo &&
+    (extractExpenseCode(msg.text) !== null ||
+      parseAmounts(msg.text).length === 0 ||
+      /^\s*(?:batal|cancel)\b/i.test(msg.text))
+  ) {
+    if (/^\s*(?:batal|cancel)\b/i.test(msg.text)) {
+      await store.clearSession(who.linkId, chat, thread);
+      await api.sendMessage(
+        chat,
+        L(
+          who.lang,
+          "❌ Dibatalkan. Foto tidak dilampirkan.",
+          "❌ Cancelled. The photo was not attached.",
+        ),
+        opts(thread),
+      );
+      return;
+    }
+    const code = extractExpenseCode(msg.text);
+    if (!code) {
+      await api.sendMessage(
+        chat,
+        L(
+          who.lang,
+          "Kode transaksi tidak terbaca. Tulis seperti <code>EXP-001-0003</code>, atau ketik /batal.",
+          "I could not read a transaction number. Write it like <code>EXP-001-0003</code>, or type /batal.",
+        ),
+        opts(thread),
+      );
+      return;
+    }
+    const outcome = await attachByNumber(
+      session.photoFileId ?? "",
+      code,
+      entityWordOf(msg.text),
+      who,
+      chat,
+      thread,
+      deps,
+    );
+    if (outcome !== "retry") await store.clearSession(who.linkId, chat, thread);
+    return;
+  }
+  if (session?.awaiting === "attach_code" && !(msg.photo && wantsAttachment(text))) {
+    // The owner moved on to a new entry instead of giving a number: the waiting photo is dropped.
+    await store.clearSession(who.linkId, chat, thread);
+    session = null;
   }
   if (intent.kind === "help") {
     await api.sendMessage(chat, helpText(who.lang), opts(thread));
@@ -274,6 +331,51 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
 
   if (intent.kind === "report") {
     await answerReport(who, text, chat, thread, deps);
+    return;
+  }
+
+  // A photo whose caption names a transaction number (or says "lampirkan") is attached to that entry on the website.
+  if (msg.photo && msg.photo.length > 0 && wantsAttachment(text)) {
+    const fileId = msg.photo[msg.photo.length - 1]?.file_id ?? "";
+    const code = extractExpenseCode(text);
+    if (code) {
+      await attachByNumber(fileId, code, entityWordOf(text), who, chat, thread, deps);
+      return;
+    }
+    const waitId = deps.newId().replace(/-/g, "");
+    await store.putSession(
+      who.linkId,
+      chat,
+      thread,
+      startAttachWait({
+        nonce: waitId.slice(0, 6),
+        key: `tg-${waitId}`,
+        photoFileId: fileId,
+        today: todayInBusinessZone(deps.now()),
+        lang: who.lang,
+      }),
+    );
+    await api.sendMessage(
+      chat,
+      L(
+        who.lang,
+        "📎 Foto ini mau dilampirkan ke transaksi yang mana? Kirim kode transaksinya di website, mis. <code>EXP-001-0003</code>. Ketik /batal untuk membatalkan.",
+        "📎 Which entry should this photo be attached to? Send its transaction number from the website, e.g. <code>EXP-001-0003</code>. Type /batal to cancel.",
+      ),
+      opts(thread),
+    );
+    return;
+  }
+  if (!msg.photo && hasAttachWord(text) && extractExpenseCode(text)) {
+    await api.sendMessage(
+      chat,
+      L(
+        who.lang,
+        "Kirim fotonya, dengan keterangan <i>lampirkan</i> dan kode transaksinya (mis. <code>lampirkan EXP-001-0003</code>).",
+        "Send the photo with the caption <i>lampirkan</i> and the transaction number (e.g. <code>lampirkan EXP-001-0003</code>).",
+      ),
+      opts(thread),
+    );
     return;
   }
 

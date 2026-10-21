@@ -5,7 +5,8 @@ import { formatRupiah } from "@/domain/telegram/rupiah";
 import type { TgCallbackQuery } from "./api";
 import type { BotDeps } from "./bot";
 import { errorLine } from "./errors";
-import type { DraftAsset, Identity, OpenLoan } from "./store";
+import type { DraftAsset, FoundExpense, Identity, OpenLoan } from "./store";
+import type { EntityWord } from "@/domain/telegram/message";
 
 /**
  * Two follow-ups that need the owner's own decision and therefore never happen silently (decision 422):
@@ -399,4 +400,111 @@ export async function handleLoanCallback(
     return;
   }
   await api.answerCallback(cb.id);
+}
+
+// ---- attaching a photo to an entry that is already on the website ----------------------------------------------
+
+function moneyOf(found: FoundExpense): string {
+  return found.currency === "IDR" ? formatRupiah(found.total) : `${found.currency} ${found.total}`;
+}
+
+/**
+ * Attaches the photo to the entry with this transaction number (decision 424). "retry" means the number was not
+ * usable (not found, ambiguous) and the caller keeps waiting for another one; "done" and "failed" end the request.
+ */
+export async function attachByNumber(
+  photoFileId: string,
+  code: string,
+  entityWord: EntityWord | null,
+  who: Identity,
+  chat: number,
+  thread: number,
+  deps: BotDeps,
+): Promise<"done" | "retry" | "failed"> {
+  const lang = who.lang;
+  const say = (text: string) => deps.api.sendMessage(chat, text, threadOpts(thread));
+  let found: FoundExpense[];
+  try {
+    found = await deps.store.findExpense(who.linkId, code);
+  } catch (error) {
+    await say(`⚠️ ${escapeHtml(errorLine(error, lang))}`);
+    return "failed";
+  }
+  if (entityWord) {
+    const wanted = entityWord === "personal" ? "personal" : "company";
+    const narrowed = found.filter((f) => f.entityType === wanted);
+    if (narrowed.length > 0) found = narrowed;
+  }
+  if (found.length === 0) {
+    await say(
+      L(
+        lang,
+        `Kode <b>${escapeHtml(code)}</b> tidak ditemukan di entitas yang bisa kamu lihat. Periksa kodenya di website, lalu kirim lagi kodenya. Ketik /batal untuk membatalkan.`,
+        `The number <b>${escapeHtml(code)}</b> was not found in the entities you can see. Check it on the website and send the number again. Type /batal to cancel.`,
+      ),
+    );
+    return "retry";
+  }
+  if (found.length > 1) {
+    await say(
+      L(
+        lang,
+        `Kode <b>${escapeHtml(code)}</b> ada di lebih dari satu entitas. Kirim lagi dengan kata <b>pt</b> atau <b>pribadi</b>, mis. <i>${escapeHtml(code)} pt</i>.`,
+        `The number <b>${escapeHtml(code)}</b> exists in more than one entity. Send it again with the word <b>pt</b> or <b>personal</b>, e.g. <i>${escapeHtml(code)} pt</i>.`,
+      ),
+    );
+    return "retry";
+  }
+  const target = found[0] as FoundExpense;
+  if (!target.canAttach) {
+    await say(
+      L(
+        lang,
+        `Akunmu belum boleh melampirkan dokumen di <b>${escapeHtml(target.entityName)}</b>. Minta hak itu di website.`,
+        `Your account may not attach documents in <b>${escapeHtml(target.entityName)}</b>. Ask for that permission on the website.`,
+      ),
+    );
+    return "failed";
+  }
+  try {
+    const file = await deps.api.downloadFile(photoFileId);
+    if (!file.ok) {
+      await say(
+        L(
+          lang,
+          "Fotonya tidak bisa diunduh. Kirim ulang fotonya dengan kodenya.",
+          "The photo could not be downloaded. Send it again with the number.",
+        ),
+      );
+      return "failed";
+    }
+    const stored = await deps.store.attachReceipt(who.linkId, target.entityId, target.expenseId, {
+      bytes: file.bytes,
+      mime: file.mime,
+    });
+    if (!stored) {
+      await say(
+        L(
+          lang,
+          "Fotonya belum terlampir (penyimpanan gagal). Coba lagi nanti atau lampirkan di website.",
+          "The photo is not attached (storage failed). Try again later or attach it on the website.",
+        ),
+      );
+      return "failed";
+    }
+  } catch (error) {
+    await say(`⚠️ ${escapeHtml(errorLine(error, lang))}`);
+    return "failed";
+  }
+  const summary = [target.payee, moneyOf(target), dateOf(lang, target.date)]
+    .filter(Boolean)
+    .join(" · ");
+  await say(
+    L(
+      lang,
+      `📎 Foto terlampir di <b>${escapeHtml(target.number)}</b> (${escapeHtml(target.entityName)} · ${escapeHtml(summary)}).`,
+      `📎 Photo attached to <b>${escapeHtml(target.number)}</b> (${escapeHtml(target.entityName)} · ${escapeHtml(summary)}).`,
+    ),
+  );
+  return "done";
 }
