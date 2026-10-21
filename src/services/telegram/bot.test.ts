@@ -33,6 +33,7 @@ const identity: Identity = {
   username: "owner",
   isPrivate: true,
   maxEntryAmount: 5_000_000,
+  lang: "id",
   reportDaily: true,
   reportWeekly: true,
   reportMonthly: true,
@@ -59,12 +60,33 @@ const identity: Identity = {
   ],
 };
 
-function harness(options: { paired?: boolean; aiAnswer?: AiExtraction | null } = {}) {
+const LOAN = "11111111-2222-3333-4444-555555555555";
+const ASSET = "99999999-2222-3333-4444-555555555555";
+
+function harness(
+  options: {
+    paired?: boolean;
+    lang?: "id" | "en";
+    aiAnswer?: AiExtraction | null;
+    assets?: Array<{
+      assetId: string;
+      code: string;
+      name: string;
+      cost: number;
+      entityType: "company" | "personal";
+      canManage: boolean;
+    }>;
+  } = {},
+) {
   const sent: Array<{ chat: number; text: string; keyboard?: string }> = [];
   const edits: Array<{ message: number; text: string }> = [];
   const recorded: Array<{ payload: unknown; confirm: boolean }> = [];
   const learned: unknown[] = [];
+  const paid: Array<{ key: string; loanId: string; accountId: string }> = [];
+  const activated: Array<{ assetId: string; months: number | null }> = [];
+  const attached: Array<{ entityId: string; expenseId: string; size: number }> = [];
   const aiCalls: unknown[][] = [];
+  let language: "id" | "en" = options.lang ?? "id";
   let session: DraftState | null = null;
   let nextMessage = 100;
   const seen = new Set<number>();
@@ -76,7 +98,8 @@ function harness(options: { paired?: boolean; aiAnswer?: AiExtraction | null } =
       return { linkId: "link-1", displayName: "Owner" };
     },
     identify: async (userId: number, chat: number) =>
-      options.paired === false || userId !== 111 ? null : { ...identity, isPrivate: chat > 0 },
+      options.paired === false || userId !== 111 ? null : { ...identity, lang: language, isPrivate: chat > 0 },
+    setLanguage: async (_l: string, next: "id" | "en") => void (language = next),
     context: async () => [ctx("pt", "company", "PT Hikarich"), ctx("pe", "personal", "Pribadi")],
     getSession: async () => session,
     putSession: async (_l: string, _c: number, _t: number, s: DraftState) => void (session = s),
@@ -96,6 +119,31 @@ function harness(options: { paired?: boolean; aiAnswer?: AiExtraction | null } =
         reasonCode: null,
       };
     },
+    openLoans: async () => [
+      {
+        loanId: LOAN,
+        entityId: "pt",
+        entityName: "PT Hikarich",
+        loanNumber: "LN-0001",
+        counterparty: "Bank Uji",
+        seq: 3,
+        dueDate: TODAY,
+        amount: 1_200_000,
+        overdue: false,
+        accounts: [{ id: "acc11111-0000-0000-0000-000000000000", name: "BCA" }],
+      },
+    ],
+    payLoan: async (_l: string, key: string, loanId: string, accountId: string) =>
+      (paid.push({ key, loanId, accountId }), "pay-1"),
+    expenseAssets: async () => options.assets ?? [],
+    activateAsset: async (_l: string, _k: string, assetId: string, months: number | null) =>
+      (activated.push({ assetId, months }), months ?? 0),
+    attachReceipt: async (
+      _l: string,
+      entityId: string,
+      expenseId: string,
+      file: { bytes: Uint8Array },
+    ) => (attached.push({ entityId, expenseId, size: file.bytes.byteLength }), true),
     learn: async (_l: string, entry: unknown) => void learned.push(entry),
     recentEntries: async () => [
       {
@@ -199,7 +247,7 @@ function harness(options: { paired?: boolean; aiAnswer?: AiExtraction | null } =
       deps,
     );
   const raw = (update: Parameters<typeof handleUpdate>[0]) => handleUpdate(update, deps);
-  return { raw, say, press, sent, edits, recorded, learned, aiCalls, getSession: () => session };
+  return { raw, say, press, sent, edits, recorded, learned, attached, paid, activated, aiCalls, getSession: () => session };
 }
 
 describe("pairing and strangers", () => {
@@ -284,14 +332,123 @@ describe("recording with the roadmap", () => {
   });
 });
 
+describe("English", () => {
+  it("runs the whole roadmap in English, with the same safety", async () => {
+    const h = harness({ lang: "en" });
+    await h.say("lunch at warteg 35k with gopay");
+    expect(h.sent[0]?.text).toContain("should this expense be recorded");
+    const nonce = h.getSession()?.nonce ?? "";
+    await h.press(`${nonce}|ent|pt`);
+    expect(h.edits.at(-1)?.text).toContain("Category");
+    await h.press(`${nonce}|cat|0`);
+    expect(h.edits.at(-1)?.text).toContain("Check before saving");
+    expect(h.recorded).toHaveLength(0);
+    await h.press(`${nonce}|save|`);
+    expect(h.recorded).toHaveLength(1);
+    expect(h.edits.at(-1)?.text).toContain("Recorded");
+  });
+  it("understands English dates and entity words", async () => {
+    const h = harness({ lang: "en" });
+    await h.say("coffee 25k yesterday personal");
+    expect(h.sent[0]?.text).not.toContain("should this expense be recorded");
+  });
+  it("switches language with /language and /bahasa", async () => {
+    const h = harness();
+    await h.say("/language en");
+    expect(h.sent.at(-1)?.text).toContain("Language set to English");
+    await h.say("/bahasa id");
+    expect(h.sent.at(-1)?.text).toContain("Bahasa diatur");
+    await h.say("/language");
+    expect(h.sent.at(-1)?.text).toContain("Bahasa sekarang");
+  });
+  it("pays a loan instalment in English", async () => {
+    const h = harness({ lang: "en" });
+    await h.say("pay my loan installment Rp 1.200.000 with gopay");
+    expect(h.sent[0]?.text).toContain("Which instalment");
+    await h.press(`l|p|${LOAN}`);
+    await h.press(`l|a|${LOAN}:acc11111`);
+    expect(h.edits.at(-1)?.text).toContain("Check before paying");
+    await h.press(`l|go|${LOAN}:acc11111`);
+    expect(h.edits.at(-1)?.text).toContain("paid");
+  });
+});
+
 describe("loan instalments", () => {
-  it("are sent to the loan module instead of being recorded as an expense", async () => {
+  it("never become an expense: the bot offers the loan flow and pays only after the last button", async () => {
     const h = harness();
     await h.say("bayar cicilan motor 1,2jt pakai gopay pt");
-    expect(h.sent[0]?.text).toContain("cicilan");
-    expect(h.sent[0]?.text).toContain("Pinjaman");
+    expect(h.sent[0]?.text).toContain("Cicilan mana");
+    expect(h.sent[0]?.text).toContain("Bank Uji");
     expect(h.getSession()).toBeNull();
     expect(h.recorded).toHaveLength(0);
+    await h.press(`l|p|${LOAN}`);
+    expect(h.edits.at(-1)?.text).toContain("rekening mana");
+    await h.press(`l|a|${LOAN}:acc11111`);
+    expect(h.edits.at(-1)?.text).toContain("Cek dulu sebelum dibayar");
+    expect(h.edits.at(-1)?.text).toContain("Rp 1.200.000");
+    expect(h.paid).toHaveLength(0);
+    await h.press(`l|go|${LOAN}:acc11111`);
+    expect(h.paid).toEqual([
+      { key: `tg-loan-${LOAN}-3`, loanId: LOAN, accountId: "acc11111-0000-0000-0000-000000000000" },
+    ]);
+    expect(h.edits.at(-1)?.text).toContain("dibayar");
+    expect(h.recorded).toHaveLength(0);
+  });
+  it("can be cancelled at any step", async () => {
+    const h = harness();
+    await h.say("/cicilan");
+    await h.press("l|no|");
+    expect(h.edits.at(-1)?.text).toContain("Tidak ada cicilan yang dicatat");
+    expect(h.paid).toHaveLength(0);
+  });
+});
+
+describe("fixed assets", () => {
+  const asset = {
+    assetId: ASSET,
+    code: "AST-0001",
+    name: "iPhone 15",
+    cost: 15_000_000,
+    entityType: "company" as const,
+    canManage: true,
+  };
+  const buy = async (h: ReturnType<typeof harness>) => {
+    await h.say("beli iPhone 15 untuk usaha 4jt pakai gopay pt");
+    const nonce = h.getSession()?.nonce ?? "";
+    await h.press(`${nonce}|acc|0`);
+    await h.press(`${nonce}|as|a`);
+    await h.press(`${nonce}|cat|0`);
+    await h.press(`${nonce}|save|`);
+  };
+  it("asks how long a durable purchase is depreciated and activates only on the answer", async () => {
+    const h = harness({ assets: [asset] });
+    await buy(h);
+    expect(h.sent.at(-1)?.text).toContain("Berapa lama masa manfaatnya");
+    expect(h.sent.at(-1)?.keyboard).toContain(`a|96|${ASSET}`);
+    expect(h.activated).toHaveLength(0);
+    await h.press(`a|96|${ASSET}`);
+    expect(h.activated).toEqual([{ assetId: ASSET, months: 96 }]);
+    expect(h.edits.at(-1)?.text).toContain("8 tahun");
+  });
+  it("can be postponed to the website", async () => {
+    const h = harness({ assets: [asset] });
+    await buy(h);
+    await h.press(`a|no|${ASSET}`);
+    expect(h.activated).toHaveLength(0);
+    expect(h.edits.at(-1)?.text).toContain("draf");
+  });
+  it("keeps a personal asset at cost, without a life", async () => {
+    const h = harness({ assets: [{ ...asset, entityType: "personal" }] });
+    await buy(h);
+    expect(h.sent.at(-1)?.text).toContain("tidak disusutkan");
+    await h.press(`a|0|${ASSET}`);
+    expect(h.activated).toEqual([{ assetId: ASSET, months: null }]);
+  });
+  it("sends a user without asset rights to the website", async () => {
+    const h = harness({ assets: [{ ...asset, canManage: false }] });
+    await buy(h);
+    expect(h.sent.at(-1)?.text).toContain("belum boleh mengelola aset");
+    expect(h.sent.at(-1)?.keyboard).toBeUndefined();
   });
 });
 
@@ -328,6 +485,31 @@ describe("the AI helper", () => {
     await h.say("", { photo: true });
     expect(h.sent[0]?.text).toContain("Nominal");
     expect(h.recorded).toHaveLength(0);
+  });
+  it("attaches the receipt photo to the saved entry, after the owner confirmed", async () => {
+    const h = harness({ aiAnswer: answer });
+    await h.say("pt gopay", { photo: true });
+    const nonce = h.getSession()?.nonce ?? "";
+    expect(h.getSession()?.photoFileId).toBe("f");
+    expect(h.getSession()?.entityId).toBe("pt");
+    await h.press(`${nonce}|ok|`);
+    await h.press(`${nonce}|acc|0`);
+    await h.press(`${nonce}|cat|0`);
+    expect(h.attached).toHaveLength(0);
+    await h.press(`${nonce}|save|`);
+    expect(h.recorded).toHaveLength(1);
+    expect(h.attached).toEqual([
+      { entityId: "pt", expenseId: "00000000-0000-0000-0000-000000000001", size: 3 },
+    ]);
+    expect(h.edits.at(-1)?.text).toContain("Foto struk terlampir");
+  });
+  it("does not attach anything to a text entry", async () => {
+    const h = harness();
+    await h.say("makan siang 35rb pakai gopay pt");
+    const nonce = h.getSession()?.nonce ?? "";
+    await h.press(`${nonce}|cat|0`);
+    await h.press(`${nonce}|save|`);
+    expect(h.attached).toHaveLength(0);
   });
   it("says so when there is no AI key and a photo arrives", async () => {
     const h = harness();

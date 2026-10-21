@@ -6702,3 +6702,262 @@ html {
     font-size: 16px !important;
   }
 }
+
+/* ------------------------------------------------------------------------------------------------------------
+ * Dashboard "Aurora Glass" (owner request, 21 October 2026): a futuristic but quiet look for the Dashboard only.
+ * Same markup and data as before; this block only restyles it. Glass cards with a hairline gradient edge, a soft
+ * aurora behind the hero, tabular numerals and one neon accent. Colour pairs stay on the existing tokens, so text
+ * contrast is unchanged in light and dark; motion respects prefers-reduced-motion. Other screens keep Step 10.
+ * ------------------------------------------------------------------------------------------------------------ */
+.dashboard {
+  --dash-glow-a: color-mix(in srgb, var(--bronze) 34%, transparent);
+  --dash-glow-b: color-mix(in srgb, var(--info) 30%, transparent);
+  --dash-edge-a: color-mix(in srgb, var(--bronze) 60%, transparent);
+  --dash-edge-b: color-mix(in srgb, var(--info) 50%, transparent);
+  --dash-glass: color-mix(in srgb, var(--surface-solid) 78%, transparent);
+  position: relative;
+  isolation: isolate;
+  gap: var(--space-5);
+}
+
+/* The aurora and a faint measuring grid sit behind everything and never take clicks. */
+.dashboard::before {
+  content: "";
+  position: absolute;
+  inset: -24px -16px auto -16px;
+  height: 460px;
+  z-index: -1;
+  pointer-events: none;
+  background:
+    radial-gradient(520px 260px at 12% 0%, var(--dash-glow-a), transparent 70%),
+    radial-gradient(560px 280px at 88% 6%, var(--dash-glow-b), transparent 72%),
+    linear-gradient(var(--line) 1px, transparent 1px) 0 0 / 100% 40px,
+    linear-gradient(90deg, var(--line) 1px, transparent 1px) 0 0 / 40px 100%;
+  -webkit-mask-image: linear-gradient(to bottom, #000 30%, transparent);
+  mask-image: linear-gradient(to bottom, #000 30%, transparent);
+  opacity: 0.8;
+}
+
+/* Glass surfaces with a hairline gradient edge. */
+.dashboard .dashboard-hero,
+.dashboard .kpi-card,
+.dashboard .dashboard-section {
+  position: relative;
+  background: var(--dash-glass);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  backdrop-filter: blur(14px) saturate(140%);
+  border: 0;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+}
+
+.dashboard .dashboard-hero::after,
+.dashboard .kpi-card::after,
+.dashboard .dashboard-section::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  padding: 1px;
+  border-radius: inherit;
+  pointer-events: none;
+  background: linear-gradient(
+    140deg,
+    var(--dash-edge-a),
+    transparent 38%,
+    transparent 62%,
+    var(--dash-edge-b)
+  );
+  -webkit-mask:
+    linear-gradient(#000 0 0) content-box,
+    linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+}
+
+.dashboard .dashboard-hero {
+  padding: var(--space-5) var(--space-6);
+  align-items: center;
+}
+
+.dashboard .dashboard-hero-title {
+  font-size: var(--text-2xl);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+.dashboard .dashboard-hero-net {
+  padding: var(--space-3) var(--space-5);
+  border-radius: var(--radius-md);
+  background: color-mix(in srgb, var(--surface-sunken) 70%, transparent);
+  border: 1px solid var(--line);
+}
+
+.dashboard .dashboard-hero-net-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.14em;
+}
+
+.dashboard .dashboard-hero-net-value {
+  font-size: var(--text-3xl);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.dashboard .dashboard-hero-net-value[data-tone="positive"] {
+  text-shadow: 0 0 28px color-mix(in srgb, var(--success) 45%, transparent);
+}
+
+.dashboard .dashboard-hero-net-value[data-tone="negative"] {
+  text-shadow: 0 0 28px color-mix(in srgb, var(--danger) 45%, transparent);
+}
+
+/* Period navigation and scope tabs: pills with a quiet glow on the active one. */
+.dashboard .period-nav-link {
+  border-radius: var(--radius-pill);
+  background: transparent;
+  transition:
+    background var(--motion-fast) var(--motion-ease),
+    box-shadow var(--motion-fast) var(--motion-ease);
+}
+
+.dashboard .period-nav-link:hover {
+  background: var(--accent-wash);
+  box-shadow: 0 0 0 3px var(--accent-wash);
+}
+
+.dashboard .list-filter-tab {
+  border-radius: var(--radius-pill);
+}
+
+.dashboard .list-filter-tab-active {
+  /* --ink flips to a light colour in dark mode, so the label uses the canvas colour, not a fixed white. */
+  color: var(--canvas);
+  box-shadow: 0 0 18px var(--accent-wash);
+}
+
+/* KPI cards: label in mono capitals, a larger figure, and a lift on hover. */
+.dashboard .kpi-card {
+  padding: var(--space-4) var(--space-5);
+  transition:
+    transform var(--motion-base) var(--motion-ease),
+    box-shadow var(--motion-base) var(--motion-ease);
+}
+
+.dashboard a.kpi-card:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    var(--shadow-lg),
+    0 0 32px var(--accent-wash);
+}
+
+.dashboard .kpi-card-label {
+  font-family: var(--font-mono);
+  font-size: var(--text-2xs);
+  letter-spacing: 0.12em;
+}
+
+.dashboard .kpi-card-value {
+  font-size: var(--text-xl);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+
+/* Sections: a small neon marker before each title. */
+.dashboard .dashboard-section {
+  padding: var(--space-5);
+}
+
+.dashboard .dashboard-section-title {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  font-size: var(--text-base);
+  font-weight: 650;
+  letter-spacing: -0.01em;
+}
+
+.dashboard .dashboard-section-title::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: var(--radius-pill);
+  background: linear-gradient(135deg, var(--bronze), var(--info));
+  box-shadow: 0 0 12px var(--dash-glow-a);
+}
+
+.dashboard .dashboard-section-link {
+  padding: 2px var(--space-2);
+  border-radius: var(--radius-pill);
+}
+
+.dashboard .dashboard-section-link:hover {
+  text-decoration: none;
+  background: var(--accent-wash);
+}
+
+.dashboard .dashboard-list-item {
+  border-color: color-mix(in srgb, var(--line) 70%, transparent);
+}
+
+.dashboard .delta-chip {
+  font-family: var(--font-mono);
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--surface-sunken) 60%, transparent);
+}
+
+.dashboard .dashboard-empty-hint {
+  border-radius: var(--radius-pill);
+  background: var(--dash-glass);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 720px) {
+  .dashboard .dashboard-hero {
+    padding: var(--space-4);
+  }
+  .dashboard .dashboard-hero-net {
+    width: 100%;
+    text-align: left;
+  }
+  .dashboard .dashboard-hero-net-value {
+    font-size: var(--text-2xl);
+  }
+  .dashboard::before {
+    height: 340px;
+  }
+}
+
+/* Where blur is unsupported or the person asks for less motion/transparency, fall back to solid cards. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  .dashboard .dashboard-hero,
+  .dashboard .kpi-card,
+  .dashboard .dashboard-section {
+    background: var(--surface-solid);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard .kpi-card,
+  .dashboard .period-nav-link {
+    transition: none;
+  }
+  .dashboard a.kpi-card:hover {
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .dashboard::before {
+    display: none;
+  }
+  .dashboard .dashboard-hero,
+  .dashboard .kpi-card,
+  .dashboard .dashboard-section {
+    background: var(--surface-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}

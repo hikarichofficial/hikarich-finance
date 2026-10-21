@@ -44,6 +44,8 @@ create table public.telegram_links (
   report_daily boolean not null default true,
   report_weekly boolean not null default true,
   report_monthly boolean not null default true,
+  -- What the bot says: Indonesian or English. The books themselves are never translated.
+  language text not null default 'id' check (language in ('id', 'en')),
   linked_at timestamptz not null default now(),
   revoked_at timestamptz,
   revoked_by uuid,
@@ -236,6 +238,7 @@ begin
     'telegram_username', l.telegram_username,
     'linked_at', l.linked_at,
     'max_entry_amount', l.max_entry_amount::text,
+    'language', l.language,
     'report_daily', l.report_daily,
     'report_weekly', l.report_weekly,
     'report_monthly', l.report_monthly,
@@ -398,6 +401,7 @@ begin
     'username', l.telegram_username,
     'is_private', v_is_private,
     'max_entry_amount', l.max_entry_amount::text,
+    'language', l.language,
     'report_daily', l.report_daily,
     'report_weekly', l.report_weekly,
     'report_monthly', l.report_monthly,
@@ -827,7 +831,7 @@ begin
     raise exception 'INVALID: unknown report kind' using errcode = 'invalid_parameter_value';
   end if;
   return coalesce((
-    select jsonb_agg(jsonb_build_object('link_id', l.id, 'chat_id', l.telegram_chat_id::text, 'user_id', l.user_id))
+    select jsonb_agg(jsonb_build_object('link_id', l.id, 'chat_id', l.telegram_chat_id::text, 'user_id', l.user_id, 'language', l.language))
     from public.telegram_links l
     where l.status = 'active'
       and case p_kind when 'daily' then l.report_daily when 'weekly' then l.report_weekly else l.report_monthly end
@@ -854,6 +858,212 @@ end
 $$;
 
 -- ------------------------------------------------------------ privileges
+-- ------------------------------------------------------------ receipt photo as a document (attachment)
+-- Step 1 of attaching a receipt photo: registers the file as a document of the Entity (same rules as the website:
+-- documents.upload, accepted type, size limit, one document per content hash). The bot then stores the bytes under
+-- `<entity>/<document>` in the private bucket and calls telegram_attach_receipt.
+create function public.telegram_register_receipt(
+  p_link uuid, p_entity uuid, p_key text, p_file_name text, p_mime text, p_size bigint, p_sha256 text)
+returns jsonb
+language plpgsql security definer set search_path = pg_catalog, public as $$
+declare
+  v_claims text := current_setting('request.jwt.claims', true);
+  v_sub text := current_setting('request.jwt.claim.sub', true);
+  v_doc uuid;
+  v_path text;
+begin
+  if p_key is null or length(btrim(p_key)) < 8 or length(p_key) > 100 then
+    raise exception 'INVALID: an idempotency key of 8 to 100 characters is required' using errcode = 'invalid_parameter_value';
+  end if;
+  perform app_private.telegram_act_as(p_link);
+  v_doc := public.register_document(p_entity, p_key, p_file_name, p_mime, p_size, p_sha256);
+  select d.storage_path into v_path from public.documents d where d.id = v_doc;
+  perform app_private.telegram_restore_claims(v_claims, v_sub);
+  return jsonb_build_object('document_id', v_doc, 'stored', v_path is not null);
+end
+$$;
+
+-- Step 2: records where the bytes landed (once) and links the document to an entry made by this bot as a receipt.
+create function public.telegram_attach_receipt(p_link uuid, p_document uuid, p_storage_path text, p_expense uuid)
+returns uuid
+language plpgsql security definer set search_path = pg_catalog, public as $$
+declare
+  v_user uuid;
+  v_claims text := current_setting('request.jwt.claims', true);
+  v_sub text := current_setting('request.jwt.claim.sub', true);
+  x public.expenses%rowtype;
+  d public.documents%rowtype;
+  v_link uuid;
+begin
+  v_user := app_private.telegram_act_as(p_link);
+  select * into x from public.expenses where id = p_expense;
+  if not found or x.created_by is distinct from v_user or left(coalesce(x.internal_note, ''), 8) <> 'Telegram' then
+    raise exception 'FORBIDDEN: a receipt can only be attached to an entry made by this bot' using errcode = 'insufficient_privilege';
+  end if;
+  select * into d from public.documents where id = p_document;
+  if not found or d.entity_id <> x.entity_id then
+    raise exception 'INVALID: the document does not belong to the entry''s Entity' using errcode = 'invalid_parameter_value';
+  end if;
+  if d.storage_path is null then
+    perform public.finalize_document_upload(p_document, p_storage_path);
+  end if;
+  v_link := public.link_document(p_document, 'expense', p_expense, 'receipt');
+  perform app_private.telegram_restore_claims(v_claims, v_sub);
+  return v_link;
+end
+$$;
+
+
+-- ------------------------------------------------------------ fixed assets and loan instalments
+-- Confirming an expense whose line is on an asset category already opens a DRAFT asset (decision of P8). These two
+-- functions let the owner finish that from Telegram: see the draft assets of an entry made by this bot, and activate
+-- one with a straight-line life chosen by the owner (a personal asset is kept at cost, never depreciated). The fiscal
+-- class stays unset; the website offers it. Everything runs through public.asset_activate, so assets.manage, the
+-- in-service date and the period checks still apply.
+create function public.telegram_expense_assets(p_link uuid, p_expense uuid) returns jsonb
+language plpgsql security definer set search_path = pg_catalog, public as $$
+declare
+  v_user uuid;
+  v_claims text := current_setting('request.jwt.claims', true);
+  v_sub text := current_setting('request.jwt.claim.sub', true);
+  x public.expenses%rowtype;
+  v_type text;
+  v_out jsonb;
+begin
+  v_user := app_private.telegram_act_as(p_link);
+  select * into x from public.expenses where id = p_expense;
+  if not found or x.created_by is distinct from v_user or left(coalesce(x.internal_note, ''), 8) <> 'Telegram' then
+    raise exception 'FORBIDDEN: only an entry made by this bot can be followed up here' using errcode = 'insufficient_privilege';
+  end if;
+  select e.entity_type into v_type from public.entities e where e.id = x.entity_id;
+  select coalesce(jsonb_agg(jsonb_build_object('asset_id', f.id, 'code', f.asset_code, 'name', f.name,
+           'cost', f.acquisition_cost::text, 'acquisition_date', f.acquisition_date, 'entity_type', v_type,
+           'entity_id', f.entity_id, 'can_manage', app_authz.has_permission(f.entity_id, 'assets.manage'))
+           order by f.asset_code), '[]'::jsonb)
+    into v_out
+  from public.fixed_assets f
+  join public.expense_lines l on l.id = f.expense_line_id and l.entity_id = f.entity_id
+  where l.expense_id = p_expense and f.entity_id = x.entity_id and f.status = 'draft';
+  perform app_private.telegram_restore_claims(v_claims, v_sub);
+  return v_out;
+end
+$$;
+
+create function public.telegram_activate_asset(p_link uuid, p_key text, p_asset uuid, p_life_months integer)
+returns integer
+language plpgsql security definer set search_path = pg_catalog, public as $$
+declare
+  v_user uuid;
+  v_claims text := current_setting('request.jwt.claims', true);
+  v_sub text := current_setting('request.jwt.claim.sub', true);
+  a public.fixed_assets%rowtype;
+  x public.expenses%rowtype;
+  v_type text;
+  v_n integer;
+begin
+  if p_key is null or length(btrim(p_key)) < 8 or length(p_key) > 100 then
+    raise exception 'INVALID: an idempotency key of 8 to 100 characters is required' using errcode = 'invalid_parameter_value';
+  end if;
+  v_user := app_private.telegram_act_as(p_link);
+  select * into a from public.fixed_assets where id = p_asset;
+  select x2.* into x from public.expense_lines l join public.expenses x2 on x2.id = l.expense_id and x2.entity_id = l.entity_id
+    where l.id = a.expense_line_id;
+  if not found or x.created_by is distinct from v_user or left(coalesce(x.internal_note, ''), 8) <> 'Telegram' then
+    raise exception 'FORBIDDEN: only an asset from an entry made by this bot can be activated here' using errcode = 'insufficient_privilege';
+  end if;
+  select e.entity_type into v_type from public.entities e where e.id = a.entity_id;
+  if v_type = 'personal' then
+    v_n := public.asset_activate(p_asset, p_key, a.acquisition_date, 'none', null, '0', null, null);
+  else
+    v_n := public.asset_activate(p_asset, p_key, a.acquisition_date, 'straight_line', p_life_months, '0', null, null);
+  end if;
+  perform app_private.telegram_restore_claims(v_claims, v_sub);
+  return v_n;
+end
+$$;
+
+-- Debts (loans the owner borrowed) that are active, with the next instalment still to pay and the accounts it can be
+-- paid from. Only Entities where the user has loans.manage.
+create function public.telegram_loans_open(p_link uuid) returns jsonb
+language plpgsql security definer set search_path = pg_catalog, public as $$
+declare
+  v_access jsonb;
+  v_claims text := current_setting('request.jwt.claims', true);
+  v_sub text := current_setting('request.jwt.claim.sub', true);
+  v_out jsonb := '[]'::jsonb;
+  m jsonb;
+  e public.entities%rowtype;
+begin
+  perform app_private.telegram_act_as(p_link);
+  v_access := public.my_access();
+  for m in select x from jsonb_array_elements(coalesce(v_access -> 'memberships', '[]'::jsonb)) x loop
+    if not ((m -> 'permissions') ? 'loans.manage') then
+      continue;
+    end if;
+    select * into e from public.entities where id = (m ->> 'entity_id')::uuid;
+    v_out := v_out || coalesce((
+      select jsonb_agg(jsonb_build_object(
+        'loan_id', l.id, 'entity_id', e.id, 'entity_name', e.legal_name, 'entity_type', e.entity_type,
+        'loan_number', l.loan_number, 'counterparty', l.counterparty_name, 'seq', n.seq, 'due_date', n.due_date,
+        'amount', (greatest(n.principal_due - n.paid_principal, 0) + greatest(n.interest_due - n.paid_interest, 0)
+                   + greatest(n.fee_due - n.paid_fee, 0))::text,
+        'overdue', n.overdue, 'today', app_private.entity_today(e.id),
+        'accounts', coalesce((select jsonb_agg(jsonb_build_object('id', a.id, 'name', a.name) order by a.name)
+                              from public.financial_accounts a
+                              where a.entity_id = e.id and a.is_active and a.currency = e.base_currency), '[]'::jsonb))
+        order by n.due_date, l.loan_number)
+      from public.loans l
+      cross join lateral (select * from app_private.loan_items(l.id) i where i.state <> 'paid' order by i.seq limit 1) n
+      where l.entity_id = e.id and l.status = 'active' and l.direction = 'borrowed'), '[]'::jsonb);
+  end loop;
+  perform app_private.telegram_restore_claims(v_claims, v_sub);
+  return v_out;
+end
+$$;
+
+-- Pays the next instalment of a debt exactly as the schedule says (principal, interest and fee), dated today in the
+-- Entity, from the chosen account. The key makes a repeated tap one payment.
+create function public.telegram_pay_loan(p_link uuid, p_key text, p_loan uuid, p_account uuid) returns uuid
+language plpgsql security definer set search_path = pg_catalog, public as $$
+declare
+  v_claims text := current_setting('request.jwt.claims', true);
+  v_sub text := current_setting('request.jwt.claim.sub', true);
+  l public.loans%rowtype;
+  v_payment uuid;
+begin
+  if p_key is null or length(btrim(p_key)) < 8 or length(p_key) > 100 then
+    raise exception 'INVALID: an idempotency key of 8 to 100 characters is required' using errcode = 'invalid_parameter_value';
+  end if;
+  perform app_private.telegram_act_as(p_link);
+  select * into l from public.loans where id = p_loan;
+  if not found or l.direction <> 'borrowed' then
+    raise exception 'INVALID: only a debt can be paid here' using errcode = 'invalid_parameter_value';
+  end if;
+  v_payment := public.loan_pay_installments(p_loan, p_key, app_private.entity_today(l.entity_id), p_account, 1,
+                                            'Dicatat lewat Telegram');
+  perform app_private.telegram_restore_claims(v_claims, v_sub);
+  return v_payment;
+end
+$$;
+
+
+-- The owner picks the language of the bot's own words with /bahasa or /language.
+create function public.telegram_set_language(p_link uuid, p_language text) returns void
+language plpgsql security definer set search_path = pg_catalog, public as $$
+declare
+  v_claims text := current_setting('request.jwt.claims', true);
+  v_sub text := current_setting('request.jwt.claim.sub', true);
+begin
+  if p_language is null or p_language not in ('id', 'en') then
+    raise exception 'INVALID: the language is id or en' using errcode = 'invalid_parameter_value';
+  end if;
+  perform app_private.telegram_act_as(p_link);
+  update public.telegram_links set language = p_language where id = p_link;
+  perform app_private.telegram_restore_claims(v_claims, v_sub);
+end
+$$;
+
+
 revoke all on function app_private.telegram_act_as(uuid) from public;
 revoke all on function app_private.telegram_restore_claims(text, text) from public;
 revoke all on function app_private.telegram_has(jsonb, uuid, text) from public;
@@ -885,6 +1095,13 @@ revoke all on function public.telegram_unregister_chat(uuid, bigint) from public
 revoke all on function public.telegram_set_topic_entity(uuid, bigint, bigint, uuid) from public, anon, authenticated;
 revoke all on function public.telegram_report_targets(text) from public, anon, authenticated;
 revoke all on function public.telegram_cleanup() from public, anon, authenticated;
+revoke all on function public.telegram_register_receipt(uuid, uuid, text, text, text, bigint, text) from public, anon, authenticated;
+revoke all on function public.telegram_attach_receipt(uuid, uuid, text, uuid) from public, anon, authenticated;
+revoke all on function public.telegram_expense_assets(uuid, uuid) from public, anon, authenticated;
+revoke all on function public.telegram_activate_asset(uuid, text, uuid, integer) from public, anon, authenticated;
+revoke all on function public.telegram_loans_open(uuid) from public, anon, authenticated;
+revoke all on function public.telegram_pay_loan(uuid, text, uuid, uuid) from public, anon, authenticated;
+revoke all on function public.telegram_set_language(uuid, text) from public, anon, authenticated;
 
 grant execute on function public.telegram_claim_update(bigint) to service_role;
 grant execute on function public.telegram_redeem_code(text, bigint, bigint, text) to service_role;
@@ -904,3 +1121,10 @@ grant execute on function public.telegram_unregister_chat(uuid, bigint) to servi
 grant execute on function public.telegram_set_topic_entity(uuid, bigint, bigint, uuid) to service_role;
 grant execute on function public.telegram_report_targets(text) to service_role;
 grant execute on function public.telegram_cleanup() to service_role;
+grant execute on function public.telegram_register_receipt(uuid, uuid, text, text, text, bigint, text) to service_role;
+grant execute on function public.telegram_attach_receipt(uuid, uuid, text, uuid) to service_role;
+grant execute on function public.telegram_expense_assets(uuid, uuid) to service_role;
+grant execute on function public.telegram_activate_asset(uuid, text, uuid, integer) to service_role;
+grant execute on function public.telegram_loans_open(uuid) to service_role;
+grant execute on function public.telegram_pay_loan(uuid, text, uuid, uuid) to service_role;
+grant execute on function public.telegram_set_language(uuid, text) to service_role;

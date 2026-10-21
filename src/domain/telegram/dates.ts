@@ -166,6 +166,12 @@ export function parseDateHint(text: string, today: string): DateHint | null {
     }
   };
 
+  push(/\bday\s+before\s+yesterday\b/.exec(lower), addDays(today, -2));
+  push(/\b(?:yesterday|last\s+night)\b/.exec(lower), addDays(today, -1));
+  push(/\b(?:today|just\s+now|this\s+(?:morning|afternoon|evening))\b/.exec(lower), today);
+  const enAgo = /\b(\d{1,2})\s+days?\s+ago\b/.exec(lower);
+  if (enAgo?.[1] && Number(enAgo[1]) >= 1 && Number(enAgo[1]) <= 60)
+    push(enAgo, addDays(today, -Number(enAgo[1])));
   push(/\bkemarin\s+lusa\b/.exec(lower), addDays(today, -2));
   push(/\b(?:kemarin|semalam|kemaren)\b(?!\s+lusa)/.exec(lower), addDays(today, -1));
   push(

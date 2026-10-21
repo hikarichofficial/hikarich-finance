@@ -127,6 +127,13 @@ describe("the roadmap", () => {
     expect(s.step).toBe("kategori");
     s = press(s, "cat", "0");
     expect(toRecordPayload(s)?.lines[0]?.category_id).toBe("pt-elec");
+    // The database books an asset category only on a line with the asset treatment.
+    expect(toRecordPayload(s)?.lines[0]?.treatment).toBe("asset");
+  });
+  it("books an ordinary purchase as an expense line", () => {
+    let s = draft("makan 35rb pakai gopay pt");
+    s = press(s, "cat", "0");
+    expect(toRecordPayload(s)?.lines[0]?.treatment).toBe("expense");
   });
   it("does not ask about assets for small or ordinary purchases", () => {
     const s = draft("makan 35rb pakai gopay pt");

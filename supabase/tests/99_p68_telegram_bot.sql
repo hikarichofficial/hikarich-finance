@@ -299,6 +299,42 @@ begin
 end
 $$;
 
+-- ================================================================ 7b. a receipt photo becomes an attachment of the entry
+do $$
+declare
+  pt uuid := test_helpers.entity('p68_pt');
+  v_link uuid := test_helpers.g68('link_owner')::uuid;
+  v_slink uuid := test_helpers.g68('link_staff')::uuid;
+  v_exp uuid := test_helpers.g68('e1')::uuid;
+  v_sha text := encode(extensions.digest('struk-p68-synthetic', 'sha256'), 'hex');
+  r jsonb;
+  v_doc uuid;
+  v_l1 uuid;
+  v_l2 uuid;
+begin
+  perform test_helpers.as_service_role();
+  r := public.telegram_register_receipt(v_link, pt, 'key-p68-doc-001', 'struk-telegram.jpg', 'image/jpeg', 120000, v_sha);
+  v_doc := (r ->> 'document_id')::uuid;
+  perform test_helpers.assert(v_doc is not null and (r ->> 'stored')::boolean is false, '7b.1 the photo is registered as a document, bytes not stored yet');
+  perform test_helpers.assert(public.telegram_register_receipt(v_link, pt, 'key-p68-doc-001', 'struk-telegram.jpg', 'image/jpeg', 120000, v_sha) ->> 'document_id' = v_doc::text, '7b.2 a retry returns the same document');
+  v_l1 := public.telegram_attach_receipt(v_link, v_doc, pt::text || '/' || v_doc::text, v_exp);
+  perform test_helpers.assert(v_l1 is not null, '7b.3 the document is linked to the entry');
+  perform test_helpers.logout();
+  perform test_helpers.assert(exists (select 1 from public.documents where id = v_doc and storage_path = pt::text || '/' || v_doc::text), '7b.4 the storage path is recorded once');
+  perform test_helpers.assert((select purpose from public.document_links where id = v_l1) = 'receipt' and (select target_type from public.document_links where id = v_l1) = 'expense', '7b.5 as a receipt of an expense');
+  perform test_helpers.as_service_role();
+  v_l2 := public.telegram_attach_receipt(v_link, v_doc, pt::text || '/' || v_doc::text, v_exp);
+  perform test_helpers.assert(v_l2 = v_l1, '7b.6 attaching again changes nothing');
+  perform test_helpers.logout();
+  perform test_helpers.assert((select count(*) from public.document_links where document_id = v_doc) = 1, '7b.7 still a single link');
+  perform test_helpers.as_service_role();
+  perform test_helpers.expect_msg(format($q$select public.telegram_attach_receipt(%L, %L, 'x/y', %L)$q$, v_slink, v_doc, v_exp), 'FORBIDDEN', '7b.8 another user cannot attach to an entry that is not theirs');
+  perform test_helpers.expect_msg(format($q$select public.telegram_register_receipt(%L, %L, 'key-p68-doc-002', 'a.exe', 'application/x-msdownload', 10, %L)$q$, v_link, pt, encode(extensions.digest('exe-p68', 'sha256'), 'hex')), 'INVALID', '7b.9 an unaccepted file type is refused');
+  perform test_helpers.logout();
+end
+$$;
+
+
 -- ================================================================ 8. undo, correction, recent entries
 do $$
 declare
@@ -390,6 +426,90 @@ begin
   perform test_helpers.expect_msg(format($q$select public.telegram_summary(%L, %L, %L, %L)$q$, v_link, pt, v_today, v_today - 1), 'INVALID', '9.9 the period must not run backwards');
   perform test_helpers.expect_msg(format($q$select public.telegram_summary(%L, %L, %L, %L)$q$, v_link, pt, v_today - 500, v_today), 'INVALID', '9.10 nor exceed 400 days');
   perform test_helpers.expect_msg(format($q$select public.telegram_summary(%L, %L, %L, %L)$q$, v_slink, pe, v_today - 1, v_today), 'FORBIDDEN', '9.11 a user cannot read a book they do not belong to');
+  perform test_helpers.logout();
+end
+$$;
+
+-- ================================================================ 7c. a purchase on an asset category: activate the draft asset
+do $$
+declare
+  pt uuid := test_helpers.entity('p68_pt');
+  v_owner uuid := 'e6800000-0000-0000-0000-000000000001';
+  v_link uuid := test_helpers.g68('link_owner')::uuid;
+  v_slink uuid := test_helpers.g68('link_staff')::uuid;
+  v_cash uuid := test_helpers.g68('cash')::uuid;
+  v_today date := test_helpers.today(pt);
+  v_cat uuid;
+  r jsonb;
+  v_assets jsonb;
+  v_asset uuid;
+  v_n integer;
+begin
+  select id into v_cat from public.categories where entity_id = pt and name = 'Smartphone & Gadget' and kind = 'asset';
+  perform test_helpers.as_service_role();
+  r := public.telegram_record_expense(v_link, 'key-p68-ast-001', pt, v_cash, v_today,
+    jsonb_build_array(jsonb_build_object('description', 'iPhone kantor', 'quantity', 1, 'unit_price', 3000000, 'category_id', v_cat, 'treatment', 'asset')),
+    null, 'Toko HP', null, true);
+  perform test_helpers.assert(r ->> 'status' = 'confirmed', '7c.1 the purchase is confirmed');
+  v_assets := public.telegram_expense_assets(v_link, (r ->> 'expense_id')::uuid);
+  perform test_helpers.assert(jsonb_array_length(v_assets) = 1 and v_assets -> 0 ->> 'name' = 'iPhone kantor'
+    and (v_assets -> 0 ->> 'can_manage')::boolean, '7c.2 one draft asset was opened by the website rule');
+  v_asset := (v_assets -> 0 ->> 'asset_id')::uuid;
+  perform test_helpers.expect_msg(format($q$select public.telegram_activate_asset(%L, 'key-p68-act-000', %L, 48)$q$, v_slink, v_asset), 'FORBIDDEN', '7c.3 another user cannot activate it');
+  v_n := public.telegram_activate_asset(v_link, 'key-p68-act-001', v_asset, 48);
+  perform test_helpers.assert(v_n = 48, '7c.4 the straight-line schedule has 48 monthly lines');
+  perform test_helpers.assert(public.telegram_activate_asset(v_link, 'key-p68-act-001', v_asset, 48) = 48, '7c.5 a repeated tap changes nothing');
+  perform test_helpers.assert(jsonb_array_length(public.telegram_expense_assets(v_link, (r ->> 'expense_id')::uuid)) = 0, '7c.6 nothing is left to activate');
+  perform test_helpers.logout();
+  perform test_helpers.assert((select status = 'active' and depreciation_method = 'straight_line' and useful_life_months = 48 and in_service_date = acquisition_date
+                               from public.fixed_assets where id = v_asset), '7c.7 active, straight line, in service on the purchase date');
+end
+$$;
+
+-- ================================================================ 7d. paying the next instalment of a debt
+do $$
+declare
+  pt uuid := test_helpers.entity('p68_pt');
+  v_owner uuid := 'e6800000-0000-0000-0000-000000000001';
+  v_link uuid := test_helpers.g68('link_owner')::uuid;
+  v_slink uuid := test_helpers.g68('link_staff')::uuid;
+  v_cash uuid := test_helpers.g68('cash')::uuid;
+  v_today date := test_helpers.today(pt);
+  v_loan uuid;
+  v_open jsonb;
+  v_pay uuid;
+begin
+  perform test_helpers.login(v_owner);
+  v_loan := public.loan_create(pt, 'k-p68-loan-1', 'borrowed', 'Bank Uji', null, 'Pinjaman uji', '12000000', v_today - 40, 'short', '12', 'annuity', 12, 1, v_today - 10);
+  perform public.loan_activate(v_loan, 'k-p68-loan-2', v_today - 35, v_cash);
+  perform test_helpers.logout();
+  perform test_helpers.as_service_role();
+  v_open := public.telegram_loans_open(v_link);
+  perform test_helpers.assert(jsonb_array_length(v_open) = 1 and v_open -> 0 ->> 'loan_id' = v_loan::text and (v_open -> 0 ->> 'seq')::int = 1
+    and (v_open -> 0 ->> 'amount')::numeric > 1000000 and (v_open -> 0 ->> 'overdue')::boolean, '7d.1 the debt and its next instalment are listed');
+  perform test_helpers.assert(exists (select 1 from jsonb_array_elements(v_open -> 0 -> 'accounts') a where a ->> 'id' = v_cash::text), '7d.2 with the accounts it can be paid from');
+  perform test_helpers.assert(jsonb_array_length(public.telegram_loans_open(v_slink)) = 0, '7d.3 a user without loans.manage sees no debts');
+  perform test_helpers.expect_msg(format($q$select public.telegram_pay_loan(%L, 'key-p68-pay-000', %L, %L)$q$, v_slink, v_loan, v_cash), 'FORBIDDEN', '7d.4 and cannot pay one');
+  v_pay := public.telegram_pay_loan(v_link, 'key-p68-pay-001', v_loan, v_cash);
+  perform test_helpers.assert(v_pay is not null, '7d.5 the instalment is paid as the schedule says');
+  perform test_helpers.assert(public.telegram_pay_loan(v_link, 'key-p68-pay-001', v_loan, v_cash) = v_pay, '7d.6 a repeated tap is one payment');
+  perform test_helpers.assert((public.telegram_loans_open(v_link) -> 0 ->> 'seq')::int = 2, '7d.7 the next instalment moves on');
+  perform test_helpers.logout();
+end
+$$;
+
+-- ================================================================ 9b. the language of the bot's own words
+do $$
+declare
+  v_link uuid := test_helpers.g68('link_owner')::uuid;
+begin
+  perform test_helpers.as_service_role();
+  perform test_helpers.assert(public.telegram_identify(111, 111, null) ->> 'language' = 'id', '9b.1 Indonesian is the default');
+  perform public.telegram_set_language(v_link, 'en');
+  perform test_helpers.assert(public.telegram_identify(111, 111, null) ->> 'language' = 'en', '9b.2 English can be chosen');
+  perform test_helpers.assert(exists (select 1 from jsonb_array_elements(public.telegram_report_targets('weekly')) t where t ->> 'language' = 'en'), '9b.3 reports follow the choice');
+  perform test_helpers.expect_msg(format($q$select public.telegram_set_language(%L, 'fr')$q$, v_link), 'INVALID', '9b.4 other languages are refused');
+  perform public.telegram_set_language(v_link, 'id');
   perform test_helpers.logout();
 end
 $$;

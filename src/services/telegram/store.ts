@@ -2,6 +2,7 @@ import "server-only";
 import { createHash } from "node:crypto";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { CategoryOption, LearnedRule } from "@/domain/telegram/categorize";
+import { parseLang, type Lang } from "@/domain/telegram/i18n";
 import type { SummaryData } from "@/domain/telegram/report";
 import { StoreError } from "./errors";
 import type {
@@ -34,11 +35,35 @@ export interface Identity {
   username: string | null;
   isPrivate: boolean;
   maxEntryAmount: number;
+  /** What the bot says: Indonesian or English. */
+  lang: Lang;
   reportDaily: boolean;
   reportWeekly: boolean;
   reportMonthly: boolean;
   chatEntityId: string | null;
   memberships: Membership[];
+}
+
+export interface DraftAsset {
+  assetId: string;
+  code: string;
+  name: string;
+  cost: number;
+  entityType: "company" | "personal";
+  canManage: boolean;
+}
+
+export interface OpenLoan {
+  loanId: string;
+  entityId: string;
+  entityName: string;
+  loanNumber: string;
+  counterparty: string;
+  seq: number;
+  dueDate: string;
+  amount: number;
+  overdue: boolean;
+  accounts: Array<{ id: string; name: string }>;
 }
 
 export interface RecordResult {
@@ -122,6 +147,7 @@ export function createStore(client: SupabaseClient) {
         username: strOrNull(data.username),
         isPrivate: data.is_private === true,
         maxEntryAmount: num(data.max_entry_amount),
+        lang: parseLang(data.language),
         reportDaily: data.report_daily === true,
         reportWeekly: data.report_weekly === true,
         reportMonthly: data.report_monthly === true,
@@ -163,6 +189,107 @@ export function createStore(client: SupabaseClient) {
           hits: num(r.hits),
         })),
       }));
+    },
+
+    /**
+     * Attaches the receipt photo to an entry this bot made: registers the file as a document (the website's own
+     * rules: type, size, one document per content), stores the bytes once in the private bucket and links it as a
+     * receipt. Returns false when the owner may not upload documents; the caller then just says so.
+     */
+    async attachReceipt(
+      linkId: string,
+      entityId: string,
+      expenseId: string,
+      file: { bytes: Uint8Array; mime: string },
+    ): Promise<boolean> {
+      const sha = createHash("sha256").update(file.bytes).digest("hex");
+      const ext = file.mime === "image/png" ? "png" : file.mime === "image/webp" ? "webp" : "jpg";
+      const registered = (await rpc(client, "telegram_register_receipt", {
+        p_link: linkId,
+        p_entity: entityId,
+        p_key: `tg-doc-${sha.slice(0, 40)}`,
+        p_file_name: `struk-telegram.${ext}`,
+        p_mime: file.mime,
+        p_size: file.bytes.byteLength,
+        p_sha256: sha,
+      })) as Row;
+      const documentId = str(registered.document_id);
+      const path = `${entityId}/${documentId}`;
+      if (registered.stored !== true) {
+        const { error } = await client.storage
+          .from("documents")
+          .upload(path, file.bytes, { contentType: file.mime, upsert: true });
+        if (error) return false;
+      }
+      await rpc(client, "telegram_attach_receipt", {
+        p_link: linkId,
+        p_document: documentId,
+        p_storage_path: path,
+        p_expense: expenseId,
+      });
+      return true;
+    },
+
+    /** Draft assets the website opened from the asset lines of an entry this bot made. */
+    async expenseAssets(linkId: string, expenseId: string): Promise<DraftAsset[]> {
+      const data = await rpc(client, "telegram_expense_assets", {
+        p_link: linkId,
+        p_expense: expenseId,
+      });
+      return rows(data).map((a) => ({
+        assetId: str(a.asset_id),
+        code: str(a.code),
+        name: str(a.name),
+        cost: num(a.cost),
+        entityType: a.entity_type === "personal" ? "personal" : "company",
+        canManage: a.can_manage === true,
+      }));
+    },
+
+    /** Activates a draft asset: straight line over `lifeMonths` (a personal asset is kept at cost). */
+    async activateAsset(
+      linkId: string,
+      key: string,
+      assetId: string,
+      lifeMonths: number | null,
+    ): Promise<number> {
+      return num(
+        await rpc(client, "telegram_activate_asset", {
+          p_link: linkId,
+          p_key: key,
+          p_asset: assetId,
+          p_life_months: lifeMonths,
+        }),
+      );
+    },
+
+    /** Debts with their next unpaid instalment. */
+    async openLoans(linkId: string): Promise<OpenLoan[]> {
+      const data = await rpc(client, "telegram_loans_open", { p_link: linkId });
+      return rows(data).map((l) => ({
+        loanId: str(l.loan_id),
+        entityId: str(l.entity_id),
+        entityName: str(l.entity_name),
+        loanNumber: str(l.loan_number),
+        counterparty: str(l.counterparty),
+        seq: num(l.seq),
+        dueDate: str(l.due_date),
+        amount: num(l.amount),
+        overdue: l.overdue === true,
+        accounts: rows(l.accounts).map((a) => ({ id: str(a.id), name: str(a.name) })),
+      }));
+    },
+
+    /** Pays the next instalment exactly as the schedule says. */
+    async payLoan(linkId: string, key: string, loanId: string, accountId: string): Promise<string> {
+      return str(
+        await rpc(client, "telegram_pay_loan", {
+          p_link: linkId,
+          p_key: key,
+          p_loan: loanId,
+          p_account: accountId,
+        }),
+      );
     },
 
     async recordExpense(
@@ -344,6 +471,10 @@ export function createStore(client: SupabaseClient) {
         linkId: str(r.link_id),
         chatId: Number(str(r.chat_id)),
       }));
+    },
+
+    async setLanguage(linkId: string, lang: Lang): Promise<void> {
+      await rpc(client, "telegram_set_language", { p_link: linkId, p_language: lang });
     },
 
     async cleanup(): Promise<Row> {

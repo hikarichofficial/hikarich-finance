@@ -30,7 +30,6 @@ export async function sendScheduledReports(
   const targets = await deps.store.reportTargets(kind);
   run.targets = targets.length;
   const today = todayInBusinessZone(deps.now());
-  const period = periodForReport(kind, today);
 
   for (const target of targets) {
     try {
@@ -39,6 +38,7 @@ export async function sendScheduledReports(
         run.failed += 1;
         continue;
       }
+      const period = periodForReport(kind, today, who.lang);
       const parts: string[] = [];
       for (const m of who.memberships.filter((x) => x.canView)) {
         const current = await deps.store.summary(who.linkId, m.entityId, period.from, period.to);
@@ -48,7 +48,7 @@ export async function sendScheduledReports(
           period.prevFrom,
           period.prevTo,
         );
-        parts.push(formatSummary(kind, period, current, previous.total));
+        parts.push(formatSummary(kind, period, current, previous.total, who.lang));
       }
       if (parts.length === 0) continue;
       let ok = true;

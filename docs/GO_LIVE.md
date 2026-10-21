@@ -99,3 +99,5 @@ OWNER, open Administrasi > Bot Telegram and press **Daftarkan Webhook**, create 
    without it the bot still works with typed amounts. `GEMINI_MODEL` is optional (default `gemini-2.5-flash`).
 5. `SUPABASE_SERVICE_ROLE_KEY` must be set (the bot's database functions are service-role only).
 6. The Entity "Pribadi" needs at least one active cash/e-wallet account before the bot can record in it.
+7. The bot can attach receipt photos, activate assets and pay loan instalments, but only for a paired user who holds
+   the matching permission (documents, `assets.manage`, `loans.manage`). Language: `/language en` or `/bahasa id`.

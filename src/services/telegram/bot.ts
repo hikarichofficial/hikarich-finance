@@ -1,7 +1,9 @@
 import { aiToParsed, type AiExtraction } from "@/domain/telegram/ai";
 import { formatDateId } from "@/domain/telegram/dates";
+import { formatDateEn, L, parseLang, type Lang } from "@/domain/telegram/i18n";
 import {
   classifyIntent,
+  entityWordOf,
   looksLikeLoanPayment,
   parseExpenseText,
   type ParsedExpense,
@@ -29,7 +31,8 @@ import {
 import { formatRupiah, parseAmounts } from "@/domain/telegram/rupiah";
 import { todayInBusinessZone } from "@/lib/time";
 import type { SendOptions, TgCallbackQuery, TgMessage, TgResult, TgUpdate } from "./api";
-import { refusalText, StoreError } from "./errors";
+import { errorLine, refusalText } from "./errors";
+import { handleAssetCallback, handleLoanCallback, offerAssets, startLoanPayment } from "./followups";
 import type { Identity, RecentEntry, RecordResult, TelegramStore } from "./store";
 
 /**
@@ -75,22 +78,49 @@ export interface BotDeps {
   appUrl: string;
 }
 
-const HELP = [
-  "👋 <b>Saya asisten pencatat pengeluaran Hikarich.</b>",
-  "",
-  "<b>Catat pengeluaran</b> — cukup ketik seperti ngobrol:",
-  "• <i>makan siang di warteg 35rb pakai gopay</i>",
-  "• <i>beli iPhone 15 untuk usaha 15jt</i>",
-  "• <i>kemarin bensin 50rb dan parkir 5rb pribadi</i>",
-  "Atau kirim <b>foto struk</b>. Saya selalu menunjukkan ringkasan dan menunggu tombol <b>Simpan</b> sebelum mencatat.",
-  "",
-  "<b>Entitas</b> — sebut <i>PT</i> atau <i>pribadi</i> di pesan. Kalau tidak disebut, saya akan bertanya dulu.",
-  "",
-  "<b>Tanya ringkasan</b>: <i>pengeluaran hari ini</i>, <i>rekap minggu lalu</i>, <i>bulan ini berapa?</i>",
-  "",
-  "<b>Perintah</b>: /hariini /mingguini /bulanini /bulanlalu /terakhir /batalkan /batal /tips /pengaturan",
-  "Laporan otomatis (harian, mingguan, bulanan) dan batas nominal diatur di website.",
-].join("\n");
+function helpText(lang: Lang): string {
+  return lang === "en"
+    ? [
+        "👋 <b>I am the Hikarich expense assistant.</b>",
+        "",
+        "<b>Record an expense</b> — just type like you are chatting:",
+        "• <i>lunch at the warteg 35k paid with gopay</i>",
+        "• <i>bought an iPhone 15 for the business 15m</i>",
+        "• <i>yesterday fuel 50k and parking 5k personal</i>",
+        "Or send a <b>receipt photo</b>. I always show a summary and wait for the <b>Save</b> button before recording.",
+        "",
+        "<b>Entity</b> — say <i>PT</i> (company) or <i>personal</i> in the message. If you do not, I ask first.",
+        "",
+        "<b>Durable purchases & loan instalments</b> — for a purchase like an iPhone for the business I ask how long it lasts and then activate it as an asset. For a loan instalment type <i>pay instalment</i> or /loan; the amount follows the loan schedule.",
+        "",
+        "<b>Receipt photos</b> you save are attached to the entry.",
+        "",
+        "<b>Ask for a summary</b>: <i>expenses today</i>, <i>recap last week</i>, <i>how much this month?</i>",
+        "",
+        "<b>Commands</b>: /today /thisweek /thismonth /lastmonth /last /loan /undo /cancel /tips /settings /language",
+        "Automatic reports (daily, weekly, monthly) and the amount limit are set on the website.",
+      ].join("\n")
+    : [
+        "👋 <b>Saya asisten pencatat pengeluaran Hikarich.</b>",
+        "",
+        "<b>Catat pengeluaran</b> — cukup ketik seperti ngobrol:",
+        "• <i>makan siang di warteg 35rb pakai gopay</i>",
+        "• <i>beli iPhone 15 untuk usaha 15jt</i>",
+        "• <i>kemarin bensin 50rb dan parkir 5rb pribadi</i>",
+        "Atau kirim <b>foto struk</b>. Saya selalu menunjukkan ringkasan dan menunggu tombol <b>Simpan</b> sebelum mencatat.",
+        "",
+        "<b>Entitas</b> — sebut <i>PT</i> atau <i>pribadi</i> di pesan. Kalau tidak disebut, saya akan bertanya dulu.",
+        "",
+        "<b>Barang tahan lama & cicilan</b> — pembelian seperti iPhone untuk usaha saya tanyakan masa manfaatnya lalu saya aktifkan sebagai aset. Untuk cicilan pinjaman ketik <i>bayar cicilan</i> atau /cicilan; jumlahnya mengikuti jadwal pinjaman.",
+        "",
+        "<b>Foto struk</b> yang kamu simpan ikut terlampir di catatan.",
+        "",
+        "<b>Tanya ringkasan</b>: <i>pengeluaran hari ini</i>, <i>rekap minggu lalu</i>, <i>bulan ini berapa?</i>",
+        "",
+        "<b>Perintah</b>: /hariini /mingguini /bulanini /bulanlalu /terakhir /cicilan /batalkan /batal /tips /pengaturan /bahasa",
+        "Laporan otomatis (harian, mingguan, bulanan) dan batas nominal diatur di website.",
+      ].join("\n");
+}
 
 const COMMAND_PERIODS: Readonly<Record<string, string>> = {
   hariini: "hari ini",
@@ -99,18 +129,16 @@ const COMMAND_PERIODS: Readonly<Record<string, string>> = {
   minggulalu: "minggu lalu",
   bulanini: "bulan ini",
   bulanlalu: "bulan lalu",
+  today: "hari ini",
+  yesterday: "kemarin",
+  thisweek: "minggu ini",
+  lastweek: "minggu lalu",
+  thismonth: "bulan ini",
+  lastmonth: "bulan lalu",
 };
 
 function opts(thread: number, extra: Partial<SendOptions> = {}): SendOptions {
   return { ...(thread ? { threadId: thread } : {}), ...extra };
-}
-
-function errorLine(error: unknown): string {
-  if (error instanceof StoreError) {
-    if (error.code === "FORBIDDEN") return "Akunmu tidak punya hak untuk itu.";
-    return refusalText(error.message).slice(0, 200) || "Terjadi kesalahan.";
-  }
-  return "Terjadi kesalahan di server. Coba lagi sebentar lagi.";
 }
 
 /** Entry point. Never throws: a failing update must not make Telegram retry it forever. */
@@ -129,7 +157,7 @@ export async function handleUpdate(update: TgUpdate, deps: BotDeps): Promise<voi
     if (chat !== undefined) {
       await deps.api.sendMessage(
         chat,
-        "⚠️ Maaf, ada gangguan saat memproses pesan ini. Coba kirim lagi.",
+        "⚠️ Maaf, ada gangguan saat memproses pesan ini. Coba kirim lagi. / Sorry, something went wrong. Please send it again.",
         opts(update.message?.message_thread_id ?? 0),
       );
     }
@@ -152,12 +180,12 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
       const paired = await store.redeemCode(intent.arg, from.id, chat, from.username ?? null);
       await api.sendMessage(
         chat,
-        `✅ Terhubung sebagai <b>${escapeHtml(paired.displayName)}</b>.\n\n${HELP}`,
+        `✅ Terhubung sebagai <b>${escapeHtml(paired.displayName)}</b>.\n\n${helpText("id")}\n\n🇬🇧 English: /language`,
       );
     } catch {
       await api.sendMessage(
         chat,
-        "Kode tidak dikenal, sudah dipakai, atau sudah kedaluwarsa. Buat kode baru di website (menu Admin → Telegram).",
+        "Kode tidak dikenal, sudah dipakai, atau sudah kedaluwarsa. Buat kode baru di website (menu Admin → Telegram).\n\nThe code is unknown, already used or expired. Create a new one on the website (Admin → Telegram).",
       );
     }
     return;
@@ -181,15 +209,23 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
         );
         await api.sendMessage(
           chat,
-          "✅ Grup ini terdaftar. Hanya kamu yang bisa mencatat dari sini.\nAtur entitasnya: /topik pt atau /topik pribadi (jalankan di topik yang diinginkan). Ringkasan di grup hanya menampilkan entitas yang diatur.",
+          L(
+            owner.lang,
+            "✅ Grup ini terdaftar. Hanya kamu yang bisa mencatat dari sini.\nAtur entitasnya: /topik pt atau /topik pribadi (jalankan di topik yang diinginkan). Ringkasan di grup hanya menampilkan entitas yang diatur.",
+            "✅ This group is registered. Only you can record from here.\nSet its entity: /topik pt or /topik pribadi (run it in the topic you want). Summaries in the group only show the entity you set.",
+          ),
           opts(thread),
         );
       } else {
         await store.unregisterChat(owner.linkId, chat);
-        await api.sendMessage(chat, "Grup ini tidak lagi terhubung.", opts(thread));
+        await api.sendMessage(
+          chat,
+          L(owner.lang, "Grup ini tidak lagi terhubung.", "This group is no longer connected."),
+          opts(thread),
+        );
       }
     } catch (error) {
-      await api.sendMessage(chat, errorLine(error), opts(thread));
+      await api.sendMessage(chat, errorLine(error, owner.lang), opts(thread));
     }
     return;
   }
@@ -199,7 +235,7 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
     if (isPrivate) {
       await api.sendMessage(
         chat,
-        "Bot ini pribadi. Untuk menghubungkan, buka website Hikarich Finance → Admin → Telegram, buat kode, lalu kirim <code>/start KODE</code> di sini.",
+        "Bot ini pribadi. Untuk menghubungkan, buka website Hikarich Finance → Admin → Telegram, buat kode, lalu kirim <code>/start KODE</code> di sini.\n\nThis bot is private. To connect, open the Hikarich Finance website → Admin → Telegram, create a code, then send <code>/start CODE</code> here.",
       );
     }
     return;
@@ -212,7 +248,7 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
     return;
   }
   if (intent.kind === "help") {
-    await api.sendMessage(chat, HELP, opts(thread));
+    await api.sendMessage(chat, helpText(who.lang), opts(thread));
     return;
   }
   if (intent.kind === "undo") {
@@ -240,7 +276,11 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
   if (contexts.length === 0) {
     await api.sendMessage(
       chat,
-      "Akunmu belum punya hak mencatat pengeluaran di entitas mana pun.",
+      L(
+        who.lang,
+        "Akunmu belum punya hak mencatat pengeluaran di entitas mana pun.",
+        "Your account may not record expenses in any entity yet.",
+      ),
       opts(thread),
     );
     return;
@@ -252,7 +292,7 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
 
   if (msg.photo && msg.photo.length > 0) {
     source = "photo";
-    parsed = await readPhoto(msg, text, today, deps);
+    parsed = await readPhoto(msg, text, today, deps, who.lang);
     if (!parsed) return;
   } else if (intent.kind === "record") {
     parsed = parseExpenseText(text, today);
@@ -269,18 +309,20 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
   if (!parsed) {
     await api.sendMessage(
       chat,
-      "Saya belum menangkap nominalnya. Coba tulis seperti: <i>makan siang 35rb pakai gopay</i>, atau ketik /bantuan.",
+      L(
+        who.lang,
+        "Saya belum menangkap nominalnya. Coba tulis seperti: <i>makan siang 35rb pakai gopay</i>, atau ketik /bantuan.",
+        "I did not catch the amount. Try writing like: <i>lunch 35k paid with gopay</i>, or type /help.",
+      ),
       opts(thread),
     );
     return;
   }
 
   if (source === "text" && looksLikeLoanPayment(text)) {
-    await api.sendMessage(
-      chat,
-      "Ini terlihat seperti <b>cicilan atau pelunasan pinjaman</b>. Cicilan memecah pokok dan bunga serta mengurangi utang, jadi catat pembayarannya di website, di menu Pinjaman. Saya tidak mencatatnya sebagai pengeluaran biasa supaya pembukuan tidak salah. Kalau sebenarnya ini biaya biasa, tulis ulang tanpa kata cicilan/angsuran.",
-      opts(thread),
-    );
+    // An instalment splits principal and interest and lowers the debt, so it is never an ordinary expense. The bot
+    // offers the loan flow instead; to record an ordinary cost, write the message again without "cicilan".
+    await startLoanPayment(who, chat, thread, deps);
     return;
   }
 
@@ -292,6 +334,8 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
     source,
     topicEntityId: who.chatEntityId,
     today,
+    photoFileId: msg.photo?.[msg.photo.length - 1]?.file_id ?? null,
+    lang: who.lang,
   });
   if (session?.messageId) await api.clearKeyboard(chat, session.messageId);
   await present(state, env, who, chat, thread, deps, "send");
@@ -302,6 +346,7 @@ async function readPhoto(
   caption: string,
   today: string,
   deps: BotDeps,
+  lang: Lang,
 ): Promise<ParsedExpense | null> {
   const { api, ai } = deps;
   const chat = msg.chat.id;
@@ -309,7 +354,11 @@ async function readPhoto(
   if (!ai.enabled()) {
     await api.sendMessage(
       chat,
-      "Membaca foto struk butuh kunci Gemini yang belum dipasang. Ketik nominalnya saja, mis. <i>makan 35rb</i>.",
+      L(
+        lang,
+        "Membaca foto struk butuh kunci Gemini yang belum dipasang. Ketik nominalnya saja, mis. <i>makan 35rb</i>.",
+        "Reading receipt photos needs a Gemini key that is not set up yet. Just type the amount, e.g. <i>lunch 35k</i>.",
+      ),
       opts(thread),
     );
     return null;
@@ -321,7 +370,11 @@ async function readPhoto(
   if (!file.ok) {
     await api.sendMessage(
       chat,
-      "Fotonya tidak bisa diunduh. Coba kirim ulang, atau ketik nominalnya.",
+      L(
+        lang,
+        "Fotonya tidak bisa diunduh. Coba kirim ulang, atau ketik nominalnya.",
+        "The photo could not be downloaded. Try sending it again, or type the amount.",
+      ),
       opts(thread),
     );
     return null;
@@ -335,12 +388,18 @@ async function readPhoto(
   if (!parsed) {
     await api.sendMessage(
       chat,
-      "Saya tidak bisa membaca struknya dengan jelas. Coba foto lebih dekat dan terang, atau ketik nominalnya.",
+      L(
+        lang,
+        "Saya tidak bisa membaca struknya dengan jelas. Coba foto lebih dekat dan terang, atau ketik nominalnya.",
+        "I cannot read the receipt clearly. Try a closer, brighter photo, or type the amount.",
+      ),
       opts(thread),
     );
     return null;
   }
-  return parsed;
+  // The owner's own words in the caption ("pt", "pribadi") win over what the model guessed.
+  const stated = entityWordOf(caption);
+  return stated ? { ...parsed, entityWord: stated } : parsed;
 }
 
 /** Shows the roadmap (new message or edit) and keeps the draft for the next press. */
@@ -387,7 +446,11 @@ async function continueSession(
   if (result.state === session) {
     await deps.api.sendMessage(
       chat,
-      "Belum cocok. Pilih dengan tombol di atas, atau ketik lagi dengan lebih jelas. /batal untuk membatalkan.",
+      L(
+        who.lang,
+        "Belum cocok. Pilih dengan tombol di atas, atau ketik lagi dengan lebih jelas. /batal untuk membatalkan.",
+        "No match yet. Pick with the buttons above, or type it more clearly. /cancel to cancel.",
+      ),
       opts(thread),
     );
     return;
@@ -416,6 +479,14 @@ async function handleCallback(cb: TgCallbackQuery, deps: BotDeps): Promise<void>
     return;
   }
 
+  if (data.nonce === "a") {
+    await handleAssetCallback(data.action, data.arg, cb, who, chat, message.message_id, deps);
+    return;
+  }
+  if (data.nonce === "l") {
+    await handleLoanCallback(data.action, data.arg, cb, who, chat, message.message_id, deps);
+    return;
+  }
   if (data.nonce === "u") {
     await handleUndoCallback(data.action, data.arg, cb, who, chat, message.message_id, deps);
     return;
@@ -423,7 +494,7 @@ async function handleCallback(cb: TgCallbackQuery, deps: BotDeps): Promise<void>
 
   const session = await store.getSession(who.linkId, chat, thread);
   if (!session || session.nonce !== data.nonce) {
-    await api.answerCallback(cb.id, "Tombol ini sudah kedaluwarsa.");
+    await api.answerCallback(cb.id, L(who.lang, "Tombol ini sudah kedaluwarsa.", "This button has expired."));
     await api.clearKeyboard(chat, message.message_id);
     return;
   }
@@ -437,15 +508,22 @@ async function handleCallback(cb: TgCallbackQuery, deps: BotDeps): Promise<void>
 
   switch (result.effect.kind) {
     case "stale":
-      await api.answerCallback(cb.id, "Pilihan itu tidak berlaku lagi.");
+      await api.answerCallback(
+        cb.id,
+        L(who.lang, "Pilihan itu tidak berlaku lagi.", "That choice no longer applies."),
+      );
       return;
     case "cancel":
       await store.clearSession(who.linkId, chat, thread);
-      await api.answerCallback(cb.id, "Dibatalkan");
-      await api.editMessage(chat, message.message_id, "❌ Dibatalkan. Tidak ada yang dicatat.");
+      await api.answerCallback(cb.id, L(who.lang, "Dibatalkan", "Cancelled"));
+      await api.editMessage(
+        chat,
+        message.message_id,
+        L(who.lang, "❌ Dibatalkan. Tidak ada yang dicatat.", "❌ Cancelled. Nothing was recorded."),
+      );
       return;
     case "save":
-      await api.answerCallback(cb.id, "Menyimpan…");
+      await api.answerCallback(cb.id, L(who.lang, "Menyimpan…", "Saving…"));
       await save(result.state, env, who, chat, thread, message.message_id, deps);
       return;
     case "none":
@@ -456,37 +534,61 @@ async function handleCallback(cb: TgCallbackQuery, deps: BotDeps): Promise<void>
 }
 
 function describeResult(state: DraftState, env: Env, result: RecordResult): string {
+  const lang = state.lang;
   const ctx = env.contexts.find((c) => c.entityId === state.entityId);
   const category = (id: string | null) => ctx?.categories.find((c) => c.id === id)?.name ?? "—";
   const lines = state.lines.map(
     (l) =>
       `• ${escapeHtml(l.description)} — ${formatRupiah(l.amount)} → ${escapeHtml(category(l.categoryId))}`,
   );
-  const where = ctx ? `${entityIcon(ctx.entityType)} ${entityShort(ctx.entityType)}` : "";
+  const where = ctx ? `${entityIcon(ctx.entityType)} ${entityShort(ctx.entityType, lang)}` : "";
   const account = ctx?.accounts.find((a) => a.id === state.accountId)?.name ?? "";
+  const asDraft = L(lang, "Disimpan sebagai draf", "Saved as a draft");
   const head =
     result.status === "confirmed"
-      ? `✅ <b>Tercatat</b>${result.number ? ` · ${escapeHtml(result.number)}` : ""}`
+      ? `✅ <b>${L(lang, "Tercatat", "Recorded")}</b>${result.number ? ` · ${escapeHtml(result.number)}` : ""}`
       : result.reasonCode === "ABOVE_LIMIT"
-        ? `📝 <b>Disimpan sebagai draf</b> (melebihi batas bot ${formatRupiah(env.maxEntry)})`
+        ? `📝 <b>${asDraft}</b> (${L(lang, `melebihi batas bot ${formatRupiah(env.maxEntry)}`, `above the bot's limit of ${formatRupiah(env.maxEntry)}`)})`
         : result.reasonCode === "FORBIDDEN"
-          ? "📝 <b>Disimpan sebagai draf</b> (akunmu tidak berhak mengonfirmasi)"
-          : `📝 <b>Disimpan sebagai draf</b> — ${escapeHtml(refusalText(result.reason ?? "tidak bisa dikonfirmasi").slice(0, 200))}`;
+          ? `📝 <b>${asDraft}</b> (${L(lang, "akunmu tidak berhak mengonfirmasi", "your account may not confirm")})`
+          : `📝 <b>${asDraft}</b> — ${escapeHtml(refusalText(result.reason ?? L(lang, "tidak bisa dikonfirmasi", "could not be confirmed")).slice(0, 200))}`;
+  const date = lang === "en" ? formatDateEn(state.date) : formatDateId(state.date);
   const out = [
     head,
-    `${where} · ${formatDateId(state.date)} · ${escapeHtml(account)}`,
-    `Penerima: ${escapeHtml(payeeFor(state) ?? "—")}`,
+    `${where} · ${date} · ${escapeHtml(account)}`,
+    `${L(lang, "Penerima", "Payee")}: ${escapeHtml(payeeFor(state) ?? "—")}`,
     ...lines,
     `<b>Total: ${formatRupiah(result.total)}</b>`,
   ];
   if (result.status !== "confirmed")
-    out.push("", "Konfirmasi atau ubah di website (menu Pembelian → Pengeluaran).");
+    out.push(
+      "",
+      L(
+        lang,
+        "Konfirmasi atau ubah di website (menu Pembelian → Pengeluaran).",
+        "Confirm or change it on the website (Purchases → Expenses).",
+      ),
+    );
   if (state.lines.some((l) => l.kind === "asset"))
     out.push(
       "",
-      "🏷️ Ada barang tahan lama: daftarkan sebagai aset tetap di website (menu Aset) supaya disusutkan.",
+      result.status === "confirmed"
+        ? L(
+            lang,
+            "🏷️ Ada barang tahan lama: saya tanyakan masa manfaatnya di bawah ini.",
+            "🏷️ This includes durable equipment: I ask how long it lasts below.",
+          )
+        : L(
+            lang,
+            "🏷️ Ada barang tahan lama: setelah dikonfirmasi di website, daftarkan sebagai aset (menu Aset).",
+            "🏷️ This includes durable equipment: once confirmed on the website, register it as an asset (Assets menu).",
+          ),
     );
-  if (result.status === "confirmed") out.push("", "Salah catat? Ketik <i>batalkan yang tadi</i>.");
+  if (result.status === "confirmed")
+    out.push(
+      "",
+      L(lang, "Salah catat? Ketik <i>batalkan yang tadi</i>.", "Wrong entry? Type <i>undo the last one</i>."),
+    );
   return out.join("\n");
 }
 
@@ -504,7 +606,7 @@ async function save(
     await deps.api.editMessage(
       chat,
       messageId,
-      "Data belum lengkap. Ketik pesan barumu untuk mulai lagi.",
+      L(state.lang, "Data belum lengkap. Ketik pesan barumu untuk mulai lagi.", "The data is incomplete. Type your message again to start over."),
     );
     await deps.store.clearSession(who.linkId, chat, thread);
     return;
@@ -518,13 +620,16 @@ async function save(
     await deps.api.editMessage(
       chat,
       messageId,
-      `⚠️ <b>Belum tersimpan:</b> ${escapeHtml(errorLine(error))}\n\n${view.text}`,
+      `⚠️ <b>${L(state.lang, "Belum tersimpan", "Not saved")}:</b> ${escapeHtml(errorLine(error, state.lang))}\n\n${view.text}`,
       view.keyboard,
     );
     return;
   }
   await deps.store.clearSession(who.linkId, chat, thread);
   let text = describeResult(state, env, result);
+  if (state.photoFileId && state.entityId && result.expenseId) {
+    text += `\n\n${await attachPhoto(state, result.expenseId, who, deps)}`;
+  }
   const learned = learnEntries(state, env);
   const remembered: string[] = [];
   for (const entry of learned.slice(0, 5)) {
@@ -538,8 +643,51 @@ async function save(
     }
   }
   if (remembered.length > 0)
-    text += `\n\n🧠 Saya ingat: ${remembered.join(", ")}. Lain kali otomatis.`;
+    text += L(
+      state.lang,
+      `\n\n🧠 Saya ingat: ${remembered.join(", ")}. Lain kali otomatis.`,
+      `\n\n🧠 I will remember: ${remembered.join(", ")}. Next time it is automatic.`,
+    );
   await deps.api.editMessage(chat, messageId, text);
+  if (result.status === "confirmed" && state.lines.some((l) => l.kind === "asset")) {
+    await offerAssets(result.expenseId, who, chat, thread, deps);
+  }
+}
+
+/** Attaches the receipt photo to the saved entry. Never fails the save: the entry exists either way. */
+async function attachPhoto(
+  state: DraftState,
+  expenseId: string,
+  who: Identity,
+  deps: BotDeps,
+): Promise<string> {
+  const lang = who.lang;
+  try {
+    const file = await deps.api.downloadFile(state.photoFileId ?? "");
+    if (!file.ok)
+      return L(
+        lang,
+        "📎 Foto struk belum terlampir (gagal diunduh). Lampirkan di website bila perlu.",
+        "📎 The receipt photo is not attached (download failed). Attach it on the website if needed.",
+      );
+    const done = await deps.store.attachReceipt(who.linkId, state.entityId ?? "", expenseId, {
+      bytes: file.bytes,
+      mime: file.mime,
+    });
+    return done
+      ? L(lang, "📎 Foto struk terlampir di catatan.", "📎 The receipt photo is attached to the entry.")
+      : L(
+          lang,
+          "📎 Foto struk belum terlampir (penyimpanan gagal). Lampirkan di website bila perlu.",
+          "📎 The receipt photo is not attached (storage failed). Attach it on the website if needed.",
+        );
+  } catch (error) {
+    return L(
+      lang,
+      `📎 Foto struk belum terlampir: ${escapeHtml(errorLine(error, lang))}`,
+      `📎 The receipt photo is not attached: ${escapeHtml(errorLine(error, lang))}`,
+    );
+  }
 }
 
 // ---- undo -----------------------------------------------------------------------------------------------------
@@ -554,28 +702,35 @@ async function startUndo(
   if (!last) {
     await deps.api.sendMessage(
       chat,
-      "Belum ada catatan dari bot yang bisa dibatalkan.",
+      L(who.lang, "Belum ada catatan dari bot yang bisa dibatalkan.", "There is no bot entry to undo yet."),
       opts(thread),
     );
     return;
   }
-  const text = `Batalkan catatan ini?\n\n${describeEntry(last)}\n\n${last.status === "confirmed" ? "Catatan yang sudah dikonfirmasi akan <b>dibalik</b> (jurnal pembalik), bukan dihapus." : "Draf akan dibatalkan."}`;
+  const lang = who.lang;
+  const text = L(
+    lang,
+    `Batalkan catatan ini?\n\n${describeEntry(last, lang)}\n\n${last.status === "confirmed" ? "Catatan yang sudah dikonfirmasi akan <b>dibalik</b> (jurnal pembalik), bukan dihapus." : "Draf akan dibatalkan."}`,
+    `Undo this entry?\n\n${describeEntry(last, lang)}\n\n${last.status === "confirmed" ? "A confirmed entry is <b>reversed</b> (a reversing journal), never deleted." : "The draft will be cancelled."}`,
+  );
   await deps.api.sendMessage(chat, text, {
     ...opts(thread),
     keyboard: {
       rows: [
         [
-          { text: "✅ Ya, batalkan", data: `u|do|${last.expenseId}` },
-          { text: "Tidak", data: "u|no|" },
+          { text: L(lang, "✅ Ya, batalkan", "✅ Yes, undo"), data: `u|do|${last.expenseId}` },
+          { text: L(lang, "Tidak", "No"), data: "u|no|" },
         ],
       ],
     },
   });
 }
 
-function describeEntry(e: RecentEntry): string {
-  const status = e.status === "confirmed" ? "dikonfirmasi" : "draf";
-  return `${e.number ? `${escapeHtml(e.number)} · ` : ""}${formatDateId(e.date)} · ${escapeHtml(e.payee ?? "—")}\n${escapeHtml(e.lines ?? "")} — <b>${formatRupiah(e.total)}</b> (${status})`;
+function describeEntry(e: RecentEntry, lang: Lang): string {
+  const status =
+    e.status === "confirmed" ? L(lang, "dikonfirmasi", "confirmed") : L(lang, "draf", "draft");
+  const date = lang === "en" ? formatDateEn(e.date) : formatDateId(e.date);
+  return `${e.number ? `${escapeHtml(e.number)} · ` : ""}${date} · ${escapeHtml(e.payee ?? "—")}\n${escapeHtml(e.lines ?? "")} — <b>${formatRupiah(e.total)}</b> (${status})`;
 }
 
 async function handleUndoCallback(
@@ -588,20 +743,28 @@ async function handleUndoCallback(
   deps: BotDeps,
 ): Promise<void> {
   if (action !== "do" || !/^[0-9a-f-]{36}$/.test(arg)) {
-    await deps.api.answerCallback(cb.id, "Tidak jadi.");
-    await deps.api.editMessage(chat, messageId, "Oke, tidak dibatalkan.");
+    await deps.api.answerCallback(cb.id, L(who.lang, "Tidak jadi.", "Never mind."));
+    await deps.api.editMessage(
+      chat,
+      messageId,
+      L(who.lang, "Oke, tidak dibatalkan.", "OK, not undone."),
+    );
     return;
   }
   try {
     await deps.store.undoEntry(who.linkId, `undo-${arg}`, arg);
-    await deps.api.answerCallback(cb.id, "Dibatalkan");
-    await deps.api.editMessage(chat, messageId, "↩️ Catatan dibatalkan.");
-  } catch (error) {
-    await deps.api.answerCallback(cb.id, "Gagal");
+    await deps.api.answerCallback(cb.id, L(who.lang, "Dibatalkan", "Cancelled"));
     await deps.api.editMessage(
       chat,
       messageId,
-      `⚠️ Tidak bisa dibatalkan: ${escapeHtml(errorLine(error))}`,
+      L(who.lang, "↩️ Catatan dibatalkan.", "↩️ Entry undone."),
+    );
+  } catch (error) {
+    await deps.api.answerCallback(cb.id, L(who.lang, "Gagal", "Failed"));
+    await deps.api.editMessage(
+      chat,
+      messageId,
+      `⚠️ ${L(who.lang, "Tidak bisa dibatalkan", "Could not undo")}: ${escapeHtml(errorLine(error, who.lang))}`,
     );
   }
 }
@@ -616,10 +779,11 @@ export async function answerReport(
   deps: BotDeps,
 ): Promise<void> {
   const today = todayInBusinessZone(deps.now());
-  const period = parsePeriod(text, today);
+  const lang = who.lang;
+  const period = parsePeriod(text, today, lang);
   const lower = text.toLowerCase();
-  const wantsPersonal = /\bpribadi\b/.test(lower);
-  const wantsCompany = /\b(?:pt|usaha|perusahaan|bisnis)\b/.test(lower);
+  const wantsPersonal = /\b(?:pribadi|personal)\b/.test(lower);
+  const wantsCompany = /\b(?:pt|usaha|perusahaan|bisnis|company|business)\b/.test(lower);
   const inGroup = chat < 0;
 
   let targets = who.memberships.filter((m) => m.canView);
@@ -628,7 +792,11 @@ export async function answerReport(
     if (targets.length === 0) {
       await deps.api.sendMessage(
         chat,
-        "Di grup, ringkasan hanya untuk entitas yang diatur. Jalankan /topik pt atau /topik pribadi dulu.",
+        L(
+          lang,
+          "Di grup, ringkasan hanya untuk entitas yang diatur. Jalankan /topik pt atau /topik pribadi dulu.",
+          "In a group, summaries only cover the entity you set. Run /topik pt or /topik pribadi first.",
+        ),
         opts(thread),
       );
       return;
@@ -639,7 +807,11 @@ export async function answerReport(
     );
   }
   if (targets.length === 0) {
-    await deps.api.sendMessage(chat, "Akunmu belum punya hak melihat pengeluaran.", opts(thread));
+    await deps.api.sendMessage(
+      chat,
+      L(lang, "Akunmu belum punya hak melihat pengeluaran.", "Your account may not view expenses yet."),
+      opts(thread),
+    );
     return;
   }
 
@@ -653,10 +825,10 @@ export async function answerReport(
         period.prevFrom,
         period.prevTo,
       );
-      parts.push(formatSummary("ask", period, current, previous.total));
+      parts.push(formatSummary("ask", period, current, previous.total, lang));
     }
   } catch (error) {
-    await deps.api.sendMessage(chat, `⚠️ ${escapeHtml(errorLine(error))}`, opts(thread));
+    await deps.api.sendMessage(chat, `⚠️ ${escapeHtml(errorLine(error, lang))}`, opts(thread));
     return;
   }
   for (const message of joinSummaries(parts))
@@ -682,37 +854,88 @@ async function handleCommand(
     return;
   }
   switch (name) {
+    case "bahasa":
+    case "language":
+    case "lang": {
+      const asked = arg.trim().toLowerCase();
+      const next: Lang | null = /^(en|english|inggris)$/.test(asked)
+        ? "en"
+        : /^(id|indonesia|indonesian)$/.test(asked)
+          ? "id"
+          : null;
+      if (!next) {
+        await api.sendMessage(
+          chat,
+          `🌐 ${L(who.lang, "Bahasa sekarang: Indonesia. Ketik <code>/bahasa en</code> untuk English.", "Current language: English. Type <code>/language id</code> for Indonesian.")}`,
+          opts(thread),
+        );
+        return;
+      }
+      try {
+        await store.setLanguage(who.linkId, next);
+        await api.sendMessage(
+          chat,
+          next === "en"
+            ? "✅ Language set to English. Reports and messages will now be in English."
+            : "✅ Bahasa diatur ke Indonesia. Pesan dan laporan sekarang berbahasa Indonesia.",
+          opts(thread),
+        );
+      } catch (error) {
+        await api.sendMessage(chat, errorLine(error, who.lang), opts(thread));
+      }
+      return;
+    }
     case "start":
     case "bantuan":
     case "help":
     case "menu":
-      await api.sendMessage(chat, HELP, opts(thread));
+      await api.sendMessage(chat, helpText(who.lang), opts(thread));
       return;
     case "ringkasan":
     case "laporan":
     case "rekap":
       await answerReport(who, arg || "bulan ini", chat, thread, deps);
       return;
+    case "summary":
+    case "report":
+      await answerReport(who, arg || "this month", chat, thread, deps);
+      return;
     case "batal":
+    case "cancel":
       if (session) {
         await store.clearSession(who.linkId, chat, thread);
         if (session.messageId) await api.clearKeyboard(chat, session.messageId);
-        await api.sendMessage(chat, "❌ Dibatalkan. Tidak ada yang dicatat.", opts(thread));
+        await api.sendMessage(
+          chat,
+          L(who.lang, "❌ Dibatalkan. Tidak ada yang dicatat.", "❌ Cancelled. Nothing was recorded."),
+          opts(thread),
+        );
       } else {
-        await api.sendMessage(chat, "Tidak ada yang sedang dicatat.", opts(thread));
+        await api.sendMessage(
+          chat,
+          L(who.lang, "Tidak ada yang sedang dicatat.", "Nothing is being recorded."),
+          opts(thread),
+        );
       }
+      return;
+    case "cicilan":
+    case "pinjaman":
+    case "loan":
+    case "loans":
+      await startLoanPayment(who, chat, thread, deps);
       return;
     case "batalkan":
     case "undo":
       await startUndo(who, chat, thread, deps);
       return;
-    case "terakhir": {
+    case "terakhir":
+    case "last": {
       const entries = await store.recentEntries(who.linkId, 5);
       await api.sendMessage(
         chat,
         entries.length === 0
-          ? "Belum ada catatan dari bot."
-          : `<b>Catatan terakhir dari bot</b>\n\n${entries.map(describeEntry).join("\n\n")}`,
+          ? L(who.lang, "Belum ada catatan dari bot.", "No entries from the bot yet.")
+          : `<b>${L(who.lang, "Catatan terakhir dari bot", "Latest entries from the bot")}</b>\n\n${entries.map((e) => describeEntry(e, who.lang)).join("\n\n")}`,
         opts(thread),
       );
       return;
@@ -720,18 +943,21 @@ async function handleCommand(
     case "tips":
       await api.sendMessage(chat, await tips(who, deps), opts(thread));
       return;
+    case "settings":
     case "pengaturan": {
-      const on = (v: boolean) => (v ? "aktif" : "mati");
+      const lang = who.lang;
+      const on = (v: boolean) => (v ? L(lang, "aktif", "on") : L(lang, "mati", "off"));
       await api.sendMessage(
         chat,
         [
-          "<b>Pengaturan bot</b>",
-          `Laporan harian 21.00: ${on(who.reportDaily)}`,
-          `Laporan mingguan (Senin 08.00): ${on(who.reportWeekly)}`,
-          `Laporan bulanan (tanggal 1, 08.00): ${on(who.reportMonthly)}`,
-          `Batas per catatan: ${formatRupiah(who.maxEntryAmount)} (di atas itu jadi draf)`,
+          `<b>${L(lang, "Pengaturan bot", "Bot settings")}</b>`,
+          `${L(lang, "Laporan harian 21.00", "Daily report 21:00")}: ${on(who.reportDaily)}`,
+          `${L(lang, "Laporan mingguan (Senin 08.00)", "Weekly report (Monday 08:00)")}: ${on(who.reportWeekly)}`,
+          `${L(lang, "Laporan bulanan (tanggal 1, 08.00)", "Monthly report (the 1st, 08:00)")}: ${on(who.reportMonthly)}`,
+          `${L(lang, "Batas per catatan", "Limit per entry")}: ${formatRupiah(who.maxEntryAmount)} ${L(lang, "(di atas itu jadi draf)", "(above it, a draft)")}`,
+          `${L(lang, "Bahasa", "Language")}: ${lang === "en" ? "English" : "Indonesia"} (/language)`,
           "",
-          `Ubah di website: ${escapeHtml(deps.appUrl)}/admin/telegram`,
+          `${L(lang, "Ubah di website", "Change on the website")}: ${escapeHtml(deps.appUrl)}/admin/telegram`,
         ].join("\n"),
         opts(thread),
       );
@@ -741,14 +967,18 @@ async function handleCommand(
       if (chat >= 0) {
         await api.sendMessage(
           chat,
-          "Perintah ini dipakai di grup yang sudah didaftarkan (/daftargrup).",
+          L(
+            who.lang,
+            "Perintah ini dipakai di grup yang sudah didaftarkan (/daftargrup).",
+            "This command is used in a registered group (/daftargrup).",
+          ),
           opts(thread),
         );
         return;
       }
       const word = arg.toLowerCase();
-      const wantPersonal = /pribadi/.test(word);
-      const wantCompany = /\b(pt|usaha|perusahaan)\b/.test(word);
+      const wantPersonal = /pribadi|personal/.test(word);
+      const wantCompany = /\b(pt|usaha|perusahaan|company|business)\b/.test(word);
       const found = who.memberships.find(
         (m) =>
           m.canCreate &&
@@ -761,7 +991,11 @@ async function handleCommand(
       if (!found) {
         await api.sendMessage(
           chat,
-          "Tulis <code>/topik pt</code> atau <code>/topik pribadi</code>.",
+          L(
+            who.lang,
+            "Tulis <code>/topik pt</code> atau <code>/topik pribadi</code>.",
+            "Write <code>/topik pt</code> or <code>/topik pribadi</code>.",
+          ),
           opts(thread),
         );
         return;
@@ -770,23 +1004,32 @@ async function handleCommand(
         await store.setTopicEntity(who.linkId, chat, thread, found.entityId);
         await api.sendMessage(
           chat,
-          `✅ ${thread ? "Topik" : "Grup"} ini dicatat ke ${entityIcon(found.entityType)} <b>${escapeHtml(entityShort(found.entityType))}</b>.`,
+          L(
+            who.lang,
+            `✅ ${thread ? "Topik" : "Grup"} ini dicatat ke ${entityIcon(found.entityType)} <b>${escapeHtml(entityShort(found.entityType, who.lang))}</b>.`,
+            `✅ This ${thread ? "topic" : "group"} now records to ${entityIcon(found.entityType)} <b>${escapeHtml(entityShort(found.entityType, who.lang))}</b>.`,
+          ),
           opts(thread),
         );
       } catch (error) {
-        await api.sendMessage(chat, errorLine(error), opts(thread));
+        await api.sendMessage(chat, errorLine(error, who.lang), opts(thread));
       }
       return;
     }
     default:
-      await api.sendMessage(chat, "Perintah itu belum saya kenal. Ketik /bantuan.", opts(thread));
+      await api.sendMessage(
+        chat,
+        L(who.lang, "Perintah itu belum saya kenal. Ketik /bantuan.", "I do not know that command. Type /help."),
+        opts(thread),
+      );
   }
 }
 
 async function tips(who: Identity, deps: BotDeps): Promise<string> {
+  const lang = who.lang;
   const today = todayInBusinessZone(deps.now());
   const from = `${today.slice(0, 7)}-01`;
-  const out: string[] = ["💡 <b>Tips supaya lebih mudah</b>"];
+  const out: string[] = [`💡 <b>${L(lang, "Tips supaya lebih mudah", "Tips to make it easier")}</b>`];
   let drafts = 0;
   let assets = 0;
   for (const m of who.memberships.filter((x) => x.canView)) {
@@ -800,19 +1043,38 @@ async function tips(who: Identity, deps: BotDeps): Promise<string> {
   }
   if (drafts > 0)
     out.push(
-      `• Ada <b>${drafts} draf</b> bulan ini yang belum dikonfirmasi. Konfirmasi di website supaya masuk laporan.`,
+      L(
+        lang,
+        `• Ada <b>${drafts} draf</b> bulan ini yang belum dikonfirmasi. Konfirmasi di website supaya masuk laporan.`,
+        `• There are <b>${drafts} draft(s)</b> this month not confirmed yet. Confirm them on the website so they reach the reports.`,
+      ),
     );
   if (assets > 0)
     out.push(
-      `• Ada <b>${assets} pembelian</b> yang menunggu didaftarkan sebagai aset tetap (menu Aset).`,
+      L(
+        lang,
+        `• Ada <b>${assets} pembelian</b> yang menunggu didaftarkan sebagai aset tetap (menu Aset).`,
+        `• <b>${assets} purchase(s)</b> are waiting to be registered as fixed assets (Assets menu).`,
+      ),
     );
   out.push(
-    "• Sebut cara bayarnya (<i>pakai gopay</i>, <i>tunai</i>) supaya langkah rekening terlewati otomatis.",
-    "• Sebut <i>PT</i> atau <i>pribadi</i> di pesan supaya saya tidak perlu bertanya entitasnya.",
-    "• Kategori yang kamu pilih saya ingat: belanja di tempat yang sama berikutnya otomatis.",
-    "• Kirim foto struk langsung setelah bayar; lebih cepat daripada mengetik.",
-    "• Banyak barang dalam satu pesan boleh: <i>kopi 25rb dan roti 15rb</i>.",
-    "• Pengeluaran besar (di atas batas) jadi draf; atur batasnya di website.",
+    ...(lang === "en"
+      ? [
+          "• Say how you paid (<i>with gopay</i>, <i>cash</i>) so the account step is skipped automatically.",
+          "• Say <i>PT</i> or <i>personal</i> in the message so I do not have to ask for the entity.",
+          "• I remember the category you pick: shopping at the same place next time is automatic.",
+          "• Send the receipt photo right after paying; it is faster than typing.",
+          "• Several items in one message are fine: <i>coffee 25k and bread 15k</i>.",
+          "• Large expenses (above the limit) become drafts; set the limit on the website.",
+        ]
+      : [
+          "• Sebut cara bayarnya (<i>pakai gopay</i>, <i>tunai</i>) supaya langkah rekening terlewati otomatis.",
+          "• Sebut <i>PT</i> atau <i>pribadi</i> di pesan supaya saya tidak perlu bertanya entitasnya.",
+          "• Kategori yang kamu pilih saya ingat: belanja di tempat yang sama berikutnya otomatis.",
+          "• Kirim foto struk langsung setelah bayar; lebih cepat daripada mengetik.",
+          "• Banyak barang dalam satu pesan boleh: <i>kopi 25rb dan roti 15rb</i>.",
+          "• Pengeluaran besar (di atas batas) jadi draf; atur batasnya di website.",
+        ]),
   );
   return out.join("\n");
 }

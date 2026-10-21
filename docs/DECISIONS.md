@@ -4037,5 +4037,21 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      **Free-tier privacy.** On Google's free Gemini tier, prompts and photos may be used by Google to improve its
      products; receipts therefore go to Google. The settings page and the guide say so. Moving to a paid key (or to
      Claude) changes only `gemini.ts` and an environment variable.
-     **Not done.** Receipt photos are not attached to the expense as documents (the bot does not call the document
-     functions); fixed assets are not created by the bot; the bot answers in Indonesian only.
+     **Added later the same day (OWNER).** (a) _Receipt photo as attachment:_ after the owner confirmed (or drafted) an
+     entry made from a photo, the bot registers the photo through the website's own `register_document` /
+     `finalize_document_upload` / `link_document` (bucket `documents`, path `<entity>/<document>`, same size and type
+     checks, duplicate files deduplicated by hash); a failure to attach never undoes the entry and is reported.
+     Wrappers: `telegram_register_receipt`, `telegram_attach_receipt`. (b) _Fixed assets:_ confirming an expense whose
+     line has treatment `asset` makes the website open a DRAFT asset (the bot payload now carries `treatment`, which
+     the website requires for an asset-kind category; this was a real bug found by the test). The bot asks the useful
+     life (4/8/16/20 years, straight-line; a personal asset stays at cost, undepreciated) and activates through
+     `asset_activate` (`assets.manage`); tax class and other adjustments stay on the website
+     (`telegram_expense_assets`, `telegram_activate_asset`). (c) _Loan instalments:_ "cicilan / angsuran / pay loan"
+     never becomes an expense; the bot lists open instalments, asks the account, shows the amounts the schedule
+     dictates and calls `loan_pay_installments` (`loans.manage`) only after the last button, with an idempotency key
+     per loan and instalment (`telegram_loans_open`, `telegram_pay_loan`). New loans stay on the website.
+     (d) _English:_ the bot's own words, dates, commands (`/language`, `/bahasa`, `/summary`, `/last`...) and common
+     English phrasing are bilingual; the language is stored per link (`telegram_links.language`,
+     `telegram_set_language`). Books data (names, categories, amounts) is never translated and never sent to the AI.
+     All new functions are `service_role`-only with a pinned `search_path` and run the existing guards.
+     **Not done.** Reports go to the private chat only; creating loans and the fiscal class of assets stay on the website.

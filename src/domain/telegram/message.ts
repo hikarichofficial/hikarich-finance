@@ -35,8 +35,8 @@ export type Intent =
   | { kind: "record" }
   | { kind: "chat" };
 
-const COMPANY_WORDS = ["pt", "perusahaan", "usaha", "bisnis", "kantor pt", "hikarich", "company"];
-const PERSONAL_WORDS = ["pribadi", "pribadiku", "personal", "sendiri", "uang pribadi"];
+const COMPANY_WORDS = ["pt", "perusahaan", "usaha", "bisnis", "kantor pt", "hikarich", "company", "business", "my company"];
+const PERSONAL_WORDS = ["pribadi", "pribadiku", "personal", "sendiri", "uang pribadi", "my own money"];
 
 const NOT_A_PAYEE = new Set([
   "kantor",
@@ -113,28 +113,28 @@ export function classifyIntent(raw: string): Intent {
   }
   const norm = normalizeText(text);
   if (
-    /^(?:batal(?:kan)?|hapus|undo|cancel|salah)\b/.test(norm) &&
-    /\b(?:tadi|terakhir|barusan|itu|yang)\b|^(?:undo|batal|batalkan|cancel)$/.test(norm)
+    /^(?:batal(?:kan)?|hapus|undo|cancel|delete|remove|wrong|salah)\b/.test(norm) &&
+    /\b(?:tadi|terakhir|barusan|itu|yang|last|that|previous|latest)\b|^(?:undo|batal|batalkan|cancel)$/.test(norm)
   ) {
     return { kind: "undo" };
   }
   if (
-    /^(?:help|bantuan|menu|tolong|bisa apa|apa saja yang bisa)\b/.test(norm) &&
+    /^(?:help|bantuan|menu|tolong|bisa apa|apa saja yang bisa|what can you do)\b/.test(norm) &&
     parseAmounts(text).length === 0
   ) {
     return { kind: "help" };
   }
   const asksReport =
-    /\b(?:ringkasan|laporan|rekap|rangkuman|summary|total|berapa|habis berapa|pengeluaran)\b/.test(
+    /\b(?:ringkasan|laporan|rekap|rangkuman|summary|report|total|berapa|how much|habis berapa|pengeluaran|expenses|spent|spending)\b/.test(
       norm,
     ) && parseAmounts(text).filter((a) => a.explicit).length === 0;
   if (
     asksReport &&
     (/\?/.test(text) ||
-      /\b(?:hari|minggu|bulan|tahun|kemarin|ini|lalu|terakhir|tgl|senin|selasa|rabu|kamis|jumat|sabtu)\b/.test(
+      /\b(?:hari|minggu|bulan|tahun|kemarin|ini|lalu|terakhir|tgl|senin|selasa|rabu|kamis|jumat|sabtu|today|yesterday|week|month|year|last|this|monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/.test(
         norm,
       ) ||
-      /^(?:ringkasan|laporan|rekap|rangkuman)\b/.test(norm))
+      /^(?:ringkasan|laporan|rekap|rangkuman|summary|report)\b/.test(norm))
   ) {
     return { kind: "report", text };
   }
@@ -142,7 +142,7 @@ export function classifyIntent(raw: string): Intent {
   return { kind: "chat" };
 }
 
-function entityWordOf(text: string): EntityWord | null {
+export function entityWordOf(text: string): EntityWord | null {
   const personal = PERSONAL_WORDS.some((w) => containsWord(text, w));
   const company = COMPANY_WORDS.some((w) => containsWord(text, w));
   if (personal && !company) return "personal";
@@ -347,7 +347,7 @@ export function matchAccount(
  * recorded in the loan module on the website, never as a plain expense (decision 422).
  */
 export function looksLikeLoanPayment(text: string): boolean {
-  return /\b(?:cicilan|angsuran|kpr|bayar\s+pinjaman|bayar\s+hutang|bayar\s+utang|pelunasan)\b/i.test(
+  return /\b(?:cicilan|angsuran|kpr|bayar\s+pinjaman|bayar\s+hutang|bayar\s+utang|pelunasan|loan\s+(?:payment|instal+ment)|instal+ment|pay\s+(?:the\s+|my\s+)?loan)\b/i.test(
     text,
   );
 }

@@ -21,6 +21,7 @@ import {
   suggestCategories,
 } from "./categorize";
 import { formatDateId, parseDateHint } from "./dates";
+import { formatDateEn, L, weekdayNameEn, type Lang } from "./i18n";
 import { type AccountOption, type EntityWord, matchAccount, type ParsedExpense } from "./message";
 import { escapeHtml, entityIcon, entityShort, fit, weekdayName } from "./report";
 import { formatRupiah, parseAmounts } from "./rupiah";
@@ -58,6 +59,10 @@ export interface DraftState {
   key: string;
   messageId: number | null;
   source: "text" | "photo";
+  /** The language the owner chose for what the bot says. */
+  lang?: Lang;
+  /** Telegram's id of the receipt photo, kept so the photo can be attached once the entry is saved. */
+  photoFileId?: string | null;
   step: StepId;
   history: StepId[];
   entityId: string | null;
@@ -91,6 +96,8 @@ export interface StartOptions {
   topicEntityId: string | null;
   today: string;
   replaces?: string | null;
+  photoFileId?: string | null;
+  lang?: Lang;
 }
 
 export type Effect = { kind: "none" } | { kind: "save" } | { kind: "cancel" } | { kind: "stale" };
@@ -142,6 +149,8 @@ export function startDraft(parsed: ParsedExpense, env: Env, opts: StartOptions):
     key: opts.key,
     messageId: null,
     source: opts.source,
+    photoFileId: opts.photoFileId ?? null,
+    lang: opts.lang ?? "id",
     step: "entity",
     history: [],
     entityId: entity?.entityId ?? null,
@@ -311,20 +320,20 @@ function advance(state: DraftState, env: Env): DraftState {
   return goTo(state, "ringkasan", env);
 }
 
-function stepLabel(step: StepId): string {
+function stepLabel(step: StepId, lang: Lang | undefined): string {
   switch (step) {
     case "nominal":
-      return "Nominal";
+      return L(lang, "Nominal", "Amount");
     case "entity":
-      return "Entitas";
+      return L(lang, "Entitas", "Entity");
     case "rekening":
-      return "Rekening";
+      return L(lang, "Rekening", "Account");
     case "aset":
-      return "Aset atau biaya";
+      return L(lang, "Aset atau biaya", "Asset or expense");
     case "kategori":
-      return "Kategori";
+      return L(lang, "Kategori", "Category");
     case "ringkasan":
-      return "Ringkasan & simpan";
+      return L(lang, "Ringkasan & simpan", "Summary & save");
   }
 }
 
@@ -346,7 +355,9 @@ function valueOf(step: StepId, state: DraftState, env: Env): string | null {
     case "rekening":
       return ctx?.accounts.find((a) => a.id === state.accountId)?.name ?? null;
     case "aset":
-      return state.lines.some((l) => l.kind === "asset") ? "ada aset tetap" : "biaya biasa";
+      return state.lines.some((l) => l.kind === "asset")
+        ? L(state.lang, "ada aset tetap", "fixed asset")
+        : L(state.lang, "biaya biasa", "ordinary expense");
     case "kategori": {
       if (!ctx || !state.lines.every((l) => l.categoryId !== null)) return null;
       const names = state.lines.map(
@@ -366,11 +377,11 @@ function roadmapBlock(state: DraftState, env: Env): { block: string; n: number; 
     const num = i + 1;
     if (i < at || (step !== state.step && step !== "ringkasan" && resolved(step, state, env))) {
       const value = valueOf(step, state, env);
-      const auto = i >= at ? " (otomatis)" : "";
-      return `✅ ${num}. ${stepLabel(step)}${value ? `: ${escapeHtml(value)}` : ""}${auto}`;
+      const auto = i >= at ? L(state.lang, " (otomatis)", " (automatic)") : "";
+      return `✅ ${num}. ${stepLabel(step, state.lang)}${value ? `: ${escapeHtml(value)}` : ""}${auto}`;
     }
-    if (step === state.step) return `▶️ <b>${num}. ${stepLabel(step)}</b>`;
-    return `⚪ ${num}. ${stepLabel(step)}`;
+    if (step === state.step) return `▶️ <b>${num}. ${stepLabel(step, state.lang)}</b>`;
+    return `⚪ ${num}. ${stepLabel(step, state.lang)}`;
   });
   return { block: rows.join("\n"), n: at + 1, of: plan.length };
 }
@@ -386,8 +397,8 @@ function btn(
 
 function navRow(state: DraftState): Array<{ text: string; data: string }> {
   const row: Array<{ text: string; data: string }> = [];
-  if (state.history.length > 0) row.push(btn(state, "◀️ Kembali", "back"));
-  row.push(btn(state, "❌ Batal", "cancel"));
+  if (state.history.length > 0) row.push(btn(state, L(state.lang, "◀️ Kembali", "◀️ Back"), "back"));
+  row.push(btn(state, L(state.lang, "❌ Batal", "❌ Cancel"), "cancel"));
   return row;
 }
 
@@ -401,9 +412,9 @@ function pagedChoices(
     .slice(start, start + PAGE_SIZE)
     .map((item, i) => [btn(state, item.label.slice(0, 40), action, String(start + i))]);
   const pager: Array<{ text: string; data: string }> = [];
-  if (state.page > 0) pager.push(btn(state, "‹ Sebelumnya", "page", String(state.page - 1)));
+  if (state.page > 0) pager.push(btn(state, L(state.lang, "‹ Sebelumnya", "‹ Previous"), "page", String(state.page - 1)));
   if (start + PAGE_SIZE < items.length)
-    pager.push(btn(state, "Lainnya ›", "page", String(state.page + 1)));
+    pager.push(btn(state, L(state.lang, "Lainnya ›", "More ›"), "page", String(state.page + 1)));
   if (pager.length > 0) rows.push(pager);
   return rows;
 }
@@ -421,30 +432,50 @@ function categoryChoices(state: DraftState, ctx: EntityContext): CategoryOption[
 function limitNote(state: DraftState, env: Env, ctx: EntityContext | null): string {
   const sum = total(state);
   if (!ctx?.canConfirm)
-    return "Akunmu tidak berhak mengonfirmasi, jadi ini disimpan sebagai <b>draf</b> untuk dikonfirmasi di website.";
+    return L(
+      state.lang,
+      "Akunmu tidak berhak mengonfirmasi, jadi ini disimpan sebagai <b>draf</b> untuk dikonfirmasi di website.",
+      "Your account may not confirm entries, so this is saved as a <b>draft</b> to confirm on the website.",
+    );
   if (sum > env.maxEntry) {
-    return `Melebihi batas bot (${formatRupiah(env.maxEntry)}), jadi disimpan sebagai <b>draf</b> untuk dikonfirmasi di website.`;
+    return L(
+      state.lang,
+      `Melebihi batas bot (${formatRupiah(env.maxEntry)}), jadi disimpan sebagai <b>draf</b> untuk dikonfirmasi di website.`,
+      `Above the bot's limit (${formatRupiah(env.maxEntry)}), so it is saved as a <b>draft</b> to confirm on the website.`,
+    );
   }
-  return "Setelah kamu tekan Simpan, catatan ini langsung <b>dikonfirmasi</b> ke pembukuan.";
+  return L(
+    state.lang,
+    "Setelah kamu tekan Simpan, catatan ini langsung <b>dikonfirmasi</b> ke pembukuan.",
+    "Once you press Save, this entry is <b>confirmed</b> into the books right away.",
+  );
 }
 
 /** Text and buttons for the current step. */
 export function render(state: DraftState, env: Env): Rendered {
   const ctx = contextOf(env, state.entityId);
   const { block, n, of } = roadmapBlock(state, env);
-  const head = `📝 <b>Catat pengeluaran</b> — Langkah ${n} dari ${of}\n\n${block}\n\n`;
+  const lang = state.lang;
+  const head = `📝 <b>${L(lang, "Catat pengeluaran", "Record an expense")}</b> — ${L(lang, `Langkah ${n} dari ${of}`, `Step ${n} of ${of}`)}\n\n${block}\n\n`;
   const rows: Keyboard["rows"] = [];
   let body = "";
 
   switch (state.step) {
     case "nominal": {
-      body = `Total yang terbaca: <b>${formatRupiah(total(state))}</b>.\nSudah benar? Kalau salah, ketik nominal yang benar.`;
-      rows.push([btn(state, "✅ Benar", "ok")]);
+      body = L(
+        lang,
+        `Total yang terbaca: <b>${formatRupiah(total(state))}</b>.\nSudah benar? Kalau salah, ketik nominal yang benar.`,
+        `Total read: <b>${formatRupiah(total(state))}</b>.\nIs that right? If not, type the correct amount.`,
+      );
+      rows.push([btn(state, L(lang, "✅ Benar", "✅ Correct"), "ok")]);
       break;
     }
     case "entity": {
-      body =
-        "Pengeluaran ini dicatat di <b>entitas yang mana</b>? Di chat tadi belum disebut PT atau pribadi.";
+      body = L(
+        lang,
+        "Pengeluaran ini dicatat di <b>entitas yang mana</b>? Di chat tadi belum disebut PT atau pribadi.",
+        "Which <b>entity</b> should this expense be recorded in? The chat did not say company (PT) or personal.",
+      );
       for (const c of env.contexts)
         rows.push([
           btn(state, `${entityText(c)} · ${c.entityName}`.slice(0, 40), "ent", c.entityId),
@@ -453,10 +484,14 @@ export function render(state: DraftState, env: Env): Rendered {
     }
     case "rekening": {
       if (!ctx || ctx.accounts.length === 0) {
-        body = `Entitas ${ctx ? entityText(ctx) : ""} belum punya rekening/dompet aktif. Tambahkan dulu di website (menu Keuangan), lalu kirim ulang pesannya.`;
+        body = L(
+          lang,
+          `Entitas ${ctx ? entityText(ctx) : ""} belum punya rekening/dompet aktif. Tambahkan dulu di website (menu Keuangan), lalu kirim ulang pesannya.`,
+          `Entity ${ctx ? entityText(ctx) : ""} has no active account or wallet yet. Add one on the website (Finance menu), then send the message again.`,
+        );
         break;
       }
-      body = "Dibayar <b>pakai rekening mana</b>?";
+      body = L(lang, "Dibayar <b>pakai rekening mana</b>?", "Paid from <b>which account</b>?");
       rows.push(
         ...pagedChoices(
           state,
@@ -469,11 +504,15 @@ export function render(state: DraftState, env: Env): Rendered {
     case "aset": {
       const line = state.lines[state.lineIndex];
       body = line
-        ? `<b>${escapeHtml(line.description)}</b> (${formatRupiah(line.amount)}) terlihat seperti barang tahan lama.\nDicatat sebagai <b>aset tetap</b> (nanti didaftarkan di website) atau <b>biaya biasa</b>?`
-        : "Aset atau biaya?";
+        ? L(
+            lang,
+            `<b>${escapeHtml(line.description)}</b> (${formatRupiah(line.amount)}) terlihat seperti barang tahan lama.\nDicatat sebagai <b>aset tetap</b> (setelah tersimpan saya tanyakan masa manfaatnya) atau <b>biaya biasa</b>?`,
+            `<b>${escapeHtml(line.description)}</b> (${formatRupiah(line.amount)}) looks like durable equipment.\nRecord it as a <b>fixed asset</b> (after saving I will ask how long it lasts) or an <b>ordinary expense</b>?`,
+          )
+        : L(lang, "Aset atau biaya?", "Asset or expense?");
       rows.push(
-        [btn(state, "🏷️ Aset tetap", "as", "a")],
-        [btn(state, "🧾 Biaya biasa", "as", "e")],
+        [btn(state, L(lang, "🏷️ Aset tetap", "🏷️ Fixed asset"), "as", "a")],
+        [btn(state, L(lang, "🧾 Biaya biasa", "🧾 Ordinary expense"), "as", "e")],
       );
       break;
     }
@@ -482,7 +521,11 @@ export function render(state: DraftState, env: Env): Rendered {
       if (!ctx || !line) break;
       const options = categoryChoices(state, ctx);
       const many = state.lines.length > 1 ? ` (${state.lineIndex + 1}/${state.lines.length})` : "";
-      body = `Kategori untuk <b>${escapeHtml(line.description)}</b> — ${formatRupiah(line.amount)}${many}?\nPilih, atau ketik nama kategorinya.`;
+      body = L(
+        lang,
+        `Kategori untuk <b>${escapeHtml(line.description)}</b> — ${formatRupiah(line.amount)}${many}?\nPilih, atau ketik nama kategorinya.`,
+        `Category for <b>${escapeHtml(line.description)}</b> — ${formatRupiah(line.amount)}${many}?\nPick one, or type the category name.`,
+      );
       rows.push(
         ...pagedChoices(
           state,
@@ -496,40 +539,52 @@ export function render(state: DraftState, env: Env): Rendered {
       const rek = ctx?.accounts.find((a) => a.id === state.accountId)?.name ?? "—";
       const lineRows = state.lines.map((l) => {
         const cat = ctx?.categories.find((c) => c.id === l.categoryId)?.name ?? "—";
-        const kind = l.kind === "asset" ? " 🏷️ aset" : "";
+        const kind = l.kind === "asset" ? L(lang, " 🏷️ aset", " 🏷️ asset") : "";
         return `• ${escapeHtml(l.description)} — ${formatRupiah(l.amount)} → ${escapeHtml(cat)}${kind}`;
       });
       body = [
-        "<b>Cek dulu sebelum disimpan:</b>",
-        `Entitas: ${ctx ? entityText(ctx) : "—"}${ctx ? ` · ${escapeHtml(ctx.entityName)}` : ""}`,
-        `Tanggal: ${weekdayName(state.date)}, ${formatDateId(state.date)}`,
-        `Rekening: ${escapeHtml(rek)}`,
-        `Penerima: ${escapeHtml(payeeFor(state) ?? "—")}`,
+        L(lang, "<b>Cek dulu sebelum disimpan:</b>", "<b>Check before saving:</b>"),
+        `${L(lang, "Entitas", "Entity")}: ${ctx ? entityText(ctx) : "—"}${ctx ? ` · ${escapeHtml(ctx.entityName)}` : ""}`,
+        `${L(lang, "Tanggal", "Date")}: ${lang === "en" ? `${weekdayNameEn(state.date)}, ${formatDateEn(state.date)}` : `${weekdayName(state.date)}, ${formatDateId(state.date)}`}`,
+        `${L(lang, "Rekening", "Account")}: ${escapeHtml(rek)}`,
+        `${L(lang, "Penerima", "Payee")}: ${escapeHtml(payeeFor(state) ?? "—")}`,
         ...lineRows,
         `<b>Total: ${formatRupiah(total(state))}</b>`,
         "",
         limitNote(state, env, ctx),
       ].join("\n");
-      rows.push([btn(state, "✅ Simpan", "save")]);
+      rows.push([btn(state, L(lang, "✅ Simpan", "✅ Save"), "save")]);
       rows.push([
-        btn(state, "🏢 Entitas", "go", "entity"),
-        btn(state, "💳 Rekening", "go", "rekening"),
-        btn(state, "🏷️ Kategori", "go", "kategori"),
+        btn(state, L(lang, "🏢 Entitas", "🏢 Entity"), "go", "entity"),
+        btn(state, L(lang, "💳 Rekening", "💳 Account"), "go", "rekening"),
+        btn(state, L(lang, "🏷️ Kategori", "🏷️ Category"), "go", "kategori"),
       ]);
       rows.push([
-        btn(state, "💰 Nominal", "edit", "amount"),
-        btn(state, "📅 Tanggal", "edit", "date"),
-        btn(state, "🏪 Penerima", "edit", "payee"),
+        btn(state, L(lang, "💰 Nominal", "💰 Amount"), "edit", "amount"),
+        btn(state, L(lang, "📅 Tanggal", "📅 Date"), "edit", "date"),
+        btn(state, L(lang, "🏪 Penerima", "🏪 Payee"), "edit", "payee"),
       ]);
       break;
     }
   }
   if (state.awaiting) {
     const prompts: Record<Exclude<Awaiting, null>, string> = {
-      amount: "Ketik nominal yang benar (contoh: 85rb atau 1,2jt).",
-      date: "Ketik tanggalnya (contoh: kemarin, 20 okt, 3 hari lalu).",
-      payee: "Ketik nama penerima/toko (contoh: Warteg Bu Sri).",
-      category: "Ketik nama kategorinya.",
+      amount: L(
+        lang,
+        "Ketik nominal yang benar (contoh: 85rb atau 1,2jt).",
+        "Type the correct amount (e.g. 85k or 1.2m).",
+      ),
+      date: L(
+        lang,
+        "Ketik tanggalnya (contoh: kemarin, 20 okt, 3 hari lalu).",
+        "Type the date (e.g. yesterday, 20 oct, 3 days ago).",
+      ),
+      payee: L(
+        lang,
+        "Ketik nama penerima/toko (contoh: Warteg Bu Sri).",
+        "Type the payee or shop name (e.g. Warteg Bu Sri).",
+      ),
+      category: L(lang, "Ketik nama kategorinya.", "Type the category name."),
     };
     body += `\n\n✏️ ${prompts[state.awaiting]}`;
   }
@@ -764,7 +819,14 @@ export interface RecordPayload {
   accountId: string;
   date: string;
   payeeName: string;
-  lines: Array<{ description: string; quantity: number; unit_price: number; category_id: string }>;
+  lines: Array<{
+    description: string;
+    quantity: number;
+    unit_price: number;
+    category_id: string;
+    /** An asset category is booked as an asset line (the website then opens a draft asset). */
+    treatment: "expense" | "asset";
+  }>;
   key: string;
   replaces: string | null;
 }
@@ -781,6 +843,7 @@ export function toRecordPayload(state: DraftState): RecordPayload | null {
       quantity: 1,
       unit_price: l.amount,
       category_id: l.categoryId,
+      treatment: l.kind,
     });
   }
   return {
