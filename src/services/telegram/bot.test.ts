@@ -395,7 +395,8 @@ function harness(
     customersCreated,
     invoicesIssued,
     paymentsRecorded,
-    getSession: () => session,
+    getSession: () => (session && session.v === 1 ? session : null),
+    getRaw: () => session,
   };
 }
 
@@ -770,8 +771,8 @@ describe("questions, undo and commands", () => {
 const codeIn = (text: string | undefined): string =>
   /<code>(\d{4})<\/code>/.exec(text ?? "")?.[1] ?? "";
 const lastText = (h: { sent: Array<{ text: string }> }): string => h.sent.at(-1)?.text ?? "";
-const nonceOf = (h: { getSession: () => { nonce: string } | null }): string =>
-  h.getSession()?.nonce ?? "";
+const nonceOf = (h: { getRaw: () => { nonce: string } | null }): string =>
+  h.getRaw()?.nonce ?? "";
 
 describe("sales: an invoice with layered verification", () => {
   it("records nothing until the third verification step, then issues it and gives the link", async () => {
@@ -805,7 +806,7 @@ describe("sales: an invoice with layered verification", () => {
     expect(done).toContain("HKD-2026-0001");
     expect(done).toContain("https://example.test/i/tok123");
     expect(done).toContain("Diterbitkan");
-    expect(h.getSession()).toBeNull();
+    expect(h.getRaw()).toBeNull();
   });
 
   it("cancels after three wrong answers and records nothing", async () => {
@@ -817,7 +818,7 @@ describe("sales: an invoice with layered verification", () => {
     await h.say("6jt");
     expect(lastText(h)).toContain("Dibatalkan");
     expect(h.invoicesIssued).toHaveLength(0);
-    expect(h.getSession()).toBeNull();
+    expect(h.getRaw()).toBeNull();
   });
 
   it("asks for what is missing: entity, amount, then the item", async () => {
@@ -953,7 +954,7 @@ describe("sales: a new customer, a payment and a lookup", () => {
     const h2 = harness();
     await h2.say("terima HKD-2026-0001 9jt bca");
     expect(lastText(h2)).toContain("melebihi sisa");
-    expect(h2.getSession()).toBeNull();
+    expect(h2.getRaw()).toBeNull();
   });
 
   it("refuses an invoice that is already paid, one that cannot be found and one the account may not pay", async () => {
@@ -1001,7 +1002,7 @@ describe("sales: leaving a conversation", () => {
     await h.say("invoice Budi 1jt desain PT");
     await h.say("/batal");
     expect(lastText(h)).toContain("Dibatalkan");
-    expect(h.getSession()).toBeNull();
+    expect(h.getRaw()).toBeNull();
     expect(h.invoicesIssued).toHaveLength(0);
   });
   it("a button from an old conversation is refused", async () => {
@@ -1009,7 +1010,7 @@ describe("sales: leaving a conversation", () => {
     await h.say("invoice Budi 1jt desain PT");
     await h.press("o|go|zzzzzz");
     expect(h.invoicesIssued).toHaveLength(0);
-    expect(h.getSession()).not.toBeNull();
+    expect(h.getRaw()).not.toBeNull();
   });
   it("speaks English when the owner chose it", async () => {
     const h = harness({ lang: "en" });
@@ -1020,6 +1021,6 @@ describe("sales: leaving a conversation", () => {
   it("ordinary expenses are not mistaken for sales", async () => {
     const h = harness();
     await h.say("traktir pelanggan 200rb pt");
-    expect(h.getSession()?.v).toBe(1);
+    expect(h.getRaw()?.v).toBe(1);
   });
 });

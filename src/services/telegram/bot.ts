@@ -1,7 +1,7 @@
 import { aiToParsed, type AiExtraction } from "@/domain/telegram/ai";
 import { extractExpenseCode, hasAttachWord, wantsAttachment } from "@/domain/telegram/attach";
 import { formatDateId } from "@/domain/telegram/dates";
-import { formatDateEn, L, parseLang, type Lang } from "@/domain/telegram/i18n";
+import { formatDateEn, L, type Lang } from "@/domain/telegram/i18n";
 import {
   classifyIntent,
   entityWordOf,
