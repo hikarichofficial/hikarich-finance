@@ -6961,3 +6961,14 @@ html {
     backdrop-filter: none;
   }
 }
+
+/* Aurora Glass: the trend line is a smooth curve with a soft glow and a fading wash beneath it. */
+.dashboard .chart-line {
+  stroke-width: 3;
+  filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--chart-color) 45%, transparent));
+}
+
+.dashboard .chart-area {
+  fill: url(#dash-wash);
+  fill: color-mix(in srgb, var(--chart-color) 14%, transparent);
+}

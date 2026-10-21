@@ -1,5 +1,6 @@
 "use client";
 
+import { smoothPath } from "@/domain/dashboard/smooth";
 import Link from "next/link";
 import { useState } from "react";
 import { compactNumber } from "@/domain/dashboard/chart";
@@ -116,7 +117,7 @@ export function LineChart({
   const plotted = points
     .map((p, i) => (p.value === null ? null : { i, x: xOf(i), y: yOf(p.value) }))
     .filter((p): p is { i: number; x: number; y: number } => p !== null);
-  const line = plotted.map((p, k) => `${k === 0 ? "M" : "L"} ${p.x} ${p.y}`).join(" ");
+  const line = smoothPath(plotted);
   const zeroY = yOf(0);
   const area =
     plotted.length > 1
