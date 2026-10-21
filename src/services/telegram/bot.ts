@@ -295,7 +295,13 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
   let parsed: ParsedExpense | null = null;
   let source: "text" | "photo" = "text";
 
-  if (msg.photo && msg.photo.length > 0) {
+  // A caption that already states the amount is the owner's own entry: the photo is only the attachment, so the
+  // receipt is not read by the AI and the total is not asked again. Without an amount the AI reads the receipt.
+  const fromCaption =
+    msg.photo && msg.photo.length > 0 && text ? parseExpenseText(text, today) : null;
+  if (fromCaption) {
+    parsed = fromCaption;
+  } else if (msg.photo && msg.photo.length > 0) {
     source = "photo";
     parsed = await readPhoto(msg, text, today, deps, who.lang);
     if (!parsed) return;
@@ -324,7 +330,7 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
     return;
   }
 
-  if (source === "text" && looksLikeLoanPayment(text)) {
+  if (source === "text" && !msg.photo && looksLikeLoanPayment(text)) {
     // An instalment splits principal and interest and lowers the debt, so it is never an ordinary expense. The bot
     // offers the loan flow instead; to record an ordinary cost, write the message again without "cicilan".
     await startLoanPayment(who, chat, thread, deps);
