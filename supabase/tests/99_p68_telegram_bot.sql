@@ -552,6 +552,75 @@ begin
 end
 $$;
 
+-- ================================================================ 7f. sales through the bot (decision 425)
+do $$
+declare
+  pt uuid := test_helpers.entity('p68_pt');
+  v_link uuid := test_helpers.g68('link_owner')::uuid;
+  v_cash uuid := test_helpers.g68('cash')::uuid;
+  v_today date := test_helpers.today(pt);
+  v_c1 uuid;
+  v_c2 uuid;
+  v_inv jsonb;
+  v_num text;
+  r jsonb;
+  p1 jsonb;
+  p2 jsonb;
+begin
+  perform test_helpers.as_service_role();
+  r := public.telegram_sales_context(v_link, pt);
+  perform test_helpers.assert(r ->> 'currency' = 'IDR' and jsonb_array_length(r -> 'accounts') >= 1 and r -> 'channels' = '[]'::jsonb, '7f.1 the context lists the receiving accounts and the payment links of the Entity');
+
+  v_c1 := public.telegram_sales_create_customer(v_link, pt, 'key-p71-cust-01', 'Budi Santoso', 'budi@example.invalid', null, false);
+  perform test_helpers.assert(v_c1 is not null, '7f.2 a customer is created for the paired user');
+  perform test_helpers.assert(public.telegram_sales_create_customer(v_link, pt, 'key-p71-cust-01', 'Budi Santoso', 'budi@example.invalid', null, false) = v_c1, '7f.3 the same key replays the same customer');
+  perform test_helpers.expect_msg(format($q$select public.telegram_sales_create_customer(%L, %L, 'key-p71-cust-02', 'budi  santoso', null, null, false)$q$, v_link, pt), 'CONFLICT', '7f.4 the same name is refused until the owner says it is another person');
+  r := public.telegram_sales_customers(v_link, pt, 'Budi Santoso');
+  perform test_helpers.assert(jsonb_array_length(r) = 1 and r -> 0 ->> 'severity' = 'same_name' and r -> 0 ->> 'id' = v_c1::text, '7f.5 an exact name is reported as the same name');
+  r := public.telegram_sales_customers(v_link, pt, 'budi');
+  perform test_helpers.assert(jsonb_array_length(r) = 1 and r -> 0 ->> 'severity' = 'like', '7f.6 part of a name is offered as a looser match');
+  v_c2 := public.telegram_sales_create_customer(v_link, pt, 'key-p71-cust-03', 'Budi Santoso', null, null, true);
+  perform test_helpers.assert(v_c2 is not null and v_c2 <> v_c1, '7f.7 a second customer with the same name is made when the owner confirms it');
+  perform test_helpers.assert(jsonb_array_length(public.telegram_sales_customers(v_link, pt, 'Budi Santoso')) = 2, '7f.8 both are then listed');
+  perform test_helpers.expect_msg(format($q$select public.telegram_sales_customers(%L, %L, 'a')$q$, v_link, pt), 'INVALID', '7f.9 a one-letter search is refused');
+
+  v_inv := public.telegram_sales_issue_invoice(v_link, pt, 'key-p71-inv-0001', v_c1, v_today, v_today + 14,
+    jsonb_build_array(jsonb_build_object('description', 'Jasa konsultasi', 'quantity', 1, 'unit_price', 2500000)), null, null, null);
+  v_num := v_inv ->> 'number';
+  perform test_helpers.assert(v_num is not null and v_inv ->> 'status' = 'issued' and (v_inv ->> 'total')::numeric = 2500000, '7f.10 the invoice is created and issued in one step, with its official number');
+  perform test_helpers.assert(length(v_inv ->> 'token') > 20, '7f.11 and the token of its public page is returned');
+  perform test_helpers.assert(public.telegram_sales_issue_invoice(v_link, pt, 'key-p71-inv-0001', v_c1, v_today, v_today + 14,
+    jsonb_build_array(jsonb_build_object('description', 'Jasa konsultasi', 'quantity', 1, 'unit_price', 2500000)), null, null, null) ->> 'number' = v_num, '7f.12 the same key never issues a second invoice');
+  perform test_helpers.expect_msg(format($q$select public.telegram_sales_issue_invoice(%L, %L, 'key-p71-inv-0002', %L, %L, %L, '[]'::jsonb, null, null, null)$q$, v_link, pt, v_c1, v_today, v_today + 14),
+    'INVALID', '7f.13 an invoice without lines is refused and leaves no draft behind');
+
+  r := public.telegram_sales_find_invoice(v_link, lower(v_num));
+  perform test_helpers.assert(jsonb_array_length(r) = 1 and r -> 0 ->> 'settlement' = 'unpaid' and (r -> 0 ->> 'outstanding')::numeric = 2500000
+    and r -> 0 ->> 'token' = v_inv ->> 'token' and (r -> 0 ->> 'can_record_payment')::boolean, '7f.15 the invoice is found by its number: unpaid, the amount outstanding, its link');
+  perform test_helpers.assert(public.telegram_sales_find_invoice(v_link, 'INV-999-9999') = '[]'::jsonb, '7f.16 an unknown number finds nothing');
+
+  p1 := public.telegram_sales_record_payment(v_link, 'key-p71-pay-0001', (r -> 0 ->> 'invoice_id')::uuid, v_cash, v_today, 1000000);
+  perform test_helpers.assert(p1 ->> 'settlement' = 'partial' and (p1 ->> 'outstanding')::numeric = 1500000 and p1 ->> 'receipt_number' is not null, '7f.17 a part payment moves the invoice to partial and returns the receipt number');
+  perform test_helpers.assert(public.telegram_sales_record_payment(v_link, 'key-p71-pay-0001', (r -> 0 ->> 'invoice_id')::uuid, v_cash, v_today, 1000000) ->> 'payment_id' = p1 ->> 'payment_id', '7f.18 the same key records the payment once');
+  perform test_helpers.expect_msg(format($q$select public.telegram_sales_record_payment(%L, 'key-p71-pay-0002', %L, %L, %L, 9000000)$q$, v_link, r -> 0 ->> 'invoice_id', v_cash, v_today),
+    'INVALID', '7f.19 more than what is outstanding is refused');
+  p2 := public.telegram_sales_record_payment(v_link, 'key-p71-pay-0003', (r -> 0 ->> 'invoice_id')::uuid, v_cash, v_today, 1500000);
+  perform test_helpers.assert(p2 ->> 'settlement' = 'paid' and (p2 ->> 'outstanding')::numeric = 0, '7f.20 the rest settles the invoice: status paid');
+  r := public.telegram_sales_find_invoice(v_link, v_num);
+  perform test_helpers.assert(r -> 0 ->> 'settlement' = 'paid' and jsonb_array_length(r -> 0 -> 'receipts') = 2, '7f.21 the lookup now shows paid and both receipts');
+  perform test_helpers.logout();
+
+  perform test_helpers.assert((select count(*) from public.invoices where entity_id = pt and status = 'draft') = 0, '7f.14 no draft is left behind');
+
+  -- browser roles never reach these functions
+  perform test_helpers.login('e6800000-0000-0000-0000-000000000001');
+  perform test_helpers.expect_error(format($q$select public.telegram_sales_find_invoice(%L, 'INV-001-0001')$q$, v_link), '42501', '7f.22 a signed-in browser role cannot call the sales functions');
+  perform test_helpers.logout();
+  perform test_helpers.assert(not has_function_privilege('anon', 'public.telegram_sales_record_payment(uuid,text,uuid,uuid,date,numeric)', 'execute')
+    and has_function_privilege('service_role', 'public.telegram_sales_record_payment(uuid,text,uuid,uuid,date,numeric)', 'execute'), '7f.23 only the service role may execute them');
+end
+$$;
+
 -- ================================================================ 10. conversation, learning and preferences
 do $$
 declare

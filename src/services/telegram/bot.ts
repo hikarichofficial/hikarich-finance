@@ -1,7 +1,7 @@
 import { aiToParsed, type AiExtraction } from "@/domain/telegram/ai";
 import { extractExpenseCode, hasAttachWord, wantsAttachment } from "@/domain/telegram/attach";
 import { formatDateId } from "@/domain/telegram/dates";
-import { formatDateEn, L, parseLang, type Lang } from "@/domain/telegram/i18n";
+import { formatDateEn, L, type Lang } from "@/domain/telegram/i18n";
 import {
   classifyIntent,
   entityWordOf,
@@ -41,6 +41,7 @@ import {
   offerAssets,
   startLoanPayment,
 } from "./followups";
+import { continueSales, handleSalesCallback, startSales } from "./sales";
 import type { Identity, RecentEntry, RecordResult, TelegramStore } from "./store";
 
 /**
@@ -104,6 +105,12 @@ function helpText(lang: Lang): string {
         "<b>Receipt photos</b> you save are attached to the entry.",
         "<b>Attach to an existing entry</b>: send the photo with the caption <i>lampirkan EXP-001-0003</i> (the number from the website), or just <i>lampirkan</i> and I ask for the number.",
         "",
+        "<b>Sales</b> (every step is verified more than once before anything is recorded):",
+        "• <i>invoice Budi Santoso 2.5m consulting PT</i> — issues the invoice and gives its link",
+        "• <i>received HKD-2026-0001 1m bca</i> — records a payment and the status change",
+        "• <i>status HKD-2026-0001</i> — status, link and receipts",
+        "• <i>new customer Siti siti@mail.com PT</i> — I ask first if the name is already registered",
+        "",
         "<b>Ask for a summary</b>: <i>expenses today</i>, <i>recap last week</i>, <i>how much this month?</i>",
         "",
         "<b>Commands</b>: /today /thisweek /thismonth /lastmonth /last /loan /undo /cancel /tips /settings /language",
@@ -124,6 +131,12 @@ function helpText(lang: Lang): string {
         "",
         "<b>Foto struk</b> yang kamu simpan ikut terlampir di catatan.",
         "<b>Lampirkan ke catatan yang sudah ada</b>: kirim foto dengan keterangan <i>lampirkan EXP-001-0003</i> (kode dari website), atau cukup <i>lampirkan</i> dan saya tanyakan kodenya.",
+        "",
+        "<b>Penjualan</b> (setiap langkah diverifikasi beberapa kali sebelum dicatat):",
+        "• <i>invoice Budi Santoso 2,5jt jasa konsultasi PT</i> — menerbitkan invoice dan memberi linknya",
+        "• <i>terima HKD-2026-0001 1jt bca</i> — mencatat pembayaran dan perubahan statusnya",
+        "• <i>status HKD-2026-0001</i> — status, link, dan kuitansi",
+        "• <i>pelanggan baru Siti siti@mail.com PT</i> — saya tanya dulu bila namanya sudah terdaftar",
         "",
         "<b>Tanya ringkasan</b>: <i>pengeluaran hari ini</i>, <i>rekap minggu lalu</i>, <i>bulan ini berapa?</i>",
         "",
@@ -316,6 +329,16 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
   if (intent.kind === "undo") {
     await startUndo(who, chat, thread, deps);
     return;
+  }
+
+  // Sales (decision 425): a sentence that opens one, or the answer to the question one has asked.
+  if (!msg.photo && text.length > 0) {
+    if (await startSales(text, who, chat, thread, deps)) return;
+    const op = await store.getOpSession(who.linkId, chat, thread);
+    if (op) {
+      await continueSales(op, text, who, chat, thread, deps);
+      return;
+    }
   }
 
   // Typed answers inside the roadmap ("40rb", "kemarin", "transport").
@@ -598,6 +621,19 @@ async function handleCallback(cb: TgCallbackQuery, deps: BotDeps): Promise<void>
   }
   if (data.nonce === "l") {
     await handleLoanCallback(data.action, data.arg, cb, who, chat, message.message_id, deps);
+    return;
+  }
+  if (data.nonce === "o") {
+    await handleSalesCallback(
+      data.action,
+      data.arg,
+      cb,
+      who,
+      chat,
+      message.message_id,
+      thread,
+      deps,
+    );
     return;
   }
   if (data.nonce === "u") {
@@ -1041,7 +1077,22 @@ async function handleCommand(
       await answerReport(who, arg || "this month", chat, thread, deps);
       return;
     case "batal":
-    case "cancel":
+    case "cancel": {
+      const openOp = session ? null : await store.getOpSession(who.linkId, chat, thread);
+      if (openOp) {
+        await store.clearSession(who.linkId, chat, thread);
+        if (openOp.messageId) await api.clearKeyboard(chat, openOp.messageId);
+        await api.sendMessage(
+          chat,
+          L(
+            who.lang,
+            "❌ Dibatalkan. Tidak ada yang dicatat.",
+            "❌ Cancelled. Nothing was recorded.",
+          ),
+          opts(thread),
+        );
+        return;
+      }
       if (session) {
         await store.clearSession(who.linkId, chat, thread);
         if (session.messageId) await api.clearKeyboard(chat, session.messageId);
@@ -1062,6 +1113,7 @@ async function handleCommand(
         );
       }
       return;
+    }
     case "cicilan":
     case "pinjaman":
     case "loan":
