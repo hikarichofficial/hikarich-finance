@@ -522,6 +522,24 @@ describe("the AI helper", () => {
     ]);
     expect(h.edits.at(-1)?.text).toContain("Foto struk terlampir");
   });
+  it("uses a caption that states the amount as the entry and only attaches the photo", async () => {
+    const h = harness({ aiAnswer: answer });
+    await h.say("makan siang di warteg 35rb pakai gopay pt", { photo: true });
+    expect(h.aiCalls).toHaveLength(0);
+    expect(h.getSession()?.photoFileId).toBe("f");
+    expect(h.getSession()?.entityId).toBe("pt");
+    const nonce = h.getSession()?.nonce ?? "";
+    expect(h.sent[0]?.text).not.toContain("Nominal");
+    await h.press(`${nonce}|cat|0`);
+    await h.press(`${nonce}|save|`);
+    expect(h.recorded).toHaveLength(1);
+    expect(h.attached).toHaveLength(1);
+  });
+  it("works from the caption even without a Gemini key", async () => {
+    const h = harness();
+    await h.say("makan siang 35rb pakai gopay pt", { photo: true });
+    expect(h.getSession()?.photoFileId).toBe("f");
+  });
   it("does not attach anything to a text entry", async () => {
     const h = harness();
     await h.say("makan siang 35rb pakai gopay pt");
