@@ -177,14 +177,7 @@ export interface InvoiceRef {
 }
 
 export type SalesPhase =
-  | "entity"
-  | "amount"
-  | "describe"
-  | "dup"
-  | "channel"
-  | "invoice"
-  | "account"
-  | "verify";
+  "entity" | "amount" | "describe" | "dup" | "channel" | "invoice" | "account" | "verify";
 
 export interface SalesOp {
   v: 2;

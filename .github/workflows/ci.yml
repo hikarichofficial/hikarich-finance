@@ -30,19 +30,6 @@ jobs:
           node-version: 22
           cache: pnpm
       - run: pnpm install --frozen-lockfile
-      - name: Temporary diagnostics
-        if: always()
-        continue-on-error: true
-        run: |
-          enc() { sed ':a;N;$!ba;s/\n/%0A/g' | cut -c1-3500; }
-          out=""
-          for f in $(pnpm exec prettier --list-different . 2>/dev/null || true); do
-            [ -f "$f" ] || continue
-            d=$(pnpm exec prettier "$f" 2>/dev/null | diff "$f" - | head -24 || true)
-            if [ -n "$d" ]; then out="$out### $f%0A$(echo "$d" | enc)%0A"; fi
-          done
-          echo "::error::PRETTIER $out"
-          true
       - name: Format check
         run: pnpm format:check
       - name: Type check

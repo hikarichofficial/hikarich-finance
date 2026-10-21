@@ -771,8 +771,7 @@ describe("questions, undo and commands", () => {
 const codeIn = (text: string | undefined): string =>
   /<code>(\d{4})<\/code>/.exec(text ?? "")?.[1] ?? "";
 const lastText = (h: { sent: Array<{ text: string }> }): string => h.sent.at(-1)?.text ?? "";
-const nonceOf = (h: { getRaw: () => { nonce: string } | null }): string =>
-  h.getRaw()?.nonce ?? "";
+const nonceOf = (h: { getRaw: () => { nonce: string } | null }): string => h.getRaw()?.nonce ?? "";
 
 describe("sales: an invoice with layered verification", () => {
   it("records nothing until the third verification step, then issues it and gives the link", async () => {
