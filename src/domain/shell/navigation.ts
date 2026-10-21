@@ -277,6 +277,8 @@ export const NAVIGATION: readonly NavGroup[] = [
         href: "/admin/backup",
         permission: ["backup.create", "backup.restore"],
       },
+      // Decision 422: pairing the Telegram bot is gated like the expense it records (`bills.create`).
+      { label: "Bot Telegram", href: "/admin/telegram", permission: ["bills.create"] },
     ],
   },
   {

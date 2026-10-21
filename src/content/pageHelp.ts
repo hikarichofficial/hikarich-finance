@@ -274,6 +274,10 @@ export const PAGE_HELP: Readonly<Record<string, HelpEntry>> = {
   "/admin/users": { summary: "Pengguna dan peran: siapa boleh melihat dan mengubah apa." },
   "/admin/audit": { summary: "Jejak audit: siapa mengubah apa dan kapan. Tidak bisa diubah." },
   "/admin/backup": { summary: "Cadangan dan pemulihan data." },
+  "/admin/telegram": {
+    summary: "Bot Telegram untuk mencatat pengeluaran dari chat dan menerima laporan otomatis.",
+    more: "Bot hanya mencatat setelah Anda menekan Simpan di Telegram, dan hanya sebesar yang boleh Anda lakukan di website. AI hanya membaca pesan atau foto struk Anda, tidak pernah data pembukuan.",
+  },
   "/admin/imports": { summary: "Impor data dari berkas." },
   "/admin/invoice-layout": { summary: "Mengatur tampilan invoice: blok, perataan, dan logo." },
   "/admin/security": { summary: "Keamanan akun: verifikasi dua langkah dan sesi." },

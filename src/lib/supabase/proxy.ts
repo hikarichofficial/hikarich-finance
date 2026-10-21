@@ -2,8 +2,12 @@ import { NextResponse, type NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
 import { getSupabasePublicConfig } from "./config";
 
-/** Paths reachable without a session. Everything else needs one (optimistic check only). */
-export const PUBLIC_PATHS = ["/login", "/i"] as const;
+/**
+ * Paths reachable without a session. Everything else needs one (optimistic check only).
+ * `/api/telegram` and `/api/cron` are called by Telegram and Vercel Cron, which have no session; each route
+ * authenticates itself with a shared secret header (decision 422) and fails closed without it.
+ */
+export const PUBLIC_PATHS = ["/login", "/i", "/api/telegram", "/api/cron"] as const;
 
 export function isPublicPath(pathname: string): boolean {
   return PUBLIC_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`));
