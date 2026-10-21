@@ -216,8 +216,8 @@ async function handleMessage(msg: TgMessage, deps: BotDeps): Promise<void> {
           chat,
           L(
             owner.lang,
-            "✅ Grup ini terdaftar. Hanya kamu yang bisa mencatat dari sini.\nAtur entitasnya: /topik pt atau /topik pribadi (jalankan di topik yang diinginkan). Ringkasan di grup hanya menampilkan entitas yang diatur.",
-            "✅ This group is registered. Only you can record from here.\nSet its entity: /topik pt or /topik pribadi (run it in the topic you want). Summaries in the group only show the entity you set.",
+            "✅ Grup ini terdaftar. Semua anggota grup bisa mencatat dari sini atas nama akunmu, jadi isi grup hanya akun yang kamu percaya.\nEntitas boleh tidak diatur: sebut PT atau pribadi di pesan, atau bot bertanya. Untuk mengunci satu entitas: /topik pt atau /topik pribadi. Ringkasan di grup hanya menampilkan entitas yang diatur.",
+            "✅ This group is registered. Every member can record from here on your behalf, so keep it to accounts you trust.\nSetting an entity is optional: say PT or personal in the message, or the bot asks. To lock one entity: /topik pt or /topik pribadi. Summaries in the group only show the entity you set.",
           ),
           opts(thread),
         );
