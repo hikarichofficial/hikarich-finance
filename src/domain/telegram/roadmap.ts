@@ -397,7 +397,8 @@ function btn(
 
 function navRow(state: DraftState): Array<{ text: string; data: string }> {
   const row: Array<{ text: string; data: string }> = [];
-  if (state.history.length > 0) row.push(btn(state, L(state.lang, "◀️ Kembali", "◀️ Back"), "back"));
+  if (state.history.length > 0)
+    row.push(btn(state, L(state.lang, "◀️ Kembali", "◀️ Back"), "back"));
   row.push(btn(state, L(state.lang, "❌ Batal", "❌ Cancel"), "cancel"));
   return row;
 }
@@ -412,7 +413,10 @@ function pagedChoices(
     .slice(start, start + PAGE_SIZE)
     .map((item, i) => [btn(state, item.label.slice(0, 40), action, String(start + i))]);
   const pager: Array<{ text: string; data: string }> = [];
-  if (state.page > 0) pager.push(btn(state, L(state.lang, "‹ Sebelumnya", "‹ Previous"), "page", String(state.page - 1)));
+  if (state.page > 0)
+    pager.push(
+      btn(state, L(state.lang, "‹ Sebelumnya", "‹ Previous"), "page", String(state.page - 1)),
+    );
   if (start + PAGE_SIZE < items.length)
     pager.push(btn(state, L(state.lang, "Lainnya ›", "More ›"), "page", String(state.page + 1)));
   if (pager.length > 0) rows.push(pager);

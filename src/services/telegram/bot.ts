@@ -32,7 +32,12 @@ import { formatRupiah, parseAmounts } from "@/domain/telegram/rupiah";
 import { todayInBusinessZone } from "@/lib/time";
 import type { SendOptions, TgCallbackQuery, TgMessage, TgResult, TgUpdate } from "./api";
 import { errorLine, refusalText } from "./errors";
-import { handleAssetCallback, handleLoanCallback, offerAssets, startLoanPayment } from "./followups";
+import {
+  handleAssetCallback,
+  handleLoanCallback,
+  offerAssets,
+  startLoanPayment,
+} from "./followups";
 import type { Identity, RecentEntry, RecordResult, TelegramStore } from "./store";
 
 /**
@@ -494,7 +499,10 @@ async function handleCallback(cb: TgCallbackQuery, deps: BotDeps): Promise<void>
 
   const session = await store.getSession(who.linkId, chat, thread);
   if (!session || session.nonce !== data.nonce) {
-    await api.answerCallback(cb.id, L(who.lang, "Tombol ini sudah kedaluwarsa.", "This button has expired."));
+    await api.answerCallback(
+      cb.id,
+      L(who.lang, "Tombol ini sudah kedaluwarsa.", "This button has expired."),
+    );
     await api.clearKeyboard(chat, message.message_id);
     return;
   }
@@ -519,7 +527,11 @@ async function handleCallback(cb: TgCallbackQuery, deps: BotDeps): Promise<void>
       await api.editMessage(
         chat,
         message.message_id,
-        L(who.lang, "❌ Dibatalkan. Tidak ada yang dicatat.", "❌ Cancelled. Nothing was recorded."),
+        L(
+          who.lang,
+          "❌ Dibatalkan. Tidak ada yang dicatat.",
+          "❌ Cancelled. Nothing was recorded.",
+        ),
       );
       return;
     case "save":
@@ -587,7 +599,11 @@ function describeResult(state: DraftState, env: Env, result: RecordResult): stri
   if (result.status === "confirmed")
     out.push(
       "",
-      L(lang, "Salah catat? Ketik <i>batalkan yang tadi</i>.", "Wrong entry? Type <i>undo the last one</i>."),
+      L(
+        lang,
+        "Salah catat? Ketik <i>batalkan yang tadi</i>.",
+        "Wrong entry? Type <i>undo the last one</i>.",
+      ),
     );
   return out.join("\n");
 }
@@ -606,7 +622,11 @@ async function save(
     await deps.api.editMessage(
       chat,
       messageId,
-      L(state.lang, "Data belum lengkap. Ketik pesan barumu untuk mulai lagi.", "The data is incomplete. Type your message again to start over."),
+      L(
+        state.lang,
+        "Data belum lengkap. Ketik pesan barumu untuk mulai lagi.",
+        "The data is incomplete. Type your message again to start over.",
+      ),
     );
     await deps.store.clearSession(who.linkId, chat, thread);
     return;
@@ -675,7 +695,11 @@ async function attachPhoto(
       mime: file.mime,
     });
     return done
-      ? L(lang, "📎 Foto struk terlampir di catatan.", "📎 The receipt photo is attached to the entry.")
+      ? L(
+          lang,
+          "📎 Foto struk terlampir di catatan.",
+          "📎 The receipt photo is attached to the entry.",
+        )
       : L(
           lang,
           "📎 Foto struk belum terlampir (penyimpanan gagal). Lampirkan di website bila perlu.",
@@ -702,7 +726,11 @@ async function startUndo(
   if (!last) {
     await deps.api.sendMessage(
       chat,
-      L(who.lang, "Belum ada catatan dari bot yang bisa dibatalkan.", "There is no bot entry to undo yet."),
+      L(
+        who.lang,
+        "Belum ada catatan dari bot yang bisa dibatalkan.",
+        "There is no bot entry to undo yet.",
+      ),
       opts(thread),
     );
     return;
@@ -809,7 +837,11 @@ export async function answerReport(
   if (targets.length === 0) {
     await deps.api.sendMessage(
       chat,
-      L(lang, "Akunmu belum punya hak melihat pengeluaran.", "Your account may not view expenses yet."),
+      L(
+        lang,
+        "Akunmu belum punya hak melihat pengeluaran.",
+        "Your account may not view expenses yet.",
+      ),
       opts(thread),
     );
     return;
@@ -907,7 +939,11 @@ async function handleCommand(
         if (session.messageId) await api.clearKeyboard(chat, session.messageId);
         await api.sendMessage(
           chat,
-          L(who.lang, "❌ Dibatalkan. Tidak ada yang dicatat.", "❌ Cancelled. Nothing was recorded."),
+          L(
+            who.lang,
+            "❌ Dibatalkan. Tidak ada yang dicatat.",
+            "❌ Cancelled. Nothing was recorded.",
+          ),
           opts(thread),
         );
       } else {
@@ -1019,7 +1055,11 @@ async function handleCommand(
     default:
       await api.sendMessage(
         chat,
-        L(who.lang, "Perintah itu belum saya kenal. Ketik /bantuan.", "I do not know that command. Type /help."),
+        L(
+          who.lang,
+          "Perintah itu belum saya kenal. Ketik /bantuan.",
+          "I do not know that command. Type /help.",
+        ),
         opts(thread),
       );
   }
@@ -1029,7 +1069,9 @@ async function tips(who: Identity, deps: BotDeps): Promise<string> {
   const lang = who.lang;
   const today = todayInBusinessZone(deps.now());
   const from = `${today.slice(0, 7)}-01`;
-  const out: string[] = [`💡 <b>${L(lang, "Tips supaya lebih mudah", "Tips to make it easier")}</b>`];
+  const out: string[] = [
+    `💡 <b>${L(lang, "Tips supaya lebih mudah", "Tips to make it easier")}</b>`,
+  ];
   let drafts = 0;
   let assets = 0;
   for (const m of who.memberships.filter((x) => x.canView)) {

@@ -35,8 +35,25 @@ export type Intent =
   | { kind: "record" }
   | { kind: "chat" };
 
-const COMPANY_WORDS = ["pt", "perusahaan", "usaha", "bisnis", "kantor pt", "hikarich", "company", "business", "my company"];
-const PERSONAL_WORDS = ["pribadi", "pribadiku", "personal", "sendiri", "uang pribadi", "my own money"];
+const COMPANY_WORDS = [
+  "pt",
+  "perusahaan",
+  "usaha",
+  "bisnis",
+  "kantor pt",
+  "hikarich",
+  "company",
+  "business",
+  "my company",
+];
+const PERSONAL_WORDS = [
+  "pribadi",
+  "pribadiku",
+  "personal",
+  "sendiri",
+  "uang pribadi",
+  "my own money",
+];
 
 const NOT_A_PAYEE = new Set([
   "kantor",
@@ -114,7 +131,9 @@ export function classifyIntent(raw: string): Intent {
   const norm = normalizeText(text);
   if (
     /^(?:batal(?:kan)?|hapus|undo|cancel|delete|remove|wrong|salah)\b/.test(norm) &&
-    /\b(?:tadi|terakhir|barusan|itu|yang|last|that|previous|latest)\b|^(?:undo|batal|batalkan|cancel)$/.test(norm)
+    /\b(?:tadi|terakhir|barusan|itu|yang|last|that|previous|latest)\b|^(?:undo|batal|batalkan|cancel)$/.test(
+      norm,
+    )
   ) {
     return { kind: "undo" };
   }

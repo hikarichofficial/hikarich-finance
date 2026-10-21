@@ -20,7 +20,10 @@ export function errorLine(error: unknown, lang: "id" | "en" = "id"): string {
   if (error instanceof StoreError) {
     if (error.code === "FORBIDDEN")
       return en ? "Your account may not do that." : "Akunmu tidak punya hak untuk itu.";
-    return refusalText(error.message).slice(0, 200) || (en ? "Something went wrong." : "Terjadi kesalahan.");
+    return (
+      refusalText(error.message).slice(0, 200) ||
+      (en ? "Something went wrong." : "Terjadi kesalahan.")
+    );
   }
   return en
     ? "A server error occurred. Please try again in a moment."

@@ -75,8 +75,14 @@ export async function offerAssets(
           keyboard: {
             rows: [
               [
-                { text: L(lang, "✅ Daftarkan aset", "✅ Register asset"), data: `a|0|${asset.assetId}` },
-                { text: L(lang, "Nanti di website", "Later on the website"), data: `a|no|${asset.assetId}` },
+                {
+                  text: L(lang, "✅ Daftarkan aset", "✅ Register asset"),
+                  data: `a|0|${asset.assetId}`,
+                },
+                {
+                  text: L(lang, "Nanti di website", "Later on the website"),
+                  data: `a|no|${asset.assetId}`,
+                },
               ],
             ],
           },
@@ -99,7 +105,12 @@ export async function offerAssets(
               text: L(lang, `${c.years} tahun`, `${c.years} years`),
               data: `a|${c.months}|${asset.assetId}`,
             })),
-            [{ text: L(lang, "Nanti di website", "Later on the website"), data: `a|no|${asset.assetId}` }],
+            [
+              {
+                text: L(lang, "Nanti di website", "Later on the website"),
+                data: `a|no|${asset.assetId}`,
+              },
+            ],
           ],
         },
       },
@@ -135,7 +146,10 @@ export async function handleAssetCallback(
   const months = Number(action);
   const allowed = months === 0 || ASSET_CHOICES.some((c) => c.months === months);
   if (!allowed) {
-    await api.answerCallback(cb.id, L(lang, "Pilihan itu tidak berlaku.", "That choice is not valid."));
+    await api.answerCallback(
+      cb.id,
+      L(lang, "Pilihan itu tidak berlaku.", "That choice is not valid."),
+    );
     return;
   }
   try {
@@ -189,7 +203,11 @@ export async function startLoanPayment(
   try {
     loans = await deps.store.openLoans(who.linkId);
   } catch (error) {
-    await deps.api.sendMessage(chat, `⚠️ ${escapeHtml(errorLine(error, lang))}`, threadOpts(thread));
+    await deps.api.sendMessage(
+      chat,
+      `⚠️ ${escapeHtml(errorLine(error, lang))}`,
+      threadOpts(thread),
+    );
     return;
   }
   if (loans.length === 0) {
@@ -238,13 +256,20 @@ export async function handleLoanCallback(
     await api.editMessage(
       chat,
       messageId,
-      L(lang, "❌ Dibatalkan. Tidak ada cicilan yang dicatat.", "❌ Cancelled. No instalment was recorded."),
+      L(
+        lang,
+        "❌ Dibatalkan. Tidak ada cicilan yang dicatat.",
+        "❌ Cancelled. No instalment was recorded.",
+      ),
     );
     return;
   }
   const [loanId = "", accountKey = ""] = arg.split(":");
   if (!/^[0-9a-f-]{36}$/.test(loanId)) {
-    await api.answerCallback(cb.id, L(lang, "Pilihan itu tidak berlaku.", "That choice is not valid."));
+    await api.answerCallback(
+      cb.id,
+      L(lang, "Pilihan itu tidak berlaku.", "That choice is not valid."),
+    );
     return;
   }
   let loans: OpenLoan[];
@@ -257,7 +282,10 @@ export async function handleLoanCallback(
   }
   const loan = loans.find((l) => l.loanId === loanId);
   if (!loan) {
-    await api.answerCallback(cb.id, L(lang, "Cicilan itu sudah tidak menunggu.", "That instalment is no longer waiting."));
+    await api.answerCallback(
+      cb.id,
+      L(lang, "Cicilan itu sudah tidak menunggu.", "That instalment is no longer waiting."),
+    );
     await api.editMessage(
       chat,
       messageId,
@@ -285,20 +313,28 @@ export async function handleLoanCallback(
       return;
     }
     await api.answerCallback(cb.id);
-    await api.editMessage(chat, messageId, `💳 <b>${L(lang, "Dibayar dari rekening mana?", "Which account pays it?")}</b>\n\n${loanLine(loan, 0, lang).replace(/^1\. /, "")}`, {
-      rows: [
-        ...loan.accounts.slice(0, 8).map((a) => [
-          { text: a.name.slice(0, 40), data: `l|a|${loanId}:${a.id.slice(0, 8)}` },
-        ]),
-        [{ text: L(lang, "Batal", "Cancel"), data: "l|no|" }],
-      ],
-    });
+    await api.editMessage(
+      chat,
+      messageId,
+      `💳 <b>${L(lang, "Dibayar dari rekening mana?", "Which account pays it?")}</b>\n\n${loanLine(loan, 0, lang).replace(/^1\. /, "")}`,
+      {
+        rows: [
+          ...loan.accounts
+            .slice(0, 8)
+            .map((a) => [{ text: a.name.slice(0, 40), data: `l|a|${loanId}:${a.id.slice(0, 8)}` }]),
+          [{ text: L(lang, "Batal", "Cancel"), data: "l|no|" }],
+        ],
+      },
+    );
     return;
   }
 
   const account = loan.accounts.find((a) => a.id.startsWith(accountKey));
   if (!account) {
-    await api.answerCallback(cb.id, L(lang, "Rekening itu tidak berlaku.", "That account is not valid."));
+    await api.answerCallback(
+      cb.id,
+      L(lang, "Rekening itu tidak berlaku.", "That account is not valid."),
+    );
     return;
   }
 
@@ -327,7 +363,10 @@ export async function handleLoanCallback(
       {
         rows: [
           [
-            { text: L(lang, "✅ Bayar", "✅ Pay"), data: `l|go|${loanId}:${account.id.slice(0, 8)}` },
+            {
+              text: L(lang, "✅ Bayar", "✅ Pay"),
+              data: `l|go|${loanId}:${account.id.slice(0, 8)}`,
+            },
             { text: L(lang, "Batal", "Cancel"), data: "l|no|" },
           ],
         ],

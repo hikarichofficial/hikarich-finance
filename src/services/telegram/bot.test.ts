@@ -98,7 +98,9 @@ function harness(
       return { linkId: "link-1", displayName: "Owner" };
     },
     identify: async (userId: number, chat: number) =>
-      options.paired === false || userId !== 111 ? null : { ...identity, lang: language, isPrivate: chat > 0 },
+      options.paired === false || userId !== 111
+        ? null
+        : { ...identity, lang: language, isPrivate: chat > 0 },
     setLanguage: async (_l: string, next: "id" | "en") => void (language = next),
     context: async () => [ctx("pt", "company", "PT Hikarich"), ctx("pe", "personal", "Pribadi")],
     getSession: async () => session,
@@ -133,11 +135,15 @@ function harness(
         accounts: [{ id: "acc11111-0000-0000-0000-000000000000", name: "BCA" }],
       },
     ],
-    payLoan: async (_l: string, key: string, loanId: string, accountId: string) =>
-      (paid.push({ key, loanId, accountId }), "pay-1"),
+    payLoan: async (_l: string, key: string, loanId: string, accountId: string) => (
+      paid.push({ key, loanId, accountId }),
+      "pay-1"
+    ),
     expenseAssets: async () => options.assets ?? [],
-    activateAsset: async (_l: string, _k: string, assetId: string, months: number | null) =>
-      (activated.push({ assetId, months }), months ?? 0),
+    activateAsset: async (_l: string, _k: string, assetId: string, months: number | null) => (
+      activated.push({ assetId, months }),
+      months ?? 0
+    ),
     attachReceipt: async (
       _l: string,
       entityId: string,
@@ -247,7 +253,20 @@ function harness(
       deps,
     );
   const raw = (update: Parameters<typeof handleUpdate>[0]) => handleUpdate(update, deps);
-  return { raw, say, press, sent, edits, recorded, learned, attached, paid, activated, aiCalls, getSession: () => session };
+  return {
+    raw,
+    say,
+    press,
+    sent,
+    edits,
+    recorded,
+    learned,
+    attached,
+    paid,
+    activated,
+    aiCalls,
+    getSession: () => session,
+  };
 }
 
 describe("pairing and strangers", () => {

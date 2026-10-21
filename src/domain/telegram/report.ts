@@ -95,7 +95,14 @@ function span(
   const length = daysBetween(from, to) + 1;
   const prevTo = prev?.to ?? addDays(from, -1);
   const prevFrom = prev?.from ?? addDays(from, -length);
-  return { from, to, label, prevFrom, prevTo, prevLabel: prev?.label ?? L(lang, "periode sebelumnya", "the previous period") };
+  return {
+    from,
+    to,
+    label,
+    prevFrom,
+    prevTo,
+    prevLabel: prev?.label ?? L(lang, "periode sebelumnya", "the previous period"),
+  };
 }
 
 /** The period the scheduled report of `kind` covers, given the Entity's today. */
@@ -322,7 +329,11 @@ function comparison(
       `Same as ${prevLabel}: no expenses.`,
     );
   if (prevTotal === 0)
-    return L(lang, `Pada ${prevLabel} tidak ada pengeluaran.`, `There were no expenses in ${prevLabel}.`);
+    return L(
+      lang,
+      `Pada ${prevLabel} tidak ada pengeluaran.`,
+      `There were no expenses in ${prevLabel}.`,
+    );
   const diff = total - prevTotal;
   if (diff === 0)
     return L(
