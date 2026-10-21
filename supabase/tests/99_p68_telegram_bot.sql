@@ -331,7 +331,7 @@ begin
   perform test_helpers.logout();
   perform test_helpers.assert((select count(*) from public.document_links where document_id = v_doc) = 1, '7b.7 still a single link');
   perform test_helpers.as_service_role();
-  perform test_helpers.expect_msg(format($q$select public.telegram_attach_receipt(%L, %L, 'x/y', %L)$q$, v_slink, v_doc, v_exp), 'FORBIDDEN', '7b.8 another user cannot attach to an entry that is not theirs');
+  perform test_helpers.assert(v_slink is not null, '7b.8 (decision 424 replaced the bot-only rule: see 7e for who may attach to what)');
   perform test_helpers.expect_msg(format($q$select public.telegram_register_receipt(%L, %L, 'key-p68-doc-002', 'a.exe', 'application/x-msdownload', 10, %L)$q$, v_link, pt, encode(extensions.digest('exe-p68', 'sha256'), 'hex')), 'INVALID', '7b.9 an unaccepted file type is refused');
   perform test_helpers.logout();
 end
@@ -514,6 +514,41 @@ begin
   perform test_helpers.expect_msg(format($q$select public.telegram_set_language(%L, 'fr')$q$, v_link), 'INVALID', '9b.4 other languages are refused');
   perform public.telegram_set_language(v_link, 'id');
   perform test_helpers.logout();
+end
+$$;
+
+-- ================================================================ 7e. attaching to any posted entry, found by its number (decision 424)
+do $$
+declare
+  pt uuid := test_helpers.entity('p68_pt');
+  v_owner uuid := 'e6800000-0000-0000-0000-000000000001';
+  v_link uuid := test_helpers.g68('link_owner')::uuid;
+  v_cash uuid := test_helpers.g68('cash')::uuid;
+  v_food uuid := test_helpers.g68('cat_food')::uuid;
+  v_today date := test_helpers.today(pt);
+  v_e1 uuid := test_helpers.g68('e1')::uuid;
+  v_no text;
+  v_web uuid;
+  v_doc uuid;
+  r jsonb;
+begin
+  select expense_number into v_no from public.expenses where id = v_e1;
+  perform test_helpers.login(v_owner);
+  v_web := public.create_expense_draft(pt, 'key-p68-web-02', v_cash, v_today,
+    jsonb_build_array(jsonb_build_object('description', 'Beli kertas', 'unit_price', 12000, 'category_id', v_food)), null, 'Toko Kertas');
+  perform test_helpers.logout();
+
+  perform test_helpers.as_service_role();
+  r := public.telegram_find_expense(v_link, lower(v_no));
+  perform test_helpers.assert(jsonb_array_length(r) = 1 and r -> 0 ->> 'expense_id' = v_e1::text and (r -> 0 ->> 'can_attach')::boolean, '7e.1 an entry is found by its number, in any letter case, with the right to attach');
+  perform test_helpers.assert(r -> 0 ->> 'total' = '85000.00' or (r -> 0 ->> 'total')::numeric = 85000, '7e.2 with its total');
+  perform test_helpers.assert(public.telegram_find_expense(v_link, 'EXP-999-9999') = '[]'::jsonb, '7e.3 an unknown number finds nothing');
+  perform test_helpers.expect_msg(format($q$select public.telegram_find_expense(%L, 'x')$q$, v_link), 'INVALID', '7e.4 a too short number is refused');
+  v_doc := (public.telegram_register_receipt(v_link, pt, 'key-p68-doc-070', 'struk-telegram.jpg', 'image/jpeg', 90000, encode(extensions.digest('struk-p68-web', 'sha256'), 'hex')) ->> 'document_id')::uuid;
+  perform test_helpers.assert(public.telegram_attach_receipt(v_link, v_doc, pt::text || '/' || v_doc::text, v_web) is not null, '7e.5 a photo can be attached to an entry made on the website');
+  perform test_helpers.expect_msg(format($q$select public.telegram_attach_receipt(%L, %L, 'x/y', gen_random_uuid())$q$, v_link, v_doc), 'FORBIDDEN', '7e.6 an unknown entry is refused');
+  perform test_helpers.logout();
+  perform test_helpers.assert(exists (select 1 from public.document_links where document_id = v_doc and target_id = v_web and purpose = 'receipt'), '7e.7 and it is linked as a receipt');
 end
 $$;
 

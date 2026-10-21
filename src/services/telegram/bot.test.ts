@@ -67,6 +67,7 @@ function harness(
   options: {
     paired?: boolean;
     lang?: "id" | "en";
+    canAttach?: boolean;
     aiAnswer?: AiExtraction | null;
     assets?: Array<{
       assetId: string;
@@ -144,6 +145,24 @@ function harness(
       activated.push({ assetId, months }),
       months ?? 0
     ),
+    findExpense: async (_l: string, number: string) =>
+      number === "EXP-001-0003"
+        ? [
+            {
+              expenseId: "55555555-0000-0000-0000-000000000003",
+              entityId: "pt",
+              entityName: "PT Hikarich",
+              entityType: "company",
+              number,
+              status: "confirmed",
+              date: "2026-10-21",
+              total: 35000,
+              currency: "IDR",
+              payee: "Warteg",
+              canAttach: options.canAttach !== false,
+            },
+          ]
+        : [],
     attachReceipt: async (
       _l: string,
       entityId: string,
@@ -539,6 +558,49 @@ describe("the AI helper", () => {
     const h = harness();
     await h.say("makan siang 35rb pakai gopay pt", { photo: true });
     expect(h.getSession()?.photoFileId).toBe("f");
+  });
+  it("attaches the photo to an entry already on the website, found by its transaction number", async () => {
+    const h = harness({ aiAnswer: answer });
+    await h.say("lampirkan EXP-001-0003", { photo: true });
+    expect(h.aiCalls).toHaveLength(0);
+    expect(h.recorded).toHaveLength(0);
+    expect(h.attached).toEqual([
+      { entityId: "pt", expenseId: "55555555-0000-0000-0000-000000000003", size: 3 },
+    ]);
+    expect(h.sent[0]?.text).toContain("EXP-001-0003");
+    expect(h.getSession()).toBeNull();
+  });
+  it("asks for the number when the caption only says lampirkan, then attaches", async () => {
+    const h = harness({ aiAnswer: answer });
+    await h.say("lampirkan", { photo: true });
+    expect(h.sent[0]?.text).toContain("transaksi yang mana");
+    expect(h.attached).toHaveLength(0);
+    await h.say("exp-001-0003");
+    expect(h.attached).toHaveLength(1);
+    expect(h.getSession()).toBeNull();
+  });
+  it("keeps waiting when the number is not found, and can be cancelled", async () => {
+    const h = harness();
+    await h.say("lampirkan", { photo: true });
+    await h.say("EXP-009-0009");
+    expect(h.sent.at(-1)?.text).toContain("tidak ditemukan");
+    expect(h.getSession()?.awaiting).toBe("attach_code");
+    await h.say("batal");
+    expect(h.getSession()).toBeNull();
+    expect(h.attached).toHaveLength(0);
+  });
+  it("drops the waiting photo when a new entry is typed instead", async () => {
+    const h = harness();
+    await h.say("lampirkan", { photo: true });
+    await h.say("makan siang 35rb pakai gopay pt");
+    expect(h.getSession()?.awaiting).toBeNull();
+    expect(h.attached).toHaveLength(0);
+  });
+  it("refuses when the account may not attach documents there", async () => {
+    const h = harness({ canAttach: false });
+    await h.say("lampirkan EXP-001-0003", { photo: true });
+    expect(h.attached).toHaveLength(0);
+    expect(h.sent[0]?.text).toContain("belum boleh melampirkan");
   });
   it("does not attach anything to a text entry", async () => {
     const h = harness();

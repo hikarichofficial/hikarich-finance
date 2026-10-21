@@ -4071,3 +4071,16 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      share one conversation state per chat and thread, so two members recording at the same moment can interrupt each
      other's roadmap. Limiting this to named members (decision to be taken when staff join) needs a members table and
      is not built.
+
+424. **The bot can attach a photo to any posted entry, found by its transaction number (OWNER, 21 October 2026).** The
+     owner asked that, after an entry is already on the website, the bot can still add an attachment when told, by
+     asking for the transaction number (for example EXP-001-0003). Send the photo with the caption `lampirkan EXP-001-0003`,
+     or with `lampirkan` alone and the bot asks for the number and waits for it (`/batal` or a new entry cancels the
+     wait). Migration `20261105100000_p70_telegram_attach_by_number.sql` adds `telegram_find_expense` (looks the number
+     up only among the Entities the acting user may view; returns names, status, date and total, nothing else) and
+     replaces `telegram_attach_receipt`: the earlier rule "only an entry this bot made" is gone, so a receipt can be
+     linked to any entry of an Entity the user can view. The right to attach is still decided by `link_document`
+     (`documents.upload` plus edit access to expenses), unchanged. The photo is stored as a `receipt` document of that
+     Entity, deduplicated by hash. If the number exists in more than one Entity the bot asks for `pt` or `pribadi`.
+     **Trade-off.** In a registered group every member acts with the registering link (decision 423), so every member
+     can also attach photos to any entry that link can view.

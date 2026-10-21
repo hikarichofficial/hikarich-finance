@@ -50,7 +50,7 @@ export interface DraftLine {
   assetAsked: boolean;
 }
 
-export type Awaiting = null | "amount" | "date" | "payee" | "category";
+export type Awaiting = null | "amount" | "date" | "payee" | "category" | "attach_code";
 
 export interface DraftState {
   v: 1;
@@ -898,4 +898,41 @@ export function parseCallbackData(
   const parts = data.split("|");
   if (parts.length !== 3 || !parts[0] || !parts[1]) return null;
   return { nonce: parts[0], action: parts[1], arg: parts[2] ?? "" };
+}
+
+/**
+ * A photo is waiting for the transaction number it should be attached to (decision 424). It reuses the draft slot of
+ * the chat so the next text message is read as the number; nothing in it is ever rendered or saved as an entry.
+ */
+export function startAttachWait(opts: {
+  nonce: string;
+  key: string;
+  photoFileId: string;
+  today: string;
+  lang?: Lang;
+}): DraftState {
+  return {
+    v: 1,
+    nonce: opts.nonce,
+    key: opts.key,
+    messageId: null,
+    source: "photo",
+    lang: opts.lang,
+    photoFileId: opts.photoFileId,
+    step: "entity",
+    history: [],
+    entityId: null,
+    entityStated: false,
+    accountId: null,
+    accountStated: false,
+    date: opts.today,
+    payeeName: null,
+    lines: [],
+    nominalOk: false,
+    awaiting: "attach_code",
+    lineIndex: 0,
+    page: 0,
+    accountWords: [],
+    replaces: null,
+  };
 }
