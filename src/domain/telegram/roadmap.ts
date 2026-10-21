@@ -588,6 +588,11 @@ export function render(state: DraftState, env: Env): Rendered {
         "Ketik nama penerima/toko (contoh: Warteg Bu Sri).",
         "Type the payee or shop name (e.g. Warteg Bu Sri).",
       ),
+      attach_code: L(
+        lang,
+        "Ketik kode transaksi (contoh: EXP-001-0003).",
+        "Type the transaction number (e.g. EXP-001-0003).",
+      ),
       category: L(lang, "Ketik nama kategorinya.", "Type the category name."),
     };
     body += `\n\n✏️ ${prompts[state.awaiting]}`;
