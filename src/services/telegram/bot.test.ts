@@ -3,7 +3,15 @@ import type { AiExtraction } from "@/domain/telegram/ai";
 import type { DraftState, EntityContext } from "@/domain/telegram/roadmap";
 import { type BotAi, type BotApi, type BotDeps, handleUpdate } from "./bot";
 import { StoreError } from "./errors";
-import type { Identity, RecordResult, TelegramStore } from "./store";
+import type { SalesOp } from "@/domain/telegram/sales";
+import type {
+  FoundCustomer,
+  FoundInvoice,
+  Identity,
+  RecordResult,
+  SalesContext,
+  TelegramStore,
+} from "./store";
 
 const TODAY = "2026-10-21";
 
@@ -68,6 +76,10 @@ function harness(
     paired?: boolean;
     lang?: "id" | "en";
     canAttach?: boolean;
+    customers?: FoundCustomer[];
+    channels?: SalesContext["channels"];
+    accounts?: SalesContext["accounts"];
+    invoices?: Partial<FoundInvoice>[];
     aiAnswer?: AiExtraction | null;
     assets?: Array<{
       assetId: string;
@@ -88,7 +100,22 @@ function harness(
   const attached: Array<{ entityId: string; expenseId: string; size: number }> = [];
   const aiCalls: unknown[][] = [];
   let language: "id" | "en" = options.lang ?? "id";
-  let session: DraftState | null = null;
+  let session: DraftState | SalesOp | null = null;
+  const customersCreated: Array<{ key: string; name: string; allowSimilar: boolean }> = [];
+  const invoicesIssued: Array<{
+    key: string;
+    customerId: string;
+    amount: number;
+    channelId: string | null;
+    dueDate: string;
+    description: string;
+  }> = [];
+  const paymentsRecorded: Array<{
+    key: string;
+    invoiceId: string;
+    accountId: string;
+    amount: number;
+  }> = [];
   let nextMessage = 100;
   const seen = new Set<number>();
 
@@ -104,9 +131,90 @@ function harness(
         : { ...identity, lang: language, isPrivate: chat > 0 },
     setLanguage: async (_l: string, next: "id" | "en") => void (language = next),
     context: async () => [ctx("pt", "company", "PT Hikarich"), ctx("pe", "personal", "Pribadi")],
-    getSession: async () => session,
+    getSession: async () => (session && session.v === 1 ? session : null),
     putSession: async (_l: string, _c: number, _t: number, s: DraftState) => void (session = s),
+    getOpSession: async () => (session && session.v === 2 ? session : null),
+    putOpSession: async (_l: string, _c: number, _t: number, s: SalesOp) => void (session = s),
     clearSession: async () => void (session = null),
+    salesContext: async (): Promise<SalesContext> => ({
+      today: TODAY,
+      currency: "IDR",
+      accounts: options.accounts ?? [
+        { id: "acc-bca", name: "BCA Operasional", currency: "IDR" },
+        { id: "acc-kas", name: "Kas Kecil", currency: "IDR" },
+      ],
+      channels: options.channels ?? [],
+    }),
+    salesCustomers: async () => options.customers ?? [],
+    salesCreateCustomer: async (
+      _l: string,
+      _e: string,
+      key: string,
+      c: { name: string; allowSimilar: boolean },
+    ) => (customersCreated.push({ key, name: c.name, allowSimilar: c.allowSimilar }), "cust-new"),
+    salesIssueInvoice: async (
+      _l: string,
+      _e: string,
+      key: string,
+      i: {
+        customerId: string;
+        amount: number;
+        channelId: string | null;
+        dueDate: string;
+        description: string;
+      },
+    ) => (
+      invoicesIssued.push({ key, ...i }),
+      {
+        invoiceId: "inv-1",
+        number: "HKD-2026-0001",
+        status: "issued",
+        total: i.amount,
+        currency: "IDR",
+        dueDate: i.dueDate,
+        token: "tok123",
+      }
+    ),
+    salesFindInvoice: async (_l: string, number: string): Promise<FoundInvoice[]> =>
+      number === "HKD-2026-0001" || number === "HKD-2026-0002"
+        ? (options.invoices ?? [{}]).map((o, n) => ({
+            invoiceId: `inv-${n + 1}`,
+            entityId: n === 0 ? "pt" : "pe",
+            entityName: n === 0 ? "PT Hikarich" : "Pribadi",
+            entityType: n === 0 ? "company" : "personal",
+            number,
+            status: "issued",
+            customerId: "cust-1",
+            customer: "Budi Santoso",
+            currency: "IDR",
+            total: 2_500_000,
+            settled: 0,
+            outstanding: 2_500_000,
+            settlement: "unpaid",
+            dueDate: "2026-11-04",
+            overdue: false,
+            canRecordPayment: true,
+            token: "tok123",
+            receipts: [],
+            ...o,
+          }))
+        : [],
+    salesRecordPayment: async (
+      _l: string,
+      key: string,
+      p: { invoiceId: string; accountId: string; amount: number },
+    ) => (
+      paymentsRecorded.push({ key, ...p }),
+      {
+        paymentId: "pay-1",
+        receiptNumber: "PAY-2026-0001",
+        invoiceNumber: "HKD-2026-0001",
+        settled: p.amount,
+        outstanding: 2_500_000 - p.amount,
+        settlement: p.amount >= 2_500_000 ? "paid" : "partial",
+        token: "tok123",
+      }
+    ),
     recordExpense: async (
       _l: string,
       payload: unknown,
@@ -284,6 +392,9 @@ function harness(
     paid,
     activated,
     aiCalls,
+    customersCreated,
+    invoicesIssued,
+    paymentsRecorded,
     getSession: () => session,
   };
 }
@@ -651,5 +762,264 @@ describe("questions, undo and commands", () => {
     const h = harness();
     await h.say("rekap hari ini", { chat: -5, type: "group" });
     expect(h.sent[0]?.text).toContain("/topik");
+  });
+});
+
+// ---- sales through the bot (decision 425) ---------------------------------------------------------------------
+
+const codeIn = (text: string | undefined): string =>
+  /<code>(\d{4})<\/code>/.exec(text ?? "")?.[1] ?? "";
+const lastText = (h: { sent: Array<{ text: string }> }): string => h.sent.at(-1)?.text ?? "";
+const nonceOf = (h: { getSession: () => { nonce: string } | null }): string =>
+  h.getSession()?.nonce ?? "";
+
+describe("sales: an invoice with layered verification", () => {
+  it("records nothing until the third verification step, then issues it and gives the link", async () => {
+    const h = harness();
+    await h.say("invoice Budi Santoso 2,5jt jasa konsultasi PT");
+    expect(lastText(h)).toContain("Invoice baru");
+    expect(lastText(h)).toContain("pelanggan baru");
+    expect(lastText(h)).toContain("Verifikasi 1/3");
+    await h.press(`o|go|${nonceOf(h)}`);
+    expect(h.edits.at(-1)?.text).toContain("Verifikasi 2/3");
+    // a button cannot answer the amount step, typing the figure does
+    await h.say("2jt");
+    expect(lastText(h)).toContain("belum cocok");
+    await h.say("Rp 2.500.000");
+    expect(lastText(h)).toContain("Verifikasi 3/3");
+    expect(h.invoicesIssued).toHaveLength(0);
+    await h.say("0000x");
+    expect(h.invoicesIssued).toHaveLength(0);
+    await h.say(`kode ${codeIn(h.sent.find((m) => m.text.includes("Verifikasi 3/3"))?.text)}`);
+    expect(h.customersCreated).toEqual([
+      expect.objectContaining({ name: "Budi Santoso", allowSimilar: false }),
+    ]);
+    expect(h.invoicesIssued).toHaveLength(1);
+    expect(h.invoicesIssued[0]).toMatchObject({
+      customerId: "cust-new",
+      amount: 2_500_000,
+      dueDate: TODAY,
+      description: "jasa konsultasi",
+    });
+    const done = lastText(h);
+    expect(done).toContain("HKD-2026-0001");
+    expect(done).toContain("https://example.test/i/tok123");
+    expect(done).toContain("Diterbitkan");
+    expect(h.getSession()).toBeNull();
+  });
+
+  it("cancels after three wrong answers and records nothing", async () => {
+    const h = harness();
+    await h.say("invoice Budi 1jt desain PT");
+    await h.press(`o|go|${nonceOf(h)}`);
+    await h.say("2jt");
+    await h.say("5jt");
+    await h.say("6jt");
+    expect(lastText(h)).toContain("Dibatalkan");
+    expect(h.invoicesIssued).toHaveLength(0);
+    expect(h.getSession()).toBeNull();
+  });
+
+  it("asks for what is missing: entity, amount, then the item", async () => {
+    const h = harness();
+    await h.say("invoice Budi");
+    expect(lastText(h)).toContain("entitas yang mana");
+    await h.say("pt");
+    expect(lastText(h)).toContain("Berapa total");
+    await h.say("750rb");
+    expect(lastText(h)).toContain("untuk apa");
+    await h.say("Jasa desain logo");
+    expect(lastText(h)).toContain("Rp 750.000");
+    expect(lastText(h)).toContain("Verifikasi 1/3");
+  });
+
+  it("offers the payment links of the entity and puts the chosen one on the invoice", async () => {
+    const h = harness({
+      channels: [
+        { id: "ch1", name: "Midtrans", kind: "payment_link", hasUrl: true, accountId: null },
+      ],
+    });
+    await h.say("invoice Budi 1jt desain PT");
+    expect(lastText(h)).toContain("tautan pembayaran");
+    await h.press(`o|chan|${nonceOf(h)}:0`);
+    expect(h.edits.at(-1)?.text).toContain("Midtrans");
+    await h.press(`o|go|${nonceOf(h)}`);
+    await h.say("1jt");
+    await h.say(codeIn(h.sent.at(-1)?.text));
+    expect(h.invoicesIssued[0]?.channelId).toBe("ch1");
+  });
+
+  it("a due date written in the message is used", async () => {
+    const h = harness();
+    await h.say("invoice Budi 1jt desain PT tempo 14 hari");
+    expect(lastText(h)).toContain("4 Nov 2026");
+  });
+});
+
+describe("sales: a customer who may already exist", () => {
+  const existing = [
+    { id: "c1", name: "Budi Santoso", email: "budi@example.test", severity: "same_name" as const },
+  ];
+
+  it("asks, and a typed 'pakai yang lama' uses the registered customer", async () => {
+    const h = harness({ customers: existing });
+    await h.say("invoice Budi Santoso 1jt desain PT");
+    expect(lastText(h)).toContain("sudah terdaftar");
+    expect(lastText(h)).toContain("budi@example.test");
+    await h.say("pakai yang lama");
+    expect(lastText(h)).toContain("terdaftar)");
+    await h.press(`o|go|${nonceOf(h)}`);
+    await h.say("1jt");
+    await h.say(codeIn(h.sent.at(-1)?.text));
+    expect(h.customersCreated).toHaveLength(0);
+    expect(h.invoicesIssued[0]?.customerId).toBe("c1");
+  });
+
+  it("a typed 'buat baru' creates a second customer with the same name, on the owner's word", async () => {
+    const h = harness({ customers: existing });
+    await h.say("invoice Budi Santoso 1jt desain PT");
+    await h.say("buat baru");
+    await h.press(`o|go|${nonceOf(h)}`);
+    await h.say("1jt");
+    await h.say(codeIn(h.sent.at(-1)?.text));
+    expect(h.customersCreated).toEqual([expect.objectContaining({ allowSimilar: true })]);
+  });
+
+  it("the buttons answer too, and an unclear reply asks again", async () => {
+    const h = harness({ customers: existing });
+    await h.say("invoice Budi Santoso 1jt desain PT");
+    await h.say("hmm");
+    expect(lastText(h)).toContain("pakai yang lama");
+    await h.press(`o|use|${nonceOf(h)}:0`);
+    expect(h.edits.at(-1)?.text).toContain("Verifikasi 1/3");
+  });
+
+  it("a new-customer command that matches a registered name asks first and can stop there", async () => {
+    const h = harness({ customers: existing });
+    await h.say("pelanggan baru Budi Santoso PT");
+    expect(lastText(h)).toContain("sudah terdaftar");
+    await h.say("pakai yang lama");
+    expect(lastText(h)).toContain("tidak membuat pelanggan baru");
+    expect(h.customersCreated).toHaveLength(0);
+  });
+});
+
+describe("sales: a new customer, a payment and a lookup", () => {
+  it("creates a customer after two verification steps", async () => {
+    const h = harness();
+    await h.say("pelanggan baru Siti Aminah siti@example.test PT");
+    expect(lastText(h)).toContain("Verifikasi 1/2");
+    await h.press(`o|go|${nonceOf(h)}`);
+    expect(h.edits.at(-1)?.text).toContain("Verifikasi 2/2");
+    expect(h.customersCreated).toHaveLength(0);
+    await h.say("ya");
+    expect(h.customersCreated).toEqual([expect.objectContaining({ name: "Siti Aminah" })]);
+    expect(lastText(h)).toContain("dibuat");
+  });
+
+  it("records a payment on an invoice and shows the status change with the receipt link", async () => {
+    const h = harness();
+    await h.say("terima HKD-2026-0001 1jt bca");
+    expect(lastText(h)).toContain("Dibayar sebagian");
+    expect(lastText(h)).toContain("BCA Operasional");
+    await h.press(`o|go|${nonceOf(h)}`);
+    await h.say("1.000.000");
+    expect(h.paymentsRecorded).toHaveLength(0);
+    await h.say(codeIn(h.sent.at(-1)?.text));
+    expect(h.paymentsRecorded).toEqual([
+      expect.objectContaining({ amount: 1_000_000, accountId: "acc-bca" }),
+    ]);
+    const done = lastText(h);
+    expect(done).toContain("Belum dibayar → <b>Dibayar sebagian</b>");
+    expect(done).toContain("https://example.test/i/tok123/receipt?no=PAY-2026-0001");
+  });
+
+  it("without an amount the whole remaining amount is paid and the status becomes Lunas", async () => {
+    const h = harness();
+    await h.say("lunas HKD-2026-0001 kas kecil");
+    expect(lastText(h)).toContain("Rp 2.500.000");
+    await h.press(`o|go|${nonceOf(h)}`);
+    await h.say("2,5jt");
+    await h.say(codeIn(h.sent.at(-1)?.text));
+    expect(lastText(h)).toContain("Lunas");
+  });
+
+  it("asks for the account when it is not named, and refuses an amount above what is outstanding", async () => {
+    const h = harness();
+    await h.say("terima HKD-2026-0001 1jt");
+    expect(lastText(h)).toContain("rekening mana");
+    await h.press(`o|acc|${nonceOf(h)}:1`);
+    expect(h.edits.at(-1)?.text).toContain("Kas Kecil");
+    const h2 = harness();
+    await h2.say("terima HKD-2026-0001 9jt bca");
+    expect(lastText(h2)).toContain("melebihi sisa");
+    expect(h2.getSession()).toBeNull();
+  });
+
+  it("refuses an invoice that is already paid, one that cannot be found and one the account may not pay", async () => {
+    const paid = harness({ invoices: [{ outstanding: 0, settlement: "paid" }] });
+    await paid.say("terima HKD-2026-0001 1jt bca");
+    expect(lastText(paid)).toContain("sudah lunas");
+    const none = harness();
+    await none.say("terima HKD-2026-0009 1jt bca");
+    expect(lastText(none)).toContain("tidak ditemukan");
+    const denied = harness({ invoices: [{ canRecordPayment: false }] });
+    await denied.say("terima HKD-2026-0001 1jt bca");
+    expect(lastText(denied)).toContain("tidak boleh mencatat pembayaran");
+  });
+
+  it("asks which entity when the same number exists in two", async () => {
+    const h = harness({ invoices: [{}, {}] });
+    await h.say("terima HKD-2026-0001 1jt bca");
+    expect(lastText(h)).toContain("lebih dari satu entitas");
+    await h.press(`o|inv|${nonceOf(h)}:1`);
+    expect(h.edits.at(-1)?.text).toContain("Pribadi");
+  });
+
+  it("answers a status question with the status, the link and the receipts", async () => {
+    const h = harness({
+      invoices: [
+        {
+          settlement: "partial",
+          settled: 1_000_000,
+          outstanding: 1_500_000,
+          receipts: [{ number: "PAY-2026-0001", date: TODAY, amount: 1_000_000 }],
+        },
+      ],
+    });
+    await h.say("status HKD-2026-0001");
+    const text = lastText(h);
+    expect(text).toContain("Dibayar sebagian");
+    expect(text).toContain("https://example.test/i/tok123");
+    expect(text).toContain("receipt?no=PAY-2026-0001");
+  });
+});
+
+describe("sales: leaving a conversation", () => {
+  it("/batal ends it and nothing is recorded", async () => {
+    const h = harness();
+    await h.say("invoice Budi 1jt desain PT");
+    await h.say("/batal");
+    expect(lastText(h)).toContain("Dibatalkan");
+    expect(h.getSession()).toBeNull();
+    expect(h.invoicesIssued).toHaveLength(0);
+  });
+  it("a button from an old conversation is refused", async () => {
+    const h = harness();
+    await h.say("invoice Budi 1jt desain PT");
+    await h.press("o|go|zzzzzz");
+    expect(h.invoicesIssued).toHaveLength(0);
+    expect(h.getSession()).not.toBeNull();
+  });
+  it("speaks English when the owner chose it", async () => {
+    const h = harness({ lang: "en" });
+    await h.say("invoice Budi 1jt design PT");
+    expect(lastText(h)).toContain("New invoice");
+    expect(lastText(h)).toContain("Verification 1/3");
+  });
+  it("ordinary expenses are not mistaken for sales", async () => {
+    const h = harness();
+    await h.say("traktir pelanggan 200rb pt");
+    expect(h.getSession()?.v).toBe(1);
   });
 });

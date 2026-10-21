@@ -11,6 +11,7 @@ import type {
   LearnEntry,
   RecordPayload,
 } from "@/domain/telegram/roadmap";
+import type { SalesOp } from "@/domain/telegram/sales";
 
 /**
  * The bot's only door to the database (decision 422): the `telegram_*` functions, callable by the service role alone.
@@ -78,6 +79,67 @@ export interface FoundExpense {
   currency: string;
   payee: string | null;
   canAttach: boolean;
+}
+
+export interface SalesContext {
+  today: string;
+  currency: string;
+  accounts: Array<{ id: string; name: string; currency: string }>;
+  channels: Array<{
+    id: string;
+    name: string;
+    kind: string;
+    hasUrl: boolean;
+    accountId: string | null;
+  }>;
+}
+
+export interface FoundCustomer {
+  id: string;
+  name: string;
+  email: string | null;
+  severity: "same_name" | "like";
+}
+
+export interface FoundInvoice {
+  invoiceId: string;
+  entityId: string;
+  entityName: string;
+  entityType: "company" | "personal";
+  number: string;
+  status: string;
+  customerId: string;
+  customer: string;
+  currency: string;
+  total: number;
+  settled: number;
+  outstanding: number;
+  settlement: "unpaid" | "partial" | "paid" | null;
+  dueDate: string;
+  overdue: boolean;
+  canRecordPayment: boolean;
+  token: string | null;
+  receipts: Array<{ number: string; date: string; amount: number }>;
+}
+
+export interface IssuedInvoice {
+  invoiceId: string;
+  number: string;
+  status: string;
+  total: number;
+  currency: string;
+  dueDate: string;
+  token: string | null;
+}
+
+export interface RecordedPayment {
+  paymentId: string;
+  receiptNumber: string;
+  invoiceNumber: string;
+  settled: number;
+  outstanding: number;
+  settlement: "unpaid" | "partial" | "paid";
+  token: string | null;
 }
 
 export interface RecordResult {
@@ -507,6 +569,172 @@ export function createStore(client: SupabaseClient) {
 
     async setLanguage(linkId: string, lang: Lang): Promise<void> {
       await rpc(client, "telegram_set_language", { p_link: linkId, p_language: lang });
+    },
+
+    // ---- sales through the bot (decision 425) --------------------------------------------------------------------
+    async getOpSession(linkId: string, chat: number, thread: number): Promise<SalesOp | null> {
+      const data = (await rpc(client, "telegram_session_get", {
+        p_link: linkId,
+        p_chat: chat,
+        p_thread: thread,
+      })) as Row | null;
+      if (!data || data.v !== 2) return null;
+      return data as unknown as SalesOp;
+    },
+    async putOpSession(linkId: string, chat: number, thread: number, op: SalesOp): Promise<void> {
+      await rpc(client, "telegram_session_put", {
+        p_link: linkId,
+        p_chat: chat,
+        p_thread: thread,
+        p_state: op,
+        p_ttl_minutes: 120,
+      });
+    },
+
+    async salesContext(linkId: string, entityId: string): Promise<SalesContext> {
+      const d = (await rpc(client, "telegram_sales_context", {
+        p_link: linkId,
+        p_entity: entityId,
+      })) as Row;
+      return {
+        today: str(d.today),
+        currency: str(d.currency),
+        accounts: rows(d.accounts).map((a) => ({
+          id: str(a.id),
+          name: str(a.name),
+          currency: str(a.currency),
+        })),
+        channels: rows(d.channels).map((c) => ({
+          id: str(c.id),
+          name: str(c.name),
+          kind: str(c.kind),
+          hasUrl: c.has_url === true,
+          accountId: strOrNull(c.account_id),
+        })),
+      };
+    },
+    async salesCustomers(linkId: string, entityId: string, name: string): Promise<FoundCustomer[]> {
+      const data = await rpc(client, "telegram_sales_customers", {
+        p_link: linkId,
+        p_entity: entityId,
+        p_name: name,
+      });
+      return rows(data).map((c) => ({
+        id: str(c.id),
+        name: str(c.name),
+        email: strOrNull(c.email),
+        severity: c.severity === "same_name" ? "same_name" : "like",
+      }));
+    },
+    async salesCreateCustomer(
+      linkId: string,
+      entityId: string,
+      key: string,
+      customer: { name: string; email: string | null; phone: string | null; allowSimilar: boolean },
+    ): Promise<string> {
+      return str(
+        await rpc(client, "telegram_sales_create_customer", {
+          p_link: linkId,
+          p_entity: entityId,
+          p_key: key,
+          p_name: customer.name,
+          p_email: customer.email,
+          p_phone: customer.phone,
+          p_allow_similar: customer.allowSimilar,
+        }),
+      );
+    },
+    async salesIssueInvoice(
+      linkId: string,
+      entityId: string,
+      key: string,
+      invoice: {
+        customerId: string;
+        issueDate: string;
+        dueDate: string;
+        description: string;
+        amount: number;
+        channelId: string | null;
+        accountId: string | null;
+      },
+    ): Promise<IssuedInvoice> {
+      const d = (await rpc(client, "telegram_sales_issue_invoice", {
+        p_link: linkId,
+        p_entity: entityId,
+        p_key: key,
+        p_customer: invoice.customerId,
+        p_issue: invoice.issueDate,
+        p_due: invoice.dueDate,
+        p_lines: [{ description: invoice.description, quantity: 1, unit_price: invoice.amount }],
+        p_channel: invoice.channelId,
+        p_account: invoice.accountId,
+        p_note: null,
+      })) as Row;
+      return {
+        invoiceId: str(d.invoice_id),
+        number: str(d.number),
+        status: str(d.status),
+        total: num(d.total),
+        currency: str(d.currency),
+        dueDate: str(d.due_date),
+        token: strOrNull(d.token),
+      };
+    },
+    async salesFindInvoice(linkId: string, number: string): Promise<FoundInvoice[]> {
+      const data = await rpc(client, "telegram_sales_find_invoice", {
+        p_link: linkId,
+        p_number: number,
+      });
+      return rows(data).map((x) => ({
+        invoiceId: str(x.invoice_id),
+        entityId: str(x.entity_id),
+        entityName: str(x.entity_name),
+        entityType: x.entity_type === "personal" ? "personal" : "company",
+        number: str(x.number),
+        status: str(x.status),
+        customerId: str(x.customer_id),
+        customer: str(x.customer),
+        currency: str(x.currency),
+        total: num(x.total),
+        settled: num(x.settled),
+        outstanding: num(x.outstanding),
+        settlement:
+          x.settlement === "paid" || x.settlement === "partial" || x.settlement === "unpaid"
+            ? x.settlement
+            : null,
+        dueDate: str(x.due_date),
+        overdue: x.overdue === true,
+        canRecordPayment: x.can_record_payment === true,
+        token: strOrNull(x.token),
+        receipts: rows(x.receipts).map((r) => ({
+          number: str(r.number),
+          date: str(r.date),
+          amount: num(r.amount),
+        })),
+      }));
+    },
+    async salesRecordPayment(
+      linkId: string,
+      key: string,
+      payment: { invoiceId: string; accountId: string; date: string; amount: number },
+    ): Promise<RecordedPayment> {
+      const d = (await rpc(client, "telegram_sales_record_payment", {
+        p_link: linkId,
+        p_key: key,
+        p_invoice: payment.invoiceId,
+        p_account: payment.accountId,
+        p_date: payment.date,
+        p_amount: payment.amount,
+      })) as Row;
+      return {
+        paymentId: str(d.payment_id),
+        receiptNumber: str(d.receipt_number),
+        invoiceNumber: str(d.invoice_number),
+        settled: num(d.settled),
+        outstanding: num(d.outstanding),
+        settlement: d.settlement === "paid" || d.settlement === "partial" ? d.settlement : "unpaid",
+        token: strOrNull(d.token),
+      };
     },
 
     async cleanup(): Promise<Row> {

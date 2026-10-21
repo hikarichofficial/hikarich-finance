@@ -90,7 +90,11 @@ describe("money verification: review, retype the amount, one-time code", () => {
     v = unwrap(answer(v, { type: "text", text: "2500000" }, ctx()));
     const wrong = answer(v, { type: "text", text: "0000" }, ctx());
     expect(wrong.kind).toBe("again");
-    const late = answer(v, { type: "text", text: "4821" }, ctx({ now: 1_000_000 + CODE_TTL_MS + 1, newCode: () => "9090" }));
+    const late = answer(
+      v,
+      { type: "text", text: "4821" },
+      ctx({ now: 1_000_000 + CODE_TTL_MS + 1, newCode: () => "9090" }),
+    );
     expect(late.kind).toBe("again");
     const fresh = unwrap(late);
     expect(fresh.code).toBe("9090");

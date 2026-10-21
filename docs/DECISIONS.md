@@ -4084,3 +4084,38 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      Entity, deduplicated by hash. If the number exists in more than one Entity the bot asks for `pt` or `pribadi`.
      **Trade-off.** In a registered group every member acts with the registering link (decision 423), so every member
      can also attach photos to any entry that link can view.
+
+425. **The bot can run the sales operations of the website, always after layered verification (OWNER, 21 October 2026).**
+     The owner asked that the bot can do what the website does, that anything needing confirmation is confirmed with
+     the owner in Telegram (by button or by typed reply), that the bot ask whenever a customer name is already
+     registered, that a payment link is always the one on the issued invoice (no default link), that every member of
+     the registered group may issue invoices (decision 423), that sending to a customer needs the owner's confirmation,
+     and that closing or reopening periods stays on the website. **This first slice (migration
+     `20261106100000_p71_telegram_sales.sql`)** adds, as `service_role`-only functions that act as the paired user and
+     call the website's own commands: `telegram_sales_context` (receiving accounts, payment links of the Entity),
+     `telegram_sales_customers` (same-name and similar customers), `telegram_sales_create_customer`
+     (`create_contact`), `telegram_sales_issue_invoice` (`create_invoice_draft` and `issue_invoice` in ONE
+     transaction, so a refusal leaves no draft; returns the official number and the token of the public page that
+     carries the invoice's own payment link), `telegram_sales_find_invoice` (derived status: unpaid, partly paid,
+     paid; outstanding; receipts; the public token if the user may share it) and `telegram_sales_record_payment`
+     (`record_payment`, which posts to the ledger). Permissions, maker-checker, locked periods and the audit trail run
+     unchanged.
+     **Bot behaviour.** Sentences: `invoice <customer> <amount> <item> [PT|pribadi] [tempo N hari]`,
+     `terima|lunas <invoice no.> [amount] [account]`, `status|link <invoice no.>`, `pelanggan baru <name> [email] [phone]`.
+     The bot asks for what is missing (entity, amount, item, receiving account, which payment link) and never guesses
+     the Entity. A customer whose name is registered is never reused or duplicated silently: the bot lists the matches
+     and the owner answers "use that one" or "create new with the same name" (button, number or typed words). The due
+     date defaults to the issue date, as in the website's invoice form, unless the message says `tempo N hari`.
+     **Layered verification** (`src/domain/telegram/verify.ts`): master data (a customer) takes 2 steps (review, final
+     yes); money (invoice, payment) takes 3 (review, retype the amount, a one-time four-digit code valid five minutes);
+     tax is defined with 4 steps for the later slices. A wrong answer repeats the step, three wrong answers cancel, a
+     change restarts the verification, an expired code is replaced. The amount and code can only be typed. Nothing is
+     recorded before the last step. Idempotency keys derive from the conversation, so a repeated press records once.
+     **Left out on purpose.** Closing or reopening a period, roles and access, backups, the bot's own settings and
+     reversing journals stay on the website. **Not in this slice (next):** sending the invoice or receipt to the customer
+     by email after confirmation, other website menus (purchases, tax payments and filing, assets, planning), the bot
+     sending an attachment link or a dashboard picture. An automatic status change from a payment gateway is NOT built:
+     recording the payment stays manual (decision 307); a gateway webhook is a separate decision.
+     **Trade-offs.** The verification code appears in the same chat, so in a group it is visible to every member; that
+     matches decision 423 (the group is the owner's own accounts). Only rupiah invoices and payments are handled; a
+     foreign-currency Entity is sent to the website.

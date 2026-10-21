@@ -54,8 +54,7 @@ const CUSTOMER_START =
   /^\s*(?:(?:tolong\s+)?(?:tambah(?:kan)?|buat(?:kan)?|bikin(?:kan)?|daftarkan|new|add|create)\s+)?(?:pelanggan|customer|klien|client)\s+(?:baru\s+|new\s+)?/i;
 const EMAIL = /[\w.+-]+@[\w-]+(?:\.[\w-]+)+/;
 const PHONE = /(?<![\w.])\+?\d[\d\s-]{7,16}\d(?![\w])/;
-const DUE =
-  /\b(?:jatuh\s+tempo|tempo|due(?:\s+in)?|net)\s*(\d{1,3})\s*(?:hari|days?|d)?\b/i;
+const DUE = /\b(?:jatuh\s+tempo|tempo|due(?:\s+in)?|net)\s*(\d{1,3})\s*(?:hari|days?|d)?\b/i;
 const FILLER = /\b(?:untuk|ke|kepada|buat|for|to|atas\s+nama|a\/n)\b/i;
 const ENTITY_WORDS = /\b(?:pt|pribadi|personal|perusahaan|company|kantor)\b/gi;
 
@@ -91,7 +90,13 @@ export function parseSalesIntent(raw: string): SalesIntent | null {
       .toLowerCase()
       .split(/[^a-z0-9]+/)
       .filter((w) => w.length >= 3);
-    return { kind: "payment", number: code, amount: amount?.value ?? null, accountWords, entityWord };
+    return {
+      kind: "payment",
+      number: code,
+      amount: amount?.value ?? null,
+      accountWords,
+      entityWord,
+    };
   }
 
   const customerHead = CUSTOMER_START.exec(text);
@@ -116,9 +121,13 @@ export function parseSalesIntent(raw: string): SalesIntent | null {
     const amount = pickAmount(rest);
     const before = amount ? rest.slice(0, amount.start) : rest;
     const after = amount ? rest.slice(amount.end) : "";
-    const customer = tidy(before.replace(ENTITY_WORDS, " ").replace(/\b(?:sebesar|senilai|total|rp\.?)\s*$/i, ""));
+    const customer = tidy(
+      before.replace(ENTITY_WORDS, " ").replace(/\b(?:sebesar|senilai|total|rp\.?)\s*$/i, ""),
+    );
     if (customer.length < 2) return null;
-    const description = tidy(after.replace(ENTITY_WORDS, " ").replace(/^\s*(?:untuk|buat|for|:)\s+/i, ""));
+    const description = tidy(
+      after.replace(ENTITY_WORDS, " ").replace(/^\s*(?:untuk|buat|for|:)\s+/i, ""),
+    );
     return {
       kind: "invoice",
       customer: titleCase(customer).slice(0, 120),
@@ -162,10 +171,14 @@ export interface InvoiceRef {
   currency: string;
   total: number;
   outstanding: number;
+  /** The invoice's own state: only an issued invoice can receive a payment. */
+  status: string;
+  canRecordPayment: boolean;
 }
 
 export type SalesPhase =
   | "entity"
+  | "amount"
   | "describe"
   | "dup"
   | "channel"
@@ -192,6 +205,9 @@ export interface SalesOp {
   customerId: string | null;
   allowSimilar: boolean;
   candidates: Candidate[];
+  /** The customer list was already looked up (and the owner answered if there was a match). */
+  looked: boolean;
+  channelAsked: boolean;
   description: string;
   amount: number;
   dueDays: number;
@@ -233,6 +249,8 @@ export function newOp(opts: {
     customerId: null,
     allowSimilar: false,
     candidates: [],
+    looked: false,
+    channelAsked: false,
     description: "",
     amount: 0,
     dueDays: 0,
@@ -270,12 +288,16 @@ export type DupAnswer = { kind: "use"; index: number } | { kind: "new" } | { kin
 export function readDupAnswer(text: string, candidates: number): DupAnswer {
   const t = text.toLowerCase().trim();
   if (/\b(?:baru|new|lain|berbeda|different|another)\b/.test(t)) return { kind: "new" };
-  const n = /^\s*#?(\d{1,2})\s*$/.exec(t) ?? /\b(?:no(?:mor)?|nomor|number|#)\s*(\d{1,2})\b/.exec(t);
+  const n =
+    /^\s*#?(\d{1,2})\s*$/.exec(t) ?? /\b(?:no(?:mor)?|nomor|number|#)\s*(\d{1,2})\b/.exec(t);
   if (n?.[1]) {
     const index = Number(n[1]) - 1;
     return index >= 0 && index < candidates ? { kind: "use", index } : { kind: "unclear" };
   }
-  if (/\b(?:pakai|pake|gunakan|use|lama|itu|existing|yang\s+ada|sama)\b/.test(t) && candidates === 1)
+  if (
+    /\b(?:pakai|pake|gunakan|use|lama|itu|existing|yang\s+ada|sama)\b/.test(t) &&
+    candidates === 1
+  )
     return { kind: "use", index: 0 };
   return { kind: "unclear" };
 }
@@ -290,7 +312,9 @@ export function readChoice(text: string, labels: readonly string[]): number | nu
   }
   const hits = labels
     .map((label, i) => ({ i, label: label.toLowerCase() }))
-    .filter((x) => x.label.length >= 2 && (t.includes(x.label) || x.label.includes(t)) && t.length >= 2);
+    .filter(
+      (x) => x.label.length >= 2 && (t.includes(x.label) || x.label.includes(t)) && t.length >= 2,
+    );
   return hits.length === 1 ? (hits[0]?.i ?? null) : null;
 }
 
@@ -335,7 +359,11 @@ export function summaryOf(op: SalesOp): string {
       op.email ? `Email: ${escapeHtml(op.email)}` : null,
       op.phone ? `${L(lang, "Telepon", "Phone")}: ${escapeHtml(op.phone)}` : null,
       op.allowSimilar
-        ? L(lang, "Nama sama dengan pelanggan lain, dibuat sebagai orang yang berbeda.", "Same name as another customer, created as a different person.")
+        ? L(
+            lang,
+            "Nama sama dengan pelanggan lain, dibuat sebagai orang yang berbeda.",
+            "Same name as another customer, created as a different person.",
+          )
         : null,
     ]
       .filter(Boolean)
@@ -384,6 +412,15 @@ export function renderOp(op: SalesOp): { text: string; keyboard: Keyboard } {
           ],
         },
       };
+    case "amount":
+      return {
+        text: L(
+          lang,
+          "Berapa total invoicenya? Ketik nominalnya (contoh: 2,5jt atau 2.500.000).",
+          "What is the invoice total? Type the amount (e.g. 2.5m or 2,500,000).",
+        ),
+        keyboard: { rows: [[cancel]] },
+      };
     case "describe":
       return {
         text: L(
@@ -407,14 +444,21 @@ export function renderOp(op: SalesOp): { text: string; keyboard: Keyboard } {
             `There are customers with a similar name to <b>${escapeHtml(op.customerName)}</b>. Use one of them, or create a new one?`,
           );
       const list = op.candidates
-        .map((c, i) => `${i + 1}. ${escapeHtml(c.name)}${c.email ? ` (${escapeHtml(c.email)})` : ""}`)
+        .map(
+          (c, i) => `${i + 1}. ${escapeHtml(c.name)}${c.email ? ` (${escapeHtml(c.email)})` : ""}`,
+        )
         .join("\n");
       return {
         text: `${head}\n\n${list}\n\n${L(lang, "Balas dengan tombol, atau ketik: nomor, <i>pakai yang lama</i>, atau <i>buat baru</i>.", "Answer with a button, or type: a number, <i>use the existing one</i>, or <i>create new</i>.")}`,
         keyboard: {
           rows: [
             ...op.candidates.map((c, i) => [
-              button(op, `${L(lang, "Pakai", "Use")} #${i + 1} ${c.name}`.slice(0, 60), "use", String(i)),
+              button(
+                op,
+                `${L(lang, "Pakai", "Use")} #${i + 1} ${c.name}`.slice(0, 60),
+                "use",
+                String(i),
+              ),
             ]),
             [button(op, L(lang, "➕ Buat baru (nama sama)", "➕ Create new (same name)"), "new")],
             [cancel],
@@ -446,14 +490,20 @@ export function renderOp(op: SalesOp): { text: string; keyboard: Keyboard } {
         ),
         keyboard: {
           rows: [
-            ...op.choices.map((c, i) => [button(op, `${c.entityName} — ${c.customerName}`.slice(0, 60), "inv", String(i))]),
+            ...op.choices.map((c, i) => [
+              button(op, `${c.entityName} — ${c.customerName}`.slice(0, 60), "inv", String(i)),
+            ]),
             [cancel],
           ],
         },
       };
     case "account":
       return {
-        text: L(lang, "Pembayaran diterima di rekening mana?", "Which account received the payment?"),
+        text: L(
+          lang,
+          "Pembayaran diterima di rekening mana?",
+          "Which account received the payment?",
+        ),
         keyboard: {
           rows: [
             ...op.accounts.map((a, i) => [button(op, a.name.slice(0, 60), "acc", String(i))]),

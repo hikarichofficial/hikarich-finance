@@ -40,7 +40,10 @@ describe("reading a sales sentence", () => {
     expect(q).toMatchObject({ kind: "payment", number: "HKD-2026-0001", amount: null });
   });
   it("reads a status question before a payment", () => {
-    expect(parseSalesIntent("status HKD-2026-0001")).toEqual({ kind: "status", number: "HKD-2026-0001" });
+    expect(parseSalesIntent("status HKD-2026-0001")).toEqual({
+      kind: "status",
+      number: "HKD-2026-0001",
+    });
     expect(parseSalesIntent("link pembayaran HKD-2026-0001")).toEqual({
       kind: "status",
       number: "HKD-2026-0001",
