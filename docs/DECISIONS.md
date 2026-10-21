@@ -4055,3 +4055,19 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      `telegram_set_language`). Books data (names, categories, amounts) is never translated and never sent to the AI.
      All new functions are `service_role`-only with a pinned `search_path` and run the existing guards.
      **Not done.** Reports go to the private chat only; creating loans and the fiscal class of assets stay on the website.
+
+423. **A registered Telegram group serves every member who writes in it (OWNER, 21 October 2026).** The owner uses one
+     group from more than one Telegram account and asked that anyone in the group can command the bot, noting that if
+     staff are added later the feature will be limited again. Migration `20261104100000_p69_telegram_group_members.sql`
+     replaces `telegram_identify`: in a group that the owner registered (`/daftargrup`, still done by the owner in the
+     private chat), a member who has linked an account of their own acts with THAT link and its permissions; any other
+     member acts as the link that registered the group, so the per-entry limit, permission checks, period guards and
+     the audit trail of that link still apply. Unregistered chats are still ignored, pairing and `/daftargrup` still
+     happen only in a private chat, and reports still go only to the private chat.
+     **The trade-off the owner accepted.** Whoever can write in a registered group can record, confirm up to the limit,
+     undo the bot's own entries and read the summaries of the Entity set for that group, as the owner. The group's
+     membership is therefore the access control: keep it to the owner's own accounts, turn off "anyone can add
+     members" in Telegram, and use `/hapusgrup` (or remove the bot) before adding anyone else. Drafts for one group
+     share one conversation state per chat and thread, so two members recording at the same moment can interrupt each
+     other's roadmap. Limiting this to named members (decision to be taken when staff join) needs a members table and
+     is not built.

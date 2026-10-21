@@ -182,7 +182,9 @@ begin
   perform test_helpers.expect_msg(format($q$select public.telegram_register_chat(%L, 5, 'group', 'x')$q$, v_link), 'INVALID', '5.8 only a group (negative id) can be registered');
   perform public.telegram_register_chat(v_link, -100123, 'supergroup', 'Catatan Hikarich');
   perform test_helpers.assert((public.telegram_identify(111, -100123, 7) ->> 'is_private')::boolean is false, '5.9 a registered group works for its owner');
-  perform test_helpers.assert(public.telegram_identify(222, -100123, null) is null, '5.10 not for another paired user');
+  perform test_helpers.assert(public.telegram_identify(222, -100123, null) ->> 'link_id' = test_helpers.g68('link_staff')::text and not (public.telegram_identify(222, -100123, null) ->> 'is_private')::boolean, '5.10 another paired member of the group acts with their OWN link, not the owner''s');
+  perform test_helpers.assert(public.telegram_identify(999, -100123, null) ->> 'link_id' = v_link::text and not (public.telegram_identify(999, -100123, null) ->> 'is_private')::boolean, '5.10b a member who is not linked acts as the link that registered the group (decision 423)');
+  perform test_helpers.assert(public.telegram_identify(999, 999, null) is null, '5.10c ... but still has nothing in a private chat of their own');
   perform test_helpers.expect_msg(format($q$select public.telegram_register_chat(%L, -100123, 'group', 'x')$q$, test_helpers.g68('link_staff')), 'CONFLICT', '5.11 a group cannot be taken over');
   perform public.telegram_set_topic_entity(v_link, -100123, 7, pt);
   perform test_helpers.assert((public.telegram_identify(111, -100123, 7) ->> 'chat_entity_id') = pt::text, '5.12 a topic is tied to an Entity');
@@ -190,6 +192,7 @@ begin
   perform test_helpers.expect_msg(format($q$select public.telegram_set_topic_entity(%L, -100123, 7, %L)$q$, test_helpers.g68('link_staff'), pt), 'FORBIDDEN', '5.14 only the group''s owner sets topics');
   perform public.telegram_unregister_chat(v_link, -100123);
   perform test_helpers.assert(public.telegram_identify(111, -100123, 7) is null, '5.15 an unregistered group stops working');
+  perform test_helpers.assert(public.telegram_identify(999, -100123, null) is null, '5.16 and then nobody is served there');
   perform test_helpers.logout();
 end
 $$;
