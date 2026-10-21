@@ -2,7 +2,7 @@
 
 import { smoothPath } from "@/domain/dashboard/smooth";
 import Link from "next/link";
-import { useState } from "react";
+import { useId, useState } from "react";
 import { compactNumber } from "@/domain/dashboard/chart";
 
 /**
@@ -106,6 +106,7 @@ export function LineChart({
   ariaLabel: string;
 }) {
   const [hover, setHover] = useState<number | null>(null);
+  const gradientId = useId().replace(/:/g, "");
   const values = points.map((p) => p.value).filter((v): v is number => v !== null);
   const min = Math.min(...values, 0);
   const max = Math.max(...values, 0);
@@ -140,11 +141,31 @@ export function LineChart({
             <div key={k} className="chart-grid" style={{ top: `${yOf(t)}%` }} />
           ))}
           <svg viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true">
-            {area ? <path className="chart-area" d={area} /> : null}
+            <defs>
+              <linearGradient id={`${gradientId}-wash`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" className="chart-stop-top" />
+                <stop offset="100%" className="chart-stop-bottom" />
+              </linearGradient>
+              <linearGradient id={`${gradientId}-stroke`} x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" className="chart-stroke-from" />
+                <stop offset="100%" className="chart-stroke-to" />
+              </linearGradient>
+            </defs>
+            {area ? (
+              <path className="chart-area" d={area} style={{ fill: `url(#${gradientId}-wash)` }} />
+            ) : null}
             {line ? (
-              <path className="chart-line" d={line} vectorEffect="non-scaling-stroke" />
+              <path
+                className="chart-line"
+                d={line}
+                style={{ stroke: `url(#${gradientId}-stroke)` }}
+                vectorEffect="non-scaling-stroke"
+              />
             ) : null}
           </svg>
+          {hover !== null && points[hover].value !== null ? (
+            <span className="chart-crosshair" style={{ left: `${xOf(hover)}%` }} />
+          ) : null}
           {points.map((p, i) => (
             <Hit
               key={p.key}
@@ -230,7 +251,12 @@ export function BarChart({
                   className="chart-bar"
                   data-hover={hover === i ? "true" : undefined}
                   data-active={p.active ? "true" : undefined}
-                  style={{ height: `${p.value ? Math.max(height, 1.5) : 0}%` }}
+                  style={
+                    {
+                      height: `${p.value ? Math.max(height, 1.5) : 0}%`,
+                      "--i": i,
+                    } as React.CSSProperties
+                  }
                 />
               </Hit>
             );

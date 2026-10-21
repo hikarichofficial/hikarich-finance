@@ -6962,13 +6962,179 @@ html {
   }
 }
 
-/* Aurora Glass: the trend line is a smooth curve with a soft glow and a fading wash beneath it. */
-.dashboard .chart-line {
-  stroke-width: 3;
-  filter: drop-shadow(0 4px 10px color-mix(in srgb, var(--chart-color) 45%, transparent));
+/* ------------------------------------------------------------------------------------------------------------
+ * Aurora Glass charts (owner request, 21 October 2026): the dashboard's line and bar charts as neon instruments.
+ * Gradients fade into the card, bars are capsules that rise in turn, the line draws itself in, the selected month
+ * pulses, and the tooltip is a small glass panel. Only paint changes: positions, figures and links are untouched.
+ * ------------------------------------------------------------------------------------------------------------ */
+.chart-stop-top {
+  stop-color: var(--chart-color);
+  stop-opacity: 0.42;
 }
 
-.dashboard .chart-area {
-  fill: url(#dash-wash);
-  fill: color-mix(in srgb, var(--chart-color) 14%, transparent);
+.chart-stop-bottom {
+  stop-color: var(--chart-color);
+  stop-opacity: 0;
+}
+
+.chart-stroke-from {
+  stop-color: color-mix(in srgb, var(--chart-color) 70%, var(--info));
+}
+
+.chart-stroke-to {
+  stop-color: var(--chart-color);
+}
+
+.dashboard .chart {
+  --chart-neon: color-mix(in srgb, var(--chart-color) 55%, transparent);
+}
+
+.dashboard .chart-grid {
+  border-top: 1px dotted color-mix(in srgb, var(--ink) 16%, transparent);
+}
+
+.dashboard .chart-axis span,
+.dashboard .chart-labels span {
+  letter-spacing: 0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.dashboard .chart-line {
+  stroke-width: 3.5;
+  filter: drop-shadow(0 0 6px var(--chart-neon)) drop-shadow(0 6px 14px var(--chart-neon));
+}
+
+.dashboard .chart-plot-line svg {
+  animation: chart-reveal 1100ms var(--motion-ease) both;
+}
+
+.dashboard .chart-crosshair {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 0;
+  border-left: 1px dashed var(--chart-neon);
+  pointer-events: none;
+}
+
+.dashboard .chart-dot {
+  width: 12px;
+  height: 12px;
+  margin: -6px 0 0 -6px;
+  border: 2px solid var(--chart-color);
+  background: var(--surface-solid);
+  box-shadow: 0 0 10px var(--chart-neon);
+}
+
+.dashboard .chart-dot[data-active="true"] {
+  background: var(--chart-color);
+  box-shadow:
+    0 0 0 4px color-mix(in srgb, var(--chart-color) 22%, transparent),
+    0 0 16px var(--chart-neon);
+  animation: chart-pulse 2.4s ease-in-out infinite;
+}
+
+.dashboard .chart-dot[data-hover="true"] {
+  transform: scale(1.35);
+  background: var(--chart-color);
+}
+
+.dashboard .chart-hit:hover,
+.dashboard .chart-column:hover {
+  background: linear-gradient(
+    to bottom,
+    transparent,
+    color-mix(in srgb, var(--chart-color) 9%, transparent)
+  );
+}
+
+.dashboard .chart-bar {
+  left: 27%;
+  right: 27%;
+  border-radius: 999px 999px 4px 4px;
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--chart-color) 4%, transparent),
+    color-mix(in srgb, var(--chart-color) 55%, transparent)
+  );
+  box-shadow: inset 0 1px 0 color-mix(in srgb, #fff 45%, transparent);
+  transform-origin: bottom;
+  animation: chart-rise 700ms var(--motion-ease) both;
+  animation-delay: calc(var(--i, 0) * 55ms);
+}
+
+.dashboard .chart-bar[data-active="true"],
+.dashboard .chart-bar[data-hover="true"] {
+  background: linear-gradient(
+    to top,
+    color-mix(in srgb, var(--chart-color) 30%, transparent),
+    var(--chart-color)
+  );
+  box-shadow:
+    inset 0 1px 0 color-mix(in srgb, #fff 55%, transparent),
+    0 0 18px var(--chart-neon);
+}
+
+.dashboard .chart-bar[data-hover="true"] {
+  transform: scaleY(1.03);
+}
+
+.dashboard .chart-tooltip {
+  background: color-mix(in srgb, #0d0b09 88%, transparent);
+  color: #fff;
+  -webkit-backdrop-filter: blur(10px) saturate(1.4);
+  backdrop-filter: blur(10px) saturate(1.4);
+  border: 1px solid color-mix(in srgb, var(--chart-color) 55%, transparent);
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, #fff 6%, transparent) inset,
+    0 10px 30px color-mix(in srgb, #000 28%, transparent),
+    0 0 22px var(--chart-neon);
+  border-radius: var(--radius-md);
+}
+
+.dashboard .chart-tooltip-value {
+  font-size: var(--text-base);
+  letter-spacing: 0.01em;
+}
+
+@keyframes chart-reveal {
+  from {
+    clip-path: inset(-20% 100% -20% 0);
+  }
+  to {
+    clip-path: inset(-20% -2% -20% 0);
+  }
+}
+
+@keyframes chart-rise {
+  from {
+    transform: scaleY(0);
+    opacity: 0;
+  }
+  to {
+    transform: scaleY(1);
+    opacity: 1;
+  }
+}
+
+@keyframes chart-pulse {
+  0%,
+  100% {
+    box-shadow:
+      0 0 0 3px color-mix(in srgb, var(--chart-color) 22%, transparent),
+      0 0 14px var(--chart-neon);
+  }
+  50% {
+    box-shadow:
+      0 0 0 8px color-mix(in srgb, var(--chart-color) 6%, transparent),
+      0 0 22px var(--chart-neon);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dashboard .chart-plot-line svg,
+  .dashboard .chart-bar,
+  .dashboard .chart-dot[data-active="true"] {
+    animation: none;
+  }
 }
