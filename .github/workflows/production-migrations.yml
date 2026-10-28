@@ -49,6 +49,47 @@ jobs:
           version: latest
       - name: Link the production project
         run: supabase link --project-ref "$PRODUCTION_PROJECT_REF"
+      # Decision 427. Migrations 69, 70 and 71 were first applied to production by hand on 21 October 2026, so the
+      # history holds their generated versions instead of the file names in supabase/migrations. This step runs only
+      # when the CLI reports exactly those three remote versions as unknown, proves that the three migrations are
+      # really in the database, and only then renames them in the history. Nothing else is touched and no SQL of a
+      # migration is run. Any other mismatch still stops the job.
+      - name: Align the migration history
+        run: |
+          set -uo pipefail
+          if out="$(supabase db push --dry-run 2>&1)"; then
+            echo "The history already matches the files."
+            exit 0
+          fi
+          echo "$out"
+          for v in 20261021085345 20261021101204 20261021141111; do
+            if ! echo "$out" | grep -q "$v"; then
+              echo "::error::The mismatch is not the one decision 427 repairs. Stopping."
+              exit 1
+            fi
+          done
+          if ! echo "$out" | grep -q "Remote migration versions not found"; then
+            echo "::error::The mismatch is not the one decision 427 repairs. Stopping."
+            exit 1
+          fi
+          pooler="$(cat supabase/.temp/pooler-url)"
+          present="$(PGPASSWORD="$SUPABASE_DB_PASSWORD" psql "$pooler" -At -c "
+            select (select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                     where n.nspname = 'public'
+                       and p.proname in ('telegram_find_expense', 'telegram_attach_receipt', 'telegram_sales_context',
+                                         'telegram_sales_create_customer', 'telegram_sales_customers',
+                                         'telegram_sales_find_invoice', 'telegram_sales_issue_invoice',
+                                         'telegram_sales_record_payment')) = 8
+               and exists (select 1 from pg_proc p join pg_namespace n on n.oid = p.pronamespace
+                            where n.nspname = 'public' and p.proname = 'telegram_identify'
+                              and p.prosrc like '%decision 423%')")"
+          echo "The three migrations are in the database: $present"
+          if [ "$present" != "t" ]; then
+            echo "::error::The objects of migrations 69-71 are not all in production, so the history is NOT renamed."
+            exit 1
+          fi
+          supabase migration repair --status reverted 20261021085345 20261021101204 20261021141111
+          supabase migration repair --status applied 20261104100000 20261105100000 20261106100000
       - name: Show what would be applied
         run: supabase db push --dry-run
       - name: Apply

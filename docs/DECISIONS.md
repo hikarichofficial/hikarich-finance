@@ -4139,3 +4139,14 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      **Trade-offs.** A customer who never pays leaves the tax paid on that sale; whether a cancelled invoice and a
      corrected monthly return are accepted for it is a question for the tax office. Recording an invoice customer's
      payment as an income entry instead of a payment on the invoice would count the turnover twice.
+
+427. **Production migration history is aligned with the migration files (OWNER, 29 October 2026).**
+     Since 21 October the job "Apply migrations to production" stopped at `supabase db push --dry-run` with
+     "Remote migration versions not found in local migrations directory": migrations 69, 70 and 71 had been applied to
+     production by hand, so the history held the generated versions `20261021085345`, `20261021101204` and
+     `20261021141111` instead of `20261104100000`, `20261105100000` and `20261106100000`. Because of it migration 72
+     (decision 426) did not reach production either. The workflow now has the step "Align the migration history": it
+     runs only when the CLI names exactly those three unknown versions, checks in the production database that the
+     functions of migrations 69-71 exist, and then renames the three history rows with `supabase migration repair`. No
+     migration SQL is run by it and any other mismatch still stops the job. Migrations are applied by this job only,
+     never by hand again.
