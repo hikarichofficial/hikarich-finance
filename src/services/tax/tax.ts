@@ -450,11 +450,17 @@ export async function getTurnoverReceivables(
   input: z.input<typeof finalTaxInputSchema>,
 ): Promise<TurnoverReceivables> {
   const v = finalTaxInputSchema.parse(input);
-  return callRpc(
-    "tax_turnover_receivables",
-    { p_entity: v.entity_id, p_period: v.period },
-    turnoverReceivablesSchema,
-  );
+  try {
+    return await callRpc(
+      "tax_turnover_receivables",
+      { p_entity: v.entity_id, p_period: v.period },
+      turnoverReceivablesSchema,
+    );
+  } catch (error) {
+    // The note is optional: when the function is not in the database yet, the tax screens must still open.
+    if (error instanceof AuthzError) throw error;
+    return { turnover_invoiced: "0", turnover_unpaid: "0", unpaid_invoice_count: 0 };
+  }
 }
 
 /** Computes (or recomputes) the month's final tax; only the difference to an earlier result is posted. */
