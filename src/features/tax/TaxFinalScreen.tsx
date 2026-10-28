@@ -11,9 +11,10 @@ import {
   taxPeriodLabel,
   type DeterminationStatus,
 } from "@/domain/tax/tax";
-import type { FinalPreview, TaxPeriodPosition } from "@/schemas/tax";
+import type { FinalPreview, TaxPeriodPosition, TurnoverReceivables } from "@/schemas/tax";
 import { formatShortDate } from "./format";
 import { TaxEstimateCard } from "./TaxEstimateCard";
+import { TurnoverReceivablesNote } from "./TurnoverReceivablesNote";
 import { PageHelp } from "@/features/shared/PageHelp";
 
 /**
@@ -32,9 +33,12 @@ export function TaxFinalScreen({
   entity,
   estimate,
   estimatePeriod,
+  receivables,
 }: {
   estimate: FinalPreview;
   estimatePeriod: string;
+  /** The unpaid part of the running month's invoiced turnover (decision 426). */
+  receivables: TurnoverReceivables;
   period: string;
   preview: FinalPreview;
   position: TaxPeriodPosition;
@@ -65,6 +69,9 @@ export function TaxFinalScreen({
         entity={entity}
         linkToFinal={false}
       />
+      {estimate.status === "auto_determined" ? (
+        <TurnoverReceivablesNote receivables={receivables} currency={currency} entity={entity} />
+      ) : null}
 
       <form method="get" className="list-search-form">
         {entity ? <input type="hidden" name="entity" value={entity} /> : null}
