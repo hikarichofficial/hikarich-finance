@@ -4143,10 +4143,13 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
 427. **Production migration history is aligned with the migration files (OWNER, 29 October 2026).**
      Since 21 October the job "Apply migrations to production" stopped at `supabase db push --dry-run` with
      "Remote migration versions not found in local migrations directory": migrations 69, 70 and 71 had been applied to
-     production by hand, so the history held the generated versions `20261021085345`, `20261021101204` and
-     `20261021141111` instead of `20261104100000`, `20261105100000` and `20261106100000`. Because of it migration 72
-     (decision 426) did not reach production either. The workflow now has the step "Align the migration history": it
-     runs only when the CLI names exactly those three unknown versions, checks in the production database that the
-     functions of migrations 69-71 exist, and then renames the three history rows with `supabase migration repair`. No
-     migration SQL is run by it and any other mismatch still stops the job. Migrations are applied by this job only,
-     never by hand again.
+     production by hand, so the history held three extra rows with generated versions (`20261021085345`,
+     `20261021101204`, `20261021141111`) and lacked the file versions of migrations 70 and 71. Because of it migration
+     72 (decision 426) did not reach production either. A read-only report of the production history (29 October)
+     showed migration 69 recorded under its file version, all eight functions of migrations 70 and 71 present and
+     `tax_turnover_receivables` absent. The workflow therefore has the step "Align the migration history": it runs
+     only when the CLI names exactly those three unknown versions, checks in the database that migration 69 is
+     recorded and the functions of 70 and 71 exist, then removes the three extra rows and records 70 and 71 under their
+     file versions with `supabase migration repair`. No migration SQL is run by it and any other mismatch still stops
+     the job. Migrations are applied by this job only, never by hand again. The tax screens stay open while a
+     migration is missing (decision 426 follow-up).
