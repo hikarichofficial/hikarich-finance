@@ -54,6 +54,17 @@ jobs:
       # when the CLI reports exactly those three remote versions as unknown, proves that the three migrations are
       # really in the database, and only then renames them in the history. Nothing else is touched and no SQL of a
       # migration is run. Any other mismatch still stops the job.
+      # Decision 427, diagnosis: READ ONLY. Prints, as notices on the run, the last rows of the production migration
+      # history and which functions of migrations 69-71 exist, so the mismatch can be repaired from facts.
+      - name: Report the production history
+        continue-on-error: true
+        run: |
+          pooler="$(cat supabase/.temp/pooler-url)"
+          q() { PGPASSWORD="$SUPABASE_DB_PASSWORD" psql "$pooler" -At -F ' | ' -c "$1" 2>&1; }
+          echo "::notice title=history::$(q "select version, coalesce(name, '-') from supabase_migrations.schema_migrations order by version desc limit 14" | tr '\n' ';')"
+          echo "::notice title=functions::$(q "select p.proname from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and (p.proname like 'telegram_sales%' or p.proname in ('telegram_find_expense', 'telegram_attach_receipt')) order by 1" | tr '\n' ',')"
+          echo "::notice title=marker::$(q "select p.proname, p.prosrc like '%decision 423%' from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'telegram_identify'")"
+          echo "::notice title=p72::$(q "select count(*) from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'public' and p.proname = 'tax_turnover_receivables'")"
       - name: Align the migration history
         run: |
           set -uo pipefail
