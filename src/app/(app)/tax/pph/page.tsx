@@ -3,6 +3,7 @@ import {
   estimateFinalTax,
   getEntityBaseCurrency,
   getTaxPeriodPosition,
+  getTurnoverReceivables,
   previewFinalTax,
 } from "@/services/tax/tax";
 import { resolveTaxPeriod, runningTaxPeriod } from "@/domain/tax/tax";
@@ -24,11 +25,12 @@ export default async function TaxFinalPage({
   const period = resolveTaxPeriod(periodParam);
 
   const runningPeriod = runningTaxPeriod();
-  const [preview, position, currency, estimate] = await Promise.all([
+  const [preview, position, currency, estimate, receivables] = await Promise.all([
     previewFinalTax({ entity_id: membership.entity_id, period }),
     getTaxPeriodPosition({ entity_id: membership.entity_id, tax_type: "final_umkm", period }),
     getEntityBaseCurrency(membership.entity_id),
     estimateFinalTax({ entity_id: membership.entity_id, period: runningPeriod }),
+    getTurnoverReceivables({ entity_id: membership.entity_id, period: runningPeriod }),
   ]);
 
   return (
@@ -40,6 +42,7 @@ export default async function TaxFinalPage({
       entity={entity}
       estimate={estimate}
       estimatePeriod={runningPeriod}
+      receivables={receivables}
     />
   );
 }

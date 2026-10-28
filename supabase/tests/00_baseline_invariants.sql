@@ -127,7 +127,7 @@ declare
                                          'tax_record_payment', 'tax_reverse_payment', 'tax_record_filing',
                                          'tax_link_evidence', 'tax_list_evidence', 'tax_reconcile_period',
                                          'tax_period_position', 'tax_list_payments', 'tax_control_report',
-                                         'tax_ledger_report', 'tax_final_preview', 'tax_final_estimate', 'tax_final_compute',
+                                         'tax_ledger_report', 'tax_final_preview', 'tax_final_estimate', 'tax_turnover_receivables', 'tax_final_compute',
                                          'tax_calendar', 'tax_overview', 'tax_non_final_income', 'tax_scope_summary',
                                          'personal_tax_set_ptkp', 'personal_tax_summary', 'tax_group_turnover',
                                          -- P8: other receivables/payables, fixed assets, loans, equity and their controls

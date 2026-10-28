@@ -18,12 +18,14 @@ import type { PersonalTaxResult } from "@/domain/tax/personalTax";
 import type { TaxGroupTurnover } from "@/schemas/personalTax";
 import type {
   FinalPreview,
+  TurnoverReceivables,
   NonFinalIncome,
   TaxLedgerRow,
   TaxOverview,
   TaxScopeRow,
 } from "@/schemas/tax";
 import { GroupTurnoverCard } from "./GroupTurnoverCard";
+import { TurnoverReceivablesNote } from "./TurnoverReceivablesNote";
 import { TaxNonFinalCard } from "./TaxNonFinalCard";
 import { TaxScopeRecap } from "./TaxScopeRecap";
 import { formatShortDate } from "./format";
@@ -44,6 +46,7 @@ export function TaxOverviewScreen({
   entity,
   estimate,
   estimatePeriod,
+  receivables,
   nonFinal,
   currentYear,
   shownYear,
@@ -59,6 +62,8 @@ export function TaxOverviewScreen({
   entity: string | undefined;
   estimate: FinalPreview;
   estimatePeriod: string;
+  /** The unpaid part of this month's invoiced turnover (decision 426). */
+  receivables: TurnoverReceivables;
   nonFinal: NonFinalIncome;
   currentYear: number;
   shownYear: number;
@@ -226,6 +231,10 @@ export function TaxOverviewScreen({
           </p>
         </Link>
       </div>
+
+      {finalAuto ? (
+        <TurnoverReceivablesNote receivables={receivables} currency={currency} entity={entity} />
+      ) : null}
 
       <TaxScopeRecap
         scope={scope}

@@ -4119,3 +4119,23 @@ e.timezone)::date` (`20260923100100_p5_sales_invoices.sql`) -- the **Entity's ow
      **Trade-offs.** The verification code appears in the same chat, so in a group it is visible to every member; that
      matches decision 423 (the group is the owner's own accounts). Only rupiah invoices and payments are handled; a
      foreign-currency Entity is sent to the website.
+
+426. **PPh Final: the unpaid part of the month's turnover is shown, the tax base is unchanged (OWNER, 28 October 2026).**
+     The owner saw the tax estimate count the whole of a half-paid invoice and asked that the tax follow the money
+     received. Checked against the sources: PP 55/2022 Pasal 60 ayat (4) defines peredaran bruto as the consideration
+     "yang diterima atau diperoleh" from the business, before sales discounts. "Diperoleh" means earned, so an issued
+     invoice counts when it is issued, which is what the system already does (decision 342 and the P43 module).
+     UU KUP Pasal 28 lets the books follow the cash or the accrual stelsel, but the cash stelsel for income tax must
+     still count every sale, cash or credit, and a change of method needs the Director General's approval before the
+     tax year starts. No source read states in so many words that a credit sale is counted when invoiced, so this is
+     an interpretation, to be confirmed with the tax office if the amounts become large. **Chosen:** the tax base is
+     NOT changed. Migration `20261107100000_p72_turnover_receivables.sql` adds the read-only
+     `tax_turnover_receivables(entity, period)`: the invoiced turnover of the month and the share of it still
+     unpaid, taken from `invoice_positions` at read time (nothing is stored). The Ringkasan Pajak and PPh Final
+     screens show it as a note under the estimate, with a link to the unpaid invoices, so the gap between the estimate
+     and the bank is explained. **Entity form (stated by the owner):** the Entity is a perseroan perorangan, one of the forms that PP 20/2026
+     (in force 22 April 2026) keeps on the 0.5% final rate, so the PPh Final rules in the system stay as they are and
+     this decision changes no tax rule.
+     **Trade-offs.** A customer who never pays leaves the tax paid on that sale; whether a cancelled invoice and a
+     corrected monthly return are accepted for it is a question for the tax office. Recording an invoice customer's
+     payment as an income entry instead of a payment on the invoice would count the turnover twice.

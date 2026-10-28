@@ -17,6 +17,8 @@ import {
   confirmLineInputSchema,
   discardRuleInputSchema,
   finalPreviewSchema,
+  turnoverReceivablesSchema,
+  type TurnoverReceivables,
   finalTaxInputSchema,
   nonFinalIncomeSchema,
   linkTaxEvidenceInputSchema,
@@ -440,6 +442,18 @@ export async function estimateFinalTax(
     "tax_final_estimate",
     { p_entity: v.entity_id, p_period: v.period },
     finalPreviewSchema,
+  );
+}
+
+/** The unpaid part of a month's invoiced turnover: shown beside the tax estimate, changes nothing (decision 426). */
+export async function getTurnoverReceivables(
+  input: z.input<typeof finalTaxInputSchema>,
+): Promise<TurnoverReceivables> {
+  const v = finalTaxInputSchema.parse(input);
+  return callRpc(
+    "tax_turnover_receivables",
+    { p_entity: v.entity_id, p_period: v.period },
+    turnoverReceivablesSchema,
   );
 }
 

@@ -373,6 +373,14 @@ export const finalPreviewSchema = z.looseObject({
 });
 export type FinalPreview = z.infer<typeof finalPreviewSchema>;
 
+/** How much of a month's invoiced turnover the customers have not paid yet (decision 426). Read-only. */
+export const turnoverReceivablesSchema = z.looseObject({
+  turnover_invoiced: signedDecimalTextSchema,
+  turnover_unpaid: signedDecimalTextSchema,
+  unpaid_invoice_count: z.number().int().nonnegative(),
+});
+export type TurnoverReceivables = z.infer<typeof turnoverReceivablesSchema>;
+
 export const reviewQueueRowSchema = z.object({
   source_type: taxSourceTypeSchema,
   source_id: z.uuid(),
